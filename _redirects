@@ -1,4 +1,4 @@
-/api/*      https://permitpulse-api.matasergio741.workers.dev/:splat  200
+/api/*      https://permitpulse-proxy.matasergio741.workers.dev/:splat  200
 /city/*     /index.html  200
 /thank-you  /thank-you/  301
 /*          /index.html  200
