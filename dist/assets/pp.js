@@ -4,6 +4,9 @@ const STRIPE_LINK = "https://buy.stripe.com/4gM7sM6Ld86L0l94NA1wY07";
 const API_BASE = "/api";
 
 const CITIES = [
+  { slug: "austin",        label: "Austin, TX",        enabled: true,
+    seoTitle: "Austin, TX Building Permits",
+    seoDescription: "Live Austin building permits. Updated daily. CSV export." },
   { slug: "chicago",       label: "Chicago, IL",       enabled: true,
     seoTitle: "Chicago, IL Building Permits",
     seoDescription: "Live Chicago building permits. Updated daily. CSV export." },
