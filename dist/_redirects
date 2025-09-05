@@ -1,4 +1,10 @@
-/api/*      https://permitpulse-proxy.matasergio741.workers.dev/:splat  200
-/city/*     /index.html  200
-/thank-you  /thank-you/  301
-/*          /index.html  200         /index.html  200
+# Send all API calls to the proxy worker
+# (replace <your-subdomain> if different; you can keep this even if you also added a CF Worker route)
+ /api/*   https://permitpulse-proxy.matasergio741.workers.dev/:splat   200
+
+ # SPA-style routes
+  /city/*        /city/index.html         200
+   /thank-you     /thank-you/index.html    200
+
+   # Fallback to the homepage
+    /*            /index.html               200
