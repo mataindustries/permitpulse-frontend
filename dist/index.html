@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>PermitPulse — Live Building Permit Alerts</title>
+  <meta name="description" content="Live building permit data, CSV export, and instant alerts." />
+  <link rel="icon" href="/favicon.ico" />
+  <meta property="og:title" content="PermitPulse — Live Building Permit Alerts" />
+  <meta property="og:description" content="Live building permit data, CSV export, and instant alerts." />
+  <meta property="og:type" content="website" />
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-0S8S6156CV"></script>
+  <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);};gtag('js',new Date());gtag('config','G-0S8S6156CV');</script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>.shadow-smooth{box-shadow:0 10px 30px rgba(2,6,23,.15),0 6px 12px rgba(2,6,23,.08)}</style>
+  <script>window.__PP_API="https://permitpulse-api.matasergio741.workers.dev";</script>
+</head>
+
+<body class="bg-slate-50 text-slate-800">
+<header class="bg-white/80 backdrop-blur sticky top-0 z-50 border-b border-slate-200">
+  <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 flex items-center justify-between h-16">
+    <a href="/" class="flex items-center gap-3">
+      <div class="w-8 h-8 rounded-lg bg-emerald-600 text-white grid place-content-center font-bold">P</div>
+      <span class="font-semibold">PermitPulse</span>
+    </a>
+    <nav class="hidden md:flex items-center gap-8 text-sm">
+      <a href="/#cities" class="hover:text-slate-900 text-slate-600">Cities</a>
+      <a href="/about/" class="hover:text-slate-900 text-slate-600">About</a>
+      <a href="/legal/" class="hover:text-slate-900 text-slate-600">Legal</a>
+    </nav>
+    <a href="https://buy.stripe.com/4gM7sM6Ld86L0l94NA1wY07" class="px-4 py-2 rounded-lg bg-emerald-600 text-white hover:bg-emerald-700">Start Pro — $29/mo</a>
+  </div>
+</header>
+
+<section class="bg-white">
+  <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-16 grid lg:grid-cols-2 gap-10 items-center">
+    <div>
+      <h1 class="text-4xl sm:text-5xl font-extrabold tracking-tight">Live Building Permit Alerts</h1>
+      <p class="mt-4 text-lg text-slate-600">Stop digging through portals. Track, export and get instant alerts. Close more jobs.</p>
+      <div class="mt-8 flex flex-wrap gap-3">
+        <a href="https://buy.stripe.com/4gM7sM6Ld86L0l94NA1wY07" class="px-6 py-3 rounded-xl bg-emerald-600 text-white hover:bg-emerald-700 shadow-smooth">Start Pro — $29/mo</a>
+        <a href="#cities" class="px-6 py-3 rounded-xl bg-slate-50 text-slate-900 border border-slate-300 hover:bg-white">Browse cities</a>
+      </div>
+      <div class="mt-6 text-slate-500 text-sm">Data refreshed daily • CSV export • Email alerts</div>
+    </div>
+    <div class="bg-white rounded-2xl p-6 shadow-smooth border border-slate-200">
+      <div class="aspect-video grid place-content-center text-slate-400 text-sm">Add /permitpulse-hero.png</div>
+    </div>
+  </div>
+</section>
+
+<section id="cities" class="bg-white border-y border-slate-200 py-16">
+  <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+    <h2 class="text-2xl font-bold tracking-tight">Cities (live)</h2>
+    <div class="mt-6 grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      <a class="group bg-slate-50 border border-slate-200 hover:border-emerald-400 p-5 rounded-2xl shadow-smooth" href="/city/seattle-building-permits.html"><div class="font-semibold">Seattle, WA</div><div class="text-sm text-slate-500 group-hover:text-slate-600">Live feed</div></a>
+      <a class="group bg-slate-50 border border-slate-200 hover:border-emerald-400 p-5 rounded-2xl shadow-smooth" href="/city/chicago-building-permits.html"><div class="font-semibold">Chicago, IL</div><div class="text-sm text-slate-500 group-hover:text-slate-600">Live feed</div></a>
+      <a class="group bg-slate-50 border border-slate-200 hover:border-emerald-400 p-5 rounded-2xl shadow-smooth" href="/city/austin-building-permits.html"><div class="font-semibold">Austin, TX</div><div class="text-sm text-slate-500 group-hover:text-slate-600">Live feed</div></a>
+      <a class="group bg-slate-50 border border-slate-200 hover:border-emerald-400 p-5 rounded-2xl shadow-smooth" href="/city/cincinnati-building-permits.html"><div class="font-semibold">Cincinnati, OH</div><div class="text-sm text-slate-500 group-hover:text-slate-600">Live feed</div></a>
+      <a class="group bg-slate-50 border border-slate-200 hover:border-emerald-400 p-5 rounded-2xl shadow-smooth" href="/city/nyc-building-permits.html"><div class="font-semibold">New York City, NY</div><div class="text-sm text-slate-500 group-hover:text-slate-600">Live feed</div></a>
+      <a class="group bg-slate-50 border border-slate-200 hover:border-emerald-400 p-5 rounded-2xl shadow-smooth" href="/city/west-hollywood-building-permits.html"><div class="font-semibold">West Hollywood, CA</div><div class="text-sm text-slate-500 group-hover:text-slate-600">County feed</div></a>
+      <a class="group bg-slate-50 border border-slate-200 hover:border-emerald-400 p-5 rounded-2xl shadow-smooth" href="/city/san-jose-building-permits.html"><div class="font-semibold">San José, CA</div><div class="text-sm text-slate-500 group-hover:text-slate-600">Active feed</div></a>
+    </div>
+  </div>
+</section>
+
+<footer class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12 text-sm text-slate-600">
+  <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+    <div>
+      <div class="font-semibold">PermitPulse</div>
+      <div>© 2025 — Data refreshed daily</div>
+    </div>
+    <div class="space-y-2">
+      <div>Need another city? Email <a class="underline" href="mailto:hello@getpermitpulse.com">hello@getpermitpulse.com</a></div>
+      <div class="text-xs">Made for contractors, solar, signage & architects.</div>
+    </div>
+  </div>
+</footer>
+<script src="/assets/app.js"></script>
+</body>
+</html>
