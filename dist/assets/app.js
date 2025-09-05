@@ -1,7 +1,7 @@
 
 (() => {
   const PAGES_API = '/api';
-  const DIRECT_API = (window.__PP_API || 'https://permitpulse-api.matasergio741.workers.dev').replace(/\/$/, '');
+  const DIRECT_API = (window.__PP_API || 'https://permitpulse-proxy.matasergio741.workers.dev').replace(/\/$/, '');
 
   async function tryFetch(base, path) {
     const url = base.replace(/\/$/,'') + path;
