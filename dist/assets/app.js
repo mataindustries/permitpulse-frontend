@@ -29,6 +29,21 @@
                             return await tryFetch(DIRECT_API, path, init);         // backup: direct workers.dev
                               }
                               }
+  }async function tryFetch(base, path, init) {
+      const url = base + (path.startsWith('/') ? path : '/' + path);
+        const res = await fetch(url, { headers: { accept: 'application/json' }, ...init });
+          if (!res.ok) throw new Error('HTTP ' + res.status + ' @ ' + url);
+            return res.json();
+            }
+
+            async function api(path, init) {
+              try {
+                  return await tryFetch(PAGES_API, path, init);          // primary: /api/* via your domain
+                    } catch (e) {
+                        console.warn('Pages route failed, falling back:', e);
+                            return await tryFetch(DIRECT_API, path, init);         // backup: direct workers.dev
+                              }
+                              }
   }
 
   function normalize(city, data) {
