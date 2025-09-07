@@ -1,3 +1,89 @@
+const SOURCES = {
+  austin: {
+    name: "Austin, TX",
+    type: "socrata",
+    url: "https://data.austintexas.gov/resource/3syk-w9eu.json?$order=file_date DESC",
+    map: {
+      permit: "permit_number",
+      address: "address",
+      status: "status_current",
+      filed_at: "file_date",
+      description: "description"
+    }
+  },
+  chicago: {
+    name: "Chicago, IL",
+    type: "socrata",
+    url: "https://data.cityofchicago.org/resource/ydr8-5enu.json?$order=issue_date DESC",
+    map: {
+      permit: "permit_",
+      address: "street_number",
+      status: "status",
+      filed_at: "issue_date",
+      description: "work_description"
+    }
+  },
+  nyc: {
+    name: "New York City, NY",
+    type: "socrata",
+    url: "https://data.cityofnewyork.us/resource/ipu4-2q9a.json?$order=issuance_date DESC",
+    map: {
+      permit: "job__",
+      address: "house__",
+      status: "permit_status",
+      filed_at: "issuance_date",
+      description: "permit_type"
+    }
+  },
+  la: {
+    name: "Los Angeles, CA",
+    type: "arcgis",
+    url: "https://services.arcgis.com/RmCqQtiZLDCtblq/arcgis/rest/services/EPIC_LA_Case_History_view/FeatureServer/0/query",
+    map: {
+      permit: "CASENUMBER",
+      address: "ADDRESS",
+      status: "STATUS",
+      filed_at: "FILEDATE",
+      description: "WORKDESC"
+    }
+  },
+  seattle: {
+    name: "Seattle, WA",
+    type: "socrata",
+    url: "https://cos-data.seattle.gov/resource/76t5-zqzr.json?$order=application_date DESC",
+    map: {
+      permit: "permitnum",
+      address: "originaladdress1",
+      status: "statuscurrent",
+      filed_at: "applicationdate",
+      description: "description"
+    }
+  },
+  boston: {
+    name: "Boston, MA",
+    type: "socrata",
+    url: "https://data.boston.gov/resource/ga54-wzas.json?$order=issue_date DESC",
+    map: {
+      permit: "permitnumber",
+      address: "address",
+      status: "status",
+      filed_at: "issue_date",
+      description: "worktype"
+    }
+  },
+  cincinnati: {
+    name: "Cincinnati, OH",
+    type: "socrata",
+    url: "https://data.cincinnati-oh.gov/resource/kbxi-4mxt.json?$order=issue_date DESC",
+    map: {
+      permit: "permit_no",
+      address: "address",
+      status: "status",
+      filed_at: "issue_date",
+      description: "description"
+    }
+  }
+};
 
 (function () {
   const $ = (sel) => document.querySelector(sel);
