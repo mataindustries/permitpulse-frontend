@@ -1,57 +1,76 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Thank you — PermitPulse</title>
-  <meta name="description" content="You're subscribed" />
-  <link rel="icon" href="/favicon.ico" />
-  <meta property="og:title" content="Thank you — PermitPulse" />
-  <meta property="og:description" content="You're subscribed" />
-  <meta property="og:type" content="website" />
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-0S8S6156CV"></script>
-  <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);};gtag('js',new Date());gtag('config','G-0S8S6156CV');</script>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <style>.shadow-smooth{box-shadow:0 10px 30px rgba(2,6,23,.15),0 6px 12px rgba(2,6,23,.08)}</style>
-  <script>window.__PP_API="https://permitpulse-api.matasergio741.workers.dev";</script>
-</head>
+  <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width,initial-scale=1"/>
+      <title>PermitPulse — Thank You</title>
+        <link rel="icon" href="/favicon.ico">
+          <style>
+              body{font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; margin:0; background:#f7fafc; color:#111827;}
+                  .wrap{max-width:720px; margin:5rem auto; background:#fff; border-radius:16px; padding:2rem; box-shadow:0 8px 30px rgba(0,0,0,.08);}
+                      h1{margin:0 0 8px;}
+                          p{color:#4b5563;}
+                              .row{display:flex; gap:12px; margin-top:18px; flex-wrap:wrap}
+                                  .btn{display:inline-block; padding:12px 18px; border-radius:12px; border:none; cursor:pointer; text-decoration:none}
+                                      .btn-primary{background:#10b981; color:#fff;}
+                                          .btn-plain{background:#eef2f7; color:#111827;}
+                                              .muted{color:#6b7280; font-size:14px}
+                                                </style>
+                                                  <!-- Google Analytics (site-wide ID) -->
+                                                    <script async src="https://www.googletagmanager.com/gtag/js?id=G-0S8S6156CV"></script>
+                                                      <script>
+                                                          window.dataLayer=window.dataLayer||[];
+                                                              function gtag(){dataLayer.push(arguments);}
+                                                                  gtag('js', new Date());
+                                                                      gtag('config','G-0S8S6156CV');
+                                                                        </script>
+                                                                        </head>
+                                                                        <body>
+                                                                          <div class="wrap">
+                                                                              <h1>🎉 Pro Activated</h1>
+                                                                                  <p>Your PermitPulse Pro account is ready. CSV & alerts are unlocked.</p>
+                                                                                      <div class="row">
+                                                                                            <a id="go-city" class="btn btn-primary" href="/">Go to your city</a>
+                                                                                                  <a class="btn btn-plain" href="/">Back to Home</a>
+                                                                                                      </div>
+                                                                                                          <p class="muted" id="status"></p>
+                                                                                                            </div>
 
-<body class="bg-slate-50 text-slate-800">
-<header class="bg-white/80 backdrop-blur sticky top-0 z-50 border-b border-slate-200">
-  <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 flex items-center justify-between h-16">
-    <a href="/" class="flex items-center gap-3">
-      <div class="w-8 h-8 rounded-lg bg-emerald-600 text-white grid place-content-center font-bold">P</div>
-      <span class="font-semibold">PermitPulse</span>
-    </a>
-    <nav class="hidden md:flex items-center gap-8 text-sm">
-      <a href="/#cities" class="hover:text-slate-900 text-slate-600">Cities</a>
-      <a href="/about/" class="hover:text-slate-900 text-slate-600">About</a>
-      <a href="/legal/" class="hover:text-slate-900 text-slate-600">Legal</a>
-    </nav>
-    <a href="https://buy.stripe.com/4gM7sM6Ld86L0l94NA1wY07" class="px-4 py-2 rounded-lg bg-emerald-600 text-white hover:bg-emerald-700">Start Pro — $29/mo</a>
-  </div>
-</header>
+                                                                                                              <script>
+                                                                                                                (async function(){
+                                                                                                                    // API helper
+                                                                                                                        async function api(path){
+                                                                                                                              const res = await fetch('/api' + (path.startsWith('/')?path:'/'+path));
+                                                                                                                                    if (!res.ok) throw new Error('HTTP '+res.status);
+                                                                                                                                          return res.json();
+                                                                                                                                              }
 
-<main class="mx-auto max-w-2xl px-4 sm:px-6 lg:px-8 py-16">
-  <div class="bg-white rounded-2xl border border-emerald-200 p-8 shadow-smooth">
-    <h1 class="text-3xl font-extrabold tracking-tight text-emerald-700">You're in! 🎉</h1>
-    <p class="mt-3 text-slate-700">Reply to <b>hello@getpermitpulse.com</b> with your target cities & keywords.</p>
-    <a href="/" class="mt-8 inline-block px-5 py-3 rounded-xl bg-slate-900 text-white hover:bg-slate-700">Back to site</a>
-  </div>
-</main>
+                                                                                                                                                  const qs = new URLSearchParams(location.search);
+                                                                                                                                                      let email = (qs.get('email') || '').trim();
+                                                                                                                                                          if (!email) {
+                                                                                                                                                                // If Stripe didn't pass email, ask user
+                                                                                                                                                                      const prev = localStorage.getItem('pp_email') || '';
+                                                                                                                                                                            email = prompt('Enter your email to activate Pro:', prev) || '';
+                                                                                                                                                                                }
+                                                                                                                                                                                    const status = document.getElementById('status');
+                                                                                                                                                                                        if (!email) { status.textContent = 'No email provided; Pro not activated.'; return; }
 
-<footer class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12 text-sm text-slate-600">
-  <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
-    <div>
-      <div class="font-semibold">PermitPulse</div>
-      <div>© 2025 — Data refreshed daily</div>
-    </div>
-    <div class="space-y-2">
-      <div>Need another city? Email <a class="underline" href="mailto:hello@getpermitpulse.com">hello@getpermitpulse.com</a></div>
-      <div class="text-xs">Made for contractors, solar, signage & architects.</div>
-    </div>
-  </div>
-</footer>
-<script src="/assets/app.js"></script>
-</body>
-</html>
+                                                                                                                                                                                            localStorage.setItem('pp_email', email);
+
+                                                                                                                                                                                                // Activate plan=pro
+                                                                                                                                                                                                    try {
+                                                                                                                                                                                                          await api('/activate?email='+encodeURIComponent(email)+'&plan=pro');
+                                                                                                                                                                                                                status.textContent = 'Pro is active for ' + email + '.';
+                                                                                                                                                                                                                      // GA event
+                                                                                                                                                                                                                            try { window.gtag && gtag('event','checkout_success',{method:'stripe', email}); } catch {}
+                                                                                                                                                                                                                                } catch (e) {
+                                                                                                                                                                                                                                      status.textContent = 'Activation failed. You still have full Pro access while we sort this out.';
+                                                                                                                                                                                                                                          }
+
+                                                                                                                                                                                                                                              // Send them to last city or Austin
+                                                                                                                                                                                                                                                  const last = localStorage.getItem('pp_last_city') || 'austin';
+                                                                                                                                                                                                                                                      document.getElementById('go-city').href = '/city/' + last + '/';
+                                                                                                                                                                                                                                                        })();
+                                                                                                                                                                                                                                                          </script>
+                                                                                                                                                                                                                                                          </body>
+                                                                                                                                                                                                                                                          </html>
