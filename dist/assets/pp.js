@@ -60,6 +60,42 @@
         </table>
       </div>`;
   }
+  function renderLanding() {
+  if (!el.table) return;
+
+  const cities = Object.entries(SOURCES)
+    .map(([slug, name]) => `<li style="margin:8px 0;"><a href="/city/${slug}">${name} building permits</a></li>`)
+    .join("");
+
+  el.title.textContent = "Live building permits";
+  el.table.innerHTML = `
+    <div style="padding:8px 0 16px;color:#444">
+      Export CSV. Email alerts. Choose a city:
+    </div>
+    <ul style="list-style:none;padding:0;margin:0">${cities}</ul>
+  `;
+
+  // structured data for SEO
+  const ld = {
+    "@context":"https://schema.org",
+    "@type":"CollectionPage",
+    "name":"PermitPulse – Live Building Permits",
+    "about":"Recent building permits. Export CSV. Email alerts.",
+    "hasPart": Object.entries(SOURCES).map(([slug,name])=>({
+      "@type":"WebPage","name":`${name} building permits`,
+      "url":`${location.origin}/city/${slug}`
+    }))
+  };
+  document.getElementById("pp-ld")?.remove();
+  const s = document.createElement("script");
+  s.id="pp-ld"; s.type="application/ld+json"; s.textContent = JSON.stringify(ld);
+  document.head.appendChild(s);
+
+  // meta description on landing
+  let md = document.querySelector('meta[name="description"]');
+  if (!md) { md = document.createElement("meta"); md.name="description"; document.head.appendChild(md); }
+  md.content = "Live building permits for sales prospecting. Export CSV and set email alerts for top US cities.";
+  }
 
   async function fetchPermits(opts={}){
     const city = slugFromPath();
