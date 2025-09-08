@@ -199,41 +199,6 @@ function slugFromPath() {
     renderTable([]);
   }
  }
-    
-  
-  async function fetchPermits(opts = {}) {
-  const city = slugFromPath();
-  const src = SOURCES[city];
-
-  if (!city || !src) {
-    setStatus(city ? `No source for "${city}"` : "Pick a city");
-    renderTable([]);
-    return;
-  }
-
-  const limit = Number(el.rows?.value || 25);
-  const params = new URLSearchParams({ city, limit: String(limit) });
-  if (opts.refresh) params.set("refresh", "1");
-  if (opts.raw) params.set("raw", "1");
-
-  setStatus("Loading…");
-
-  try {
-
-    
-      const href = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = href;
-      a.download = `${city}-permits.csv`;
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      URL.revokeObjectURL(href);
-    } catch (err) {
-      console.error("csv download failed", err);
-      alert("CSV failed. Try again soon.");
-    }
-  }
 
   // Wire up events
   if (el.refres// --- downloadCSV ---
