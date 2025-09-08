@@ -157,6 +157,48 @@ function slugFromPath() {
     `;
   }
 
+  async function downloadCSV() {
+  const city = slugFromPath();
+  const limit = Number(el.rows?.value || 25);
+
+  if (!city) {
+    alert("Pick a city first.");
+    return;
+  }
+
+  const params = new URLSearchParams({ city, limit: String(limit) });
+
+  try {
+    // Always hit the Worker CSV endpoint
+    const res = await fetch(`/api/csv?${params.toString()}`, {
+      headers: { accept: "text/csv" }
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+    const blob = await res.blob();
+
+    // Default filename is city-based
+    let filename = `${city}-permits.csv`;
+
+    // If server sends Content-Disposition, try to use it
+    const cd = res.headers.get("content-disposition");
+    const m = cd && cd.match(/filename\*=UTF-8''([^;]+)|filename="?([^"]+)"?/i);
+    if (m) filename = decodeURIComponent(m[1] || m[2]);
+
+    const href = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = href;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(href);
+  } catch (err) {
+    console.error("csv download failed", err);
+    alert("CSV failed. Try again soon.");
+  }
+  }
+  
   async function fetchPermits(opts = {}) {
   const city = slugFromPath();
   const src = SOURCES[city];
@@ -175,33 +217,8 @@ function slugFromPath() {
   setStatus("Loading…");
 
   try {
-    // Use Cloudflare Worker proxy
-    const apiUrl = `/api/permits?${params.toString()}`;
-    const res = await fetch(apiUrl, { headers: { accept: "application/json" }});
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    const data = await res.json();
 
-    const items = Array.isArray(data.items) ? data.items : [];
-    renderTable(items);
-    setStatus(`${items.length ? items.length : "No"} permits loaded`);
-
-    // Prepare CSV
-    if (el.csv) {
-      const csvParams = new URLSearchParams({ city, limit: String(limit) });
-      el.csv.dataset.href = `/api/csv?${csvParams.toString()}`;
-    }
-  } catch (err) {
-    console.error("fetchPermits error", err);
-    setStatus("Failed to load. Pull to refresh in ~30s.");
-    renderTable([]);
-  }
-  }
-    // Fallback: directly fetch to blob from /api
-    const url = `/api/permits.csv?${params.toString()}`;
-    try {
-      const res = await fetch(url);
-      if (!res.ok) throw new Error(res.statusText);
-      const blob = await res.blob();
+    
       const href = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = href;
