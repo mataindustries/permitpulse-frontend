@@ -205,8 +205,8 @@ function slugFromPath() {
   setStatus(String(err.message || err).slice(0, 200));
   renderTable([]);
  }
-  }
- }
+  
+ 
 
   // Wire up events
   if (el.refres// --- downloadCSV ---
