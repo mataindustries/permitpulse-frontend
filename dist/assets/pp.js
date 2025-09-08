@@ -199,29 +199,7 @@ function slugFromPath() {
     renderTable([]);
   }
  }
-    const blob = await res.blob();
-
-    // Default filename is city-based
-    let filename = `${city}-permits.csv`;
-
-    // If server sends Content-Disposition, try to use it
-    const cd = res.headers.get("content-disposition");
-    const m = cd && cd.match(/filename\*=UTF-8''([^;]+)|filename="?([^"]+)"?/i);
-    if (m) filename = decodeURIComponent(m[1] || m[2]);
-
-    const href = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = href;
-    a.download = filename;
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-    URL.revokeObjectURL(href);
-  } catch (err) {
-    console.error("csv download failed", err);
-    alert("CSV failed. Try again soon.");
-  }
-  }
+    
   
   async function fetchPermits(opts = {}) {
   const city = slugFromPath();
@@ -258,7 +236,47 @@ function slugFromPath() {
   }
 
   // Wire up events
-  if (el.refresh) el.refresh.addEventListener("click", () => fetchPermits({ refresh: true }));
+  if (el.refres// --- downloadCSV ---
+async function downloadCSV() {
+  const city = slugFromPath();
+  if (!city) {
+    alert("Pick a city first.");
+    return;
+  }
+
+  const limit = Number(el.rows?.value || 25);
+  const params = new URLSearchParams({ city, limit: String(limit) });
+
+  try {
+    // Always hit the Worker CSV endpoint
+    const res = await fetch(`/api/csv?${params.toString()}`, {
+      headers: { accept: "text/csv" }
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+    const blob = await res.blob();
+
+    // Default filename is city-based; honor Content-Disposition if present
+    let filename = `${city}-permits.csv`;
+    const cd = res.headers.get("content-disposition");
+    if (cd) {
+      const m = cd.match(/filename\*?=(?:UTF-8''|")?([^\";]+)/i);
+      if (m) filename = decodeURIComponent(m[1].replace(/^UTF-8''/, ''));
+    }
+
+    const href = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = href;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(href);
+  } catch (err) {
+    console.error("csv download failed", err);
+    alert("CSV failed. Try again soon.");
+  }
+}h) el.refresh.addEventListener("click", () => fetchPermits({ refresh: true }));
   if (el.rows) el.rows.addEventListener("change", () => fetchPermits({}));
   if (el.csv) el.csv.addEventListener("click", () => downloadCSV());
 
