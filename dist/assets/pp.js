@@ -22,7 +22,7 @@
     // supports /city/<slug> or fallback to austin
     const parts = (location.pathname || "").split("/").filter(Boolean);
     const idx = parts.indexOf("city");
-    return (idx >= 0 && parts[idx + 1]) ? parts[idx + 1].toLowerCase() : "austin";
+    return (idx >= 0 && parts[idx + 1]) ? parts[idx + 1].toLowerCase() : "";
   }
 
   function setStatus(msg){ if (el.status) el.status.textContent = msg || ""; }
