@@ -157,34 +157,45 @@ function slugFromPath() {
     `;
   }
 
-  async function fetchPermits(opts) {
-    const limit = Number((el.rows && el.rows.value) || 25) || 25;
-    const params = new URLSearchParams({ city, limit: String(limit) });
-    if (opts && opts.refresh) params.set("refresh", "1");
-    if (opts && opts.raw) params.set("raw", "1");
+  async function fetchPermits(opts = {}) {
+  const city = slugFromPath();
+  const src = SOURCES[city];
 
-    setStatus("Loading…");
-    try {
-      const data = await window.api(`/permits?${params.toString()}`);
-      if (!data || !data.ok) throw new Error("Bad response");
-      renderTable(data.items || []);
-      setStatus(`${(data.stats && data.stats.total) || 0} shown · Source: ${data.source}`);
-    } catch (err) {
-      console.error("permits fetch failed", err);
-      setStatus("Failed to load. Pull to refresh in ~30s.");
-      renderTable([]);
-    }
+  if (!city || !src) {
+    setStatus(city ? `No source for "${city}"` : "Pick a city");
+    renderTable([]);
+    return;
   }
 
-  async function downloadCSV() {
-    const limit = Number((el.rows && el.rows.value) || 25) || 25;
-    const params = new URLSearchParams({ city, limit: String(limit) });
-    // Hit CSV endpoint which returns Blob
-    try {
-      const blob = await window.api(`/permits.csv?${params.toString()}`);
-      // window.api returns JSON by default; we need a direct fetch for blob:
-    } catch (e) {}
+  const limit = Number(el.rows?.value || 25);
+  const params = new URLSearchParams({ city, limit: String(limit) });
+  if (opts.refresh) params.set("refresh", "1");
+  if (opts.raw) params.set("raw", "1");
 
+  setStatus("Loading…");
+
+  try {
+    // Use Cloudflare Worker proxy
+    const apiUrl = `/api/permits?${params.toString()}`;
+    const res = await fetch(apiUrl, { headers: { accept: "application/json" }});
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+
+    const items = Array.isArray(data.items) ? data.items : [];
+    renderTable(items);
+    setStatus(`${items.length ? items.length : "No"} permits loaded`);
+
+    // Prepare CSV
+    if (el.csv) {
+      const csvParams = new URLSearchParams({ city, limit: String(limit) });
+      el.csv.dataset.href = `/api/csv?${csvParams.toString()}`;
+    }
+  } catch (err) {
+    console.error("fetchPermits error", err);
+    setStatus("Failed to load. Pull to refresh in ~30s.");
+    renderTable([]);
+  }
+  }
     // Fallback: directly fetch to blob from /api
     const url = `/api/permits.csv?${params.toString()}`;
     try {
