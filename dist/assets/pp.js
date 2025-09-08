@@ -157,24 +157,48 @@ function slugFromPath() {
     `;
   }
 
-  async function downloadCSV() {
+ async function fetchPermits(opts = {}) {
   const city = slugFromPath();
-  const limit = Number(el.rows?.value || 25);
+  const src = SOURCES[city];
 
-  if (!city) {
-    alert("Pick a city first.");
+  if (!city || !src) {
+    setStatus(city ? `No source for "${city}"` : "Pick a city");
+    renderTable([]);
     return;
   }
 
+  const limit = Number(el.rows?.value || 25);
   const params = new URLSearchParams({ city, limit: String(limit) });
+  if (opts.refresh) params.set("refresh", "1");
+  if (opts.raw) params.set("raw", "1");
+
+  setStatus("Loading…");
 
   try {
-    // Always hit the Worker CSV endpoint
-    const res = await fetch(`/api/csv?${params.toString()}`, {
-      headers: { accept: "text/csv" }
+    // Always go through the Worker proxy
+    const res = await fetch(`/api/permits?${params.toString()}`, {
+      headers: { accept: "application/json" }
     });
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
 
+    const data = await res.json();
+
+    // Support both {items:[...]} and raw arrays
+    const items = Array.isArray(data?.items)
+      ? data.items
+      : (Array.isArray(data) ? data : []);
+
+    renderTable(items);
+
+    const total = data?.stats?.total ?? items.length ?? 0;
+    const source = data?.source || src.type;
+    setStatus(`${total} shown · Source: ${source}`);
+  } catch (err) {
+    console.error("permits fetch failed", err);
+    setStatus("Failed to load. Pull to refresh in ~30s.");
+    renderTable([]);
+  }
+ }
     const blob = await res.blob();
 
     // Default filename is city-based
