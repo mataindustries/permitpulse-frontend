@@ -85,6 +85,16 @@ const SOURCES = {
   }
 };
 
+function slugFromPath() {
+  // handles /city/austin or /city/austin/
+  const parts = location.pathname.split("/").filter(Boolean);
+  const i = parts.indexOf("city");
+  const slug = i >= 0 && parts[i + 1] ? parts[i + 1].toLowerCase() : "";
+  // fallback: if you ever load a city page at root, match by title
+  if (!slug) return "";
+  return slug;
+}
+
 (function () {
   const $ = (sel) => document.querySelector(sel);
   const el = {
