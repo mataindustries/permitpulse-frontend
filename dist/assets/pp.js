@@ -1,3 +1,8 @@
+// --- inline mobile debugger ---
+window.__PP_DIAG = (msg)=>{ try { document.querySelector('#status').textContent = String(msg); } catch {} };
+window.addEventListener('error', e => window.__PP_DIAG('JS error: ' + (e?.error?.message || e.message)));
+window.__PP_DIAG('boot');
+// --- end debugger ---
 const SOURCES = {
   austin: {
     name: "Austin, TX",
