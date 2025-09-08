@@ -10,19 +10,20 @@
   };
 
   const SOURCES = {
-    austin: "Austin, TX",
-    chicago: "Chicago, IL",
-    nyc: "New York City, NY",
-    seattle: "Seattle, WA",
-    boston: "Boston, MA",
-    cincinnati: "Cincinnati, OH",
-  };
+  austin: "Austin, TX",
+  chicago: "Chicago, IL",
+  nyc: "New York City, NY",
+  seattle: "Seattle, WA",
+  boston: "Boston, MA",
+  cincinnati: "Cincinnati, OH",
+  sf: "San Francisco, CA"
+};
 
   function slugFromPath() {
-    // supports /city/<slug> or fallback to austin
-    const parts = (location.pathname || "").split("/").filter(Boolean);
-    const idx = parts.indexOf("city");
-    return (idx >= 0 && parts[idx + 1]) ? parts[idx + 1].toLowerCase() : "";
+  // supports /city/<slug> -- fallback to "" (landing)
+  const parts = (location.pathname || "").split("/").filter(Boolean);
+  const idx = parts.indexOf("city");
+  return (idx > -1 && parts[idx + 1]) ? parts[idx + 1].toLowerCase() : "";
   }
 
   function setStatus(msg){ if (el.status) el.status.textContent = msg || ""; }
