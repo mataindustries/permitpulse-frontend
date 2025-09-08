@@ -48,7 +48,34 @@
     <a class="cta" id="cta-link" href="https://buy.stripe.com/4gM7sM6Ld86L0l94NA1wY07">Start Pro — $29/mo</a>
   </header>
 
-  <main id="app" class="container"></main>
+  <main id="app" class="container">
+  <h1 class="city-title" id="cityTitle">Austin, TX</h1>
+  <p class="city-link">Live building permits. Export CSV. Email alerts.</p>
+
+  <div class="controls">
+    <label for="rows" style="margin-right:.5rem;">Rows:</label>
+    <select id="rows">
+      <option>25</option>
+      <option>50</option>
+      <option>100</option>
+    </select>
+
+    <button id="refresh" class="btn btn-primary" style="margin-left:1rem;">Refresh</button>
+    <button id="csv" class="btn" style="margin-left:.5rem;">CSV</button>
+
+    <!-- status text the script writes into -->
+    <span id="status" style="margin-left:1rem;color:#6b7280;"></span>
+  </div>
+
+  <!-- table container the script fills -->
+  <div id="table" style="margin-top:1rem;"></div>
+
+  <div class="promo" style="margin-top:1.5rem;padding:1rem;border:1px dashed #ddd;border-radius:8px;background:#fafafa;">
+    <p><strong>Pro unlocks:</strong> CSV download, email alerts, and up to 10 live trackers / month.
+      <a class="cta-link" href="https://buy.stripe.com/fZucN61qTev92thfse1wY08">Upgrade now →</a>
+    </p>
+  </div>
+  </main>
 
   <script type="module" src="/assets/pp.js"></script>
 </body>
