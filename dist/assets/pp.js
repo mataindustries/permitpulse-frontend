@@ -99,6 +99,11 @@
 
   async function fetchPermits(opts={}){
     const city = slugFromPath();
+    if (!city) { 
+  renderLanding(); 
+  setStatus(""); 
+  return; 
+    }
     const limit = Number(el.rows?.value || 25);
     if (el.title && SOURCES[city]) el.title.textContent = SOURCES[city];
 
