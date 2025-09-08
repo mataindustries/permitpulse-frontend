@@ -174,29 +174,37 @@ function slugFromPath() {
 
   setStatus("Loading…");
 
-  try {
-    // Always go through the Worker proxy
-    const res = await fetch(`/api/permits?${params.toString()}`, {
-      headers: { accept: "application/json" }
-    });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+ try {
+  const url = `/api/permits?${params.toString()}`;
+  const res = await fetch(url, {
+    headers: { accept: "application/json" },
+    // mode: "cors" // (default is fine, but explicit is ok)
+  });
 
-    const data = await res.json();
+  if (!res.ok) {
+    const txt = await res.text().catch(() => "");
+    throw new Error(`HTTP ${res.status} at ${url} :: ${txt.slice(0,180)}`);
+  }
 
-    // Support both {items:[...]} and raw arrays
-    const items = Array.isArray(data?.items)
-      ? data.items
-      : (Array.isArray(data) ? data : []);
+  const data = await res.json().catch((e) => {
+    throw new Error(`JSON parse error at ${url}: ${e.message}`);
+  });
 
-    renderTable(items);
+  const items = Array.isArray(data?.items)
+    ? data.items
+    : (Array.isArray(data) ? data : []);
 
-    const total = data?.stats?.total ?? items.length ?? 0;
-    const source = data?.source || src.type;
-    setStatus(`${total} shown · Source: ${source}`);
-  } catch (err) {
-    console.error("permits fetch failed", err);
-    setStatus("Failed to load. Pull to refresh in ~30s.");
-    renderTable([]);
+  renderTable(items);
+
+  const total  = data?.stats?.total ?? items.length ?? 0;
+  const source = data?.source || src.type || "proxy";
+  setStatus(`${total} shown · Source: ${source}`);
+} catch (err) {
+  console.error("permits fetch failed", err);
+  // show the real error on screen so we can diagnose on mobile
+  setStatus(String(err.message || err).slice(0, 200));
+  renderTable([]);
+ }
   }
  }
 
