@@ -1,84 +1,272 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>PermitPulse — Live Building Permits</title>
-  <meta name="description" content="Live building permits with CSV export.">
-  <link rel="icon" href="/favicon.ico" />
-  <meta property="og:title" content="PermitPulse — Live Building Permits" />
-  <meta property="og:description" content="Track live permits. CSV export.">
-  <meta property="og:image" content="/assets/og/permitpulse-hero.png" />
-  <link rel="canonical" href="/" />
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>PermitPulse — LA Building Permits (Live)</title>
+  <meta name="description" content="Live LA City (LADBS) building permits with filters, CSV download, and email alerts. Find high-value roof, solar, ADU, new construction permits fast." />
+  <link rel="canonical" href="https://getpermitpulse.com/" />
+  <meta property="og:title" content="PermitPulse — LA Building Permits (Live)" />
+  <meta property="og:description" content="Filter, export, and get alerts for LA City permits. Roof, solar, ADU, new builds, and more." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://getpermitpulse.com/" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <link rel="preconnect" href="https://getpermitpulse.com" />
+  <script src="https://cdn.tailwindcss.com"></script>
   <style>
-    :root{--bg:#F8FAFC;--ink:#0B1220;--muted:#6B7280;--green:#10B981;--blue:#2563EB;--border:#E5E7EB;--shadow:0 10px 30px rgba(0,0,0,.06)}
-    *{box-sizing:border-box}html,body{margin:0;padding:0;background:var(--bg);color:var(--ink);font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
-    a{color:inherit}
-    .nav{position:sticky;top:0;z-index:20;display:flex;align-items:center;justify-content:space-between;padding:.75rem 1rem;background:#fff;box-shadow:var(--shadow)}
-    .logo{font-weight:800;text-decoration:none;font-size:1.1rem}
-    .cta{background:var(--green);color:#fff;text-decoration:none;padding:.5rem .9rem;border-radius:10px;font-weight:700}
-    .container{max-width:1000px;margin:0 auto;padding:1rem}
-    .hero{background:#fff;border:1px solid var(--border);border-radius:12px;padding:1rem;box-shadow:var(--shadow);display:flex;gap:1rem;align-items:center;justify-content:space-between}
-    .hero img{width:96px;height:96px;border-radius:12px;background:#eef}
-    .grid{display:grid;grid-template-columns:1fr;gap:1rem;margin-top:1rem} @media(min-width:720px){.grid{grid-template-columns:repeat(3,1fr)}}
-    .city-link{display:block;padding:.75rem 1rem;border:1px solid var(--border);border-radius:10px;background:#fff;text-decoration:none}
-    .city-link small{display:block;color:var(--muted)}
-    .controls{display:flex;gap:.5rem;flex-wrap:wrap;align-items:center;margin:.75rem 0}
-    select,button{padding:.5rem .65rem;border-radius:8px;border:1px solid var(--border);background:#fff}
-    button.primary{background:var(--blue);color:#fff;border-color:transparent}
-    .table-wrap{overflow:auto;border:1px solid var(--border);border-radius:10px;background:#fff}
-    table{border-collapse:collapse;width:100%}
-    th,td{padding:.65rem .75rem;border-bottom:1px solid var(--border);text-align:left;font-size:.92rem;vertical-align:top}
-    th{background:#FAFAFB;font-weight:700}
-    .empty,.error{background:#fff;border:1px dashed var(--border);border-radius:10px;padding:1rem;text-align:center;color:var(--muted);margin-top:1rem}
-    footer{margin:1.5rem 0;text-align:center;color:var(--muted);font-size:.9rem}
+    /* Sticky header shadow after scroll */
+    .scrolled { box-shadow: 0 6px 18px rgba(0,0,0,.08) }
+    .chip{border:1px solid rgb(229,231,235);padding:.15rem .5rem;border-radius:.5rem}
   </style>
-
-  <!-- Google Analytics -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-0S8S6156CV"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date()); gtag('config', 'G-0S8S6156CV');
-  </script>
 </head>
-<body>
-  <header class="nav">
-    <a class="logo" href="/">PermitPulse</a>
-    <a class="cta" id="cta-link" href="https://buy.stripe.com/4gM7sM6Ld86L0l94NA1wY07">Start Pro — $29/mo</a>
+<body class="bg-gray-50 text-gray-900">
+  <!-- Header -->
+  <header id="hdr" class="sticky top-0 z-50 bg-white/90 backdrop-blur border-b">
+    <div class="max-w-6xl mx-auto px-4 py-3 flex items-center gap-3 justify-between">
+      <div class="flex items-center gap-2">
+        <span class="font-black text-xl">PermitPulse</span>
+        <span class="hidden sm:inline chip text-xs">LA City · live</span>
+      </div>
+      <div class="flex items-center gap-2">
+        <a id="csvLink" class="px-3 py-2 text-sm rounded-lg border hover:bg-gray-100" href="#">Download CSV</a>
+        <button id="subscribeBtn" class="px-3 py-2 text-sm rounded-lg bg-emerald-600 text-white hover:bg-emerald-700">Email Alerts</button>
+      </div>
+    </div>
   </header>
 
-  <main id="app" class="container">
-  <h1 class="city-title" id="cityTitle">Austin, TX</h1>
-  <p class="city-link">Live building permits. Export CSV. Email alerts.</p>
+  <!-- Hero -->
+  <section class="bg-white border-b">
+    <div class="max-w-6xl mx-auto px-4 py-8">
+      <h1 class="text-3xl sm:text-4xl font-extrabold tracking-tight">Live LA Building Permits</h1>
+      <p class="text-gray-600 mt-2">Roof · Solar · ADU · New Construction — filter by value & keywords, export CSV, or get alerts.</p>
+      <div class="mt-4 flex flex-wrap gap-2 text-xs">
+        <span class="chip">Realtime API</span>
+        <span class="chip">CSV Export</span>
+        <span class="chip">Email Alerts</span>
+        <span class="chip">SEO-indexed</span>
+      </div>
+    </div>
+  </section>
 
-  <div class="controls">
-    <label for="rows" style="margin-right:.5rem;">Rows:</label>
-    <select id="rows">
-      <option>25</option>
-      <option>50</option>
-      <option>100</option>
-    </select>
+  <!-- Filters -->
+  <section class="max-w-6xl mx-auto px-4 py-6">
+    <form id="filters" class="grid grid-cols-1 md:grid-cols-5 gap-3 bg-white p-4 rounded-xl border">
+      <div>
+        <label class="text-xs font-semibold">City</label>
+        <select id="city" class="w-full mt-1 border rounded-lg px-3 py-2">
+          <option value="ladbs" selected>Los Angeles (LADBS)</option>
+          <option value="austin" disabled>Austin (soon)</option>
+          <option value="chicago" disabled>Chicago (soon)</option>
+          <option value="nyc" disabled>NYC DOB (soon)</option>
+        </select>
+      </div>
+      <div>
+        <label class="text-xs font-semibold">Since (days)</label>
+        <input id="since" type="number" min="1" max="180" value="30" class="w-full mt-1 border rounded-lg px-3 py-2" />
+      </div>
+      <div>
+        <label class="text-xs font-semibold">Min value ($)</label>
+        <input id="minv" type="number" min="0" step="1000" value="50000" class="w-full mt-1 border rounded-lg px-3 py-2" />
+      </div>
+      <div class="md:col-span-2">
+        <label class="text-xs font-semibold">Keywords (comma/space)</label>
+        <input id="kw" type="text" value="roof, solar, adu, new" placeholder="roof, solar, adu" class="w-full mt-1 border rounded-lg px-3 py-2" />
+      </div>
+      <div class="md:col-span-5 flex gap-2">
+        <button id="apply" class="px-4 py-2 rounded-lg bg-black text-white hover:bg-gray-800">Apply Filters</button>
+        <button id="reset" type="button" class="px-4 py-2 rounded-lg border hover:bg-gray-100">Reset</button>
+        <span id="status" class="ml-auto text-sm text-gray-500 self-center">Ready</span>
+      </div>
+    </form>
+  </section>
 
-    <button id="refresh" class="btn btn-primary" style="margin-left:1rem;">Refresh</button>
-    <button id="csv" class="btn" style="margin-left:.5rem;">CSV</button>
+  <!-- Results -->
+  <section class="max-w-6xl mx-auto px-4 pb-16">
+    <div id="summary" class="mb-3 text-sm text-gray-600"></div>
+    <div id="list" class="bg-white border rounded-xl overflow-hidden">
+      <div class="grid grid-cols-[110px_90px_160px_1fr] sm:grid-cols-[110px_120px_220px_1fr] gap-3 px-3 py-2 text-xs font-semibold bg-gray-50 border-b">
+        <div>Date</div><div>Value</div><div>Type</div><div>Address / Description</div>
+      </div>
+      <div id="rows"></div>
+    </div>
+  </section>
 
-    <!-- status text the script writes into -->
-    <span id="status" style="margin-left:1rem;color:#6b7280;"></span>
-  </div>
+  <!-- Alerts Modal -->
+  <dialog id="modal" class="rounded-2xl p-0 border max-w-lg w-[95%]">
+    <form method="dialog" class="p-4 border-b flex items-center justify-between">
+      <h3 class="font-semibold">Email Alerts</h3>
+      <button class="px-2 py-1 rounded-lg border">Close</button>
+    </form>
+    <div class="p-4">
+      <p class="text-sm text-gray-600 mb-3">We’ll email matches for your current filters.</p>
+      <div class="grid gap-3">
+        <input id="alertEmail" type="email" placeholder="you@example.com" class="w-full border rounded-lg px-3 py-2" />
+        <button id="sendAlert" class="px-4 py-2 rounded-lg bg-emerald-600 text-white hover:bg-emerald-700">Send me a test alert</button>
+        <p id="alertMsg" class="text-sm text-gray-600"></p>
+      </div>
+    </div>
+    <form method="dialog" class="p-3 border-t text-center">
+      <button class="px-4 py-2 rounded-lg border">Done</button>
+    </form>
+  </dialog>
 
-  <!-- table container the script fills -->
-  <div id="table" style="margin-top:1rem;"></div>
+  <!-- Footer -->
+  <footer class="border-t bg-white">
+    <div class="max-w-6xl mx-auto px-4 py-8 text-sm text-gray-600">
+      <div class="flex flex-wrap gap-2 items-center">
+        <span>&copy; <span id="yr"></span> PermitPulse</span>
+        <span class="chip">CSV</span>
+        <span class="chip">Alerts</span>
+        <span class="chip">LADBS Live</span>
+      </div>
+    </div>
+  </footer>
 
-  <div class="promo" style="margin-top:1.5rem;padding:1rem;border:1px dashed #ddd;border-radius:8px;background:#fafafa;">
-    <p><strong>Pro unlocks:</strong> CSV download, email alerts, and up to 10 live trackers / month.
-      <a class="cta-link" href="https://buy.stripe.com/fZucN61qTev92thfse1wY08">Upgrade now →</a>
-    </p>
-  </div>
-  </main>
+  <!-- JSON-LD Organization/WebSite (static for SEO) -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": "PermitPulse",
+    "url": "https://getpermitpulse.com/",
+    "potentialAction": {
+      "@type": "SearchAction",
+      "target": "https://getpermitpulse.com/?q={query}",
+      "query-input": "required name=query"
+    }
+  }
+  </script>
 
-  <script>document.getElementById('status').textContent='html-ok';</script>
+  <script>
+    const API = "https://getpermitpulse.com";
+    const rowsEl = document.getElementById("rows");
+    const statusEl = document.getElementById("status");
+    const summaryEl = document.getElementById("summary");
+    const csvLink = document.getElementById("csvLink");
+    const hdr = document.getElementById("hdr");
+    const D = (id)=>document.getElementById(id);
 
-  <script type="module" src="/assets/pp.js?v=sep08d"></script>
+    // Sticky shadow on scroll
+    addEventListener("scroll", ()=> hdr.classList.toggle("scrolled", scrollY>6));
+
+    D("yr").textContent = new Date().getUTCFullYear();
+    document.getElementById("reset").onclick = (e)=>{ e.preventDefault(); D("since").value=30; D("minv").value=50000; D("kw").value="roof, solar, adu, new"; run(); };
+
+    // Modal
+    const modal = document.getElementById("modal");
+    document.getElementById("subscribeBtn").onclick = ()=> modal.showModal();
+    document.getElementById("sendAlert").onclick = async ()=>{
+      const to = D("alertEmail").value.trim();
+      const p = pickParams();
+      if(!to) return msg("Please enter an email.");
+      msg("Sending…");
+      const u = new URL(API + "/alerts/ladbs/test");
+      u.searchParams.set("email", to);
+      u.searchParams.set("since_days", p.since_days);
+      u.searchParams.set("min_value", p.min_value);
+      if (p.kw) u.searchParams.set("kw", p.kw);
+      const r = await fetch(u.toString());
+      const j = await r.json().catch(()=>({}));
+      msg(j.ok ? `Sent! Check ${to}` : `Failed: ${j.error||j.message||j.status||"unknown"}`);
+      function msg(t){ D("alertMsg").textContent=t; }
+    };
+
+    document.getElementById("apply").onclick = (e)=>{ e.preventDefault(); run(); };
+
+    function pickParams(){
+      const since_days = Math.max(1, parseInt(D("since").value||"30", 10));
+      const min_value = Math.max(0, parseInt(D("minv").value||"0", 10));
+      const kw = (D("kw").value||"").trim();
+      return { since_days, min_value, kw };
+    }
+
+    function paramsToCsvUrl(p){
+      const u = new URL(API + "/csv/ladbs");
+      u.searchParams.set("since_days", p.since_days);
+      u.searchParams.set("min_value", p.min_value);
+      if (p.kw) u.searchParams.set("kw", p.kw);
+      u.searchParams.set("limit", "200");
+      return u.toString();
+    }
+
+    async function run(){
+      const p = pickParams();
+      csvLink.href = paramsToCsvUrl(p);
+
+      const u = new URL(API + "/live/ladbs");
+      u.searchParams.set("since_days", p.since_days);
+      u.searchParams.set("min_value", p.min_value);
+      if (p.kw) u.searchParams.set("kw", p.kw);
+      u.searchParams.set("limit", "100");
+
+      statusEl.textContent = "Loading…";
+      rowsEl.innerHTML = "";
+      summaryEl.textContent = "";
+
+      try{
+        const r = await fetch(u.toString());
+        const j = await r.json();
+        if(!j.ok) throw new Error(j.error || "Request failed");
+        summaryEl.innerHTML = `<span class="font-semibold">${j.count}</span> results · since <span class="font-mono">${p.since_days}d</span> · min <span class="font-mono">$${p.min_value.toLocaleString()}</span>${p.kw?` · kw: <span class="font-mono">${p.kw}</span>`:""}`;
+        for(const it of j.items){
+          rowsEl.appendChild(rowEl(it));
+        }
+        if (!j.count){
+          rowsEl.innerHTML = `<div class="px-3 py-6 text-sm text-gray-500">No results for these filters. Try lowering the value or changing keywords.</div>`;
+        }
+        statusEl.textContent = j.diagnostics?.fallback_used ? "OK · fallback" : "OK";
+        // Inject lightweight JSON-LD ItemList for first 10 (helps indexing)
+        injectJsonLd(j.items.slice(0,10));
+      }catch(err){
+        statusEl.textContent = "Error";
+        rowsEl.innerHTML = `<div class="px-3 py-6 text-sm text-red-600">Error: ${err.message||err}</div>`;
+      }
+    }
+
+    function rowEl(it){
+      const div = document.createElement("div");
+      div.className = "grid grid-cols-[110px_90px_160px_1fr] sm:grid-cols-[110px_120px_220px_1fr] gap-3 px-3 py-3 border-t text-sm";
+      const date = (it.filed_at || it.status_at || "").slice(0,10);
+      const val = (it.value!=null) ? `$${Number(it.value).toLocaleString()}` : "—";
+      const type = [it.type,it.subtype].filter(Boolean).join(" / ") || "—";
+      const addr = [it.address, it.zip].filter(Boolean).join(", ");
+      div.innerHTML = `
+        <div class="font-mono text-xs">${date||"—"}</div>
+        <div class="font-semibold">${val}</div>
+        <div class="text-gray-700">${type}</div>
+        <div class="text-gray-700">
+          <div class="font-medium">${addr||"Address pending"}</div>
+          <div class="text-gray-500">${it.description||""}</div>
+          <div class="text-xs text-gray-400 mt-1">Permit: ${it.permit||"—"} · Status: ${it.status||"—"}</div>
+        </div>`;
+      return div;
+    }
+
+    function injectJsonLd(items){
+      try{
+        const list = {
+          "@context": "https://schema.org",
+          "@type": "ItemList",
+          "itemListElement": items.map((it, i)=>({
+            "@type":"ListItem",
+            "position": i+1,
+            "name": `${(it.type||"Permit")} — ${it.address||""}`,
+            "url": "https://getpermitpulse.com/",
+            "additionalProperty": [
+              {"@type":"PropertyValue","name":"permit","value":it.permit||""},
+              {"@type":"PropertyValue","name":"valuation","value":it.value||""},
+              {"@type":"PropertyValue","name":"date","value":(it.filed_at||it.status_at||"").slice(0,10)}
+            ]
+          }))
+        };
+        let el = document.getElementById("jl");
+        if(!el){ el = document.createElement("script"); el.id="jl"; el.type="application/ld+json"; document.body.appendChild(el); }
+        el.textContent = JSON.stringify(list);
+      }catch(_) {}
+    }
+
+    // initial run
+    run();
+  </script>
 </body>
 </html>
