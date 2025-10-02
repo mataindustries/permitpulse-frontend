@@ -60,8 +60,12 @@
 
       // Register a (test) alert
       const alertsUrl = `https://getpermitpulse.com/alerts/ladbs/test?email=${encodeURIComponent(email)}&since_days=${encodeURIComponent(since_days)}&min_value=${encodeURIComponent(min_value)}&kw=${encodeURIComponent(kw)}`;
-      fetch(alertsUrl, { method: 'GET', mode: 'no-cors' }).catch(()=>{});
-
+      fetch(alertsUrl, { method: 'GET', mode: 'no-cors' })
+  .catch(()=>{})
+  .finally(() => {
+    // Count this as an alert creation
+    fireGAEvent('alert_created');
+  });
       // Open CSV
       const csvUrl = `https://getpermitpulse.com/csv/ladbs?since_days=${encodeURIComponent(since_days)}&min_value=${encodeURIComponent(min_value)}&kw=${encodeURIComponent(kw)}&limit=200`;
       fireGAEvent('csv_download'); // also covered by download link on topic pages
