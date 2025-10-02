@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Los Angeles Roofing Permits — PermitPulse</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-0S8S6156CV"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);} gtag('js', new Date()); gtag('config','G-0S8S6156CV');
+    function fireGAEvent(n){ gtag('event', n); }
+    document.addEventListener('DOMContentLoaded',()=>fireGAEvent('view_results'));
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context":"http://schema.org",
+    "@type":"Dataset",
+    "name":"Los Angeles Roofing Permits (last 30 days, $50k+)",
+    "description":"Recent roofing permits from LADBS filtered for projects ≥ $50,000 within the last 30 days.",
+    "url":"https://getpermitpulse.com/los-angeles-roofing-permits.html",
+    "distribution":{
+      "@type":"DataDownload",
+      "encodingFormat":"text/csv",
+      "contentUrl":"https://getpermitpulse.com/csv/ladbs?since_days=30&min_value=50000&kw=roof"
+    }
+  }
+  </script>
+</head>
+<body class="bg-gray-50 text-gray-900 p-6">
+  <h1 class="text-3xl font-bold mb-3">Los Angeles Roofing Permits</h1>
+  <p class="text-gray-800 mb-4">
+    Roof replacements and major roof work in Los Angeles typically require permits to ensure safety and code compliance.
+    Permits trigger plan review and inspections that verify materials, fire ratings, and structural considerations during and
+    after the job. Skipping permits can lead to costly corrections and issues with insurance or future transactions. If you’re
+    scoping re-roofs across the city, use the CSV below to scan recent projects by neighborhood, contractor, or valuation,
+    then set up alerts to catch new filings as they happen. For narrow lists, adjust keywords like “reroof”, “built-up”, or
+    “tile” on the free CSV page.
+  </p>
+
+  <!-- internal links -->
+  <nav class="mb-4 flex flex-wrap gap-3 text-blue-600">
+    <a href="/los-angeles-roofing-permits.html">LA Roofing</a>
+    <a href="/los-angeles-solar-permits.html">LA Solar</a>
+    <a href="/los-angeles-adu-permits.html">LA ADU</a>
+    <a href="/los-angeles-new-construction-permits.html">LA New Construction</a>
+    <a href="/chicago-building-permits.html">Chicago Permits</a>
+    <a href="/austin-building-permits.html">Austin Permits</a>
+    <a href="/free-csv.html" onclick="fireGAEvent('alerts_open')">Free CSV</a>
+  </nav>
+
+  <a class="text-blue-600 underline"
+     onclick="fireGAEvent('download_csv')"
+     href="https://getpermitpulse.com/csv/ladbs?since_days=30&min_value=50000&kw=roof"
+     target="_blank" rel="noopener">
+     Download CSV (Roofing, last 30 days, $50k+)
+  </a>
+</body>
+</html>
