@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Chicago Building Permits — PermitPulse</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-0S8S6156CV"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);} gtag('js', new Date()); gtag('config','G-0S8S6156CV');
+    function fireGAEvent(n){ gtag('event', n); }
+    document.addEventListener('DOMContentLoaded',()=>fireGAEvent('view_results'));
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context":"http://schema.org",
+    "@type":"Dataset",
+    "name":"Chicago Building Permits (proxy topic feed)",
+    "description":"This page highlights the Chicago market while linking to a LADBS CSV filtered by topic keyword ‘chicago’ for demo purposes.",
+    "url":"https://getpermitpulse.com/chicago-building-permits.html",
+    "distribution":{
+      "@type":"DataDownload",
+      "encodingFormat":"text/csv",
+      "contentUrl":"https://getpermitpulse.com/csv/ladbs?since_days=30&min_value=50000&kw=chicago"
+    }
+  }
+  </script>
+</head>
+<body class="bg-gray-50 text-gray-900 p-6">
+  <h1 class="text-3xl font-bold mb-3">Chicago Building Permits</h1>
+  <p class="text-gray-800 mb-4">
+    Snapshot page to attract Chicago searches and conversions while backend city feeds are expanded. Use the CSV link for a
+    demo filter and the Free CSV page to request Chicago-specific alerts. Once the live Chicago source is toggled on, this
+    page can swap to the real feed without changing the URL structure.
+  </p>
+  <nav class="mb-4 flex flex-wrap gap-3 text-blue-600">
+    <a href="/los-angeles-roofing-permits.html">LA Roofing</a>
+    <a href="/los-angeles-solar-permits.html">LA Solar</a>
+    <a href="/los-angeles-adu-permits.html">LA ADU</a>
+    <a href="/los-angeles-new-construction-permits.html">LA New Construction</a>
+    <a href="/chicago-building-permits.html">Chicago Permits</a>
+    <a href="/austin-building-permits.html">Austin Permits</a>
+    <a href="/free-csv.html" onclick="fireGAEvent('alerts_open')">Free CSV</a>
+  </nav>
+  <a class="text-blue-600 underline"
+     onclick="fireGAEvent('download_csv')"
+     href="https://getpermitpulse.com/csv/ladbs?since_days=30&min_value=50000&kw=chicago"
+     target="_blank" rel="noopener">Download CSV (Chicago topic demo)</a>
+</body>
+</html>
