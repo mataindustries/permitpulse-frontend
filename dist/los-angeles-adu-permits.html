@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Los Angeles ADU Permits — PermitPulse</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-0S8S6156CV"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);} gtag('js', new Date()); gtag('config','G-0S8S6156CV');
+    function fireGAEvent(n){ gtag('event', n); }
+    document.addEventListener('DOMContentLoaded',()=>fireGAEvent('view_results'));
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context":"http://schema.org",
+    "@type":"Dataset",
+    "name":"Los Angeles ADU Permits (last 30 days, $50k+)",
+    "description":"Accessory Dwelling Unit-related LADBS permits, filtered to projects ≥ $50,000 within the past 30 days.",
+    "url":"https://getpermitpulse.com/los-angeles-adu-permits.html",
+    "distribution":{
+      "@type":"DataDownload",
+      "encodingFormat":"text/csv",
+      "contentUrl":"https://getpermitpulse.com/csv/ladbs?since_days=30&min_value=50000&kw=adu"
+    }
+  }
+  </script>
+</head>
+<body class="bg-gray-50 text-gray-900 p-6">
+  <h1 class="text-3xl font-bold mb-3">Los Angeles ADU Permits</h1>
+  <p class="text-gray-800 mb-4">
+    ADUs are popular for adding housing and income potential. Permits confirm zoning, structure, energy, and life-safety requirements.
+    Monitoring ADU filings helps builders, lenders, and suppliers time outreach and forecast demand. Use the CSV link below to scan active
+    projects by value and scope; add your keywords (e.g., “garage conversion”, “JADU”) on the Free CSV page for custom exports.
+  </p>
+  <nav class="mb-4 flex flex-wrap gap-3 text-blue-600">
+    <a href="/los-angeles-roofing-permits.html">LA Roofing</a>
+    <a href="/los-angeles-solar-permits.html">LA Solar</a>
+    <a href="/los-angeles-adu-permits.html">LA ADU</a>
+    <a href="/los-angeles-new-construction-permits.html">LA New Construction</a>
+    <a href="/chicago-building-permits.html">Chicago Permits</a>
+    <a href="/austin-building-permits.html">Austin Permits</a>
+    <a href="/free-csv.html" onclick="fireGAEvent('alerts_open')">Free CSV</a>
+  </nav>
+  <a class="text-blue-600 underline"
+     onclick="fireGAEvent('download_csv')"
+     href="https://getpermitpulse.com/csv/ladbs?since_days=30&min_value=50000&kw=adu"
+     target="_blank" rel="noopener">Download CSV (ADU, last 30 days, $50k+)</a>
+</body>
+</html>
