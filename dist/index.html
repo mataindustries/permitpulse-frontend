@@ -1,31 +1,52 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>PermitPulse Data Portal</title>
-  <!-- Tailwind CSS via CDN for simple styling -->
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <title>Live LA Building Permits · CSV & Alerts | PermitPulse</title>
+  <meta name="description" content="Win bids by being early. LADBS permits filtered by value & keywords. Export CSVs and get instant email alerts." />
+
+  <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Google Analytics 4 configuration -->
+
+  <!-- GA4 (keep ONE copy of this loader) -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-0S8S6156CV"></script>
   <script>
-    // Initialise the GA4 data layer
     window.dataLayer = window.dataLayer || [];
     function gtag(){dataLayer.push(arguments);}
     gtag('js', new Date());
     gtag('config', 'G-0S8S6156CV');
-    /**
-     * Send a custom GA event.  Many pages in this site use this helper to
-     * record user interactions.  For example: fireGAEvent('download_csv').
-     * You can hook this into click handlers or other events.
-     * @param {string} name The name of the GA event to send.
-     */
-    function fireGAEvent(name) {
-      gtag('event', name);
-    }
-    // Record a view_results event on page load for analytics
-    document.addEventListener('DOMContentLoaded', function() {
-      fireGAEvent('view_results');
-    });
+
+    // simple helper used by buttons/links
+    function fireGAEvent(name){ gtag('event', name); }
+    document.addEventListener('DOMContentLoaded', ()=>{ fireGAEvent('view_results'); });
+  </script>
+
+  <!-- (5) Open Graph / Twitter + favicon  — PASTE HERE -->
+  <meta property="og:title" content="Live LA Building Permits · CSV & Alerts" />
+  <meta property="og:description" content="LADBS permits filtered by value & keywords. CSV export and instant email alerts." />
+  <meta property="og:url" content="https://getpermitpulse.com/" />
+  <meta property="og:type" content="website" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <link rel="icon" href="/favicon.ico" />
+  <link rel="canonical" href="https://getpermitpulse.com/" />
+
+  <!-- (4) schema.org Product JSON-LD  — RIGHT AFTER OG/TWITTER TAGS -->
+  <script type="application/ld+json">
+  {
+    "@context":"https://schema.org",
+    "@type":"Product",
+    "name":"PermitPulse (LADBS live permits)",
+    "description":"Live LADBS permits filtered by value & keywords. Export CSVs and get instant alerts.",
+    "brand":{"@type":"Brand","name":"PermitPulse"},
+    "url":"https://getpermitpulse.com/",
+    "offers":[
+      {"@type":"Offer","price":"0","priceCurrency":"USD","name":"Free"},
+      {"@type":"Offer","price":"39","priceCurrency":"USD","name":"Pro Monthly"}
+    ],
+    "aggregateRating":{"@type":"AggregateRating","ratingValue":"4.8","reviewCount":"5"}
+  }
   </script>
 </head>
 <body class="bg-gray-50 text-gray-900 p-4">
@@ -227,6 +248,23 @@
     </p>
   </div>
   </section>
+  <section class="mt-12">
+  <h2 class="text-xl font-bold text-slate-900">Frequently asked</h2>
+  <div class="mt-4 grid md:grid-cols-3 gap-6 text-slate-700">
+    <div>
+      <div class="font-semibold">What’s in the CSV?</div>
+      <p class="mt-1 text-sm">Permit number, address, status, issue date, subtype, valuation, lat/lon, plus raw fields.</p>
+    </div>
+    <div>
+      <div class="font-semibold">How fresh is it?</div>
+      <p class="mt-1 text-sm">We pull directly from LADBS throughout the day. Free tier shows last 3 days; paid includes 90.</p>
+    </div>
+    <div>
+      <div class="font-semibold">Cancel anytime?</div>
+      <p class="mt-1 text-sm">Yes. 14-day “no value, no pay” refund on Pro.</p>
+    </div>
+  </div>
+  </section>
   <footer class="mt-16 border-t border-slate-200">
   <div class="max-w-6xl mx-auto px-4 sm:px-6 py-8 text-sm text-slate-600 flex flex-col sm:flex-row gap-2 sm:items-center sm:justify-between">
     <div>© <span id="pp-year"></span> PermitPulse</div>
@@ -246,5 +284,12 @@
     ob.observe(about);
   }
   </script>
+  <a href="/free-csv.html"
+   onclick="fireGAEvent('sticky_free_csv')"
+   class="fixed bottom-4 right-4 z-40 inline-flex items-center gap-2 rounded-full bg-emerald-600 px-4 py-3 text-white shadow-lg md:hidden">
+  <span class="h-2 w-2 rounded-full bg-white animate-pulse"></span>
+  Get free CSV
+  </a>
+  <script>if('requestIdleCallback'in window){requestIdleCallback(()=>{const s=document.createElement('script');s.src='https://www.googletagmanager.com/gtag/js?id=G-0S8S6156CV';s.async=1;document.head.appendChild(s);});}</script>
 </body>
 </html>
