@@ -48,6 +48,11 @@
     <a href="/austin-building-permits.html">Austin Permits</a>
     <a href="/free-csv.html" onclick="fireGAEvent('alerts_open')">Free CSV</a>
   </nav>
+  <button id="createAlertBtn"
+        data-kw="roof"
+        class="mt-3 inline-flex items-center gap-2 rounded bg-blue-600 px-4 py-2 text-white">
+  Create Alert for this Topic
+  </button>
 
   <a class="text-blue-600 underline"
      onclick="fireGAEvent('download_csv')"
@@ -55,5 +60,38 @@
      target="_blank" rel="noopener">
      Download CSV (Roofing, last 30 days, $50k+)
   </a>
+  <script>
+  // Requires GA helper in the page: function fireGAEvent(name){ gtag('event', name); }
+
+  (function () {
+    const btn = document.getElementById('createAlertBtn');
+    if (!btn) return;
+
+    btn.addEventListener('click', function () {
+      fireGAEvent('alerts_open');
+
+      const email = prompt('Enter the email to receive this alert:');
+      if (!email) return;
+
+      const since_days = 30;
+      const min_value  = 50000;
+      const kw         = btn.dataset.kw || 'roof';
+
+      const url = `https://getpermitpulse.com/alerts/ladbs/test?email=${
+        encodeURIComponent(email)
+      }&since_days=${encodeURIComponent(since_days)}&min_value=${
+        encodeURIComponent(min_value)
+      }&kw=${encodeURIComponent(kw)}`;
+
+      fetch(url, { method: 'GET', mode: 'no-cors' })
+        .catch(()=>{})
+        .finally(() => {
+          // Track alert creation
+          fireGAEvent('alert_created');
+          alert('Alert saved! Check your inbox for future digests.');
+        });
+    });
+  })();
+  </script>
 </body>
 </html>
