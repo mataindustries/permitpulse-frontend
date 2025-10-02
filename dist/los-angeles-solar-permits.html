@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Los Angeles Solar Permits — PermitPulse</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-0S8S6156CV"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);} gtag('js', new Date()); gtag('config','G-0S8S6156CV');
+    function fireGAEvent(n){ gtag('event', n); }
+    document.addEventListener('DOMContentLoaded',()=>fireGAEvent('view_results'));
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context":"http://schema.org",
+    "@type":"Dataset",
+    "name":"Los Angeles Solar Permits (last 30 days, $50k+)",
+    "description":"Recent LADBS solar-related permits filtered for projects ≥ $50,000 within the last 30 days.",
+    "url":"https://getpermitpulse.com/los-angeles-solar-permits.html",
+    "distribution":{
+      "@type":"DataDownload",
+      "encodingFormat":"text/csv",
+      "contentUrl":"https://getpermitpulse.com/csv/ladbs?since_days=30&min_value=50000&kw=solar"
+    }
+  }
+  </script>
+</head>
+<body class="bg-gray-50 text-gray-900 p-6">
+  <h1 class="text-3xl font-bold mb-3">Los Angeles Solar Permits</h1>
+  <p class="text-gray-800 mb-4">
+    Solar PV and related electrical upgrades in Los Angeles are permitted to verify structural mounting, electrical safety,
+    and code compliance. Contractors track these filings to time their outreach and forecast demand by area. Use the dataset
+    to see recent solar jobs by value and description; then set digest alerts on the Free CSV page to be first on new filings.
+    For tighter filters, try keywords like “photovoltaic”, “PV”, or “ESS” (energy storage system).
+  </p>
+  <nav class="mb-4 flex flex-wrap gap-3 text-blue-600">
+    <a href="/los-angeles-roofing-permits.html">LA Roofing</a>
+    <a href="/los-angeles-solar-permits.html">LA Solar</a>
+    <a href="/los-angeles-adu-permits.html">LA ADU</a>
+    <a href="/los-angeles-new-construction-permits.html">LA New Construction</a>
+    <a href="/chicago-building-permits.html">Chicago Permits</a>
+    <a href="/austin-building-permits.html">Austin Permits</a>
+    <a href="/free-csv.html" onclick="fireGAEvent('alerts_open')">Free CSV</a>
+  </nav>
+  <a class="text-blue-600 underline"
+     onclick="fireGAEvent('download_csv')"
+     href="https://getpermitpulse.com/csv/ladbs?since_days=30&min_value=50000&kw=solar"
+     target="_blank" rel="noopener">Download CSV (Solar, last 30 days, $50k+)</a>
+</body>
+</html>
