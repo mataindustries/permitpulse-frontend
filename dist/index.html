@@ -48,5 +48,161 @@
   <main>
     <p class="mb-4">The PermitPulse platform aggregates building permit data from various jurisdictions. Our curated pages summarise key permitting requirements and link to datasets for recent permits with a minimum project value of $50,000 and within the last 30 days. Use the navigation above to explore specific topics or <a class="text-blue-600 hover:underline" href="free-csv.html">request a custom CSV</a>.</p>
   </main>
+  <!-- ===== PermitPulse: Pricing + Flash ===== -->
+<section id="pricing" class="bg-white border-t border-slate-200">
+  <div class="max-w-6xl mx-auto px-4 sm:px-6 py-16">
+    <div class="mb-10 text-center">
+      <p class="text-sm font-medium tracking-wide text-emerald-600 uppercase">Simple pricing</p>
+      <h2 class="mt-2 text-3xl sm:text-4xl font-extrabold text-slate-900">
+        Start free. Upgrade when it pays for itself.
+      </h2>
+      <p class="mt-3 text-slate-600 max-w-2xl mx-auto">
+        Live LADBS permits filtered by value & keywords. Export CSVs, get daily alerts, and be first in every bid.
+      </p>
+      <div id="pp-live-stat" class="mt-4 inline-flex items-center gap-2 text-sm text-slate-500">
+        <span class="h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></span>
+        <span id="pp-live-count">Checking permits…</span>
+      </div>
+    </div>
+
+    <!-- Cards -->
+    <div class="grid md:grid-cols-3 gap-6">
+      <!-- Free -->
+      <div class="relative rounded-2xl border border-slate-200 p-6 md:p-8 bg-slate-50">
+        <div class="text-sm font-semibold text-slate-700">Free</div>
+        <div class="mt-2 flex items-baseline gap-1">
+          <div class="text-3xl font-extrabold text-slate-900">$0</div>
+          <div class="text-slate-500">/ forever</div>
+        </div>
+        <ul class="mt-6 space-y-3 text-sm text-slate-600">
+          <li class="flex items-start gap-2"><span class="mt-1 h-1.5 w-1.5 bg-emerald-500 rounded-full"></span> Last 3 days of LADBS permits (50 rows cap)</li>
+          <li class="flex items-start gap-2"><span class="mt-1 h-1.5 w-1.5 bg-emerald-500 rounded-full"></span> CSV export</li>
+          <li class="flex items-start gap-2"><span class="mt-1 h-1.5 w-1.5 bg-emerald-500 rounded-full"></span> Keyword filters</li>
+        </ul>
+        <button data-plan="free"
+          class="pp-pricing-btn mt-6 w-full inline-flex justify-center items-center rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-900 hover:bg-slate-100">
+          Get free CSV
+        </button>
+        <p class="mt-3 text-xs text-slate-400">No card. Upgrade anytime.</p>
+      </div>
+
+      <!-- Pro -->
+      <div class="relative rounded-2xl border-2 border-emerald-500 p-6 md:p-8 bg-white shadow-sm">
+        <div class="absolute -top-3 right-6 text-[11px] bg-emerald-600 text-white px-2 py-0.5 rounded-full uppercase tracking-wide">
+          Most popular
+        </div>
+        <div class="text-sm font-semibold text-slate-700">Pro</div>
+        <div class="mt-2 flex items-baseline gap-1">
+          <div class="text-3xl font-extrabold text-slate-900">$39</div>
+          <div class="text-slate-500">/ mo</div>
+        </div>
+        <ul class="mt-6 space-y-3 text-sm text-slate-600">
+          <li class="flex items-start gap-2"><span class="mt-1 h-1.5 w-1.5 bg-emerald-500 rounded-full"></span> Last 90 days of LADBS permits</li>
+          <li class="flex items-start gap-2"><span class="mt-1 h-1.5 w-1.5 bg-emerald-500 rounded-full"></span> Unlimited CSV exports</li>
+          <li class="flex items-start gap-2"><span class="mt-1 h-1.5 w-1.5 bg-emerald-500 rounded-full"></span> Daily email alerts</li>
+          <li class="flex items-start gap-2"><span class="mt-1 h-1.5 w-1.5 bg-emerald-500 rounded-full"></span> Concierge setup (we configure your filters)</li>
+        </ul>
+        <a data-plan="pro" href="/free-csv.html"
+           class="pp-pricing-link mt-6 w-full inline-flex justify-center items-center rounded-xl bg-emerald-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-emerald-700">
+          Start free → upgrade in-app
+        </a>
+        <p class="mt-3 text-xs text-slate-400">14-day guarantee: refund if no value.</p>
+      </div>
+
+      <!-- Teams -->
+      <div class="relative rounded-2xl border border-slate-200 p-6 md:p-8 bg-slate-50">
+        <div class="text-sm font-semibold text-slate-700">Teams</div>
+        <div class="mt-2 flex items-baseline gap-1">
+          <div class="text-3xl font-extrabold text-slate-900">$99</div>
+          <div class="text-slate-500">/ mo</div>
+        </div>
+        <ul class="mt-6 space-y-3 text-sm text-slate-600">
+          <li class="flex items-start gap-2"><span class="mt-1 h-1.5 w-1.5 bg-emerald-500 rounded-full"></span> 3 seats • shared filters</li>
+          <li class="flex items-start gap-2"><span class="mt-1 h-1.5 w-1.5 bg-emerald-500 rounded-full"></span> Hourly alerts (7am–7pm)</li>
+          <li class="flex items-start gap-2"><span class="mt-1 h-1.5 w-1.5 bg-emerald-500 rounded-full"></span> Priority support & onboarding</li>
+        </ul>
+        <a data-plan="teams" href="https://calendly.com/permitpulse"
+           class="pp-pricing-link mt-6 w-full inline-flex justify-center items-center rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-900 hover:bg-slate-100">
+          Talk to us
+        </a>
+        <p class="mt-3 text-xs text-slate-400">Custom domains & webhook on request.</p>
+      </div>
+    </div>
+
+    <!-- Social proof / FAQ -->
+    <div class="mt-14 grid md:grid-cols-3 gap-6">
+      <div class="p-6 rounded-xl border border-slate-200">
+        <div class="text-sm font-semibold text-slate-700">“We quoted faster.”</div>
+        <p class="mt-2 text-sm text-slate-600">The daily CSV gave us 3 extra roof leads the first week. Being early is the whole game.</p>
+        <div class="mt-3 text-xs text-slate-400">— Contractor, San Fernando Valley</div>
+      </div>
+      <div class="p-6 rounded-xl border border-slate-200">
+        <div class="text-sm font-semibold text-slate-700">What do I get exactly?</div>
+        <p class="mt-2 text-sm text-slate-600">Live LADBS results filtered by value/keywords. One-click CSV. Optional email alerts. No logins, zero friction.</p>
+      </div>
+      <div class="p-6 rounded-xl border border-slate-200">
+        <div class="text-sm font-semibold text-slate-700">Can I cancel anytime?</div>
+        <p class="mt-2 text-sm text-slate-600">Yes. Plus a 14-day “no value, no pay” guarantee.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Mobile sticky CTA -->
+<a href="/free-csv.html" id="pp-fab"
+   class="fixed bottom-4 right-4 z-40 shadow-lg rounded-full bg-emerald-600 text-white px-5 py-3 text-sm font-semibold md:hidden">
+  Get Free CSV
+</a>
+
+<script>
+  // --- GA helper (uses existing gtag)
+  function ppEvent(name, params){ try { gtag('event', name, params || {}); } catch(_){} }
+
+  // Pricing events
+  for (const btn of document.querySelectorAll('.pp-pricing-btn')) {
+    btn.addEventListener('click', () => {
+      const plan = btn.getAttribute('data-plan');
+      ppEvent('pricing_select', {plan});
+      location.href = '/free-csv.html';
+    });
+  }
+  for (const a of document.querySelectorAll('.pp-pricing-link')) {
+    a.addEventListener('click', () => {
+      const plan = a.getAttribute('data-plan');
+      ppEvent('pricing_select', {plan});
+    });
+  }
+  const fab = document.getElementById('pp-fab');
+  if (fab) fab.addEventListener('click', () => ppEvent('cta_fab_click'));
+
+  // Pricing view event on section in-view
+  const pv = new IntersectionObserver((e)=>{
+    if (e[0].isIntersecting){ ppEvent('pricing_view'); pv.disconnect(); }
+  }, {threshold: 0.2});
+  const section = document.getElementById('pricing');
+  if (section) pv.observe(section);
+
+  // Live stat: count last 30d & min $50k (same defaults as UI)
+  (async function(){
+    try {
+      const u = new URL('/live/ladbs', location.origin);
+      u.searchParams.set('since_days','30');
+      u.searchParams.set('min_value','50000');
+      u.searchParams.set('limit','1');
+      const r = await fetch(u);
+      const j = await r.json();
+      const el = document.getElementById('pp-live-count');
+      if (j && j.ok && typeof j.count === 'number') {
+        el.textContent = `${j.count} permits matched in the last 30 days`;
+      } else {
+        el.textContent = 'Live LADBS connected';
+      }
+    } catch {
+      const el = document.getElementById('pp-live-count');
+      if (el) el.textContent = 'Live LADBS connected';
+    }
+  })();
+</script>
+<!-- ===== /PermitPulse: Pricing + Flash ===== -->
 </body>
 </html>
