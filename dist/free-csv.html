@@ -46,31 +46,53 @@
     <p class="text-sm text-gray-600 mt-6">Tip: try narrowing keywords like <em>“solar”</em> or <em>“re-roof”</em> for tighter results.</p>
   </main>
 
-  <script>
-    document.getElementById('csvForm').addEventListener('submit', function (e) {
-      e.preventDefault();
-      const email = document.getElementById('email').value.trim();
-      const since_days = document.getElementById('since_days').value || 30;
-      const min_value  = document.getElementById('min_value').value || 50000;
-      const kw        = document.getElementById('kw').value || 'roof, solar, adu, new';
+ <script>
+  // GA helper (already on page via head), but keep a no-op fallback
+  window.dataLayer = window.dataLayer || [];
+  window.gtag = window.gtag || function(){ dataLayer.push(arguments); };
+  function fireGAEvent(name){ gtag('event', name); }
 
-      // Fire GA lead + digest events
-      fireGAEvent('lead_captured');
-      fireGAEvent('digest_requested');
+  document.getElementById('csvForm').addEventListener('submit', async function (e) {
+    e.preventDefault();
 
-      // Register a (test) alert
-      const alertsUrl = `https://getpermitpulse.com/alerts/ladbs/test?email=${encodeURIComponent(email)}&since_days=${encodeURIComponent(since_days)}&min_value=${encodeURIComponent(min_value)}&kw=${encodeURIComponent(kw)}`;
-      fetch(alertsUrl, { method: 'GET', mode: 'no-cors' })
-  .catch(()=>{})
-  .finally(() => {
-    // Count this as an alert creation
-    fireGAEvent('alert_created');
+    const email = document.getElementById('email').value.trim();
+    const since_days = Number(document.getElementById('since_days').value || 30);
+    const min_value  = Number(document.getElementById('min_value').value  || 50000);
+    const kw         = document.getElementById('kw').value || 'roof, solar, adu, new';
+
+    // Track lead
+    fireGAEvent('lead_captured');
+    fireGAEvent('digest_requested');
+
+    // 1) Register welcome + alert via Cloudflare Worker (JSON POST)
+    try {
+      await fetch('https://permit-mailer.matasergio741.workers.dev/freecsv', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify({
+          email, since_days, min_value, kw,
+          // pass any UTM params along for attribution
+          utm: location.search.replace(/^\?/, '')
+        })
+      });
+      fireGAEvent('alert_created');
+    } catch (_) {
+      // swallow; still give them the CSV
+    }
+
+    // 2) Open CSV in a new tab
+    const csvUrl =
+      `https://getpermitpulse.com/csv/ladbs` +
+      `?since_days=${encodeURIComponent(since_days)}` +
+      `&min_value=${encodeURIComponent(min_value)}` +
+      `&kw=${encodeURIComponent(kw)}`;
+
+    fireGAEvent('csv_download');
+    window.open(csvUrl, '_blank');
+
+    // 3) Optional: move them to a thank-you page
+    setTimeout(() => { location.href = '/thank-you/'; }, 300);
   });
-      // Open CSV
-      const csvUrl = `https://getpermitpulse.com/csv/ladbs?since_days=${encodeURIComponent(since_days)}&min_value=${encodeURIComponent(min_value)}&kw=${encodeURIComponent(kw)}&limit=200`;
-      fireGAEvent('csv_download'); // also covered by download link on topic pages
-      window.open(csvUrl, '_blank');
-    });
-  </script>
+ </script>
 </body>
 </html>
