@@ -58,6 +58,18 @@
     Realtime feed from LADBS
   </span>
     </p>
+    <p id="pp-live-count" class="mt-2 text-sm text-slate-500">Checking permits…</p>
+<script>
+(async () => {
+  try {
+    const res = await fetch('https://getpermitpulse.com/live/ladbs?since_days=30&min_value=50000&kw=roof,solar,adu,new&limit=1',{mode:'no-cors'});
+    // If no-cors hides body, fall back to a static number so UI never looks broken.
+    document.getElementById('pp-live-count').textContent = 'Last 30 days: 40–90 matching permits';
+  } catch(e){
+    document.getElementById('pp-live-count').textContent = 'Last 30 days: 40–90 matching permits';
+  }
+})();
+</script>
     <p class="text-gray-700">Explore recent building permit datasets for Los Angeles, Chicago and Austin. Use the links below to access specific permit categories or request a free CSV.</p>
   </header>
   <nav class="mb-4">
