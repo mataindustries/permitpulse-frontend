@@ -77,33 +77,37 @@
   </div>
 </header> 
 <!-- END: hero -->
-  <!-- START: LA internal links grid (EN) -->
+ <!-- INTERNAL LINKS: ES -->
 <section id="la-feeds" class="max-w-6xl mx-auto px-4 sm:px-6">
-  <h2 class="text-2xl font-bold mb-4">Los Angeles Permit Feeds</h2>
+  <h2 class="text-2xl font-bold mb-4">Feeds de Permisos en Los Ángeles</h2>
+
   <div class="grid sm:grid-cols-2 gap-3 mb-6">
-    <a class="block p-4 rounded-xl border bg-white hover:bg-sky-50" href="/los-angeles-solar-permits.html">Solar →</a>
-    <a class="block p-4 rounded-xl border bg-white hover:bg-sky-50" href="/los-angeles-roofing-permits.html">Roofing →</a>
-    <a class="block p-4 rounded-xl border bg-white hover:bg-sky-50" href="/los-angeles-adu-permits.html">ADU →</a>
-    <a class="block p-4 rounded-xl border bg-white hover:bg-sky-50" href="/los-angeles-new-construction-permits.html">New Construction →</a>
+    <a class="block p-4 rounded-xl border bg-white hover:bg-sky-50" href="/es/los-angeles-solar-permits.html">Solar →</a>
+    <a class="block p-4 rounded-xl border bg-white hover:bg-sky-50" href="/es/los-angeles-roofing-permits.html">Techos →</a>
+    <a class="block p-4 rounded-xl border bg-white hover:bg-sky-50" href="/es/los-angeles-adu-permits.html">ADU →</a>
+    <a class="block p-4 rounded-xl border bg-white hover:bg-sky-50" href="/es/los-angeles-new-construction-permits.html">Obra Nueva →</a>
   </div>
-  <h3 class="text-lg font-semibold mb-2">Neighborhoods</h3>
+
+  <h3 class="text-lg font-semibold mb-2">Zonas</h3>
   <div class="grid sm:grid-cols-2 gap-3">
-    <a class="block p-4 rounded-xl border bg-white hover:bg-sky-50" href="/los-angeles-downtown-permits.html">Downtown LA →</a>
-    <a class="block p-4 rounded-xl border bg-white hover:bg-sky-50" href="/los-angeles-hollywood-permits.html">Hollywood →</a>
-    <a class="block p-4 rounded-xl border bg-white hover:bg-sky-50" href="/los-angeles-sfv-permits.html">San Fernando Valley →</a>
-    <a class="block p-4 rounded-xl border bg-white hover:bg-sky-50" href="/los-angeles-westside-permits.html">Westside →</a>
-    <a class="block p-4 rounded-xl border bg-white hover:bg-sky-50" href="/los-angeles-eastside-permits.html">Eastside →</a>
-    <a class="block p-4 rounded-xl border bg-white hover:bg-sky-50" href="/los-angeles-south-bay-permits.html">South Bay →</a>
-    <a class="block p-4 rounded-xl border bg-white hover:bg-sky-50" href="/los-angeles-san-pedro-permits.html">San Pedro &amp; Harbor →</a>
-    <a class="block p-4 rounded-xl border bg-white hover:bg-sky-50" href="/los-angeles-south-la-permits.html">South LA →</a>
-    <a class="block p-4 rounded-xl border bg-white hover:bg-sky-50" href="/los-angeles-san-fernando-city-permits.html">San Fernando (City) →</a>
-    <a class="block p-4 rounded-xl border bg-white hover:bg-sky-50" href="/los-angeles-west-sfv-permits.html">West SFV (Woodland Hills &amp; Encino) →</a>
-    <a class="block p-4 rounded-xl border bg-white hover:bg-sky-50" href="/los-angeles-harbor-city-lomita-permits.html">Harbor City &amp; Lomita →</a>
+    <a class="block p-4 rounded-xl border bg-white hover:bg-sky-50" href="/es/los-angeles-downtown-permits.html">Centro de LA →</a>
+    <a class="block p-4 rounded-xl border bg-white hover:bg-sky-50" href="/es/los-angeles-hollywood-permits.html">Hollywood →</a>
+    <a class="block p-4 rounded-xl border bg-white hover:bg-sky-50" href="/es/los-angeles-sfv-permits.html">Valle de San Fernando →</a>
+    <a class="block p-4 rounded-xl border bg-white hover:bg-sky-50" href="/es/los-angeles-westside-permits.html">Westside →</a>
+    <a class="block p-4 rounded-xl border bg-white hover:bg-sky-50" href="/es/los-angeles-eastside-permits.html">Eastside →</a>
+    <a class="block p-4 rounded-xl border bg-white hover:bg-sky-50" href="/es/los-angeles-south-bay-permits.html">South Bay →</a>
+    <a class="block p-4 rounded-xl border bg-white hover:bg-sky-50" href="/es/los-angeles-san-pedro-permits.html">San Pedro y Puerto →</a>
+    <a class="block p-4 rounded-xl border bg-white hover:bg-sky-50" href="/es/los-angeles-south-la-permits.html">Sur de LA →</a>
+    <a class="block p-4 rounded-xl border bg-white hover:bg-sky-50" href="/es/los-angeles-san-fernando-city-permits.html">San Fernando (Ciudad) →</a>
+    <a class="block p-4 rounded-xl border bg-white hover:bg-sky-50" href="/es/los-angeles-west-sfv-permits.html">Oeste del Valle (Woodland Hills/Encino) →</a>
+    <a class="block p-4 rounded-xl border bg-white hover:bg-sky-50" href="/es/los-angeles-harbor-city-lomita-permits.html">Harbor City y Lomita →</a>
   </div>
+
   <div class="mt-6 mb-10">
-    <a class="underline" href="/free-csv.html" onclick="gtag('event','download_csv_nav',{page:'home_en'})">Download a free sample CSV</a>
+    <!-- keep /free-csv.html if you only have EN version today -->
+    <a class="underline" href="/free-csv.html" onclick="gtag('event','download_csv_nav',{page:'home_es'})">Descargar un CSV gratis</a>
   </div>
-</section>
+</section> 
 <!-- END: internal links -->
   <header class="mb-6">
     <h2 class="text-3xl font-bold mb-2">PermitPulse Data Portal</h2>
@@ -388,8 +392,20 @@
 {
   "@context":"https://schema.org",
   "@graph":[
-    {"@type":"WebPage","name":"Live LA Building Permits — CSV & Alerts","url":"https://getpermitpulse.com/","inLanguage":"en","about":{"@type":"City","name":"Los Angeles, CA"},"isPartOf":{"@type":"WebSite","url":"https://getpermitpulse.com/","name":"PermitPulse"}},
-    {"@type":"Organization","name":"PermitPulse","url":"https://getpermitpulse.com/","contactPoint":[{"@type":"ContactPoint","contactType":"customer support","email":"support@getpermitpulse.com","areaServed":"US"}]}
+    {
+      "@type":"WebPage",
+      "name":"Permisos de Construcción en LA — CSV y Alertas",
+      "url":"https://getpermitpulse.com/es/",
+      "inLanguage":"es",
+      "about":{"@type":"City","name":"Los Ángeles, CA"},
+      "isPartOf":{"@type":"WebSite","url":"https://getpermitpulse.com/","name":"PermitPulse"}
+    },
+    {
+      "@type":"Organization",
+      "name":"PermitPulse",
+      "url":"https://getpermitpulse.com/",
+      "contactPoint":[{"@type":"ContactPoint","contactType":"soporte","email":"support@getpermitpulse.com","areaServed":"US"}]
+    }
   ]
 }
   </script>
