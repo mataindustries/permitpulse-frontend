@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+      <meta charset="UTF-8" />
+      <meta name="viewport" content="width=device-width, initial-scale=1" />
+      <title>Permisos de Construcción en San Pedro & Harbor — Los Ángeles | PermitPulse</title>
+      <meta name="description" content="Permisos recientes del LADBS en San Pedro & Harbor. Filtre por palabra clave, descargue CSV o cree alertas." />
+      <link rel="canonical" href="https://getpermitpulse.com/es/los-angeles-san-pedro-permits.html" />
+      <meta property="og:title" content="Permisos de Construcción en San Pedro & Harbor — Los Ángeles | PermitPulse" />
+      <meta property="og:description" content="Permisos recientes del LADBS en San Pedro & Harbor. Filtre por palabra clave, descargue CSV o cree alertas." />
+      <meta property="og:image" content="https://getpermitpulse.com/assets/permitpulse-og.jpg" />
+      <meta property="og:url" content="https://getpermitpulse.com/es/los-angeles-san-pedro-permits.html" />
+      <meta name="twitter:card" content="summary_large_image" />
+
+<link rel="alternate" hreflang="en" href="https://getpermitpulse.com/los-angeles-san-pedro-permits.html">
+<link rel="alternate" hreflang="es" href="https://getpermitpulse.com/es/los-angeles-san-pedro-permits.html">
+      <script src="https://cdn.tailwindcss.com"></script>
+      <script async src="https://www.googletagmanager.com/gtag/js?id=G-0S8S6156CV"></script>
+      <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-0S8S6156CV');
+        function fireGAEvent(name, params){ gtag('event', name, params || {}); }
+      </script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Dataset",
+  "name": "Permisos de Construcción en San Pedro & Harbor — Los Ángeles | PermitPulse (last 30 days, >$50k)",
+  "description": "Fresh LADBS permits filtered for the selected area/topic.",
+  "creator": {"@type":"Organization","name":"PermitPulse"},
+  "isAccessibleForFree": true,
+  "license": "https://creativecommons.org/licenses/by/4.0/",
+  "distribution": [
+    {"@type":"DataDownload","encodingFormat":"application/json","contentUrl":"https://getpermitpulse.com/api/permits?city=los-angeles&limit=250&kw=san%20pedro"},
+    {"@type":"DataDownload","encodingFormat":"text/csv","contentUrl":"https://getpermitpulse.com/csv/ladbs?since_days=30&min_value=50000&kw=san%20pedro"}
+  ],
+  "keywords": ["building permits","Los Angeles","san pedro","construction"]
+}
+</script>
+</head>
+    <body class="bg-gray-50 text-gray-900">
+      <div class="max-w-3xl mx-auto p-6">
+        <!-- Language Toggle (drop anywhere in <body>) -->
+<div id="lang-toggle" class="text-right text-sm text-gray-600">
+  <!-- Populated by script -->
+</div>
+<script>
+(function() {
+  var el = document.getElementById('lang-toggle');
+  if (!el) return;
+  var path = location.pathname;
+  var isEs = path.startsWith('/es/');
+  var counterpart = isEs ? path.replace(/^\/es\//,'/') : '/es' + path;
+  el.innerHTML = isEs
+    ? '<a class="underline" href="' + counterpart + '">English</a> | <span>Español</span>'
+    : '<span>English</span> | <a class="underline" href="' + counterpart + '">Español</a>';
+})();
+</script>
+        <header class="mb-6">
+          <h1 class="text-3xl font-bold">San Pedro & Harbor — Permisos de Construcción en Los Ángeles</h1>
+          <div class="text-gray-700 mt-3"></div>
+        </header>
+
+        <button id="createAlertBtn" data-kw="san pedro" class="mt-2 inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-white">
+          Crear alerta para este tema
+        </button>
+
+        <p class="mt-4">
+          <a class="text-blue-700 underline" onclick="fireGAEvent('download_csv', {city:'los-angeles', kw:'san pedro'})"
+             href="https://getpermitpulse.com/csv/ladbs?since_days=30&min_value=50000&kw=san%20pedro" target="_blank" rel="noopener">Descargar CSV (últimos 30 días, >$50k)</a>
+        </p>
+
+        <section class="mt-6 border-t pt-4">
+  <h2 class="font-semibold text-lg mb-2">Más fuentes de permisos de Los Ángeles</h2>
+  <nav class="text-blue-600 underline grid gap-1">
+    <a href="/los-angeles-solar-permits.html">Solar</a>
+    <a href="/los-angeles-roofing-permits.html">Roofing</a>
+    <a href="/los-angeles-adu-permits.html">ADU</a>
+    <a href="/los-angeles-new-construction-permits.html">New Construction</a>
+    <a href="/free-csv.html">CSV gratis</a>
+  </nav>
+</section>
+      </div>
+
+      <script>
+      (function(){
+        var btn = document.getElementById('createAlertBtn');
+        if (!btn) return;
+        document.addEventListener('DOMContentLoaded', function(){ 
+          fireGAEvent('view_results', { city: 'los-angeles', page: 'san-pedro', kw: 'san pedro' });
+        });
+        btn.addEventListener('click', function(){
+          fireGAEvent('alerts_open', { city: 'los-angeles', kw: 'san pedro' });
+          var email = prompt('Ingresa el correo para recibir esta alerta:');
+          if (!email) return;
+          var url = 'https://getpermitpulse.com/alerts/ladbs/test?email=' + encodeURIComponent(email) +
+                    '&since_days=30&min_value=50000&kw=' + encodeURIComponent(btn.dataset.kw);
+          fetch(url, { method: 'GET', mode: 'no-cors' })
+            .catch(function(){})
+            .finally(function(){
+              fireGAEvent('alert_created', { city: 'los-angeles', kw: 'san pedro' });
+              alert('¡Alerta guardada! Revisa tu correo para próximos resúmenes.');
+            });
+        });
+      })();
+      </script>
+    </body>
+    </html>
