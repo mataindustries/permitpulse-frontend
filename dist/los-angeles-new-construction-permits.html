@@ -1,89 +1,110 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <title>Los Angeles New Construction Permits — PermitPulse</title>
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-0S8S6156CV"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);} gtag('js', new Date()); gtag('config','G-0S8S6156CV');
-    function fireGAEvent(n){ gtag('event', n); }
-    document.addEventListener('DOMContentLoaded',()=>fireGAEvent('view_results'));
-  </script>
-  <script type="application/ld+json">
-  {
-    "@context":"http://schema.org",
-    "@type":"Dataset",
-    "name":"Los Angeles New Construction Permits (last 30 days, $50k+)",
-    "description":"LADBS permits likely to indicate new construction, filtered to projects ≥ $50,000 within the past 30 days.",
-    "url":"https://getpermitpulse.com/los-angeles-new-construction-permits.html",
-    "distribution":{
-      "@type":"DataDownload",
-      "encodingFormat":"text/csv",
-      "contentUrl":"https://getpermitpulse.com/csv/ladbs?since_days=30&min_value=50000&kw=new"
-    }
-  }
-  </script>
+      <meta charset="UTF-8" />
+      <meta name="viewport" content="width=device-width, initial-scale=1" />
+      <title>Los Angeles New Construction Permits — PermitPulse</title>
+      <meta name="description" content="High-value new construction filings from LADBS. Download CSVs or create alerts." />
+      <link rel="canonical" href="https://getpermitpulse.com/los-angeles-new-construction-permits.html" />
+      <meta property="og:title" content="Los Angeles New Construction Permits — PermitPulse" />
+      <meta property="og:description" content="High-value new construction filings from LADBS. Download CSVs or create alerts." />
+      <meta property="og:image" content="https://getpermitpulse.com/assets/permitpulse-og.jpg" />
+      <meta property="og:url" content="https://getpermitpulse.com/los-angeles-new-construction-permits.html" />
+      <meta name="twitter:card" content="summary_large_image" />
+
+<link rel="alternate" hreflang="en" href="https://getpermitpulse.com/los-angeles-new-construction-permits.html">
+<link rel="alternate" hreflang="es" href="https://getpermitpulse.com/es/es/los-angeles-new-construction-permits.html">
+      <script src="https://cdn.tailwindcss.com"></script>
+      <script async src="https://www.googletagmanager.com/gtag/js?id=G-0S8S6156CV"></script>
+      <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+        gtag('config', 'G-0S8S6156CV');
+        function fireGAEvent(name, params){ gtag('event', name, params || {}); }
+      </script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Dataset",
+  "name": "Los Angeles New Construction Permits (last 30 days, >$50k)",
+  "description": "Fresh LADBS permits filtered for the selected area/topic.",
+  "creator": {"@type":"Organization","name":"PermitPulse"},
+  "isAccessibleForFree": true,
+  "license": "https://creativecommons.org/licenses/by/4.0/",
+  "distribution": [
+    {"@type":"DataDownload","encodingFormat":"application/json","contentUrl":"https://getpermitpulse.com/api/permits?city=los-angeles&limit=250&kw=new"},
+    {"@type":"DataDownload","encodingFormat":"text/csv","contentUrl":"https://getpermitpulse.com/csv/ladbs?since_days=30&min_value=50000&kw=new"}
+  ],
+  "keywords": ["building permits","Los Angeles","new","construction"]
+}
+</script>
 </head>
-<body class="bg-gray-50 text-gray-900 p-6">
-  <h1 class="text-3xl font-bold mb-3">Los Angeles New Construction Permits</h1>
-  <p class="text-gray-800 mb-4">
-    New construction permits mark high-value projects that drive demand for subs, materials, financing, and inspections.
-    Use this page to spot larger builds and time outreach early in the cycle. Pair with tailored keywords (e.g., “ground-up”,
-    “foundation”, “core & shell”) on the Free CSV page to sharpen the feed for your niche.
-  </p>
-  <nav class="mb-4 flex flex-wrap gap-3 text-blue-600">
-    <a href="/los-angeles-roofing-permits.html">LA Roofing</a>
-    <a href="/los-angeles-solar-permits.html">LA Solar</a>
-    <a href="/los-angeles-adu-permits.html">LA ADU</a>
-    <a href="/los-angeles-new-construction-permits.html">LA New Construction</a>
-    <a href="/chicago-building-permits.html">Chicago Permits</a>
-    <a href="/austin-building-permits.html">Austin Permits</a>
-    <a href="/free-csv.html" onclick="fireGAEvent('alerts_open')">Free CSV</a>
+    <body class="bg-gray-50 text-gray-900">
+      <div class="max-w-3xl mx-auto p-6">
+        <!-- Language Toggle (drop anywhere in <body>) -->
+<div id="lang-toggle" class="text-right text-sm text-gray-600">
+  <!-- Populated by script -->
+</div>
+<script>
+(function() {
+  var el = document.getElementById('lang-toggle');
+  if (!el) return;
+  var path = location.pathname;
+  var isEs = path.startsWith('/es/');
+  var counterpart = isEs ? path.replace(/^\/es\//,'/') : '/es' + path;
+  el.innerHTML = isEs
+    ? '<a class="underline" href="' + counterpart + '">English</a> | <span>Español</span>'
+    : '<span>English</span> | <a class="underline" href="' + counterpart + '">Español</a>';
+})();
+</script>
+        <header class="mb-6">
+          <h1 class="text-3xl font-bold">Los Angeles New Construction Permits</h1>
+          <div class="text-gray-700 mt-3"></div>
+        </header>
+
+        <button id="createAlertBtn" data-kw="new" class="mt-2 inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-white">
+          Create Alert for this Topic
+        </button>
+
+        <p class="mt-4">
+          <a class="text-blue-700 underline" onclick="fireGAEvent('download_csv', {city:'los-angeles', kw:'new'})"
+             href="https://getpermitpulse.com/csv/ladbs?since_days=30&min_value=50000&kw=new" target="_blank" rel="noopener">Download CSV (last 30 days, >$50k)</a>
+        </p>
+
+        <section class="mt-6 border-t pt-4">
+  <h2 class="font-semibold text-lg mb-2">More Los Angeles Permit Feeds</h2>
+  <nav class="text-blue-600 underline grid gap-1">
+    <a href="/los-angeles-solar-permits.html">Solar</a>
+    <a href="/los-angeles-roofing-permits.html">Roofing</a>
+    <a href="/los-angeles-adu-permits.html">ADU</a>
+    <a href="/los-angeles-new-construction-permits.html">New Construction</a>
+    <a href="/free-csv.html">Free CSV</a>
   </nav>
-  <button id="createAlertBtn"
-        data-kw="new"
-        class="mt-3 inline-flex items-center gap-2 rounded bg-blue-600 px-4 py-2 text-white">
-  Create Alert for this Topic
-  </button>
-  <a class="text-blue-600 underline"
-     onclick="fireGAEvent('download_csv')"
-     href="https://getpermitpulse.com/csv/ladbs?since_days=30&min_value=50000&kw=new"
-     target="_blank" rel="noopener">Download CSV (New Construction, last 30 days, $50k+)</a>
-  <script>
-  // Requires GA helper in the page: function fireGAEvent(name){ gtag('event', name); }
+</section>
+      </div>
 
-  (function () {
-    const btn = document.getElementById('createAlertBtn');
-    if (!btn) return;
-
-    btn.addEventListener('click', function () {
-      fireGAEvent('alerts_open');
-
-      const email = prompt('Enter the email to receive this alert:');
-      if (!email) return;
-
-      const since_days = 30;
-      const min_value  = 50000;
-      const kw         = btn.dataset.kw || 'roof';
-
-      const url = `https://getpermitpulse.com/alerts/ladbs/test?email=${
-        encodeURIComponent(email)
-      }&since_days=${encodeURIComponent(since_days)}&min_value=${
-        encodeURIComponent(min_value)
-      }&kw=${encodeURIComponent(kw)}`;
-
-      fetch(url, { method: 'GET', mode: 'no-cors' })
-        .catch(()=>{})
-        .finally(() => {
-          // Track alert creation
-          fireGAEvent('alert_created');
-          alert('Alert saved! Check your inbox for future digests.');
+      <script>
+      (function(){
+        var btn = document.getElementById('createAlertBtn');
+        if (!btn) return;
+        document.addEventListener('DOMContentLoaded', function(){ 
+          fireGAEvent('view_results', { city: 'los-angeles', page: 'new-construction', kw: 'new' });
         });
-    });
-  })();
-  </script>
-</body>
-</html>
+        btn.addEventListener('click', function(){
+          fireGAEvent('alerts_open', { city: 'los-angeles', kw: 'new' });
+          var email = prompt('Enter the email to receive this alert:');
+          if (!email) return;
+          var url = 'https://getpermitpulse.com/alerts/ladbs/test?email=' + encodeURIComponent(email) +
+                    '&since_days=30&min_value=50000&kw=' + encodeURIComponent(btn.dataset.kw);
+          fetch(url, { method: 'GET', mode: 'no-cors' })
+            .catch(function(){})
+            .finally(function(){
+              fireGAEvent('alert_created', { city: 'los-angeles', kw: 'new' });
+              alert('Alert saved! Check your inbox for future digests.');
+            });
+        });
+      })();
+      </script>
+    </body>
+    </html>

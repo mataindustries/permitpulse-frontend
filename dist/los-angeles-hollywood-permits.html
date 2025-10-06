@@ -3,17 +3,17 @@
 <head>
       <meta charset="UTF-8" />
       <meta name="viewport" content="width=device-width, initial-scale=1" />
-      <title>Los Angeles Roofing Permits — PermitPulse</title>
-      <meta name="description" content="See recent LADBS roofing permits. Download CSVs or set alerts." />
-      <link rel="canonical" href="https://getpermitpulse.com/los-angeles-roofing-permits.html" />
-      <meta property="og:title" content="Los Angeles Roofing Permits — PermitPulse" />
-      <meta property="og:description" content="See recent LADBS roofing permits. Download CSVs or set alerts." />
+      <title>Hollywood Building Permits — Los Angeles | PermitPulse</title>
+      <meta name="description" content="Recent LADBS permits in Hollywood. Filter by keyword, download CSV, or create alerts." />
+      <link rel="canonical" href="https://getpermitpulse.com/los-angeles-hollywood-permits.html" />
+      <meta property="og:title" content="Hollywood Building Permits — Los Angeles | PermitPulse" />
+      <meta property="og:description" content="Recent LADBS permits in Hollywood. Filter by keyword, download CSV, or create alerts." />
       <meta property="og:image" content="https://getpermitpulse.com/assets/permitpulse-og.jpg" />
-      <meta property="og:url" content="https://getpermitpulse.com/los-angeles-roofing-permits.html" />
+      <meta property="og:url" content="https://getpermitpulse.com/los-angeles-hollywood-permits.html" />
       <meta name="twitter:card" content="summary_large_image" />
 
-<link rel="alternate" hreflang="en" href="https://getpermitpulse.com/los-angeles-roofing-permits.html">
-<link rel="alternate" hreflang="es" href="https://getpermitpulse.com/es/es/los-angeles-roofing-permits.html">
+<link rel="alternate" hreflang="en" href="https://getpermitpulse.com/los-angeles-hollywood-permits.html">
+<link rel="alternate" hreflang="es" href="https://getpermitpulse.com/es/es/los-angeles-hollywood-permits.html">
       <script src="https://cdn.tailwindcss.com"></script>
       <script async src="https://www.googletagmanager.com/gtag/js?id=G-0S8S6156CV"></script>
       <script>
@@ -27,16 +27,16 @@
 {
   "@context": "https://schema.org",
   "@type": "Dataset",
-  "name": "Los Angeles Roofing Permits (last 30 days, >$50k)",
+  "name": "Hollywood — Los Angeles Building Permits (last 30 days, >$50k)",
   "description": "Fresh LADBS permits filtered for the selected area/topic.",
   "creator": {"@type":"Organization","name":"PermitPulse"},
   "isAccessibleForFree": true,
   "license": "https://creativecommons.org/licenses/by/4.0/",
   "distribution": [
-    {"@type":"DataDownload","encodingFormat":"application/json","contentUrl":"https://getpermitpulse.com/api/permits?city=los-angeles&limit=250&kw=roof"},
-    {"@type":"DataDownload","encodingFormat":"text/csv","contentUrl":"https://getpermitpulse.com/csv/ladbs?since_days=30&min_value=50000&kw=roof"}
+    {"@type":"DataDownload","encodingFormat":"application/json","contentUrl":"https://getpermitpulse.com/api/permits?city=los-angeles&limit=250&kw=hollywood"},
+    {"@type":"DataDownload","encodingFormat":"text/csv","contentUrl":"https://getpermitpulse.com/csv/ladbs?since_days=30&min_value=50000&kw=hollywood"}
   ],
-  "keywords": ["building permits","Los Angeles","roof","construction"]
+  "keywords": ["building permits","Los Angeles","hollywood","construction"]
 }
 </script>
 </head>
@@ -59,17 +59,17 @@
 })();
 </script>
         <header class="mb-6">
-          <h1 class="text-3xl font-bold">Los Angeles Roofing Permits</h1>
+          <h1 class="text-3xl font-bold">Hollywood — Los Angeles Building Permits</h1>
           <div class="text-gray-700 mt-3"></div>
         </header>
 
-        <button id="createAlertBtn" data-kw="roof" class="mt-2 inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-white">
+        <button id="createAlertBtn" data-kw="hollywood" class="mt-2 inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-white">
           Create Alert for this Topic
         </button>
 
         <p class="mt-4">
-          <a class="text-blue-700 underline" onclick="fireGAEvent('download_csv', {city:'los-angeles', kw:'roof'})"
-             href="https://getpermitpulse.com/csv/ladbs?since_days=30&min_value=50000&kw=roof" target="_blank" rel="noopener">Download CSV (last 30 days, >$50k)</a>
+          <a class="text-blue-700 underline" onclick="fireGAEvent('download_csv', {city:'los-angeles', kw:'hollywood'})"
+             href="https://getpermitpulse.com/csv/ladbs?since_days=30&min_value=50000&kw=hollywood" target="_blank" rel="noopener">Download CSV (last 30 days, >$50k)</a>
         </p>
 
         <section class="mt-6 border-t pt-4">
@@ -89,10 +89,10 @@
         var btn = document.getElementById('createAlertBtn');
         if (!btn) return;
         document.addEventListener('DOMContentLoaded', function(){ 
-          fireGAEvent('view_results', { city: 'los-angeles', page: 'roofing', kw: 'roof' });
+          fireGAEvent('view_results', { city: 'los-angeles', page: 'hollywood', kw: 'hollywood' });
         });
         btn.addEventListener('click', function(){
-          fireGAEvent('alerts_open', { city: 'los-angeles', kw: 'roof' });
+          fireGAEvent('alerts_open', { city: 'los-angeles', kw: 'hollywood' });
           var email = prompt('Enter the email to receive this alert:');
           if (!email) return;
           var url = 'https://getpermitpulse.com/alerts/ladbs/test?email=' + encodeURIComponent(email) +
@@ -100,7 +100,7 @@
           fetch(url, { method: 'GET', mode: 'no-cors' })
             .catch(function(){})
             .finally(function(){
-              fireGAEvent('alert_created', { city: 'los-angeles', kw: 'roof' });
+              fireGAEvent('alert_created', { city: 'los-angeles', kw: 'hollywood' });
               alert('Alert saved! Check your inbox for future digests.');
             });
         });
