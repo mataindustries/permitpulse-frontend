@@ -50,8 +50,60 @@
   </script>
 </head>
 <body class="bg-gray-50 text-gray-900 p-4">
+  <!-- START: PermitPulse polished hero (EN) -->
+<header class="mb-8">
+  <div class="max-w-6xl mx-auto p-4 sm:p-8 rounded-3xl border border-blue-100 bg-gradient-to-r from-sky-50 to-blue-50 shadow-sm">
+    <div class="flex items-start justify-between gap-6">
+      <div>
+        <h1 class="text-3xl sm:text-4xl font-bold">Live LA Building Permits — CSV & Alerts</h1>
+        <p class="mt-2 max-w-2xl text-gray-700">
+          Win bids by being early. Filter LADBS permits by value & keywords, export CSVs, and set instant alerts.
+        </p>
+        <div class="mt-3 flex flex-wrap gap-2">
+          <span class="inline-flex items-center px-3 py-1 rounded-full text-sm border border-blue-200 bg-white">Live from LADBS</span>
+          <span class="inline-flex items-center px-3 py-1 rounded-full text-sm border border-blue-200 bg-white">CSV & Email Alerts</span>
+          <span class="inline-flex items-center px-3 py-1 rounded-full text-sm border border-blue-200 bg-white">LLM-ready JSON</span>
+        </div>
+        <div class="mt-6 flex flex-wrap gap-3">
+          <a href="#la-feeds" class="inline-flex items-center justify-center px-5 py-3 rounded-xl bg-blue-600 text-white font-semibold">Explore LA Permit Feeds</a>
+          <a href="/email-alerts.html" class="inline-flex items-center justify-center px-5 py-3 rounded-xl border border-slate-300 bg-white font-semibold">Create Alerts</a>
+        </div>
+      </div>
+      <div id="lang-toggle" class="text-sm text-right text-gray-600 min-w-[120px]"></div>
+    </div>
+  </div>
+</header>
+<!-- END: hero -->
+  <!-- START: LA internal links grid (EN) -->
+<section id="la-feeds" class="max-w-6xl mx-auto px-4 sm:px-6">
+  <h2 class="text-2xl font-bold mb-4">Los Angeles Permit Feeds</h2>
+  <div class="grid sm:grid-cols-2 gap-3 mb-6">
+    <a class="block p-4 rounded-xl border bg-white hover:bg-sky-50" href="/los-angeles-solar-permits.html">Solar →</a>
+    <a class="block p-4 rounded-xl border bg-white hover:bg-sky-50" href="/los-angeles-roofing-permits.html">Roofing →</a>
+    <a class="block p-4 rounded-xl border bg-white hover:bg-sky-50" href="/los-angeles-adu-permits.html">ADU →</a>
+    <a class="block p-4 rounded-xl border bg-white hover:bg-sky-50" href="/los-angeles-new-construction-permits.html">New Construction →</a>
+  </div>
+  <h3 class="text-lg font-semibold mb-2">Neighborhoods</h3>
+  <div class="grid sm:grid-cols-2 gap-3">
+    <a class="block p-4 rounded-xl border bg-white hover:bg-sky-50" href="/los-angeles-downtown-permits.html">Downtown LA →</a>
+    <a class="block p-4 rounded-xl border bg-white hover:bg-sky-50" href="/los-angeles-hollywood-permits.html">Hollywood →</a>
+    <a class="block p-4 rounded-xl border bg-white hover:bg-sky-50" href="/los-angeles-sfv-permits.html">San Fernando Valley →</a>
+    <a class="block p-4 rounded-xl border bg-white hover:bg-sky-50" href="/los-angeles-westside-permits.html">Westside →</a>
+    <a class="block p-4 rounded-xl border bg-white hover:bg-sky-50" href="/los-angeles-eastside-permits.html">Eastside →</a>
+    <a class="block p-4 rounded-xl border bg-white hover:bg-sky-50" href="/los-angeles-south-bay-permits.html">South Bay →</a>
+    <a class="block p-4 rounded-xl border bg-white hover:bg-sky-50" href="/los-angeles-san-pedro-permits.html">San Pedro &amp; Harbor →</a>
+    <a class="block p-4 rounded-xl border bg-white hover:bg-sky-50" href="/los-angeles-south-la-permits.html">South LA →</a>
+    <a class="block p-4 rounded-xl border bg-white hover:bg-sky-50" href="/los-angeles-san-fernando-city-permits.html">San Fernando (City) →</a>
+    <a class="block p-4 rounded-xl border bg-white hover:bg-sky-50" href="/los-angeles-west-sfv-permits.html">West SFV (Woodland Hills &amp; Encino) →</a>
+    <a class="block p-4 rounded-xl border bg-white hover:bg-sky-50" href="/los-angeles-harbor-city-lomita-permits.html">Harbor City &amp; Lomita →</a>
+  </div>
+  <div class="mt-6 mb-10">
+    <a class="underline" href="/free-csv.html" onclick="gtag('event','download_csv_nav',{page:'home_en'})">Download a free sample CSV</a>
+  </div>
+</section>
+<!-- END: internal links -->
   <header class="mb-6">
-    <h1 class="text-3xl font-bold mb-2">PermitPulse Data Portal</h1>
+    <h2 class="text-3xl font-bold mb-2">PermitPulse Data Portal</h2>
     <p class="mt-2 text-slate-600">
   <span class="inline-flex items-center gap-2">
     <span class="h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></span>
@@ -329,5 +381,14 @@
   Get free CSV
   </a>
   <script>if('requestIdleCallback'in window){requestIdleCallback(()=>{const s=document.createElement('script');s.src='https://www.googletagmanager.com/gtag/js?id=G-0S8S6156CV';s.async=1;document.head.appendChild(s);});}</script>
+  <script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@graph":[
+    {"@type":"WebPage","name":"Live LA Building Permits — CSV & Alerts","url":"https://getpermitpulse.com/","inLanguage":"en","about":{"@type":"City","name":"Los Angeles, CA"},"isPartOf":{"@type":"WebSite","url":"https://getpermitpulse.com/","name":"PermitPulse"}},
+    {"@type":"Organization","name":"PermitPulse","url":"https://getpermitpulse.com/","contactPoint":[{"@type":"ContactPoint","contactType":"customer support","email":"support@getpermitpulse.com","areaServed":"US"}]}
+  ]
+}
+  </script>
 </body>
 </html>
