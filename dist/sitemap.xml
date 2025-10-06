@@ -1,11 +1,53 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+
+  <!-- Home -->
+  <url><loc>https://getpermitpulse.com/</loc></url>
+  <url><loc>https://getpermitpulse.com/es/</loc></url>
+
+  <!-- Global pages -->
   <url><loc>https://getpermitpulse.com/index.html</loc></url>
   <url><loc>https://getpermitpulse.com/free-csv.html</loc></url>
+
+  <!-- LA core categories (EN) -->
   <url><loc>https://getpermitpulse.com/los-angeles-roofing-permits.html</loc></url>
   <url><loc>https://getpermitpulse.com/los-angeles-solar-permits.html</loc></url>
   <url><loc>https://getpermitpulse.com/los-angeles-adu-permits.html</loc></url>
   <url><loc>https://getpermitpulse.com/los-angeles-new-construction-permits.html</loc></url>
+
+  <!-- LA neighborhoods (EN) -->
+  <url><loc>https://getpermitpulse.com/los-angeles-downtown-permits.html</loc></url>
+  <url><loc>https://getpermitpulse.com/los-angeles-hollywood-permits.html</loc></url>
+  <url><loc>https://getpermitpulse.com/los-angeles-sfv-permits.html</loc></url>
+  <url><loc>https://getpermitpulse.com/los-angeles-westside-permits.html</loc></url>
+  <url><loc>https://getpermitpulse.com/los-angeles-eastside-permits.html</loc></url>
+  <url><loc>https://getpermitpulse.com/los-angeles-south-bay-permits.html</loc></url>
+  <url><loc>https://getpermitpulse.com/los-angeles-san-pedro-permits.html</loc></url>
+  <url><loc>https://getpermitpulse.com/los-angeles-south-la-permits.html</loc></url>
+  <url><loc>https://getpermitpulse.com/los-angeles-san-fernando-city-permits.html</loc></url>
+  <url><loc>https://getpermitpulse.com/los-angeles-west-sfv-permits.html</loc></url>
+  <url><loc>https://getpermitpulse.com/los-angeles-harbor-city-lomita-permits.html</loc></url>
+
+  <!-- LA core categories (ES) -->
+  <url><loc>https://getpermitpulse.com/es/los-angeles-roofing-permits.html</loc></url>
+  <url><loc>https://getpermitpulse.com/es/los-angeles-solar-permits.html</loc></url>
+  <url><loc>https://getpermitpulse.com/es/los-angeles-adu-permits.html</loc></url>
+  <url><loc>https://getpermitpulse.com/es/los-angeles-new-construction-permits.html</loc></url>
+
+  <!-- LA neighborhoods (ES) -->
+  <url><loc>https://getpermitpulse.com/es/los-angeles-downtown-permits.html</loc></url>
+  <url><loc>https://getpermitpulse.com/es/los-angeles-hollywood-permits.html</loc></url>
+  <url><loc>https://getpermitpulse.com/es/los-angeles-sfv-permits.html</loc></url>
+  <url><loc>https://getpermitpulse.com/es/los-angeles-westside-permits.html</loc></url>
+  <url><loc>https://getpermitpulse.com/es/los-angeles-eastside-permits.html</loc></url>
+  <url><loc>https://getpermitpulse.com/es/los-angeles-south-bay-permits.html</loc></url>
+  <url><loc>https://getpermitpulse.com/es/los-angeles-san-pedro-permits.html</loc></url>
+  <url><loc>https://getpermitpulse.com/es/los-angeles-south-la-permits.html</loc></url>
+  <url><loc>https://getpermitpulse.com/es/los-angeles-san-fernando-city-permits.html</loc></url>
+  <url><loc>https://getpermitpulse.com/es/los-angeles-west-sfv-permits.html</loc></url>
+  <url><loc>https://getpermitpulse.com/es/los-angeles-harbor-city-lomita-permits.html</loc></url>
+
+  <!-- Existing non-LA (keep if live) -->
   <url><loc>https://getpermitpulse.com/chicago-building-permits.html</loc></url>
   <url><loc>https://getpermitpulse.com/austin-building-permits.html</loc></url>
 </urlset>
