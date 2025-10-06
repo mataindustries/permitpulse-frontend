@@ -390,5 +390,20 @@
   ]
 }
   </script>
+  <script>
+(function(){
+  var el = document.getElementById('lang-toggle');
+  if (!el) return;
+  var path = location.pathname;
+  var isEs = path.indexOf('/es/') === 0 || /\/es\/?$/.test(path);
+  var base = isEs ? path.replace(/^\/es\//,'/') : path;
+  if (base === '/' || base === '') base = '/index.html';
+  // link to Spanish counterpart
+  var counterpart = '/es' + (base === '/index.html' ? '/index.html' : base);
+  el.innerHTML = isEs
+    ? '<a class="underline" href="'+base+'">English</a> | <span>Español</span>'
+    : '<span>English</span> | <a class="underline" href="'+counterpart+'">Español</a>';
+})();
+  </script>
 </body>
 </html>
