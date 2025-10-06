@@ -1,19 +1,19 @@
 <!DOCTYPE html>
 <html lang="es">
-<head>
+
+    <head>
       <meta charset="UTF-8" />
       <meta name="viewport" content="width=device-width, initial-scale=1" />
       <title>Los Ángeles ADU Permisos — PermitPulse</title>
-      <meta name="description" content="Permisos recientes del LADBS. Descargue CSVs o cree alertas personalizadas." />
+      <meta name="description" content="Permisos recientes de LADBS. Filtre por palabra clave, exporte CSV y cree alertas." />
       <link rel="canonical" href="https://getpermitpulse.com/es/los-angeles-adu-permits.html" />
       <meta property="og:title" content="Los Ángeles ADU Permisos — PermitPulse" />
-      <meta property="og:description" content="Permisos recientes del LADBS. Descargue CSVs o cree alertas personalizadas." />
+      <meta property="og:description" content="Permisos recientes de LADBS. Filtre por palabra clave, exporte CSV y cree alertas." />
       <meta property="og:image" content="https://getpermitpulse.com/assets/permitpulse-og.jpg" />
       <meta property="og:url" content="https://getpermitpulse.com/es/los-angeles-adu-permits.html" />
       <meta name="twitter:card" content="summary_large_image" />
-
-<link rel="alternate" hreflang="en" href="https://getpermitpulse.com/los-angeles-adu-permits.html">
-<link rel="alternate" hreflang="es" href="https://getpermitpulse.com/es/los-angeles-adu-permits.html">
+      <link rel="alternate" hreflang="en" href="https://getpermitpulse.com/los-angeles-adu-permits.html">
+      <link rel="alternate" hreflang="es" href="https://getpermitpulse.com/es/los-angeles-adu-permits.html">
       <script src="https://cdn.tailwindcss.com"></script>
       <script async src="https://www.googletagmanager.com/gtag/js?id=G-0S8S6156CV"></script>
       <script>
@@ -23,88 +23,102 @@
         gtag('config', 'G-0S8S6156CV');
         function fireGAEvent(name, params){ gtag('event', name, params || {}); }
       </script>
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@type": "Dataset",
-  "name": "Los Ángeles ADU Permisos — PermitPulse (last 30 days, >$50k)",
-  "description": "Fresh LADBS permits filtered for the selected area/topic.",
-  "creator": {"@type":"Organization","name":"PermitPulse"},
-  "isAccessibleForFree": true,
-  "license": "https://creativecommons.org/licenses/by/4.0/",
-  "distribution": [
-    {"@type":"DataDownload","encodingFormat":"application/json","contentUrl":"https://getpermitpulse.com/api/permits?city=los-angeles&limit=250&kw=adu"},
-    {"@type":"DataDownload","encodingFormat":"text/csv","contentUrl":"https://getpermitpulse.com/csv/ladbs?since_days=30&min_value=50000&kw=adu"}
-  ],
-  "keywords": ["building permits","Los Angeles","adu","construction"]
-}
-</script>
+      <style>
+        .chip{display:inline-flex;align-items:center;gap:.4rem;padding:.2rem .6rem;border-radius:999px;border:1px solid rgba(59,130,246,.25);background:#f8fbff;font-size:.75rem;color:#1f3b82} 
+        .card{background:white;border:1px solid #e5e7eb;border-radius:1rem;box-shadow:0 1px 2px rgba(0,0,0,.04)}
+        .btn-primary{background:#2563eb;color:white;padding:.6rem 1rem;border-radius:.75rem;font-weight:600}
+        .btn-primary:hover{filter:brightness(.95)}
+        .link{color:#1d4ed8;text-decoration:underline}
+      </style>
+    
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "Dataset", "name": "Los Ángeles ADU Permisos (last 30 days, >$50k)", "description": "Fresh, normalized LADBS permits for Los Angeles with status, address and geodata.", "creator": {"@type": "Organization", "name": "PermitPulse"}, "isAccessibleForFree": true, "license": "https://creativecommons.org/licenses/by/4.0/", "distribution": [{"@type": "DataDownload", "encodingFormat": "application/json", "contentUrl": "https://getpermitpulse.com/api/permits?city=los-angeles&limit=250&kw=adu"}, {"@type": "DataDownload", "encodingFormat": "text/csv", "contentUrl": "https://getpermitpulse.com/csv/ladbs?since_days=30&min_value=50000&kw=adu"}], "keywords": ["building permits", "Los Angeles", "adu", "construction"]}</script>
 </head>
-    <body class="bg-gray-50 text-gray-900">
-      <div class="max-w-3xl mx-auto p-6">
-        <!-- Language Toggle (drop anywhere in <body>) -->
-<div id="lang-toggle" class="text-right text-sm text-gray-600">
-  <!-- Populated by script -->
-</div>
-<script>
-(function() {
-  var el = document.getElementById('lang-toggle');
-  if (!el) return;
-  var path = location.pathname;
-  var isEs = path.startsWith('/es/');
-  var counterpart = isEs ? path.replace(/^\/es\//,'/') : '/es' + path;
-  el.innerHTML = isEs
-    ? '<a class="underline" href="' + counterpart + '">English</a> | <span>Español</span>'
-    : '<span>English</span> | <a class="underline" href="' + counterpart + '">Español</a>';
-})();
-</script>
-        <header class="mb-6">
-          <h1 class="text-3xl font-bold">Los Ángeles ADU Permisos</h1>
-          <div class="text-gray-700 mt-3"></div>
-        </header>
-
-        <button id="createAlertBtn" data-kw="adu" class="mt-2 inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-white">
-          Crear alerta para este tema
-        </button>
-
-        <p class="mt-4">
-          <a class="text-blue-700 underline" onclick="fireGAEvent('download_csv', {city:'los-angeles', kw:'adu'})"
-             href="https://getpermitpulse.com/csv/ladbs?since_days=30&min_value=50000&kw=adu" target="_blank" rel="noopener">Descargar CSV (últimos 30 días, >$50k)</a>
-        </p>
-
-        <section class="mt-6 border-t pt-4">
-  <h2 class="font-semibold text-lg mb-2">Más fuentes de permisos de Los Ángeles</h2>
-  <nav class="text-blue-600 underline grid gap-1">
-    <a href="/los-angeles-solar-permits.html">Solar</a>
-    <a href="/los-angeles-roofing-permits.html">Roofing</a>
-    <a href="/los-angeles-adu-permits.html">ADU</a>
-    <a href="/los-angeles-new-construction-permits.html">New Construction</a>
-    <a href="/free-csv.html">CSV gratis</a>
-  </nav>
-</section>
+<body class="bg-gray-50 text-gray-900">
+<main class="max-w-3xl mx-auto p-4 sm:p-6">
+<header class="mb-6">
+      <nav class="text-sm text-gray-500 mb-2"><a class="link" href="/">Inicio</a> <span>→</span> <span>Los Ángeles</span></nav>
+      <div class="rounded-2xl border border-blue-100 bg-gradient-to-r from-sky-50 to-blue-50 p-5 shadow-sm">
+        <div class="flex items-start justify-between gap-4">
+          <div>
+            <h1 class="text-3xl font-bold">Los Ángeles ADU Permisos</h1>
+            <p class="mt-1 text-gray-700">Permisos recientes de LADBS. Filtre por palabra clave, exporte CSV y cree alertas.</p>
+            <div class="mt-3 flex flex-wrap gap-2">
+              <span class="chip">Live from LADBS</span>
+              <span class="chip">CSV & Alerts</span>
+              <span class="chip">LA Coverage</span>
+            </div>
+          </div>
+          <div class="text-right"><!-- Language Toggle -->
+    <div id="lang-toggle" class="text-right text-sm text-gray-600"></div>
+    <script>
+    (function(){
+      var el = document.getElementById('lang-toggle');
+      if (!el) return;
+      var path = location.pathname;
+      var isEs = path.indexOf('/es/') === 0;
+      var base = isEs ? path.replace(/^\/es\//,'/') : path;
+      var counterpart = isEs ? base : '/es' + base;
+      el.innerHTML = isEs
+        ? '<a class="underline" href="' + counterpart + '">English</a> | <span>Español</span>'
+        : '<span>English</span> | <a class="underline" href="' + counterpart + '">Español</a>';
+    })();
+    </script></div>
+        </div>
       </div>
+    </header>
 
-      <script>
+                <section class="mt-6 card p-5 space-y-3 text-[15px] leading-7">
+                  <p><strong>ADUs que cierran:</strong> Siga conversiones de garaje, unidades separadas y JADUs. Útil para constructores, financiamiento e inversores.</p>
+                  <ul class="list-disc pl-5">
+                    <li>Palabras clave: “ADU”, “JADU”, “conversión de garaje”, “separada”, “conversión”, “SB9”</li>
+                    <li>Ordene por valoración para encontrar proyectos de mayor especificación.</li>
+                  </ul>
+                  <p class="text-sm text-gray-600">Cree alertas por vecindario para no perder nuevas solicitudes.</p>
+                </section>
+            
+
+    <section class="sticky top-0 z-10 bg-white/70 backdrop-blur supports-backdrop-blur:backdrop-blur-md p-3 border-b">
+      <div class="max-w-3xl mx-auto flex items-center gap-3">
+        <button id="createAlertBtn" data-kw="adu" class="btn-primary">Crear alerta para este tema</button>
+        <a class="link" onclick="fireGAEvent('download_csv', {city:'los-angeles', kw:'adu'})" href="https://getpermitpulse.com/csv/ladbs?since_days=30&min_value=50000&kw=adu" target="_blank" rel="noopener">Descargar CSV (últimos 30 días, >$50k)</a>
+      </div>
+    </section>
+    <script>
       (function(){
+        document.addEventListener('DOMContentLoaded', function(){ 
+          fireGAEvent('view_results', { city: 'los-angeles', kw: 'adu' });
+        });
         var btn = document.getElementById('createAlertBtn');
         if (!btn) return;
-        document.addEventListener('DOMContentLoaded', function(){ 
-          fireGAEvent('view_results', { city: 'los-angeles', page: 'adu', kw: 'adu' });
-        });
         btn.addEventListener('click', function(){
           fireGAEvent('alerts_open', { city: 'los-angeles', kw: 'adu' });
-          var email = prompt('Ingresa el correo para recibir esta alerta:');
+          var email = prompt("Ingresa el correo para recibir esta alerta:");
           if (!email) return;
           var url = 'https://getpermitpulse.com/alerts/ladbs/test?email=' + encodeURIComponent(email) +
                     '&since_days=30&min_value=50000&kw=' + encodeURIComponent(btn.dataset.kw);
-          fetch(url, { method: 'GET', mode: 'no-cors' })
-            .catch(function(){})
-            .finally(function(){
-              fireGAEvent('alert_created', { city: 'los-angeles', kw: 'adu' });
-              alert('¡Alerta guardada! Revisa tu correo para próximos resúmenes.');
-            });
+          fetch(url, { method:'GET', mode:'no-cors' }).finally(function(){
+            fireGAEvent('alert_created', { city:'los-angeles', kw:'adu' });
+            alert("¡Alerta guardada! Revisa tu correo para próximos resúmenes.");
+          });
         });
       })();
-      </script>
-    </body>
-    </html>
+    </script>
+    
+<section class="mt-8 card p-4">
+      <h2 class="text-lg font-semibold mb-2">Más fuentes de permisos de Los Ángeles</h2>
+      <nav class="grid gap-1">
+        <a class="link" href="/los-angeles-solar-permits.html">Solar</a>
+        <a class="link" href="/los-angeles-roofing-permits.html">Roofing</a>
+        <a class="link" href="/los-angeles-adu-perits.html">ADU</a>
+        <a class="link" href="/los-angeles-new-construction-permits.html">New Construction</a>
+        <a class="link" href="/free-csv.html">CSV gratis</a>
+      </nav>
+    </section>
+<section class="mt-8 card p-4 space-y-2">
+      <h2 class="text-lg font-semibold">Preguntas frecuentes</h2>
+      <details class="p-2 rounded border"><summary class="font-medium">¿Qué tan frescos son los datos?</summary><p>Obtenemos datos de fuentes oficiales de LADBS y se actualizan de forma continua. Cada registro incluye su última hora de actualización.</p></details>
+      <details class="p-2 rounded border"><summary class="font-medium">¿Puedo filtrar por contratista o vecindario?</summary><p>Sí; use filtros por palabra en el CSV o incluya el área/contratista al crear una alerta.</p></details>
+      <details class="p-2 rounded border"><summary class="font-medium">¿Puedo exportar CSV y recibir alertas por correo?</summary><p>Sí—descargue CSV para analizar y cree alertas para recibir coincidencias por email.</p></details>
+    </section>
+<script type="application/ld+json">{"@context": "https://schema.org", "@type": "FAQPage", "mainEntity": [{"@type": "Question", "name": "¿Qué tan frescos son los datos?", "acceptedAnswer": {"@type": "Answer", "text": "Obtenemos datos de fuentes oficiales de LADBS y se actualizan de forma continua. Cada registro incluye su última hora de actualización."}}, {"@type": "Question", "name": "¿Puedo filtrar por contratista o vecindario?", "acceptedAnswer": {"@type": "Answer", "text": "Sí. Use filtros por palabra en el CSV o incluya el área/contratista al crear una alerta."}}, {"@type": "Question", "name": "¿Puedo exportar CSV y recibir alertas por correo?", "acceptedAnswer": {"@type": "Answer", "text": "Sí—descargue CSV para analizar y cree alertas para recibir coincidencias por email."}}]}</script>
+</main></body></html>
