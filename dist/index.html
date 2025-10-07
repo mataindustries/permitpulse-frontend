@@ -309,26 +309,6 @@
   const section = document.getElementById('pricing');
   if (section) pv.observe(section);
 
-  // Live stat: count last 30d & min $50k (same defaults as UI)
-  (async function(){
-    try {
-      const u = new URL('/live/ladbs', location.origin);
-      u.searchParams.set('since_days','30');
-      u.searchParams.set('min_value','50000');
-      u.searchParams.set('limit','1');
-      const r = await fetch(u);
-      const j = await r.json();
-      const el = document.getElementById('pp-live-count');
-      if (j && j.ok && typeof j.count === 'number') {
-        el.textContent = `${j.count} permits matched in the last 30 days`;
-      } else {
-        el.textContent = 'Live LADBS connected';
-      }
-    } catch {
-      const el = document.getElementById('pp-live-count');
-      if (el) el.textContent = 'Live LADBS connected';
-    }
-  })();
 </script>
 <!-- ===== /PermitPulse: Pricing + Flash ===== -->
   <section id="about" class="border-t border-slate-200 bg-white">
@@ -360,7 +340,7 @@
   </section>
   <footer class="text-center mt-12 text-sm text-gray-500">
   Updated daily • Cancel anytime • Email support<br>
-  © 2025 PermitPulse — Questions? 
+  © <span id="pp-year"></span> PermitPulse — Questions? 
   <a href="mailto:hello@getpermitpulse.com" class="underline">hello@getpermitpulse.com</a> • 
   <a href="https://calendly.com/permitpulse" class="underline">Book a demo</a>
   </footer>
@@ -403,6 +383,31 @@
   el.innerHTML = isEs
     ? '<a class="underline" href="'+base+'">English</a> | <span>Español</span>'
     : '<span>English</span> | <a class="underline" href="'+counterpart+'">Español</a>';
+})();
+  </script>
+  <script>
+(function(){
+  var isEs = (document.documentElement.lang || '').toLowerCase().indexOf('es') === 0;
+  var txt = { checking: 'Checking permits…', connected: 'Live LADBS connected' };
+
+  function setTxt(v){
+    var a = document.getElementById('pp-live-count');
+    var b = document.getElementById('pp-live-count-2');
+    if (a) a.textContent = v;
+    if (b) b.textContent = v;
+  }
+  setTxt(txt.checking);
+
+  (async function(){
+    try {
+      var u = new URL('/live/ladbs', location.origin);
+      u.searchParams.set('since_days','30');
+      u.searchParams.set('min_value','50000');
+      u.searchParams.set('limit','1');
+      await fetch(u, { mode: 'no-cors' });
+      setTxt(txt.connected);
+    } catch { setTxt(txt.connected); }
+  })();
 })();
   </script>
 </body>
