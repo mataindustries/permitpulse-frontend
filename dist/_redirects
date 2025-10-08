@@ -1,3 +1,22 @@
-/city/* /city/index.html 200
-/thank-you /thank-you/index.html 200
-/* /index.html 200
+# --- Specific landers (rewrite = serve file, keep pretty URL)
+# LA English + Spanish
+/la-contractors            /la-contractors-la.html            200
+/es/la-contratistas        /es/la-contratistas-la.html        200
+
+# Spanish CSV shim (so the file is served, not the SPA)
+/es/free-csv               /es/free-csv/index.html            200
+
+# --- Your existing specific SPA routes
+/city/*                    /city/index.html                   200
+/thank-you                 /thank-you/index.html              200
+
+# --- Optional shortcuts (real redirects)
+/free-csv-es               /free-csv?lang=es                  301
+/pricing-es                /pricing?lang=es                   301
+
+# --- Trailing slash cleanup (optional but tidy)
+/la-contractors/           /la-contractors                    301
+/es/la-contratistas/       /es/la-contratistas                301
+
+# --- SPA catch-all MUST be last
+/*                         /index.html                        200
