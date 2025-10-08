@@ -4,9 +4,10 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-  <title>Permisos de Construcción en LA · CSV y Alertas | PermitPulse</title>
-<meta name="description" content="Llegue primero a cada licitación. Filtre permisos de LADBS por valor y palabras clave, exporte CSV y reciba alertas por email.">
-<link rel="canonical" href="https://getpermitpulse.com/es/">
+  <title>Permisos en Los Ángeles · CSV y Alertas | PermitPulse</title>
+  <meta name="description" content="Llega primero a los proyectos grandes. Filtra permisos de LADBS por valor y palabras clave, exporta CSV y recibe alertas sin broncas.">
+  <link rel="canonical" href="https://getpermitpulse.com/es/">
+
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
 
@@ -23,19 +24,19 @@
     document.addEventListener('DOMContentLoaded', ()=>{ fireGAEvent('view_results'); });
   </script>
 
- <!-- Hreflang set -->
-<link rel="alternate" hreflang="en" href="https://getpermitpulse.com/">
-<link rel="alternate" hreflang="es" href="https://getpermitpulse.com/es/">
-<link rel="alternate" hreflang="x-default" href="https://getpermitpulse.com/">
+  <!-- Hreflang set -->
+  <link rel="alternate" hreflang="en" href="https://getpermitpulse.com/">
+  <link rel="alternate" hreflang="es" href="https://getpermitpulse.com/es/">
+  <link rel="alternate" hreflang="x-default" href="https://getpermitpulse.com/">
 
-<!-- OG/Twitter (Spanish) -->
-<meta property="og:title" content="Permisos de Construcción en LA · CSV y Alertas">
-<meta property="og:description" content="Permisos de LADBS filtrados por valor y palabras clave. Exportación CSV y alertas por email.">
-<meta property="og:url" content="https://getpermitpulse.com/es/">
-<meta property="og:type" content="website">
-<meta name="twitter:card" content="summary_large_image">
+  <!-- OG/Twitter (Spanish) -->
+  <meta property="og:title" content="Permisos en Los Ángeles · CSV y Alertas">
+  <meta property="og:description" content="Permisos de LADBS filtrados por valor y palabras clave. Exporta CSV y activa alertas al toque.">
+  <meta property="og:url" content="https://getpermitpulse.com/es/">
+  <meta property="og:type" content="website">
+  <meta name="twitter:card" content="summary_large_image">
 
-  <!-- (4) schema.org Product JSON-LD  — RIGHT AFTER OG/TWITTER TAGS -->
+  <!-- schema.org Product JSON-LD -->
   <script type="application/ld+json">
   {
     "@context":"https://schema.org",
@@ -53,414 +54,425 @@
   </script>
 </head>
 <body class="bg-gray-50 text-gray-900 p-4">
-<!-- HERO: ES -->
-<header class="mb-8">
-  <div class="max-w-6xl mx-auto p-4 sm:p-8 rounded-3xl border border-blue-100 bg-gradient-to-r from-sky-50 to-blue-50 shadow-sm">
-    <div class="flex items-start justify-between gap-6">
-      <div>
-        <h1 class="text-3xl sm:text-4xl font-bold">Permisos de Construcción en LA — CSV y Alertas</h1>
-        <p class="mt-2 max-w-2xl text-gray-700">
-          Gane licitaciones llegando primero. Filtre permisos de LADBS por valor y palabras clave, exporte CSV y reciba alertas.
-        </p>
-        <div class="mt-3 flex flex-wrap gap-2">
-          <span class="inline-flex items-center px-3 py-1 rounded-full text-sm border border-blue-200 bg-white">Flujo en vivo de LADBS</span>
-          <span class="inline-flex items-center px-3 py-1 rounded-full text-sm border border-blue-200 bg-white">CSV y alertas por email</span>
-          <span class="inline-flex items-center px-3 py-1 rounded-full text-sm border border-blue-200 bg-white">JSON para IA</span>
+  <!-- HERO: ES -->
+  <header class="mb-8">
+    <div class="max-w-6xl mx-auto p-4 sm:p-8 rounded-3xl border border-blue-100 bg-gradient-to-r from-sky-50 to-blue-50 shadow-sm">
+      <div class="flex items-start justify-between gap-6">
+        <div>
+          <h1 class="text-3xl sm:text-4xl font-bold">Permisos en Los Ángeles — CSV y Alertas</h1>
+          <p class="mt-2 max-w-2xl text-gray-700">
+            Llega primero a los proyectos grandes. Filtra permisos de LADBS por valor y palabras clave, exporta CSV y activa alertas al toque.
+          </p>
+          <div class="mt-3 flex flex-wrap gap-2">
+            <span class="inline-flex items-center px-3 py-1 rounded-full text-sm border border-blue-200 bg-white">Flujo en vivo de LADBS</span>
+            <span class="inline-flex items-center px-3 py-1 rounded-full text-sm border border-blue-200 bg-white">CSV y alertas por email</span>
+            <span class="inline-flex items-center px-3 py-1 rounded-full text-sm border border-blue-200 bg-white">JSON listo para IA</span>
+          </div>
+          <div class="mt-6 flex flex-wrap gap-3">
+            <a href="#la-feeds" class="inline-flex items-center justify-center px-5 py-3 rounded-xl bg-blue-600 text-white font-semibold">Explorar feeds</a>
+            <a href="/email-alerts.html" class="inline-flex items-center justify-center px-5 py-3 rounded-xl border border-slate-300 bg-white font-semibold">Crear alertas</a>
+          </div>
         </div>
-        <div class="mt-6 flex flex-wrap gap-3">
-          <a href="#la-feeds" class="inline-flex items-center justify-center px-5 py-3 rounded-xl bg-blue-600 text-white font-semibold">Explorar feeds de permisos</a>
-          <a href="/email-alerts.html" class="inline-flex items-center justify-center px-5 py-3 rounded-xl border border-slate-300 bg-white font-semibold">Crear alertas</a>
-        </div>
+        <div id="lang-toggle" class="text-sm text-right text-gray-600 min-w-[120px]"></div>
       </div>
-      <div id="lang-toggle" class="text-sm text-right text-gray-600 min-w-[120px]"></div>
     </div>
-  </div>
-</header> 
-<!-- END: hero -->
- <!-- INTERNAL LINKS: ES -->
-<section id="la-feeds" class="max-w-6xl mx-auto px-4 sm:px-6">
-  <h2 class="text-2xl font-bold mb-4">Feeds de Permisos en Los Ángeles</h2>
+  </header>
+  <!-- END: hero -->
 
-  <div class="grid sm:grid-cols-2 gap-3 mb-6">
-    <a class="block p-4 rounded-xl border bg-white hover:bg-sky-50" href="/es/los-angeles-solar-permits.html">Solar →</a>
-    <a class="block p-4 rounded-xl border bg-white hover:bg-sky-50" href="/es/los-angeles-roofing-permits.html">Techos →</a>
-    <a class="block p-4 rounded-xl border bg-white hover:bg-sky-50" href="/es/los-angeles-adu-permits.html">ADU →</a>
-    <a class="block p-4 rounded-xl border bg-white hover:bg-sky-50" href="/es/los-angeles-new-construction-permits.html">Obra Nueva →</a>
-  </div>
+  <!-- INTERNAL LINKS: ES -->
+  <section id="la-feeds" class="max-w-6xl mx-auto px-4 sm:px-6">
+    <h2 class="text-2xl font-bold mb-4">Feeds de Permisos en Los Ángeles</h2>
 
-  <h3 class="text-lg font-semibold mb-2">Zonas</h3>
-  <div class="grid sm:grid-cols-2 gap-3">
-    <a class="block p-4 rounded-xl border bg-white hover:bg-sky-50" href="/es/los-angeles-downtown-permits.html">Centro de LA →</a>
-    <a class="block p-4 rounded-xl border bg-white hover:bg-sky-50" href="/es/los-angeles-hollywood-permits.html">Hollywood →</a>
-    <a class="block p-4 rounded-xl border bg-white hover:bg-sky-50" href="/es/los-angeles-sfv-permits.html">Valle de San Fernando →</a>
-    <a class="block p-4 rounded-xl border bg-white hover:bg-sky-50" href="/es/los-angeles-westside-permits.html">Westside →</a>
-    <a class="block p-4 rounded-xl border bg-white hover:bg-sky-50" href="/es/los-angeles-eastside-permits.html">Eastside →</a>
-    <a class="block p-4 rounded-xl border bg-white hover:bg-sky-50" href="/es/los-angeles-south-bay-permits.html">South Bay →</a>
-    <a class="block p-4 rounded-xl border bg-white hover:bg-sky-50" href="/es/los-angeles-san-pedro-permits.html">San Pedro y Puerto →</a>
-    <a class="block p-4 rounded-xl border bg-white hover:bg-sky-50" href="/es/los-angeles-south-la-permits.html">Sur de LA →</a>
-    <a class="block p-4 rounded-xl border bg-white hover:bg-sky-50" href="/es/los-angeles-san-fernando-city-permits.html">San Fernando (Ciudad) →</a>
-    <a class="block p-4 rounded-xl border bg-white hover:bg-sky-50" href="/es/los-angeles-west-sfv-permits.html">Oeste del Valle (Woodland Hills/Encino) →</a>
-    <a class="block p-4 rounded-xl border bg-white hover:bg-sky-50" href="/es/los-angeles-harbor-city-lomita-permits.html">Harbor City y Lomita →</a>
-  </div>
+    <div class="grid sm:grid-cols-2 gap-3 mb-6">
+      <a class="block p-4 rounded-xl border bg-white hover:bg-sky-50" href="/es/los-angeles-solar-permits.html">Solar →</a>
+      <a class="block p-4 rounded-xl border bg-white hover:bg-sky-50" href="/es/los-angeles-roofing-permits.html">Techos →</a>
+      <a class="block p-4 rounded-xl border bg-white hover:bg-sky-50" href="/es/los-angeles-adu-permits.html">ADU →</a>
+      <a class="block p-4 rounded-xl border bg-white hover:bg-sky-50" href="/es/los-angeles-new-construction-permits.html">Obra Nueva →</a>
+    </div>
 
-  <div class="mt-6 mb-10">
-    <!-- keep /free-csv.html if you only have EN version today -->
-    <a class="underline" href="/free-csv.html" onclick="gtag('event','download_csv_nav',{page:'home_es'})">Descargar un CSV gratis</a>
-  </div>
-</section> 
-<!-- END: internal links -->
+    <h3 class="text-lg font-semibold mb-2">Zonas</h3>
+    <div class="grid sm:grid-cols-2 gap-3">
+      <a class="block p-4 rounded-xl border bg-white hover:bg-sky-50" href="/es/los-angeles-downtown-permits.html">Centro de LA →</a>
+      <a class="block p-4 rounded-xl border bg-white hover:bg-sky-50" href="/es/los-angeles-hollywood-permits.html">Hollywood →</a>
+      <a class="block p-4 rounded-xl border bg-white hover:bg-sky-50" href="/es/los-angeles-sfv-permits.html">Valle de San Fernando →</a>
+      <a class="block p-4 rounded-xl border bg-white hover:bg-sky-50" href="/es/los-angeles-westside-permits.html">Westside →</a>
+      <a class="block p-4 rounded-xl border bg-white hover:bg-sky-50" href="/es/los-angeles-eastside-permits.html">Eastside →</a>
+      <a class="block p-4 rounded-xl border bg-white hover:bg-sky-50" href="/es/los-angeles-south-bay-permits.html">South Bay →</a>
+      <a class="block p-4 rounded-xl border bg-white hover:bg-sky-50" href="/es/los-angeles-san-pedro-permits.html">San Pedro y Puerto →</a>
+      <a class="block p-4 rounded-xl border bg-white hover:bg-sky-50" href="/es/los-angeles-south-la-permits.html">Sur de LA →</a>
+      <a class="block p-4 rounded-xl border bg-white hover:bg-sky-50" href="/es/los-angeles-san-fernando-city-permits.html">San Fernando (Ciudad) →</a>
+      <a class="block p-4 rounded-xl border bg-white hover:bg-sky-50" href="/es/los-angeles-west-sfv-permits.html">Oeste del Valle (Woodland Hills/Encino) →</a>
+      <a class="block p-4 rounded-xl border bg-white hover:bg-sky-50" href="/es/los-angeles-harbor-city-lomita-permits.html">Harbor City y Lomita →</a>
+    </div>
+
+    <div class="mt-6 mb-10">
+      <!-- keep /free-csv.html if you only have EN version today -->
+      <a class="underline" href="/free-csv.html" onclick="gtag('event','download_csv_nav',{page:'home_es'})">Pedir un CSV gratis</a>
+    </div>
+  </section>
+  <!-- END: internal links -->
+
   <header class="mb-6">
     <h2 class="text-3xl font-bold mb-2">Portal de Datos de PermitPulse</h2>
     <p class="mt-2 text-slate-600">
-  <span class="inline-flex items-center gap-2">
-    <span class="h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></span>
-   Flujo en vivo de LADBS
-  </span>
+      <span class="inline-flex items-center gap-2">
+        <span class="h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></span>
+        Flujo en vivo de LADBS
+      </span>
     </p>
     <p id="pp-live-count" class="mt-2 text-sm text-slate-500">Revisando permisos…</p>
 
-    <p class="text-gray-700">Explore conjuntos recientes de permisos de construcción para Los Ángeles, Chicago y Austin. Use los enlaces abajo para acceder a categorías específicas o solicitar un CSV gratis.</p>
+    <p class="text-gray-700">
+      PermitPulse junta los datos más recientes de permisos de construcción en LA (y pronto más ciudades).
+      Aquí te mostramos lo que importa y te dejamos los links a proyectos grandes — de $50,000 pa’rriba — actualizados este mes.
+      Échale un ojo al menú de arriba o <a class="text-blue-600 hover:underline" href="/free-csv.html">pide tu CSV personalizado</a> sin broncas.
+    </p>
   </header>
+
   <nav class="mb-4">
     <!-- Navigation links fire the alerts_open GA event when clicked -->
     <ul class="flex flex-wrap gap-3">
-  <li>
-    <a href="/free-csv.html"
-       onclick="fireGAEvent('download_csv_nav')"
-       class="inline-flex items-center rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-900 hover:bg-slate-100">
-      Descargar CSV
-    </a>
-  </li>
-  <li>
-    <a href="/email-alerts.html"
-       onclick="fireGAEvent('alerts_open_nav')"
-       class="inline-flex items-center rounded-xl bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700">
-      Alertas por email
-    </a>
-    <div class="mt-3 flex flex-wrap items-center gap-3 text-xs text-slate-500">
-  <span class="inline-flex items-center gap-1"><span class="h-2 w-2 rounded-full bg-emerald-500"></span>Flujo en vivo de LADBS</span>
-  <span>•</span>
-  <span>Pago seguro con Stripe</span>
-  <span>•</span>
-  <span>Garantía de 14 días: ‘sin valor, sin pago</span>
-  <span>•</span>
-  <a href="mailto:hello@getpermitpulse.com" class="underline">Soporte rápido</a>
-    </div>
-  </li>
+      <li>
+        <a href="/free-csv.html"
+           onclick="fireGAEvent('download_csv_nav')"
+           class="inline-flex items-center rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-semibold text-slate-900 hover:bg-slate-100">
+          Pedir CSV gratis
+        </a>
+      </li>
+      <li>
+        <a href="/email-alerts.html"
+           onclick="fireGAEvent('alerts_open_nav')"
+           class="inline-flex items-center rounded-xl bg-emerald-600 px-4 py-2 text-sm font-semibold text-white hover:bg-emerald-700">
+          Activar alertas
+        </a>
+        <div class="mt-3 flex flex-wrap items-center gap-3 text-xs text-slate-500">
+          <span class="inline-flex items-center gap-1"><span class="h-2 w-2 rounded-full bg-emerald-500"></span>Flujo en vivo de LADBS</span>
+          <span>•</span>
+          <span>Pago seguro con Stripe</span>
+          <span>•</span>
+          <span>Prueba 14 días: “si no te sirve, no pagas”</span>
+          <span>•</span>
+          <a href="mailto:hola@getpermitpulse.com" class="underline">Soporte rápido</a>
+        </div>
+      </li>
     </ul>
   </nav>
+
   <main>
-  <p class="mb-4">
-    La plataforma de PermitPulse agrega datos de permisos de construcción de varias jurisdicciones.
-    Nuestras páginas curadas resumen los requisitos clave de permisos y enlazan a conjuntos de datos
-    de permisos recientes con una valoración mínima de $50,000 dentro de los últimos 30 días.
-    Use la navegación superior para explorar temas específicos o
-    <a class="text-blue-600 hover:underline" href="/free-csv.html">solicitar un CSV personalizado</a>.
-  </p>
-  </main>
-  <!-- ===== PermitPulse: Pricing + Flash ===== -->
-<section id="pricing" class="bg-white border-t border-slate-200">
-  <div class="max-w-6xl mx-auto px-4 sm:px-6 py-16">
-    <div class="mb-10 text-center">
-      <p class="text-sm font-medium tracking-wide text-emerald-600 uppercase">Precios simples</p>
-      <h2 class="mt-2 text-3xl sm:text-4xl font-extrabold text-slate-900">
-        Empiece gratis. Actualice cuando se pague solo.
-      </h2>
-      <p class="mt-3 text-slate-600 max-w-2xl mx-auto">
-        Permisos en vivo de LADBS filtrados por valoración y palabras clave. Exporte CSV, reciba alertas diarias y sea el primero en cada licitación.
-      </p>
-      <div id="pp-live-stat" class="mt-4 inline-flex items-center gap-2 text-sm text-slate-500">
-        <span class="h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></span>
-        <span id="pp-live-count-2">Revisando permisos…</span>
-      </div>
-    </div>
-
-    <!-- Cards -->
-    <div class="grid md:grid-cols-3 gap-6">
-      <!-- Free -->
-      <div class="relative rounded-2xl border border-slate-200 p-6 md:p-8 bg-slate-50">
-        <div class="text-sm font-semibold text-slate-700">Gratis</div>
-        <div class="mt-2 flex items-baseline gap-1">
-          <div class="text-3xl font-extrabold text-slate-900">$0</div>
-          <div class="text-slate-500">/ para siempre</div>
-        </div>
-        <ul class="mt-6 space-y-3 text-sm text-slate-600">
-          <li class="flex items-start gap-2"><span class="mt-1 h-1.5 w-1.5 bg-emerald-500 rounded-full"></span> Últimos 3 días de permisos de LADBS (límite 50 filas)</li>
-          <li class="flex items-start gap-2"><span class="mt-1 h-1.5 w-1.5 bg-emerald-500 rounded-full"></span> Exportación CSV</li>
-          <li class="flex items-start gap-2"><span class="mt-1 h-1.5 w-1.5 bg-emerald-500 rounded-full"></span> Filtros por palabras clave</li>
-        </ul>
-        <button data-plan="free"
-          class="pp-pricing-btn mt-6 w-full inline-flex justify-center items-center rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-900 hover:bg-slate-100">
-          Obtener CSV gratis
-        </button>
-        <p class="mt-3 text-xs text-slate-400">Sin tarjeta de crédito. Actualice cuando quiera.</p>
-      </div>
-
-      <!-- Pro -->
-      <div class="relative rounded-2xl border-2 border-emerald-500 p-6 md:p-8 bg-white shadow-sm">
-        <div class="absolute -top-3 right-6 text-[11px] bg-emerald-600 text-white px-2 py-0.5 rounded-full uppercase tracking-wide">
-          Más popular
-        </div>
-        <div class="text-sm font-semibold text-slate-700">Pro</div>
-        <div class="mt-2 flex items-baseline gap-1">
-          <div class="text-3xl font-extrabold text-slate-900">$39</div>
-          <div class="text-slate-500">/ mes</div>
-        </div>
-        <ul class="mt-6 space-y-3 text-sm text-slate-600">
-          <li class="flex items-start gap-2"><span class="mt-1 h-1.5 w-1.5 bg-emerald-500 rounded-full"></span> Últimos 90 días de permisos de LADBS</li>
-          <li class="flex items-start gap-2"><span class="mt-1 h-1.5 w-1.5 bg-emerald-500 rounded-full"></span> Exportaciones CSV ilimitadas</li>
-          <li class="flex items-start gap-2"><span class="mt-1 h-1.5 w-1.5 bg-emerald-500 rounded-full"></span> Alertas diarias por email</li>
-          <li class="flex items-start gap-2"><span class="mt-1 h-1.5 w-1.5 bg-emerald-500 rounded-full"></span> Configuración asistida (configuramos sus filtros)</li>
-        </ul>
-        <a data-plan="pro"
-   href="https://buy.stripe.com/aFa5kEedFaeTaZN2Fs1wY0b?utm_source=website&utm_medium=pricing&utm_campaign=pro_card"
-   target="_blank" rel="noopener"
-   onclick="fireGAEvent('checkout_pro')"
-   class="pp-pricing-link mt-6 w-full inline-flex justify-center items-center rounded-xl bg-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-emerald-500">
-  Empezar Pro — $39/mes
-        </a>
-        <p class="mt-3 text-xs text-slate-400">Garantía de 14 días: “sin valor, sin pago”</p>
-      </div>
-
-      <!-- Teams -->
-      <div class="relative rounded-2xl border border-slate-200 p-6 md:p-8 bg-slate-50">
-        <div class="text-sm font-semibold text-slate-700">Equipos</div>
-        <div class="mt-2 flex items-baseline gap-1">
-          <div class="text-3xl font-extrabold text-slate-900">$99</div>
-          <div class="text-slate-500">/ mes</div>
-        </div>
-        <ul class="mt-6 space-y-3 text-sm text-slate-600">
-          <li class="flex items-start gap-2"><span class="mt-1 h-1.5 w-1.5 bg-emerald-500 rounded-full"></span> 3 asientos • filtros compartidos</li>
-          <li class="flex items-start gap-2"><span class="mt-1 h-1.5 w-1.5 bg-emerald-500 rounded-full"></span> Alertas por hora (7am–7pm)</li>
-          <li class="flex items-start gap-2"><span class="mt-1 h-1.5 w-1.5 bg-emerald-500 rounded-full"></span> Soporte y onboarding prioritarios</li>
-        </ul>
-       <a data-plan="teams"
-   href="https://buy.stripe.com/7sYcN6fhJ2Mr1pd3Jw1wY0c?utm_source=website&utm_medium=pricing&utm_campaign=teams_card"
-   target="_blank" rel="noopener"
-   onclick="fireGAEvent('checkout_teams')"
-   class="pp-pricing-link mt-6 w-full inline-flex justify-center items-center rounded-xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-slate-800">
-  Empezar Equipos — $99/mes
-</a>
-<p class="mt-2 text-xs text-slate-400 text-center">
-  or <a href="https://calendly.com/permitpulse" class="underline" onclick="fireGAEvent('calendly_from_pricing')">o reserve una demo</a>
-</p>
-        <p class="mt-3 text-xs text-slate-400">Dominios personalizados y webhooks bajo pedido.</p>
-      </div>
-      <div class="mt-8 grid md:grid-cols-3 gap-4 text-sm">
-  <div class="bg-slate-50 p-4 rounded">
-    <strong>Gratis:</strong> 3 días de permisos, Exportación CSV, Filtros por palabras clave.
-  </div>
-  <div class="bg-slate-50 p-4 rounded">
-    <strong>Pro:</strong> 90 días de permisos, Exportaciones CSV ilimitadas, Alertas diarias por email, Configuración asistida (configuramos sus filtros).
-  </div>
-  <div class="bg-slate-50 p-4 rounded">
-    <strong>Equipos:</strong> 3 asientos, filtros compartidos, Alertas por hora, Soporte
-  </div>
-      </div>
-    </div>
-
-    <!-- Social proof / FAQ -->
-    <div class="mt-14 grid md:grid-cols-3 gap-6">
-      <div class="p-6 rounded-xl border border-slate-200">
-        <div class="text-sm font-semibold text-slate-700">“Cotizamos más rápido.”</div>
-        <p class="mt-2 text-sm text-slate-600">El CSV diario nos dio 3 prospectos de techos extra la primera semana. Llegar primero lo es todo.</p>
-        <div class="mt-3 text-xs text-slate-400">— Contractor, San Fernando Valley</div>
-      </div>
-      <div class="p-6 rounded-xl border border-slate-200">
-        <div class="text-sm font-semibold text-slate-700">¿Qué recibo exactamente?</div>
-        <p class="mt-2 text-sm text-slate-600">Resultados en vivo de LADBS filtrados por valor/palabras clave. CSV con un clic. Alertas por email opcionales. Sin inicios de sesión, cero fricción.</p>
-      </div>
-      <div class="p-6 rounded-xl border border-slate-200">
-        <div class="text-sm font-semibold text-slate-700">¿Puedo cancelar en cualquier momento?</div>
-        <p class="mt-2 text-sm text-slate-600">Sí. Además, garantía de 14 días “sin valor, sin pago”.</p>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- Mobile sticky CTA -->
-<a href="/free-csv.html" id="pp-fab"
-   class="fixed bottom-4 right-4 z-40 shadow-lg rounded-full bg-emerald-600 text-white px-5 py-3 text-sm font-semibold md:hidden">
-  Obtener CSV gratis
-</a>
-
-<script>
-  // --- GA helper (uses existing gtag)
-  function ppEvent(name, params){ try { gtag('event', name, params || {}); } catch(_){} }
-
-  // Pricing events
-  for (const btn of document.querySelectorAll('.pp-pricing-btn')) {
-    btn.addEventListener('click', () => {
-      const plan = btn.getAttribute('data-plan');
-      ppEvent('pricing_select', {plan});
-      location.href = '/free-csv.html';
-    });
-  }
-  for (const a of document.querySelectorAll('.pp-pricing-link')) {
-    a.addEventListener('click', () => {
-      const plan = a.getAttribute('data-plan');
-      ppEvent('pricing_select', {plan});
-    });
-  }
-  const fab = document.getElementById('pp-fab');
-  if (fab) fab.addEventListener('click', () => ppEvent('cta_fab_click'));
-
-  // Pricing view event on section in-view
-  const pv = new IntersectionObserver((e)=>{
-    if (e[0].isIntersecting){ ppEvent('pricing_view'); pv.disconnect(); }
-  }, {threshold: 0.2});
-  const section = document.getElementById('pricing');
-  if (section) pv.observe(section);
-
-  // Live stat: count last 30d & min $50k (same defaults as UI)
-  (async function(){
-    try {
-      const u = new URL('/live/ladbs', location.origin);
-      u.searchParams.set('since_days','30');
-      u.searchParams.set('min_value','50000');
-      u.searchParams.set('limit','1');
-      const r = await fetch(u);
-      const j = await r.json();
-      const el = document.getElementById('pp-live-count');
-      if (j && j.ok && typeof j.count === 'number') {
-        el.textContent = `${j.count} permits matched in the last 30 days`;
-      } else {
-        el.textContent = 'Live LADBS connected';
-      }
-    } catch {
-      const el = document.getElementById('pp-live-count');
-      if (el) el.textContent = 'Live LADBS connected';
-    }
-  })();
-</script>
-<!-- ===== /PermitPulse: Pricing + Flash ===== -->
-  <section id="about" class="border-t border-slate-200 bg-white">
-  <div class="max-w-3xl mx-auto px-4 sm:px-6 py-14">
-    <h2 class="text-2xl font-bold text-slate-900">Acerca de PermitPulse</h2>
-    <p class="mt-1 text-slate-700 leading-relaxed">
-      PermitPulse monitorea los registros de permisos de LADBS para que los contratistas actúen primero.
-      CSVs diarios, alertas instantáneas y cero fricción. No estamos construyendo otra plataforma:
-      resolvemos un problema específico — obtener datos de permisos limpios y actuales antes de que los vea
-      tu competencia. Equipo pequeño, enfoque preciso, pensado para quienes ganan trabajo por llegar temprano.
+    <p class="mb-4">
+      Nuestro foco es simple: que llegues primero. CSV diarios, alertas al instante y cero vueltas.
+      Menos clicks, más chamba.
     </p>
-  </div>
+  </main>
+
+  <!-- ===== PermitPulse: Pricing + Flash ===== -->
+  <section id="pricing" class="bg-white border-t border-slate-200">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 py-16">
+      <div class="mb-10 text-center">
+        <p class="text-sm font-medium tracking-wide text-emerald-600 uppercase">Precios simples</p>
+        <h2 class="mt-2 text-3xl sm:text-4xl font-extrabold text-slate-900">
+          Empieza gratis. Súbete a Pro cuando te convenga.
+        </h2>
+        <p class="mt-3 text-slate-600 max-w-2xl mx-auto">
+          Permisos en vivo de LADBS filtrados por valor y palabras clave. Exporta CSV, recibe alertas diarias y llega primero a cada proyecto grande.
+        </p>
+        <div id="pp-live-stat" class="mt-4 inline-flex items-center gap-2 text-sm text-slate-500">
+          <span class="h-2 w-2 rounded-full bg-emerald-500 animate-pulse"></span>
+          <span id="pp-live-count-2">Revisando permisos…</span>
+        </div>
+      </div>
+
+      <!-- Cards -->
+      <div class="grid md:grid-cols-3 gap-6">
+        <!-- Free -->
+        <div class="relative rounded-2xl border border-slate-200 p-6 md:p-8 bg-slate-50">
+          <div class="text-sm font-semibold text-slate-700">Gratis</div>
+          <div class="mt-2 flex items-baseline gap-1">
+            <div class="text-3xl font-extrabold text-slate-900">$0</div>
+            <div class="text-slate-500">/ para siempre</div>
+          </div>
+          <ul class="mt-6 space-y-3 text-sm text-slate-600">
+            <li class="flex items-start gap-2"><span class="mt-1 h-1.5 w-1.5 bg-emerald-500 rounded-full"></span> Últimos 3 días de permisos (LADBS) — hasta 50 filas</li>
+            <li class="flex items-start gap-2"><span class="mt-1 h-1.5 w-1.5 bg-emerald-500 rounded-full"></span> Exportación CSV</li>
+            <li class="flex items-start gap-2"><span class="mt-1 h-1.5 w-1.5 bg-emerald-500 rounded-full"></span> Filtros por palabras clave</li>
+          </ul>
+          <button data-plan="free"
+            class="pp-pricing-btn mt-6 w-full inline-flex justify-center items-center rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-sm font-semibold text-slate-900 hover:bg-slate-100">
+            Pedir CSV gratis
+          </button>
+          <p class="mt-3 text-xs text-slate-400">Sin tarjeta ni broncas. Súbete a Pro cuando quieras.</p>
+        </div>
+
+        <!-- Pro -->
+        <div class="relative rounded-2xl border-2 border-emerald-500 p-6 md:p-8 bg-white shadow-sm">
+          <div class="absolute -top-3 right-6 text-[11px] bg-emerald-600 text-white px-2 py-0.5 rounded-full uppercase tracking-wide">
+            Más popular
+          </div>
+          <div class="text-sm font-semibold text-slate-700">Pro</div>
+          <div class="mt-2 flex items-baseline gap-1">
+            <div class="text-3xl font-extrabold text-slate-900">$39</div>
+            <div class="text-slate-500">/ mes</div>
+          </div>
+          <ul class="mt-6 space-y-3 text-sm text-slate-600">
+            <li class="flex items-start gap-2"><span class="mt-1 h-1.5 w-1.5 bg-emerald-500 rounded-full"></span> Últimos 90 días de permisos (LADBS)</li>
+            <li class="flex items-start gap-2"><span class="mt-1 h-1.5 w-1.5 bg-emerald-500 rounded-full"></span> Exportaciones CSV ilimitadas</li>
+            <li class="flex items-start gap-2"><span class="mt-1 h-1.5 w-1.5 bg-emerald-500 rounded-full"></span> Alertas diarias por email</li>
+            <li class="flex items-start gap-2"><span class="mt-1 h-1.5 w-1.5 bg-emerald-500 rounded-full"></span> Te ayudamos a configurar tus filtros</li>
+          </ul>
+          <a data-plan="pro"
+            href="https://buy.stripe.com/aFa5kEedFaeTaZN2Fs1wY0b?utm_source=website&utm_medium=pricing&utm_campaign=pro_card"
+            target="_blank" rel="noopener"
+            onclick="fireGAEvent('checkout_pro')"
+            class="pp-pricing-link mt-6 w-full inline-flex justify-center items-center rounded-xl bg-emerald-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-emerald-500">
+            Empezar Pro — $39/mes
+          </a>
+          <p class="mt-3 text-xs text-slate-400">Tienes 14 días pa’ probarlo. Si no te sirve, no pagas.</p>
+        </div>
+
+        <!-- Teams -->
+        <div class="relative rounded-2xl border border-slate-200 p-6 md:p-8 bg-slate-50">
+          <div class="text-sm font-semibold text-slate-700">Equipos</div>
+          <div class="mt-2 flex items-baseline gap-1">
+            <div class="text-3xl font-extrabold text-slate-900">$99</div>
+            <div class="text-slate-500">/ mes</div>
+          </div>
+          <ul class="mt-6 space-y-3 text-sm text-slate-600">
+            <li class="flex items-start gap-2"><span class="mt-1 h-1.5 w-1.5 bg-emerald-500 rounded-full"></span> 3 asientos • filtros compartidos</li>
+            <li class="flex items-start gap-2"><span class="mt-1 h-1.5 w-1.5 bg-emerald-500 rounded-full"></span> Alertas por hora (7am–7pm)</li>
+            <li class="flex items-start gap-2"><span class="mt-1 h-1.5 w-1.5 bg-emerald-500 rounded-full"></span> Soporte y onboarding prioritarios</li>
+          </ul>
+          <a data-plan="teams"
+            href="https://buy.stripe.com/7sYcN6fhJ2Mr1pd3Jw1wY0c?utm_source=website&utm_medium=pricing&utm_campaign=teams_card"
+            target="_blank" rel="noopener"
+            onclick="fireGAEvent('checkout_teams')"
+            class="pp-pricing-link mt-6 w-full inline-flex justify-center items-center rounded-xl bg-slate-900 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-slate-800">
+            Empezar Equipos — $99/mes
+          </a>
+          <p class="mt-2 text-xs text-slate-400 text-center">
+            o <a href="https://calendly.com/permitpulse" class="underline" onclick="fireGAEvent('calendly_from_pricing')">reserva una demo</a>
+          </p>
+          <p class="mt-3 text-xs text-slate-400">Dominios personalizados y webhooks si lo ocupas.</p>
+        </div>
+
+        <div class="mt-8 grid md:grid-cols-3 gap-4 text-sm">
+          <div class="bg-slate-50 p-4 rounded">
+            <strong>Gratis:</strong> 3 días de permisos, Exportación CSV, Filtros por palabras clave.
+          </div>
+          <div class="bg-slate-50 p-4 rounded">
+            <strong>Pro:</strong> 90 días de permisos, CSV ilimitados, Alertas diarias, Te ayudamos a configurar.
+          </div>
+          <div class="bg-slate-50 p-4 rounded">
+            <strong>Equipos:</strong> 3 asientos, filtros compartidos, alertas por hora, soporte priorizado.
+          </div>
+        </div>
+      </div>
+
+      <!-- Social proof / FAQ -->
+      <div class="mt-14 grid md:grid-cols-3 gap-6">
+        <div class="p-6 rounded-xl border border-slate-200">
+          <div class="text-sm font-semibold text-slate-700">“Cotizamos más rápido.”</div>
+          <p class="mt-2 text-sm text-slate-600">Con el CSV diario salieron 3 prospectos extra de techos en la primera semana. Llegar primero lo es todo.</p>
+          <div class="mt-3 text-xs text-slate-400">— Contratista, San Fernando Valley</div>
+        </div>
+        <div class="p-6 rounded-xl border border-slate-200">
+          <div class="text-sm font-semibold text-slate-700">¿Qué recibo exactamente?</div>
+          <p class="mt-2 text-sm text-slate-600">Resultados en vivo de LADBS filtrados por valor/palabras clave. CSV con un clic. Alertas por email opcionales. Sin logins, cero fricción.</p>
+        </div>
+        <div class="p-6 rounded-xl border border-slate-200">
+          <div class="text-sm font-semibold text-slate-700">¿Puedo cancelar cuando quiera?</div>
+          <p class="mt-2 text-sm text-slate-600">Sí. 14 días de prueba — si no te sirve, no pagas.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Mobile sticky CTA -->
+    <a href="/free-csv.html" id="pp-fab"
+      class="fixed bottom-4 right-4 z-40 shadow-lg rounded-full bg-emerald-600 text-white px-5 py-3 text-sm font-semibold md:hidden">
+      Pedir CSV gratis
+    </a>
   </section>
-  <section class="mt-12">
-  <h2 class="text-xl font-bold text-slate-900">Preguntas frecuentes</h2>
-  <div class="mt-4 grid md:grid-cols-3 gap-6 text-slate-700">
 
-    <div>
-      <div class="font-semibold">¿Qué incluye el CSV?</div>
-      <p class="mt-1 text-sm">
-        Número de permiso, dirección, estatus, fecha de emisión, subtipo, valoración, lat/lon y campos crudos.
-      </p>
-    </div>
-
-    <div>
-      <div class="font-semibold">¿Qué tan frescos son los datos?</div>
-      <p class="mt-1 text-sm">
-        Obtenemos directamente de LADBS durante el día. El plan gratis muestra los últimos 3 días; el de pago incluye 90.
-      </p>
-    </div>
-
-    <div>
-      <div class="font-semibold">¿Puedo cancelar en cualquier momento?</div>
-      <p class="mt-1 text-sm">
-        Sí. Reembolso de 14 días “sin valor, sin pago” en Pro.
-      </p>
-    </div>
-
-  </div>
-  </section>
-  <footer class="text-center mt-12 text-sm text-gray-500">
-  Actualizado diariamente • Cancele cuando quiera • Soporte por email<br>
-  © <span id="pp-year"></span> PermitPulse — ¿Dudas? 
-  <a href="mailto:hola@getpermitpulse.com" class="underline">hola@getpermitpulse.com</a> • 
-  <a href="https://calendly.com/permitpulse" class="underline">Reserve una demo</a>
-  </footer>
-<script>document.getElementById('pp-year').textContent = new Date().getFullYear()</script>
   <script>
-  const about = document.getElementById('about');
-  if (about) {
-    const ob = new IntersectionObserver(e => {
-      if (e[0].isIntersecting) { fireGAEvent('about_view'); ob.disconnect(); }
+    // --- GA helper (uses existing gtag)
+    function ppEvent(name, params){ try { gtag('event', name, params || {}); } catch(_){} }
+
+    // Pricing events
+    for (const btn of document.querySelectorAll('.pp-pricing-btn')) {
+      btn.addEventListener('click', () => {
+        const plan = btn.getAttribute('data-plan');
+        ppEvent('pricing_select', {plan});
+        location.href = '/free-csv.html';
+      });
+    }
+    for (const a of document.querySelectorAll('.pp-pricing-link')) {
+      a.addEventListener('click', () => {
+        const plan = a.getAttribute('data-plan');
+        ppEvent('pricing_select', {plan});
+      });
+    }
+    const fab = document.getElementById('pp-fab');
+    if (fab) fab.addEventListener('click', () => ppEvent('cta_fab_click'));
+
+    // Pricing view event on section in-view
+    const pv = new IntersectionObserver((e)=>{
+      if (e[0].isIntersecting){ ppEvent('pricing_view'); pv.disconnect(); }
     }, {threshold: 0.2});
-    ob.observe(about);
-  }
+    const section = document.getElementById('pricing');
+    if (section) pv.observe(section);
+
+    // Live stat: count last 30d & min $50k (same defaults as UI)
+    (async function(){
+      try {
+        const u = new URL('/live/ladbs', location.origin);
+        u.searchParams.set('since_days','30');
+        u.searchParams.set('min_value','50000');
+        u.searchParams.set('limit','1');
+        const r = await fetch(u);
+        const j = await r.json();
+        const el = document.getElementById('pp-live-count');
+        if (j && j.ok && typeof j.count === 'number') {
+          el.textContent = `${j.count} permits matched in the last 30 days`;
+        } else {
+          el.textContent = 'Live LADBS connected';
+        }
+      } catch {
+        const el = document.getElementById('pp-live-count');
+        if (el) el.textContent = 'Live LADBS connected';
+      }
+    })();
   </script>
+  <!-- ===== /PermitPulse: Pricing + Flash ===== -->
+
+  <section id="about" class="border-t border-slate-200 bg-white">
+    <div class="max-w-3xl mx-auto px-4 sm:px-6 py-14">
+      <h2 class="text-2xl font-bold text-slate-900">Acerca de PermitPulse</h2>
+      <p class="mt-1 text-slate-700 leading-relaxed">
+        Monitoreamos LADBS para que te muevas primero. CSVs diarios, alertas al instante y cero vueltas.
+        No es otra “plataforma” más: resolvemos un problema concreto — tener datos limpios y frescos
+        antes que tu competencia. Equipo chico, enfoque preciso, hecho para quienes ganan jale por llegar temprano.
+      </p>
+    </div>
+  </section>
+
+  <section class="mt-12">
+    <h2 class="text-xl font-bold text-slate-900">Preguntas frecuentes</h2>
+    <div class="mt-4 grid md:grid-cols-3 gap-6 text-slate-700">
+      <div>
+        <div class="font-semibold">¿Qué incluye el CSV?</div>
+        <p class="mt-1 text-sm">
+          Número de permiso, dirección, estatus, fecha de emisión, subtipo, valoración, lat/lon y campos crudos.
+        </p>
+      </div>
+
+      <div>
+        <div class="font-semibold">¿Qué tan frescos están los datos?</div>
+        <p class="mt-1 text-sm">
+          Jalamos directo de LADBS durante el día. Gratis: últimos 3 días. Pro: 90 días completos.
+        </p>
+      </div>
+
+      <div>
+        <div class="font-semibold">¿Puedo cancelar cuando quiera?</div>
+        <p class="mt-1 text-sm">
+          Claro. 14 días de prueba — si no te sirve, no pagas.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <footer class="text-center mt-12 text-sm text-gray-500">
+    Datos frescos todos los días • Cancela cuando quieras • Soporte por correo<br>
+    © <span id="pp-year"></span> PermitPulse — ¿Dudas?
+    <a href="mailto:hola@getpermitpulse.com" class="underline">hola@getpermitpulse.com</a> •
+    <a href="https://calendly.com/permitpulse" class="underline">Reserva una demo</a>
+  </footer>
+
+  <script>document.getElementById('pp-year').textContent = new Date().getFullYear()</script>
+
+  <script>
+    const about = document.getElementById('about');
+    if (about) {
+      const ob = new IntersectionObserver(e => {
+        if (e[0].isIntersecting) { fireGAEvent('about_view'); ob.disconnect(); }
+      }, {threshold: 0.2});
+      ob.observe(about);
+    }
+  </script>
+
   <a href="/free-csv.html"
-   onclick="fireGAEvent('sticky_free_csv')"
-   class="fixed bottom-4 right-4 z-40 inline-flex items-center gap-2 rounded-full bg-emerald-600 px-4 py-3 text-white shadow-lg md:hidden">
-  <span class="h-2 w-2 rounded-full bg-white animate-pulse"></span>
-  Obtener CSV gratis
+    onclick="fireGAEvent('sticky_free_csv')"
+    class="fixed bottom-4 right-4 z-40 inline-flex items-center gap-2 rounded-full bg-emerald-600 px-4 py-3 text-white shadow-lg md:hidden">
+    <span class="h-2 w-2 rounded-full bg-white animate-pulse"></span>
+    Pedir CSV gratis
   </a>
 
   <script type="application/ld+json">
-{
-  "@context":"https://schema.org",
-  "@graph":[
-    {
-      "@type":"WebPage",
-      "name":"Permisos de Construcción en LA — CSV y Alertas",
-      "url":"https://getpermitpulse.com/es/",
-      "inLanguage":"es",
-      "about":{"@type":"City","name":"Los Ángeles, CA"},
-      "isPartOf":{"@type":"WebSite","url":"https://getpermitpulse.com/","name":"PermitPulse"}
-    },
-    {
-      "@type":"Organization",
-      "name":"PermitPulse",
-      "url":"https://getpermitpulse.com/",
-      "contactPoint":[{"@type":"ContactPoint","contactType":"soporte","email":"support@getpermitpulse.com","areaServed":"US"}]
-    }
-  ]
-}
-  </script>
-  <script>
-(function(){
-  var el = document.getElementById('lang-toggle');
-  if (!el) return;
-  // current path is /es/...
-  var base = location.pathname.replace(/^\/es\//,'/');
-  if (base === '/' || base === '') base = '/index.html';
-  el.innerHTML = '<a class="underline" href="'+base+'">English</a> | <span>Español</span>';
-})();
-  </script>
-  <script>
-(function(){
-  // Detect page language for the right wording
-  var isEs = (document.documentElement.lang || '').toLowerCase().indexOf('es') === 0;
-  var txt = {
-    checking: isEs ? 'Revisando permisos…' : 'Checking permits…',
-    connected: isEs ? 'LADBS en vivo conectado' : 'Live LADBS connected'
-  };
-
-  // Update both counters at once
-  function setTxt(v){
-    var a = document.getElementById('pp-live-count');
-    var b = document.getElementById('pp-live-count-2');
-    if (a) a.textContent = v;
-    if (b) b.textContent = v;
+  {
+    "@context":"https://schema.org",
+    "@graph":[
+      {
+        "@type":"WebPage",
+        "name":"Permisos en Los Ángeles — CSV y Alertas",
+        "url":"https://getpermitpulse.com/es/",
+        "inLanguage":"es",
+        "about":{"@type":"City","name":"Los Ángeles, CA"},
+        "isPartOf":{"@type":"WebSite","url":"https://getpermitpulse.com/","name":"PermitPulse"}
+      },
+      {
+        "@type":"Organization",
+        "name":"PermitPulse",
+        "url":"https://getpermitpulse.com/",
+        "contactPoint":[{"@type":"ContactPoint","contactType":"soporte","email":"support@getpermitpulse.com","areaServed":"US"}]
+      }
+    ]
   }
-
-  // Show “checking…” immediately (in case the HTML didn’t set it)
-  setTxt(txt.checking);
-
-  // Try a lightweight fetch; fall back to a friendly static string
-  (async function(){
-    try {
-      var u = new URL('/live/ladbs', location.origin);
-      u.searchParams.set('since_days','30');
-      u.searchParams.set('min_value','50000');
-      u.searchParams.set('limit','1');
-      await fetch(u, { mode: 'no-cors' }); // works even if the body isn’t readable
-      setTxt(txt.connected);
-    } catch(e){
-      setTxt(txt.connected);
-    }
-  })();
-})();
   </script>
- 
+
+  <script>
+  (function(){
+    var el = document.getElementById('lang-toggle');
+    if (!el) return;
+    // current path is /es/...
+    var base = location.pathname.replace(/^\/es\//,'/');
+    if (base === '/' || base === '') base = '/index.html';
+    el.innerHTML = '<a class="underline" href="'+base+'">English</a> | <span>Español</span>';
+  })();
+  </script>
+
+  <script>
+  (function(){
+    // Detect page language for the right wording
+    var isEs = (document.documentElement.lang || '').toLowerCase().indexOf('es') === 0;
+    var txt = {
+      checking: isEs ? 'Revisando permisos…' : 'Checking permits…',
+      connected: isEs ? 'LADBS en vivo conectado' : 'Live LADBS connected'
+    };
+
+    // Update both counters at once
+    function setTxt(v){
+      var a = document.getElementById('pp-live-count');
+      var b = document.getElementById('pp-live-count-2');
+      if (a) a.textContent = v;
+      if (b) b.textContent = v;
+    }
+
+    // Show “checking…” immediately (in case the HTML didn’t set it)
+    setTxt(txt.checking);
+
+    // Try a lightweight fetch; fall back to a friendly static string
+    (async function(){
+      try {
+        var u = new URL('/live/ladbs', location.origin);
+        u.searchParams.set('since_days','30');
+        u.searchParams.set('min_value','50000');
+        u.searchParams.set('limit','1');
+        await fetch(u, { mode: 'no-cors' }); // works even if the body isn’t readable
+        setTxt(txt.connected);
+      } catch(e){
+        setTxt(txt.connected);
+      }
+    })();
+  })();
+  </script>
 </body>
 </html>
