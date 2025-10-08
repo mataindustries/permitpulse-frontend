@@ -115,5 +115,14 @@
       setTimeout(() => { location.href = '/thank-you/'; }, 300);
     });
   </script>
+  <script>
+  (function(){
+    var el = document.getElementById('lang-toggle');
+    if (!el) return;
+    var qs = location.search.replace(/^\?/, '');
+    var href = '/free-csv.html' + (qs ? '?' + qs : '');
+    el.innerHTML = '<a class="underline" href="' + href + '">English</a> | <span>Español</span>';
+  })();
+  </script>
 </body>
 </html>
