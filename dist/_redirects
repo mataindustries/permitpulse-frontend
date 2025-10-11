@@ -2,16 +2,14 @@
 /la-contractors            /la-contractors-la.html            200
 /es/la-contratistas        /es/la-contratistas-la.html        200
 
-# Spanish Free CSV → serve the static file (no shim)
+# Free CSV pages → static files (no shim, no folders)
+/free-csv                  /free-csv.html                     200
 /es/free-csv               /es/free-csv.html                  200
 
-# Your existing SPA routes (keep if you use them)
+# (optional) known SPA sections
 /city/*                    /city/index.html                   200
 /thank-you                 /thank-you/index.html              200
-
-# Optional shortcuts (TEMPORARILY 302 while testing)
-/free-csv-es               /es/free-csv                       302
-/pricing-es                /pricing?lang=es                   302
+/thank-you/                /thank-you/index.html              200   # handles trailing slash
 
 # Catch-all LAST (SPA)
 /*                         /index.html                        200
