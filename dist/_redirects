@@ -2,10 +2,6 @@
 /la-contractors            /la-contractors-la.html            200
 /es/la-contratistas        /es/la-contratistas-la.html        200
 
-# Free CSV pages → static files (no shim, no folders)
-/free-csv                  /free-csv.html                     200
-/es/free-csv               /es/free-csv.html                  200
-
 # (optional) known SPA sections
 /city/*                    /city/index.html                   200
 /thank-you                 /thank-you/index.html              200
