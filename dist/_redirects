@@ -6,8 +6,9 @@
 /city/*                    /city/index.html                   200
 /thank-you                 /thank-you/index.html              200
 /thank-you/                /thank-you/index.html              200   # handles trailing slash
-/radar                     /api/radar                         200
-/top-permits               /api/top-permits                   200
+/radar                     /radar/index.html                  200
+/top-permits               /top-permits/index.html            200
+/api/*                     https://pp-api.matasergio741.workers.dev/:splat       200
 
 # Catch-all LAST (SPA)
 /*                         /index.html                        200
