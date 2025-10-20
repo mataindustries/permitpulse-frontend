@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>PermitPulse — Top Permits</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-50 text-slate-900">
+  <header class="max-w-5xl mx-auto px-4 py-6">
+    <h1 class="text-2xl font-bold">Top Permits (by valuation)</h1>
+    <p class="text-sm text-slate-600">Filter by days, minimum valuation, and keywords (pipe-separated).</p>
+  </header>
+
+  <main class="max-w-5xl mx-auto px-4 pb-24">
+    <section class="bg-white rounded-2xl shadow p-4 mb-6">
+      <form id="filters" class="grid md:flex gap-3 items-end">
+        <label class="block">
+          <span class="text-xs uppercase">Days back</span>
+          <select id="days" class="mt-1 rounded-xl border px-3 py-2">
+            <option>30</option><option selected>60</option><option>90</option><option>120</option>
+          </select>
+        </label>
+        <label class="block">
+          <span class="text-xs uppercase">Min valuation</span>
+          <input id="min" type="number" min="0" value="25000" class="mt-1 rounded-xl border px-3 py-2 w-32">
+        </label>
+        <label class="block grow">
+          <span class="text-xs uppercase">Keywords (pipe-separated)</span>
+          <input id="q" value="roof|solar" class="mt-1 rounded-xl border px-3 py-2 w-full" placeholder="e.g. apartment|hotel|ADU">
+        </label>
+        <label class="block">
+          <span class="text-xs uppercase">Limit</span>
+          <select id="limit" class="mt-1 rounded-xl border px-3 py-2">
+            <option>10</option><option selected>30</option><option>50</option><option>100</option>
+          </select>
+        </label>
+        <button class="rounded-xl bg-blue-600 text-white px-4 py-2">Search</button>
+      </form>
+      <div id="meta" class="text-xs text-slate-500 mt-3"></div>
+      <div id="export" class="text-sm mt-2 hidden">
+        <a id="openRaw" class="underline text-blue-600" target="_blank">Open in Socrata</a>
+        <span class="mx-2">·</span>
+        <a id="openCsv" class="underline text-blue-600" target="_blank">Download CSV</a>
+      </div>
+    </section>
+
+    <section id="list" class="grid gap-4"></section>
+
+    <template id="row">
+      <article class="bg-white rounded-2xl shadow p-4">
+        <div class="flex justify-between items-start gap-3">
+          <div class="min-w-0">
+            <h3 class="font-semibold text-lg truncate address"></h3>
+            <p class="text-sm text-slate-600 desc"></p>
+          </div>
+          <div class="text-right shrink-0">
+            <div class="text-sm text-slate-500 issued"></div>
+            <div class="text-base font-semibold val"></div>
+          </div>
+        </div>
+        <div class="text-xs mt-3 text-slate-600">
+          <span class="type"></span> · <span class="permit"></span>
+        </div>
+        <div class="flex gap-3 mt-3 text-sm">
+          <a class="inline-block underline text-blue-600 maps" target="_blank">Map</a>
+          <a class="inline-block underline text-blue-600 raw" target="_blank">Raw</a>
+        </div>
+      </article>
+    </template>
+  </main>
+
+<script>
+const API_BASE = '/api';
+const $ = (s, el=document)=>el.querySelector(s);
+const fmtUSD = v => (v||v===0) ? '$' + Number(v).toLocaleString() : '—';
+const fmtDate = iso => iso ? new Date(iso).toLocaleDateString() : '—';
+const mapLink = a => `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(a)}`;
+
+async function fetchTop(params){
+  const url = new URL(API_BASE + '/top-permits', location.origin);
+  Object.entries(params).forEach(([k,v])=>url.searchParams.set(k,v));
+  const res = await fetch(url.toString());
+  const data = await res.json();
+  if(!data.ok) throw new Error(data.error || 'error');
+  return data;
+}
+
+function render(items, metaUrl){
+  const list = $('#list'); list.innerHTML = '';
+  const tpl = $('#row').content;
+  items.forEach(it=>{
+    const node = tpl.cloneNode(true);
+    $('.address', node).textContent = it.address || '—';
+    $('.desc', node).textContent = it.description || '—';
+    $('.issued', node).textContent = 'Issued ' + fmtDate(it.issued_at);
+    $('.val', node).textContent = fmtUSD(it.valuation);
+    $('.type', node).textContent = [it.type, it.subtype].filter(Boolean).join(' — ') || '—';
+    $('.permit', node).textContent = it.permit || '—';
+    $('.maps', node).href = mapLink(it.address || '');
+    $('.raw', node).href = metaUrl;
+    list.appendChild(node);
+  });
+}
+
+async function run(){
+  const days = $('#days').value;
+  const min = $('#min').value;
+  const limit = $('#limit').value;
+  const q = $('#q').value;
+  $('#meta').textContent = 'Loading…';
+  $('#export').classList.add('hidden');
+  try{
+    const res = await fetchTop({days, min, limit, q});
+    $('#meta').innerHTML = `Showing <b>${res.items.length}</b> results from last <b>${days}</b> days · min <b>$${Number(min).toLocaleString()}</b> · view: <code>${res.select}</code>`;
+    render(res.items || [], res.url);
+    // CSV export link
+    const csv = res.url.replace(/\.json\?/, '.csv?');
+    $('#openRaw').href = res.url;
+    $('#openCsv').href = csv + '&$limit=2000';
+    $('#export').classList.remove('hidden');
+  }catch(e){
+    $('#meta').textContent = 'Error: ' + (e.message || e);
+    $('#list').innerHTML = '';
+  }
+}
+
+$('#filters').addEventListener('submit', (e)=>{ e.preventDefault(); run(); });
+run();
+</script>
+</body>
+</html>
