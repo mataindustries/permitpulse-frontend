@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>PermitPulse — Radar</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-50 text-slate-900">
+  <header class="max-w-5xl mx-auto px-4 py-6">
+    <h1 class="text-2xl font-bold">Radar: Live Permits</h1>
+    <p class="text-sm text-slate-600">Freshest LA permits by trade. Zero login. Links to raw data.</p>
+  </header>
+
+  <main class="max-w-5xl mx-auto px-4 pb-24">
+    <section class="bg-white rounded-2xl shadow p-4 mb-6">
+      <form id="filters" class="flex flex-wrap gap-3 items-end">
+        <label class="block">
+          <span class="text-xs uppercase">Trade</span>
+          <select id="trade" class="mt-1 rounded-xl border px-3 py-2">
+            <option value="roof">Roof</option>
+            <option value="solar">Solar</option>
+            <option value="ev">EV</option>
+            <option value="pool">Pool</option>
+          </select>
+        </label>
+        <label class="block">
+          <span class="text-xs uppercase">Days back</span>
+          <select id="days" class="mt-1 rounded-xl border px-3 py-2">
+            <option>1</option><option>3</option><option selected>7</option>
+            <option>14</option><option>30</option>
+          </select>
+        </label>
+        <label class="block">
+          <span class="text-xs uppercase">Limit</span>
+          <select id="limit" class="mt-1 rounded-xl border px-3 py-2">
+            <option>25</option><option selected>50</option><option>75</option><option>100</option>
+          </select>
+        </label>
+        <button class="ml-auto rounded-xl bg-blue-600 text-white px-4 py-2">Refresh</button>
+      </form>
+      <div id="meta" class="text-xs text-slate-500 mt-3"></div>
+    </section>
+
+    <section id="list" class="grid gap-4"></section>
+    <template id="card">
+      <article class="bg-white rounded-2xl shadow p-4">
+        <div class="flex justify-between items-start gap-3">
+          <div>
+            <h3 class="font-semibold text-lg address"></h3>
+            <p class="text-sm text-slate-600 desc"></p>
+          </div>
+          <div class="text-right">
+            <div class="text-sm text-slate-500 issued"></div>
+            <div class="text-base font-semibold val"></div>
+          </div>
+        </div>
+        <div class="text-xs mt-3 text-slate-600">
+          <span class="type"></span>
+          ·
+          <span class="permit"></span>
+        </div>
+        <div class="flex gap-3 mt-3 text-sm">
+          <a class="inline-block underline text-blue-600 maps" target="_blank">Map</a>
+          <a class="inline-block underline text-blue-600 raw" target="_blank">Raw</a>
+        </div>
+      </article>
+    </template>
+  </main>
+
+<script>
+const API_BASE = '/api';
+
+const $ = (sel, el=document) => el.querySelector(sel);
+const fmtUSD = v => (v||v===0) ? '$' + Number(v).toLocaleString() : '—';
+const fmtDate = iso => iso ? new Date(iso).toLocaleDateString() : '—';
+const mapLink = addr => `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(addr)}`;
+
+async function fetchRadar(params){
+  const url = new URL(API_BASE + '/radar', location.origin);
+  Object.entries(params).forEach(([k,v])=>url.searchParams.set(k,v));
+  const res = await fetch(url.toString());
+  const data = await res.json();
+  if(!data.ok) throw new Error(data.error || 'error');
+  return data;
+}
+
+function render(items, metaUrl){
+  const list = $('#list');
+  list.innerHTML = '';
+  const tpl = $('#card').content;
+  items.forEach(it=>{
+    const node = tpl.cloneNode(true);
+    $('.address', node).textContent = it.address || '—';
+    $('.desc', node).textContent = it.description || '—';
+    $('.issued', node).textContent = 'Issued ' + fmtDate(it.issued_at);
+    $('.val', node).textContent = fmtUSD(it.valuation);
+    $('.type', node).textContent = [it.type, it.subtype].filter(Boolean).join(' — ') || '—';
+    $('.permit', node).textContent = it.permit || '—';
+    $('.maps', node).href = mapLink(it.address || '');
+    $('.raw', node).href = metaUrl;
+    list.appendChild(node);
+  });
+}
+
+async function run(){
+  const trade = $('#trade').value;
+  const days = $('#days').value;
+  const limit = $('#limit').value;
+  $('#meta').textContent = 'Loading…';
+  try{
+    const res = await fetchRadar({trade, days, limit});
+    $('#meta').innerHTML = `Found <b>${res.size}</b> permits · source view: <code>${res.select}</code> · <a class="underline" href="${res.url}" target="_blank">Open in Socrata</a>`;
+    render(res.items || [], res.url);
+  }catch(e){
+    $('#meta').textContent = 'Error: ' + (e.message || e);
+    $('#list').innerHTML = '';
+  }
+}
+
+$('#filters').addEventListener('submit', (e)=>{ e.preventDefault(); run(); });
+
+run();
+</script>
+</body>
+</html>
