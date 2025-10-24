@@ -1,179 +1,126 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>PermitPulse – Te conseguimos 1–2 trabajos al mes, garantizado</title>
+  <meta name="description" content="Crecimiento concierge para techos, solar y contratistas en LA. Convertimos permisos del LADBS en citas agendadas con campañas EN/ES y atención 24/7 con IA. Garantía de resultado." />
+  <link rel="canonical" href="https://getpermitpulse.com/es/" />
+  <link rel="alternate" href="https://getpermitpulse.com/" hreflang="en-US" />
+  <link rel="alternate" href="https://getpermitpulse.com/es/" hreflang="es-US" />
+  <meta property="og:title" content="Te conseguimos 1–2 trabajos al mes — o no pagas" />
+  <meta property="og:description" content="Permisos del LADBS → citas agendadas. EN/ES + IA 24/7. Garantía." />
+  <meta property="og:url" content="https://getpermitpulse.com/es/" />
+  <meta property="og:image" content="https://getpermitpulse.com/img/og/hero.jpg" />
 
-  <title>Permisos en Los Ángeles · CSV y Alertas | PermitPulse</title>
-  <meta name="description" content="Llega primero a los proyectos grandes. Filtra permisos de LADBS por valor y palabras clave, exporta CSV y recibe alertas sin broncas.">
-  <link rel="canonical" href="https://getpermitpulse.com/es/">
-
-  <script src="https://cdn.tailwindcss.com"></script>
-
-  <!-- GA4 -->
+  <!-- GA4 same property or ES-specific; replace ID -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-0S8S6156CV"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-    gtag('config', 'G-0S8S6156CV');
-    function fireGAEvent(name, params){ try{ gtag('event', name, params||{});}catch(_){ } }
-    document.addEventListener('DOMContentLoaded', ()=>{ fireGAEvent('view_results'); });
-  </script>
+  <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);} gtag('js',new Date()); gtag('config','G-0S8S6156CV');</script>
 
-  <link rel="alternate" hreflang="en" href="https://getpermitpulse.com/">
-  <link rel="alternate" hreflang="es" href="https://getpermitpulse.com/es/">
-  <link rel="alternate" hreflang="x-default" href="https://getpermitpulse.com/">
-
-  <!-- OG/Twitter kept as-is from your file -->
+  <style>
+    /* reuse styles from EN for consistency */
+    :root{--brand:#2563eb;--brand-2:#10b981}
+    body{margin:0;font-family:ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Inter,"Helvetica Neue",Arial;color:#111827;background:#f7f8fb;line-height:1.55}
+    a{color:var(--brand);text-decoration:underline}
+    .wrap{max-width:1120px;margin:0 auto;padding:0 20px}
+    header{position:sticky;top:0;z-index:50;background:rgba(255,255,255,.85);backdrop-filter:saturate(180%) blur(10px);border-bottom:1px solid #eef0f4}
+    .nav{display:flex;align-items:center;gap:20px;padding:14px 0}
+    .brand{font-weight:700;color:#111827;text-decoration:none}
+    .spacer{flex:1}
+    .btn{display:inline-flex;align-items:center;justify-content:center;padding:10px 16px;border-radius:12px;border:1px solid transparent;font-weight:600;text-decoration:none}
+    .btn-primary{background:var(--brand);color:#fff}
+    .btn-secondary{background:#eef2ff;color:#1e3a8a;border-color:#c7d2fe}
+    .btn-ghost{background:#fff;border:1px solid #e5e7eb;color:#111827}
+    .hero{background:radial-gradient(1200px 600px at 10% -10%, #c7d2fe 0%, rgba(199,210,254,.25) 45%, rgba(199,210,254,0) 70%), linear-gradient(180deg,#f8fafc 0%,#f1f5f9 60%,#eef2f7 100%); padding:56px 0 36px}
+    .trust{display:flex;gap:10px;font-size:14px;color:#374151;margin-bottom:18px}
+    .dot{width:10px;height:10px;border-radius:50%;background:#10b981;box-shadow:0 0 0 4px rgba(16,185,129,.15)}
+    h1{font-size:40px;line-height:1.1;margin:10px 0 16px}
+    .sub{font-size:18px;color:#374151;max-width:780px}
+    .cta-row{display:flex;flex-wrap:wrap;gap:12px;margin:18px 0 8px}
+    section{padding:56px 0}
+    .grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
+    .card{background:#fff;border:1px solid #e5e7eb;border-radius:18px;box-shadow:0 8px 30px rgba(2,6,23,.1);padding:22px}
+    .mini{font-size:14px;color:#6b7280}
+    @media (max-width:880px){h1{font-size:32px}.grid-3{grid-template-columns:1fr}}
+    .sticky{position:fixed;left:0;right:0;bottom:0;border-top:1px solid #e5e7eb;background:rgba(255,255,255,.96);padding:10px 16px;display:flex;gap:10px}
+  </style>
 </head>
-<body class="bg-gray-50 text-gray-900 p-4">
-
-<!-- HERO -->
-<header class="mb-8">
-  <div class="max-w-6xl mx-auto p-4 sm:p-8 rounded-3xl border border-blue-100 bg-gradient-to-r from-sky-50 to-blue-50 shadow-sm">
-    <div class="flex items-start justify-between gap-6">
-      <div>
-        <h1 class="text-3xl sm:text-4xl font-bold">Gánale a tu competencia con los permisos más grandes de LA.</h1>
-        <p class="mt-2 max-w-2xl text-gray-700">
-          Flujo en vivo de LADBS + “Top 10” semanal. CSV gratis hoy. Pro a <b>$39/mes</b>.
-        </p>
-        <div class="mt-3 flex flex-wrap gap-2">
-          <span class="inline-flex items-center px-3 py-1 rounded-full text-sm border border-blue-200 bg-white">Flujo en vivo de LADBS</span>
-          <span class="inline-flex items-center px-3 py-1 rounded-full text-sm border border-blue-200 bg-white">CSV y alertas por email</span>
-          <span class="inline-flex items-center px-3 py-1 rounded-full text-sm border border-blue-200 bg-white">JSON listo para IA</span>
-        </div>
-        <div class="mt-6 flex flex-wrap gap-3">
-          <a data-cta="free_csv" href="#" onclick="openCSV(); fireGAEvent('cta_click',{cta:'hero_free_csv_es'})" class="inline-flex items-center justify-center px-5 py-3 rounded-xl bg-blue-600 text-white font-semibold">Obtener CSV Gratis</a>
-          <a href="#live" class="inline-flex items-center justify-center px-5 py-3 rounded-xl border border-slate-300 bg-white font-semibold">Ver permisos en vivo</a>
-          <a href="/email-alerts.html" class="inline-flex items-center justify-center px-5 py-3 rounded-xl border border-slate-300 bg-white font-semibold">Crear alertas</a>
-        </div>
-        <p class="mt-2 text-xs text-slate-500">Fuente: LADBS • Actualizado por hora • Sin spam</p>
-      </div>
-      <div id="lang-toggle" class="text-sm text-right text-gray-600 min-w-[120px]"></div>
-    </div>
+<body>
+<header>
+  <div class="wrap nav">
+    <a class="brand" href="/es/">PermitPulse</a>
+    <a href="#como">Cómo funciona</a>
+    <a href="/radar/">Permisos en vivo</a>
+    <a href="/#plans">Planes</a>
+    <a href="/license/">Licenciamiento</a>
+    <a href="/">English</a>
+    <div class="spacer"></div>
+    <a class="btn btn-ghost" href="/call/">Agendar llamada</a>
+    <a class="btn btn-primary" href="/reserve/">Reservar lugar</a>
   </div>
 </header>
 
-<!-- INTERNAL LINKS (rest of your grid kept) -->
-<section id="la-feeds" class="max-w-6xl mx-auto px-4 sm:px-6">
-  <!-- … keep your existing links block … -->
-  <div class="mt-6 mb-10">
-    <a class="underline" href="/free-csv.html" onclick="gtag('event','download_csv_nav',{page:'home_es'})">Pedir un CSV gratis</a>
-  </div>
-</section>
-
-<!-- LIVE SAMPLE TABLE -->
-<section id="live" class="max-w-6xl mx-auto px-4 sm:px-6 mt-10">
-  <h3 class="text-lg font-bold">Muestras de esta semana (≥ $250k)</h3>
-  <div id="tbl" class="mt-3 text-sm border rounded-xl overflow-x-auto"></div>
-  <button onclick="openCSV(); fireGAEvent('cta_click',{cta:'sample_csv_es'})" class="w-full mt-3 rounded-xl border px-3 py-2">
-    Descargar CSV completo (gratis)
-  </button>
-</section>
-
-<!-- TOP PERMITS LAST MONTH -->
-<section id="top-permits" class="max-w-6xl mx-auto px-4 sm:px-6 mt-10">
-  <h3 class="text-lg font-bold">Permisos más grandes del mes pasado (≥ $250k)</h3>
-  <div id="topList" class="mt-3 grid gap-3"></div>
-  <button onclick="openCSV(); fireGAEvent('cta_click',{cta:'top_month_csv_es'})" class="w-full rounded-xl border px-3 py-2 mt-2">
-    Obtener CSV completo (gratis)
-  </button>
-</section>
-
-<!-- PRICING + rest of page (leave as-is) -->
-<section id="pricing" class="bg-white border-t border-slate-200 mt-10">
-  <!-- … your existing pricing section from the Spanish file … -->
-</section>
-
-<!-- Mobile sticky CTA (unchanged) -->
-<a href="/free-csv.html" id="pp-fab"
-  class="fixed bottom-4 right-4 z-40 inline-flex items-center gap-2 rounded-full bg-emerald-600 px-4 py-3 text-white shadow-lg md:hidden">
-  <span class="h-2 w-2 rounded-full bg-white animate-pulse"></span>
-  Pedir CSV gratis
-</a>
-
-<!-- ===== Scripts ===== -->
-<script>
-  // sample table
-  (async()=>{
-    try{
-      const r = await fetch('/permits?sample=10&min_value=250000');
-      const rows = await r.json();
-      const cols = ['permit','address','project_value','issue_date','description'];
-      const head = '<tr>'+cols.map(c=>`<th class="p-2 text-left">${c}</th>`).join('')+'</tr>';
-      const body = rows.map(x=>'<tr>'+cols.map(c=>`<td class="p-2 align-top">${(x[c]??'')}</td>`).join('')+'</tr>').join('');
-      document.getElementById('tbl').innerHTML = `<table class="w-full">${head}${body}</table>`;
-    }catch(_){}
-  })();
-
-  // top permits last month
-  (async()=>{
-    try{
-      const r = await fetch('/top-permits?limit=3&min_value=250000');
-      const items = await r.json();
-      if(!items.length){ document.getElementById('top-permits').style.display='none'; return; }
-      const fmt = n => n?.toLocaleString?.('es-US',{style:'currency',currency:'USD',maximumFractionDigits:0}) ?? n;
-      const html = items.map(x=>`
-        <article class="border rounded-xl p-3">
-          <div class="text-base font-semibold">${fmt(+x.project_value||0)}</div>
-          <div class="text-sm text-slate-700">${x.address||'—'}</div>
-          <div class="text-xs text-slate-500">${x.type||''} • ${x.issue_date?.slice(0,10)||''}</div>
-          <p class="text-sm mt-1 line-clamp-2">${x.description||''}</p>
-        </article>`).join('');
-      document.getElementById('topList').innerHTML = html;
-      fireGAEvent('widget_view',{widget:'top_permits_es'});
-    }catch(_){}
-  })();
-</script>
-
-<!-- Free CSV Modal -->
-<div id="csvModal" class="fixed inset-0 hidden items-end sm:items-center justify-center bg-black/50 z-50">
-  <div class="w-full sm:w-[28rem] rounded-2xl bg-white p-5">
-    <h3 class="text-xl font-bold mb-1">CSV Gratis: Últimos 7 días (≥ $250k)</h3>
-    <p class="text-sm text-slate-600 mb-4">Te enviaremos el CSV + un “Top 10” semanal. Sin cuenta.</p>
-    <form id="csvForm" class="space-y-3">
-      <input type="email" name="email" required placeholder="tu@email.com" class="w-full border rounded-xl px-3 py-2" />
-      <input type="text" name="keywords" placeholder="Opcional: techos, solar, ADU…" class="w-full border rounded-xl px-3 py-2" />
-      <button class="w-full rounded-xl px-3 py-2 bg-indigo-600 text-white font-semibold" id="csvSubmit">Enviarme el CSV</button>
-      <p id="csvMsg" class="text-sm text-emerald-600 hidden">Listo — tu CSV se está descargando.</p>
-    </form>
+<div class="hero">
+  <div class="wrap">
+    <div class="trust"><span class="dot"></span> <strong>Garantía de resultado</strong> · Sin contratos largos · EN/ES</div>
+    <h1>Te conseguimos <b>1–2 trabajos al mes</b>, garantizado — o <b>no pagas</b></h1>
+    <p class="sub">Crecimiento “concierge” para techos, solar y contratistas generales en LA. Convertimos <b>permisos del LADBS</b> en citas agendadas con campañas en español e inglés y atención 24/7 con IA.</p>
+    <div class="cta-row">
+      <a class="btn btn-primary" href="/call/">Agendar llamada de 15 min</a>
+      <a class="btn btn-secondary" href="/reserve/">Reservar lugar de lanzamiento</a>
+      <a class="btn btn-ghost" href="mailto:hello@getpermitpulse.com">hello@getpermitpulse.com</a>
+    </div>
+    <p class="mini">500+ permisos/mes · Actualizado cada 6 horas · EN/ES · Listo en 7 días</p>
   </div>
 </div>
 
-<script>
-function openCSV(){ document.getElementById('csvModal').classList.remove('hidden'); }
-function closeCSV(){ document.getElementById('csvModal').classList.add('hidden'); }
-document.getElementById('csvForm').addEventListener('submit', async (e) => {
-  e.preventDefault();
-  const data = Object.fromEntries(new FormData(e.target).entries());
-  try {
-    gtag('event','lead_captured',{method:'free_csv_modal_es'});
-    const r = await fetch('/free-csv', {
-      method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify(data)
-    });
-    if(!r.ok) throw new Error('Bad response');
-    const blob = await r.blob();
-    const link = document.createElement('a');
-    link.href = URL.createObjectURL(blob);
-    link.download = 'permitpulse_la_ultimos7dias.csv';
-    document.body.appendChild(link); link.click(); link.remove();
-    document.getElementById('csvMsg').classList.remove('hidden');
-  } catch(err){ alert('Ups, algo falló. ¿Intentas de nuevo?'); }
-});
-</script>
+<section id="como" class="wrap">
+  <h2>Cómo funciona</h2>
+  <div class="grid-3">
+    <div class="card"><h3>1) Radar de permisos</h3><p>Filtramos por oficio, valor y palabras clave (roof, re-roof, solar, TPO). Tú eliges los ZIPs.</p></div>
+    <div class="card"><h3>2) Prospección calificada</h3><p>Listas del dueño/GC y campañas español-primero (llamadas, SMS, email). Humano + IA.</p></div>
+    <div class="card"><h3>3) IA que cierra</h3><p>Teléfono y chat 24/7 que responde, capta y agenda directo en tu calendario.</p></div>
+  </div>
+</section>
 
-<!-- lang toggle -->
-<script>
-  (function(){
-    var el = document.getElementById('lang-toggle');
-    if (!el) return;
-    var base = location.pathname.replace(/^\/es\//,'/');
-    if (base === '/' || base === '') base = '/index.html';
-    el.innerHTML = '<a class="underline" href="'+base+'">English</a> | <span>Español</span>';
-  })();
-</script>
+<section class="wrap">
+  <h2>Planes</h2>
+  <div class="card">
+    <h3>Conserjería (Más elegido)</h3>
+    <p><b>$2,500–$4,000/mes</b> según volumen y oficio.</p>
+    <ul>
+      <li>Radar + listas diarias</li>
+      <li>Campañas EN/ES</li>
+      <li>Teléfono/chat con IA + landing</li>
+      <li>Reportes semanales</li>
+      <li><b>Garantía de resultado</b></li>
+    </ul>
+    <a class="btn btn-primary" href="/call/">Agendar llamada</a>
+    <a class="btn btn-secondary" href="/reserve/">Reservar lugar</a>
+  </div>
 
+  <div class="card" style="margin-top:18px">
+    <h3>Herramientas DIY (Gratis)</h3>
+    <ul><li>Radar de permisos</li><li>Exportar CSV</li><li>Alertas</li><li>Top permisos</li></ul>
+    <a class="btn btn-ghost" href="/radar/">Abrir Radar</a>
+  </div>
+</section>
+
+<section class="wrap">
+  <div class="card">
+    <h2>Licenciamiento / A la medida</h2>
+    <p>Lanza tu ciudad o en marca blanca. <b>Exclusividad por metro</b>.</p>
+    <p><a href="/license/">Ver opciones →</a></p>
+  </div>
+</section>
+
+<footer class="wrap" style="padding:40px 0;border-top:1px solid #eef0f4;color:#6b7280">
+  © 2025 PermitPulse · Los Ángeles, California · <a href="mailto:hello@getpermitpulse.com">hello@getpermitpulse.com</a> · <a href="/legal/privacy.html">Privacidad</a> · <a href="/">English</a>
+</footer>
+
+<div class="sticky">
+  <a class="btn btn-primary" style="flex:1" href="/call/">Agendar llamada</a>
+  <a class="btn btn-secondary" style="flex:1" href="/reserve/">Reservar lugar</a>
+</div>
 </body>
 </html>
