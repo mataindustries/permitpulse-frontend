@@ -2,125 +2,165 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>PermitPulse — Radar</title>
-  <script src="https://cdn.tailwindcss.com"></script>
+  <title>Radar: Live Permits • PermitPulse</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="robots" content="noindex" />
+  <link rel="icon" href="/favicon.ico" />
+  <style>
+    :root { --bg:#0b1220; --card:#11182a; --muted:#98a2b3; --text:#e6eaf2; --accent:#2f6cf6; }
+    *{box-sizing:border-box} body{margin:0; font:16px/1.5 system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif; color:var(--text); background:
+      radial-gradient(1200px 500px at 10% -10%, #2f6cf622, transparent 60%),
+      linear-gradient(180deg, #0a1020 0%, #0b1220 30%, #0b1220 100%);
+    }
+    .wrap{max-width:960px; margin:48px auto; padding:0 16px}
+    h1{font-size:36px; margin:0 0 6px}
+    p.lead{margin:0 0 24px; color:var(--muted)}
+    .card{background:var(--card); border:1px solid #243045; border-radius:16px; padding:18px; box-shadow:0 6px 24px rgba(0,0,0,.25)}
+    .controls{display:grid; grid-template-columns:1fr 1fr 1fr auto; gap:12px; align-items:end}
+    label{font-size:12px; color:var(--muted); display:block; margin:0 0 6px}
+    select,button{width:100%; padding:12px 14px; border-radius:10px; border:1px solid #2b3752; background:#0f1627; color:var(--text)}
+    button{background:var(--accent); border-color:var(--accent); font-weight:600; cursor:pointer}
+    .summary{margin:14px 4px 0; color:var(--muted)}
+    .summary a{color:#bcd0ff}
+    table{width:100%; border-collapse:collapse; margin-top:14px; font-size:14px}
+    th,td{padding:12px 10px; border-top:1px solid #233049; vertical-align:top}
+    th{color:#c8d0e0; font-weight:600; text-align:left}
+    .mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+    .val{white-space:nowrap}
+    .desc{color:#cbd5e1}
+    .muted{color:var(--muted)}
+    @media (max-width:720px){
+      .controls{grid-template-columns:1fr 1fr; grid-auto-rows:auto}
+      .controls button{grid-column:1 / -1}
+      table{font-size:13px}
+      .hide-sm{display:none}
+    }
+  </style>
 </head>
-<body class="bg-slate-50 text-slate-900">
-  <header class="max-w-5xl mx-auto px-4 py-6">
-    <h1 class="text-2xl font-bold">Radar: Live Permits</h1>
-    <p class="text-sm text-slate-600">Freshest LA permits by trade. Zero login. Links to raw data.</p>
-  </header>
+<body>
+  <div class="wrap">
+    <h1>Radar: Live Permits</h1>
+    <p class="lead">Freshest LA permits by trade. Zero login. Links to raw data.</p>
 
-  <main class="max-w-5xl mx-auto px-4 pb-24">
-    <section class="bg-white rounded-2xl shadow p-4 mb-6">
-      <form id="filters" class="flex flex-wrap gap-3 items-end">
-        <label class="block">
-          <span class="text-xs uppercase">Trade</span>
-          <select id="trade" class="mt-1 rounded-xl border px-3 py-2">
+    <div class="card">
+      <div class="controls">
+        <div>
+          <label>TRADE</label>
+          <select id="trade">
             <option value="roof">Roof</option>
             <option value="solar">Solar</option>
-            <option value="ev">EV</option>
-            <option value="pool">Pool</option>
+            <option value="addition">Addition</option>
+            <option value="hvac">HVAC</option>
+            <option value="electrical">Electrical</option>
           </select>
-        </label>
-        <label class="block">
-          <span class="text-xs uppercase">Days back</span>
-          <select id="days" class="mt-1 rounded-xl border px-3 py-2">
-            <option>1</option><option>3</option><option selected>7</option>
-            <option>14</option><option>30</option>
+        </div>
+        <div>
+          <label>DAYS BACK</label>
+          <select id="days">
+            <option>3</option>
+            <option selected>7</option>
+            <option>14</option>
+            <option>30</option>
           </select>
-        </label>
-        <label class="block">
-          <span class="text-xs uppercase">Limit</span>
-          <select id="limit" class="mt-1 rounded-xl border px-3 py-2">
-            <option>25</option><option selected>50</option><option>75</option><option>100</option>
+        </div>
+        <div>
+          <label>LIMIT</label>
+          <select id="limit">
+            <option>25</option>
+            <option selected>50</option>
+            <option>75</option>
+            <option>100</option>
           </select>
-        </label>
-        <button class="ml-auto rounded-xl bg-blue-600 text-white px-4 py-2">Refresh</button>
-      </form>
-      <div id="meta" class="text-xs text-slate-500 mt-3"></div>
-    </section>
+        </div>
+        <div><button id="go">Refresh</button></div>
+      </div>
 
-    <section id="list" class="grid gap-4"></section>
-    <template id="card">
-      <article class="bg-white rounded-2xl shadow p-4">
-        <div class="flex justify-between items-start gap-3">
-          <div>
-            <h3 class="font-semibold text-lg address"></h3>
-            <p class="text-sm text-slate-600 desc"></p>
-          </div>
-          <div class="text-right">
-            <div class="text-sm text-slate-500 issued"></div>
-            <div class="text-base font-semibold val"></div>
-          </div>
-        </div>
-        <div class="text-xs mt-3 text-slate-600">
-          <span class="type"></span>
-          ·
-          <span class="permit"></span>
-        </div>
-        <div class="flex gap-3 mt-3 text-sm">
-          <a class="inline-block underline text-blue-600 maps" target="_blank">Map</a>
-          <a class="inline-block underline text-blue-600 raw" target="_blank">Raw</a>
-        </div>
-      </article>
-    </template>
-  </main>
+      <div class="summary" id="summary"> </div>
+
+      <table id="tbl" aria-live="polite">
+        <thead>
+          <tr>
+            <th class="hide-sm">Permit #</th>
+            <th>Issued</th>
+            <th>Issued Address</th>
+            <th class="val">Value</th>
+            <th>Description</th>
+          </tr>
+        </thead>
+        <tbody id="rows"><tr><td colspan="5" class="muted">Loading…</td></tr></tbody>
+      </table>
+    </div>
+  </div>
 
 <script>
-const API_BASE = '/api';
+(function(){
+  const $ = s => document.querySelector(s);
+  const tradeEl = $('#trade'), daysEl = $('#days'), limitEl = $('#limit');
+  const rowsEl = $('#rows'), summaryEl = $('#summary'), goEl = $('#go');
 
-const $ = (sel, el=document) => el.querySelector(sel);
-const fmtUSD = v => (v||v===0) ? '$' + Number(v).toLocaleString() : '—';
-const fmtDate = iso => iso ? new Date(iso).toLocaleDateString() : '—';
-const mapLink = addr => `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(addr)}`;
-
-async function fetchRadar(params){
-  const url = new URL(API_BASE + '/radar', location.origin);
-  Object.entries(params).forEach(([k,v])=>url.searchParams.set(k,v));
-  const res = await fetch(url.toString());
-  const data = await res.json();
-  if(!data.ok) throw new Error(data.error || 'error');
-  return data;
-}
-
-function render(items, metaUrl){
-  const list = $('#list');
-  list.innerHTML = '';
-  const tpl = $('#card').content;
-  items.forEach(it=>{
-    const node = tpl.cloneNode(true);
-    $('.address', node).textContent = it.address || '—';
-    $('.desc', node).textContent = it.description || '—';
-    $('.issued', node).textContent = 'Issued ' + fmtDate(it.issued_at);
-    $('.val', node).textContent = fmtUSD(it.valuation);
-    $('.type', node).textContent = [it.type, it.subtype].filter(Boolean).join(' — ') || '—';
-    $('.permit', node).textContent = it.permit || '—';
-    $('.maps', node).href = mapLink(it.address || '');
-    $('.raw', node).href = metaUrl;
-    list.appendChild(node);
-  });
-}
-
-async function run(){
-  const trade = $('#trade').value;
-  const days = $('#days').value;
-  const limit = $('#limit').value;
-  $('#meta').textContent = 'Loading…';
-  try{
-    const res = await fetchRadar({trade, days, limit});
-    $('#meta').innerHTML = `Found <b>${res.size}</b> permits · source view: <code>${res.select}</code> · <a class="underline" href="${res.url}" target="_blank">Open in Socrata</a>`;
-    render(res.items || [], res.url);
-  }catch(e){
-    $('#meta').textContent = 'Error: ' + (e.message || e);
-    $('#list').innerHTML = '';
+  function fmtMoney(n){
+    if(n==null || n==='' || isNaN(+n)) return '—';
+    return +n >= 1000 ? (+n).toLocaleString('en-US',{maximumFractionDigits:0,style:'currency',currency:'USD'}) : String(n);
   }
-}
+  const trunc = (s,n=160)=> (s||'').length>n ? (s.slice(0,n-1)+'…') : (s||'');
 
-$('#filters').addEventListener('submit', (e)=>{ e.preventDefault(); run(); });
+  async function fetchRadar(){
+    const params = new URLSearchParams({
+      trade: tradeEl.value || 'roof',
+      days: daysEl.value || 7,
+      limit: limitEl.value || 50
+    });
+    const url = `/api/radar?${params.toString()}`;
+    const res = await fetch(url, {headers:{'accept':'application/json'}});
+    const data = await res.json();
 
-run();
+    if(!data || data.ok === false){
+      summaryEl.textContent = `Error: ${data?.error || res.status}`;
+      rowsEl.innerHTML = `<tr><td colspan="5" class="muted">No results.</td></tr>`;
+      return;
+    }
+
+    // ---- robust count + view fallbacks ----
+    const n =
+      (typeof data.count === 'number' ? data.count : null) ??
+      (typeof data['count(*)'] === 'number' ? data['count(*)'] : null) ??
+      (typeof data.total === 'number' ? data.total : null) ??
+      (typeof data.count_1 === 'string' ? parseInt(data.count_1,10) : null) ??
+      (Array.isArray(data.rows) ? data.rows.length : 0);
+
+    const view =
+      data.view ?? data.dataset ?? data.source_view ?? data.view_id ?? 'pi9x-tg5x';
+
+    const uiLink =
+      data.ui ?? `https://data.lacity.org/resource/${view}.json`;
+
+    summaryEl.innerHTML = `Found <b>${n}</b> permits · source view: <span class="mono">${view}</span> · <a href="${uiLink}" target="_blank" rel="noopener">Open in Socrata</a>`;
+
+    // ---- render rows ----
+    const rows = Array.isArray(data.rows) ? data.rows : [];
+    if(rows.length === 0){
+      rowsEl.innerHTML = `<tr><td colspan="5" class="muted">No results for these filters.</td></tr>`;
+      return;
+    }
+    rowsEl.innerHTML = rows.map(r=>{
+      const nbr = r.permit_nbr ?? r.permit ?? r.permit_number ?? '';
+      const when = (r.issue_date || r.issued || '').slice(0,10);
+      const addr = r.primary_address || r.full_address || r.address || '';
+      const val = r.valuation ?? r.value ?? r.project_value ?? r.construction_value ?? null;
+      const desc = r.work_desc || r.description || '';
+      return `<tr>
+        <td class="mono hide-sm">${nbr || '—'}</td>
+        <td>${when || '—'}</td>
+        <td>${addr || '—'}</td>
+        <td class="val">${fmtMoney(val)}</td>
+        <td class="desc">${trunc(desc)}</td>
+      </tr>`;
+    }).join('');
+  }
+
+  goEl.addEventListener('click', fetchRadar);
+  window.addEventListener('load', fetchRadar);
+})();
 </script>
 </body>
 </html>
