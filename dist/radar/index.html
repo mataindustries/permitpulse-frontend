@@ -35,6 +35,17 @@
       table{font-size:13px}
       .hide-sm{display:none}
     }
+    .card.cta { display:grid; gap:10px; background:var(--card); border:1px solid #24304b; border-radius:16px; padding:16px; }
+.cta-row { display:grid; grid-template-columns: 1fr auto; align-items:center; gap:12px; }
+.cta-copy strong { font-size:16px; }
+.cta-actions { display:flex; gap:10px; }
+.btn { display:inline-block; padding:10px 14px; border-radius:10px; font-weight:600; text-decoration:none;
+       background:linear-gradient(180deg,#2b73f2 0%, #1e4bd1 100%); color:#fff; box-shadow:0 2px 10px rgba(0,0,0,.15); }
+.btn.ghost { background:transparent; color:var(--accent); border:1px solid var(--accent); }
+@media (max-width: 720px){
+  .cta-row{ grid-template-columns: 1fr; }
+  .cta-actions{ justify-content:flex-start; }
+}
   </style>
 </head>
 <body>
@@ -74,6 +85,25 @@
         </div>
         <div><button id="go">Refresh</button></div>
       </div>
+      <!-- CTA: quick call/text -->
+<div class="card cta">
+  <div class="cta-row">
+    <div class="cta-copy">
+      <strong>Need help targeting today’s permits?</strong>
+      <p class="muted">Free 5-min walkthrough + sample alerts. EN/ES.</p>
+    </div>
+    <div class="cta-actions">
+      <a class="btn"  href="tel:+16265550123"
+         onclick="window.gtag&&gtag('event','cta_click',{type:'call', page:'radar'});">
+        Call
+      </a>
+      <a class="btn ghost" href="sms:+15626762691?body=Hi%20PermitPulse%20—%20I%20want%20alerts"
+         onclick="window.gtag&&gtag('event','cta_click',{type:'sms', page:'radar'});">
+        Text
+      </a>
+    </div>
+  </div>
+</div>
 
       <div class="summary" id="summary"> </div>
 
