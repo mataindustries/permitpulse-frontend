@@ -1,3 +1,16 @@
+# Pretty URLs for pilot & guarantee
+/guarantee                 /permitpulse-guarantee-en.html         200!
+/pilot                     /permitpulse-pilot-intake-en.html      200!
+/es/garantia               /es/permitpulse-garantia-es.html       200!
+/es/piloto                 /es/permitpulse-piloto-intake-es.html  200!
+
+# Helpful aliases (permanent redirects)
+/risk-free                 /guarantee                         301
+/outcome                   /guarantee                         301
+/piloto                    /es/piloto                         301
+/es/piloto-intake          /es/piloto                         301
+/pilot/es                  /es/piloto                         301
+
 # Pretty landers → static files
 /la-contractors            /la-contractors-la.html            200
 /es/la-contratistas        /es/la-contratistas-la.html        200
