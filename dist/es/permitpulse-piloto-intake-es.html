@@ -1,0 +1,188 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PermitPulse • Empezar Piloto de 14 Días</title>
+<meta name="theme-color" content="#0B1220">
+<style>
+:root{
+  --navy:#0B1220;--blue:#2563EB;--turq:#2EE6D6;--slate:#94A3B8;--white:#FFFFFF;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0;font-family:Inter,ui-sans-serif,system-ui,Segoe UI,Roboto,Arial,sans-serif;background:linear-gradient(180deg,#0B1220 0%,#0E1A2E 100%);color:#E5E7EB}
+.container{max-width:1040px;margin:0 auto;padding:24px}
+.header{display:flex;align-items:center;justify-content:space-between}
+.logo{font-weight:800;letter-spacing:.06em}
+.badge{display:inline-flex;align-items:center;gap:8px;background:rgba(46,230,214,.12);color:#94F9EF;padding:8px 12px;border-radius:999px;font-size:14px}
+.hero{padding:24px 0}
+h1{font-size:40px;line-height:1.1;margin:10px 0;color:#fff}
+p.lead{color:#cbd5e1;font-size:18px;margin:6px 0 16px}
+.grid{display:grid;grid-template-columns:repeat(12,1fr);gap:16px}
+.card{grid-column:span 12;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:16px;padding:18px}
+form{display:grid;grid-template-columns:repeat(12,1fr);gap:12px}
+label{font-size:14px;color:#cbd5e1;margin-bottom:4px;display:block}
+.input,select,textarea{width:100%;padding:12px;border-radius:10px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.06);color:#fff}
+.half{grid-column:span 12}
+@media(min-width:768px){.half{grid-column:span 6}}
+.btn{appearance:none;border:none;border-radius:12px;padding:14px 18px;font-weight:700;font-size:16px;cursor:pointer;transition:.2s all}
+.btn-primary{background:var(--blue);color:#fff;box-shadow:0 8px 24px rgba(37,99,235,.45)}
+.btn-primary:hover{transform:translateY(-1px);box-shadow:0 10px 28px rgba(37,99,235,.55)}
+.btn-ghost{background:rgba(255,255,255,.06);color:#fff;border:1px solid rgba(255,255,255,.12)}
+.small{color:#94A3B8;font-size:13px}
+.success{background:rgba(46,230,214,.12);border:1px solid rgba(46,230,214,.45);color:#B7FFF7;padding:12px;border-radius:12px;margin-top:12px;display:none}
+.actions{display:flex;flex-wrap:wrap;gap:10px;margin-top:14px}
+.sticky{position:fixed;left:0;right:0;bottom:0;background:rgba(11,18,32,.9);backdrop-filter:blur(6px);border-top:1px solid rgba(255,255,255,.08);padding:10px 14px;display:flex;gap:10px;z-index:50}
+.sticky .btn{flex:1}
+.section-title{font-size:22px;color:#fff;margin:14px 0}
+.sample{background:rgba(255,255,255,.03);border:1px dashed rgba(255,255,255,.08);padding:14px;border-radius:12px}
+</style>
+
+<!-- GA4 -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-0S8S6156CV"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-0S8S6156CV');</script>
+
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <div class="logo">PERMITPULSE</div>
+    <div class="badge">Outcome Guaranteed</div>
+  </div>
+  <section class="hero">
+    <h1>Empieza tu Piloto de 14 Días</h1>
+    <p class="lead">Cuéntanos tu zona y qué trabajos quieres ganar. Te mandamos la primera lista hoy a las 6 pm.</p>
+  </section>
+
+  <div class="grid">
+    <div class="card" style="grid-column:span 7">
+      <h2 class="section-title">Tus datos</h2>
+      <form id="pilotForm">
+        <div class="half"><label>Nombre completo<input class="input" name="name" required/></label></div>
+        <div class="half"><label>Empresa<input class="input" name="company" required/></label></div>
+        <div class="half"><label>Celular (para SMS)<input class="input" name="phone" required/></label></div>
+        <div class="half"><label>Correo<input class="input" name="email" type="email" required/></label></div>
+
+        <div class="half">
+          <label>Giro
+            <select name="trade" class="input" required>
+              <option>Techos</option><option>HVAC (RTU)</option><option>Restauración</option>
+            </select>
+          </label>
+        </div>
+        <div class="half"><label>Zona de servicio (códigos postales o ciudades)<input class="input" name="zips" placeholder="e.g., 90026, 90031, Pasadena"/></label></div>
+
+        <div class="half">
+          <label>Tamaño de ticket
+            <select name="ticket" class="input" required>
+              <option>$15k–$40k</option><option>$40k–$100k</option><option>$100k–$300k</option><option>$300k+</option>
+            </select>
+          </label>
+        </div>
+        <div class="half"><label>Fecha de inicio preferida<input class="input" name="start_date" type="date"/></label></div>
+
+        <div class="half">
+          <label>Preferencia de contacto
+            <select name="comm" class="input">
+              <option>SMS</option><option>Correo</option><option>Ambos</option>
+            </select>
+          </label>
+        </div>
+        <div class="half"><label>¿Algo más? (palabras clave, competidores, etc.)<textarea class="input" name="notes" rows="3"></textarea></label></div>
+
+        <div class="half" style="grid-column:span 12">
+          <label><input type="checkbox" required/> Acepto los términos de la garantía (1–2 estimados agendados o es gratis).</label>
+        </div>
+
+        <div class="actions">
+          <button class="btn btn-primary" type="submit">Empezar Piloto Sin Riesgo</button>
+          <a class="btn btn-ghost" id="smsLink">Abrir SMS</a>
+          <a class="btn btn-ghost" id="emailLink">Escríbenos</a>
+        </div>
+
+        <div id="success" class="success">Gracias — te confirmamos por SMS/correo en breve.</div>
+      </form>
+    </div>
+
+    <div class="card" style="grid-column:span 5">
+      <h2 class="section-title">¿Qué sigue?</h2>
+      <ul class="small" style="line-height:1.8">
+        <li>Configuramos tu lista y filtros.</li>
+        <li>Te mandamos muestra y confirmamos el alcance.</li>
+        <li>SMS + CSV diario a las 6 pm y reporte semanal.</li>
+      </ul>
+      <h3 class="section-title">Agenda una llamada de 15 min</h3>
+      <p class="small">¿Prefieres hablarlo? Agenda y ajustamos filtros en vivo.</p>
+      <div class="actions">
+        <button id="addIcs" class="btn btn-ghost">Agregar Llamada (ICS)</button>
+      </div>
+      <div class="sample" style="margin-top:12px">
+        <div class="small">Tip: after submit, you’ll get SMS + email confirmation. We never share your info.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="sticky">
+  <button class="btn btn-primary" onclick="document.getElementById('pilotForm').scrollIntoView({behavior:'smooth'})">Empezar Piloto (sin riesgo)</button>
+</div>
+
+<script>
+const form = document.getElementById('pilotForm');
+const success = document.getElementById('success');
+const smsLink = document.getElementById('smsLink');
+const emailLink = document.getElementById('emailLink');
+
+smsLink.addEventListener('click',()=>{ 
+  const txt = encodeURIComponent("PermitPulse Pilot: Name/Company/Trade/ZIPs/Ticket Size:");
+  window.location.href = "sms:?&body="+txt;
+});
+emailLink.addEventListener('click',()=>{
+  const subject = encodeURIComponent("PermitPulse Pilot — Intake");
+  const body = encodeURIComponent("Name:\nCompany:\nTrade:\nZIPs:\nTicket Size:\nNotes:");
+  window.location.href = "mailto:hello@getpermitpulse.com?subject="+subject+"&body="+body;
+});
+
+form.addEventListener('submit', async (e)=>{
+  e.preventDefault();
+  const data = Object.fromEntries(new FormData(form).entries());
+  try {
+    const res = await fetch('/api/pilot-intake', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(data)});
+    if(!res.ok) throw new Error('bad');
+    success.style.display='block';
+    if(window.gtag) gtag('event','pilot_form_submit',{event_label:'success'});
+  } catch(err){
+    const subject = encodeURIComponent("PermitPulse Pilot — Intake");
+    const body = encodeURIComponent(JSON.stringify(data,null,2));
+    window.location.href = "mailto:hello@getpermitpulse.com?subject="+subject+"&body="+body;
+  }
+});
+
+// ICS generator
+document.getElementById('addIcs').addEventListener('click',()=>{
+  const name = 'PermitPulse Kickoff Call';
+  const fd = new FormData(form);
+  const startInput = fd.get('start_date');
+  let startDate = startInput ? new Date(startInput+'T10:00:00') : new Date(Date.now()+86400000);
+  const endDate = new Date(startDate.getTime()+15*60000);
+  function toICS(dt){ 
+     const pad=n=>String(n).padStart(2,'0'); 
+     return dt.getUTCFullYear()+pad(dt.getUTCMonth()+1)+pad(dt.getUTCDate())+'T'+pad(dt.getUTCHours())+pad(dt.getUTCMinutes())+'00Z';
+  }
+  const ics = `BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//PermitPulse//Pilot//EN
+BEGIN:VEVENT
+DTSTAMP:${toICS(new Date())}
+DTSTART:${toICS(startDate)}
+DTEND:${toICS(endDate)}
+SUMMARY:${name}
+DESCRIPTION:Kickoff for 14-Day Outcome Pilot
+LOCATION:Phone/Video
+END:VEVENT
+END:VCALENDAR`;
+  const blob = new Blob([ics], {type:'text/calendar'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href=url; a.download='permitpulse-kickoff.ics'; a.click(); setTimeout(()=>URL.revokeObjectURL(url),1500);
+});
+</script>
+</body></html>
