@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>PermitPulse — Thank You</title>
+  <meta name="theme-color" content="#0B1220">
+  <style>
+    :root{--navy:#0B1220;--blue:#2563EB;--turq:#2EE6D6;--gold:#F6C744}
+    *{box-sizing:border-box}
+    body{font-family:Inter,ui-sans-serif,system-ui,Segoe UI,Roboto,Arial,sans-serif;margin:0;background:linear-gradient(180deg,#0B1220 0%,#0E1A2E 100%);color:#E5E7EB;}
+    .wrap{max-width:860px;margin:40px auto;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:18px;padding:22px}
+    h1{margin:0 0 6px;color:#fff}
+    p{color:#cbd5e1;margin:8px 0}
+    .row{display:flex;gap:10px;flex-wrap:wrap;margin:16px 0}
+    .btn{display:inline-flex;align-items:center;justify-content:center;padding:12px 16px;border-radius:12px;text-decoration:none;font-weight:700}
+    .btn-primary{background:#2563EB;color:#fff;box-shadow:0 8px 24px rgba(37,99,235,.45)}
+    .btn-ghost{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);color:#fff}
+    .muted{color:#94A3B8;font-size:14px}
+    .card{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:14px;margin-top:12px}
+    .section{margin-top:12px}
+    .check{color:#2EE6D6;font-weight:800}
+    .split{display:grid;grid-template-columns:1fr;gap:12px}
+    @media(min-width:800px){.split{grid-template-columns:1.1fr .9fr}}
+    .list{line-height:1.8;margin:6px 0}
+    .tag{display:inline-block;background:rgba(46,230,214,.12);color:#A7F3D0;border:1px solid rgba(46,230,214,.35);padding:4px 8px;border-radius:999px;font-size:12px;margin-right:6px}
+  </style>
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-0S8S6156CV"></script>
+  <script>
+    window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date()); gtag('config','G-0S8S6156CV');
+  </script>
+</head>
+<body>
+  <div class="wrap">
+    <div id="en">
+      <h1>🎉 Pilot Confirmed</h1>
+      <p class="muted" id="who-en"></p>
+      <div class="split">
+        <div>
+          <div class="card">
+            <p><span class="check">✓</span> We’ll text your first list by <strong>6pm today</strong> (LA time).</p>
+            <p><span class="check">✓</span> You’ll also get a weekly report card (watched • contacted • visits • booked).</p>
+            <p><span class="check">✓</span> Remember: <strong>1–2 booked estimates in 14 days — or you don’t pay.</strong></p>
+          </div>
+          <div class="row">
+            <a id="btn-sample-en" class="btn btn-ghost" href="/leaderboard?city=los-angeles">View sample permits</a>
+            <a id="btn-radar-en" class="btn btn-ghost" href="/radar">Open your watchlist</a>
+          </div>
+          <div class="card">
+            <h3 style="margin:0 0 6px">What to do now</h3>
+            <ul class="list">
+              <li>Reply to our SMS with any <em>must-have keywords</em> or streets you want prioritized.</li>
+              <li>Have someone ready to call/text new permits within <strong>2 hours</strong> of alert.</li>
+              <li>Optionally add <span class="tag">Door Hangers</span> or <span class="tag">Canvassing</span> and we’ll route 25 nearby doors per hot permit.</li>
+            </ul>
+          </div>
+        </div>
+        <div>
+          <div class="card">
+            <h3 style="margin:0 0 6px">15‑min kickoff call</h3>
+            <p>Prefer to tune filters live? Add this to your calendar.</p>
+            <div class="row">
+              <a class="btn btn-primary" href="#" id="add-ics-en">Add Kickoff (ICS)</a>
+              <a class="btn btn-ghost" id="sms-en" href="#">Text us</a>
+              <a class="btn btn-ghost" href="mailto:hello@getpermitpulse.com">Email us</a>
+            </div>
+          </div>
+          <div class="card">
+            <h3 style="margin:0 0 6px">Need results faster?</h3>
+            <p>Add the <strong>Ambition Boost</strong>: extra permits + bilingual canvassing for 7 days.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="es" style="display:none">
+      <h1>🎉 Piloto Confirmado</h1>
+      <p class="muted" id="who-es"></p>
+      <div class="split">
+        <div>
+          <div class="card">
+            <p><span class="check">✓</span> Te mandamos la primera lista hoy antes de <strong>las 6 pm</strong>.</p>
+            <p><span class="check">✓</span> También recibirás un <strong>reporte semanal</strong> (vistos • contactados • visitas • estimados).</p>
+            <p><span class="check">✓</span> Recuerda: <strong>1–2 estimados en 14 días o no pagas.</strong></p>
+          </div>
+          <div class="row">
+            <a id="btn-sample-es" class="btn btn-ghost" href="/leaderboard?city=los-angeles">Ver permisos de muestra</a>
+            <a id="btn-radar-es" class="btn btn-ghost" href="/radar">Abrir tu lista</a>
+          </div>
+          <div class="card">
+            <h3 style="margin:0 0 6px">Qué hacer ahora</h3>
+            <ul class="list">
+              <li>Responde por SMS con palabras clave o calles que quieras priorizar.</li>
+              <li>Ten a alguien listo para llamar/texto dentro de <strong>2 horas</strong> del aviso.</li>
+              <li>Opcional: agrega <span class="tag">Volanteo</span> o <span class="tag">Puerta por puerta</span> y trazamos 25 puertas por permiso caliente.</li>
+            </ul>
+          </div>
+        </div>
+        <div>
+          <div class="card">
+            <h3 style="margin:0 0 6px">Llamada de arranque (15 min)</h3>
+            <p>¿Quieres ajustar filtros en vivo? Agrégala a tu calendario.</p>
+            <div class="row">
+              <a class="btn btn-primary" href="#" id="add-ics-es">Agregar Llamada (ICS)</a>
+              <a class="btn btn-ghost" id="sms-es" href="#">Mandar SMS</a>
+              <a class="btn btn-ghost" href="mailto:hello@getpermitpulse.com">Escribir correo</a>
+            </div>
+          </div>
+          <div class="card">
+            <h3 style="margin:0 0 6px">¿Quieres acelerar?</h3>
+            <p>Activa el <strong>Ambition Boost</strong>: más permisos + canvassing bilingüe por 7 días.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <p class="muted" style="margin-top:16px">© 2025 PermitPulse</p>
+  </div>
+
+<script>
+  const qs = new URLSearchParams(location.search);
+  const lang = (qs.get('lang')||'en').toLowerCase().startsWith('es') ? 'es' : 'en';
+  const name = qs.get('name') || '';
+  const trade = qs.get('trade') || '';
+  const zips = qs.get('zips') || '';
+  const phone = qs.get('phone') || '';
+  const start = qs.get('start') || qs.get('start_date') || '';
+
+  function setText(id, text){ const el=document.getElementById(id); if(el) el.textContent=text; }
+
+  if(lang==='es'){
+    document.getElementById('en').style.display='none';
+    document.getElementById('es').style.display='block';
+    setText('who-es', (name?name+' · ':'') + (trade?trade+' · ':'') + (zips?('Zonas: '+zips):''));
+  }else{
+    setText('who-en', (name?name+' · ':'') + (trade?trade+' · ':'') + (zips?('ZIPs: '+zips):''));
+  }
+
+  // SMS links
+  const smsMsg = encodeURIComponent('PermitPulse Pilot — ready to start. My trade: '+trade+' | ZIPs: '+zips);
+  ['sms-en','sms-es'].forEach(id=>{ const a=document.getElementById(id); if(a){ a.href = 'sms:?&body='+smsMsg; }});
+
+  // ICS generator
+  function addICS(locale){
+    const startDate = start ? new Date(start+'T10:00:00') : new Date(Date.now()+86400000);
+    const endDate = new Date(startDate.getTime()+15*60000);
+    function fmt(dt){ const p=n=>String(n).padStart(2,'0'); return dt.getUTCFullYear()+p(dt.getUTCMonth()+1)+p(dt.getUTCDate())+'T'+p(dt.getUTCHours())+p(dt.getUTCMinutes())+'00Z'; }
+    const title = locale==='es' ? 'Llamada de arranque — PermitPulse' : 'PermitPulse Kickoff Call';
+    const ics = [
+      'BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//PermitPulse//Pilot//EN','BEGIN:VEVENT',
+      'DTSTAMP:'+fmt(new Date()),'DTSTART:'+fmt(startDate),'DTEND:'+fmt(endDate),
+      'SUMMARY:'+title,'DESCRIPTION:Kickoff for 14-Day Outcome Pilot','LOCATION:Phone/Video',
+      'END:VEVENT','END:VCALENDAR'
+    ].join('\n');
+    const blob = new Blob([ics], {type:'text/calendar'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a'); a.href=url; a.download='permitpulse-kickoff.ics'; a.click();
+    setTimeout(()=>URL.revokeObjectURL(url),1500);
+  }
+  document.getElementById('add-ics-en').addEventListener('click', e=>{e.preventDefault(); addICS('en');});
+  document.getElementById('add-ics-es').addEventListener('click', e=>{e.preventDefault(); addICS('es');});
+
+  try{window.gtag&&gtag('event','thank_you_view',{lang});}catch{}
+</script>
+</body>
+</html>
