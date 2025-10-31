@@ -144,20 +144,41 @@ emailLink.addEventListener('click',()=>{
   window.location.href = "mailto:hello@getpermitpulse.com?subject="+subject+"&body="+body;
 });
 
+<script>
+const form = document.getElementById('pilotForm');
+const success = document.getElementById('success');
+
 form.addEventListener('submit', async (e)=>{
   e.preventDefault();
   const data = Object.fromEntries(new FormData(form).entries());
+  const params = new URLSearchParams({
+    pilot: '1',
+    lang: document.documentElement.lang || 'en',
+    name: data.name || '',
+    trade: data.trade || '',
+    zips: data.zips || '',
+    phone: data.phone || '',
+    start: data.start_date || ''
+  }).toString();
+
   try {
-    const res = await fetch('/api/pilot-intake', {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(data)});
-    if(!res.ok) throw new Error('bad');
-    success.style.display='block';
-    if(window.gtag) gtag('event','pilot_form_submit',{event_label:'success'});
-  } catch(err){
-    const subject = encodeURIComponent("PermitPulse Pilot — Intake");
+    const res = await fetch('/api/pilot-intake', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify(data)
+    });
+    if (!res.ok) throw new Error('bad');
+    if (window.gtag) gtag('event','pilot_form_submit',{event_label:'success'});
+    location.href = '/thank-you/?' + params;
+  } catch (err) {
+    // Fallback to email AND still send them to thank-you so momentum continues
+    const subject = encodeURIComponent('PermitPulse Pilot — Intake');
     const body = encodeURIComponent(JSON.stringify(data,null,2));
-    window.location.href = "mailto:hello@getpermitpulse.com?subject="+subject+"&body="+body;
+    window.location.href = 'mailto:hello@getpermitpulse.com?subject='+subject+'&body='+body;
+    setTimeout(()=>{ location.href = '/thank-you/?' + params; }, 800);
   }
 });
+</script>
 
 // ICS generator
 document.getElementById('addIcs').addEventListener('click',()=>{
