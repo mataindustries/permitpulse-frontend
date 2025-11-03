@@ -207,16 +207,7 @@ function msg(html, ok=false){
   msgEl.innerHTML = `<div class="${ok?'success':'err'}">${html}</div>`;
 }
 
-  // GA4 conversion on successful booking
-try {
-  if (window.gtag) {
-    gtag('event', 'booking_confirmed', {
-      event_category: 'booking',
-      event_label: (body.date || '') + ' ' + (body.time || ''),
-      value: 1
-    });
-  }
-} catch (_) {}
+  
   
 async function book(){
   const t = i18n[currentLang];
@@ -238,6 +229,17 @@ async function book(){
     const j = await r.json();
     if(!r.ok){ throw new Error(j.error||'Failed'); }
     msg(`${t.successPrefix} <a href="${j.gcalUrl}" target="_blank" rel="noopener">${t.gcal}</a> · <a href="${j.icsUrl}">${t.ics}</a>`, true);
+    // ---- GA4 conversion fires ONLY on confirmed booking ----
+try {
+  if (typeof window.gtag === 'function') {
+    gtag('event', 'booking_confirmed', {
+      event_category: 'booking',
+      slot: `${body.date || ''} ${body.time || ''}`, // nice readable param in reports
+      lang: body.lang || currentLang,
+      value: 1
+    });
+  }
+} catch (_) {}
   }catch(e){
     msg(e.message||'Could not book. Slot may be taken.');
   }finally{
