@@ -122,5 +122,21 @@
   <a class="btn btn-primary" style="flex:1" href="/call/">Agendar llamada</a>
   <a class="btn btn-secondary" style="flex:1" href="/reserve/">Reservar lugar</a>
 </div>
+  <script>
+document.addEventListener('DOMContentLoaded', function () {
+  var el = document.getElementById('cta-book');
+  if (!el) return;
+  el.addEventListener('click', function () {
+    if (window.gtag) {
+      gtag('event', 'booking_cta_click', {
+        event_category: 'booking',
+        event_label: 'index_hero',
+        value: 1
+      });
+    }
+  });
+});
+  </script>
+  
 </body>
 </html>
