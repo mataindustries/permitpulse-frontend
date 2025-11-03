@@ -207,6 +207,17 @@ function msg(html, ok=false){
   msgEl.innerHTML = `<div class="${ok?'success':'err'}">${html}</div>`;
 }
 
+  // GA4 conversion on successful booking
+try {
+  if (window.gtag) {
+    gtag('event', 'booking_confirmed', {
+      event_category: 'booking',
+      event_label: (body.date || '') + ' ' + (body.time || ''),
+      value: 1
+    });
+  }
+} catch (_) {}
+  
 async function book(){
   const t = i18n[currentLang];
   const body = {
