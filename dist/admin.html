@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Admin — PermitPulse Bookings</title>
+  <style>
+    body{font-family:Inter,system-ui,Segoe UI,Roboto,Arial;background:#0b1220;color:#e5e7eb;margin:0;padding:20px}
+    input,button{padding:10px;border-radius:8px;border:1px solid #334155;background:#0b1220;color:#e5e7eb}
+    button{background:#f97316;color:#0b1220;border:none;font-weight:700;cursor:pointer}
+    table{width:100%;border-collapse:collapse;margin-top:12px}
+    th,td{padding:10px;border-bottom:1px solid #1f2937;text-align:left;font-size:14px}
+    .row{display:flex;gap:8px;align-items:center}
+  </style>
+</head>
+<body>
+  <h1>PermitPulse — Bookings</h1>
+  <div class="row">
+    <input id="token" placeholder="ADMIN_TOKEN" />
+    <button id="load">Load</button>
+    <button id="csv">Export CSV</button>
+  </div>
+  <table id="tbl"><thead><tr>
+    <th>Date</th><th>Time</th><th>Name</th><th>Phone</th><th>Email</th><th>Lang</th><th>Notes</th><th>.ics</th>
+  </tr></thead><tbody></tbody></table>
+
+<script>
+const API='/api';
+const $=s=>document.querySelector(s);
+let rows=[];
+
+$('#load').onclick=async()=>{
+  const token=$('#token').value.trim();
+  const r=await fetch(`${API}/bookings`,{headers:{Authorization:`Bearer ${token}`}});
+  const j=await r.json();
+  rows=j.items||[]; render();
+};
+
+function render(){
+  const tb=$('#tbl tbody'); tb.innerHTML='';
+  rows.sort((a,b)=> (a.date+a.time).localeCompare(b.date+b.time));
+  rows.forEach(x=>{
+    const tr=document.createElement('tr');
+    tr.innerHTML=`<td>${x.date}</td><td>${x.time}</td><td>${x.name||''}</td><td>${x.phone||''}</td><td>${x.email||''}</td><td>${x.lang||''}</td><td>${(x.notes||'').replaceAll('<','&lt;')}</td><td><a href="/api/ics/${x.id}">.ics</a></td>`;
+    tb.appendChild(tr);
+  });
+}
+
+$('#csv').onclick=()=>{
+  if(!rows.length) return;
+  const hdr=['id','date','time','name','phone','email','lang','notes','createdAt'];
+  const lines=[hdr.join(',')].concat(rows.map(r=> hdr.map(k=>`"${(r[k]||'').toString().replaceAll('"','""')}"`).join(',')));
+  const blob=new Blob([lines.join('\n')],{type:'text/csv'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a'); a.href=url; a.download='permitpulse-bookings.csv'; a.click(); URL.revokeObjectURL(url);
+};
+</script>
+</body>
+</html>
