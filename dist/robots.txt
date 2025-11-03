@@ -1,4 +1,9 @@
 User-agent: *
 Allow: /
-
+Disallow: /admin.html
+Disallow: /book/ics/
+Disallow: /book/bookings
+Disallow: /book/slots
+Disallow: /book/book
+Disallow: /book/health
 Sitemap: https://getpermitpulse.com/sitemap.xml
