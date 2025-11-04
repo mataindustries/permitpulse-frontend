@@ -34,7 +34,10 @@
     repeating-linear-gradient(90deg, rgba(14,42,58,.05), rgba(14,42,58,.05) 1px, transparent 1px, transparent 24px);
   mask-image: radial-gradient(100% 100% at 50% 50%, rgba(0,0,0,.65), transparent 85%);
 }
-
+    
+/* --- Clickability hotfix --- */
+.ring-gradient:before{ pointer-events: none !important; z-index: 0; }
+#loiForm{ position: relative; z-index: 1; }
 /* Print styles */
 @media print{
   .no-print{display:none !important}
