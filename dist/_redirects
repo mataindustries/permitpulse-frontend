@@ -1,5 +1,5 @@
-/loi                       /loi/index.html                    200!
-/loi/*                     /loi/index.html                    200!
+/loi                       /loi/index.html                    200
+/loi/*                     /loi/index.html                    200
 /loi.html                  /loi/index.html                    301
 
 # Pretty URLs for pilot & guarantee
