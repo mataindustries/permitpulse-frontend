@@ -74,6 +74,11 @@
     }
   </style>
 
+  <script>
+  // If CF serves /index.html for /loi or /loi/*, immediately bounce to the file that exists.
+  if (/^\/loi(\/|$)/.test(location.pathname)) location.replace('/loi.html');
+  </script>
+  
   <!-- Schema.org -->
   <script type="application/ld+json">
   {
