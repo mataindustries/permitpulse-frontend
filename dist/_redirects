@@ -1,11 +1,12 @@
+/loi                       /loi/index.html                    200!
+/loi/*                     /loi/index.html                    200!
+/loi.html                  /loi/index.html                    301
+
 # Pretty URLs for pilot & guarantee
 /guarantee                 /permitpulse-guarantee-en.html         200!
 /pilot                     /permitpulse-pilot-intake-en.html      200!
 /es/garantia               /es/permitpulse-garantia-es.html       200!
-/es/piloto                 /es/permitpulse-piloto-intake-es.html  200!
-
-/loi                       /loi/index.html                    200
-/loi/*                     /loi/index.html                    200
+/es/piloto                 /es/permitpulse-piloto-intake-es.html  200!                 
 
 # Helpful aliases (permanent redirects)
 /risk-free                 /guarantee                         301
