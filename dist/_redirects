@@ -4,6 +4,9 @@
 /es/garantia               /es/permitpulse-garantia-es.html       200!
 /es/piloto                 /es/permitpulse-piloto-intake-es.html  200!
 
+/loi                       /loi/index.html                    200
+/loi/*                     /loi/index.html                    200
+
 # Helpful aliases (permanent redirects)
 /risk-free                 /guarantee                         301
 /outcome                   /guarantee                         301
