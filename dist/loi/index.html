@@ -626,15 +626,55 @@ Firma: __________________________
       }catch(e){ console.warn('Decode failed', e); }
     }
 
-    <!-- RESCUE: safe event binding + re-init -->
+    <<!-- RESCUE: safe event binding + re-init -->
 <script>
-  // safe binder (uses your existing $ helper above)
-  const bind = (sel, ev, fn) => { const el = document.querySelector(sel); if (el) { el.addEventListener(ev, fn); return true; } return false; };
+  // helpers
+  const $ = (s)=>document.querySelector(s);
+  const $$ = (s)=>Array.from(document.querySelectorAll(s));
+  const bind = (sel, ev, fn)=>{ const el=$(sel); if(el){ el.addEventListener(ev, fn); return true; } return false; };
 
-  // live updates
-  bind('#loiForm','input', ()=>{ try{ update(); }catch(_){} });
+  function ensureAddonsUI() {
+    const host = $('#addons');
+    if (!host) return;
+    // If nothing rendered (or i18n wiped it), inject a basic set
+    if (!host.childElementCount) {
+      host.innerHTML = `
+        <label class="flex items-start gap-3">
+          <input id="addon-radar" data-key="radar" type="checkbox" class="addon mt-1">
+          <div><b>Permit Radar</b><div class="text-slate-500 text-sm">Live LADBS tracking</div></div>
+        </label>
+        <label class="flex items-start gap-3">
+          <input id="addon-digest" data-key="digest" type="checkbox" class="addon mt-1">
+          <div><b>Weekly Digest</b><div class="text-slate-500 text-sm">Email summary</div></div>
+        </label>
+        <label class="flex items-start gap-3">
+          <input id="addon-sms" data-key="sms" type="checkbox" class="addon mt-1">
+          <div><b>SMS Alerts</b><div class="text-slate-500 text-sm">High-value permits</div></div>
+        </label>
+        <label class="flex items-start gap-3">
+          <input id="addon-guarantee" data-key="guarantee" type="checkbox" class="addon mt-1">
+          <div><b>Outcome Guarantee</b><div class="text-slate-500 text-sm">1–2 booked estimates or refund</div></div>
+        </label>
+      `;
+    }
+    // Wire checkboxes into state
+    $$('#addons input[type=checkbox]').forEach(cb=>{
+      cb.addEventListener('change', ()=>{
+        window.state = window.state || {};
+        state.addons = state.addons || {};
+        const k = cb.dataset.key || cb.id.replace('addon-','');
+        state.addons[k] = cb.checked;
+        try{ update(); }catch(_){}
+      });
+    });
+  }
 
-  // submit -> KV / optional alerts
+  // refresh totals frequently (covers selects, multiselects, text, toggles)
+  ['input','change','click','keyup'].forEach(ev=>{
+    bind('#loiForm', ev, ()=>{ try{ update(); }catch(_){} });
+  });
+
+  // submit -> KV (optional)
   bind('#loiForm','submit', async (e)=>{
     e.preventDefault();
     try{
@@ -652,7 +692,7 @@ Firma: __________________________
   });
 
   // print / share
-  bind('#printBtn','click', ()=>{ try{ window.print(); pushGA('loi_printed',{});}catch(_){ } });
+  bind('#printBtn','click', ()=>{ try{ window.print(); pushGA('loi_printed',{});}catch(_){} });
   bind('#shareBtn','click', async ()=>{
     try{
       readForm();
@@ -662,19 +702,19 @@ Firma: __________________________
     }catch(_){}
   });
 
-  // language toggles
-  bind('#lang-en','click', ()=>{ lang='en'; applyI18n(); });
-  bind('#lang-es','click', ()=>{ lang='es'; applyI18n(); });
+  // language toggles (re-render UI pieces)
+  bind('#lang-en','click', ()=>{ lang='en'; applyI18n(); ensureAddonsUI(); try{ update(); }catch(_){} });
+  bind('#lang-es','click', ()=>{ lang='es'; applyI18n(); ensureAddonsUI(); try{ update(); }catch(_){} });
 
   // boot
   (function boot(){
     try{ decodeStateFromUrl(); }catch(_){}
     try{ applyI18n(); }catch(_){}
-    try{ renderAddons(); }catch(_){}
+    ensureAddonsUI();
     try{ update(); }catch(_){}
 
-    // stealth default
-    const nameInput = document.querySelector('input[name="name"]');
+    // stealth default name
+    const nameInput = $('input[name="name"]');
     if (nameInput && !nameInput.value.trim()) {
       nameInput.value = 'John Smith';
       if (typeof state !== 'undefined') state.name = 'John Smith';
