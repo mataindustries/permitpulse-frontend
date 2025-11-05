@@ -626,50 +626,61 @@ Firma: __________________________
       }catch(e){ console.warn('Decode failed', e); }
     }
 
-    // Events
-    $('#loiForm').addEventListener('input', update);
-    $('#loiForm').addEventListener('submit', async (e) =>{
-      e.preventDefault(); update();
-      // POST to Worker if configured
-      const SUBMIT_URL = '/api/loi'; // change if needed
-      try{
-        const res = await fetch(SUBMIT_URL, { method:'POST', headers:{'content-type':'application/json'}, body: JSON.stringify({state, totals: calculate()}) });
-        if (!res.ok) throw new Error('HTTP '+res.status);
-        alert(I18N[lang].submit_success);
-        pushGA('loi_submitted', {email: state.email});
-      }catch(err){
-        console.warn('Submit failed', err);
-        alert('Submission failed (offline demo). You can still print or share this LoI.');
-      }
-    });
+    <!-- RESCUE: safe event binding + re-init -->
+<script>
+  // safe binder (uses your existing $ helper above)
+  const bind = (sel, ev, fn) => { const el = document.querySelector(sel); if (el) { el.addEventListener(ev, fn); return true; } return false; };
 
-    $('#printBtn').addEventListener('click', () => { window.print(); pushGA('loi_printed',{}); });
+  // live updates
+  bind('#loiForm','input', ()=>{ try{ update(); }catch(_){} });
 
-    // Add copy button back (moved into letterhead actions previously)
-    const copyBtn = document.createElement('button');
-    copyBtn.id='copyLoIBtn'; copyBtn.className='no-print hidden';
-    document.body.appendChild(copyBtn);
-    $('#copyLoIBtn').addEventListener('click', async () => {
-      try{ await navigator.clipboard.writeText($('#loiPreview').innerText); alert(I18N[lang].copy_success); pushGA('loi_copied',{}); }catch{}
-    });
+  // submit -> KV / optional alerts
+  bind('#loiForm','submit', async (e)=>{
+    e.preventDefault();
+    try{
+      update();
+      const res = await fetch('/api/loi', {
+        method:'POST',
+        headers:{'content-type':'application/json'},
+        body: JSON.stringify({ state, totals: calculate() })
+      });
+      alert(res.ok ? I18N[lang].submit_success : 'Submission failed');
+      try{ pushGA('loi_submitted',{email: state.email}); }catch(_){}
+    }catch(_){
+      alert('Submission failed (offline demo). You can still print or share this LoI.');
+    }
+  });
 
-    $('#shareBtn').addEventListener('click', async () => {
+  // print / share
+  bind('#printBtn','click', ()=>{ try{ window.print(); pushGA('loi_printed',{});}catch(_){ } });
+  bind('#shareBtn','click', async ()=>{
+    try{
       readForm();
       const url = encodeStateToUrl();
-      try{
-        await navigator.clipboard.writeText(url);
-        alert(I18N[lang].share_success);
-      }catch{}
-    });
+      await navigator.clipboard.writeText(url);
+      alert(I18N[lang].share_success);
+    }catch(_){}
+  });
 
-    // language toggles
-    $('#lang-en').addEventListener('click', ()=>{ lang='en'; applyI18n(); });
-    $('#lang-es').addEventListener('click', ()=>{ lang='es'; applyI18n(); });
+  // language toggles
+  bind('#lang-en','click', ()=>{ lang='en'; applyI18n(); });
+  bind('#lang-es','click', ()=>{ lang='es'; applyI18n(); });
 
-    // Init
-    decodeStateFromUrl();
-    applyI18n();
-  </script>
+  // boot
+  (function boot(){
+    try{ decodeStateFromUrl(); }catch(_){}
+    try{ applyI18n(); }catch(_){}
+    try{ renderAddons(); }catch(_){}
+    try{ update(); }catch(_){}
+
+    // stealth default
+    const nameInput = document.querySelector('input[name="name"]');
+    if (nameInput && !nameInput.value.trim()) {
+      nameInput.value = 'John Smith';
+      if (typeof state !== 'undefined') state.name = 'John Smith';
+    }
+  })();
+</script>
 
   <!-- OPTIONAL Worker stub remains identical to prior version; re‑use if needed. -->
 </body>
