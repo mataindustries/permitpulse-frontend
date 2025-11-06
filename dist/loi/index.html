@@ -279,468 +279,442 @@
   </aside>
 </div>
 
-  </main>  <script>
-    // ====== CONFIG ======
-    const PRICING = {
-      baseMonthly: 39, // Core plan monthly
-      includedSeats: 1,
-      includedRegions: 1,
-      perExtraSeat: 15,
-      perExtraRegion: 10,
-      bundleDiscountPct: 10, // if >=3 monthly add‑ons selected
-      addons: {
-        radar: { label: {en:'Live Permit Radar', es:'Radar de Permisos en Vivo'}, monthly: 0, onetime: 0, featured:true, desc:{en:'Search & alerts', es:'Búsqueda y alertas'} },
-        topPermits: { label: {en:'Top Permits Digest', es:'Resumen de Permisos Destacados'}, monthly: 9, onetime: 0, desc:{en:'Weekly email', es:'Correo semanal'} },
-        smsPack: { label: {en:'SMS Pack (1,000/mo)', es:'Paquete SMS (1,000/mes)'}, monthly: 15, onetime: 0, desc:{en:'Outreach texting', es:'Mensajería de alcance'} },
-        outcomeGuarantee: { label: {en:'Outcome Guarantee', es:'Garantía de Resultados'}, monthly: 99, onetime: 0, desc:{en:'1–2 booked estimates or refund', es:'1–2 estimados o reembolso'} },
-        concierge: { label: {en:'Concierge Outreach', es:'Alcance Concierge'}, monthly: 199, onetime: 0, desc:{en:'We qualify & book', es:'Calificamos y agendamos'} },
-        prioritySetup: { label: {en:'Priority Setup', es:'Configuración Prioritaria'}, monthly: 0, onetime: 149, desc:{en:'48‑hour onboarding', es:'Inicio en 48 horas'} },
-        customIntegration: { label: {en:'Custom Integration', es:'Integración Personalizada'}, monthly: 0, onetime: 299, desc:{en:'CRM/API hookup', es:'Conexión con CRM/API'} },
-      }
-    };
-
-    const FEATURES_ORDER = ['radar','topPermits','smsPack','outcomeGuarantee','concierge','prioritySetup','customIntegration'];
-
-    const I18N = {
-      en: {
-        form_title: 'Tell us what you need',
-        form_sub: 'Pick your tools and add‑ons. The estimate updates live.',
-        label_name: 'Your name',
-        label_company: 'Company',
-        label_phone: 'Phone',
-        label_county: 'County / Area',
-        label_usecase: 'Use case',
-        label_seats: 'Seats',
-        hint_seats: 'Includes 1 seat. Extras billed per seat.',
-        label_regions: 'Regions',
-        hint_regions: 'Base includes 1 region. Extras billed per region.',
-        addons_title: 'Add‑ons',
-        label_start: 'Target start date',
-        label_lang: 'Preferred language',
-        label_notes: 'Notes',
-        btn_print: 'Print / Save LoI (PDF)',
-        btn_submit: 'Send to PermitPulse',
-        btn_copy: 'Copy LoI text',
-        legal_note: 'This is a non‑binding letter of intent and estimate. Final pricing may vary after scoping.',
-        est_title: 'Your estimate',
-        est_bundle: 'Bundle applied',
-        est_monthly: 'Monthly',
-        est_onetime: 'One‑time',
-        est_breakdown: 'Breakdown',
-        loi_title: 'Letter of Intent (Preview)',
-        share_success: 'Shareable link copied to clipboard',
-        copy_success: 'LoI copied to clipboard',
-        submit_success: 'Thanks! We received your LoI.',
-        ref_label: 'Estimate Ref',
-        ref_date: 'Date',
-        terms_title: 'Key Terms (non‑binding)',
-        terms: [
-          'Scope will be finalized after data source validation and kickoff.',
-          'Monthly fees are billed at start of service; one‑time items at activation.',
-          'Either party may terminate at any time; charges pro‑rated to the current month.',
-          'Confidentiality: both parties agree to keep shared data and strategies private.',
-          'This LoI expresses intent only and is not a binding agreement for services.'
-        ],
-        sig_client: 'Client Signature • Name & Title • Date',
-      },
-      es: {
-        form_title: 'Cuéntanos qué necesitas',
-        form_sub: 'Elige tus herramientas y complementos. El estimado se actualiza al instante.',
-        label_name: 'Tu nombre',
-        label_company: 'Empresa',
-        label_phone: 'Teléfono',
-        label_county: 'Condado / Área',
-        label_usecase: 'Caso de uso',
-        label_seats: 'Usuarios',
-        hint_seats: 'Incluye 1 usuario. Extras con costo por usuario.',
-        label_regions: 'Regiones',
-        hint_regions: 'La base incluye 1 región. Extras con costo por región.',
-        addons_title: 'Complementos',
-        label_start: 'Fecha de inicio',
-        label_lang: 'Idioma preferido',
-        label_notes: 'Notas',
-        btn_print: 'Imprimir / Guardar LoI (PDF)',
-        btn_submit: 'Enviar a PermitPulse',
-        btn_copy: 'Copiar texto del LoI',
-        legal_note: 'Esta es una carta de intención sin obligación y un estimado. El precio final puede variar después del alcance.',
-        est_title: 'Tu estimado',
-        est_bundle: 'Paquete aplicado',
-        est_monthly: 'Mensual',
-        est_onetime: 'Pago único',
-        est_breakdown: 'Desglose',
-        loi_title: 'Carta de Intención (Vista previa)',
-        share_success: 'Enlace para compartir copiado',
-        copy_success: 'LoI copiado al portapapeles',
-        submit_success: '¡Gracias! Recibimos tu LoI.',
-        ref_label: 'Referencia',
-        ref_date: 'Fecha',
-        terms_title: 'Términos clave (no vinculantes)',
-        terms: [
-          'El alcance se definirá después de validar las fuentes de datos e iniciar el proyecto.',
-          'Las tarifas mensuales se cobran al inicio; los pagos únicos al activarse.',
-          'Cualquiera de las partes puede terminar en cualquier momento; cargos prorrateados al mes en curso.',
-          'Confidencialidad: ambas partes mantendrán en privado los datos y estrategias compartidas.',
-          'Este LoI expresa intención y no constituye un acuerdo vinculante de servicios.'
-        ],
-        sig_client: 'Firma del cliente • Nombre y cargo • Fecha',
-      }
-    };
-
-    // ====== STATE ======
-    let lang = 'en';
-    const state = {
-      name:'', company:'', email:'', phone:'', county:'', usecase:'Roofing', seats:1, regions:['LA City'], addons:{}, start:'', pref_lang:'en', notes:''
-    };
-
-    // ====== DOM ======
-    const $ = sel => document.querySelector(sel);
-    const $$ = sel => Array.from(document.querySelectorAll(sel));
-
-    function currency(n){ return `$${n.toLocaleString(undefined,{maximumFractionDigits:0})}`; }
-
-    // Build add‑ons list
-    function renderAddons(){
-      const wrap = document.getElementById('addons');
-      wrap.innerHTML = '';
-      FEATURES_ORDER.forEach(key => {
-        const cfg = PRICING.addons[key];
-        const id = `addon_${key}`;
-        const el = document.createElement('label');
-        el.className = 'flex gap-3 items-start border border-slate-200 rounded-xl p-3 hover:border-slate-300 cursor-pointer';
-        el.innerHTML = `
-          <input type="checkbox" class="mt-1" id="${id}" data-key="${key}" />
-          <div class="min-w-0">
-            <div class="font-medium truncate">${cfg.label[lang]}</div>
-            <div class="text-xs text-slate-600">${cfg.desc[lang]||''}</div>
-            <div class="text-xs mt-1">${cfg.monthly?`<span class='font-medium'>${currency(cfg.monthly)}/mo</span>`:''} ${cfg.onetime?`<span class='text-slate-500'>+ ${currency(cfg.onetime)} one‑time</span>`:''}</div>
-          </div>`;
-        wrap.appendChild(el);
-        const cb = el.querySelector('input');
-        cb.checked = !!state.addons[key];
-        cb.addEventListener('change', () => { state.addons[key] = cb.checked; update(); });
-      });
-    }
-
-    // Translate UI
-    function applyI18n(){
-      $$('[data-i18n]').forEach(node => {
-        const k = node.getAttribute('data-i18n');
-        node.textContent = I18N[lang][k];
-      });
-      const termsList = $('#termsList');
-      termsList.innerHTML = '';
-      I18N[lang].terms.forEach(t=>{
-        const li=document.createElement('li'); li.textContent = t; termsList.appendChild(li);
-      })
-      renderAddons();
-      update();
-    }
-
-    // Read form into state
-    function readForm(){
-      const f = $('#loiForm');
-      state.name = f.name.value.trim();
-      state.company = f.company.value.trim();
-      state.email = f.email.value.trim();
-      state.phone = f.phone.value.trim();
-      state.county = f.county.value.trim();
-      state.usecase = f.usecase.value;
-      state.seats = Math.max(1, parseInt(f.seats.value||'1',10));
-      state.regions = Array.from(f.regions.selectedOptions).map(o=>o.value);
-      state.start = f.start.value;
-      state.pref_lang = f.pref_lang.value;
-      state.notes = f.notes.value.trim();
-    }
-    
-    function selectedMonthlyAddons(){
-      return FEATURES_ORDER.filter(k => PRICING.addons[k].monthly && state.addons[k]);
-    }
-
-    // Price calculation
-    function calculate(){
-      const monthlyLines = [];
-      const onetimeLines = [];
-
-      // base
-      let monthly = PRICING.baseMonthly;
-      monthlyLines.push({label:`Core`, amount:PRICING.baseMonthly});
-
-      // seats
-      const extraSeats = Math.max(0, state.seats - PRICING.includedSeats);
-      if (extraSeats>0){
-        const amt = extraSeats * PRICING.perExtraSeat;
-        monthly += amt; monthlyLines.push({label:`Extra seats ×${extraSeats}`, amount:amt});
-      }
-
-      // regions
-      const extraRegions = Math.max(0, state.regions.length - PRICING.includedRegions);
-      if (extraRegions>0){
-        const amt = extraRegions * PRICING.perExtraRegion;
-        monthly += amt; monthlyLines.push({label:`Extra regions ×${extraRegions}`, amount:amt});
-      }
-
-      // add‑ons
-      let monthlyAddonCount = 0;
-      FEATURES_ORDER.forEach(k => {
-        if (!state.addons[k]) return;
-        const a = PRICING.addons[k];
-        if (a.monthly){ monthly += a.monthly; monthlyLines.push({label:a.label[lang], amount:a.monthly}); monthlyAddonCount++; }
-        if (a.onetime){ onetimeLines.push({label:a.label[lang], amount:a.onetime}); }
-      });
-
-      // bundle discount
-      let bundleApplied = false;
-      if (monthlyAddonCount >= 3 && PRICING.bundleDiscountPct>0){
-        const addOnMonthly = monthlyLines.slice(1).reduce((sum,l)=>sum+l.amount,0); // exclude core
-        const discount = Math.round(addOnMonthly * (PRICING.bundleDiscountPct/100));
-        if (discount>0){ monthly -= discount; monthlyLines.push({label:`Bundle (‑${PRICING.bundleDiscountPct}%)`, amount:-discount}); bundleApplied = true; }
-      }
-
-      const onetime = onetimeLines.reduce((s,l)=>s+l.amount,0);
-      return { monthly, onetime, monthlyLines, onetimeLines, bundleApplied };
-    }
-
-     // Update totals + breakdown + preview
-    function update(){
-  // read current form state first
-  readForm();
-
-  // --- stealth default name ---
-  const nameInput = document.querySelector('input[name="name"]');
-  if (nameInput && !nameInput.value.trim()){
-    nameInput.value = 'John Smith';
-    try { state.name = 'John Smith'; } catch(_) {}
+  </main>  
+  <script>
+ / ====== CONFIG ======
+window.PRICING = {
+  baseMonthly: 39,
+  includedSeats: 1,
+  includedRegions: 1,
+  perExtraSeat: 15,
+  perExtraRegion: 10,
+  bundleDiscountPct: 10,
+  addons: {
+    radar: { label: {en:'Live Permit Radar', es:'Radar de Permisos en Vivo'}, monthly: 0, onetime: 0, featured:true, desc:{en:'Search & alerts', es:'Búsqueda y alertas'} },
+    topPermits: { label: {en:'Top Permits Digest', es:'Resumen de Permisos Destacados'}, monthly: 9, onetime: 0, desc:{en:'Weekly email', es:'Correo semanal'} },
+    smsPack: { label: {en:'SMS Pack (1,000/mo)', es:'Paquete SMS (1,000/mes)'}, monthly: 15, onetime: 0, desc:{en:'Outreach texting', es:'Mensajería de alcance'} },
+    outcomeGuarantee: { label: {en:'Outcome Guarantee', es:'Garantía de Resultados'}, monthly: 99, onetime: 0, desc:{en:'1–2 booked estimates or refund', es:'1–2 estimados o reembolso'} },
+    concierge: { label: {en:'Concierge Outreach', es:'Alcance Concierge'}, monthly: 199, onetime: 0, desc:{en:'We qualify & book', es:'Calificamos y agendamos'} },
+    prioritySetup: { label: {en:'Priority Setup', es:'Configuración Prioritaria'}, monthly: 0, onetime: 149, desc:{en:'48‑hour onboarding', es:'Inicio en 48 horas'} },
+    customIntegration: { label: {en:'Custom Integration', es:'Integración Personalizada'}, monthly: 0, onetime: 299, desc:{en:'CRM/API hookup', es:'Conexión con CRM/API'} },
   }
+};
 
-  // --- totals & line items ---
-  const { monthly, onetime, monthlylines, onetimelines, bundleApplied } = calculate();
+const FEATURES_ORDER = ['radar','topPermits','smsPack','outcomeGuarantee','concierge','prioritySetup','customIntegration'];
 
-  // IDs (existing targets in your UI)
-  const mt = document.getElementById('monthlyTotal');   if (mt) mt.textContent  = currency(monthly);
-  const ot = document.getElementById('onetimeTotal');   if (ot) ot.textContent  = currency(onetime);
+window.I18N = {
+  en: {
+    form_title: 'Tell us what you need',
+    form_sub: 'Pick your tools and add‑ons. The estimate updates live.',
+    label_name: 'Your name',
+    label_company: 'Company',
+    label_phone: 'Phone',
+    label_county: 'County / Area',
+    label_usecase: 'Use case',
+    label_seats: 'Seats',
+    hint_seats: 'Includes 1 seat. Extras billed per seat.',
+    label_regions: 'Regions',
+    hint_regions: 'Base includes 1 region. Extras billed per region.',
+    addons_title: 'Add‑ons',
+    label_start: 'Target start date',
+    label_lang: 'Preferred language',
+    label_notes: 'Notes',
+    btn_print: 'Print / Save LoI (PDF)',
+    btn_submit: 'Send to PermitPulse',
+    legal_note: 'This is a non‑binding letter of intent and estimate. Final pricing may vary after scoping.',
+    est_title: 'Your estimate',
+    est_bundle: 'Bundle applied',
+    est_monthly: 'Monthly',
+    est_onetime: 'One‑time',
+    est_breakdown: 'Breakdown',
+    share_success: 'Shareable link copied to clipboard',
+    submit_success: 'Thanks! We received your LoI.',
+    ref_label: 'Estimate Ref',
+    ref_date: 'Date',
+    terms_title: 'Key Terms (non‑binding)',
+    terms: [
+      'Scope will be finalized after data source validation and kickoff.',
+      'Monthly fees are billed at start of service; one‑time items at activation.',
+      'Either party may terminate at any time; charges pro‑rated to the current month.',
+      'Confidentiality: both parties agree to keep shared data and strategies private.',
+      'This LoI expresses intent only and is not a binding agreement for services.'
+    ],
+    sig_client: 'Client Signature • Name & Title • Date',
+  },
+  es: {
+    form_title: 'Cuéntanos qué necesitas',
+    form_sub: 'Elige tus herramientas y complementos. El estimado se actualiza al instante.',
+    label_name: 'Tu nombre',
+    label_company: 'Empresa',
+    label_phone: 'Teléfono',
+    label_county: 'Condado / Área',
+    label_usecase: 'Caso de uso',
+    label_seats: 'Usuarios',
+    hint_seats: 'Incluye 1 usuario. Extras con costo por usuario.',
+    label_regions: 'Regiones',
+    hint_regions: 'La base incluye 1 región. Extras con costo por región.',
+    addons_title: 'Complementos',
+    label_start: 'Fecha de inicio',
+    label_lang: 'Idioma preferido',
+    label_notes: 'Notas',
+    btn_print: 'Imprimir / Guardar LoI (PDF)',
+    btn_submit: 'Enviar a PermitPulse',
+    legal_note: 'Esta es una carta de intención sin obligación y un estimado. El precio final puede variar después del alcance.',
+    est_title: 'Tu estimado',
+    est_bundle: 'Paquete aplicado',
+    est_monthly: 'Mensual',
+    est_onetime: 'Pago único',
+    est_breakdown: 'Desglose',
+    share_success: 'Enlace para compartir copiado',
+    submit_success: '¡Gracias! Recibimos tu LoI.',
+    ref_label: 'Referencia',
+    ref_date: 'Fecha',
+    terms_title: 'Términos clave (no vinculantes)',
+    terms: [
+      'El alcance se definirá después de validar las fuentes de datos e iniciar el proyecto.',
+      'Las tarifas mensuales se cobran al inicio; los pagos únicos al activarse.',
+      'Cualquiera de las partes puede terminar en cualquier momento; cargos prorrateados al mes en curso.',
+      'Confidencialidad: ambas partes mantendrán en privado los datos y estrategias compartidas.',
+      'Este LoI expresa intención y no constituye un acuerdo vinculante de servicios.'
+    ],
+    sig_client: 'Firma del cliente • Nombre y cargo • Fecha',
+  }
+};
 
-  // Mirrors (the ones you added in header + contract strip)
-  document.querySelectorAll('.total-monthly').forEach(el => el.textContent = currency(monthly));
-  document.querySelectorAll('.total-onetime').forEach(el => el.textContent = currency(onetime));
+// ====== STATE ======
+window.lang = 'en';
+window.state = {
+  name:'', company:'', email:'', phone:'', county:'', usecase:'Roofing', 
+  seats:1, regions:['LA City'], addons:{}, start:'', pref_lang:'en', notes:''
+};
 
-  // Breakdown list (unchanged, just rebuilt each update)
-  const bd = document.getElementById('breakdown');
-  if (bd){
-    bd.innerHTML = '';
-    [...monthlylines, ...onetimelines].forEach(l => {
-      const li = document.createElement('li');
-      li.className = 'flex justify-between';
-      li.innerHTML = `<span>${l.label}</span><span class="font-medium">${currency(l.amount)}</span>`;
-      bd.appendChild(li);
+// ====== HELPERS ======
+const $ = sel => document.querySelector(sel);
+const $$ = sel => Array.from(document.querySelectorAll(sel));
+window.currency = n => `$${n.toLocaleString(undefined,{maximumFractionDigits:0})}`;
+
+function escapeHtml(str){
+  return str.replace(/[&<>"]/g, s => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[s]));
+}
+
+window.pushGA = function(event, params){
+  try {
+    if (window.gtag) gtag('event', event, params);
+    else if (window.dataLayer) window.dataLayer.push({event, ...params});
+  } catch {}
+};
+
+// ====== CORE FUNCTIONS ======
+    window.renderAddons = function(){
+  const wrap = $('#addons');
+  if (!wrap) return;
+  wrap.innerHTML = '';
+  FEATURES_ORDER.forEach(key => {
+    const cfg = window.PRICING.addons[key];
+    const id = `addon_${key}`;
+    const el = document.createElement('label');
+    el.className = 'flex gap-3 items-start border border-slate-200 rounded-xl p-3 hover:border-slate-300 cursor-pointer';
+    el.innerHTML = `
+      <input type="checkbox" class="mt-1" id="${id}" data-key="${key}" />
+      <div class="min-w-0">
+        <div class="font-medium truncate">${cfg.label[window.lang]}</div>
+        <div class="text-xs text-slate-600">${cfg.desc[window.lang]||''}</div>
+        <div class="text-xs mt-1">${cfg.monthly?`<span class='font-medium'>${window.currency(cfg.monthly)}/mo</span>`:''} ${cfg.onetime?`<span class='text-slate-500'>+ ${window.currency(cfg.onetime)} one‑time</span>`:''}</div>
+      </div>`;
+    wrap.appendChild(el);
+    const cb = el.querySelector('input');
+    cb.checked = !!window.state.addons[key];
+    cb.addEventListener('change', () => { 
+      window.state.addons[key] = cb.checked; 
+      window.update(); 
+    });
+  });
+};
+
+window.applyI18n = function(){
+  $$('[data-i18n]').forEach(node => {
+    const k = node.getAttribute('data-i18n');
+    if (window.I18N[window.lang][k]) {
+      node.textContent = window.I18N[window.lang][k];
+    }
+  });
+  const termsList = $('#termsList');
+  if (termsList) {
+    termsList.innerHTML = '';
+    window.I18N[window.lang].terms.forEach(t=>{
+      const li=document.createElement('li'); 
+      li.textContent = t; 
+      termsList.appendChild(li);
     });
   }
+  window.renderAddons();
+  window.update();
+};
 
-  // Bundle tag + preview + GA (same behavior)
-  const tag = document.getElementById('bundleTag');
-  if (tag) tag.hidden = !bundleApplied;
+window.readForm = function(){
+  const f = $('#loiForm');
+  if (!f) return;
+  window.state.name = f.name.value.trim();
+  window.state.company = f.company.value.trim();
+  window.state.email = f.email.value.trim();
+  window.state.phone = f.phone.value.trim();
+  window.state.county = f.county.value.trim();
+  window.state.usecase = f.usecase.value;
+  window.state.seats = Math.max(1, parseInt(f.seats.value||'1',10));
+  window.state.regions = Array.from(f.regions.selectedOptions).map(o=>o.value);
+  window.state.start = f.start.value;
+  window.state.pref_lang = f.pref_lang.value;
+  window.state.notes = f.notes.value.trim();
+};
 
-  buildPreview(monthly, onetime, monthlylines, onetimelines);
-  pushGA('quote_estimate_updated', { monthly, onetime });
+window.calculate = function(){
+  const monthlyLines = [];
+  const onetimeLines = [];
+  let monthly = window.PRICING.baseMonthly;
+  monthlyLines.push({label:`Core`, amount:window.PRICING.baseMonthly});
+
+  // Extra seats
+  const extraSeats = Math.max(0, window.state.seats - window.PRICING.includedSeats);
+  if (extraSeats>0){
+    const amt = extraSeats * window.PRICING.perExtraSeat;
+    monthly += amt; 
+    monthlyLines.push({label:`Extra seats ×${extraSeats}`, amount:amt});
+  }
+
+  // Extra regions
+  const extraRegions = Math.max(0, window.state.regions.length - window.PRICING.includedRegions);
+  if (extraRegions>0){
+    const amt = extraRegions * window.PRICING.perExtraRegion;
+    monthly += amt; 
+    monthlyLines.push({label:`Extra regions ×${extraRegions}`, amount:amt});
+  }
+
+  // Add-ons
+  let monthlyAddonCount = 0;
+  FEATURES_ORDER.forEach(k => {
+    if (!window.state.addons[k]) return;
+    const a = window.PRICING.addons[k];
+    if (a.monthly){ 
+      monthly += a.monthly; 
+      monthlyLines.push({label:a.label[window.lang], amount:a.monthly}); 
+      monthlyAddonCount++; 
     }
+    if (a.onetime){ 
+      onetimeLines.push({label:a.label[window.lang], amount:a.onetime}); 
+    }
+  });
 
-    function buildPreview(monthly, onetime, monthlyLines, onetimeLines){
-      const today = new Date().toLocaleDateString(undefined,{year:'numeric',month:'long',day:'numeric'});
-      const estLines = [...monthlyLines, ...onetimeLines].map(l => `• ${l.label}: ${currency(l.amount)}`).join('
-');
-      const selectedAddons = FEATURES_ORDER.filter(k=>state.addons[k]).map(k=>PRICING.addons[k].label[lang]);
+  // Bundle discount
+  let bundleApplied = false;
+  if (monthlyAddonCount >= 3 && window.PRICING.bundleDiscountPct>0){
+    const addOnMonthly = monthlyLines.slice(1).reduce((sum,l)=>sum+l.amount,0);
+    const discount = Math.round(addOnMonthly * (window.PRICING.bundleDiscountPct/100));
+    if (discount>0){ 
+      monthly -= discount; 
+      monthlyLines.push({label:`Bundle (‑${window.PRICING.bundleDiscountPct}%)`, amount:-discount}); 
+      bundleApplied = true; 
+    }
+  }
 
-      const text = lang==='en'
-        ? `Date: ${today}
+  const onetime = onetimeLines.reduce((s,l)=>s+l.amount,0);
+  return { monthly, onetime, monthlyLines, onetimeLines, bundleApplied };
+};
+
+window.buildPreview = function(monthly, onetime, monthlyLines, onetimeLines){
+  const today = new Date().toLocaleDateString(undefined,{year:'numeric',month:'long',day:'numeric'});
+  const estLines = [...monthlyLines, ...onetimeLines].map(l => `• ${l.label}: ${window.currency(l.amount)}`).join('\n');
+  const selectedAddons = FEATURES_ORDER.filter(k=>window.state.addons[k]).map(k=>window.PRICING.addons[k].label[window.lang]);
+
+  const text = window.lang==='en'
+    ? `Date: ${today}
 
 Letter of Intent – PermitPulse
 
-From: ${state.name || '[Your name]'} (${state.company || 'Company'})
-Email: ${state.email || ''}  Phone: ${state.phone || ''}
-Area: ${state.county || ''}  Use case: ${state.usecase}
+From: ${window.state.name || '[Your name]'} (${window.state.company || 'Company'})
+Email: ${window.state.email || ''}  Phone: ${window.state.phone || ''}
+Area: ${window.state.county || ''}  Use case: ${window.state.usecase}
 
 We intend to engage PermitPulse for the following configuration:
-Seats: ${state.seats}
-Regions: ${state.regions.join(', ') || '—'}
+Seats: ${window.state.seats}
+Regions: ${window.state.regions.join(', ') || '—'}
 Add‑ons: ${selectedAddons.length? selectedAddons.join(', ') : 'None'}
 
 Estimated Pricing (non‑binding):
 ${estLines}
 
-Estimated monthly: ${currency(monthly)}
-Estimated one‑time: ${currency(onetime)}
-Target start: ${state.start || 'TBD'}
-Preferred language: ${state.pref_lang==='es'?'Español (LA)':'English'}
-Notes: ${state.notes || '—'}
+Estimated monthly: ${window.currency(monthly)}
+Estimated one‑time: ${window.currency(onetime)}
+Target start: ${window.state.start || 'TBD'}
+Preferred language: ${window.state.pref_lang==='es'?'Español (LA)':'English'}
+Notes: ${window.state.notes || '—'}
 
 This LoI is non‑binding. Final pricing to be confirmed after scoping.
 
 Signature: __________________________
 `
-        : `Fecha: ${today}
+    : `Fecha: ${today}
 
 Carta de Intención – PermitPulse
 
-De: ${state.name || '[Tu nombre]'} (${state.company || 'Empresa'})
-Correo: ${state.email || ''}  Teléfono: ${state.phone || ''}
-Área: ${state.county || ''}  Caso de uso: ${state.usecase}
+De: ${window.state.name || '[Tu nombre]'} (${window.state.company || 'Empresa'})
+Correo: ${window.state.email || ''}  Teléfono: ${window.state.phone || ''}
+Área: ${window.state.county || ''}  Caso de uso: ${window.state.usecase}
 
 Tenemos la intención de contratar a PermitPulse con la siguiente configuración:
-Usuarios: ${state.seats}
-Regiones: ${state.regions.join(', ') || '—'}
+Usuarios: ${window.state.seats}
+Regiones: ${window.state.regions.join(', ') || '—'}
 Complementos: ${selectedAddons.length? selectedAddons.join(', ') : 'Ninguno'}
 
 Estimado (no vinculante):
 ${estLines}
 
-Mensual estimado: ${currency(monthly)}
-Pago único estimado: ${currency(onetime)}
-Inicio objetivo: ${state.start || 'Por definir'}
-Idioma preferido: ${state.pref_lang==='es'?'Español (LA)':'Inglés'}
-Notas: ${state.notes || '—'}
+Mensual estimado: ${window.currency(monthly)}
+Pago único estimado: ${window.currency(onetime)}
+Inicio objetivo: ${window.state.start || 'Por definir'}
+Idioma preferido: ${window.state.pref_lang==='es'?'Español (LA)':'Inglés'}
+Notas: ${window.state.notes || '—'}
 
 Este LoI no es vinculante. El precio final se confirmará después del alcance.
 
 Firma: __________________________
 `;
 
-      const html = text
-        .split('
-')
-        .map(line => line.trim()=== '' ? '<br />' : `<div>${escapeHtml(line)}</div>`)
-        .join('');
-      $('#loiPreview').innerHTML = html;
-    }
+  const html = text.split('\n').map(line => line.trim()=== '' ? '<br />' : `<div>${escapeHtml(line)}</div>`).join('');
+  const preview = $('#loiPreview');
+  if (preview) preview.innerHTML = html;
+  
+  const refDate = $('#refDate');
+  if (refDate) refDate.textContent = today;
+  const refId = $('#refId');
+  if (refId) refId.textContent = `PP‑LOI‑${Date.now().toString(36).toUpperCase()}`;
+};
 
-    function escapeHtml(str){
-      return str.replace(/[&<>\"]/g, s => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[s]));
-    }
+window.update = function(){
+  window.readForm();
 
-    // GA4 helper (no‑op if gtag missing)
-    function pushGA(event, params){
-      try {
-        if (window.gtag) gtag('event', event, params);
-        else if (window.dataLayer) window.dataLayer.push({event, ...params});
-      } catch {}
-    }
+  const nameInput = $('input[name="name"]');
+  if (nameInput && !nameInput.value.trim()){
+    nameInput.value = 'John Smith';
+    window.state.name = 'John Smith';
+  }
 
-    // Shareable link (URL‑encoded state)
-    function encodeStateToUrl(){
-      const payload = {...state};
-      const s = encodeURIComponent(btoa(unescape(encodeURIComponent(JSON.stringify(payload)))));
-      const url = new URL(location.href);
-      url.searchParams.set('q', s);
-      return url.toString();
-    }
-    function decodeStateFromUrl(){
-      const s = new URL(location.href).searchParams.get('q');
-      if (!s) return;
-      try{
-        const json = JSON.parse(decodeURIComponent(escape(atob(decodeURIComponent(s)))));
-        Object.assign(state, json);
-        // populate form fields
-        const f = $('#loiForm');
-        f.name.value = state.name||''; f.company.value = state.company||''; f.email.value = state.email||'';
-        f.phone.value = state.phone||''; f.county.value = state.county||''; f.usecase.value = state.usecase||'Roofing';
-        f.seats.value = state.seats||1; state.regions = state.regions||['LA City'];
-        Array.from(f.regions.options).forEach(o => { o.selected = state.regions.includes(o.value); });
-        f.start.value = state.start||''; f.pref_lang.value = state.pref_lang||'en'; f.notes.value = state.notes||'';
-      }catch(e){ console.warn('Decode failed', e); }
-    }
+  const { monthly, onetime, monthlyLines, onetimeLines, bundleApplied } = window.calculate();
 
-    <<!-- RESCUE: safe event binding + re-init -->
-<script>
-  // helpers
-  const $ = (s)=>document.querySelector(s);
-  const $$ = (s)=>Array.from(document.querySelectorAll(s));
-  const bind = (sel, ev, fn)=>{ const el=$(sel); if(el){ el.addEventListener(ev, fn); return true; } return false; };
+  const mt = $('#monthlyTotal');
+  if (mt) mt.textContent = window.currency(monthly);
+  const ot = $('#onetimeTotal');
+  if (ot) ot.textContent = window.currency(onetime);
 
-  function ensureAddonsUI() {
-    const host = $('#addons');
-    if (!host) return;
-    // If nothing rendered (or i18n wiped it), inject a basic set
-    if (!host.childElementCount) {
-      host.innerHTML = `
-        <label class="flex items-start gap-3">
-          <input id="addon-radar" data-key="radar" type="checkbox" class="addon mt-1">
-          <div><b>Permit Radar</b><div class="text-slate-500 text-sm">Live LADBS tracking</div></div>
-        </label>
-        <label class="flex items-start gap-3">
-          <input id="addon-digest" data-key="digest" type="checkbox" class="addon mt-1">
-          <div><b>Weekly Digest</b><div class="text-slate-500 text-sm">Email summary</div></div>
-        </label>
-        <label class="flex items-start gap-3">
-          <input id="addon-sms" data-key="sms" type="checkbox" class="addon mt-1">
-          <div><b>SMS Alerts</b><div class="text-slate-500 text-sm">High-value permits</div></div>
-        </label>
-        <label class="flex items-start gap-3">
-          <input id="addon-guarantee" data-key="guarantee" type="checkbox" class="addon mt-1">
-          <div><b>Outcome Guarantee</b><div class="text-slate-500 text-sm">1–2 booked estimates or refund</div></div>
-        </label>
-      `;
-    }
-    // Wire checkboxes into state
-    $$('#addons input[type=checkbox]').forEach(cb=>{
-      cb.addEventListener('change', ()=>{
-        window.state = window.state || {};
-        state.addons = state.addons || {};
-        const k = cb.dataset.key || cb.id.replace('addon-','');
-        state.addons[k] = cb.checked;
-        try{ update(); }catch(_){}
-      });
+  $$('.total-monthly').forEach(el => el.textContent = window.currency(monthly));
+  $$('.total-onetime').forEach(el => el.textContent = window.currency(onetime));
+
+  const bd = $('#breakdown');
+  if (bd){
+    bd.innerHTML = '';
+    [...monthlyLines, ...onetimeLines].forEach(l => {
+      const li = document.createElement('li');
+      li.className = 'flex justify-between';
+      li.innerHTML = `<span>${l.label}</span><span class="font-medium">${window.currency(l.amount)}</span>`;
+      bd.appendChild(li);
     });
   }
 
-  // refresh totals frequently (covers selects, multiselects, text, toggles)
-  ['input','change','click','keyup'].forEach(ev=>{
-    bind('#loiForm', ev, ()=>{ try{ update(); }catch(_){} });
-  });
+  const tag = $('#bundleTag');
+  if (tag) tag.hidden = !bundleApplied;
 
-  // submit -> KV (optional)
-  bind('#loiForm','submit', async (e)=>{
-    e.preventDefault();
-    try{
-      update();
-      const res = await fetch('/api/loi', {
-        method:'POST',
-        headers:{'content-type':'application/json'},
-        body: JSON.stringify({ state, totals: calculate() })
-      });
-      alert(res.ok ? I18N[lang].submit_success : 'Submission failed');
-      try{ pushGA('loi_submitted',{email: state.email}); }catch(_){}
-    }catch(_){
-      alert('Submission failed (offline demo). You can still print or share this LoI.');
-    }
-  });
+  window.buildPreview(monthly, onetime, monthlyLines, onetimeLines);
+  window.pushGA('quote_estimate_updated', { monthly, onetime });
+};
 
-  // print / share
-  bind('#printBtn','click', ()=>{ try{ window.print(); pushGA('loi_printed',{});}catch(_){} });
-  bind('#shareBtn','click', async ()=>{
-    try{
-      readForm();
-      const url = encodeStateToUrl();
-      await navigator.clipboard.writeText(url);
-      alert(I18N[lang].share_success);
-    }catch(_){}
-  });
+window.encodeStateToUrl = function(){
+  const payload = {...window.state};
+  const s = encodeURIComponent(btoa(unescape(encodeURIComponent(JSON.stringify(payload)))));
+  const url = new URL(location.href);
+  url.searchParams.set('q', s);
+  return url.toString();
+};
 
-  // language toggles (re-render UI pieces)
-  bind('#lang-en','click', ()=>{ lang='en'; applyI18n(); ensureAddonsUI(); try{ update(); }catch(_){} });
-  bind('#lang-es','click', ()=>{ lang='es'; applyI18n(); ensureAddonsUI(); try{ update(); }catch(_){} });
+window.decodeStateFromUrl = function(){
+  const s = new URL(location.href).searchParams.get('q');
+  if (!s) return;
+  try{
+    const json = JSON.parse(decodeURIComponent(escape(atob(decodeURIComponent(s)))));
+    Object.assign(window.state, json);
+    const f = $('#loiForm');
+    if (!f) return;
+    f.name.value = window.state.name||'';
+    f.company.value = window.state.company||'';
+    f.email.value = window.state.email||'';
+    f.phone.value = window.state.phone||'';
+    f.county.value = window.state.county||'';
+    f.usecase.value = window.state.usecase||'Roofing';
+    f.seats.value = window.state.seats||1;
+    window.state.regions = window.state.regions||['LA City'];
+    Array.from(f.regions.options).forEach(o => { o.selected = window.state.regions.includes(o.value); });
+    f.start.value = window.state.start||'';
+    f.pref_lang.value = window.state.pref_lang||'en';
+    f.notes.value = window.state.notes||'';
+  }catch(e){ console.warn('Decode failed', e); }
+};
 
-  // boot
-  (function boot(){
-    try{ decodeStateFromUrl(); }catch(_){}
-    try{ applyI18n(); }catch(_){}
-    ensureAddonsUI();
-    try{ update(); }catch(_){}
+// ====== INITIALIZATION ======
+   document.addEventListener('DOMContentLoaded', function(){
+  const langEn = $('#lang-en');
+  const langEs = $('#lang-es');
+  if (langEn) {
+    langEn.addEventListener('click', function(){
+      window.lang = 'en';
+      window.applyI18n();
+    });
+  }
+  if (langEs) {
+    langEs.addEventListener('click', function(){
+      window.lang = 'es';
+      window.applyI18n();
+    });
+  }
 
-    // stealth default name
-    const nameInput = $('input[name="name"]');
-    if (nameInput && !nameInput.value.trim()) {
-      nameInput.value = 'John Smith';
-      if (typeof state !== 'undefined') state.name = 'John Smith';
-    }
-  })();
+  const shareBtn = $('#shareBtn');
+  if (shareBtn) {
+    shareBtn.addEventListener('click', async function(){
+      try {
+        window.readForm();
+        const url = window.encodeStateToUrl();
+        await navigator.clipboard.writeText(url);
+        alert(window.I18N[window.lang].share_success);
+        window.pushGA('quote_shared', {});
+      } catch(e) {
+        console.error('Share failed', e);
+      }
+    });
+  }
+
+  const printBtn = $('#printBtn');
+  if (printBtn) {
+    printBtn.addEventListener('click', function(){
+      window.print();
+      window.pushGA('loi_printed', {});
+    });
+  }
+
+  const form = $('#loiForm');
+  if (form) {
+    form.addEventListener('submit', async function(e){
+      e.preventDefault();
+      window.readForm();
+      const totals = window.calculate();
+      alert(window.I18N[window.lang].submit_success);
+      window.pushGA('loi_submitted', {email: window.state.email});
+    });
+
+    form.addEventListener('input', window.update);
+    form.addEventListener('change', window.update);
+  }
+
+  window.decodeStateFromUrl();
+  window.applyI18n();
+  window.update();
+}); 
 </script>
 
   <!-- OPTIONAL Worker stub remains identical to prior version; re‑use if needed. -->
