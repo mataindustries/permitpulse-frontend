@@ -660,6 +660,31 @@ window.decodeStateFromUrl = function(){
     f.notes.value = window.state.notes||'';
   }catch(e){ console.warn('Decode failed', e); }
 };
+    // SMS share (mobile opens Messages; desktop falls back to copying)
+(() => {
+  const btn = document.getElementById('smsBtn');
+  if (!btn) return;
+
+  btn.addEventListener('click', async () => {
+    try { readForm?.(); } catch {}
+    const url = (typeof encodeStateToUrl === 'function') ? encodeStateToUrl() : location.href;
+    const text = `PermitPulse estimate: ${url}`;
+
+    // Try deep-link to SMS on mobile
+    const smsHref = `sms:?&body=${encodeURIComponent(text)}`;
+    // If it's a phone, this will open the Messages app; if not, we fall back
+    const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+
+    if (isMobile) {
+      location.href = smsHref;
+    } else {
+      try { await navigator.clipboard.writeText(text); alert('Quote copied. Paste into your SMS.'); }
+      catch { prompt('Copy this quote text:', text); }
+    }
+
+    try { window.gtag && gtag('event','loi_sms_shared',{}); } catch {}
+  });
+})();
 
 // ====== INITIALIZATION ======
    document.addEventListener('DOMContentLoaded', function(){
