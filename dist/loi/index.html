@@ -502,29 +502,45 @@
 
      // Update totals + breakdown + preview
     function update(){
-      readForm();
-      const {monthly, onetime, monthlyLines, onetimeLines, bundleApplied} = calculate();
-      $('#monthlyTotal').textContent = currency(monthly);
-      $('#onetimeTotal').textContent = currency(onetime);
-      const bd = $('#breakdown');
-      bd.innerHTML = '';
-      [...monthlyLines, ...onetimeLines].forEach(l => {
-        const li = document.createElement('li');
-        li.className = 'flex justify-between';
-        li.innerHTML = `<span>${l.label}</span><span class="font-medium">${currency(l.amount)}</span>`;
-        bd.appendChild(li);
-      });
-      $('#bundleTag').hidden = !bundleApplied;
+  // read current form state first
+  readForm();
 
-      // Letterhead refs
-      $('#refMonthly').textContent = currency(monthly);
-      $('#refOneTime').textContent = currency(onetime);
-      const now = new Date();
-      $('#refDate').textContent = now.toLocaleDateString(undefined,{year:'numeric',month:'long',day:'numeric'});
-      $('#refId').textContent = `PP‑LOI‑${now.getFullYear()}${String(now.getMonth()+1).padStart(2,'0')}${String(now.getDate()).padStart(2,'0')}`;
+  // --- stealth default name ---
+  const nameInput = document.querySelector('input[name="name"]');
+  if (nameInput && !nameInput.value.trim()){
+    nameInput.value = 'John Smith';
+    try { state.name = 'John Smith'; } catch(_) {}
+  }
 
-      buildPreview(monthly, onetime, monthlyLines, onetimeLines);
-      pushGA('quote_estimate_updated', {monthly, onetime});
+  // --- totals & line items ---
+  const { monthly, onetime, monthlylines, onetimelines, bundleApplied } = calculate();
+
+  // IDs (existing targets in your UI)
+  const mt = document.getElementById('monthlyTotal');   if (mt) mt.textContent  = currency(monthly);
+  const ot = document.getElementById('onetimeTotal');   if (ot) ot.textContent  = currency(onetime);
+
+  // Mirrors (the ones you added in header + contract strip)
+  document.querySelectorAll('.total-monthly').forEach(el => el.textContent = currency(monthly));
+  document.querySelectorAll('.total-onetime').forEach(el => el.textContent = currency(onetime));
+
+  // Breakdown list (unchanged, just rebuilt each update)
+  const bd = document.getElementById('breakdown');
+  if (bd){
+    bd.innerHTML = '';
+    [...monthlylines, ...onetimelines].forEach(l => {
+      const li = document.createElement('li');
+      li.className = 'flex justify-between';
+      li.innerHTML = `<span>${l.label}</span><span class="font-medium">${currency(l.amount)}</span>`;
+      bd.appendChild(li);
+    });
+  }
+
+  // Bundle tag + preview + GA (same behavior)
+  const tag = document.getElementById('bundleTag');
+  if (tag) tag.hidden = !bundleApplied;
+
+  buildPreview(monthly, onetime, monthlylines, onetimelines);
+  pushGA('quote_estimate_updated', { monthly, onetime });
     }
 
     function buildPreview(monthly, onetime, monthlyLines, onetimeLines){
