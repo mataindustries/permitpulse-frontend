@@ -244,6 +244,8 @@
           <div class="font-semibold" id="refId">PP‑LOI</div>
           <div class="text-slate-500 mt-2" data-i18n="ref_date">Date</div>
           <div class="font-semibold" id="refDate">—</div>
+          <div class="text-xs" data-i18n="ref_valid">Valid through</div>
+<div id="refExpiry" class="font-semibold"></div>
           <div class="text-slate-500 mt-2" data-i18n="ref_valid">Valid through</div>
 <div class="font-semibold" id="refExpiry">—</div>
         </div>
@@ -477,6 +479,64 @@ window.readForm = function(){
   window.state.notes = f.notes.value.trim();
 };
 
+    
+// === MASTER UPDATE ===
+window.update = function(){
+  // 3b) ensure quote expiry exists (14 days)
+  window.state = window.state || {};
+  if (!window.state.quote_expires_at) {
+    window.state.quote_expires_at = Date.now() + 14*24*60*60*1000;
+  }
+
+  // pull latest form values
+  try { window.readForm(); } catch(e){}
+
+  // compute totals
+  let monthly=0, onetime=0, monthlyLines=[], onetimeLines=[], bundleApplied=false;
+  try {
+    const r = window.calculate(); // you already have calculate()
+    monthly       = r.monthly;
+    onetime       = r.onetime;
+    monthlyLines  = r.monthlyLines;
+    onetimeLines  = r.onetimeLines;
+    bundleApplied = r.bundleApplied;
+  } catch(e){ console.warn('calc failed', e); }
+
+  // write totals
+  const $ = s => document.querySelector(s);
+  if ($('#monthlyTotal'))  $('#monthlyTotal').textContent  = window.currency ? window.currency(monthly) : `$${monthly}`;
+  if ($('#onetimeTotal'))  $('#onetimeTotal').textContent  = window.currency ? window.currency(onetime) : `$${onetime}`;
+  if ($('#bundleTag'))     $('#bundleTag').hidden          = !bundleApplied;
+
+  // rebuild breakdown
+  const bd = $('#breakdown');
+  if (bd) {
+    bd.innerHTML = '';
+    [...monthlyLines, ...onetimeLines].forEach(l=>{
+      const li = document.createElement('li');
+      li.className = 'flex justify-between';
+      li.innerHTML = `<span>${l.label}</span><span class="font-medium">${window.currency?window.currency(l.amount):'$'+l.amount}</span>`;
+      bd.appendChild(li);
+    });
+  }
+
+  // 3c) render “Valid through” near the ref/date
+  const expNode = document.getElementById('refExpiry');
+  if (expNode && window.state.quote_expires_at) {
+    const exp = new Date(window.state.quote_expires_at);
+    expNode.textContent = exp.toLocaleDateString(undefined, {year:'numeric', month:'short', day:'numeric'});
+    const daysLeft = Math.ceil((window.state.quote_expires_at - Date.now())/(1000*60*60*24));
+    expNode.classList.toggle('text-amber-600', daysLeft <= 3);
+  }
+
+  // refresh the letter preview (you already have buildPreview)
+  try { window.buildPreview(monthly, onetime, monthlyLines, onetimeLines); } catch(e){}
+
+  // analytics (no-op if gtag missing)
+  try { window.pushGA && window.pushGA('quote_estimate_updated', { monthly, onetime }); } catch(e){}
+};
+
+    
 window.calculate = function(){
   const monthlyLines = [];
   const onetimeLines = [];
@@ -700,6 +760,8 @@ window.decodeStateFromUrl = function(){
     langEn.addEventListener('click', function(){
       window.lang = 'en';
       window.applyI18n();
+      try { window.renderAddons(); } catch(e){}
+try { window.update(); } catch(e){}
     });
   }
   if (langEs) {
@@ -742,13 +804,11 @@ window.decodeStateFromUrl = function(){
       window.pushGA('loi_submitted', {email: window.state.email});
     });
 
-    pushGA('quote_estimate_updated', { monthly, onetime });
-$('#acceptBtn').addEventListener('click', ()=>pushGA('loi_accept_clicked',{}));
-$('#printBtn').addEventListener('click', ()=>pushGA('loi_printed',{}));
-$('#shareBtn').addEventListener('click', ()=>pushGA('loi_shared',{}));
+  
 
     form.addEventListener('input', window.update);
     form.addEventListener('change', window.update);
+    form.addEventListener('keyup', window.update);
   }
 
   window.decodeStateFromUrl();
