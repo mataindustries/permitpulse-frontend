@@ -90,7 +90,7 @@
 <button id="shareBtn" type="button" class="px-3 py-2 rounded-xl text-white" style="background:linear-gradient(135deg,#2563EB,#10A6A6)">Share Quote</button>
   <button id="smsBtn" type="button"
         class="px-3 py-2 rounded-xl border border-slate-300 bg-white font-medium">
-  Text Quote
+  <span data-i18n="sms_text">Text Quote</span>
   </button>
 </div>
     </div>
@@ -192,7 +192,7 @@
 
         <div class="flex flex-wrap gap-3">
           <button type="button" id="printBtn" class="no-print px-4 py-2 rounded-xl bg-slate-900 text-white" data-i18n="btn_print">Print / Save LoI (PDF)</button>
-  
+          <button id="acceptBtn" class="no-print px-4 py-2 rounded-xl text-white bg-emerald-600">Accept & pay deposit</button>
           <button type="submit" class="no-print px-4 py-2 rounded-xl text-white" style="background:linear-gradient(135deg,var(--brand-blue),var(--brand-teal))" data-i18n="btn_submit">Send to PermitPulse</button>
         </div>
         <p class="text-xs text-slate-500" data-i18n="legal_note">This is a non‑binding letter of intent and estimate. Final pricing may vary after scoping.</p>
@@ -244,6 +244,8 @@
           <div class="font-semibold" id="refId">PP‑LOI</div>
           <div class="text-slate-500 mt-2" data-i18n="ref_date">Date</div>
           <div class="font-semibold" id="refDate">—</div>
+          <div class="text-slate-500 mt-2" data-i18n="ref_valid">Valid through</div>
+<div class="font-semibold" id="refExpiry">—</div>
         </div>
       </div>
 
@@ -308,6 +310,7 @@ const FEATURES_ORDER = ['radar','topPermits','smsPack','outcomeGuarantee','conci
 
 window.I18N = {
   en: {
+    sms_text: 'Text Quote' ,
     form_title: 'Tell us what you need',
     form_sub: 'Pick your tools and add‑ons. The estimate updates live.',
     label_name: 'Your name',
@@ -335,6 +338,7 @@ window.I18N = {
     submit_success: 'Thanks! We received your LoI.',
     ref_label: 'Estimate Ref',
     ref_date: 'Date',
+    ref_valid: 'Valid through',
     terms_title: 'Key Terms (non‑binding)',
     terms: [
       'Scope will be finalized after data source validation and kickoff.',
@@ -346,6 +350,7 @@ window.I18N = {
     sig_client: 'Client Signature • Name & Title • Date',
   },
   es: {
+    sms_text: 'Enviar por SMS' ,
     form_title: 'Cuéntanos qué necesitas',
     form_sub: 'Elige tus herramientas y complementos. El estimado se actualiza al instante.',
     label_name: 'Tu nombre',
@@ -373,6 +378,7 @@ window.I18N = {
     submit_success: '¡Gracias! Recibimos tu LoI.',
     ref_label: 'Referencia',
     ref_date: 'Fecha',
+    ref_valid: 'Válido hasta',
     terms_title: 'Términos clave (no vinculantes)',
     terms: [
       'El alcance se definirá después de validar las fuentes de datos e iniciar el proyecto.',
@@ -389,7 +395,7 @@ window.I18N = {
 window.lang = 'en';
 window.state = {
   name:'', company:'', email:'', phone:'', county:'', usecase:'Roofing', 
-  seats:1, regions:['LA City'], addons:{}, start:'', pref_lang:'en', notes:''
+  seats:1, regions:['LA City'], addons:{}, start:'', quote_expires_at: null, pref_lang:'en', notes:''
 };
 
 // ====== HELPERS ======
@@ -736,6 +742,11 @@ window.decodeStateFromUrl = function(){
       window.pushGA('loi_submitted', {email: window.state.email});
     });
 
+    pushGA('quote_estimate_updated', { monthly, onetime });
+$('#acceptBtn').addEventListener('click', ()=>pushGA('loi_accept_clicked',{}));
+$('#printBtn').addEventListener('click', ()=>pushGA('loi_printed',{}));
+$('#shareBtn').addEventListener('click', ()=>pushGA('loi_shared',{}));
+
     form.addEventListener('input', window.update);
     form.addEventListener('change', window.update);
   }
@@ -744,6 +755,15 @@ window.decodeStateFromUrl = function(){
   window.applyI18n();
   window.update();
 }); 
+
+    $('#acceptBtn').addEventListener('click', async () => {
+  readForm();
+  const body = JSON.stringify({ state, totals: calculate() });
+  const r = await fetch('/api/loi', { method:'POST', headers:{'content-type':'application/json'}, body });
+  const { ok, id, checkout_url } = await r.json();
+  if (checkout_url) location.href = checkout_url;
+  else if (ok) alert(`Saved! Ref ${id}. We’ll send next steps.`);
+});
 </script>
 
   <!-- OPTIONAL Worker stub remains identical to prior version; re‑use if needed. -->
