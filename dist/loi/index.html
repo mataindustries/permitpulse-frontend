@@ -416,6 +416,77 @@ window.pushGA = function(event, params){
   } catch {}
 };
 
+    // Map your features to Stripe Prices
+  const PRICE_IDS = {
+    core: 'price_core',
+    extraSeat: 'price_extra_seat',
+    extraRegion: 'price_extra_region',
+    sms: 'price_sms',
+    guarantee: 'price_guarantee',
+    priority: 'price_priority_setup',        // one-time
+    custom: 'price_custom_integration'       // one-time
+  };
+
+  function buildStripeItemsFromState(s) {
+    const items = [];
+    // Core Pro (always required for Pro)
+    items.push({ price: PRICE_IDS.core, quantity: 1 });
+
+    // Per-seat and per-region extras
+    const extraSeats = Math.max(0, (s.seats || 1) - 1);
+    if (extraSeats) items.push({ price: PRICE_IDS.extraSeat, quantity: extraSeats });
+
+    const extraRegions = Math.max(0, (s.regions?.length || 1) - 1);
+    if (extraRegions) items.push({ price: PRICE_IDS.extraRegion, quantity: extraRegions });
+
+    // Add-ons
+    const on = s.addons || {};
+    if (on.sms) items.push({ price: PRICE_IDS.sms, quantity: 1 });
+    if (on.guarantee) items.push({ price: PRICE_IDS.guarantee, quantity: 1 });
+
+    // One-time
+    if (on.priority) items.push({ price: PRICE_IDS.priority, quantity: 1 });
+    if (on.custom) items.push({ price: PRICE_IDS.custom, quantity: 1 });
+
+    return items;
+  }
+
+  // Accept button → create session → redirect
+  $('#acceptBtn').addEventListener('click', async () => {
+    try {
+      readForm();
+      const s = window.state || {};
+      const lineItems = buildStripeItemsFromState(s);
+
+      const payload = {
+        lineItems,
+        email: s.email || '',
+        // Weekend pilot: start everyone with a 14-day trial
+        trialDays: 14,
+        mode: 'subscription',
+        metadata: {
+          quote_ref: $('#refID')?.textContent || '',
+          name: s.name || '',
+          company: s.company || '',
+          seats: s.seats || 1,
+          regions: (s.regions || []).join(','),
+          usecase: s.usecase || '',
+          quote_expires_at: s.quote_expires_at || ''
+        }
+      };
+
+      const r = await fetch('/api/checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      const { url, error } = await r.json();
+      if (url) location.href = url; else alert(error || 'Checkout failed.');
+    } catch (e) {
+      alert('Checkout error: ' + e.message);
+    }
+  });
+
 // ====== CORE FUNCTIONS ======
     window.renderAddons = function(){
   const wrap = $('#addons');
