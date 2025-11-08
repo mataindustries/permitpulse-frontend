@@ -416,64 +416,48 @@ window.pushGA = function(event, params){
   } catch {}
 };
 
-    // Map your features to Stripe Prices
-  const PRICE_IDS = {
-    core: 'price_core',
-    extraSeat: 'price_extra_seat',
-    extraRegion: 'price_extra_region',
-    sms: 'price_sms',
-    guarantee: 'price_guarantee',
-    priority: 'price_priority_setup',        // one-time
-    custom: 'price_custom_integration'       // one-time
-  };
+    // Build aliases (server maps these to real Stripe price IDs)
+function buildAliasesFromState(s){
+  const out = [{ key: 'core', qty: 1 }];
 
-  function buildStripeItemsFromState(s) {
-    const items = [];
-    // Core Pro (always required for Pro)
-    items.push({ price: PRICE_IDS.core, quantity: 1 });
+  const extraSeats   = Math.max(0, (s.seats || 1) - 1);
+  if (extraSeats)    out.push({ key: 'extraSeat',   qty: extraSeats });
 
-    // Per-seat and per-region extras
-    const extraSeats = Math.max(0, (s.seats || 1) - 1);
-    if (extraSeats) items.push({ price: PRICE_IDS.extraSeat, quantity: extraSeats });
+  const extraRegions = Math.max(0, (s.regions?.length || 1) - 1);
+  if (extraRegions)  out.push({ key: 'extraRegion', qty: extraRegions });
 
-    const extraRegions = Math.max(0, (s.regions?.length || 1) - 1);
-    if (extraRegions) items.push({ price: PRICE_IDS.extraRegion, quantity: extraRegions });
+  const on = s.addons || {};
+  if (on.sms)        out.push({ key: 'sms',        qty: 1 });
+  if (on.guarantee)  out.push({ key: 'guarantee',  qty: 1 });
+  if (on.priority)   out.push({ key: 'priority',   qty: 1 }); // one-time ok
+  if (on.custom)     out.push({ key: 'custom',     qty: 1 }); // one-time ok
 
-    // Add-ons
-    const on = s.addons || {};
-    if (on.sms) items.push({ price: PRICE_IDS.sms, quantity: 1 });
-    if (on.guarantee) items.push({ price: PRICE_IDS.guarantee, quantity: 1 });
-
-    // One-time
-    if (on.priority) items.push({ price: PRICE_IDS.priority, quantity: 1 });
-    if (on.custom) items.push({ price: PRICE_IDS.custom, quantity: 1 });
-
-    return items;
-  }
+  return out;
+}
+   
 
   // Accept button → create session → redirect
   $('#acceptBtn').addEventListener('click', async () => {
     try {
       readForm();
       const s = window.state || {};
-      const lineItems = buildStripeItemsFromState(s);
+      const aliases = buildAliasesFromState(s);
 
-      const payload = {
-        lineItems,
-        email: s.email || '',
-        // Weekend pilot: start everyone with a 14-day trial
-        trialDays: 14,
-        mode: 'subscription',
-        metadata: {
-          quote_ref: $('#refID')?.textContent || '',
-          name: s.name || '',
-          company: s.company || '',
-          seats: s.seats || 1,
-          regions: (s.regions || []).join(','),
-          usecase: s.usecase || '',
-          quote_expires_at: s.quote_expires_at || ''
-        }
-      };
+const payload = {
+  aliases,                 // <— send aliases, not price IDs
+  email: s.email || '',
+  trialDays: 14,
+  mode: 'subscription',
+  metadata: {
+    quote_ref: $('#refID')?.textContent || '',
+    name: s.name || '',
+    company: s.company || '',
+    seats: s.seats || 1,
+    regions: (s.regions || []).join(','),
+    usecase: s.usecase || '',
+    quote_expires_at: s.quote_expires_at || ''
+  }
+};
 
       const r = await fetch('/api/checkout', {
         method: 'POST',
