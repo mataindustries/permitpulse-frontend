@@ -291,21 +291,14 @@
   <script>
  // ====== CONFIG ======
 window.PRICING = {
-  baseMonthly: 39,
-  includedSeats: 1,
-  includedRegions: 1,
-  perExtraSeat: 15,
-  perExtraRegion: 10,
-  bundleDiscountPct: 10,
-  addons: {
-    radar: { label: {en:'Live Permit Radar', es:'Radar de Permisos en Vivo'}, monthly: 0, onetime: 0, featured:true, desc:{en:'Search & alerts', es:'Búsqueda y alertas'} },
-    topPermits: { label: {en:'Top Permits Digest', es:'Resumen de Permisos Destacados'}, monthly: 9, onetime: 0, desc:{en:'Weekly email', es:'Correo semanal'} },
-    smsPack: { label: {en:'SMS Pack (1,000/mo)', es:'Paquete SMS (1,000/mes)'}, monthly: 15, onetime: 0, desc:{en:'Outreach texting', es:'Mensajería de alcance'} },
-    outcomeGuarantee: { label: {en:'Outcome Guarantee', es:'Garantía de Resultados'}, monthly: 99, onetime: 0, desc:{en:'1–2 booked estimates or refund', es:'1–2 estimados o reembolso'} },
-    concierge: { label: {en:'Concierge Outreach', es:'Alcance Concierge'}, monthly: 199, onetime: 0, desc:{en:'We qualify & book', es:'Calificamos y agendamos'} },
-    prioritySetup: { label: {en:'Priority Setup', es:'Configuración Prioritaria'}, monthly: 0, onetime: 149, desc:{en:'48‑hour onboarding', es:'Inicio en 48 horas'} },
-    customIntegration: { label: {en:'Custom Integration', es:'Integración Personalizada'}, monthly: 0, onetime: 299, desc:{en:'CRM/API hookup', es:'Conexión con CRM/API'} },
-  }
+  core:        149,   // Core Pro
+  extraSeat:    15,   // Extra Seat
+  extraRegion:  25,   // Extra Region
+  sms:          15,   // SMS Pack (1k/mo)
+  guarantee:    99,   // Outcome Guarantee (mo)
+  // one-time display amounts (your math may list these in a separate "one-time" bucket)
+  priority:    149,   // Priority Setup (one-time)
+  custom:      299    // Custom Integration (one-time)
 };
 
 const FEATURES_ORDER = ['radar','topPermits','smsPack','outcomeGuarantee','concierge','prioritySetup','customIntegration'];
