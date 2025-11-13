@@ -400,6 +400,31 @@ window.apiFetch = (path, opts = {}) => {
     ...opts
   });
 };
+
+// 1) point Worker calls to the subdomain
+  window.API_BASE = 'https://api.getpermitpulse.com';  // or your workers.dev
+
+  // 2) "Send to PermitPulse" (pilot intake) -> WORKER
+  async function sendToPermitPulse(payload){
+    const r = await fetch(`${window.API_BASE}/pilot-intake`, {
+      method:'POST',
+      headers:{'content-type':'application/json'},
+      body: JSON.stringify(payload)
+    });
+    const j = await r.json();
+    if(!j.ok) throw new Error(j.error || 'pilot_intake_failed');
+  }
+
+  // 3) "Accept & pay deposit" -> PAGES FUNCTION (stay relative on apex)
+  async function startCheckout(payload){
+    const r = await fetch('/api/checkout', {
+      method:'POST',
+      headers:{'content-type':'application/json'},
+      body: JSON.stringify(payload)
+    });
+    const { url, error } = await r.json();
+    if (url) location.href = url; else alert(error || 'Checkout failed.');
+    }
     
 // ====== STATE ======
 window.lang = 'en';
