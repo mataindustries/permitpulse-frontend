@@ -393,6 +393,21 @@ window.I18N = {
   }
 };
 
+// ---------- API base ----------
+window.API_BASE =
+  (location.hostname === 'localhost' || location.hostname.endsWith('.pages.dev'))
+    ? 'http://localhost:8787'       // local Worker if you run it
+    : 'https://api.getpermitpulse.com';
+
+window.apiFetch = (path, opts = {}) => {
+  const p = path.startsWith('/') ? path : `/${path}`;
+  return fetch(`${window.API_BASE}${p}`, {
+    mode: 'cors',
+    credentials: 'omit',
+    ...opts
+  });
+};
+    
 // ====== STATE ======
 window.lang = 'en';
 window.state = {
