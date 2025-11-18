@@ -49,17 +49,13 @@
   <url><loc>https://getpermitpulse.com/es/los-angeles-west-sfv-permits.html</loc></url>
   <url><loc>https://getpermitpulse.com/es/los-angeles-harbor-city-lomita-permits.html</loc></url>
 
-  <!-- Existing non-LA (keep if live) -->
-  <url><loc>https://getpermitpulse.com/chicago-building-permits.html</loc></url>
-  <url><loc>https://getpermitpulse.com/austin-building-permits.html</loc></url>
-  <url>
-  <loc>https://getpermitpulse.com/</loc>
-  <image:image>
-    <image:loc>https://getpermitpulse.com/img/og/permitpulse-og-live-ladbs-permits-los-angeles-1200x630-2025-10.png</image:loc>
-    <image:title>Live LADBS Permits — PermitPulse</image:title>
-    <image:caption>LA skyline with heartbeat over blueprint grid</image:caption>
-  </image:image>
-</url>
+<url><loc>https://getpermitpulse.com/la-building-permit-help/</loc></url>
+<url><loc>https://getpermitpulse.com/ladbs-roofing-permits/</loc></url>
+<url><loc>https://getpermitpulse.com/los-angeles-adu-permit-help/</loc></url>
+<url><loc>https://getpermitpulse.com/la-city-vs-county-permits/</loc></url>
+<url><loc>https://getpermitpulse.com/retroactive-permits-unpermitted-work-los-angeles/</loc></url>
+<url><loc>https://getpermitpulse.com/es/ayuda-permisos-los-angeles/</loc></url>
+  
 
 <url>
   <loc>https://getpermitpulse.com/es/</loc>
