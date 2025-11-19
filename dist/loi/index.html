@@ -288,8 +288,9 @@
 </div>
 
   </main>  
-  <script>
- // ====== CONFIG ======
+
+<script>
+// ========= CONFIG =========
 window.PRICING = {
   baseMonthly: 149,
   includedSeats: 1,
@@ -298,22 +299,68 @@ window.PRICING = {
   perExtraRegion: 25,
   bundleDiscountPct: 10,
   addons: {
-    radar: { label: {en:'Live Permit Radar', es:'Radar de Permisos en Vivo'}, monthly: 0, onetime: 0, featured:true, desc:{en:'Search & alerts', es:'Búsqueda y alertas'} },
-    topPermits: { label: {en:'Top Permits Digest', es:'Resumen de Permisos Destacados'}, monthly: 9, onetime: 0, desc:{en:'Weekly email', es:'Correo semanal'} },
-    smsPack: { label: {en:'SMS Pack (1,000/mo)', es:'Paquete SMS (1,000/mes)'}, monthly: 15, onetime: 0, desc:{en:'Outreach texting', es:'Mensajería de alcance'} },
-    outcomeGuarantee: { label: {en:'Outcome Guarantee', es:'Garantía de Resultados'}, monthly: 99, onetime: 0, desc:{en:'1–2 booked estimates or refund', es:'1–2 estimados o reembolso'} },
-    concierge: { label: {en:'Concierge Outreach', es:'Alcance Concierge'}, monthly: 199, onetime: 0, desc:{en:'We qualify & book', es:'Calificamos y agendamos'} },
-    prioritySetup: { label: {en:'Priority Setup', es:'Configuración Prioritaria'}, monthly: 0, onetime: 149, desc:{en:'48‑hour onboarding', es:'Inicio en 48 horas'} },
-    customIntegration: { label: {en:'Custom Integration', es:'Integración Personalizada'}, monthly: 0, onetime: 299, desc:{en:'CRM/API hookup', es:'Conexión con CRM/API'} },
+    radar: {
+      label: { en: 'Live Permit Radar', es: 'Radar de Permisos en Vivo' },
+      monthly: 0,
+      onetime: 0,
+      featured: true,
+      desc: { en: 'Search & alerts', es: 'Búsqueda y alertas' }
+    },
+    topPermits: {
+      label: { en: 'Top Permits Digest', es: 'Resumen de Permisos Destacados' },
+      monthly: 9,
+      onetime: 0,
+      desc: { en: 'Weekly email', es: 'Correo semanal' }
+    },
+    smsPack: {
+      label: { en: 'SMS Pack (1,000/mo)', es: 'Paquete SMS (1,000/mes)' },
+      monthly: 15,
+      onetime: 0,
+      desc: { en: 'Outreach texting', es: 'Mensajería de alcance' }
+    },
+    outcomeGuarantee: {
+      label: { en: 'Outcome Guarantee', es: 'Garantía de Resultados' },
+      monthly: 99,
+      onetime: 0,
+      desc: { en: '1–2 booked estimates or refund', es: '1–2 estimados o reembolso' }
+    },
+    concierge: {
+      label: { en: 'Concierge Outreach', es: 'Alcance Concierge' },
+      monthly: 199,
+      onetime: 0,
+      desc: { en: 'We qualify & book', es: 'Calificamos y agendamos' }
+    },
+    prioritySetup: {
+      label: { en: 'Priority Setup', es: 'Configuración Prioritaria' },
+      monthly: 0,
+      onetime: 149,
+      desc: { en: '48-hour onboarding', es: 'Inicio en 48 horas' }
+    },
+    customIntegration: {
+      label: { en: 'Custom Integration', es: 'Integración Personalizada' },
+      monthly: 0,
+      onetime: 299,
+      desc: { en: 'CRM/API hookup', es: 'Conexión con CRM/API' }
+    }
   }
+}; // <-- this was missing
 
-const FEATURES_ORDER = ['radar','topPermits','smsPack','outcomeGuarantee','concierge','prioritySetup','customIntegration'];
+// order for UI + breakdown
+const FEATURES_ORDER = [
+  'radar',
+  'topPermits',
+  'smsPack',
+  'outcomeGuarantee',
+  'concierge',
+  'prioritySetup',
+  'customIntegration'
+];
 
 window.I18N = {
   en: {
-    sms_text: 'Text Quote' ,
+    sms_text: 'Text Quote',
     form_title: 'Tell us what you need',
-    form_sub: 'Pick your tools and add‑ons. The estimate updates live.',
+    form_sub: 'Pick your tools and add-ons. The estimate updates live.',
     label_name: 'Your name',
     label_company: 'Company',
     label_phone: 'Phone',
@@ -323,35 +370,35 @@ window.I18N = {
     hint_seats: 'Includes 1 seat. Extras billed per seat.',
     label_regions: 'Regions',
     hint_regions: 'Base includes 1 region. Extras billed per region.',
-    addons_title: 'Add‑ons',
+    addons_title: 'Add-ons',
     label_start: 'Target start date',
     label_lang: 'Preferred language',
     label_notes: 'Notes',
     btn_print: 'Print / Save LoI (PDF)',
     btn_submit: 'Send to PermitPulse',
-    legal_note: 'This is a non‑binding letter of intent and estimate. Final pricing may vary after scoping.',
+    legal_note: 'This is a non-binding letter of intent and estimate. Final pricing may vary after scoping.',
     est_title: 'Your estimate',
     est_bundle: 'Bundle applied',
     est_monthly: 'Monthly',
-    est_onetime: 'One‑time',
+    est_onetime: 'One-time',
     est_breakdown: 'Breakdown',
     share_success: 'Shareable link copied to clipboard',
     submit_success: 'Thanks! We received your LoI.',
     ref_label: 'Estimate Ref',
     ref_date: 'Date',
     ref_valid: 'Valid through',
-    terms_title: 'Key Terms (non‑binding)',
+    terms_title: 'Key Terms (non-binding)',
     terms: [
       'Scope will be finalized after data source validation and kickoff.',
-      'Monthly fees are billed at start of service; one‑time items at activation.',
-      'Either party may terminate at any time; charges pro‑rated to the current month.',
+      'Monthly fees are billed at start of service; one-time items at activation.',
+      'Either party may terminate at any time; charges pro-rated to the current month.',
       'Confidentiality: both parties agree to keep shared data and strategies private.',
       'This LoI expresses intent only and is not a binding agreement for services.'
     ],
-    sig_client: 'Client Signature • Name & Title • Date',
+    sig_client: 'Client Signature • Name & Title • Date'
   },
   es: {
-    sms_text: 'Enviar por SMS' ,
+    sms_text: 'Enviar por SMS',
     form_title: 'Cuéntanos qué necesitas',
     form_sub: 'Elige tus herramientas y complementos. El estimado se actualiza al instante.',
     label_name: 'Tu nombre',
@@ -388,535 +435,543 @@ window.I18N = {
       'Confidencialidad: ambas partes mantendrán en privado los datos y estrategias compartidas.',
       'Este LoI expresa intención y no constituye un acuerdo vinculante de servicios.'
     ],
-    sig_client: 'Firma del cliente • Nombre y cargo • Fecha',
+    sig_client: 'Firma del cliente • Nombre y cargo • Fecha'
   }
 };
 
-// ---------- API base ----------
-window.API_BASE =
-  (location.hostname === 'localhost' || location.hostname.endsWith('.pages.dev'))
-    ? 'http://localhost:8787'       // local Worker if you run it
-    : 'https://api.getpermitpulse.com';
-
-window.apiFetch = (path, opts = {}) => {
-  const p = path.startsWith('/') ? path : `/${path}`;
-  return fetch(`${window.API_BASE}${p}`, {
-    mode: 'cors',
-    credentials: 'omit',
-    ...opts
-  });
-};
-
-// 1) point Worker calls to the subdomain
-  window.API_BASE = 'https://api.getpermitpulse.com';  // or your workers.dev
-
-  // 2) "Send to PermitPulse" (pilot intake) -> WORKER
-  async function sendToPermitPulse(payload){
-    const r = await fetch(`${window.API_BASE}/pilot-intake`, {
-      method:'POST',
-      headers:{'content-type':'application/json'},
-      body: JSON.stringify(payload)
-    });
-    const j = await r.json();
-    if(!j.ok) throw new Error(j.error || 'pilot_intake_failed');
-  }
-
-  // 3) "Accept & pay deposit" -> PAGES FUNCTION (stay relative on apex)
-  async function startCheckout(payload){
-    const r = await fetch('/api/checkout', {
-      method:'POST',
-      headers:{'content-type':'application/json'},
-      body: JSON.stringify(payload)
-    });
-    const { url, error } = await r.json();
-    if (url) location.href = url; else alert(error || 'Checkout failed.');
-    }
-    
-// ====== STATE ======
+// ========= GLOBAL STATE + HELPERS =========
 window.lang = 'en';
 window.state = {
-  name:'', company:'', email:'', phone:'', county:'', usecase:'Roofing', 
-  seats:1, regions:['LA City'], addons:{}, start:'', quote_expires_at: null, pref_lang:'en', notes:''
+  name: '',
+  company: '',
+  email: '',
+  phone: '',
+  county: '',
+  usecase: 'Roofing',
+  seats: 1,
+  regions: ['LA City'],
+  addons: {},
+  start: '',
+  pref_lang: 'en',
+  notes: '',
+  quote_expires_at: null
 };
 
-// ====== HELPERS ======
 const $ = sel => document.querySelector(sel);
 const $$ = sel => Array.from(document.querySelectorAll(sel));
-window.currency = n => `$${n.toLocaleString(undefined,{maximumFractionDigits:0})}`;
 
-function escapeHtml(str){
-  return str.replace(/[&<>"]/g, s => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[s]));
+function currency(n) {
+  return `$${(n || 0).toLocaleString(undefined, { maximumFractionDigits: 0 })}`;
+}
+window.currency = currency;
+
+function escapeHtml(str = '') {
+  return str.replace(/[&<>"]/g, s => ({
+    '&': '&amp;',
+    '<': '&lt;',
+    '>': '&gt;',
+    '"': '&quot;'
+  }[s]));
 }
 
-window.pushGA = function(event, params){
+function pushGA(event, params = {}) {
   try {
     if (window.gtag) gtag('event', event, params);
-    else if (window.dataLayer) window.dataLayer.push({event, ...params});
+    else if (window.dataLayer) window.dataLayer.push({ event, ...params });
   } catch {}
-};
-
-    // Build aliases (server maps these to real Stripe price IDs)
-function buildAliasesFromState(s){
-  const out = [{ key: 'core', qty: 1 }];
-
-  const extraSeats   = Math.max(0, (s.seats || 1) - 1);
-  if (extraSeats)    out.push({ key: 'extraSeat',   qty: extraSeats });
-
-  const extraRegions = Math.max(0, (s.regions?.length || 1) - 1);
-  if (extraRegions)  out.push({ key: 'extraRegion', qty: extraRegions });
-
-  const on = s.addons || {};
-  if (on.sms)        out.push({ key: 'sms',        qty: 1 });
-  if (on.guarantee)  out.push({ key: 'guarantee',  qty: 1 });
-  if (on.priority)   out.push({ key: 'priority',   qty: 1 }); // one-time ok
-  if (on.custom)     out.push({ key: 'custom',     qty: 1 }); // one-time ok
-
-  return out;
 }
-   
-
-  // Accept button → create session → redirect
-  $('#acceptBtn').addEventListener('click', async () => {
-    try {
-      readForm();
-      const s = window.state || {};
-      const aliases = buildAliasesFromState(s);
-
-const payload = {
-  aliases,                 // <— send aliases, not price IDs
-  email: s.email || '',
-  trialDays: 14,
-  mode: 'subscription',
-  metadata: {
-    quote_ref: $('#refID')?.textContent || '',
-    name: s.name || '',
-    company: s.company || '',
-    seats: s.seats || 1,
-    regions: (s.regions || []).join(','),
-    usecase: s.usecase || '',
-    quote_expires_at: s.quote_expires_at || ''
-  }
-};
-
-      const r = await fetch('/api/checkout', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      });
-      const { url, error } = await r.json();
-      if (url) location.href = url; else alert(error || 'Checkout failed.');
-    } catch (e) {
-      alert('Checkout error: ' + e.message);
-    }
-  });
-
-// ====== CORE FUNCTIONS ======
-    window.renderAddons = function(){
+window.pushGA = pushGA;
+             
+// ========= CORE CALC / RENDER =========
+function renderAddons() {
   const wrap = $('#addons');
   if (!wrap) return;
   wrap.innerHTML = '';
+
   FEATURES_ORDER.forEach(key => {
     const cfg = window.PRICING.addons[key];
     const id = `addon_${key}`;
     const el = document.createElement('label');
-    el.className = 'flex gap-3 items-start border border-slate-200 rounded-xl p-3 hover:border-slate-300 cursor-pointer';
+    el.className =
+      'flex gap-3 items-start border border-slate-200 rounded-xl p-3 hover:border-slate-300 cursor-pointer';
     el.innerHTML = `
       <input type="checkbox" class="mt-1" id="${id}" data-key="${key}" />
       <div class="min-w-0">
         <div class="font-medium truncate">${cfg.label[window.lang]}</div>
-        <div class="text-xs text-slate-600">${cfg.desc[window.lang]||''}</div>
-        <div class="text-xs mt-1">${cfg.monthly?`<span class='font-medium'>${window.currency(cfg.monthly)}/mo</span>`:''} ${cfg.onetime?`<span class='text-slate-500'>+ ${window.currency(cfg.onetime)} one‑time</span>`:''}</div>
+        <div class="text-xs text-slate-600">${cfg.desc[window.lang] || ''}</div>
+        <div class="text-xs mt-1">
+          ${cfg.monthly ? `<span class="font-medium">${currency(cfg.monthly)}/mo</span>` : ''}
+          ${cfg.onetime ? `<span class="text-slate-500">+ ${currency(cfg.onetime)} one-time</span>` : ''}
+        </div>
       </div>`;
     wrap.appendChild(el);
+
     const cb = el.querySelector('input');
     cb.checked = !!window.state.addons[key];
-    cb.addEventListener('change', () => { 
-      window.state.addons[key] = cb.checked; 
-      window.update(); 
+    cb.addEventListener('change', () => {
+      window.state.addons[key] = cb.checked;
+      update();
     });
   });
-};
+}
+window.renderAddons = renderAddons;
 
-window.applyI18n = function(){
+function applyI18n() {
   $$('[data-i18n]').forEach(node => {
     const k = node.getAttribute('data-i18n');
-    if (window.I18N[window.lang][k]) {
-      node.textContent = window.I18N[window.lang][k];
-    }
+    const val = window.I18N[window.lang][k];
+    if (val) node.textContent = val;
   });
+
   const termsList = $('#termsList');
   if (termsList) {
     termsList.innerHTML = '';
-    window.I18N[window.lang].terms.forEach(t=>{
-      const li=document.createElement('li'); 
-      li.textContent = t; 
+    window.I18N[window.lang].terms.forEach(t => {
+      const li = document.createElement('li');
+      li.textContent = t;
       termsList.appendChild(li);
     });
   }
-  window.renderAddons();
-  window.update();
-};
 
-window.readForm = function(){
+  renderAddons();
+}
+window.applyI18n = applyI18n;
+
+function readForm() {
   const f = $('#loiForm');
   if (!f) return;
-  window.state.name = f.name.value.trim();
-  window.state.company = f.company.value.trim();
-  window.state.email = f.email.value.trim();
-  window.state.phone = f.phone.value.trim();
-  window.state.county = f.county.value.trim();
-  window.state.usecase = f.usecase.value;
-  window.state.seats = Math.max(1, parseInt(f.seats.value||'1',10));
-  window.state.regions = Array.from(f.regions.selectedOptions).map(o=>o.value);
-  window.state.start = f.start.value;
-  window.state.pref_lang = f.pref_lang.value;
-  window.state.notes = f.notes.value.trim();
-};
 
-    
-// === MASTER UPDATE ===
-window.update = function(){
-  // 3b) ensure quote expiry exists (14 days)
-  window.state = window.state || {};
-  if (!window.state.quote_expires_at) {
-    window.state.quote_expires_at = Date.now() + 14*24*60*60*1000;
-  }
+  const s = window.state;
+  s.name = f.name.value.trim();
+  s.company = f.company.value.trim();
+  s.email = f.email.value.trim();
+  s.phone = f.phone.value.trim();
+  s.county = f.county.value.trim();
+  s.usecase = f.usecase.value;
+  s.seats = Math.max(1, parseInt(f.seats.value || '1', 10));
+  s.regions = Array.from(f.regions.selectedOptions).map(o => o.value);
+  s.start = f.start.value;
+  s.pref_lang = f.pref_lang.value;
+  s.notes = f.notes.value.trim();
 
-  // pull latest form values
-  try { window.readForm(); } catch(e){}
+  if (!s.regions.length) s.regions = ['LA City'];
+}
+window.readForm = readForm;
 
-  // compute totals
-  let monthly=0, onetime=0, monthlyLines=[], onetimeLines=[], bundleApplied=false;
-  try {
-    const r = window.calculate(); // you already have calculate()
-    monthly       = r.monthly;
-    onetime       = r.onetime;
-    monthlyLines  = r.monthlyLines;
-    onetimeLines  = r.onetimeLines;
-    bundleApplied = r.bundleApplied;
-  } catch(e){ console.warn('calc failed', e); }
-
-  // write totals
-  const $ = s => document.querySelector(s);
-  if ($('#monthlyTotal'))  $('#monthlyTotal').textContent  = window.currency ? window.currency(monthly) : `$${monthly}`;
-  if ($('#onetimeTotal'))  $('#onetimeTotal').textContent  = window.currency ? window.currency(onetime) : `$${onetime}`;
-  if ($('#bundleTag'))     $('#bundleTag').hidden          = !bundleApplied;
-
-  // rebuild breakdown
-  const bd = $('#breakdown');
-  if (bd) {
-    bd.innerHTML = '';
-    [...monthlyLines, ...onetimeLines].forEach(l=>{
-      const li = document.createElement('li');
-      li.className = 'flex justify-between';
-      li.innerHTML = `<span>${l.label}</span><span class="font-medium">${window.currency?window.currency(l.amount):'$'+l.amount}</span>`;
-      bd.appendChild(li);
-    });
-  }
-
-  // 3c) render “Valid through” near the ref/date
-  const expNode = document.getElementById('refExpiry');
-  if (expNode && window.state.quote_expires_at) {
-    const exp = new Date(window.state.quote_expires_at);
-    expNode.textContent = exp.toLocaleDateString(undefined, {year:'numeric', month:'short', day:'numeric'});
-    const daysLeft = Math.ceil((window.state.quote_expires_at - Date.now())/(1000*60*60*24));
-    expNode.classList.toggle('text-amber-600', daysLeft <= 3);
-  }
-
-  // refresh the letter preview (you already have buildPreview)
-  try { window.buildPreview(monthly, onetime, monthlyLines, onetimeLines); } catch(e){}
-
-  // analytics (no-op if gtag missing)
-  try { window.pushGA && window.pushGA('quote_estimate_updated', { monthly, onetime }); } catch(e){}
-};
-
-    
-window.calculate = function(){
+function calculate() {
+  const s = window.state;
   const monthlyLines = [];
   const onetimeLines = [];
+
   let monthly = window.PRICING.baseMonthly;
-  monthlyLines.push({label:`Core`, amount:window.PRICING.baseMonthly});
+  let onetime = 0;
 
-  // Extra seats
-  const extraSeats = Math.max(0, window.state.seats - window.PRICING.includedSeats);
-  if (extraSeats>0){
+  monthlyLines.push({ label: 'Core', amount: window.PRICING.baseMonthly });
+
+  // extra seats
+  const extraSeats = Math.max(0, s.seats - window.PRICING.includedSeats);
+  if (extraSeats > 0) {
     const amt = extraSeats * window.PRICING.perExtraSeat;
-    monthly += amt; 
-    monthlyLines.push({label:`Extra seats ×${extraSeats}`, amount:amt});
+    monthly += amt;
+    monthlyLines.push({ label: `Extra seats ×${extraSeats}`, amount: amt });
   }
 
-  // Extra regions
-  const extraRegions = Math.max(0, window.state.regions.length - window.PRICING.includedRegions);
-  if (extraRegions>0){
+  // extra regions
+  const extraRegions = Math.max(0, s.regions.length - window.PRICING.includedRegions);
+  if (extraRegions > 0) {
     const amt = extraRegions * window.PRICING.perExtraRegion;
-    monthly += amt; 
-    monthlyLines.push({label:`Extra regions ×${extraRegions}`, amount:amt});
+    monthly += amt;
+    monthlyLines.push({ label: `Extra regions ×${extraRegions}`, amount: amt });
   }
 
-  // Add-ons
+  // add-ons
   let monthlyAddonCount = 0;
   FEATURES_ORDER.forEach(k => {
-    if (!window.state.addons[k]) return;
+    if (!s.addons[k]) return;
     const a = window.PRICING.addons[k];
-    if (a.monthly){ 
-      monthly += a.monthly; 
-      monthlyLines.push({label:a.label[window.lang], amount:a.monthly}); 
-      monthlyAddonCount++; 
+    if (a.monthly) {
+      monthly += a.monthly;
+      monthlyLines.push({ label: a.label[window.lang], amount: a.monthly });
+      monthlyAddonCount++;
     }
-    if (a.onetime){ 
-      onetimeLines.push({label:a.label[window.lang], amount:a.onetime}); 
+    if (a.onetime) {
+      onetime += a.onetime;
+      onetimeLines.push({ label: a.label[window.lang], amount: a.onetime });
     }
   });
 
-  // Bundle discount
+  // bundle discount (3+ monthly add-ons)
   let bundleApplied = false;
-  if (monthlyAddonCount >= 3 && window.PRICING.bundleDiscountPct>0){
-    const addOnMonthly = monthlyLines.slice(1).reduce((sum,l)=>sum+l.amount,0);
-    const discount = Math.round(addOnMonthly * (window.PRICING.bundleDiscountPct/100));
-    if (discount>0){ 
-      monthly -= discount; 
-      monthlyLines.push({label:`Bundle (‑${window.PRICING.bundleDiscountPct}%)`, amount:-discount}); 
-      bundleApplied = true; 
+  if (monthlyAddonCount >= 3 && window.PRICING.bundleDiscountPct > 0) {
+    const addonMonthly = monthlyLines.slice(1).reduce((sum, l) => sum + l.amount, 0);
+    const discount = Math.round(addonMonthly * (window.PRICING.bundleDiscountPct / 100));
+    if (discount > 0) {
+      monthly -= discount;
+      monthlyLines.push({
+        label: `Bundle (-${window.PRICING.bundleDiscountPct}%)`,
+        amount: -discount
+      });
+      bundleApplied = true;
     }
   }
 
-  const onetime = onetimeLines.reduce((s,l)=>s+l.amount,0);
   return { monthly, onetime, monthlyLines, onetimeLines, bundleApplied };
-};
+}
+window.calculate = calculate;
 
-window.buildPreview = function(monthly, onetime, monthlyLines, onetimeLines){
-  const today = new Date().toLocaleDateString(undefined,{year:'numeric',month:'long',day:'numeric'});
-  const estLines = [...monthlyLines, ...onetimeLines].map(l => `• ${l.label}: ${window.currency(l.amount)}`).join('\n');
-  const selectedAddons = FEATURES_ORDER.filter(k=>window.state.addons[k]).map(k=>window.PRICING.addons[k].label[window.lang]);
+function buildPreview(monthly, onetime, monthlyLines, onetimeLines) {
+  const today = new Date().toLocaleDateString(undefined, {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  });
 
-  const text = window.lang==='en'
-    ? `Date: ${today}
+  const estLines = [...monthlyLines, ...onetimeLines]
+    .map(l => `• ${l.label}: ${currency(l.amount)}`)
+    .join('\n');
 
-Letter of Intent – PermitPulse
+  const selectedAddons = FEATURES_ORDER
+    .filter(k => window.state.addons[k])
+    .map(k => window.PRICING.addons[k].label[window.lang]);
 
-From: ${window.state.name || '[Your name]'} (${window.state.company || 'Company'})
-Email: ${window.state.email || ''}  Phone: ${window.state.phone || ''}
-Area: ${window.state.county || ''}  Use case: ${window.state.usecase}
+  const s = window.state;
+  const text =
+    window.lang === 'en'
+      ? `Date: ${today}
+
+  Letter of Intent – PermitPulse
+
+From: ${s.name || '[Your name]'} (${s.company || 'Company'})
+Email: ${s.email || ''}  Phone: ${s.phone || ''}
+Area: ${s.county || ''}  Use case: ${s.usecase}
 
 We intend to engage PermitPulse for the following configuration:
-Seats: ${window.state.seats}
-Regions: ${window.state.regions.join(', ') || '—'}
-Add‑ons: ${selectedAddons.length? selectedAddons.join(', ') : 'None'}
+Seats: ${s.seats}
+Regions: ${s.regions.join(', ') || '—'}
+Add-ons: ${selectedAddons.length ? selectedAddons.join(', ') : 'None'}
 
-Estimated Pricing (non‑binding):
+Estimated Pricing (non-binding):
 ${estLines}
 
-Estimated monthly: ${window.currency(monthly)}
-Estimated one‑time: ${window.currency(onetime)}
-Target start: ${window.state.start || 'TBD'}
-Preferred language: ${window.state.pref_lang==='es'?'Español (LA)':'English'}
-Notes: ${window.state.notes || '—'}
+Estimated monthly: ${currency(monthly)}
+Estimated one-time: ${currency(onetime)}
+Target start: ${s.start || 'TBD'}
+Preferred language: ${s.pref_lang === 'es' ? 'Español (LA)' : 'English'}
+Notes: ${s.notes || '—'}
 
-This LoI is non‑binding. Final pricing to be confirmed after scoping.
+This LoI is non-binding. Final pricing to be confirmed after scoping.
 
 Signature: __________________________
 `
-    : `Fecha: ${today}
+      : `Fecha: ${today}
 
 Carta de Intención – PermitPulse
 
-De: ${window.state.name || '[Tu nombre]'} (${window.state.company || 'Empresa'})
-Correo: ${window.state.email || ''}  Teléfono: ${window.state.phone || ''}
-Área: ${window.state.county || ''}  Caso de uso: ${window.state.usecase}
+De: ${s.name || '[Tu nombre]'} (${s.company || 'Empresa'})
+Correo: ${s.email || ''}  Teléfono: ${s.phone || ''}
+Área: ${s.county || ''}  Caso de uso: ${s.usecase}
 
 Tenemos la intención de contratar a PermitPulse con la siguiente configuración:
-Usuarios: ${window.state.seats}
-Regiones: ${window.state.regions.join(', ') || '—'}
-Complementos: ${selectedAddons.length? selectedAddons.join(', ') : 'Ninguno'}
+Usuarios: ${s.seats}
+Regiones: ${s.regions.join(', ') || '—'}
+Complementos: ${selectedAddons.length ? selectedAddons.join(', ') : 'Ninguno'}
 
 Estimado (no vinculante):
 ${estLines}
 
-Mensual estimado: ${window.currency(monthly)}
-Pago único estimado: ${window.currency(onetime)}
-Inicio objetivo: ${window.state.start || 'Por definir'}
-Idioma preferido: ${window.state.pref_lang==='es'?'Español (LA)':'Inglés'}
-Notas: ${window.state.notes || '—'}
+Mensual estimado: ${currency(monthly)}
+Pago único estimado: ${currency(onetime)}
+Inicio objetivo: ${s.start || 'Por definir'}
+Idioma preferido: ${s.pref_lang === 'es' ? 'Español (LA)' : 'Inglés'}
+Notas: ${s.notes || '—'}
 
 Este LoI no es vinculante. El precio final se confirmará después del alcance.
 
 Firma: __________________________
 `;
 
-  const html = text.split('\n').map(line => line.trim()=== '' ? '<br />' : `<div>${escapeHtml(line)}</div>`).join('');
+  const html = text
+    .split('\n')
+    .map(line => (line.trim() === '' ? '<br />' : `<div>${escapeHtml(line)}</div>`))
+    .join('');
+
   const preview = $('#loiPreview');
   if (preview) preview.innerHTML = html;
-  
+
   const refDate = $('#refDate');
   if (refDate) refDate.textContent = today;
+
   const refId = $('#refId');
-  if (refId) refId.textContent = `PP‑LOI‑${Date.now().toString(36).toUpperCase()}`;
-};
-
-window.update = function(){
-  window.readForm();
-
-  const nameInput = $('input[name="name"]');
-  if (nameInput && !nameInput.value.trim()){
-    nameInput.value = 'John Smith';
-    window.state.name = 'John Smith';
+  if (refId && !refId.textContent.startsWith('PP-LOI-')) {
+    refId.textContent = `PP-LOI-${Date.now().toString(36).toUpperCase()}`;
   }
 
-  const { monthly, onetime, monthlyLines, onetimeLines, bundleApplied } = window.calculate();
+  // copy totals into contract header
+  $$('.total-monthly').forEach(el => (el.textContent = currency(monthly)));
+  $$('.total-onetime').forEach(el => (el.textContent = currency(onetime)));
+}
+window.buildPreview = buildPreview;
+
+function update() {
+  // ensure expiry set once (14 days)
+  if (!window.state.quote_expires_at) {
+    window.state.quote_expires_at = Date.now() + 14 * 24 * 60 * 60 * 1000;
+  }
+
+  readForm();
+  const { monthly, onetime, monthlyLines, onetimeLines, bundleApplied } = calculate();
 
   const mt = $('#monthlyTotal');
-  if (mt) mt.textContent = window.currency(monthly);
+  if (mt) mt.textContent = currency(monthly);
   const ot = $('#onetimeTotal');
-  if (ot) ot.textContent = window.currency(onetime);
+  if (ot) ot.textContent = currency(onetime);
 
-  $$('.total-monthly').forEach(el => el.textContent = window.currency(monthly));
-  $$('.total-onetime').forEach(el => el.textContent = window.currency(onetime));
-
-  const bd = $('#breakdown');
-  if (bd){
-    bd.innerHTML = '';
+  const breakdown = $('#breakdown');
+  if (breakdown) {
+    breakdown.innerHTML = '';
     [...monthlyLines, ...onetimeLines].forEach(l => {
       const li = document.createElement('li');
       li.className = 'flex justify-between';
-      li.innerHTML = `<span>${l.label}</span><span class="font-medium">${window.currency(l.amount)}</span>`;
-      bd.appendChild(li);
+      li.innerHTML = `<span>${l.label}</span><span class="font-medium">${currency(
+        l.amount
+      )}</span>`;
+      breakdown.appendChild(li);
     });
   }
 
   const tag = $('#bundleTag');
   if (tag) tag.hidden = !bundleApplied;
 
-  window.buildPreview(monthly, onetime, monthlyLines, onetimeLines);
-  window.pushGA('quote_estimate_updated', { monthly, onetime });
-};
+  // expiry text
+  const expNode = $('#refExpiry');
+  if (expNode && window.state.quote_expires_at) {
+    const exp = new Date(window.state.quote_expires_at);
+    expNode.textContent = exp.toLocaleDateString(undefined, {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
+    });
+    const daysLeft = Math.ceil(
+      (window.state.quote_expires_at - Date.now()) / (1000 * 60 * 60 * 24)
+    );
+    expNode.classList.toggle('text-amber-600', daysLeft <= 3);
+  }
 
-window.encodeStateToUrl = function(){
-  const payload = {...window.state};
-  const s = encodeURIComponent(btoa(unescape(encodeURIComponent(JSON.stringify(payload)))));
+  buildPreview(monthly, onetime, monthlyLines, onetimeLines);
+  pushGA('quote_estimate_updated', { monthly, onetime });
+}
+window.update = update;
+
+// ========= SHARE / URL ENCODING =========
+function encodeStateToUrl() {
+  const payload = { ...window.state, lang: window.lang };
+  const json = JSON.stringify(payload);
+  const s = encodeURIComponent(btoa(unescape(encodeURIComponent(json))));
   const url = new URL(location.href);
   url.searchParams.set('q', s);
   return url.toString();
-};
+}
+window.encodeStateToUrl = encodeStateToUrl;
 
-window.decodeStateFromUrl = function(){
+function decodeStateFromUrl() {
   const s = new URL(location.href).searchParams.get('q');
   if (!s) return;
-  try{
-    const json = JSON.parse(decodeURIComponent(escape(atob(decodeURIComponent(s)))));
+  try {
+    const json = JSON.parse(
+      decodeURIComponent(escape(atob(decodeURIComponent(s))))
+    );
     Object.assign(window.state, json);
+    if (json.lang) window.lang = json.lang;
+
     const f = $('#loiForm');
     if (!f) return;
-    f.name.value = window.state.name||'';
-    f.company.value = window.state.company||'';
-    f.email.value = window.state.email||'';
-    f.phone.value = window.state.phone||'';
-    f.county.value = window.state.county||'';
-    f.usecase.value = window.state.usecase||'Roofing';
-    f.seats.value = window.state.seats||1;
-    window.state.regions = window.state.regions||['LA City'];
-    Array.from(f.regions.options).forEach(o => { o.selected = window.state.regions.includes(o.value); });
-    f.start.value = window.state.start||'';
-    f.pref_lang.value = window.state.pref_lang||'en';
-    f.notes.value = window.state.notes||'';
-  }catch(e){ console.warn('Decode failed', e); }
-};
-    // SMS share (mobile opens Messages; desktop falls back to copying)
-(() => {
-  const btn = document.getElementById('smsBtn');
-  if (!btn) return;
+    f.name.value = window.state.name || '';
+    f.company.value = window.state.company || '';
+    f.email.value = window.state.email || '';
+    f.phone.value = window.state.phone || '';
+    f.county.value = window.state.county || '';
+    f.usecase.value = window.state.usecase || 'Roofing';
+    f.seats.value = window.state.seats || 1;
 
-  btn.addEventListener('click', async () => {
-    try { readForm?.(); } catch {}
-    const url = (typeof encodeStateToUrl === 'function') ? encodeStateToUrl() : location.href;
-    const text = `PermitPulse estimate: ${url}`;
-
-    // Try deep-link to SMS on mobile
-    const smsHref = `sms:?&body=${encodeURIComponent(text)}`;
-    // If it's a phone, this will open the Messages app; if not, we fall back
-    const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-
-    if (isMobile) {
-      location.href = smsHref;
-    } else {
-      try { await navigator.clipboard.writeText(text); alert('Quote copied. Paste into your SMS.'); }
-      catch { prompt('Copy this quote text:', text); }
-    }
-
-    try { window.gtag && gtag('event','loi_sms_shared',{}); } catch {}
-  });
-})();
-
-// ====== INITIALIZATION ======
-   document.addEventListener('DOMContentLoaded', function(){
-  const langEn = $('#lang-en');
-  const langEs = $('#lang-es');
-  if (langEn) {
-    langEn.addEventListener('click', function(){
-      window.lang = 'en';
-      window.applyI18n();
-      try { window.renderAddons(); } catch(e){}
-try { window.update(); } catch(e){}
+    window.state.regions = window.state.regions || ['LA City'];
+    Array.from(f.regions.options).forEach(o => {
+      o.selected = window.state.regions.includes(o.value);
     });
+
+    f.start.value = window.state.start || '';
+    f.pref_lang.value = window.state.pref_lang || 'en';
+    f.notes.value = window.state.notes || '';
+  } catch (e) {
+    console.warn('Decode failed', e);
   }
-  if (langEs) {
-    langEs.addEventListener('click', function(){
-      window.lang = 'es';
-      window.applyI18n();
+}
+window.decodeStateFromUrl = decodeStateFromUrl;
+
+// ========= STRIPE ALIAS BUILDER =========
+function buildAliasesFromState(s) {
+  const out = [{ key: 'core', qty: 1 }];
+
+  const extraSeats = Math.max(0, (s.seats || 1) - 1);
+  if (extraSeats) out.push({ key: 'extraSeat', qty: extraSeats });
+
+  const extraRegions = Math.max(0, (s.regions?.length || 1) - 1);
+  if (extraRegions) out.push({ key: 'extraRegion', qty: extraRegions });
+
+  const on = s.addons || {};
+  if (on.smsPack) out.push({ key: 'smsPack', qty: 1 });
+  if (on.outcomeGuarantee) out.push({ key: 'outcomeGuarantee', qty: 1 });
+  if (on.prioritySetup) out.push({ key: 'prioritySetup', qty: 1 });
+  if (on.customIntegration) out.push({ key: 'customIntegration', qty: 1 });
+
+  return out;
+}
+window.buildAliasesFromState = buildAliasesFromState;
+
+// ========= EVENT HANDLERS =========
+async function handleSubmit(e) {
+  e.preventDefault();
+  readForm();
+  const totals = calculate();
+
+  try {
+    const r = await fetch('/api/loi', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ state: window.state, totals })
     });
+    const data = await r.json().catch(() => null);
+    alert(window.I18N[window.lang].submit_success);
+    pushGA('loi_submitted', { email: window.state.email, id: data?.id });
+  } catch (err) {
+    console.error(err);
+    alert('Error sending LoI. Please try again.');
+  }
+}
+
+async function handleCheckout(e) {
+  e.preventDefault();
+  readForm();
+  const totals = calculate();
+  const aliases = buildAliasesFromState(window.state);
+
+  if (!window.state.email) {
+    alert('Add an email before accepting & paying.');
+    return;
   }
 
-  const shareBtn = $('#shareBtn');
-  if (shareBtn) {
-    shareBtn.addEventListener('click', async function(){
-      try {
-        window.readForm();
-        const url = window.encodeStateToUrl();
-        await navigator.clipboard.writeText(url);
-        alert(window.I18N[window.lang].share_success);
-        window.pushGA('quote_shared', {});
-      } catch(e) {
-        console.error('Share failed', e);
+  try {
+    const payload = {
+      email: window.state.email,
+      aliases,
+      metadata: {
+        quote_ref: $('#refId')?.textContent || '',
+        name: window.state.name || '',
+        company: window.state.company || '',
+        seats: window.state.seats || 1,
+        regions: (window.state.regions || []).join(','),
+        usecase: window.state.usecase || '',
+        monthly_estimate: totals.monthly,
+        onetime_estimate: totals.onetime,
+        quote_expires_at: window.state.quote_expires_at || ''
       }
+    };
+
+    const res = await fetch('/api/checkout', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    const { url, error } = await res.json();
+
+    if (url) {
+      pushGA('loi_checkout_started', {
+        monthly: totals.monthly,
+        onetime: totals.onetime
+      });
+      location.href = url;
+    } else {
+      throw new Error(error || 'Checkout failed.');
+    }
+  } catch (err) {
+    console.error(err);
+    alert('Checkout failed. Please try again.');
+  }
+}
+
+// ========= INIT =========
+  document.addEventListener('DOMContentLoaded', () => {
+  // language buttons
+  $('#lang-en')?.addEventListener('click', () => {
+    window.lang = 'en';
+    applyI18n();
+    update();
+  });
+  $('#lang-es')?.addEventListener('click', () => {
+    window.lang = 'es';
+    applyI18n();
+    update();
+  });
+
+  // share link
+  $('#shareBtn')?.addEventListener('click', async () => {
+    try {
+      readForm();
+      const url = encodeStateToUrl();
+      await navigator.clipboard.writeText(url);
+      alert(window.I18N[window.lang].share_success);
+      pushGA('quote_shared', {});
+    } catch (e) {
+      console.error('Share failed', e);
+    }
+  });
+
+  // SMS share
+  const smsBtn = $('#smsBtn');
+  if (smsBtn) {
+    smsBtn.textContent = window.I18N[window.lang].sms_text;
+    smsBtn.addEventListener('click', async () => {
+      readForm();
+      const url = encodeStateToUrl();
+      const text = `PermitPulse estimate: ${url}`;
+      const smsHref = `sms:?&body=${encodeURIComponent(text)}`;
+      const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+
+      if (isMobile) {
+        location.href = smsHref;
+      } else {
+        try {
+          await navigator.clipboard.writeText(text);
+          alert('Quote copied. Paste into your SMS.');
+        } catch {
+          prompt('Copy this quote text:', text);
+        }
+      }
+
+      pushGA('loi_sms_shared', {});
     });
   }
 
-  const printBtn = $('#printBtn');
-  if (printBtn) {
-    printBtn.addEventListener('click', function(){
-      window.print();
-      window.pushGA('loi_printed', {});
-    });
-  }
+  // print
+  $('#printBtn')?.addEventListener('click', () => {
+    window.print();
+    pushGA('loi_printed', {});
+  });
 
+  // form listeners
   const form = $('#loiForm');
   if (form) {
-    form.addEventListener('submit', async function(e){
-      e.preventDefault();
-      window.readForm();
-      const totals = window.calculate();
-      alert(window.I18N[window.lang].submit_success);
-      window.pushGA('loi_submitted', {email: window.state.email});
-    });
-
-  
-
-    form.addEventListener('input', window.update);
-    form.addEventListener('change', window.update);
-    form.addEventListener('keyup', window.update);
+    form.addEventListener('submit', handleSubmit);
+    ['input', 'change', 'keyup'].forEach(evt =>
+      form.addEventListener(evt, update)
+    );
   }
 
-  window.decodeStateFromUrl();
-  window.applyI18n();
-  window.update();
-}); 
+  // accept & pay (Stripe)
+  $('#acceptBtn')?.addEventListener('click', handleCheckout);
 
-    $('#acceptBtn').addEventListener('click', async () => {
-  readForm();
-  const body = JSON.stringify({ state, totals: calculate() });
-  const r = await fetch('/api/loi', { method:'POST', headers:{'content-type':'application/json'}, body });
-  const { ok, id, checkout_url } = await r.json();
-  if (checkout_url) location.href = checkout_url;
-  else if (ok) alert(`Saved! Ref ${id}. We’ll send next steps.`);
+  decodeStateFromUrl();
+  applyI18n();
+  update();
 });
 </script>
 
