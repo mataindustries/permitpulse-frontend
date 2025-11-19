@@ -818,10 +818,11 @@ function buildAliasesFromState(s) {
   if (extraRegions) out.push({ key: 'extraRegion', qty: extraRegions });
 
   const on = s.addons || {};
-  if (on.smsPack) out.push({ key: 'smsPack', qty: 1 });
-  if (on.outcomeGuarantee) out.push({ key: 'outcomeGuarantee', qty: 1 });
-  if (on.prioritySetup) out.push({ key: 'prioritySetup', qty: 1 });
-  if (on.customIntegration) out.push({ key: 'customIntegration', qty: 1 });
+  // map add-ons to the keys your checkout.js expects
+  if (on.smsPack)           out.push({ key: 'sms',       qty: 1 }); // PRICE_SMS
+  if (on.outcomeGuarantee)  out.push({ key: 'guarantee', qty: 1 }); // PRICE_GUARANTEE
+  if (on.prioritySetup)     out.push({ key: 'priority',  qty: 1 }); // PRICE_PRIORITY
+  if (on.customIntegration) out.push({ key: 'custom',    qty: 1 }); // PRICE_CUSTOM
 
   return out;
 }
