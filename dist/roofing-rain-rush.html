@@ -1,0 +1,512 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Roofing Rain-Rush Radar – Storm Week Roofing Leads in Los Angeles</title>
+  <meta name="description"
+        content="Live storm-week roofing radar for Los Angeles. See fresh leak, emergency repair, and re-roof permits from LADBS, filtered for your trade and ZIP during rainy weeks." />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <style>
+    :root {
+      --bg: #020617;
+      --bg-card: #0b1120;
+      --accent: #22c55e;
+      --accent-soft: rgba(34, 197, 94, 0.18);
+      --text-main: #e5e7eb;
+      --text-muted: #9ca3af;
+      --border-subtle: #111827;
+      --danger: #f97373;
+    }
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text",
+        "Segoe UI", sans-serif;
+      background: radial-gradient(circle at top, #020617 0, #000 70%);
+      color: var(--text-main);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    a { color: inherit; text-decoration: none; }
+
+    .page {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 16px 16px 32px;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .logo {
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      font-size: 15px;
+      text-transform: uppercase;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .logo-pulse {
+      width: 18px;
+      height: 18px;
+      border-radius: 999px;
+      border: 2px solid var(--accent);
+      position: relative;
+      box-shadow: 0 0 6px rgba(34, 197, 94, 0.7);
+    }
+
+    .logo-pulse::after {
+      content: "";
+      position: absolute;
+      inset: 3px;
+      border-radius: inherit;
+      background: linear-gradient(90deg, transparent 0 25%,
+                  var(--accent) 40% 60%, transparent 75% 100%);
+      opacity: 0.9;
+    }
+
+    .tagline {
+      font-size: 11px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+    }
+
+    .back-link {
+      font-size: 12px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      background: rgba(15, 23, 42, 0.85);
+      color: var(--text-muted);
+    }
+
+    .hero {
+      border-radius: 18px;
+      padding: 14px 14px 16px;
+      background: radial-gradient(circle at top left, #0f172a 0, #020617 55%);
+      border: 1px solid rgba(148, 163, 184, 0.18);
+      box-shadow: 0 18px 45px rgba(0, 0, 0, 0.65);
+      margin-bottom: 16px;
+    }
+
+    .hero-title {
+      font-size: 20px;
+      font-weight: 700;
+      margin: 0 0 6px;
+    }
+
+    .hero-sub {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin: 0;
+    }
+
+    .hero-badges {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 10px;
+    }
+
+    .hero-badge {
+      font-size: 10px;
+      padding: 4px 8px;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.9);
+      border: 1px solid rgba(148, 163, 184, 0.35);
+      color: var(--text-muted);
+    }
+
+    .hero-badge--accent {
+      border-color: var(--accent);
+      background: var(--accent-soft);
+      color: #bbf7d0;
+    }
+
+    .controls {
+      margin-bottom: 14px;
+      border-radius: 16px;
+      padding: 10px 10px 12px;
+      background: rgba(15, 23, 42, 0.95);
+      border: 1px solid var(--border-subtle);
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: flex-end;
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      flex: 1 1 90px;
+    }
+
+    .field label {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .field input,
+    .field select {
+      background: #020617;
+      color: var(--text-main);
+      border-radius: 999px;
+      border: 1px solid #1f2937;
+      padding: 6px 10px;
+      font-size: 13px;
+      outline: none;
+    }
+
+    .field input::-webkit-outer-spin-button,
+    .field input::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+    .field input[type="number"] {
+      -moz-appearance: textfield;
+    }
+
+    .checkbox-row {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .checkbox-row input {
+      width: 14px;
+      height: 14px;
+      margin: 0;
+    }
+
+    .btn-primary {
+      border-radius: 999px;
+      padding: 7px 14px;
+      font-size: 13px;
+      border: none;
+      background: var(--accent);
+      color: #022c22;
+      font-weight: 600;
+      cursor: pointer;
+      flex: 0 0 auto;
+      white-space: nowrap;
+      box-shadow: 0 0 0 1px rgba(22, 163, 74, 0.4),
+                  0 10px 25px rgba(22, 163, 74, 0.4);
+    }
+
+    .status {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+    }
+    .status-error { color: var(--danger); }
+    .status span strong { color: #e5e7eb; }
+
+    .list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .card {
+      border-radius: 16px;
+      padding: 10px 11px 11px;
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .card-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      align-items: baseline;
+    }
+
+    .card-title {
+      font-size: 13px;
+      font-weight: 600;
+      word-break: break-word;
+    }
+
+    .card-value {
+      font-size: 13px;
+      font-weight: 600;
+      color: #bbf7d0;
+      white-space: nowrap;
+    }
+
+    .card-meta,
+    .card-desc {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .chip-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 4px;
+    }
+
+    .chip {
+      font-size: 10px;
+      padding: 3px 7px;
+      border-radius: 999px;
+      background: #020617;
+      border: 1px solid #1f2937;
+      color: var(--text-muted);
+    }
+
+    .chip-storm {
+      border-color: var(--accent);
+      background: var(--accent-soft);
+      color: #bbf7d0;
+    }
+
+    .cta-footer {
+      margin-top: 16px;
+      font-size: 12px;
+      color: var(--text-muted);
+      padding-top: 10px;
+      border-top: 1px solid var(--border-subtle);
+    }
+    .cta-footer a {
+      color: #bfdbfe;
+      text-decoration: underline;
+      text-decoration-thickness: 1px;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="page">
+    <header>
+      <div>
+        <div class="logo">
+          <div class="logo-pulse"></div>
+          PermitPulse
+        </div>
+        <div class="tagline">Roofing Rain-Rush Radar</div>
+      </div>
+      <a href="/" class="back-link">← Back</a>
+    </header>
+
+    <section class="hero">
+      <h1 class="hero-title">Storm-week roofing radar for LA</h1>
+      <p class="hero-sub">
+        When it rains in Los Angeles, this feed surfaces fresh leak, emergency
+        repair, and re-roof permits so your crews hit the right blocks first.
+      </p>
+      <div class="hero-badges">
+        <div class="hero-badge hero-badge--accent">Live LADBS roofing feed</div>
+        <div class="hero-badge">Tuned for leak & storm repair language</div>
+        <div class="hero-badge">Built for owners with crews in the field</div>
+      </div>
+    </section>
+
+    <section class="controls">
+      <div class="field">
+        <label for="zip">Focus ZIP (optional)</label>
+        <input id="zip" type="text" inputmode="numeric" maxlength="5"
+               placeholder="e.g. 91740" />
+      </div>
+
+      <div class="field">
+        <label for="days">Days back</label>
+        <input id="days" type="number" value="7" min="1" max="30" />
+      </div>
+
+      <div class="field">
+        <label for="min">Min project size ($)</label>
+        <input id="min" type="number" value="8000" step="1000" min="0" />
+      </div>
+
+      <div class="field" style="flex: 1 1 140px;">
+        <label>Storm filter</label>
+        <div class="checkbox-row">
+          <input id="storm" type="checkbox" checked />
+          <span>Leak / emergency / storm-repair only</span>
+        </div>
+      </div>
+
+      <button class="btn-primary" id="refresh">Refresh radar</button>
+    </section>
+
+    <div class="status" id="status">
+      <span>Loading roofing permits…</span>
+      <span id="meta"></span>
+    </div>
+
+    <div class="list" id="list"></div>
+
+    <div class="cta-footer">
+      Want a private Rain-Rush dashboard tuned to your crews and ZIPs?
+      <a href="/guarantee/">See the Outcome Guarantee setup →</a>
+    </div>
+  </div>
+
+  <script>
+    const API_URL = "https://api.getpermitpulse.com/api/top-permits";
+
+    const els = {
+      zip: document.querySelector("#zip"),
+      days: document.querySelector("#days"),
+      min: document.querySelector("#min"),
+      storm: document.querySelector("#storm"),
+      refresh: document.querySelector("#refresh"),
+      status: document.querySelector("#status"),
+      meta: document.querySelector("#meta"),
+      list: document.querySelector("#list"),
+    };
+
+    function formatMoney(num) {
+      if (num == null || isNaN(num)) return "–";
+      return new Intl.NumberFormat("en-US", {
+        style: "currency",
+        currency: "USD",
+        maximumFractionDigits: 0,
+      }).format(num);
+    }
+
+    function formatDate(str) {
+      if (!str) return "Unknown date";
+      const d = new Date(str);
+      if (isNaN(d.getTime())) return str;
+      return d.toLocaleDateString("en-US", {
+        month: "short",
+        day: "numeric",
+        year: "numeric",
+      });
+    }
+
+    function setStatus(text, metaText, isError) {
+      if (text != null) {
+        els.status.firstElementChild.textContent = text;
+      }
+      if (metaText != null) {
+        els.meta.textContent = metaText;
+      }
+      els.status.classList.toggle("status-error", !!isError);
+    }
+
+    async function loadRoofingStorm() {
+      const zip = els.zip.value.trim();
+      const days = els.days.value || "7";
+      const min = els.min.value || "8000";
+      const storm = els.storm.checked;
+
+      setStatus("Loading roofing permits…", "", false);
+      els.list.innerHTML = "";
+
+      const params = new URLSearchParams({
+        days: String(days),
+        min: String(min),
+        limit: "20",
+        trade: "roof",
+        mode: storm ? "storm" : "normal",
+      });
+
+      try {
+        const res = await fetch(API_URL + "?" + params.toString());
+        if (!res.ok) throw new Error("HTTP " + res.status);
+        const data = await res.json();
+
+        if (!data.ok) {
+          console.error("API error", data);
+          setStatus("Could not load roofing radar right now.", "", true);
+          return;
+        }
+
+        let permits = data.permits || [];
+
+        // Optional: client-side ZIP filter
+        if (zip) {
+          permits = permits.filter((p) => p.zip === zip);
+        }
+
+        if (!permits.length) {
+          setStatus(
+            "No roofing permits match this view.",
+            "",
+            false
+          );
+          els.list.innerHTML =
+            '<div class="card"><div class="card-desc">Try widening the days window, lowering the minimum project size, or turning off the storm-only filter.</div></div>';
+          return;
+        }
+
+        setStatus(
+          "",
+          `Showing ${permits.length} roofing permits`,
+          false
+        );
+
+        const frag = document.createDocumentFragment();
+
+        for (const p of permits) {
+          const card = document.createElement("article");
+          card.className = "card";
+
+          const title = p.address || "Address not listed";
+          const val = formatMoney(p.value);
+          const date = formatDate(p.issueDate);
+
+          card.innerHTML = `
+            <div class="card-top">
+              <div class="card-title">${title}</div>
+              <div class="card-value">${val}</div>
+            </div>
+            <div class="card-meta">
+              Permit #<strong>${p.permitNumber || "N/A"}</strong> · ${date} ·
+              ${p.zip ? "ZIP " + p.zip : "ZIP unknown"}
+            </div>
+            ${
+              p.description
+                ? `<div class="card-desc">${p.description}</div>`
+                : ""
+            }
+            <div class="chip-row">
+              <div class="chip chip-storm">ROOF · RAIN-RUSH</div>
+              <div class="chip">Source: LADBS · City of Los Angeles</div>
+            </div>
+          `;
+
+          frag.appendChild(card);
+        }
+
+        els.list.appendChild(frag);
+      } catch (err) {
+        console.error(err);
+        setStatus("Error loading roofing radar.", "", true);
+        els.list.innerHTML =
+          '<div class="card"><div class="card-desc">Our LADBS feed might be slow for a moment. Try again in a few seconds.</div></div>';
+      }
+    }
+
+    els.refresh.addEventListener("click", (e) => {
+      e.preventDefault();
+      loadRoofingStorm();
+    });
+
+    document.addEventListener("DOMContentLoaded", loadRoofingStorm);
+  </script>
+</body>
+  </html>
