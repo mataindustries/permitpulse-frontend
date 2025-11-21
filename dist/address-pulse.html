@@ -1,0 +1,332 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Address Pulse Check – Permit History for Any LA Property</title>
+  <meta name="description"
+        content="Check permit history for any Los Angeles property. Enter an address or ZIP and see LADBS permits from the last few years." />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    /* reuse same base styles as top-permits */
+    :root {
+      --bg: #020617;
+      --bg-card: #0b1120;
+      --accent: #22c55e;
+      --accent-soft: rgba(34, 197, 94, 0.18);
+      --text-main: #e5e7eb;
+      --text-muted: #9ca3af;
+      --border-subtle: #111827;
+      --danger: #f97373;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont,
+        "SF Pro Text", "Segoe UI", sans-serif;
+      background: radial-gradient(circle at top, #020617 0, #000 70%);
+      color: var(--text-main);
+      -webkit-font-smoothing: antialiased;
+    }
+    a { color: inherit; text-decoration: none; }
+
+    .page { max-width: 720px; margin: 0 auto; padding: 16px 16px 32px; }
+
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+    .logo {
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      font-size: 15px;
+      text-transform: uppercase;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .logo-pulse {
+      width: 18px;
+      height: 18px;
+      border-radius: 999px;
+      border: 2px solid var(--accent);
+      position: relative;
+      box-shadow: 0 0 6px rgba(34, 197, 94, 0.7);
+    }
+    .logo-pulse::after {
+      content: "";
+      position: absolute;
+      inset: 3px;
+      border-radius: inherit;
+      background: linear-gradient(90deg, transparent 0 25%,
+        var(--accent) 40% 60%, transparent 75% 100%);
+    }
+    .tagline {
+      font-size: 11px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+    }
+    .back-link {
+      font-size: 12px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      background: rgba(15, 23, 42, 0.85);
+      color: var(--text-muted);
+    }
+
+    .hero {
+      border-radius: 18px;
+      padding: 14px 14px 16px;
+      background: radial-gradient(circle at top left, #0f172a 0, #020617 55%);
+      border: 1px solid rgba(148, 163, 184, 0.18);
+      box-shadow: 0 18px 45px rgba(0, 0, 0, 0.65);
+      margin-bottom: 16px;
+    }
+    .hero-title {
+      font-size: 20px;
+      font-weight: 700;
+      margin: 0 0 6px;
+    }
+    .hero-sub {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin: 0;
+    }
+    .hero-badge {
+      margin-top: 10px;
+      font-size: 10px;
+      display: inline-block;
+      padding: 4px 8px;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.4);
+      background: rgba(15, 23, 42, 0.9);
+      color: var(--text-muted);
+    }
+
+    .controls {
+      margin-bottom: 14px;
+      border-radius: 16px;
+      padding: 10px 10px 12px;
+      background: rgba(15, 23, 42, 0.95);
+      border: 1px solid var(--border-subtle);
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: flex-end;
+    }
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      flex: 1 1 140px;
+    }
+    .field label {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+    .field input {
+      background: #020617;
+      color: var(--text-main);
+      border-radius: 999px;
+      border: 1px solid #1f2937;
+      padding: 6px 10px;
+      font-size: 13px;
+      outline: none;
+    }
+
+    .btn-primary {
+      border-radius: 999px;
+      padding: 7px 14px;
+      font-size: 13px;
+      border: none;
+      background: var(--accent);
+      color: #022c22;
+      font-weight: 600;
+      cursor: pointer;
+      flex: 0 0 auto;
+      white-space: nowrap;
+      box-shadow: 0 0 0 1px rgba(22, 163, 74, 0.4),
+                  0 10px 25px rgba(22, 163, 74, 0.4);
+    }
+
+    .status {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+    }
+    .status-error { color: var(--danger); }
+
+    .list { display: flex; flex-direction: column; gap: 10px; }
+
+    .card {
+      border-radius: 16px;
+      padding: 10px 11px 11px;
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .card-title {
+      font-size: 13px;
+      font-weight: 600;
+    }
+    .card-meta,
+    .card-desc {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <div>
+        <div class="logo">
+          <div class="logo-pulse"></div>
+          PermitPulse
+        </div>
+        <div class="tagline">Address Pulse Check</div>
+      </div>
+      <a href="/" class="back-link">← Back</a>
+    </header>
+
+    <section class="hero">
+      <h1 class="hero-title">Address Pulse Check</h1>
+      <p class="hero-sub">
+        See recent LADBS permits for any Los Angeles property. Great for
+        homeowners, investors, and due diligence.
+      </p>
+      <span class="hero-badge">Free lookup · LADBS data</span>
+    </section>
+
+    <section class="controls">
+      <div class="field">
+        <label for="q">Street address or keyword</label>
+        <input id="q" type="text" placeholder="e.g. 1234 Main St" />
+      </div>
+      <div class="field">
+        <label for="zip">ZIP (optional)</label>
+        <input id="zip" type="text" inputmode="numeric" maxlength="5"
+               placeholder="e.g. 90041" />
+      </div>
+      <div class="field">
+        <label for="years">Years back</label>
+        <input id="years" type="number" min="1" max="10" value="3" />
+      </div>
+      <button class="btn-primary" id="check">Run check</button>
+    </section>
+
+    <div class="status" id="status">Enter an address to see permit history.</div>
+    <div class="list" id="list"></div>
+  </div>
+
+  <script>
+    const API_URL = "https://api.getpermitpulse.com/api/address-pulse";
+
+    const els = {
+      q: document.querySelector("#q"),
+      zip: document.querySelector("#zip"),
+      years: document.querySelector("#years"),
+      check: document.querySelector("#check"),
+      status: document.querySelector("#status"),
+      list: document.querySelector("#list"),
+    };
+
+    function formatDate(str) {
+      if (!str) return "Unknown date";
+      const d = new Date(str);
+      if (isNaN(d.getTime())) return str;
+      return d.toLocaleDateString("en-US", {
+        month: "short",
+        day: "numeric",
+        year: "numeric",
+      });
+    }
+
+    function formatMoney(num) {
+      if (num == null || isNaN(num)) return "–";
+      return new Intl.NumberFormat("en-US", {
+        style: "currency",
+        currency: "USD",
+        maximumFractionDigits: 0,
+      }).format(num);
+    }
+
+    async function runCheck() {
+      const q = els.q.value.trim();
+      const zip = els.zip.value.trim();
+      const years = els.years.value || "3";
+
+      if (!q && !zip) {
+        els.status.textContent = "Type at least an address or ZIP.";
+        return;
+      }
+
+      els.status.textContent = "Searching LADBS data…";
+      els.list.innerHTML = "";
+
+      const params = new URLSearchParams({
+        q,
+        zip,
+        years: String(years),
+      });
+
+      try {
+        const res = await fetch(API_URL + "?" + params.toString());
+        if (!res.ok) throw new Error("HTTP " + res.status);
+        const data = await res.json();
+
+        if (!data.ok) {
+          console.error(data);
+          els.status.textContent = "Could not load results right now.";
+          els.status.classList.add("status-error");
+          return;
+        }
+
+        const permits = data.permits || [];
+        els.status.classList.remove("status-error");
+
+        if (!permits.length) {
+          els.status.textContent =
+            "No permits found for that address / ZIP in the selected timeframe.";
+          return;
+        }
+
+        els.status.textContent = `Found ${permits.length} permits for this location.`;
+
+        const frag = document.createDocumentFragment();
+        for (const p of permits) {
+          const card = document.createElement("article");
+          card.className = "card";
+          card.innerHTML = `
+            <div class="card-title">${p.address || "Address not listed"}</div>
+            <div class="card-meta">
+              Permit #<strong>${p.permitNumber || "N/A"}</strong> ·
+              ${formatDate(p.issueDate)} ·
+              ${p.zip ? "ZIP " + p.zip : "ZIP unknown"} ·
+              ${formatMoney(p.value)}
+            </div>
+            ${p.description ? `<div class="card-desc">${p.description}</div>` : ""}
+          `;
+          frag.appendChild(card);
+        }
+        els.list.appendChild(frag);
+      } catch (err) {
+        console.error(err);
+        els.status.textContent = "Error loading results.";
+        els.status.classList.add("status-error");
+      }
+    }
+
+    els.check.addEventListener("click", (e) => {
+      e.preventDefault();
+      runCheck();
+    });
+  </script>
+</body>
+</html>
