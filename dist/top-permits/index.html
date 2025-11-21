@@ -2,131 +2,561 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>PermitPulse — Top Permits</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-</head>
-<body class="bg-slate-50 text-slate-900">
-  <header class="max-w-5xl mx-auto px-4 py-6">
-    <h1 class="text-2xl font-bold">Top Permits (by valuation)</h1>
-    <p class="text-sm text-slate-600">Filter by days, minimum valuation, and keywords (pipe-separated).</p>
-  </header>
+  <title>Top Building Permits in Los Angeles – PermitPulse Radar</title>
+  <meta name="description"
+        content="See the biggest recent roofing, solar, HVAC, electrical and ADU permits issued by LADBS. Updated live with PermitPulse. Filter by trade, days and project size, and download the results as CSV." />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-  <main class="max-w-5xl mx-auto px-4 pb-24">
-    <section class="bg-white rounded-2xl shadow p-4 mb-6">
-      <form id="filters" class="grid md:flex gap-3 items-end">
-        <label class="block">
-          <span class="text-xs uppercase">Days back</span>
-          <select id="days" class="mt-1 rounded-xl border px-3 py-2">
-            <option>30</option><option selected>60</option><option>90</option><option>120</option>
-          </select>
-        </label>
-        <label class="block">
-          <span class="text-xs uppercase">Min valuation</span>
-          <input id="min" type="number" min="0" value="25000" class="mt-1 rounded-xl border px-3 py-2 w-32">
-        </label>
-        <label class="block grow">
-          <span class="text-xs uppercase">Keywords (pipe-separated)</span>
-          <input id="q" value="roof|solar" class="mt-1 rounded-xl border px-3 py-2 w-full" placeholder="e.g. apartment|hotel|ADU">
-        </label>
-        <label class="block">
-          <span class="text-xs uppercase">Limit</span>
-          <select id="limit" class="mt-1 rounded-xl border px-3 py-2">
-            <option>10</option><option selected>30</option><option>50</option><option>100</option>
-          </select>
-        </label>
-        <button class="rounded-xl bg-blue-600 text-white px-4 py-2">Search</button>
-      </form>
-      <div id="meta" class="text-xs text-slate-500 mt-3"></div>
-      <div id="export" class="text-sm mt-2 hidden">
-        <a id="openRaw" class="underline text-blue-600" target="_blank">Open in Socrata</a>
-        <span class="mx-2">·</span>
-        <a id="openCsv" class="underline text-blue-600" target="_blank">Download CSV</a>
+  <style>
+    :root {
+      --bg: #020617;
+      --bg-card: #0b1120;
+      --bg-chip: #020617;
+      --accent: #22c55e;
+      --accent-soft: rgba(34, 197, 94, 0.18);
+      --text-main: #e5e7eb;
+      --text-muted: #9ca3af;
+      --border-subtle: #111827;
+      --danger: #f97373;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Text",
+        "Segoe UI", sans-serif;
+      background: radial-gradient(circle at top, #020617 0, #000 70%);
+      color: var(--text-main);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    a { color: inherit; text-decoration: none; }
+
+    .page {
+      max-width: 720px;
+      margin: 0 auto;
+      padding: 16px 16px 32px;
+    }
+
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+
+    .logo {
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      font-size: 15px;
+      text-transform: uppercase;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .logo-pulse {
+      width: 18px;
+      height: 18px;
+      border-radius: 999px;
+      border: 2px solid var(--accent);
+      position: relative;
+      box-shadow: 0 0 6px rgba(34, 197, 94, 0.7);
+    }
+
+    .logo-pulse::after {
+      content: "";
+      position: absolute;
+      inset: 3px;
+      border-radius: inherit;
+      background: linear-gradient(90deg, transparent 0 25%,
+                  var(--accent) 40% 60%, transparent 75% 100%);
+      opacity: 0.9;
+    }
+
+    .tagline {
+      font-size: 11px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+    }
+
+    .back-link {
+      font-size: 12px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      background: rgba(15, 23, 42, 0.85);
+      color: var(--text-muted);
+    }
+
+    .hero {
+      border-radius: 18px;
+      padding: 14px 14px 16px;
+      background: radial-gradient(circle at top left, #0f172a 0, #020617 55%);
+      border: 1px solid rgba(148, 163, 184, 0.18);
+      box-shadow: 0 18px 45px rgba(0, 0, 0, 0.65);
+      margin-bottom: 16px;
+    }
+
+    .hero-title {
+      font-size: 20px;
+      font-weight: 700;
+      margin: 0 0 6px;
+      letter-spacing: 0.01em;
+    }
+
+    .hero-sub {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin: 0;
+    }
+
+    .hero-badge-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 10px;
+    }
+
+    .hero-badge {
+      font-size: 10px;
+      padding: 4px 8px;
+      border-radius: 999px;
+      background: rgba(15, 23, 42, 0.9);
+      border: 1px solid rgba(148, 163, 184, 0.35);
+      color: var(--text-muted);
+    }
+
+    .hero-badge--accent {
+      border-color: var(--accent);
+      background: var(--accent-soft);
+      color: #bbf7d0;
+    }
+
+    .controls {
+      margin-bottom: 14px;
+      border-radius: 16px;
+      padding: 10px 10px 12px;
+      background: rgba(15, 23, 42, 0.95);
+      border: 1px solid var(--border-subtle);
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: flex-end;
+    }
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      flex: 1 1 90px;
+    }
+
+    .field label {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .field select,
+    .field input {
+      background: #020617;
+      color: var(--text-main);
+      border-radius: 999px;
+      border: 1px solid #1f2937;
+      padding: 6px 10px;
+      font-size: 13px;
+      outline: none;
+    }
+
+    .field input::-webkit-outer-spin-button,
+    .field input::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+
+    .field input[type="number"] {
+      -moz-appearance: textfield;
+    }
+
+    .btn-refresh,
+    .btn-secondary {
+      border-radius: 999px;
+      padding: 7px 14px;
+      font-size: 13px;
+      flex: 0 0 auto;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .btn-refresh {
+      border: none;
+      background: var(--accent);
+      color: #022c22;
+      font-weight: 600;
+      box-shadow: 0 0 0 1px rgba(22, 163, 74, 0.4),
+                  0 10px 25px rgba(22, 163, 74, 0.4);
+    }
+
+    .btn-secondary {
+      border: 1px solid #1f2937;
+      background: #020617;
+      color: var(--text-muted);
+      opacity: 0.5;
+    }
+
+    .btn-secondary:not([disabled]) {
+      opacity: 1;
+    }
+
+    .btn-secondary[disabled] {
+      cursor: default;
+      pointer-events: none;
+    }
+
+    .status {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .status span strong {
+      color: #e5e7eb;
+    }
+
+    .status-error {
+      color: var(--danger);
+    }
+
+    .list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .card {
+      border-radius: 16px;
+      padding: 10px 11px 11px;
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .card-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      align-items: baseline;
+    }
+
+    .card-title {
+      font-size: 13px;
+      font-weight: 600;
+      word-break: break-word;
+    }
+
+    .card-value {
+      font-size: 13px;
+      font-weight: 600;
+      color: #bbf7d0;
+      white-space: nowrap;
+    }
+
+    .card-meta,
+    .card-desc {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .chip-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 4px;
+    }
+
+    .chip {
+      font-size: 10px;
+      padding: 3px 7px;
+      border-radius: 999px;
+      background: var(--bg-chip);
+      border: 1px solid #1f2937;
+      color: var(--text-muted);
+    }
+
+    .chip-trade {
+      border-color: var(--accent);
+      background: var(--accent-soft);
+      color: #bbf7d0;
+    }
+
+    @media (min-width: 640px) {
+      .hero {
+        padding: 16px 18px 18px;
+      }
+      .hero-title {
+        font-size: 22px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="page">
+    <header>
+      <div>
+        <div class="logo">
+          <div class="logo-pulse"></div>
+          PermitPulse
+        </div>
+        <div class="tagline">Live LADBS feed</div>
+      </div>
+      <a href="/" class="back-link">← Back to main site</a>
+    </header>
+
+    <section class="hero">
+      <h1 class="hero-title">Top permits in Los Angeles</h1>
+      <p class="hero-sub">
+        Live snapshot of the biggest recent permits pulled with LADBS. Use this
+        to spot high-value jobs before competitors do.
+      </p>
+      <div class="hero-badge-row">
+        <div class="hero-badge hero-badge--accent">Free live preview</div>
+        <div class="hero-badge">Source: LADBS open data</div>
+        <div class="hero-badge">Export to CSV in one tap</div>
       </div>
     </section>
 
-    <section id="list" class="grid gap-4"></section>
+    <section class="controls">
+      <div class="field">
+        <label for="trade">Trade</label>
+        <select id="trade">
+          <option value="roof">Roofing</option>
+          <option value="solar">Solar</option>
+          <option value="hvac">HVAC</option>
+          <option value="electrical">Electrical</option>
+          <option value="addition">Additions / ADU</option>
+          <option value="all">All trades</option>
+        </select>
+      </div>
 
-    <template id="row">
-      <article class="bg-white rounded-2xl shadow p-4">
-        <div class="flex justify-between items-start gap-3">
-          <div class="min-w-0">
-            <h3 class="font-semibold text-lg truncate address"></h3>
-            <p class="text-sm text-slate-600 desc"></p>
-          </div>
-          <div class="text-right shrink-0">
-            <div class="text-sm text-slate-500 issued"></div>
-            <div class="text-base font-semibold val"></div>
-          </div>
-        </div>
-        <div class="text-xs mt-3 text-slate-600">
-          <span class="type"></span> · <span class="permit"></span>
-        </div>
-        <div class="flex gap-3 mt-3 text-sm">
-          <a class="inline-block underline text-blue-600 maps" target="_blank">Map</a>
-          <a class="inline-block underline text-blue-600 raw" target="_blank">Raw</a>
-        </div>
-      </article>
-    </template>
-  </main>
+      <div class="field">
+        <label for="days">Days back</label>
+        <input id="days" type="number" value="30" min="1" max="365" />
+      </div>
 
-<script>
-const API_BASE = '/api';
-const $ = (s, el=document)=>el.querySelector(s);
-const fmtUSD = v => (v||v===0) ? '$' + Number(v).toLocaleString() : '—';
-const fmtDate = iso => iso ? new Date(iso).toLocaleDateString() : '—';
-const mapLink = a => `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(a)}`;
+      <div class="field">
+        <label for="min">Min valuation ($)</label>
+        <input id="min" type="number" value="250000" step="50000" min="0" />
+      </div>
 
-async function fetchTop(params){
-  const url = new URL(API_BASE + '/top-permits', location.origin);
-  Object.entries(params).forEach(([k,v])=>url.searchParams.set(k,v));
-  const res = await fetch(url.toString());
-  const data = await res.json();
-  if(!data.ok) throw new Error(data.error || 'error');
-  return data;
-}
+      <button class="btn-refresh" id="refresh">Refresh</button>
+      <button class="btn-secondary" id="download" disabled>Download CSV</button>
+    </section>
 
-function render(items, metaUrl){
-  const list = $('#list'); list.innerHTML = '';
-  const tpl = $('#row').content;
-  items.forEach(it=>{
-    const node = tpl.cloneNode(true);
-    $('.address', node).textContent = it.address || '—';
-    $('.desc', node).textContent = it.description || '—';
-    $('.issued', node).textContent = 'Issued ' + fmtDate(it.issued_at);
-    $('.val', node).textContent = fmtUSD(it.valuation);
-    $('.type', node).textContent = [it.type, it.subtype].filter(Boolean).join(' — ') || '—';
-    $('.permit', node).textContent = it.permit || '—';
-    $('.maps', node).href = mapLink(it.address || '');
-    $('.raw', node).href = metaUrl;
-    list.appendChild(node);
-  });
-}
+    <div class="status" id="status">
+      <span>Loading latest permits…</span>
+      <span id="meta"></span>
+    </div>
 
-async function run(){
-  const days = $('#days').value;
-  const min = $('#min').value;
-  const limit = $('#limit').value;
-  const q = $('#q').value;
-  $('#meta').textContent = 'Loading…';
-  $('#export').classList.add('hidden');
-  try{
-    const res = await fetchTop({days, min, limit, q});
-    $('#meta').innerHTML = `Showing <b>${res.items.length}</b> results from last <b>${days}</b> days · min <b>$${Number(min).toLocaleString()}</b> · view: <code>${res.select}</code>`;
-    render(res.items || [], res.url);
-    // CSV export link
-    const csv = res.url.replace(/\.json\?/, '.csv?');
-    $('#openRaw').href = res.url;
-    $('#openCsv').href = csv + '&$limit=2000';
-    $('#export').classList.remove('hidden');
-  }catch(e){
-    $('#meta').textContent = 'Error: ' + (e.message || e);
-    $('#list').innerHTML = '';
-  }
-}
+    <div class="list" id="permit-list"></div>
+  </div>
 
-$('#filters').addEventListener('submit', (e)=>{ e.preventDefault(); run(); });
-run();
-</script>
+  <script>
+    const API_URL = "https://api.getpermitpulse.com/api/top-permits";
+
+    const els = {
+      trade: document.querySelector("#trade"),
+      days: document.querySelector("#days"),
+      min: document.querySelector("#min"),
+      refresh: document.querySelector("#refresh"),
+      download: document.querySelector("#download"),
+      list: document.querySelector("#permit-list"),
+      status: document.querySelector("#status"),
+      meta: document.querySelector("#meta"),
+    };
+
+    let lastPermits = [];
+
+    function formatMoney(num) {
+      if (num == null || isNaN(num)) return "–";
+      return new Intl.NumberFormat("en-US", {
+        style: "currency",
+        currency: "USD",
+        maximumFractionDigits: 0,
+      }).format(num);
+    }
+
+    function formatDate(str) {
+      if (!str) return "Unknown date";
+      const d = new Date(str);
+      if (isNaN(d.getTime())) return str;
+      return d.toLocaleDateString("en-US", {
+        month: "short",
+        day: "numeric",
+        year: "numeric",
+      });
+    }
+
+    function setStatus(text, metaText, isError) {
+      if (text != null) {
+        els.status.firstElementChild.textContent = text;
+      }
+      if (metaText != null) {
+        els.meta.textContent = metaText;
+      }
+      els.status.classList.toggle("status-error", !!isError);
+    }
+
+    function permitsToCSV(permits) {
+      const headers = [
+        "permitNumber",
+        "issueDate",
+        "address",
+        "zip",
+        "value",
+        "description",
+        "trade",
+      ];
+
+      const headerRow = headers.join(",");
+      const rows = permits.map((p) =>
+        headers
+          .map((h) => {
+            const v = p[h] == null ? "" : String(p[h]);
+            return '"' + v.replace(/"/g, '""') + '"';
+          })
+          .join(",")
+      );
+
+      return [headerRow, ...rows].join("\r\n");
+    }
+
+    function downloadCSV() {
+      if (!lastPermits.length) return;
+      const csv = permitsToCSV(lastPermits);
+      const blob = new Blob([csv], {
+        type: "text/csv;charset=utf-8;",
+      });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      const trade = els.trade.value || "all";
+      a.href = url;
+      a.download = `permitpulse-top-permits-${trade}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    }
+
+    async function loadPermits() {
+      const trade = els.trade.value;
+      const days = els.days.value || "30";
+      const min = els.min.value || "250000";
+
+      setStatus("Loading latest permits…", "", false);
+      els.list.innerHTML = "";
+      lastPermits = [];
+      els.download.disabled = true;
+
+      const params = new URLSearchParams({
+        days: String(days),
+        min: String(min),
+        limit: "10",
+        trade: trade,
+      });
+
+      try {
+        const res = await fetch(API_URL + "?" + params.toString());
+        if (!res.ok) {
+          throw new Error("HTTP " + res.status);
+        }
+        const data = await res.json();
+
+        if (!data.ok) {
+          console.error("API error", data);
+          setStatus("Could not load permits.", "", true);
+          return;
+        }
+
+        const permits = data.permits || [];
+        lastPermits = permits;
+        els.download.disabled = permits.length === 0;
+
+        if (!permits.length) {
+          setStatus("No permits found for this view.", "", false);
+          els.list.innerHTML =
+            '<div class="card"><div class="card-desc">Try reducing the minimum project size or increasing the number of days.</div></div>';
+          return;
+        }
+
+        setStatus(
+          "",
+          `Showing ${permits.length} of last ${data.debug?.fetchedRows ?? ""} LADBS permits`,
+          false
+        );
+
+        const frag = document.createDocumentFragment();
+
+        for (const p of permits) {
+          const card = document.createElement("article");
+          card.className = "card";
+
+          const title = p.address || "Address not listed";
+          const val = formatMoney(p.value);
+          const date = formatDate(p.issueDate);
+          const tradeLabel = p.trade || trade;
+
+          card.innerHTML = `
+            <div class="card-top">
+              <div class="card-title">${title}</div>
+              <div class="card-value">${val}</div>
+            </div>
+            <div class="card-meta">
+              Permit #<strong>${p.permitNumber || "N/A"}</strong> · ${date} ·
+              ${p.zip ? "ZIP " + p.zip : "ZIP unknown"}
+            </div>
+            ${
+              p.description
+                ? `<div class="card-desc">${p.description}</div>`
+                : ""
+            }
+            <div class="chip-row">
+              <div class="chip chip-trade">${tradeLabel.toUpperCase()}</div>
+              <div class="chip">LADBS · City of Los Angeles</div>
+            </div>
+          `;
+
+          frag.appendChild(card);
+        }
+
+        els.list.appendChild(frag);
+      } catch (err) {
+        console.error(err);
+        setStatus("Error loading permits.", "", true);
+        els.list.innerHTML =
+          '<div class="card"><div class="card-desc">Our LADBS feed might be slow for a moment. Try again in a few seconds.</div></div>';
+      }
+    }
+
+    els.refresh.addEventListener("click", (e) => {
+      e.preventDefault();
+      loadPermits();
+    });
+
+    els.download.addEventListener("click", (e) => {
+      e.preventDefault();
+      downloadCSV();
+    });
+
+    document.addEventListener("DOMContentLoaded", loadPermits);
+  </script>
 </body>
 </html>
