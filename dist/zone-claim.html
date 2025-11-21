@@ -1,0 +1,355 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Zone Claim Preview – See Activity in Your ZIP</title>
+  <meta name="description"
+        content="Contractor zone check: see how many high-value roofing, solar, HVAC or electrical permits hit your ZIP in the last 30–180 days." />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <style>
+    /* same style system */
+    :root {
+      --bg: #020617;
+      --bg-card: #0b1120;
+      --accent: #22c55e;
+      --accent-soft: rgba(34, 197, 94, 0.18);
+      --text-main: #e5e7eb;
+      --text-muted: #9ca3af;
+      --border-subtle: #111827;
+      --danger: #f97373;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont,
+        "SF Pro Text", "Segoe UI", sans-serif;
+      background: radial-gradient(circle at top, #020617 0, #000 70%);
+      color: var(--text-main);
+    }
+    a { color: inherit; text-decoration: none; }
+    .page { max-width: 720px; margin: 0 auto; padding: 16px 16px 32px; }
+    header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+    .logo {
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      font-size: 15px;
+      text-transform: uppercase;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .logo-pulse {
+      width: 18px;
+      height: 18px;
+      border-radius: 999px;
+      border: 2px solid var(--accent);
+      position: relative;
+      box-shadow: 0 0 6px rgba(34, 197, 94, 0.7);
+    }
+    .logo-pulse::after {
+      content: "";
+      position: absolute;
+      inset: 3px;
+      border-radius: inherit;
+      background: linear-gradient(90deg, transparent 0 25%,
+        var(--accent) 40% 60%, transparent 75% 100%);
+    }
+    .tagline {
+      font-size: 11px;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+    }
+    .back-link {
+      font-size: 12px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border-subtle);
+      background: rgba(15, 23, 42, 0.85);
+      color: var(--text-muted);
+    }
+
+    .hero {
+      border-radius: 18px;
+      padding: 14px 14px 16px;
+      background: radial-gradient(circle at top left, #0f172a 0, #020617 55%);
+      border: 1px solid rgba(148, 163, 184, 0.18);
+      box-shadow: 0 18px 45px rgba(0, 0, 0, 0.65);
+      margin-bottom: 16px;
+    }
+    .hero-title { font-size: 20px; font-weight: 700; margin: 0 0 6px; }
+    .hero-sub { font-size: 13px; color: var(--text-muted); margin: 0; }
+
+    .controls {
+      margin-bottom: 14px;
+      border-radius: 16px;
+      padding: 10px 10px 12px;
+      background: rgba(15, 23, 42, 0.95);
+      border: 1px solid var(--border-subtle);
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: flex-end;
+    }
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      flex: 1 1 120px;
+    }
+    .field label {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+    .field select,
+    .field input {
+      background: #020617;
+      color: var(--text-main);
+      border-radius: 999px;
+      border: 1px solid #1f2937;
+      padding: 6px 10px;
+      font-size: 13px;
+      outline: none;
+    }
+
+    .btn-primary {
+      border-radius: 999px;
+      padding: 7px 14px;
+      font-size: 13px;
+      border: none;
+      background: var(--accent);
+      color: #022c22;
+      font-weight: 600;
+      cursor: pointer;
+      flex: 0 0 auto;
+      white-space: nowrap;
+      box-shadow: 0 0 0 1px rgba(22, 163, 74, 0.4),
+                  0 10px 25px rgba(22, 163, 74, 0.4);
+    }
+
+    .status {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-bottom: 8px;
+    }
+    .status strong { color: #e5e7eb; }
+    .status-error { color: var(--danger); }
+
+    .stats-box {
+      border-radius: 16px;
+      padding: 10px 12px;
+      background: #020617;
+      border: 1px solid var(--border-subtle);
+      display: flex;
+      justify-content: space-between;
+      gap: 8px;
+      font-size: 12px;
+      margin-bottom: 10px;
+    }
+
+    .list { display: flex; flex-direction: column; gap: 10px; }
+    .card {
+      border-radius: 16px;
+      padding: 10px 11px 11px;
+      background: var(--bg-card);
+      border: 1px solid var(--border-subtle);
+      font-size: 11px;
+    }
+    .card-title {
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 2px;
+    }
+    .card-meta { color: var(--text-muted); }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <div>
+        <div class="logo">
+          <div class="logo-pulse"></div>
+          PermitPulse
+        </div>
+        <div class="tagline">Zone Claim Preview</div>
+      </div>
+      <a href="/" class="back-link">← Back</a>
+    </header>
+
+    <section class="hero">
+      <h1 class="hero-title">How hot is your zone?</h1>
+      <p class="hero-sub">
+        Check how many high-value jobs hit your ZIP in the last few months.
+        Perfect for roofers, solar, HVAC and GC shops.
+      </p>
+    </section>
+
+    <section class="controls">
+      <div class="field">
+        <label for="trade">Trade</label>
+        <select id="trade">
+          <option value="roof">Roofing</option>
+          <option value="solar">Solar</option>
+          <option value="hvac">HVAC</option>
+          <option value="electrical">Electrical</option>
+          <option value="addition">Additions / ADU</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="zip">Target ZIP</label>
+        <input id="zip" type="text" inputmode="numeric" maxlength="5"
+               placeholder="e.g. 90041" />
+      </div>
+      <div class="field">
+        <label for="days">Days back</label>
+        <input id="days" type="number" min="7" max="365" value="90" />
+      </div>
+      <button class="btn-primary" id="run">Check zone</button>
+    </section>
+
+    <div class="status" id="status">Enter a ZIP to check activity.</div>
+
+    <div class="stats-box" id="stats" style="display:none;">
+      <div>
+        <div>Total permits: <strong id="stat-count">0</strong></div>
+        <div>Est. permit value: <strong id="stat-value">$0</strong></div>
+      </div>
+      <div>
+        <div>Top job: <strong id="stat-top"></strong></div>
+        <div>Period: <strong id="stat-period"></strong></div>
+      </div>
+    </div>
+
+    <div class="list" id="list"></div>
+  </div>
+
+  <script>
+    const API_URL = "https://api.getpermitpulse.com/api/zone-claim";
+
+    const els = {
+      trade: document.querySelector("#trade"),
+      zip: document.querySelector("#zip"),
+      days: document.querySelector("#days"),
+      run: document.querySelector("#run"),
+      status: document.querySelector("#status"),
+      statsBox: document.querySelector("#stats"),
+      statCount: document.querySelector("#stat-count"),
+      statValue: document.querySelector("#stat-value"),
+      statTop: document.querySelector("#stat-top"),
+      statPeriod: document.querySelector("#stat-period"),
+      list: document.querySelector("#list"),
+    };
+
+    function formatMoney(num) {
+      if (num == null || isNaN(num)) return "–";
+      return new Intl.NumberFormat("en-US", {
+        style: "currency",
+        currency: "USD",
+        maximumFractionDigits: 0,
+      }).format(num);
+    }
+
+    function formatDate(str) {
+      if (!str) return "Unknown date";
+      const d = new Date(str);
+      if (isNaN(d.getTime())) return str;
+      return d.toLocaleDateString("en-US", {
+        month: "short",
+        day: "numeric",
+        year: "numeric",
+      });
+    }
+
+    async function runZone() {
+      const trade = els.trade.value;
+      const zip = els.zip.value.trim();
+      const days = els.days.value || "90";
+
+      if (!zip) {
+        els.status.textContent = "Type a ZIP code first.";
+        return;
+      }
+
+      els.status.textContent = "Scanning LADBS permits…";
+      els.statsBox.style.display = "none";
+      els.list.innerHTML = "";
+
+      const params = new URLSearchParams({
+        trade,
+        zip,
+        days: String(days),
+      });
+
+      try {
+        const res = await fetch(API_URL + "?" + params.toString());
+        if (!res.ok) throw new Error("HTTP " + res.status);
+        const data = await res.json();
+
+        if (!data.ok) {
+          console.error(data);
+          els.status.textContent =
+            "Could not load zone stats right now.";
+          els.status.classList.add("status-error");
+          return;
+        }
+
+        els.status.classList.remove("status-error");
+
+        const meta = data.meta || {};
+        const top = data.topPermits || [];
+
+        els.statCount.textContent = meta.totalPermits ?? 0;
+        els.statValue.textContent = formatMoney(meta.totalValue ?? 0);
+        els.statTop.textContent =
+          top.length && top[0].value
+            ? formatMoney(top[0].value)
+            : "N/A";
+        els.statPeriod.textContent = `Last ${meta.days || days} days`;
+        els.statsBox.style.display = "flex";
+
+        if (!top.length) {
+          els.status.textContent =
+            "No qualifying permits in that ZIP for this window.";
+          return;
+        }
+
+        els.status.textContent =
+          `Showing top ${top.length} permits in ${meta.zip} for ${trade.toUpperCase()}.`;
+
+        const frag = document.createDocumentFragment();
+        for (const p of top) {
+          const card = document.createElement("article");
+          card.className = "card";
+          card.innerHTML = `
+            <div class="card-title">${p.address || "Address not listed"}</div>
+            <div class="card-meta">
+              Permit #<strong>${p.permitNumber || "N/A"}</strong> ·
+              ${formatDate(p.issueDate)} ·
+              ${p.zip ? "ZIP " + p.zip : "ZIP unknown"} ·
+              ${formatMoney(p.value)}
+            </div>
+            ${p.description ? `<div class="card-meta">${p.description}</div>` : ""}
+          `;
+          frag.appendChild(card);
+        }
+        els.list.appendChild(frag);
+      } catch (err) {
+        console.error(err);
+        els.status.textContent = "Error loading zone stats.";
+        els.status.classList.add("status-error");
+      }
+    }
+
+    els.run.addEventListener("click", (e) => {
+      e.preventDefault();
+      runZone();
+    });
+  </script>
+</body>
+</html>
