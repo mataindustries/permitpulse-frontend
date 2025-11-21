@@ -30,7 +30,10 @@
       --brand:#2563eb; --brand-2:#10b981; --ring:rgba(37,99,235,.18);
       --card:#ffffff; --shadow:0 8px 30px rgba(2,6,23,.10);
       --radius:18px;
+      --brand: #0f62fe; /* A slightly deeper, more "IBM" blue */
+  --radius: 12px;   /* Tighter radius looks more professional than 18px */
     }
+    
     *{box-sizing:border-box}
     body{margin:0; font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Inter, "Helvetica Neue", Arial, Noto Sans, "Apple Color Emoji","Segoe UI Emoji"; color:#111827; background:#f7f8fb; line-height:1.55}
     a{color:var(--brand); text-decoration:underline}
@@ -72,6 +75,30 @@
       .sticky-cta{display:flex}
       header .btn-ghost{display:none}
     }
+    /* Add these new styles */
+.pulse-dot {
+  display: inline-block;
+  width: 8px; height: 8px; border-radius: 50%;
+  background-color: var(--brand-2);
+  box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+  animation: pulse-green 2s infinite;
+}
+@keyframes pulse-green {
+  0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7); }
+  70% { transform: scale(1); box-shadow: 0 0 0 10px rgba(16, 185, 129, 0); }
+  100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+}
+/* Better CTA Button Hover */
+.btn-glow {
+  background: linear-gradient(135deg, #0E2A3A 0%, #1a3c52 100%);
+  color: #fff;
+  box-shadow: 0 4px 14px 0 rgba(14, 42, 58, 0.39);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.btn-glow:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(14, 42, 58, 0.23);
+}
   </style>
 
   <script>
@@ -115,9 +142,12 @@
     <div class="spacer"></div>
     <a href="/loi.html"
    onclick="window.gtag&&gtag('event','cta_click',{cta:'get_estimate'})"
-   style="display:inline-flex;align-items:center;gap:.5rem;padding:.72rem 1.1rem;border-radius:9999px;
-          background:#0E2A3A;color:#fff;font-weight:800;letter-spacing:.02em;text-decoration:none;
-          box-shadow:0 8px 22px rgba(14,42,58,.25);transition:transform .08s"
+   <!-- New Header Link -->
+<a href="/loi.html" 
+   class="btn btn-glow"
+   onclick="window.gtag&&gtag('event','cta_click',{cta:'get_estimate'})">
+   Get Estimate
+</a>
    onmouseenter="this.style.transform='translateY(-1px)'" onmouseleave="this.style.transform='translateY(0)'">
   Get Estimate
     </a>
@@ -136,12 +166,12 @@
       <a class="btn btn-secondary" href="/reserve/">Reserve launch slot</a>
       <a class="btn btn-ghost" href="mailto:hello@getpermitpulse.com">hello@getpermitpulse.com</a>
     </div>
-    <div class="proof">
-      <span class="chip">500+ permits tracked monthly</span>
-      <span class="chip">Updated every 6 hours</span>
-      <span class="chip">EN/ES outreach & answering</span>
-      <span class="chip">Go live in 7 days</span>
-    </div>
+    <!-- Inside .hero .proof -->
+<div class="proof">
+  <span class="chip"><span class="pulse-dot" style="margin-right:6px"></span> Live Permit Radar Active</span>
+  <span class="chip">500+ permits tracked monthly</span>
+  <span class="chip">Go live in 7 days</span>
+</div>
   </div>
 </div>
 
@@ -175,14 +205,59 @@
   <h2>Live from LADBS</h2>
   <p class="mini">Real permits. Updated every 6 hours. <a href="/radar/">Open full radar →</a></p>
   <div class="card">
-    <table aria-label="Recent high-value permits (sample)">
-      <thead><tr><th>Permit</th><th>Issued</th><th>Address</th><th>Value</th><th>Description</th></tr></thead>
-      <tbody>
-        <tr><td>2025LA123456</td><td>2025-10-20</td><td>1234 Sunset Blvd, Los Angeles</td><td>$485,000</td><td>Complete roof replacement, comp shingles</td></tr>
-        <tr><td>2025LA123457</td><td>2025-10-19</td><td>5678 Wilshire Blvd, Los Angeles</td><td>$325,000</td><td>Solar panel install, 8.5kW, tile roof mounting</td></tr>
-        <tr><td>2025LA123458</td><td>2025-10-18</td><td>9012 Venice Blvd, Los Angeles</td><td>$275,000</td><td>Re-roof with solar prep, TPO commercial</td></tr>
-      </tbody>
-    </table>
+    <style>
+  .dashboard-preview {
+    background: #0f172a; /* Dark mode for contrast */
+    border-radius: 12px;
+    overflow: hidden;
+    color: #cbd5e1;
+    font-size: 13px;
+    border: 1px solid #334155;
+  }
+  .dash-header {
+    padding: 12px 16px;
+    background: #1e293b;
+    border-bottom: 1px solid #334155;
+    display: flex;
+    justify-content: space-between;
+  }
+  .status-live { color: #34d399; font-weight: 700; display: flex; align-items: center; gap: 6px; }
+  .dash-row {
+    display: grid;
+    grid-template-columns: 1fr 2fr 1fr;
+    padding: 12px 16px;
+    border-bottom: 1px solid #1e293b;
+    align-items: center;
+  }
+  .dash-row:last-child { border-bottom: none; }
+  .d-tag { background: #334155; padding: 2px 8px; border-radius: 4px; color: #fff; font-size: 11px; }
+  .d-money { color: #fff; font-weight: 600; }
+</style>
+
+<div class="dashboard-preview">
+  <div class="dash-header">
+    <span>Permit Feed: <strong>Los Angeles</strong></span>
+    <span class="status-live"><span class="pulse-dot"></span> Monitoring</span>
+  </div>
+  <!-- Row 1 -->
+  <div class="dash-row">
+    <div><span class="d-tag">ROOFING</span></div>
+    <div>
+      <div style="color:white; font-weight:500">1234 Sunset Blvd</div>
+      <div style="opacity:0.7">Comp Shingle Replacement</div>
+    </div>
+    <div class="d-money">$48,500</div>
+  </div>
+  <!-- Row 2 -->
+  <div class="dash-row">
+    <div><span class="d-tag">SOLAR</span></div>
+    <div>
+      <div style="color:white; font-weight:500">5678 Wilshire Blvd</div>
+      <div style="opacity:0.7">8.5kW System + Panel Upgrade</div>
+    </div>
+    <div class="d-money">$32,000</div>
+  </div>
+</div>
   </div>
 </section>
 
@@ -301,6 +376,18 @@ document.addEventListener('DOMContentLoaded', function () {
   });
 });
   </script>
+  <script>
+  // Simple script to make dates look fresh relative to the visitor's current time
+  const options = { month: 'numeric', day: 'numeric' };
+  const today = new Date();
+  const yest = new Date(today); yest.setDate(yest.getDate() - 1);
   
+  // If you use the "Dashboard Upgrade" (Step 2), you don't need this. 
+  // If you keep the standard table, give your date <td> classes like <td class="date-0">
+  
+  // Example usage if you keep the table:
+  // document.querySelector('.date-0').innerText = today.toLocaleDateString('en-US', options);
+  // document.querySelector('.date-1').innerText = yest.toLocaleDateString('en-US', options);
+  </script>
 </body>
   </html>
