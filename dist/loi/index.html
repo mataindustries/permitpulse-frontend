@@ -829,7 +829,7 @@ function buildAliasesFromState(s) {
 window.buildAliasesFromState = buildAliasesFromState;
 
 // ========= EVENT HANDLERS =========
-async function handleSubmit(e) {
+async function handleSubmit(e){
   e.preventDefault();
   readForm();
   const totals = calculate();
@@ -838,11 +838,16 @@ async function handleSubmit(e) {
     const r = await fetch('/api/loi', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ state: window.state, totals })
+      body: JSON.stringify({ state, totals })
     });
-    const data = await r.json().catch(() => null);
+    const data = await r.json().catch(() => ({}));
+
+    if (!data.ok) {
+      throw new Error(data.error || 'loi_failed');
+    }
+
     alert(window.I18N[window.lang].submit_success);
-    pushGA('loi_submitted', { email: window.state.email, id: data?.id });
+    pushGA('loi_submitted', { email: state.email, id: data.id });
   } catch (err) {
     console.error(err);
     alert('Error sending LoI. Please try again.');
@@ -901,6 +906,13 @@ async function handleCheckout(e) {
 
 // ========= INIT =========
   document.addEventListener('DOMContentLoaded', () => {
+    const form = $('#loiForm');
+if (form) {
+  form.addEventListener('submit', handleSubmit);
+  ['input','change','keyup'].forEach(evt =>
+    form.addEventListener(evt, update)
+  );
+}
   // language buttons
   $('#lang-en')?.addEventListener('click', () => {
     window.lang = 'en';
@@ -912,6 +924,7 @@ async function handleCheckout(e) {
     applyI18n();
     update();
   });
+    
 
   // share link
   $('#shareBtn')?.addEventListener('click', async () => {
