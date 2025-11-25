@@ -822,7 +822,8 @@ function buildAliasesFromState(s){
   if (on.outcomeGuarantee)  out.push({ key: 'guarantee', qty: 1 });       // PRICE_GUARANTEE
   if (on.prioritySetup)     out.push({ key: 'priority',  qty: 1 });       // PRICE_PRIORITY
   if (on.customIntegration) out.push({ key: 'custom',    qty: 1 });       // PRICE_CUSTOM
-
+  if (on.topPermits)        out.push({ key: 'topPermits', qty: 1 });
+  
   return out;
 }
 window.buildAliasesFromState = buildAliasesFromState;
