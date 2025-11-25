@@ -838,7 +838,7 @@ async function handleSubmit(e){
     const r = await fetch('/api/loi', {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ state, totals })
+      body: JSON.stringify({ state: window.state, totals })
     });
     const data = await r.json().catch(() => ({}));
 
@@ -847,7 +847,7 @@ async function handleSubmit(e){
     }
 
     alert(window.I18N[window.lang].submit_success);
-    pushGA('loi_submitted', { email: state.email, id: data.id });
+    pushGA('loi_submitted', { email: window.state.email, id: data.id });
   } catch (err) {
     console.error(err);
     alert('Error sending LoI. Please try again.');
@@ -905,26 +905,28 @@ async function handleCheckout(e) {
 }
 
 // ========= INIT =========
-  document.addEventListener('DOMContentLoaded', () => {
-    const form = $('#loiForm');
-if (form) {
-  form.addEventListener('submit', handleSubmit);
-  ['input','change','keyup'].forEach(evt =>
-    form.addEventListener(evt, update)
-  );
-}
+document.addEventListener('DOMContentLoaded', () => {
+  // form listeners
+  const form = $('#loiForm');
+  if (form) {
+    form.addEventListener('submit', handleSubmit);
+    ['input', 'change', 'keyup'].forEach(evt =>
+      form.addEventListener(evt, update)
+    );
+  }
+
   // language buttons
   $('#lang-en')?.addEventListener('click', () => {
     window.lang = 'en';
     applyI18n();
     update();
   });
+
   $('#lang-es')?.addEventListener('click', () => {
     window.lang = 'es';
     applyI18n();
     update();
   });
-    
 
   // share link
   $('#shareBtn')?.addEventListener('click', async () => {
@@ -970,15 +972,6 @@ if (form) {
     window.print();
     pushGA('loi_printed', {});
   });
-
-  // form listeners
-  const form = $('#loiForm');
-  if (form) {
-    form.addEventListener('submit', handleSubmit);
-    ['input', 'change', 'keyup'].forEach(evt =>
-      form.addEventListener(evt, update)
-    );
-  }
 
   // accept & pay (Stripe)
   $('#acceptBtn')?.addEventListener('click', handleCheckout);
