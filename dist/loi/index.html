@@ -290,7 +290,7 @@
   </main>  
 
 <script>
-// ========= CONFIG =========
+// ====== CONFIG ======
 window.PRICING = {
   baseMonthly: 149,
   includedSeats: 1,
@@ -343,9 +343,8 @@ window.PRICING = {
       desc: { en: 'CRM/API hookup', es: 'Conexión con CRM/API' }
     }
   }
-}; // <-- this was missing
+};
 
-// order for UI + breakdown
 const FEATURES_ORDER = [
   'radar',
   'topPermits',
@@ -808,21 +807,21 @@ function decodeStateFromUrl() {
 window.decodeStateFromUrl = decodeStateFromUrl;
 
 // ========= STRIPE ALIAS BUILDER =========
-function buildAliasesFromState(s) {
+function buildAliasesFromState(s){
   const out = [{ key: 'core', qty: 1 }];
 
-  const extraSeats = Math.max(0, (s.seats || 1) - 1);
-  if (extraSeats) out.push({ key: 'extraSeat', qty: extraSeats });
+  const extraSeats   = Math.max(0, (s.seats || 1) - 1);
+  if (extraSeats)    out.push({ key: 'extraSeat',   qty: extraSeats });
 
   const extraRegions = Math.max(0, (s.regions?.length || 1) - 1);
-  if (extraRegions) out.push({ key: 'extraRegion', qty: extraRegions });
+  if (extraRegions)  out.push({ key: 'extraRegion', qty: extraRegions });
 
   const on = s.addons || {};
-  // map add-ons to the keys your checkout.js expects
-  if (on.smsPack)           out.push({ key: 'sms',       qty: 1 }); // PRICE_SMS
-  if (on.outcomeGuarantee)  out.push({ key: 'guarantee', qty: 1 }); // PRICE_GUARANTEE
-  if (on.prioritySetup)     out.push({ key: 'priority',  qty: 1 }); // PRICE_PRIORITY
-  if (on.customIntegration) out.push({ key: 'custom',    qty: 1 }); // PRICE_CUSTOM
+  // map UI add-ons → aliases your checkout.js uses
+  if (on.smsPack)           out.push({ key: 'sms',       qty: 1 });       // PRICE_SMS
+  if (on.outcomeGuarantee)  out.push({ key: 'guarantee', qty: 1 });       // PRICE_GUARANTEE
+  if (on.prioritySetup)     out.push({ key: 'priority',  qty: 1 });       // PRICE_PRIORITY
+  if (on.customIntegration) out.push({ key: 'custom',    qty: 1 });       // PRICE_CUSTOM
 
   return out;
 }
