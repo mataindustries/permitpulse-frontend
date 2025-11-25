@@ -18,7 +18,8 @@ export async function onRequestPost({ request, env }) {
       sms:         env.PRICE_SMS,
       guarantee:   env.PRICE_GUARANTEE,
       priority:    env.PRICE_PRIORITY,
-      custom:      env.PRICE_CUSTOM
+      custom:      env.PRICE_CUSTOM,
+      topPermits:  env.PRICE_TOP_PERMITS
     };
 
     // Prefer aliases, fallback to explicit price ids
