@@ -415,181 +415,180 @@
     </footer>
   </main>
 
-  <script>
-  (() => {
-    const DATASET_URL = 'https://data.lacity.org/resource/pi9x-tg5x.json';
+ <script>
+(function () {
+  const DATASET_URL = 'https://data.lacity.org/resource/pi9x-tg5x.json';
 
-    const TRADE_KEYWORDS = {
-      roof: ['REROOF', 'ROOF'],
-      solar: ['SOLAR'],
-      adu: ['ADU'],
-      hvac: ['HVAC'],
-      panel: ['PANEL UPGRADE', 'SERVICE UPGRADE'],
-      all: []
-    };
+  const TRADE_KEYWORDS = {
+    roof:  ['REROOF', 'ROOF'],
+    solar: ['SOLAR'],
+    adu:   ['ADU'],
+    hvac:  ['HVAC'],
+    panel: ['PANEL UPGRADE', 'SERVICE UPGRADE'],
+    all:   []
+  };
 
-    const els = {
-      trade: document.getElementById('tpTrade'),
-      days: document.getElementById('tpDays'),
-      min: document.getElementById('tpMin'),
-      refresh: document.getElementById('tpRefresh'),
-      body: document.getElementById('tpBody'),
-      statusText: document.getElementById('tpStatusText'),
-      statusDot: document.getElementById('tpStatusDot')
-    };
+  const els = {
+    trade: document.getElementById('tpTrade'),
+    days: document.getElementById('tpDays'),
+    min: document.getElementById('tpMin'),
+    refresh: document.getElementById('tpRefresh'),
+    body: document.getElementById('tpBody'),
+    statusText: document.getElementById('tpStatusText'),
+    statusDot: document.getElementById('tpStatusDot')
+  };
 
-    function formatSoqlDate(daysBack) {
-      const d = new Date();
-      d.setDate(d.getDate() - daysBack);
-      const yyyy = d.getFullYear();
-      const mm = String(d.getMonth() + 1).padStart(2, '0');
-      const dd = String(d.getDate()).padStart(2, '0');
-      return \`\${yyyy}-\${mm}-\${dd}T00:00:00\`;
+  function formatSoqlDate(daysBack) {
+    const d = new Date();
+    d.setDate(d.getDate() - daysBack);
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return y + '-' + m + '-' + day + 'T00:00:00';
+  }
+
+  function firstField(row, keys) {
+    for (var i = 0; i < keys.length; i++) {
+      var key = keys[i];
+      if (row[key]) return row[key];
+      var lower = key.toLowerCase();
+      if (row[lower]) return row[lower];
+      var upper = key.toUpperCase();
+      if (row[upper]) return row[upper];
+    }
+    return '';
+  }
+
+  function formatCurrency(val) {
+    var num = Number(val);
+    if (!isFinite(num)) return '—';
+    if (num >= 1000000) {
+      return '$' + (num / 1000000).toFixed(1).replace(/\.0$/, '') + 'M';
+    }
+    if (num >= 1000) {
+      return '$' + (num / 1000).toFixed(1).replace(/\.0$/, '') + 'k';
+    }
+    return '$' + num.toLocaleString('en-US', { maximumFractionDigits: 0 });
+  }
+
+  function setStatus(online) {
+    if (!els.statusDot || !els.statusText) return;
+    if (online) {
+      els.statusDot.style.background = '#22c55e';
+      els.statusText.textContent = 'Online · live data from LADBS';
+    } else {
+      els.statusDot.style.background = '#f97373';
+      els.statusText.textContent = 'Temporarily offline · showing sample data';
+    }
+  }
+
+  function renderRows(rows) {
+    if (!els.body) return;
+    els.body.innerHTML = '';
+
+    if (!rows || !rows.length) {
+      var trEmpty = document.createElement('tr');
+      trEmpty.innerHTML = '<td colspan="4" class="muted">No permits match this filter.</td>';
+      els.body.appendChild(trEmpty);
+      return;
     }
 
-    function firstField(row, keys) {
-      for (const key of keys) {
-        if (row[key]) return row[key];
-        const lower = key.toLowerCase();
-        if (row[lower]) return row[lower];
-        const upper = key.toUpperCase();
-        if (row[upper]) return row[upper];
+    rows.forEach(function (row) {
+      var issueRaw = firstField(row, ['issue_date']);
+      var issue = issueRaw ? String(issueRaw).slice(0, 10) : '—';
+
+      var valRaw = firstField(row, ['valuation', 'est_valuation']);
+      var val = formatCurrency(valRaw);
+
+      var addr = firstField(row, ['address', 'site_addr', 'site_address', 'location_address']);
+      if (!addr) {
+        var num = firstField(row, ['addr_start', 'addr_number', 'house_no']);
+        var street = firstField(row, ['street_name']);
+        var suffix = firstField(row, ['street_suffix']);
+        addr = [num, street, suffix].filter(Boolean).join(' ');
       }
-      return '';
+      var city = firstField(row, ['city', 'city_name']);
+      var zip = firstField(row, ['zip', 'zip_code']);
+      var fullAddr = [addr, city, zip].filter(Boolean).join(', ') || '—';
+
+      var desc = firstField(row, ['work_desc', 'description']) || '—';
+
+      var tr = document.createElement('tr');
+      tr.innerHTML =
+        '<td>' + issue + '</td>' +
+        '<td>' + fullAddr + '</td>' +
+        '<td class="val">' + val + '</td>' +
+        '<td>' + desc + '</td>';
+      els.body.appendChild(tr);
+    });
+  }
+
+  var SAMPLE = [
+    {
+      issue_date: '2025-11-20T00:00:00',
+      address: '8100 SUNSET BLVD, LOS ANGELES, CA 90046',
+      valuation: 550000,
+      work_desc: 'TI FOR NEW RESTAURANT SPACE. STRUCTURAL + MEP.'
+    },
+    {
+      issue_date: '2025-11-18T00:00:00',
+      address: '1200 S FIGUEROA ST, LOS ANGELES, CA 90015',
+      valuation: 980000,
+      work_desc: 'NEW ROOF + SOLAR + STRUCTURAL UPGRADE FOR EXISTING COMMERCIAL BUILDING.'
     }
+  ];
 
-    function formatCurrency(val) {
-      const num = Number(val);
-      if (!isFinite(num)) return '—';
-      if (num >= 1_000_000) {
-        return '$' + (num / 1_000_000).toFixed(1).replace(/\\.0$/, '') + 'M';
-      }
-      if (num >= 1_000) {
-        return '$' + (num / 1_000).toFixed(1).replace(/\\.0$/, '') + 'k';
-      }
-      return '$' + num.toLocaleString('en-US', { maximumFractionDigits: 0 });
-    }
+  async function loadTopPermits() {
+    if (!els.body) return;
+    els.body.innerHTML = '<tr><td colspan="4" class="muted">Loading…</td></tr>';
 
-    function setStatus(online) {
-      if (!els.statusDot || !els.statusText) return;
-      if (online) {
-        els.statusDot.style.background = '#22c55e';
-        els.statusText.textContent = 'Online · live data from LADBS';
-      } else {
-        els.statusDot.style.background = '#f97373';
-        els.statusText.textContent = 'Temporarily offline · showing sample data';
-      }
-    }
+    var tradeValue = (els.trade.value || 'all').toLowerCase();
+    var daysBack = parseInt(els.days.value || '30', 10);
+    var minVal = parseInt(els.min.value || '0', 10);
 
-    function renderRows(rows) {
-      if (!els.body) return;
-      els.body.innerHTML = '';
-      if (!rows || !rows.length) {
-        const tr = document.createElement('tr');
-        tr.innerHTML = '<td colspan="4" class="muted">No permits match this filter.</td>';
-        els.body.appendChild(tr);
-        return;
-      }
-      for (const row of rows) {
-        const issueRaw = firstField(row, ['issue_date']);
-        const issue = issueRaw ? String(issueRaw).slice(0, 10) : '—';
+    var params = new URLSearchParams();
+    params.set('$limit', '100');
+    params.set('$order', 'valuation DESC');
 
-        const valRaw = firstField(row, ['valuation', 'est_valuation']);
-        const val = formatCurrency(valRaw);
-
-        let addr = firstField(row, ['address', 'site_addr', 'site_address', 'location_address']);
-        if (!addr) {
-          const num = firstField(row, ['addr_start', 'addr_number', 'house_no']);
-          const street = firstField(row, ['street_name']);
-          const suffix = firstField(row, ['street_suffix']);
-          addr = [num, street, suffix].filter(Boolean).join(' ');
-        }
-        const city = firstField(row, ['city', 'city_name']);
-        const zip = firstField(row, ['zip', 'zip_code']);
-        const fullAddr = [addr, city, zip].filter(Boolean).join(', ') || '—';
-
-        const desc = firstField(row, ['work_desc', 'description']) || '—';
-
-        const tr = document.createElement('tr');
-        tr.innerHTML = \`
-          <td>\${issue}</td>
-          <td>\${fullAddr}</td>
-          <td class="val">\${val}</td>
-          <td>\${desc}</td>
-        \`;
-        els.body.appendChild(tr);
-      }
-    }
-
-    const SAMPLE = [
-      {
-        issue_date: '2025-11-20T00:00:00',
-        address: '8100 SUNSET BLVD, LOS ANGELES, CA 90046',
-        valuation: 550000,
-        work_desc: 'TI FOR NEW RESTAURANT SPACE. STRUCTURAL + MECHANICAL, PLUMBING & ELECTRICAL.'
-      },
-      {
-        issue_date: '2025-11-18T00:00:00',
-        address: '1200 S FIGUEROA ST, LOS ANGELES, CA 90015',
-        valuation: 980000,
-        work_desc: 'NEW ROOF + SOLAR + STRUCTURAL UPGRADE FOR EXISTING COMMERCIAL BUILDING.'
-      }
+    var whereParts = [
+      "issue_date >= '" + formatSoqlDate(daysBack) + "'"
     ];
 
-    async function loadTopPermits() {
-      if (!els.body) return;
-      els.body.innerHTML = '<tr><td colspan="4" class="muted">Loading…</td></tr>';
-
-      const tradeValue = (els.trade.value || 'all').toLowerCase();
-      const daysBack = parseInt(els.days.value || '30', 10);
-      const minVal = parseInt(els.min.value || '0', 10);
-
-      const params = new URLSearchParams();
-      params.set('$limit', '100');
-      params.set('$order', 'valuation DESC');
-
-      const whereParts = [
-        \`issue_date >= '\${formatSoqlDate(daysBack)}'\`
-      ];
-
-      if (minVal > 0) {
-        whereParts.push(\`valuation >= \${minVal}\`);
-      }
-
-      const keywords = TRADE_KEYWORDS[tradeValue] || [];
-      if (keywords.length) {
-        const clauses = keywords.map(k => {
-          const safe = k.replace(/'/g, "''").toUpperCase();
-          return \`upper(work_desc) like '%\${safe}%'\`;
-        });
-        whereParts.push('(' + clauses.join(' OR ') + ')');
-      }
-
-      params.set('$where', whereParts.join(' AND '));
-
-      try {
-        const res = await fetch(DATASET_URL + '?' + params.toString());
-        if (!res.ok) throw new Error('Network');
-        const data = await res.json();
-        renderRows(data);
-        setStatus(true);
-      } catch (err) {
-        console.error('Top Permits error', err);
-        renderRows(SAMPLE);
-        setStatus(false);
-      }
+    if (minVal > 0) {
+      whereParts.push('valuation >= ' + minVal);
     }
 
+    var keywords = TRADE_KEYWORDS[tradeValue] || [];
+    if (keywords.length) {
+      var clauses = keywords.map(function (k) {
+        var safe = k.replace(/'/g, "''").toUpperCase();
+        return "upper(work_desc) like '%" + safe + "%'";
+      });
+      whereParts.push('(' + clauses.join(' OR ') + ')');
+    }
+
+    params.set('$where', whereParts.join(' AND '));
+
+    try {
+      const res = await fetch(DATASET_URL + '?' + params.toString());
+      if (!res.ok) throw new Error('Network');
+      const data = await res.json();
+      renderRows(data);
+      setStatus(true);
+    } catch (err) {
+      console.error('Top Permits error', err);
+      renderRows(SAMPLE);
+      setStatus(false);
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', function () {
     if (els.refresh) {
       els.refresh.addEventListener('click', loadTopPermits);
     }
-
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', loadTopPermits);
-    } else {
-      loadTopPermits();
-    }
-  })();
-  </script>
+    loadTopPermits();
+  });
+})();
+        </script>
 </body>
 </html>
