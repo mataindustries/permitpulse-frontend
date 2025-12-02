@@ -30,46 +30,139 @@
 }
   </script>
   <script>
-    // Tiny Tailwind-ish utility—no build needed
+    // Tailwind-ish utility—no build needed (updated to match new UI)
     const css = `
-      :root { --bg:#0b1220; --card:#111827; --text:#e5e7eb; --muted:#9ca3af; --accent:#f97316; --ok:#22c55e; }
-      *{box-sizing:border-box} body{margin:0;font-family:Inter,system-ui,Segoe UI,Roboto,Helvetica,Arial;background:var(--bg);color:var(--text)}
-      .wrap{max-width:640px;margin:0 auto;padding:24px}
-      .card{background:var(--card);border:1px solid #1f2937;border-radius:16px;padding:20px;box-shadow:0 10px 30px rgba(0,0,0,.25)}
+      :root {
+        --bg:#020617;
+        --card:#020617;
+        --text:#e5e7eb;
+        --muted:#9ca3af;
+        --accent:#f97316;
+        --ok:#22c55e;
+        --border:#111827;
+      }
+      *{box-sizing:border-box}
+      body{
+        margin:0;
+        font-family:Inter,system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+        background:radial-gradient(circle at top,#020617 0,#000 70%);
+        color:var(--text);
+        -webkit-font-smoothing:antialiased;
+      }
+      .wrap{max-width:640px;margin:0 auto;padding:20px 16px 32px}
+      header{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}
+      .badgerow{display:flex;gap:8px;align-items:center}
+      .badge{
+        display:inline-flex;
+        align-items:center;
+        gap:6px;
+        background:rgba(15,23,42,0.96);
+        border:1px solid #1f2937;
+        padding:6px 10px;
+        border-radius:999px;
+        font-size:12px;
+        color:var(--muted);
+      }
+      .badge-dot{
+        width:8px;height:8px;border-radius:999px;
+        background:var(--ok);
+        box-shadow:0 0 0 4px rgba(34,197,94,.2);
+      }
+      header h1{
+        margin:4px 0 0;
+        font-size:18px;
+      }
+      .muted{color:var(--muted);font-size:12px}
+      .card{
+        background:radial-gradient(circle at top left,#0f172a 0,#020617 55%);
+        border:1px solid rgba(148,163,184,.22);
+        border-radius:18px;
+        padding:18px 16px 18px;
+        box-shadow:0 18px 45px rgba(0,0,0,.65);
+        margin-top:14px;
+      }
       .row{display:grid;gap:12px}
       .row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
       label{font-size:12px;color:var(--muted)}
-      input,textarea,select,button{width:100%;padding:12px 14px;border-radius:10px;border:1px solid #334155;background:#0b1220;color:var(--text)}
-      input:focus,textarea:focus,select:focus{outline:2px solid #475569}
-      .btn{background:var(--accent);color:#0b1220;font-weight:700;border:none;cursor:pointer}
-      .btn:disabled{opacity:.5;cursor:not-allowed}
+      input,textarea,select,button{
+        width:100%;
+        padding:11px 13px;
+        border-radius:12px;
+        border:1px solid #1f2937;
+        background:#020617;
+        color:var(--text);
+        font-size:14px;
+      }
+      input:focus,textarea:focus,select:focus{
+        outline:2px solid #475569;
+        outline-offset:1px;
+      }
       .timegrid{display:flex;flex-wrap:wrap;gap:8px}
-      .chip{padding:10px 12px;border:1px solid #334155;border-radius:10px;cursor:pointer}
-      .chip[aria-pressed="true"]{background:#1f2937;border-color:#64748b}
-      .muted{color:var(--muted);font-size:12px}
-      .success{background:rgba(34,197,94,.15);border:1px solid rgba(34,197,94,.35);padding:12px;border-radius:10px}
-      .err{background:rgba(244,63,94,.12);border:1px solid rgba(244,63,94,.35);padding:12px;border-radius:10px}
-      .badge{display:inline-block;background:#0b1220;border:1px solid #334155;padding:6px 10px;border-radius:999px;font-size:12px}
-      header h1{margin:6px 0 0}
-      .badgerow{display:flex;gap:8px;align-items:center}
+      .chip{
+        padding:9px 11px;
+        border:1px solid #334155;
+        border-radius:999px;
+        cursor:pointer;
+        background:rgba(15,23,42,.96);
+        font-size:13px;
+      }
+      .chip[aria-pressed="true"]{
+        background:#1f2937;
+        border-color:#64748b;
+      }
+      .btn{
+        background:var(--accent);
+        color:#0b1220;
+        font-weight:700;
+        border:none;
+        cursor:pointer;
+        border-radius:999px;
+        padding:11px 16px;
+        box-shadow:0 0 0 1px rgba(248,250,252,.15),
+                   0 10px 30px rgba(248,113,22,.4);
+      }
+      .btn:disabled{opacity:.5;cursor:not-allowed}
+      .success{
+        background:rgba(34,197,94,.14);
+        border:1px solid rgba(34,197,94,.4);
+        padding:10px 11px;
+        border-radius:12px;
+        font-size:13px;
+      }
+      .err{
+        background:rgba(244,63,94,.12);
+        border:1px solid rgba(244,63,94,.35);
+        padding:10px 11px;
+        border-radius:12px;
+        font-size:13px;
+      }
     `;
     const style = document.createElement('style'); style.textContent = css; document.head.appendChild(style);
   </script>
 </head>
 <body>
   <div class="wrap">
-    <header style="display:flex;align-items:center;gap:10px;">
-      <div class="badgerow">
-        <div class="badge">PermitPulse</div>
-        <div class="badge" id="ogBadge">Outcome Guarantee</div>
+    <header>
+      <div>
+        <div class="badgerow">
+          <div class="badge">PermitPulse</div>
+          <div class="badge">
+            <span class="badge-dot"></span>
+            <span id="ogBadge">Outcome Guarantee</span>
+          </div>
+        </div>
+        <h1 id="title">Book an Outcome Guarantee intro call (15–30 min)</h1>
       </div>
-      <h1 id="title">Book an Outcome Guarantee intro call (15–30 min)</h1>
     </header>
 
-    <p class="muted" id="tzNote" style="margin-top:6px">Times shown are in <b>Pacific Time</b>.</p>
-    <p class="muted" id="ogLine" style="margin-top:2px">Outcome Guarantee: <b>1–2 booked estimates</b> or full refund.</p>
+    <p class="muted" id="tzNote" style="margin-top:4px">
+      Times shown are in <b>Pacific Time</b>.
+    </p>
+    <p class="muted" id="ogLine" style="margin-top:2px">
+      Outcome Guarantee: <b>1–2 booked estimates</b> or full refund.
+    </p>
 
-    <div class="card" style="margin-top:16px">
+    <div class="card">
       <div class="row2">
         <div>
           <label for="date"><span id="lblDate">Date</span></label>
@@ -114,7 +207,9 @@
       </div>
     </div>
 
-    <p class="muted" id="helpText" style="margin-top:10px">Having trouble? Email <a href="mailto:hello@getpermitpulse.com">hello@getpermitpulse.com</a></p>
+    <p class="muted" id="helpText" style="margin-top:10px">
+      Having trouble? Email <a href="mailto:hello@getpermitpulse.com">hello@getpermitpulse.com</a>
+    </p>
   </div>
 
 <script>
@@ -207,8 +302,6 @@ function msg(html, ok=false){
   msgEl.innerHTML = `<div class="${ok?'success':'err'}">${html}</div>`;
 }
 
-  
-  
 async function book(){
   const t = i18n[currentLang];
   const body = {
@@ -225,21 +318,25 @@ async function book(){
   if(!body.email) return msg(t.errors.enterEmail);
   $('#submit').disabled=true;
   try{
-    const r = await fetch(`${API}/book`, {method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body)});
+    const r = await fetch(`${API}/book`, {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body: JSON.stringify(body)
+    });
     const j = await r.json();
     if(!r.ok){ throw new Error(j.error||'Failed'); }
     msg(`${t.successPrefix} <a href="${j.gcalUrl}" target="_blank" rel="noopener">${t.gcal}</a> · <a href="${j.icsUrl}">${t.ics}</a>`, true);
-    // ---- GA4 conversion fires ONLY on confirmed booking ----
-try {
-  if (typeof window.gtag === 'function') {
-    gtag('event', 'booking_confirmed', {
-      event_category: 'booking',
-      slot: `${body.date || ''} ${body.time || ''}`, // nice readable param in reports
-      lang: body.lang || currentLang,
-      value: 1
-    });
-  }
-} catch (_) {}
+    // GA4 conversion fires ONLY on confirmed booking
+    try {
+      if (typeof window.gtag === 'function') {
+        gtag('event', 'booking_confirmed', {
+          event_category: 'booking',
+          slot: `${body.date || ''} ${body.time || ''}`,
+          lang: body.lang || currentLang,
+          value: 1
+        });
+      }
+    } catch (_) {}
   }catch(e){
     msg(e.message||'Could not book. Slot may be taken.');
   }finally{
@@ -261,4 +358,4 @@ try {
 })();
 </script>
 </body>
-  </html>
+</html>
