@@ -7,7 +7,6 @@
         content="Check permit history for any Los Angeles property. Enter an address or ZIP and see LADBS permits from the last few years." />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <style>
-    /* reuse same base styles as top-permits */
     :root {
       --bg: #020617;
       --bg-card: #0b1120;
@@ -78,37 +77,90 @@
       color: var(--text-muted);
     }
 
-    .hero {
+    .intro {
+      margin-bottom: 16px;
+    }
+    .intro-title {
+      font-size: 20px;
+      font-weight: 700;
+      margin: 0 0 6px;
+    }
+    .intro-sub {
+      font-size: 13px;
+      color: var(--text-muted);
+      margin: 0;
+    }
+    .pill-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 12px;
+    }
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      border-radius: 999px;
+      border: 1px solid rgba(148, 163, 184, 0.35);
+      padding: 6px 10px;
+      font-size: 11px;
+      background: rgba(15, 23, 42, 0.9);
+      color: var(--text-muted);
+      backdrop-filter: blur(12px);
+    }
+    .pill-label {
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--text-muted);
+      opacity: 0.9;
+    }
+
+    .tool-card {
       border-radius: 18px;
       padding: 14px 14px 16px;
       background: radial-gradient(circle at top left, #0f172a 0, #020617 55%);
       border: 1px solid rgba(148, 163, 184, 0.18);
       box-shadow: 0 18px 45px rgba(0, 0, 0, 0.65);
-      margin-bottom: 16px;
     }
-    .hero-title {
-      font-size: 20px;
+    .tool-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+    .tool-title {
+      font-size: 18px;
       font-weight: 700;
-      margin: 0 0 6px;
+      margin: 0 0 4px;
     }
-    .hero-sub {
-      font-size: 13px;
+    .tool-sub {
+      font-size: 12px;
       color: var(--text-muted);
       margin: 0;
     }
-    .hero-badge {
-      margin-top: 10px;
-      font-size: 10px;
-      display: inline-block;
-      padding: 4px 8px;
-      border-radius: 999px;
-      border: 1px solid rgba(148, 163, 184, 0.4);
-      background: rgba(15, 23, 42, 0.9);
+    .tool-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11px;
       color: var(--text-muted);
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(34, 197, 94, 0.4);
+      background: rgba(6, 78, 59, 0.25);
+    }
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: var(--accent);
+      box-shadow: 0 0 0 4px rgba(34, 197, 94, 0.2);
     }
 
     .controls {
-      margin-bottom: 14px;
+      margin-bottom: 10px;
       border-radius: 16px;
       padding: 10px 10px 12px;
       background: rgba(15, 23, 42, 0.95);
@@ -156,11 +208,11 @@
     .status {
       font-size: 12px;
       color: var(--text-muted);
-      margin-bottom: 8px;
+      margin: 6px 2px 8px;
     }
     .status-error { color: var(--danger); }
 
-    .list { display: flex; flex-direction: column; gap: 10px; }
+    .list { display: flex; flex-direction: column; gap: 10px; margin-top: 4px; }
 
     .card {
       border-radius: 16px;
@@ -195,34 +247,58 @@
       <a href="/" class="back-link">← Back</a>
     </header>
 
-    <section class="hero">
-      <h1 class="hero-title">Address Pulse Check</h1>
-      <p class="hero-sub">
+    <section class="intro">
+      <h1 class="intro-title">Address Pulse Check</h1>
+      <p class="intro-sub">
         See recent LADBS permits for any Los Angeles property. Great for
-        homeowners, investors, and due diligence.
+        homeowners, investors and due diligence before you bid or buy.
       </p>
-      <span class="hero-badge">Free lookup · LADBS data</span>
+      <div class="pill-row">
+        <div class="pill">
+          <span class="pill-label">Dataset</span>
+          <span>LADBS “Building Permits Issued from 2020 to Present”</span>
+        </div>
+        <div class="pill">
+          <span>Updated multiple times per day</span>
+        </div>
+      </div>
     </section>
 
-    <section class="controls">
-      <div class="field">
-        <label for="q">Street address or keyword</label>
-        <input id="q" type="text" placeholder="e.g. 1234 Main St" />
+    <section class="tool-card">
+      <div class="tool-header">
+        <div>
+          <h2 class="tool-title">Run an address check</h2>
+          <p class="tool-sub">
+            Type a street address or ZIP and choose how many years back you
+            want to look.
+          </p>
+        </div>
+        <div class="tool-status">
+          <span class="status-dot"></span>
+          <span>Online · live data from LADBS</span>
+        </div>
       </div>
-      <div class="field">
-        <label for="zip">ZIP (optional)</label>
-        <input id="zip" type="text" inputmode="numeric" maxlength="5"
-               placeholder="e.g. 90041" />
-      </div>
-      <div class="field">
-        <label for="years">Years back</label>
-        <input id="years" type="number" min="1" max="10" value="3" />
-      </div>
-      <button class="btn-primary" id="check">Run check</button>
-    </section>
 
-    <div class="status" id="status">Enter an address to see permit history.</div>
-    <div class="list" id="list"></div>
+      <section class="controls">
+        <div class="field">
+          <label for="q">Street address or keyword</label>
+          <input id="q" type="text" placeholder="e.g. 1234 Main St" />
+        </div>
+        <div class="field">
+          <label for="zip">ZIP (optional)</label>
+          <input id="zip" type="text" inputmode="numeric" maxlength="5"
+                 placeholder="e.g. 90041" />
+        </div>
+        <div class="field">
+          <label for="years">Years back</label>
+          <input id="years" type="number" min="1" max="10" value="3" />
+        </div>
+        <button class="btn-primary" id="check">Run check</button>
+      </section>
+
+      <div class="status" id="status">Enter an address to see permit history.</div>
+      <div class="list" id="list"></div>
+    </section>
   </div>
 
   <script>
@@ -268,6 +344,7 @@
       }
 
       els.status.textContent = "Searching LADBS data…";
+      els.status.classList.remove("status-error");
       els.list.innerHTML = "";
 
       const params = new URLSearchParams({
