@@ -2,247 +2,223 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <title>PermitPulse · Top Permits (Last 30 Days)</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="description" content="See the biggest roofing, solar, and ADU permits issued in LA in the last month. Filter by trade and export the list." />
+  <title>PermitPulse | Top LA Permits Digest</title>
+  <meta name="description" content="See the highest-value permits issued recently in Los Angeles. Free preview powered by LADBS open data." />
 
   <style>
     :root {
-      --bg: #020617;
-      --card-bg: #020617;
-      --card-border: #1e293b;
-      --text-main: #e5e7eb;
-      --text-muted: #94a3b8;
-      --accent-blue: #2563eb;
-      --accent-orange: #f97316;
+      --bg: #050505;
+      --card-bg: #0f0f11;
+      --card-border: #222;
+      --text-main: #ededed;
+      --text-muted: #888;
+      --accent-orange: #ff4400;
+      --accent-blue: #2952ff;
       --font-sans: system-ui, -apple-system, BlinkMacSystemFont, "Inter", sans-serif;
-      --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-      --radius-lg: 18px;
-      --radius-md: 12px;
+      --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
     }
 
-    * { margin: 0; padding: 0; box-sizing: border-box; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
-      font-family: var(--font-sans);
-      background:
-        radial-gradient(circle at top, rgba(37,99,235,0.35), transparent 55%),
-        radial-gradient(circle at bottom, rgba(15,23,42,1), #020617 70%);
+      background: radial-gradient(circle at top, #050816 0%, #020617 40%, #020308 100%);
       color: var(--text-main);
+      font-family: var(--font-sans);
+      line-height: 1.4;
       min-height: 100vh;
     }
 
     a { color: inherit; text-decoration: none; }
 
+    .wrap {
+      width: 100%;
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 16px;
+    }
+
     header {
       position: sticky;
       top: 0;
       z-index: 20;
-      backdrop-filter: blur(16px);
-      background: rgba(2,6,23,0.96);
-      border-bottom: 1px solid rgba(148,163,184,0.13);
+      backdrop-filter: blur(10px);
+      background: rgba(5, 5, 7, 0.85);
+      border-bottom: 1px solid rgba(148, 163, 184, 0.2);
     }
 
-    .wrap {
-      max-width: 1040px;
-      margin: 0 auto;
-      padding: 14px 16px;
-    }
-
-    .nav {
+    .nav-inner {
       display: flex;
-      justify-content: space-between;
       align-items: center;
-      gap: 12px;
+      justify-content: space-between;
+      padding: 14px 0;
+      font-size: 14px;
     }
 
     .logo {
       font-weight: 700;
-      font-size: 18px;
-      letter-spacing: -0.04em;
+      letter-spacing: -0.03em;
     }
+
     .logo span { color: var(--accent-orange); }
 
-    .nav-right {
+    .nav-links {
       display: flex;
       gap: 18px;
-      align-items: center;
-      font-size: 12px;
-      font-family: var(--font-mono);
-      color: var(--text-muted);
     }
 
-    .nav-right a {
-      text-decoration: underline;
-      text-underline-offset: 3px;
+    .nav-links a {
+      color: var(--text-muted);
+      font-family: var(--font-mono);
+      font-size: 12px;
+    }
+
+    .nav-links a.active {
+      color: #fff;
+      border-bottom: 1px solid var(--accent-orange);
+      padding-bottom: 2px;
     }
 
     main {
-      padding: 32px 16px 40px;
-    }
-
-    .hero {
-      max-width: 1040px;
-      margin: 0 auto 22px;
-      display: flex;
-      flex-direction: column;
-      gap: 14px;
-    }
-
-    .hero-eyebrow {
-      font-size: 11px;
-      font-family: var(--font-mono);
-      text-transform: uppercase;
-      letter-spacing: 0.16em;
-      color: var(--accent-orange);
+      padding: 60px 0 80px;
     }
 
     h1 {
-      font-size: clamp(1.9rem, 3.6vw, 2.5rem);
+      font-size: clamp(2.1rem, 4vw, 3rem);
       letter-spacing: -0.04em;
-      line-height: 1.1;
+      margin-bottom: 10px;
     }
 
-    .hero-lead {
-      font-size: 0.95rem;
+    .kicker {
+      font-family: var(--font-mono);
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      font-size: 11px;
+      color: var(--accent-blue);
+      margin-bottom: 10px;
+    }
+
+    .lead {
       color: var(--text-muted);
-      max-width: 540px;
+      max-width: 560px;
+      font-size: 14px;
+      margin-bottom: 24px;
     }
 
     .hero-meta {
-      font-size: 11px;
-      font-family: var(--font-mono);
-      color: #64748b;
-    }
-
-    .layout {
-      max-width: 1040px;
-      margin: 0 auto;
-      display: grid;
-      grid-template-columns: minmax(0, 3.1fr) minmax(0, 2.3fr);
-      gap: 20px;
-    }
-
-    @media (max-width: 900px) {
-      .layout {
-        grid-template-columns: minmax(0, 1fr);
-      }
-    }
-
-    .card {
-      background: rgba(15,23,42,0.99);
-      border-radius: var(--radius-lg);
-      padding: 18px 16px;
-      border: 1px solid rgba(148,163,184,0.22);
-      box-shadow: 0 18px 40px rgba(15,23,42,0.85);
-    }
-
-    .card h2 {
-      font-size: 1.05rem;
-      letter-spacing: -0.03em;
-      margin-bottom: 6px;
-    }
-
-    .card p {
-      font-size: 0.87rem;
-      color: var(--text-muted);
-    }
-
-    .controls {
       display: flex;
       flex-wrap: wrap;
       gap: 10px;
-      margin-top: 14px;
-      align-items: flex-end;
-    }
-
-    .field {
-      min-width: 120px;
-      flex: 1;
-    }
-
-    .field-label {
-      font-size: 11px;
-      font-family: var(--font-mono);
-      color: #9ca3af;
-      margin-bottom: 4px;
-      text-transform: uppercase;
-      letter-spacing: 0.12em;
-    }
-
-    select {
-      width: 100%;
-      padding: 9px 10px;
-      border-radius: 999px;
-      border: 1px solid rgba(148,163,184,0.4);
-      background: #020617;
-      color: #e5e7eb;
-      font-size: 13px;
-    }
-
-    .btn-primary {
-      padding: 9px 16px;
-      border-radius: 999px;
-      border: none;
-      background: #2563eb;
-      color: #f9fafb;
-      font-size: 13px;
-      font-weight: 600;
-      letter-spacing: 0.03em;
-      cursor: pointer;
-      box-shadow: 0 14px 32px rgba(37,99,235,0.7);
-    }
-
-    .btn-primary:active {
-      transform: translateY(1px);
-      box-shadow: 0 10px 20px rgba(37,99,235,0.55);
-    }
-
-    .btn-outline {
-      padding: 9px 14px;
-      border-radius: 999px;
-      border: 1px dashed rgba(148,163,184,0.9);
-      background: transparent;
-      color: #e5e7eb;
       font-size: 12px;
-      font-family: var(--font-mono);
-      cursor: pointer;
+      color: var(--text-muted);
     }
 
-    .status-bar {
-      font-size: 11px;
+    .pill {
+      border-radius: 999px;
+      padding: 4px 10px;
+      border: 1px solid rgba(148, 163, 184, 0.5);
       font-family: var(--font-mono);
-      color: #9ca3af;
-      margin-top: 10px;
+    }
+
+    .layout {
+      margin-top: 32px;
+      display: grid;
+      grid-template-columns: minmax(0, 2fr) minmax(260px, 1fr);
+      gap: 24px;
+    }
+
+    @media (max-width: 800px) {
+      .layout { grid-template-columns: 1fr; }
+    }
+
+    .card {
+      background: radial-gradient(circle at top left, rgba(15,23,42,0.9), rgba(3,7,18,0.98));
+      border-radius: 18px;
+      border: 1px solid var(--card-border);
+      padding: 20px 20px 16px;
+      box-shadow: 0 18px 40px rgba(15,23,42,0.85);
+    }
+
+    .card-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
+      margin-bottom: 14px;
     }
 
-    .status-pill {
-      display: inline-flex;
+    .card-header h2 {
+      font-size: 18px;
+      letter-spacing: -0.02em;
+    }
+
+    .status {
+      display: flex;
       align-items: center;
-      gap: 6px;
-      padding: 4px 10px;
-      border-radius: 999px;
-      background: #020617;
-      border: 1px solid rgba(148,163,184,0.4);
+      gap: 8px;
+      font-size: 11px;
+      color: var(--text-muted);
+      font-family: var(--font-mono);
     }
 
-    .status-pill-dot {
-      width: 7px;
-      height: 7px;
+    .status-dot {
+      width: 8px;
+      height: 8px;
       border-radius: 999px;
       background: #22c55e;
-      box-shadow: 0 0 0 4px rgba(22,163,74,0.4);
+      box-shadow: 0 0 12px rgba(34, 197, 94, 0.9);
+    }
+
+    .filters {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    @media (max-width: 800px) {
+      .filters { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    }
+
+    label {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-bottom: 4px;
+      display: inline-block;
+    }
+
+    select, input {
+      width: 100%;
+      background: #020617;
+      border-radius: 8px;
+      border: 1px solid #1e293b;
+      padding: 7px 9px;
+      font-size: 13px;
+      color: #e5e7eb;
+      font-family: var(--font-sans);
+    }
+
+    button {
+      border: none;
+      cursor: pointer;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--accent-orange), #ec4899);
+      border-radius: 999px;
+      padding: 9px 16px;
+      font-size: 13px;
+      font-weight: 600;
+      color: #020617;
+      font-family: var(--font-sans);
+      box-shadow: 0 10px 30px rgba(248, 113, 113, 0.45);
     }
 
     .table-wrap {
-      margin-top: 12px;
-      border-radius: var(--radius-md);
-      border: 1px solid rgba(30,41,59,0.95);
+      margin-top: 8px;
+      border-radius: 14px;
+      border: 1px solid #1e293b;
+      background: radial-gradient(circle at top, rgba(15,23,42,0.95), #020617);
       overflow: hidden;
-      background: #020617;
     }
 
     table {
@@ -253,402 +229,367 @@
 
     thead {
       background: #020617;
-      font-family: var(--font-mono);
       text-transform: uppercase;
-      letter-spacing: 0.12em;
+      letter-spacing: 0.08em;
       font-size: 10px;
-      color: #9ca3af;
+      color: #64748b;
     }
 
-    th, td {
-      padding: 8px 10px;
-      border-bottom: 1px solid rgba(15,23,42,0.95);
+    thead th {
       text-align: left;
+      padding: 8px 10px;
+      border-bottom: 1px solid #1e293b;
+      font-weight: 500;
+    }
+
+    tbody td {
+      padding: 8px 10px;
+      border-bottom: 1px solid rgba(15,23,42,0.85);
       vertical-align: top;
     }
 
-    tbody tr:nth-child(even) {
-      background: rgba(15,23,42,0.96);
+    tbody tr:last-child td {
+      border-bottom: none;
     }
 
     .val {
-      color: #fbbf24;
+      color: var(--accent-orange);
+      font-family: var(--font-mono);
       white-space: nowrap;
+    }
+
+    .muted {
+      color: var(--text-muted);
+    }
+
+    .side-card {
+      background: linear-gradient(145deg, #020617, #0b1120);
+      border-radius: 18px;
+      border: 1px solid rgba(148,163,184,0.35);
+      padding: 18px 18px 16px;
+      font-size: 13px;
+    }
+
+    .side-badge {
       font-family: var(--font-mono);
-    }
-
-    .desc {
-      color: #e5e7ff;
-    }
-
-    .tag {
-      display: inline-flex;
-      align-items: center;
-      padding: 2px 8px;
-      border-radius: 999px;
-      border: 1px solid rgba(148,163,184,0.5);
       font-size: 10px;
-      font-family: var(--font-mono);
       text-transform: uppercase;
       letter-spacing: 0.12em;
-      color: #cbd5f5;
-      margin-top: 2px;
+      color: var(--accent-blue);
+      margin-bottom: 8px;
     }
 
-    .table-footer {
-      padding: 7px 10px;
-      font-size: 11px;
-      font-family: var(--font-mono);
-      color: #64748b;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .cta-card {
-      background: radial-gradient(circle at top right, rgba(56,189,248,0.35), rgba(15,23,42,0.98));
-      border-radius: var(--radius-lg);
-      padding: 18px 16px;
-      border: 1px solid rgba(148,163,184,0.4);
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-
-    .cta-pill {
-      font-size: 11px;
-      font-family: var(--font-mono);
-      text-transform: uppercase;
-      letter-spacing: 0.16em;
-      color: #bae6fd;
-    }
-
-    .cta-card h2 {
-      font-size: 1.1rem;
-      letter-spacing: -0.03em;
-    }
-
-    .cta-buttons {
-      display: flex;
-      gap: 10px;
-      margin-top: 10px;
-      flex-wrap: wrap;
-    }
-
-    .btn-secondary, .btn-ghost {
-      flex: 1;
-      min-width: 120px;
-      padding: 9px 10px;
-      border-radius: 999px;
-      border: 1px solid rgba(226,232,240,0.7);
-      font-size: 13px;
-      text-align: center;
-      cursor: pointer;
-    }
-
-    .btn-secondary {
-      background: #38bdf8;
-      color: #020617;
+    .side-title {
+      font-size: 15px;
       font-weight: 600;
-      box-shadow: 0 12px 32px rgba(56,189,248,0.65);
+      margin-bottom: 6px;
     }
 
-    .btn-ghost {
-      background: rgba(15,23,42,0.15);
-      color: #e5e7eb;
+    .side-list {
+      margin-top: 10px;
+      padding-left: 16px;
+      color: var(--text-muted);
+      font-size: 12px;
     }
 
-    .cta-footnote {
-      font-size: 11px;
-      font-family: var(--font-mono);
-      color: #dbeafe;
-    }
+    .side-list li { margin-bottom: 4px; }
 
     footer {
-      max-width: 1040px;
-      margin: 32px auto 0;
-      padding: 12px 16px 24px;
+      padding-top: 30px;
       font-size: 11px;
       color: #64748b;
-      display: flex;
-      justify-content: space-between;
-      gap: 12px;
-      border-top: 1px solid rgba(15,23,42,0.9);
-    }
-
-    @media (max-width: 600px) {
-      footer {
-        flex-direction: column;
-      }
+      border-top: 1px solid rgba(51,65,85,0.7);
+      margin-top: 40px;
     }
   </style>
 </head>
 <body>
-<header>
-  <div class="wrap nav">
-    <a href="/" class="logo">PermitPulse<span>/</span> Top Permits</a>
-    <div class="nav-right">
-      <a href="/radar">Radar</a>
-      <a href="/loi">LOI tool</a>
+  <header>
+    <div class="wrap nav-inner">
+      <div class="logo">PermitPulse <span>/</span> Top Permits</div>
+      <nav class="nav-links">
+        <a href="/radar/">Radar</a>
+        <a href="/top-permits/" class="active">Top permits</a>
+        <a href="/loi/">LOI tool</a>
+      </nav>
     </div>
-  </div>
-</header>
+  </header>
 
-<main>
-  <section class="hero">
-    <div class="hero-eyebrow">Signal, not noise</div>
-    <h1>Biggest LA permits from the last 30 days.</h1>
-    <p class="hero-lead">
-      Instant snapshot of where the serious money is moving: reroofs, solar installs, ADUs and panel upgrades.
-      Filter by trade and pull a clean list your office can start working.
-    </p>
-    <p class="hero-meta">
-      Free preview. Paid clients get hyper-filtered lists for their ZIPs + contact details.
-    </p>
-  </section>
-
-  <section class="layout">
-    <article class="card">
-      <h2>Filter the top jobs</h2>
-      <p>Pick a trade and minimum job size. I’ll show you the largest permits first.</p>
-
-      <div class="controls">
-        <div class="field">
-          <div class="field-label">Trade</div>
-          <select id="trade">
-            <option value="all">All trades</option>
-            <option value="roof">Roof</option>
-            <option value="solar">Solar</option>
-            <option value="adu">ADU</option>
-            <option value="panel">Panel upgrade</option>
-          </select>
-        </div>
-        <div class="field">
-          <div class="field-label">Minimum value</div>
-          <select id="min-value">
-            <option value="20000">$20k+</option>
-            <option value="50000" selected>$50k+</option>
-            <option value="100000">$100k+</option>
-          </select>
-        </div>
-        <button class="btn-primary" id="refresh">Refresh</button>
-        <button class="btn-outline" id="download">Download CSV</button>
-      </div>
-
-      <div class="status-bar">
-        <span id="status-text">Loading top permits…</span>
-        <span class="status-pill" id="status-pill">
-          <span class="status-pill-dot" id="status-dot"></span>
-          last 30 days · LA City
-        </span>
-      </div>
-
-      <div class="table-wrap">
-        <table>
-          <thead>
-            <tr>
-              <th>Issued</th>
-              <th>Address</th>
-              <th>Value</th>
-              <th>Trade / Description</th>
-            </tr>
-          </thead>
-          <tbody id="table-body"></tbody>
-        </table>
-        <div class="table-footer">
-          <span id="result-count">0 permits</span>
-          <span>Source: LADBS open data</span>
-        </div>
-      </div>
-    </article>
-
-    <aside class="cta-card">
-      <div class="cta-pill">Outcome Guarantee · Preview</div>
-      <h2>Want this list tuned to your crew only?</h2>
-      <p class="hero-lead" style="font-size:0.9rem; max-width:none;">
-        For paid partners, I lock in your ZIPs, filter out junk (unworkable / tiny jobs) and hand your office a
-        steady stream of deal-sized permits with owner contact info.
+  <main class="wrap">
+    <div>
+      <div class="kicker">Top permits · LADBS feed</div>
+      <h1>Highest-value jobs in LA, this month.</h1>
+      <p class="lead">
+        Free preview of the biggest permits just issued in the City of Los Angeles. Sort by trade and minimum value so you can see where the real money is moving.
       </p>
-      <div class="cta-buttons">
-        <a class="btn-secondary" href="tel:+16269474567">Call</a>
-        <a class="btn-ghost" href="sms:+16269474567">Text “Top Permits”</a>
+      <div class="hero-meta">
+        <div class="pill">Dataset: LADBS “Building Permits Issued from 2020 to Present”</div>
+        <div class="pill">Updated multiple times per day</div>
       </div>
-      <p class="cta-footnote">
-        Not ready to talk yet? Email <a href="mailto:hello@getpermitpulse.com?subject=Top%20permits%20CSV&amp;body=Trade%3A%0AMin%20value%3A%0AZIP%20focus%3A">hello@getpermitpulse.com</a>
-        and I’ll send you a sample CSV you can test.
-      </p>
-    </aside>
-  </section>
-</main>
+    </div>
 
-<footer>
-  <span>© 2025 PermitPulse · Built for LA contractors.</span>
-  <span>Other tools: <a href="/radar">Radar</a> · <a href="/loi">LOI tool</a></span>
-</footer>
+    <div class="layout">
+      <!-- MAIN CARD -->
+      <section class="card">
+        <div class="card-header">
+          <h2>Filter this month’s whales</h2>
+          <div class="status">
+            <span class="status-dot" id="tpStatusDot"></span>
+            <span id="tpStatusText">Loading live data from LADBS…</span>
+          </div>
+        </div>
 
-<script>
-  const tradeEl = document.getElementById("trade");
-  const minValueEl = document.getElementById("min-value");
-  const refreshBtn = document.getElementById("refresh");
-  const downloadBtn = document.getElementById("download");
-  const statusText = document.getElementById("status-text");
-  const statusDot = document.getElementById("status-dot");
-  const statusPill = document.getElementById("status-pill");
-  const tbody = document.getElementById("table-body");
-  const resultCount = document.getElementById("result-count");
+        <div class="filters">
+          <div>
+            <label for="tpTrade">Trade</label>
+            <select id="tpTrade">
+              <option value="all">All</option>
+              <option value="roof">Roof</option>
+              <option value="solar">Solar</option>
+              <option value="adu">ADU</option>
+              <option value="hvac">HVAC</option>
+              <option value="panel">Panel upgrade</option>
+            </select>
+          </div>
+          <div>
+            <label for="tpDays">Days back</label>
+            <select id="tpDays">
+              <option value="7">7</option>
+              <option value="14">14</option>
+              <option value="30" selected>30</option>
+              <option value="60">60</option>
+            </select>
+          </div>
+          <div>
+            <label for="tpMin">Min value</label>
+            <select id="tpMin">
+              <option value="0">$0+</option>
+              <option value="25000">$25k+</option>
+              <option value="50000">$50k+</option>
+              <option value="100000">$100k+</option>
+              <option value="250000">$250k+</option>
+            </select>
+          </div>
+          <div style="display:flex;align-items:flex-end;justify-content:flex-end;">
+            <button class="btn-primary" id="tpRefresh">Refresh</button>
+          </div>
+        </div>
 
-  const SAMPLE = [
-    {
-      issue_date: "2025-11-20",
-      address: "8800 W SUNSET BLVD, LOS ANGELES, CA 90069",
-      valuation: 480000,
-      trade: "ROOF",
-      description: "FULL REROOF + NEW INSULATION + ROOF DRAINS."
-    },
-    {
-      issue_date: "2025-11-18",
-      address: "1200 N FIGUEROA ST, LOS ANGELES, CA 90012",
-      valuation: 260000,
-      trade: "SOLAR",
-      description: "INSTALL 420KW ROOF-MOUNTED PV SYSTEM. NEW MAIN SERVICE GEAR."
-    },
-    {
-      issue_date: "2025-11-16",
-      address: "4300 YORK BLVD, LOS ANGELES, CA 90041",
-      valuation: 185000,
-      trade: "ADU",
-      description: "NEW DETACHED 2-STORY ADU OVER GARAGE (2BD/2BA)."
-    }
-  ];
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Issued</th>
+                <th>Address</th>
+                <th>Value</th>
+                <th>Description</th>
+              </tr>
+            </thead>
+            <tbody id="tpBody">
+              <tr><td colspan="4" class="muted">Loading…</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
 
-  function formatMoney(v) {
-    if (v == null || isNaN(v)) return "–";
-    const n = Number(v);
-    if (n >= 1000000) return "$" + (n / 1000000).toFixed(1) + "M";
-    if (n >= 1000) return "$" + (n / 1000).toFixed(1) + "k";
-    return "$" + n.toLocaleString();
-  }
+      <!-- SIDE CARD -->
+      <aside class="side-card">
+        <div class="side-badge">Free preview</div>
+        <div class="side-title">Want this pushed to you?</div>
+        <p class="muted">
+          I can send a weekly Top Permits digest for your trade + ZIP codes in English or Spanish.
+        </p>
+        <ul class="side-list">
+          <li>CSV + call-ready list.</li>
+          <li>1–2 high-value jobs highlighted.</li>
+          <li>No logins, no spam.</li>
+        </ul>
+        <p class="muted" style="margin-top:10px;">
+          Email <a href="mailto:hello@getpermitpulse.com?subject=Top%20Permits%20Digest">hello@getpermitpulse.com</a> with your trade + target areas and I’ll send a sample.
+        </p>
+      </aside>
+    </div>
 
-  function renderPermits(list) {
-    tbody.innerHTML = "";
-    if (!list || !list.length) {
-      const tr = document.createElement("tr");
-      const td = document.createElement("td");
-      td.colSpan = 4;
-      td.textContent = "No permits found for this filter.";
-      td.style.color = "#9ca3af";
-      tr.appendChild(td);
-      tbody.appendChild(tr);
-      resultCount.textContent = "0 permits";
-      return;
+    <footer>
+      <div>© 2025 PermitPulse. Built in Los Angeles.</div>
+    </footer>
+  </main>
+
+  <script>
+  (() => {
+    const DATASET_URL = 'https://data.lacity.org/resource/pi9x-tg5x.json';
+
+    const TRADE_KEYWORDS = {
+      roof: ['REROOF', 'ROOF'],
+      solar: ['SOLAR'],
+      adu: ['ADU'],
+      hvac: ['HVAC'],
+      panel: ['PANEL UPGRADE', 'SERVICE UPGRADE'],
+      all: []
+    };
+
+    const els = {
+      trade: document.getElementById('tpTrade'),
+      days: document.getElementById('tpDays'),
+      min: document.getElementById('tpMin'),
+      refresh: document.getElementById('tpRefresh'),
+      body: document.getElementById('tpBody'),
+      statusText: document.getElementById('tpStatusText'),
+      statusDot: document.getElementById('tpStatusDot')
+    };
+
+    function formatSoqlDate(daysBack) {
+      const d = new Date();
+      d.setDate(d.getDate() - daysBack);
+      const yyyy = d.getFullYear();
+      const mm = String(d.getMonth() + 1).padStart(2, '0');
+      const dd = String(d.getDate()).padStart(2, '0');
+      return \`\${yyyy}-\${mm}-\${dd}T00:00:00\`;
     }
 
-    list.forEach(p => {
-      const tr = document.createElement("tr");
+    function firstField(row, keys) {
+      for (const key of keys) {
+        if (row[key]) return row[key];
+        const lower = key.toLowerCase();
+        if (row[lower]) return row[lower];
+        const upper = key.toUpperCase();
+        if (row[upper]) return row[upper];
+      }
+      return '';
+    }
 
-      const issued = document.createElement("td");
-      const addr = document.createElement("td");
-      const val = document.createElement("td");
-      const desc = document.createElement("td");
+    function formatCurrency(val) {
+      const num = Number(val);
+      if (!isFinite(num)) return '—';
+      if (num >= 1_000_000) {
+        return '$' + (num / 1_000_000).toFixed(1).replace(/\\.0$/, '') + 'M';
+      }
+      if (num >= 1_000) {
+        return '$' + (num / 1_000).toFixed(1).replace(/\\.0$/, '') + 'k';
+      }
+      return '$' + num.toLocaleString('en-US', { maximumFractionDigits: 0 });
+    }
 
-      issued.textContent = (p.issue_date || "").slice(0, 10);
-      addr.textContent = p.site_address || p.address || "";
-      val.textContent = formatMoney(p.valuation || p.est_valuation);
-      val.className = "val";
+    function setStatus(online) {
+      if (!els.statusDot || !els.statusText) return;
+      if (online) {
+        els.statusDot.style.background = '#22c55e';
+        els.statusText.textContent = 'Online · live data from LADBS';
+      } else {
+        els.statusDot.style.background = '#f97373';
+        els.statusText.textContent = 'Temporarily offline · showing sample data';
+      }
+    }
 
-      const trade = (p.trade || p.permit_type || "").toString().toUpperCase();
-      const description = p.work_description || p.description || "";
+    function renderRows(rows) {
+      if (!els.body) return;
+      els.body.innerHTML = '';
+      if (!rows || !rows.length) {
+        const tr = document.createElement('tr');
+        tr.innerHTML = '<td colspan="4" class="muted">No permits match this filter.</td>';
+        els.body.appendChild(tr);
+        return;
+      }
+      for (const row of rows) {
+        const issueRaw = firstField(row, ['issue_date']);
+        const issue = issueRaw ? String(issueRaw).slice(0, 10) : '—';
 
-      const tag = document.createElement("div");
-      tag.className = "tag";
-      tag.textContent = trade || "PERMIT";
+        const valRaw = firstField(row, ['valuation', 'est_valuation']);
+        const val = formatCurrency(valRaw);
 
-      const descSpan = document.createElement("div");
-      descSpan.className = "desc";
-      descSpan.textContent = description;
+        let addr = firstField(row, ['address', 'site_addr', 'site_address', 'location_address']);
+        if (!addr) {
+          const num = firstField(row, ['addr_start', 'addr_number', 'house_no']);
+          const street = firstField(row, ['street_name']);
+          const suffix = firstField(row, ['street_suffix']);
+          addr = [num, street, suffix].filter(Boolean).join(' ');
+        }
+        const city = firstField(row, ['city', 'city_name']);
+        const zip = firstField(row, ['zip', 'zip_code']);
+        const fullAddr = [addr, city, zip].filter(Boolean).join(', ') || '—';
 
-      desc.appendChild(tag);
-      desc.appendChild(descSpan);
+        const desc = firstField(row, ['work_desc', 'description']) || '—';
 
-      tr.appendChild(issued);
-      tr.appendChild(addr);
-      tr.appendChild(val);
-      tr.appendChild(desc);
+        const tr = document.createElement('tr');
+        tr.innerHTML = \`
+          <td>\${issue}</td>
+          <td>\${fullAddr}</td>
+          <td class="val">\${val}</td>
+          <td>\${desc}</td>
+        \`;
+        els.body.appendChild(tr);
+      }
+    }
 
-      tbody.appendChild(tr);
-    });
+    const SAMPLE = [
+      {
+        issue_date: '2025-11-20T00:00:00',
+        address: '8100 SUNSET BLVD, LOS ANGELES, CA 90046',
+        valuation: 550000,
+        work_desc: 'TI FOR NEW RESTAURANT SPACE. STRUCTURAL + MECHANICAL, PLUMBING & ELECTRICAL.'
+      },
+      {
+        issue_date: '2025-11-18T00:00:00',
+        address: '1200 S FIGUEROA ST, LOS ANGELES, CA 90015',
+        valuation: 980000,
+        work_desc: 'NEW ROOF + SOLAR + STRUCTURAL UPGRADE FOR EXISTING COMMERCIAL BUILDING.'
+      }
+    ];
 
-    resultCount.textContent = list.length + " permits";
-  }
+    async function loadTopPermits() {
+      if (!els.body) return;
+      els.body.innerHTML = '<tr><td colspan="4" class="muted">Loading…</td></tr>';
 
-  async function loadTopPermits() {
-    statusText.textContent = "Loading top permits…";
-    statusDot.style.background = "#22c55e";
-    statusDot.style.boxShadow = "0 0 0 4px rgba(22,163,74,0.4)";
-    tbody.innerHTML = "";
+      const tradeValue = (els.trade.value || 'all').toLowerCase();
+      const daysBack = parseInt(els.days.value || '30', 10);
+      const minVal = parseInt(els.min.value || '0', 10);
 
-    const params = new URLSearchParams({
-      trade: tradeEl.value,
-      minValue: minValueEl.value
-    });
+      const params = new URLSearchParams();
+      params.set('$limit', '100');
+      params.set('$order', 'valuation DESC');
 
-    try {
-      const res = await fetch("/api/top-permits?" + params.toString(), {
-        headers: { "Accept": "application/json" }
-      });
+      const whereParts = [
+        \`issue_date >= '\${formatSoqlDate(daysBack)}'\`
+      ];
 
-      const json = await res.json().catch(() => null);
-      if (!res.ok || !json || json.ok === false) {
-        throw new Error(json && json.error ? json.error : "Top permits offline");
+      if (minVal > 0) {
+        whereParts.push(\`valuation >= \${minVal}\`);
       }
 
-      const permits = json.permits || json.results || [];
-      renderPermits(permits);
-      statusText.textContent = "Live data from LADBS · sorted by value.";
-    } catch (err) {
-      console.error("Top permits error", err);
-      statusText.textContent = "Top-permits API temporarily offline. Showing sample data.";
-      statusDot.style.background = "#f97316";
-      statusDot.style.boxShadow = "0 0 0 4px rgba(248,113,113,0.5)";
-      renderPermits(SAMPLE);
+      const keywords = TRADE_KEYWORDS[tradeValue] || [];
+      if (keywords.length) {
+        const clauses = keywords.map(k => {
+          const safe = k.replace(/'/g, "''").toUpperCase();
+          return \`upper(work_desc) like '%\${safe}%'\`;
+        });
+        whereParts.push('(' + clauses.join(' OR ') + ')');
+      }
+
+      params.set('$where', whereParts.join(' AND '));
+
+      try {
+        const res = await fetch(DATASET_URL + '?' + params.toString());
+        if (!res.ok) throw new Error('Network');
+        const data = await res.json();
+        renderRows(data);
+        setStatus(true);
+      } catch (err) {
+        console.error('Top Permits error', err);
+        renderRows(SAMPLE);
+        setStatus(false);
+      }
     }
-  }
 
-  function downloadCSV() {
-    const rows = [["issue_date","address","valuation","trade","description"]];
-    const trs = tbody.querySelectorAll("tr");
+    if (els.refresh) {
+      els.refresh.addEventListener('click', loadTopPermits);
+    }
 
-    if (!trs.length) return;
-
-    trs.forEach(tr => {
-      const tds = tr.querySelectorAll("td");
-      if (tds.length < 4) return;
-      const issued = tds[0].innerText || "";
-      const addr = tds[1].innerText || "";
-      const val = tds[2].innerText || "";
-      const descCell = tds[3];
-      const tag = descCell.querySelector(".tag");
-      const trade = tag ? tag.textContent.trim() : "";
-      const desc = descCell.querySelector(".desc") ? descCell.querySelector(".desc").textContent.trim() : "";
-
-      rows.push([issued, addr, val, trade, desc]);
-    });
-
-    const csv = rows.map(r => r.map(field => `"${(field || "").replace(/"/g, '""')}"`).join(",")).join("\n");
-    const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "permitpulse-top-permits.csv";
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-  }
-
-  refreshBtn.addEventListener("click", loadTopPermits);
-  downloadBtn.addEventListener("click", downloadCSV);
-  document.addEventListener("DOMContentLoaded", loadTopPermits);
-</script>
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', loadTopPermits);
+    } else {
+      loadTopPermits();
+    }
+  })();
+  </script>
 </body>
 </html>
