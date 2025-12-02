@@ -420,7 +420,7 @@
 
         <div>
           <div class="field-label">Days back</div>
-          <select id="days">
+          <select id="daysBack">
             <option value="3">3</option>
             <option value="7" selected>7</option>
             <option value="14">14</option>
@@ -438,11 +438,11 @@
         </div>
       </div>
 
-      <button class="btn-primary" id="refresh">Refresh</button>
+      <button class="btn-primary" id="refreshBtn">Refresh</button>
 
       <div class="status-bar">
-        <div id="status-text">Loading latest permits…</div>
-        <div class="status-dot" id="status-dot"></div>
+        <div id="statusText">Loading latest permits…</div>
+        <div class="status-dot" id="statusDot"></div>
       </div>
 
       <div class="table-wrap">
@@ -455,7 +455,7 @@
               <th>Description</th>
             </tr>
           </thead>
-          <tbody id="table-body">
+          <tbody id="resultsBody">
           </tbody>
         </table>
         <div class="table-footer">
@@ -492,121 +492,176 @@
 </footer>
 
 <script>
-  const tradeEl = document.getElementById('trade');
-  const daysEl = document.getElementById('days');
-  const limitEl = document.getElementById('limit');
-  const refreshBtn = document.getElementById('refresh');
-  const statusText = document.getElementById('status-text');
-  const statusDot = document.getElementById('status-dot');
-  const tbody = document.getElementById('table-body');
-  const resultCount = document.getElementById('result-count');
+(() => {
+  const DATASET_URL = 'https://data.lacity.org/resource/pi9x-tg5x.json';
 
-  // Fallback sample data so the table never looks dead
-  const SAMPLE_PERMITS = [
-    {
-      issued_date: "2025-11-26",
-      address: "1234 AVOCADO ST, LOS ANGELES, CA 90022",
-      est_valuation: 32000,
-      description: "REROOF 28 SQRS COMP SHINGLE. LIKE FOR LIKE."
-    },
-    {
-      issued_date: "2025-11-25",
-      address: "5100 FIGUEROA ST, LOS ANGELES, CA 90037",
-      est_valuation: 48500,
-      description: "INSTALL 9.6KW ROOF-MOUNTED PV SYSTEM. PANEL UPGRADE 100A→200A."
-    },
-    {
-      issued_date: "2025-11-24",
-      address: "2210 VALLEY BLVD, ALHAMBRA, CA 91803",
-      est_valuation: 126000,
-      description: "GARAGE CONVERSION TO ADU (1 BD / 1 BA). NEW ELECTRICAL / PLUMBING / HVAC."
-    }
-  ];
+  const TRADE_KEYWORDS = {
+    roof: ['REROOF', 'ROOF'],
+    solar: ['SOLAR'],
+    adu: ['ADU'],
+    hvac: ['HVAC'],
+    panel: ['PANEL UPGRADE', 'SERVICE UPGRADE'],
+    all: []
+  };
 
-  function formatMoney(value) {
-    if (value == null || isNaN(value)) return "–";
-    const num = Number(value);
-    if (num >= 1000) {
-      return "$" + (num / 1000).toFixed(1) + "k";
-    }
-    return "$" + num.toLocaleString();
+  const els = {
+    trade: document.getElementById('trade'),
+    daysBack: document.getElementById('daysBack'),
+    limit: document.getElementById('limit'),
+    refresh: document.getElementById('refreshBtn'),
+    statusText: document.getElementById('statusText'),
+    statusDot: document.getElementById('statusDot'),
+    tbody: document.getElementById('resultsBody')
+  };
+
+  function formatSoqlDate(daysBack) {
+    const d = new Date();
+    d.setDate(d.getDate() - daysBack);
+    const yyyy = d.getFullYear();
+    const mm = String(d.getMonth() + 1).padStart(2, '0');
+    const dd = String(d.getDate()).padStart(2, '0');
+    return `${yyyy}-${mm}-${dd}T00:00:00`;
   }
 
-  function renderPermits(permits) {
-    tbody.innerHTML = "";
-    if (!permits || !permits.length) {
-      const row = document.createElement("tr");
-      const cell = document.createElement("td");
-      cell.colSpan = 4;
-      cell.textContent = "No permits found for this window.";
-      cell.style.color = "#9ca3af";
-      row.appendChild(cell);
-      tbody.appendChild(row);
-      resultCount.textContent = "0 permits";
+  function firstField(row, keys) {
+    for (const key of keys) {
+      if (row[key]) return row[key];
+      const lower = key.toLowerCase();
+      if (row[lower]) return row[lower];
+      const upper = key.toUpperCase();
+      if (row[upper]) return row[upper];
+    }
+    return '';
+  }
+
+  function formatCurrency(val) {
+    const num = Number(val);
+    if (!isFinite(num)) return '—';
+    if (num >= 1_000_000) {
+      return '$' + (num / 1_000_000).toFixed(1).replace(/\.0$/, '') + 'M';
+    }
+    if (num >= 1_000) {
+      return '$' + (num / 1_000).toFixed(1).replace(/\.0$/, '') + 'k';
+    }
+    return '$' + num.toLocaleString('en-US', { maximumFractionDigits: 0 });
+  }
+
+  function setStatus(online) {
+    if (!els.statusDot || !els.statusText) return;
+    if (online) {
+      els.statusDot.style.background = '#22c55e'; // green
+      els.statusText.textContent = 'Radar online · live data from LADBS';
+    } else {
+      els.statusDot.style.background = '#f97373'; // red
+      els.statusText.textContent = 'Radar temporarily offline. Showing recent sample data.';
+    }
+  }
+
+  function renderRows(rows) {
+    if (!els.tbody) return;
+    els.tbody.innerHTML = '';
+    if (!rows || !rows.length) {
+      const tr = document.createElement('tr');
+      tr.innerHTML = '<td colspan="4" class="muted">No permits found for this filter.</td>';
+      els.tbody.appendChild(tr);
       return;
     }
 
-    permits.forEach(p => {
-      const tr = document.createElement("tr");
-      const issued = document.createElement("td");
-      const addr = document.createElement("td");
-      const val = document.createElement("td");
-      const desc = document.createElement("td");
+    for (const row of rows) {
+      const issueRaw = firstField(row, ['issue_date']);
+      const issue = issueRaw ? String(issueRaw).slice(0, 10) : '—';
 
-      issued.textContent = (p.issue_date || p.issued_date || "").slice(0, 10);
-      addr.textContent = p.site_address || p.address || "";
-      val.textContent = formatMoney(p.valuation || p.est_valuation);
-      val.className = "val";
-      desc.textContent = p.work_description || p.description || "";
-      desc.className = "desc";
+      const valRaw = firstField(row, ['valuation', 'est_valuation']);
+      const val = formatCurrency(valRaw);
 
-      tr.appendChild(issued);
-      tr.appendChild(addr);
-      tr.appendChild(val);
-      tr.appendChild(desc);
-      tbody.appendChild(tr);
-    });
-
-    resultCount.textContent = permits.length + " permits";
-  }
-
-  async function loadRadar() {
-    statusText.textContent = "Loading latest permits…";
-    statusDot.style.background = "#22c55e";
-    statusDot.style.boxShadow = "0 0 0 6px rgba(22,163,74,0.35)";
-    tbody.innerHTML = "";
-
-    const params = new URLSearchParams({
-      trade: tradeEl.value,
-      daysBack: daysEl.value,
-      limit: limitEl.value
-    });
-
-    try {
-      const res = await fetch("/api/radar?" + params.toString(), {
-        headers: { "Accept": "application/json" }
-      });
-
-      const json = await res.json().catch(() => null);
-
-      if (!res.ok || !json || json.ok === false) {
-        throw new Error(json && json.error ? json.error : "Radar offline");
+      let addr = firstField(row, ['address', 'site_addr', 'site_address', 'location_address']);
+      if (!addr) {
+        const num = firstField(row, ['addr_start', 'addr_number', 'house_no']);
+        const street = firstField(row, ['street_name']);
+        const suffix = firstField(row, ['street_suffix']);
+        addr = [num, street, suffix].filter(Boolean).join(' ');
       }
+      const city = firstField(row, ['city', 'city_name']);
+      const zip = firstField(row, ['zip', 'zip_code']);
+      const fullAddr = [addr, city, zip].filter(Boolean).join(', ') || '—';
 
-      const permits = json.permits || json.results || [];
-      renderPermits(permits);
-      statusText.textContent = "Live results from LADBS.";
-    } catch (err) {
-      console.error("Radar error", err);
-      statusText.textContent = "Radar temporarily offline. Showing recent sample data.";
-      statusDot.style.background = "#f97316";
-      statusDot.style.boxShadow = "0 0 0 6px rgba(248,113,113,0.45)";
-      renderPermits(SAMPLE_PERMITS);
+      const desc = firstField(row, ['work_desc', 'description']) || '—';
+
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${issue}</td>
+        <td>${fullAddr}</td>
+        <td>${val}</td>
+        <td>${desc}</td>
+      `;
+      els.tbody.appendChild(tr);
     }
   }
 
-  refreshBtn.addEventListener("click", loadRadar);
-  document.addEventListener("DOMContentLoaded", loadRadar);
-</script>
+  const SAMPLE_ROWS = [
+    {
+      issue_date: '2025-11-26T00:00:00',
+      address: '1234 AVOCADO ST, LOS ANGELES, CA 90022',
+      valuation: 32000,
+      work_desc: 'REROOF 28 SQRS COMP SHINGLE. LIKE FOR LIKE.'
+    },
+    {
+      issue_date: '2025-11-25T00:00:00',
+      address: '9876 FIGUEROA ST, LOS ANGELES, CA 90003',
+      valuation: 48000,
+      work_desc: 'INSTALL 7.2 KW ROOF-MOUNT SOLAR PV SYSTEM.'
+    }
+  ];
+
+  async function loadRadar() {
+    if (!els.tbody) return;
+    els.tbody.innerHTML = '<tr><td colspan="4" class="muted">Loading…</td></tr>';
+
+    const tradeValue = (els.trade && els.trade.value || 'roof').toLowerCase();
+    const daysBack = els.daysBack ? parseInt(els.daysBack.value || '7', 10) : 7;
+    const limit = els.limit ? parseInt(els.limit.value || '50', 10) : 50;
+
+    const params = new URLSearchParams();
+    params.set('$limit', String(limit));
+    params.set('$order', 'issue_date DESC');
+
+    const whereParts = [`issue_date >= '${formatSoqlDate(daysBack)}'`];
+
+    const keywords = TRADE_KEYWORDS[tradeValue] || [];
+    if (keywords.length) {
+      const clauses = keywords.map(k => {
+        const safe = k.replace(/'/g, "''").toUpperCase();
+        return `upper(work_desc) like '%${safe}%'`;
+      });
+      whereParts.push('(' + clauses.join(' OR ') + ')');
+    }
+
+    params.set('$where', whereParts.join(' AND '));
+
+    try {
+      const res = await fetch(DATASET_URL + '?' + params.toString());
+      if (!res.ok) throw new Error('Network');
+      const data = await res.json();
+      renderRows(data);
+      setStatus(true);
+    } catch (err) {
+      console.error('Radar error', err);
+      renderRows(SAMPLE_ROWS);
+      setStatus(false);
+    }
+  }
+
+  if (els.refresh) {
+    els.refresh.addEventListener('click', loadRadar);
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', loadRadar);
+  } else {
+    loadRadar();
+  }
+})();
+</script>  
+
 </body>
 </html>
