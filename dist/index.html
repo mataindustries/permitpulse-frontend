@@ -3,22 +3,23 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-   <title>PermitPulse | Exclusive LA Permit Leads for Contractors</title>
-  <meta name="description" content="Stop buying shared leads. PermitPulse monitors LADBS in real-time and books estimates for Roofers & Solar installers before competitors know the permit exists." />
-  <meta name="keywords" content="LADBS permits, roofing leads Los Angeles, solar leads, construction marketing, exclusive contractor leads" />
+  <title>PermitPulse | Exclusive LA Permit Leads for Contractors</title>
+  <meta name="description" content="Stop buying shared leads. PermitPulse monitors LADBS in real-time and books estimates for Roofers & Solar installers before competitors know the permit exists. Test our free tools before you pay a dime." />
+  <meta name="keywords" content="LADBS permits, roofing leads Los Angeles, solar leads, construction marketing, exclusive contractor leads, permit radar, free LOI generator" />
   
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://getpermitpulse.com/" />
   <meta property="og:title" content="PermitPulse | The City Prints Money. Get There First." />
-  <meta property="og:description" content="We watch LADBS in real-time. When a permit hits, we contact the owner before the ink is dry. Stop fighting over shared Angi leads." />
+  <meta property="og:description" content="We watch LADBS in real-time and turn permits into booked jobs. Try the free tools before you buy." />
   <meta property="og:image" content="https://getpermitpulse.com/og-image.png" />
 
   <meta property="twitter:card" content="summary_large_image" />
   <meta property="twitter:url" content="https://getpermitpulse.com/" />
   <meta property="twitter:title" content="PermitPulse | Priority Access to LA Permits" />
-  <meta property="twitter:description" content="Turn live LADBS data into booked jobs. No shared leads. 100% exclusive." />
+  <meta property="twitter:description" content="Turn live LADBS data into booked jobs. No shared leads. 100% exclusive. Free tools to prove it." />
   <meta property="twitter:image" content="https://getpermitpulse.com/og-image.png" />
   <meta name="twitter:image" content="https://getpermitpulse.com/og-permitpulse.png" />
+
   <!-- GA4 -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-0S8S6156CV"></script>
   <script>
@@ -29,7 +30,6 @@
   </script>
   
   <link rel="canonical" href="https://getpermitpulse.com/" />
-  
   
   <style>
     /* --- RESET & VARIABLES --- */
@@ -96,11 +96,18 @@
       color: var(--bg);
       font-weight: 600;
       border-radius: 4px;
-      transition: transform 0.2s var(--ease);
+      transition: transform 0.2s var(--ease), background 0.2s var(--ease), color 0.2s var(--ease), border-color 0.2s var(--ease);
       font-size: 16px;
+      border: 1px solid transparent;
+      cursor: pointer;
     }
     .btn:hover { transform: scale(1.02); }
     .btn-orange { background: var(--accent-orange); color: white; }
+    .btn-ghost {
+      background: transparent;
+      color: var(--text-main);
+      border-color: #333;
+    }
     
     .badge {
       display: inline-block;
@@ -122,6 +129,7 @@
       z-index: 100;
       backdrop-filter: blur(10px);
       border-bottom: 1px solid rgba(255,255,255,0.05);
+      background: rgba(5,5,5,0.85);
     }
     
     .nav-inner { display: flex; justify-content: space-between; align-items: center; }
@@ -170,9 +178,9 @@
       flex-direction: column;
       justify-content: space-between;
       min-height: 240px;
-      transition: border-color 0.3s;
+      transition: border-color 0.3s, transform 0.2s var(--ease);
     }
-    .bento-box:hover { border-color: #333; }
+    .bento-box:hover { border-color: #333; transform: translateY(-2px); }
     
     .bento-icon {
       font-family: var(--font-mono);
@@ -254,7 +262,22 @@
     }
     @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
 
+    /* --- FREE TOOLS SECTION --- */
+    .tools-eyebrow {
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--accent-blue);
+      font-family: var(--font-mono);
+      margin-bottom: 8px;
+    }
+    .tool-meta {
+      font-size: 11px;
+      color: #666;
+      margin-top: 8px;
+    }
   </style>
+
   <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -268,7 +291,7 @@
     "url": "https://getpermitpulse.com/",
     "logo": "https://getpermitpulse.com/og-image.png",
     "sameAs": [
-      "https://twitter.com/permitpulse" 
+      "https://twitter.com/permitpulse"
     ]
   },
   "areaServed": {
@@ -311,8 +334,11 @@
 
 <header>
   <div class="wrap nav-inner">
-    <a href="#" class="logo">PermitPulse <span class="orange">/</span> Beta</a>
-    <a href="mailto:hello@getpermitpulse.com?subject=Founder%20Access" class="mono" style="font-size: 13px;">hello@getpermitpulse.com</a>
+    <a href="/" class="logo">PermitPulse <span class="orange">/</span> Beta</a>
+    <div style="display:flex; gap:20px; align-items:center;">
+      <a href="#free-tools" class="mono" style="font-size: 13px;">Free tools</a>
+      <a href="mailto:hello@getpermitpulse.com?subject=Founder%20Access" class="mono" style="font-size: 13px;">hello@getpermitpulse.com</a>
+    </div>
   </div>
 </header>
 
@@ -325,8 +351,118 @@
   </p>
 
   <div style="display: flex; gap: 16px; flex-wrap: wrap;">
-    <a href="mailto:hello@getpermitpulse.com?subject=I%20want%20the%20founder%20deal" class="btn btn-orange">Claim Founder Spot</a>
+    <a href="mailto:hello@getpermitpulse.com?subject=I%20want%20the%20founder%20deal" class="btn btn-orange"
+       onclick="gtag && gtag('event','click_founder_spot',{location:'hero'});">
+      Claim Founder Spot
+    </a>
+    <a href="#free-tools" class="btn btn-ghost"
+       onclick="gtag && gtag('event','click_free_tools_cta',{location:'hero'});">
+      Try the free tools first
+    </a>
     <span class="mono" style="align-self: center; font-size: 12px; color: #666;">Only 5 spots available at this rate.</span>
+  </div>
+</section>
+
+<!-- FREE TOOLS PROOF SECTION -->
+<section class="section" id="free-tools" style="background:#050506;">
+  <div class="wrap">
+    <div class="grid grid-2" style="align-items:flex-end; margin-bottom:32px;">
+      <div>
+        <div class="tools-eyebrow">Proof before pitch</div>
+        <h2 style="margin-bottom:14px;">Use the tools I already built.<br>No login. No credit card.</h2>
+        <p class="muted" style="max-width:420px;">
+          Before you pay a dollar, you can play with the same system I use for clients:
+          live permit radar, a letter-of-intent generator, and a dashboard of real LADBS jobs.
+        </p>
+      </div>
+      <div style="text-align:right;">
+        <p class="mono" style="font-size:12px; color:#666;">
+          Built for roofers, solar, and GC crews in LA County.
+          <br>Mobile-friendly so your office manager can use it from a phone.
+        </p>
+      </div>
+    </div>
+
+    <div class="grid grid-3">
+      <!-- Live Permit Radar -->
+      <div class="bento-box">
+        <div>
+          <span class="bento-icon">FREE_TOOL / RADAR</span>
+          <h3>Live Permit Radar (Sample)</h3>
+          <p class="muted" style="margin-top: 10px; font-size: 14px;">
+            See a live feed of LADBS permits by trade and ZIP. This is a sandbox view
+            so you can feel how fast the data hits without talking to a salesperson.
+          </p>
+        </div>
+        <div style="margin-top:20px;">
+          <a href="/radar"
+             class="btn btn-ghost mono"
+             style="font-size:13px; width:100%; justify-content:space-between;"
+             onclick="gtag && gtag('event','click_tool',{tool:'radar', location:'free_tools_section'});">
+            Open Live Radar <span>↗</span>
+          </a>
+          <div class="tool-meta mono">
+            Sample feed. No signup required.
+          </div>
+        </div>
+      </div>
+
+      <!-- LOI Generator -->
+      <div class="bento-box">
+        <div>
+          <span class="bento-icon">FREE_TOOL / LOI</span>
+          <h3>Instant LOI Generator</h3>
+          <p class="muted" style="margin-top: 10px; font-size: 14px;">
+            Turn a simple project description into a polished Letter of Intent you can
+            text or email a homeowner in minutes. Built for roofing, solar, ADUs, and panel upgrades.
+          </p>
+        </div>
+        <div style="margin-top:20px;">
+          <a href="/loi"
+             class="btn btn-ghost mono"
+             style="font-size:13px; width:100%; justify-content:space-between;"
+             onclick="gtag && gtag('event','click_tool',{tool:'loi', location:'free_tools_section'});">
+            Open LOI Tool <span>↗</span>
+          </a>
+          <div class="tool-meta mono">
+            Use it on your next estimate. No charge.
+          </div>
+        </div>
+      </div>
+
+      <!-- Top Permits Dashboard -->
+      <div class="bento-box">
+        <div>
+          <span class="bento-icon">FREE_TOOL / DASHBOARD</span>
+          <h3>Top Permits Dashboard</h3>
+          <p class="muted" style="margin-top: 10px; font-size: 14px;">
+            Browse the biggest roofing, solar, and ADU permits in LA from the last 30 days.
+            Export a CSV and see exactly where the money is flowing.
+          </p>
+        </div>
+        <div style="margin-top:20px;">
+          <a href="/top-permits"
+             class="btn btn-ghost mono"
+             style="font-size:13px; width:100%; justify-content:space-between;"
+             onclick="gtag && gtag('event','click_tool',{tool:'top_permits', location:'free_tools_section'});">
+            View Top Permits <span>↗</span>
+          </a>
+          <div class="tool-meta mono">
+            Filter by trade. Download to share with your team.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div style="margin-top:32px; text-align:center;">
+      <p class="mono" style="font-size:12px; color:#666;">
+        Like what you see? Book a quick walkthrough:
+        <a href="/booking" style="text-decoration:underline;"
+           onclick="gtag && gtag('event','click_booking',{location:'free_tools_section'});">
+          15-minute Founder Session
+        </a>.
+      </p>
+    </div>
   </div>
 </section>
 
@@ -396,7 +532,7 @@
             <span class="status-dot"></span>
           </div>
           <div class="feed-content" id="feed">
-            </div>
+          </div>
         </div>
       </div>
 
@@ -446,12 +582,14 @@
         <div>
           <h2 style="margin-bottom: 20px;">The Founder's Rate</h2>
           <p class="muted" style="margin-bottom: 20px;">
-            I am a builder, not a salesman. I built this tool. Now I need 5 partners to prove it works at scale before I raise the price to $4k/mo.
+            I am a builder, not a salesman. I built these tools first—the radar, the LOI generator, the permit dashboards—then wrapped a service around them.
+            Now I need 5 partners to prove it works at scale before I raise the price to $4k/mo.
           </p>
           <ul style="list-style: none; margin-bottom: 30px;">
             <li style="margin-bottom: 10px;">+ Exclusive ZIP Code Lock</li>
             <li style="margin-bottom: 10px;">+ Unlimited Leads (You get everything we find)</li>
             <li style="margin-bottom: 10px;">+ English/Spanish AI Outreach</li>
+            <li style="margin-bottom: 10px;">+ Deal-Ready LOI templates for your crew</li>
             <li style="color: var(--accent-orange);">+ The "Outcome Guarantee"</li>
           </ul>
         </div>
@@ -461,7 +599,11 @@
           <div class="price-huge">$1,997<span style="font-size: 20px; color: #666; font-weight: 400;">/mo</span></div>
           <div class="mono badge" style="margin-top: 20px;">Month-to-Month. No Contract.</div>
           
-          <a href="mailto:hello@getpermitpulse.com?subject=Secure%20Founder%20Spot" class="btn btn-orange" style="width: 100%; margin-top: 20px;">Secure My Spot</a>
+          <a href="mailto:hello@getpermitpulse.com?subject=Secure%20Founder%20Spot"
+             class="btn btn-orange" style="width: 100%; margin-top: 20px;"
+             onclick="gtag && gtag('event','click_founder_spot',{location:'pricing'});">
+            Secure My Spot
+          </a>
         </div>
       </div>
     </div>
@@ -470,6 +612,9 @@
       <h3 style="margin-bottom: 10px;">The "Put Up or Shut Up" Guarantee</h3>
       <p class="muted" style="max-width: 600px; margin: 0 auto;">
         If we don't put <strong>2 qualified estimates</strong> on your calendar in the first 60 days, you get a full refund. No questions. No "marketing spend" excuses.
+      </p>
+      <p class="mono" style="font-size:12px; color:#666; margin-top:16px;">
+        Start by running your own tests with the free tools above. When you're ready, lock your ZIP and turn it on.
       </p>
     </div>
   </div>
@@ -518,7 +663,7 @@
     }
   }
 
-  // Add one initially
+  // Add some initially
   addFeedItem();
   addFeedItem();
 
