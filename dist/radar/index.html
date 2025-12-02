@@ -1,196 +1,612 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <title>Radar: Live Permits • PermitPulse</title>
+  <title>PermitPulse Radar | Live LA Permits</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="robots" content="noindex" />
-  <link rel="icon" href="/favicon.ico" />
+  <meta name="description" content="See fresh LADBS permits by trade in seconds. No login, no paywall. Built for LA roofers, solar, and GC crews." />
+
   <style>
-    :root { --bg:#0b1220; --card:#11182a; --muted:#98a2b3; --text:#e6eaf2; --accent:#2f6cf6; }
-    *{box-sizing:border-box} body{margin:0; font:16px/1.5 system-ui,Segoe UI,Roboto,Helvetica,Arial,sans-serif; color:var(--text); background:
-      radial-gradient(1200px 500px at 10% -10%, #2f6cf622, transparent 60%),
-      linear-gradient(180deg, #0a1020 0%, #0b1220 30%, #0b1220 100%);
+    :root {
+      --bg: #050505;
+      --card-bg: #0f172a;
+      --card-border: #1e293b;
+      --text-main: #e5e7eb;
+      --text-muted: #94a3b8;
+      --accent-blue: #2563eb;
+      --accent-orange: #f97316;
+      --font-sans: system-ui, -apple-system, BlinkMacSystemFont, "Inter", sans-serif;
+      --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      --radius-lg: 18px;
+      --radius-md: 12px;
     }
-    .wrap{max-width:960px; margin:48px auto; padding:0 16px}
-    h1{font-size:36px; margin:0 0 6px}
-    p.lead{margin:0 0 24px; color:var(--muted)}
-    .card{background:var(--card); border:1px solid #243045; border-radius:16px; padding:18px; box-shadow:0 6px 24px rgba(0,0,0,.25)}
-    .controls{display:grid; grid-template-columns:1fr 1fr 1fr auto; gap:12px; align-items:end}
-    label{font-size:12px; color:var(--muted); display:block; margin:0 0 6px}
-    select,button{width:100%; padding:12px 14px; border-radius:10px; border:1px solid #2b3752; background:#0f1627; color:var(--text)}
-    button{background:var(--accent); border-color:var(--accent); font-weight:600; cursor:pointer}
-    .summary{margin:14px 4px 0; color:var(--muted)}
-    .summary a{color:#bcd0ff}
-    table{width:100%; border-collapse:collapse; margin-top:14px; font-size:14px}
-    th,td{padding:12px 10px; border-top:1px solid #233049; vertical-align:top}
-    th{color:#c8d0e0; font-weight:600; text-align:left}
-    .mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
-    .val{white-space:nowrap}
-    .desc{color:#cbd5e1}
-    .muted{color:var(--muted)}
-    @media (max-width:720px){
-      .controls{grid-template-columns:1fr 1fr; grid-auto-rows:auto}
-      .controls button{grid-column:1 / -1}
-      table{font-size:13px}
-      .hide-sm{display:none}
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: var(--font-sans);
+      background: radial-gradient(circle at top, #020617 0, #020617 40%, #020617 60%, #020617 100%);
+      color: var(--text-main);
+      min-height: 100vh;
     }
-    .card.cta { display:grid; gap:10px; background:var(--card); border:1px solid #24304b; border-radius:16px; padding:16px; }
-.cta-row { display:grid; grid-template-columns: 1fr auto; align-items:center; gap:12px; }
-.cta-copy strong { font-size:16px; }
-.cta-actions { display:flex; gap:10px; }
-.btn { display:inline-block; padding:10px 14px; border-radius:10px; font-weight:600; text-decoration:none;
-       background:linear-gradient(180deg,#2b73f2 0%, #1e4bd1 100%); color:#fff; box-shadow:0 2px 10px rgba(0,0,0,.15); }
-.btn.ghost { background:transparent; color:var(--accent); border:1px solid var(--accent); }
-@media (max-width: 720px){
-  .cta-row{ grid-template-columns: 1fr; }
-  .cta-actions{ justify-content:flex-start; }
-}
+
+    a { color: inherit; text-decoration: none; }
+
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      backdrop-filter: blur(16px);
+      background: rgba(2,6,23,0.9);
+      border-bottom: 1px solid rgba(148,163,184,0.12);
+    }
+
+    .wrap {
+      max-width: 1040px;
+      margin: 0 auto;
+      padding: 14px 16px;
+    }
+
+    .nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .logo {
+      font-weight: 700;
+      font-size: 18px;
+      letter-spacing: -0.04em;
+    }
+
+    .logo span {
+      color: var(--accent-orange);
+    }
+
+    .nav-right {
+      display: flex;
+      gap: 18px;
+      align-items: center;
+      font-size: 12px;
+      font-family: var(--font-mono);
+      color: var(--text-muted);
+    }
+
+    .nav-right a {
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+
+    main {
+      padding: 32px 16px 40px;
+    }
+
+    .hero {
+      max-width: 1040px;
+      margin: 0 auto 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+
+    .hero-eyebrow {
+      font-size: 11px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      color: var(--accent-blue);
+      font-family: var(--font-mono);
+    }
+
+    h1 {
+      font-size: clamp(1.8rem, 3.5vw, 2.4rem);
+      letter-spacing: -0.04em;
+      line-height: 1.1;
+    }
+
+    .hero-lead {
+      font-size: 0.95rem;
+      color: var(--text-muted);
+      max-width: 520px;
+    }
+
+    .hero-meta {
+      font-size: 11px;
+      font-family: var(--font-mono);
+      color: #64748b;
+    }
+
+    .layout {
+      max-width: 1040px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: minmax(0, 3fr) minmax(0, 2.5fr);
+      gap: 20px;
+    }
+
+    @media (max-width: 900px) {
+      .layout {
+        grid-template-columns: minmax(0, 1fr);
+      }
+    }
+
+    .card {
+      background: radial-gradient(circle at top left, rgba(148,163,184,0.15), transparent 55%),
+                  radial-gradient(circle at bottom right, rgba(30,64,175,0.6), #020617);
+      border-radius: var(--radius-lg);
+      padding: 18px 16px 16px;
+      border: 1px solid rgba(148,163,184,0.18);
+      box-shadow: 0 18px 40px rgba(15,23,42,0.85);
+    }
+
+    .card h2 {
+      font-size: 1.1rem;
+      letter-spacing: -0.03em;
+      margin-bottom: 8px;
+    }
+
+    .card p {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    .controls {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+      margin: 16px 0;
+    }
+
+    .field-label {
+      font-size: 11px;
+      font-family: var(--font-mono);
+      color: #9ca3af;
+      margin-bottom: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+    }
+
+    select {
+      width: 100%;
+      padding: 9px 10px;
+      background: rgba(15,23,42,0.9);
+      border-radius: 999px;
+      border: 1px solid rgba(148,163,184,0.4);
+      color: #e5e7eb;
+      font-size: 13px;
+    }
+
+    button {
+      border: none;
+      cursor: pointer;
+    }
+
+    .btn-primary {
+      width: 100%;
+      padding: 10px 14px;
+      border-radius: 999px;
+      background: #2563eb;
+      color: white;
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      box-shadow: 0 14px 32px rgba(37,99,235,0.6);
+    }
+
+    .btn-primary:active {
+      transform: translateY(1px);
+      box-shadow: 0 10px 20px rgba(37,99,235,0.5);
+    }
+
+    .status-bar {
+      font-size: 11px;
+      font-family: var(--font-mono);
+      color: var(--text-muted);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 4px;
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: #22c55e;
+      box-shadow: 0 0 0 6px rgba(22,163,74,0.35);
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.35); opacity: .35; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    .table-wrap {
+      margin-top: 14px;
+      border-radius: var(--radius-md);
+      border: 1px solid rgba(51,65,85,0.9);
+      overflow: hidden;
+      background: rgba(15,23,42,0.9);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+    }
+
+    thead {
+      background: rgba(15,23,42,0.98);
+      font-family: var(--font-mono);
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      font-size: 10px;
+      color: #9ca3af;
+    }
+
+    th, td {
+      padding: 8px 10px;
+      border-bottom: 1px solid rgba(30,41,59,0.9);
+      text-align: left;
+      vertical-align: top;
+    }
+
+    tbody tr:nth-child(even) {
+      background: rgba(15,23,42,0.9);
+    }
+
+    .val {
+      color: #fbbf24;
+      white-space: nowrap;
+      font-family: var(--font-mono);
+    }
+
+    .desc {
+      color: #cbd5f5;
+    }
+
+    .table-footer {
+      padding: 7px 10px;
+      font-size: 11px;
+      font-family: var(--font-mono);
+      color: #64748b;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: rgba(15,23,42,0.96);
+      border: 1px solid rgba(148,163,184,0.4);
+      font-size: 11px;
+    }
+
+    .pill span {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: #e5e7eb;
+    }
+
+    .cta-card {
+      background: radial-gradient(circle at top right, rgba(56,189,248,0.35), rgba(10,25,47,0.96));
+      border-radius: var(--radius-lg);
+      padding: 18px 16px;
+      border: 1px solid rgba(148,163,184,0.4);
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .cta-pill {
+      font-size: 11px;
+      font-family: var(--font-mono);
+      color: #bae6fd;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+    }
+
+    .cta-card h2 {
+      font-size: 1.1rem;
+      letter-spacing: -0.03em;
+    }
+
+    .cta-buttons {
+      display: flex;
+      gap: 10px;
+      margin-top: 8px;
+      flex-wrap: wrap;
+    }
+
+    .btn-secondary, .btn-ghost {
+      flex: 1;
+      min-width: 120px;
+      padding: 9px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(226,232,240,0.7);
+      font-size: 13px;
+      font-weight: 500;
+      text-align: center;
+      background: rgba(15,23,42,0.1);
+      color: #e5e7eb;
+    }
+
+    .btn-secondary {
+      background: #38bdf8;
+      border-color: #38bdf8;
+      color: #020617;
+      font-weight: 600;
+      box-shadow: 0 12px 32px rgba(56,189,248,0.65);
+    }
+
+    .cta-footnote {
+      font-size: 11px;
+      color: #c4d7ff;
+      font-family: var(--font-mono);
+    }
+
+    footer {
+      max-width: 1040px;
+      margin: 32px auto 0;
+      padding: 12px 16px 24px;
+      font-size: 11px;
+      color: #64748b;
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      border-top: 1px solid rgba(15,23,42,0.9);
+    }
+
+    @media (max-width: 600px) {
+      footer {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+    }
   </style>
 </head>
 <body>
-  <div class="wrap">
-    <h1>Radar: Live Permits</h1>
-    <p class="lead">Freshest LA permits by trade. Zero login. Links to raw data.</p>
 
-    <div class="card">
+<header>
+  <div class="wrap nav">
+    <a href="/" class="logo">PermitPulse<span>/</span> Radar</a>
+    <div class="nav-right">
+      <a href="/top-permits">Top permits</a>
+      <a href="/loi">LOI tool</a>
+    </div>
+  </div>
+</header>
+
+<main>
+  <section class="hero">
+    <div>
+      <div class="hero-eyebrow">Radar · Live LADBS feed</div>
+      <h1>Freshest LA permits by trade. Zero login.</h1>
+    </div>
+    <p class="hero-lead">
+      Pick a trade, number of days back, and a limit. Radar pulls a live sample straight from
+      LADBS so you can see where today's money is flowing.
+    </p>
+    <p class="hero-meta">
+      This is the free preview. The paid version runs every few hours and pushes only the jobs in your zone.
+    </p>
+  </section>
+
+  <section class="layout">
+    <!-- LEFT: Filters + table -->
+    <article class="card">
+      <h2>Filter today’s permits</h2>
+      <p>Dial in by trade and recency, then tap refresh. No email wall, no CSV download games.</p>
+
       <div class="controls">
         <div>
-          <label>TRADE</label>
+          <div class="field-label">Trade</div>
           <select id="trade">
             <option value="roof">Roof</option>
             <option value="solar">Solar</option>
-            <option value="addition">Addition</option>
+            <option value="adu">ADU</option>
+            <option value="panel">Panel upgrade</option>
             <option value="hvac">HVAC</option>
-            <option value="electrical">Electrical</option>
+            <option value="general">General</option>
+            <option value="all">All trades</option>
           </select>
         </div>
+
         <div>
-          <label>DAYS BACK</label>
+          <div class="field-label">Days back</div>
           <select id="days">
-            <option>3</option>
-            <option selected>7</option>
-            <option>14</option>
-            <option>30</option>
+            <option value="3">3</option>
+            <option value="7" selected>7</option>
+            <option value="14">14</option>
+            <option value="30">30</option>
           </select>
         </div>
+
         <div>
-          <label>LIMIT</label>
+          <div class="field-label">Limit</div>
           <select id="limit">
-            <option>25</option>
-            <option selected>50</option>
-            <option>75</option>
-            <option>100</option>
+            <option value="25">25</option>
+            <option value="50" selected>50</option>
+            <option value="100">100</option>
           </select>
         </div>
-        <div><button id="go">Refresh</button></div>
       </div>
-      <!-- CTA: quick call/text -->
-<div class="card cta">
-  <div class="cta-row">
-    <div class="cta-copy">
-      <strong>Need help targeting today’s permits?</strong>
-      <p class="muted">Free 5-min walkthrough + sample alerts. EN/ES.</p>
-    </div>
-    <div class="cta-actions">
-      <a class="btn"  href="tel:+16265550123"
-         onclick="window.gtag&&gtag('event','cta_click',{type:'call', page:'radar'});">
-        Call
-      </a>
-      <a class="btn ghost" href="sms:+15626762691?body=Hi%20PermitPulse%20—%20I%20want%20alerts"
-         onclick="window.gtag&&gtag('event','cta_click',{type:'sms', page:'radar'});">
-        Text
-      </a>
-    </div>
-  </div>
-</div>
 
-      <div class="summary" id="summary"> </div>
+      <button class="btn-primary" id="refresh">Refresh</button>
 
-      <table id="tbl" aria-live="polite">
-        <thead>
-          <tr>
-            <th class="hide-sm">Permit #</th>
-            <th>Issued</th>
-            <th>Issued Address</th>
-            <th class="val">Value</th>
-            <th>Description</th>
-          </tr>
-        </thead>
-        <tbody id="rows"><tr><td colspan="5" class="muted">Loading…</td></tr></tbody>
-      </table>
-    </div>
-  </div>
+      <div class="status-bar">
+        <div id="status-text">Loading latest permits…</div>
+        <div class="status-dot" id="status-dot"></div>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Issued</th>
+              <th>Address</th>
+              <th>Value</th>
+              <th>Description</th>
+            </tr>
+          </thead>
+          <tbody id="table-body">
+          </tbody>
+        </table>
+        <div class="table-footer">
+          <span id="result-count">0 permits</span>
+          <span>Source: LADBS open data</span>
+        </div>
+      </div>
+    </article>
+
+    <!-- RIGHT: CTA / help -->
+    <aside class="cta-card">
+      <div class="cta-pill">Need help targeting today’s permits?</div>
+      <h2>Free 5-minute walkthrough + sample alerts (EN / ES).</h2>
+      <p class="hero-lead" style="font-size:0.9rem; max-width:none;">
+        I’ll pull your trade live on Zoom, show you how I filter out junk, and send you a sample list you can work this week.
+      </p>
+
+      <div class="cta-buttons">
+        <a class="btn-secondary" href="tel:+16269474567">Call</a>
+        <a class="btn-ghost" href="sms:+16269474567">Text “Radar”</a>
+      </div>
+
+      <p class="cta-footnote">
+        Prefer email? Send <a href="mailto:hello@getpermitpulse.com?subject=Radar%20walkthrough&amp;body=Trade%3A%0ACrews%3A%0AZIP%20focus%3A">hello@getpermitpulse.com</a> with your trade
+        and ZIP focus. I’ll reply with a short Loom and CSV.
+      </p>
+    </aside>
+  </section>
+</main>
+
+<footer>
+  <span>© 2025 PermitPulse · Built in Los Angeles.</span>
+  <span>Try the other tools: <a href="/top-permits">Top Permits</a> · <a href="/loi">LOI</a></span>
+</footer>
 
 <script>
-(function(){
-  const $ = s => document.querySelector(s);
-  const tradeEl = $('#trade'), daysEl = $('#days'), limitEl = $('#limit');
-  const rowsEl = $('#rows'), summaryEl = $('#summary'), goEl = $('#go');
+  const tradeEl = document.getElementById('trade');
+  const daysEl = document.getElementById('days');
+  const limitEl = document.getElementById('limit');
+  const refreshBtn = document.getElementById('refresh');
+  const statusText = document.getElementById('status-text');
+  const statusDot = document.getElementById('status-dot');
+  const tbody = document.getElementById('table-body');
+  const resultCount = document.getElementById('result-count');
 
-  function fmtMoney(n){
-    if(n==null || n==='' || isNaN(+n)) return '—';
-    return +n >= 1000 ? (+n).toLocaleString('en-US',{maximumFractionDigits:0,style:'currency',currency:'USD'}) : String(n);
+  // Fallback sample data so the table never looks dead
+  const SAMPLE_PERMITS = [
+    {
+      issued_date: "2025-11-26",
+      address: "1234 AVOCADO ST, LOS ANGELES, CA 90022",
+      est_valuation: 32000,
+      description: "REROOF 28 SQRS COMP SHINGLE. LIKE FOR LIKE."
+    },
+    {
+      issued_date: "2025-11-25",
+      address: "5100 FIGUEROA ST, LOS ANGELES, CA 90037",
+      est_valuation: 48500,
+      description: "INSTALL 9.6KW ROOF-MOUNTED PV SYSTEM. PANEL UPGRADE 100A→200A."
+    },
+    {
+      issued_date: "2025-11-24",
+      address: "2210 VALLEY BLVD, ALHAMBRA, CA 91803",
+      est_valuation: 126000,
+      description: "GARAGE CONVERSION TO ADU (1 BD / 1 BA). NEW ELECTRICAL / PLUMBING / HVAC."
+    }
+  ];
+
+  function formatMoney(value) {
+    if (value == null || isNaN(value)) return "–";
+    const num = Number(value);
+    if (num >= 1000) {
+      return "$" + (num / 1000).toFixed(1) + "k";
+    }
+    return "$" + num.toLocaleString();
   }
-  const trunc = (s,n=160)=> (s||'').length>n ? (s.slice(0,n-1)+'…') : (s||'');
 
-  async function fetchRadar(){
-    const params = new URLSearchParams({
-      trade: tradeEl.value || 'roof',
-      days: daysEl.value || 7,
-      limit: limitEl.value || 50
+  function renderPermits(permits) {
+    tbody.innerHTML = "";
+    if (!permits || !permits.length) {
+      const row = document.createElement("tr");
+      const cell = document.createElement("td");
+      cell.colSpan = 4;
+      cell.textContent = "No permits found for this window.";
+      cell.style.color = "#9ca3af";
+      row.appendChild(cell);
+      tbody.appendChild(row);
+      resultCount.textContent = "0 permits";
+      return;
+    }
+
+    permits.forEach(p => {
+      const tr = document.createElement("tr");
+      const issued = document.createElement("td");
+      const addr = document.createElement("td");
+      const val = document.createElement("td");
+      const desc = document.createElement("td");
+
+      issued.textContent = (p.issue_date || p.issued_date || "").slice(0, 10);
+      addr.textContent = p.site_address || p.address || "";
+      val.textContent = formatMoney(p.valuation || p.est_valuation);
+      val.className = "val";
+      desc.textContent = p.work_description || p.description || "";
+      desc.className = "desc";
+
+      tr.appendChild(issued);
+      tr.appendChild(addr);
+      tr.appendChild(val);
+      tr.appendChild(desc);
+      tbody.appendChild(tr);
     });
-    const url = `/api/radar?${params.toString()}`;
-    const res = await fetch(url, {headers:{'accept':'application/json'}});
-    const data = await res.json();
 
-    if(!data || data.ok === false){
-      summaryEl.textContent = `Error: ${data?.error || res.status}`;
-      rowsEl.innerHTML = `<tr><td colspan="5" class="muted">No results.</td></tr>`;
-      return;
-    }
-
-    // ---- robust count + view fallbacks ----
-    const n =
-      (typeof data.count === 'number' ? data.count : null) ??
-      (typeof data['count(*)'] === 'number' ? data['count(*)'] : null) ??
-      (typeof data.total === 'number' ? data.total : null) ??
-      (typeof data.count_1 === 'string' ? parseInt(data.count_1,10) : null) ??
-      (Array.isArray(data.rows) ? data.rows.length : 0);
-
-    const view =
-      data.view ?? data.dataset ?? data.source_view ?? data.view_id ?? 'pi9x-tg5x';
-
-    const uiLink =
-      data.ui ?? `https://data.lacity.org/resource/${view}.json`;
-
-    summaryEl.innerHTML = `Found <b>${n}</b> permits · source view: <span class="mono">${view}</span> · <a href="${uiLink}" target="_blank" rel="noopener">Open in Socrata</a>`;
-
-    // ---- render rows ----
-    const rows = Array.isArray(data.rows) ? data.rows : [];
-    if(rows.length === 0){
-      rowsEl.innerHTML = `<tr><td colspan="5" class="muted">No results for these filters.</td></tr>`;
-      return;
-    }
-    rowsEl.innerHTML = rows.map(r=>{
-      const nbr = r.permit_nbr ?? r.permit ?? r.permit_number ?? '';
-      const when = (r.issue_date || r.issued || '').slice(0,10);
-      const addr = r.primary_address || r.full_address || r.address || '';
-      const val = r.valuation ?? r.value ?? r.project_value ?? r.construction_value ?? null;
-      const desc = r.work_desc || r.description || '';
-      return `<tr>
-        <td class="mono hide-sm">${nbr || '—'}</td>
-        <td>${when || '—'}</td>
-        <td>${addr || '—'}</td>
-        <td class="val">${fmtMoney(val)}</td>
-        <td class="desc">${trunc(desc)}</td>
-      </tr>`;
-    }).join('');
+    resultCount.textContent = permits.length + " permits";
   }
 
-  goEl.addEventListener('click', fetchRadar);
-  window.addEventListener('load', fetchRadar);
-})();
+  async function loadRadar() {
+    statusText.textContent = "Loading latest permits…";
+    statusDot.style.background = "#22c55e";
+    statusDot.style.boxShadow = "0 0 0 6px rgba(22,163,74,0.35)";
+    tbody.innerHTML = "";
+
+    const params = new URLSearchParams({
+      trade: tradeEl.value,
+      daysBack: daysEl.value,
+      limit: limitEl.value
+    });
+
+    try {
+      const res = await fetch("/api/radar?" + params.toString(), {
+        headers: { "Accept": "application/json" }
+      });
+
+      const json = await res.json().catch(() => null);
+
+      if (!res.ok || !json || json.ok === false) {
+        throw new Error(json && json.error ? json.error : "Radar offline");
+      }
+
+      const permits = json.permits || json.results || [];
+      renderPermits(permits);
+      statusText.textContent = "Live results from LADBS.";
+    } catch (err) {
+      console.error("Radar error", err);
+      statusText.textContent = "Radar temporarily offline. Showing recent sample data.";
+      statusDot.style.background = "#f97316";
+      statusDot.style.boxShadow = "0 0 0 6px rgba(248,113,113,0.45)";
+      renderPermits(SAMPLE_PERMITS);
+    }
+  }
+
+  refreshBtn.addEventListener("click", loadRadar);
+  document.addEventListener("DOMContentLoaded", loadRadar);
 </script>
 </body>
 </html>
