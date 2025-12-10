@@ -191,6 +191,9 @@
               <button type="button" id="printBtn" class="no-print px-4 py-2 rounded-xl bg-slate-900 text-white" data-i18n="btn_print">Print / Save LoI (PDF)</button>
               <button id="acceptBtn" class="no-print px-4 py-2 rounded-xl text-white bg-emerald-600" data-i18n="btn_accept">Accept Founder Rate & pay deposit</button>
               <button type="submit" class="no-print px-4 py-2 rounded-xl text-white" style="background:linear-gradient(135deg,var(--brand-blue),var(--brand-teal))" data-i18n="btn_submit">Send to PermitPulse</button>
+              <button id="loi-print" class="btn ...">Print / Save LoI (PDF)</button>
+<button id="loi-accept" class="btn ...">Accept Founder Rate & pay deposit</button>
+<button id="loi-send" class="btn ...">Send to PermitPulse</button>
             </div>
             <p class="text-xs text-slate-500" data-i18n="legal_note">This is a non-binding letter of intent and estimate. Final pricing may vary after scoping.</p>
           </form>
@@ -984,6 +987,17 @@ document.addEventListener('DOMContentLoaded', () => {
   applyI18n();
   update();
 });
+
+   // 1) Stripe Payment Link for Founder deposit
+  const STRIPE_FOUNDER_URL = "https://buy.stripe.com/6oUeVe5H90Ej1pd7ZM1wY0d";
+
+  const acceptBtn = document.getElementById("loi-accept");
+  if (acceptBtn) {
+    acceptBtn.addEventListener("click", function () {
+      // Direct to Stripe checkout – no Worker needed
+      window.location.href = STRIPE_FOUNDER_URL;
+    });
+  }  
 </script>
 </body>
 </html>
