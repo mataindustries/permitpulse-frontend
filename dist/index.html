@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>PermitPulse | Exclusive LA Permit Leads for Contractors</title>
-  <meta name="description" content="Stop buying shared leads. PermitPulse monitors LADBS in real-time and books estimates for Roofers & Solar installers before competitors know the permit exists. Test our free tools before you pay a dime." />
+  <meta name="description" content="Stop buying shared leads. PermitPulse monitors LADBS in real-time and books estimates for Roofers & Solar installers before competitors know the permit exists. Test our free tools before you pay a dime. Also available: $499 Fast-Track permit package prep + submission support." />
   <meta name="keywords" content="LADBS permits, roofing leads Los Angeles, solar leads, construction marketing, exclusive contractor leads, permit radar, free LOI generator" />
   
   <meta property="og:type" content="website" />
@@ -55,6 +55,8 @@
       line-height: 1.4;
       overflow-x: hidden;
       -webkit-font-smoothing: antialiased;
+    
+      padding-bottom: 86px; /* sticky CTA */
     }
 
     /* --- TYPOGRAPHY --- */
@@ -276,6 +278,37 @@
       color: #666;
       margin-top: 8px;
     }
+
+    /* --- STICKY START BAR --- */
+    .sticky-cta {
+      position: fixed;
+      left: 0; right: 0; bottom: 0;
+      z-index: 9999;
+      display: flex;
+      gap: 10px;
+      padding: 10px;
+      background: rgba(5,5,5,0.92);
+      backdrop-filter: blur(10px);
+      border-top: 1px solid rgba(255,255,255,0.08);
+    }
+    .sticky-cta a {
+      flex: 1;
+      padding: 14px 12px;
+      border-radius: 10px;
+      text-align: center;
+      font-weight: 700;
+      border: 1px solid #222;
+      font-family: var(--font-sans);
+    }
+    .sticky-cta a.sticky-primary {
+      background: var(--accent-orange);
+      color: white;
+      border-color: rgba(255,68,0,0.55);
+    }
+    .sticky-cta a.sticky-ghost {
+      background: rgba(255,255,255,0.04);
+      color: var(--text-main);
+    }
   </style>
 
   <script type="application/ld+json">
@@ -284,7 +317,7 @@
   "@type": "Service",
   "name": "PermitPulse",
   "url": "https://getpermitpulse.com/",
-  "serviceType": "Construction Lead Generation",
+  "serviceType":"Construction Lead Generation & Permit Package Preparation",
   "provider": {
     "@type": "Organization",
     "name": "PermitPulse",
@@ -298,14 +331,18 @@
     "@type": "City",
     "name": "Los Angeles"
   },
-  "description": "Real-time LADBS permit monitoring and AI outreach for Los Angeles contractors. We turn permit data into booked estimates instantly.",
-  "offers": {
-    "@type": "Offer",
-    "price": "1997.00",
-    "priceCurrency": "USD",
-    "priceValidity": "2025-12-31",
-    "name": "Founder's Rate Access"
-  },
+  "description": "Real-time LADBS permit monitoring and AI outreach for Los Angeles contractors. We turn permit data into booked estimates instantly and fast-track permit package preparation for LA/SGV contractors.",
+  "offers": [
+    {"@type":"Offer","price":"499.00","priceCurrency":"USD","name":"Fast-Track Permit Package","url":"https://buy.stripe.com/3cI3cw1qT9aP6Jx2Fs1wY0e"},
+    {"@type":"Offer","price":"99.00","priceCurrency":"USD","name":"Resubmittal / Revision","url":"https://buy.stripe.com/8x28wQedF5YD7NB3Jw1wY0f"},
+    {
+      "@type": "Offer",
+      "price": "1997.00",
+      "priceCurrency": "USD",
+      "priceValidity": "2025-12-31",
+      "name": "Founder's Rate Access"
+    }
+  ],
   "hasOfferCatalog": {
     "@type": "OfferCatalog",
     "name": "Lead Generation Services",
@@ -335,8 +372,10 @@
 <header>
   <div class="wrap nav-inner">
     <a href="/" class="logo">PermitPulse <span class="orange">/</span> Beta</a>
-    <div style="display:flex; gap:20px; align-items:center;">
+    <div style="display:flex; gap:20px; align-items:center; flex-wrap:wrap; justify-content:flex-end;">
+      <a href="#fast-track" class="mono" style="font-size: 13px;">Fast-Track $499</a>
       <a href="#free-tools" class="mono" style="font-size: 13px;">Free tools</a>
+      <a href="tel:+15626762691" class="mono" style="font-size: 13px;">Call/Text: (562) 676-2691</a>
       <a href="mailto:hello@getpermitpulse.com?subject=Founder%20Access" class="mono" style="font-size: 13px;">hello@getpermitpulse.com</a>
     </div>
   </div>
@@ -351,15 +390,102 @@
   </p>
 
   <div style="display: flex; gap: 16px; flex-wrap: wrap;">
-    <a href="mailto:hello@getpermitpulse.com?subject=I%20want%20the%20founder%20deal" class="btn btn-orange"
-       onclick="gtag && gtag('event','click_founder_spot',{location:'hero'});">
-      Claim Founder Spot
+    <a href="https://buy.stripe.com/3cI3cw1qT9aP6Jx2Fs1wY0e" class="btn btn-orange"
+       target="_blank" rel="noopener"
+       onclick="gtag && gtag('event','click_pay_fasttrack',{location:'hero'});">
+      Pay $499 Fast-Track
     </a>
+
+    <a href="sms:+15626762691?body=PermitPulse%20Fast-Track%3A%20Address%20%2B%20scope%20%2B%20timeline%3A%20" class="btn btn-ghost"
+       onclick="gtag && gtag('event','click_text_start',{location:'hero'});">
+      Text Address + Scope <span class="mono" style="margin-left:6px; font-size:12px; color:#999;">(2-min start)</span>
+    </a>
+
     <a href="#free-tools" class="btn btn-ghost"
        onclick="gtag && gtag('event','click_free_tools_cta',{location:'hero'});">
       Try the free tools first
     </a>
-    <span class="mono" style="align-self: center; font-size: 12px; color: #666;">Only 5 spots available at this rate.</span>
+
+    <a href="mailto:hello@getpermitpulse.com?subject=I%20want%20the%20founder%20deal" class="btn btn-ghost"
+       onclick="gtag && gtag('event','click_founder_spot',{location:'hero'});">
+      Claim Founder Spot
+    </a>
+
+    <span class="mono" style="align-self: center; font-size: 12px; color: #666;">
+      Example text: “123 Main St, 90210 — Reroof (3-tab shingle).”
+    </span>
+  </div>
+</section>
+
+<!-- FAST-TRACK SECTION -->
+<section class="section" id="fast-track" style="background:#050506;">
+  <div class="wrap">
+    <div class="grid grid-2" style="align-items:flex-end; margin-bottom:32px;">
+      <div>
+        <div class="tools-eyebrow">FAST-TRACK / $499</div>
+        <h2 style="margin-bottom:14px;">Permit package prep + submission support in 24–48 hours.</h2>
+        <p class="muted" style="max-width:520px;">
+          Built for busy crews. Text the address + scope and I’ll confirm fit. If it’s a match, you can pay to start and I’ll return a clean package fast.
+        </p>
+
+        <div style="display:flex; gap: 16px; flex-wrap: wrap; margin-top: 18px;">
+          <a href="https://buy.stripe.com/3cI3cw1qT9aP6Jx2Fs1wY0e" class="btn btn-orange" target="_blank" rel="noopener"
+             onclick="gtag && gtag('event','click_pay_fasttrack',{location:'fast_track_section'});">
+            Pay $499 &amp; Start
+          </a>
+
+          <a href="sms:+15626762691?body=PermitPulse%20Fast-Track%3A%20Address%20%2B%20scope%20%2B%20timeline%3A%20" class="btn btn-ghost"
+             onclick="gtag && gtag('event','click_text_start',{location:'fast_track_section'});">
+            Text Address + Scope (2-min start)
+          </a>
+
+          <a href="tel:+15626762691" class="btn btn-ghost"
+             onclick="gtag && gtag('event','click_call',{location:'fast_track_section'});">
+            Call (562) 676-2691
+          </a>
+
+          <a href="https://buy.stripe.com/8x28wQedF5YD7NB3Jw1wY0f" class="btn btn-ghost" target="_blank" rel="noopener"
+             onclick="gtag && gtag('event','click_pay_resub',{location:'fast_track_section'});">
+            Pay $99 Resub
+          </a>
+        </div>
+
+        <p class="mono" style="font-size:12px; color:#666; margin-top:12px;">
+          Reduce kickbacks. Save office time. Get moving.
+        </p>
+      </div>
+
+      <div class="vs-card">
+        <h3 style="margin-bottom: 14px;">What you get (tangible deliverables)</h3>
+        <div class="pain-point" style="border-bottom:1px solid #222;">
+          <p class="muted" style="font-size:14px;">
+            <span class="check-mark">✓</span> Intake + scope checklist (trade + city-specific)
+          </p>
+          <p class="muted" style="font-size:14px;">
+            <span class="check-mark">✓</span> Required forms prepared (as applicable — e.g., <strong>Owner-Builder</strong>, <strong>Title 24 CF1R-ROOF</strong>)
+          </p>
+          <p class="muted" style="font-size:14px;">
+            <span class="check-mark">✓</span> Error check to reduce resubmittals and delays
+          </p>
+          <p class="muted" style="font-size:14px;">
+            <span class="check-mark">✓</span> Submission support + next-step guidance (you stay in control)
+          </p>
+        </div>
+
+        <div style="margin-top:16px;">
+          <div class="mono" style="font-size: 12px; color:#999;">Social proof</div>
+          <p class="muted" style="margin-top:8px; font-size:14px;">
+            If you’ve got even one win with me this week, I’ll feature your feedback here (a 1–2 sentence text screenshot is perfect).
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div style="text-align:center;">
+      <p class="mono" style="font-size:12px; color:#666;">
+        Pulling permits regularly? After the first Fast-Track win, ask about Founder Access (ZIP lock + outreach + guarantee).
+      </p>
+    </div>
   </div>
 </section>
 
@@ -620,7 +746,7 @@
   </div>
 </section>
 
-<footer class="wrap">
+ <footer class="wrap">
   <div class="grid grid-2">
     <div>
       <span class="logo">PermitPulse</span>
@@ -671,5 +797,12 @@
   setInterval(addFeedItem, 2500);
 </script>
 
+<!-- STICKY START BAR -->
+<div class="sticky-cta" role="navigation" aria-label="Start PermitPulse">
+  <a class="sticky-ghost" href="tel:+15626762691" onclick="gtag && gtag('event','click_call',{location:'sticky'});">Call</a>
+  <a class="sticky-ghost" href="sms:+15626762691?body=PermitPulse%20Fast-Track%3A%20Address%20%2B%20scope%20%2B%20timeline%3A%20" onclick="gtag && gtag('event','click_text_start',{location:'sticky'});">Text (2-min)</a>
+  <a class="sticky-primary" href="https://buy.stripe.com/3cI3cw1qT9aP6Jx2Fs1wY0e" target="_blank" rel="noopener" onclick="gtag && gtag('event','click_pay_fasttrack',{location:'sticky'});">Pay $499</a>
+</div>
+
 </body>
-</html>
+</html> 
