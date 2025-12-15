@@ -3,21 +3,22 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>PermitPulse | Leads de permisos exclusivos en LA para contratistas</title>
-  <meta name="description" content="Deja de pelear por leads compartidos. PermitPulse vigila LADBS en tiempo real y agenda estimados para techos y solar antes de que tus competidores sepan que existe el permiso. Prueba las herramientas gratis antes de pagar." />
-  <meta name="keywords" content="permisos LADBS, leads roofing Los Ángeles, leads solar, marketing construcción, leads exclusivos, radar de permisos, generador de carta de intención" />
-
+  <title>PermitPulse | Permisos y leads en LA para contratistas</title>
+  <meta name="description" content="Deja de comprar leads compartidos. PermitPulse monitorea LADBS en tiempo real y convierte permisos en trabajos agendados. Prueba las herramientas gratis o arranca con Fast-Track: paquete de permiso $499 (prep + soporte de envío)." />
+  <meta name="keywords" content="LADBS permits, roofing leads Los Angeles, solar leads, construction marketing, exclusive contractor leads, permit radar, free LOI generator" />
+  
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://getpermitpulse.com/es/" />
-  <meta property="og:title" content="PermitPulse | La ciudad imprime dinero. Llega primero." />
-  <meta property="og:description" content="Vemos LADBS en tiempo real y convertimos permisos en trabajos agendados. Prueba las herramientas gratis antes de comprar." />
+  <meta property="og:title" content="PermitPulse | La ciudad imprime dinero. Tú llega primero." />
+  <meta property="og:description" content="Vigilamos LADBS en tiempo real y convertimos permisos en trabajos agendados. Prueba las herramientas gratis o arranca con Fast-Track ($499)." />
   <meta property="og:image" content="https://getpermitpulse.com/og-image.png" />
 
   <meta property="twitter:card" content="summary_large_image" />
   <meta property="twitter:url" content="https://getpermitpulse.com/es/" />
-  <meta property="twitter:title" content="PermitPulse | Acceso prioritario a permisos en LA" />
-  <meta property="twitter:description" content="Convierte datos de LADBS en trabajos cerrados. Sin leads compartidos. 100% exclusivos. Herramientas gratis para comprobarlo." />
-  <meta name="twitter:image" content="https://getpermitpulse.com/og-image.png" />
+  <meta property="twitter:title" content="PermitPulse | Acceso primero a permisos en LA" />
+  <meta property="twitter:description" content="Convierte datos de LADBS en trabajos agendados. Sin leads compartidos. Herramientas gratis para probarlo. O arranca con Fast-Track ($499)." />
+  <meta property="twitter:image" content="https://getpermitpulse.com/og-image.png" />
+  <meta name="twitter:image" content="https://getpermitpulse.com/og-permitpulse.png" />
 
   <!-- GA4 -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-0S8S6156CV"></script>
@@ -27,27 +28,28 @@
     gtag('js', new Date());
     gtag('config', 'G-0S8S6156CV');
   </script>
-
+  
   <link rel="canonical" href="https://getpermitpulse.com/es/" />
-  <link rel="alternate" href="https://getpermitpulse.com/" hreflang="en" />
-  <link rel="alternate" href="https://getpermitpulse.com/es/" hreflang="es" />
-
+  <link rel="alternate" hreflang="en" href="https://getpermitpulse.com/" />
+  <link rel="alternate" hreflang="es" href="https://getpermitpulse.com/es/" />
+  
   <style>
+    /* --- RESET & VARIABLES --- */
     :root {
       --bg: #050505;
       --card-bg: #0f0f11;
       --card-border: #222;
       --text-main: #ededed;
       --text-muted: #888;
-      --accent-orange: #ff4400;
-      --accent-blue: #2952ff;
+      --accent-orange: #ff4400; /* Safety Orange */
+      --accent-blue: #2952ff;   /* Blueprint Blue */
       --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
       --font-mono: 'JetBrains Mono', 'Courier New', monospace;
       --ease: cubic-bezier(0.23, 1, 0.32, 1);
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
-
+    
     body {
       background-color: var(--bg);
       color: var(--text-main);
@@ -55,12 +57,15 @@
       line-height: 1.4;
       overflow-x: hidden;
       -webkit-font-smoothing: antialiased;
+    
+      padding-bottom: 86px; /* sticky CTA */
     }
 
+    /* --- TYPOGRAPHY --- */
     h1, h2, h3 { letter-spacing: -0.04em; font-weight: 600; }
     h1 { font-size: clamp(2.5rem, 8vw, 5rem); line-height: 0.95; }
     h2 { font-size: clamp(2rem, 5vw, 3rem); }
-
+    
     .mono { font-family: var(--font-mono); letter-spacing: -0.02em; }
     .muted { color: var(--text-muted); }
     .orange { color: var(--accent-orange); }
@@ -68,12 +73,13 @@
 
     a { color: inherit; text-decoration: none; }
 
+    /* --- LAYOUT UTILITIES --- */
     .wrap {
       max-width: 1000px;
       margin: 0 auto;
       padding: 0 20px;
     }
-
+    
     .section { padding: 100px 0; border-bottom: 1px solid #111; }
     .grid { display: grid; gap: 20px; }
     .grid-2 { grid-template-columns: 1fr 1fr; }
@@ -84,6 +90,7 @@
       .section { padding: 60px 0; }
     }
 
+    /* --- COMPONENTS --- */
     .btn {
       display: inline-flex;
       align-items: center;
@@ -105,7 +112,7 @@
       color: var(--text-main);
       border-color: #333;
     }
-
+    
     .badge {
       display: inline-block;
       padding: 4px 8px;
@@ -117,6 +124,7 @@
       margin-bottom: 16px;
     }
 
+    /* --- HERO --- */
     header {
       padding: 20px 0;
       position: fixed;
@@ -127,7 +135,7 @@
       border-bottom: 1px solid rgba(255,255,255,0.05);
       background: rgba(5,5,5,0.85);
     }
-
+    
     .nav-inner { display: flex; justify-content: space-between; align-items: center; }
     .logo { font-weight: 700; font-size: 18px; letter-spacing: -0.03em; }
 
@@ -145,23 +153,25 @@
       margin-bottom: 40px;
     }
 
+    /* --- THE PAIN (Comparison) --- */
     .vs-card {
       background: var(--card-bg);
       border: 1px solid var(--card-border);
       padding: 30px;
       border-radius: 12px;
     }
-
+    
     .pain-point {
       margin-bottom: 20px;
       padding-bottom: 20px;
       border-bottom: 1px solid #222;
     }
     .pain-point:last-child { border: none; margin: 0; padding: 0; }
-
+    
     .x-mark { color: #555; font-family: var(--font-mono); margin-right: 10px; }
     .check-mark { color: var(--accent-orange); font-family: var(--font-mono); margin-right: 10px; }
 
+    /* --- BENTO GRID (How it works) --- */
     .bento-box {
       background: var(--card-bg);
       border: 1px solid var(--card-border);
@@ -175,7 +185,7 @@
       transition: border-color 0.3s, transform 0.2s var(--ease);
     }
     .bento-box:hover { border-color: #333; transform: translateY(-2px); }
-
+    
     .bento-icon {
       font-family: var(--font-mono);
       color: var(--accent-blue);
@@ -184,6 +194,7 @@
       display: block;
     }
 
+    /* --- LIVE FEED SIMULATION --- */
     .feed-container {
       background: #000;
       border: 1px solid #333;
@@ -194,7 +205,7 @@
       position: relative;
       border-radius: 8px;
     }
-
+    
     .feed-header {
       background: #111;
       padding: 8px 12px;
@@ -203,9 +214,9 @@
       justify-content: space-between;
       color: #666;
     }
-
+    
     .feed-content { padding: 10px; }
-
+    
     .feed-item {
       display: flex;
       justify-content: space-between;
@@ -214,9 +225,10 @@
       opacity: 0;
       animation: fadeIn 0.5s forwards;
     }
-
+    
     .feed-val { color: var(--accent-orange); }
 
+    /* --- PRICING TICKET --- */
     .ticket {
       background: radial-gradient(circle at top right, #1a1a1a, #0f0f11);
       border: 1px solid var(--accent-orange);
@@ -225,9 +237,9 @@
       position: relative;
       overflow: hidden;
     }
-
+    
     .ticket::before {
-      content: "ACCESO FUNDADOR";
+      content: "FOUNDER ACCESS";
       position: absolute;
       top: 20px; right: -30px;
       background: var(--accent-orange);
@@ -240,11 +252,13 @@
 
     .strike { text-decoration: line-through; color: #555; }
     .price-huge { font-size: clamp(3rem, 6vw, 5rem); font-weight: 700; letter-spacing: -0.05em; line-height: 1; }
-
+    
+    /* --- FOOTER --- */
     footer { padding: 80px 0; color: #444; font-size: 14px; }
-
+    
     @keyframes fadeIn { to { opacity: 1; } }
-
+    
+    /* Utility for the 'blinking' dot */
     .status-dot {
       width: 8px; height: 8px; background: var(--accent-orange);
       border-radius: 50%; display: inline-block;
@@ -252,6 +266,7 @@
     }
     @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
 
+    /* --- FREE TOOLS SECTION --- */
     .tools-eyebrow {
       font-size: 12px;
       text-transform: uppercase;
@@ -260,11 +275,41 @@
       font-family: var(--font-mono);
       margin-bottom: 8px;
     }
-
     .tool-meta {
       font-size: 11px;
       color: #666;
       margin-top: 8px;
+    }
+
+    /* --- STICKY START BAR --- */
+    .sticky-cta {
+      position: fixed;
+      left: 0; right: 0; bottom: 0;
+      z-index: 9999;
+      display: flex;
+      gap: 10px;
+      padding: 10px;
+      background: rgba(5,5,5,0.92);
+      backdrop-filter: blur(10px);
+      border-top: 1px solid rgba(255,255,255,0.08);
+    }
+    .sticky-cta a {
+      flex: 1;
+      padding: 14px 12px;
+      border-radius: 10px;
+      text-align: center;
+      font-weight: 700;
+      border: 1px solid #222;
+      font-family: var(--font-sans);
+    }
+    .sticky-cta a.sticky-primary {
+      background: var(--accent-orange);
+      color: white;
+      border-color: rgba(255,68,0,0.55);
+    }
+    .sticky-cta a.sticky-ghost {
+      background: rgba(255,255,255,0.04);
+      color: var(--text-main);
     }
   </style>
 
@@ -274,7 +319,7 @@
   "@type": "Service",
   "name": "PermitPulse",
   "url": "https://getpermitpulse.com/",
-  "serviceType": "Generación de leads de construcción",
+  "serviceType":"Construction Lead Generation & Permit Package Preparation",
   "provider": {
     "@type": "Organization",
     "name": "PermitPulse",
@@ -288,133 +333,250 @@
     "@type": "City",
     "name": "Los Angeles"
   },
-  "description": "Monitoreo en tiempo real de permisos LADBS y outreach para contratistas en Los Ángeles. Convertimos permisos en estimados agendados.",
-  "offers": {
-    "@type": "Offer",
-    "price": "1997.00",
-    "priceCurrency": "USD",
-    "priceValidity": "2025-12-31",
-    "name": "Tarifa de Fundador"
+  "description":"Monitoreo en tiempo real de permisos LADBS y outreach para contratistas en Los Ángeles. Convertimos data de permisos en citas agendadas y ofrecemos Fast-Track para preparar paquetes de permiso en LA/SGV.",
+  "offers": [
+    {"@type":"Offer","price":"499.00","priceCurrency":"USD","name":"Fast-Track Permit Package","url":"https://buy.stripe.com/3cI3cw1qT9aP6Jx2Fs1wY0e"},
+    {"@type":"Offer","price":"99.00","priceCurrency":"USD","name":"Resubmittal / Revision","url":"https://buy.stripe.com/8x28wQedF5YD7NB3Jw1wY0f"},
+    {
+      "@type": "Offer",
+      "price": "1997.00",
+      "priceCurrency": "USD",
+      "priceValidity": "2025-12-31",
+      "name": "Founder's Rate Access"
+    }
+  ],
+  "hasOfferCatalog": {
+    "@type": "OfferCatalog",
+    "name": "Lead Generation Services",
+    "itemListElement": [
+      {
+        "@type": "Offer",
+        "itemOffered": {
+          "@type": "Service",
+          "name": "Live Permit Radar"
+        }
+      },
+      {
+        "@type": "Offer",
+        "itemOffered": {
+          "@type": "Service",
+          "name": "AI Appointment Setting"
+        }
+      }
+    ]
   }
 }
   </script>
+  
 </head>
 <body>
 
 <header>
   <div class="wrap nav-inner">
-    <a href="/es/" class="logo">PermitPulse <span class="orange">/</span> Beta</a>
-    <div style="display:flex; gap:20px; align-items:center;">
+    <a href="/" class="logo">PermitPulse <span class="orange">/</span> Beta</a>
+    <div style="display:flex; gap:20px; align-items:center; flex-wrap:wrap; justify-content:flex-end;">
+      <a href="#fast-track" class="mono" style="font-size: 13px;">Fast-Track $499</a>
       <a href="#free-tools" class="mono" style="font-size: 13px;">Herramientas gratis</a>
-      <a href="/" class="mono" style="font-size: 13px;">EN</a>
-      <a href="mailto:hola@getpermitpulse.com?subject=Acceso%20Fundador" class="mono" style="font-size: 13px;">hola@getpermitpulse.com</a>
+      <a href="tel:+15626762691" class="mono" style="font-size: 13px;">Llama/Textea: (562) 676-2691</a>
+      <a href="mailto:hello@getpermitpulse.com?subject=Founder%20Access%20ES" class="mono" style="font-size: 13px;">hello@getpermitpulse.com</a>
     </div>
   </div>
 </header>
 
 <section class="wrap hero">
-  <div class="badge">Datos de construcción · Los Ángeles</div>
-  <h1>La ciudad imprime dinero.<br><span class="muted">Solo tienes que llegar primero.</span></h1>
-
+  <div class="badge">Datos de Construcción / Los Ángeles</div>
+  <h1>La ciudad imprime dinero.<br><span class="muted">Nomás hay que llegar primero.</span></h1>
+  
   <p class="lead">
-    Deja de pelearte por leads de Angi. Nosotros vemos LADBS en tiempo real. Cuando sale un permiso, contactamos al dueño antes de que tus competidores se den cuenta.
+    Deja de pelear por leads compartidos en Angi. Nosotros vigilamos LADBS en tiempo real. En cuanto sale un permiso, contactamos al dueño antes de que se enfríe.
   </p>
 
   <div style="display: flex; gap: 16px; flex-wrap: wrap;">
-    <a href="mailto:hello@getpermitpulse.com?subject=Quiero%20la%20tarifa%20fundador" class="btn btn-orange"
-       onclick="gtag('event','click_founder_spot',{location:'hero_es'});">
-      Apartar lugar de fundador
+    <a href="https://buy.stripe.com/3cI3cw1qT9aP6Jx2Fs1wY0e" class="btn btn-orange"
+       target="_blank" rel="noopener"
+       onclick="window.gtag && window.gtag('event','click_pay_fasttrack',{location:'hero'});">
+      Paga $499 (Fast-Track)
     </a>
+
+    <a href="sms:+15626762691?body=PermitPulse%20Fast-Track%3A%20Direcci%C3%B3n%20%2B%20trabajo%20%2B%20fecha%3A%20" class="btn btn-ghost"
+       onclick="window.gtag && window.gtag('event','click_text_start',{location:'hero'});">
+      Textea Dirección + Trabajo <span class="mono" style="margin-left:6px; font-size:12px; color:#999;">(2 min)</span>
+    </a>
+
     <a href="#free-tools" class="btn btn-ghost"
-       onclick="gtag('event','click_free_tools_cta',{location:'hero_es'});">
-      Probar herramientas gratis
+       onclick="window.gtag && window.gtag('event','click_free_tools_cta',{location:'hero'});">
+      Prueba las herramientas gratis
     </a>
-    <span class="mono" style="align-self: center; font-size: 12px; color: #666;">Solo 5 lugares a este precio.</span>
+
+    <a href="mailto:hello@getpermitpulse.com?subject=Quiero%20Founder%20Deal" class="btn btn-ghost"
+       onclick="window.gtag && window.gtag('event','click_founder_spot',{location:'hero'});">
+      Aparta Founder Spot
+    </a>
+
+    <span class="mono" style="align-self: center; font-size: 12px; color: #666;">
+      Ejemplo de texto: “123 Main St, 90210 — Re-techo (3-tab shingle).”
+    </span>
   </div>
 </section>
 
+<!-- FAST-TRACK SECTION -->
+<section class="section" id="fast-track" style="background:#050506;">
+  <div class="wrap">
+    <div class="grid grid-2" style="align-items:flex-end; margin-bottom:32px;">
+      <div>
+        <div class="tools-eyebrow">FAST-TRACK / $499</div>
+        <h2 style="margin-bottom:14px;">Paquete de permiso listo + soporte de envío en 24–48 horas.</h2>
+        <p class="muted" style="max-width:520px;">
+          Hecho para crews ocupadas. Textea la dirección + el trabajo y te confirmo si aplica. Si sí, pagas para arrancar y te regreso un paquete limpio, rápido.
+        </p>
+
+        <div style="display:flex; gap: 16px; flex-wrap: wrap; margin-top: 18px;">
+          <a href="https://buy.stripe.com/3cI3cw1qT9aP6Jx2Fs1wY0e" class="btn btn-orange" target="_blank" rel="noopener"
+             onclick="window.gtag && window.gtag('event','click_pay_fasttrack',{location:'fast_track_section'});">
+            Paga $499 y arrancamos
+          </a>
+
+          <a href="sms:+15626762691?body=PermitPulse%20Fast-Track%3A%20Direcci%C3%B3n%20%2B%20trabajo%20%2B%20fecha%3A%20" class="btn btn-ghost"
+             onclick="window.gtag && window.gtag('event','click_text_start',{location:'fast_track_section'});">
+            Textea Dirección + Trabajo (2 min)
+          </a>
+
+          <a href="tel:+15626762691" class="btn btn-ghost"
+             onclick="window.gtag && window.gtag('event','click_call',{location:'fast_track_section'});">
+            Llama (562) 676-2691
+          </a>
+
+          <a href="https://buy.stripe.com/8x28wQedF5YD7NB3Jw1wY0f" class="btn btn-ghost" target="_blank" rel="noopener"
+             onclick="window.gtag && window.gtag('event','click_pay_resub',{location:'fast_track_section'});">
+            Paga $99 Reenvío
+          </a>
+        </div>
+
+        <p class="mono" style="font-size:12px; color:#666; margin-top:12px;">
+          Menos kickbacks. Menos tiempo en oficina. Más momentum.
+        </p>
+      </div>
+
+      <div class="vs-card">
+        <h3 style="margin-bottom: 14px;">Lo que recibes (entregables reales)</h3>
+        <div class="pain-point" style="border-bottom:1px solid #222;">
+          <p class="muted" style="font-size:14px;">
+            <span class="check-mark">✓</span> Intake + checklist por alcance (oficio + ciudad)
+          </p>
+          <p class="muted" style="font-size:14px;">
+            <span class="check-mark">✓</span> Formas requeridas preparadas (según aplique — ej. <strong>Owner-Builder</strong>, <strong>Title 24 CF1R-ROOF</strong>)
+          </p>
+          <p class="muted" style="font-size:14px;">
+            <span class="check-mark">✓</span> Revisión de errores para reducir reenvíos y retrasos
+          </p>
+          <p class="muted" style="font-size:14px;">
+            <span class="check-mark">✓</span> Soporte de envío + siguientes pasos (tú sigues al mando)
+          </p>
+        </div>
+
+        <div style="margin-top:16px;">
+          <div class="mono" style="font-size: 12px; color:#999;">Prueba social</div>
+          <p class="muted" style="margin-top:8px; font-size:14px;">
+            Si logramos aunque sea una victoria esta semana, pongo tu feedback aquí (un screenshot de 1–2 frases por texto queda perfecto).
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <div style="text-align:center;">
+      <p class="mono" style="font-size:12px; color:#666;">
+        ¿Sacas permisos seguido? Después del primer win con Fast-Track, pregunta por Founder Access (ZIP lock + outreach + guarantee).
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- FREE TOOLS PROOF SECTION -->
 <section class="section" id="free-tools" style="background:#050506;">
   <div class="wrap">
     <div class="grid grid-2" style="align-items:flex-end; margin-bottom:32px;">
       <div>
-        <div class="tools-eyebrow">Prueba antes de comprar</div>
+        <div class="tools-eyebrow">Prueba antes del pitch</div>
         <h2 style="margin-bottom:14px;">Usa las herramientas que ya construí.<br>Sin login. Sin tarjeta.</h2>
         <p class="muted" style="max-width:420px;">
-          Antes de pagar un dólar puedes jugar con el mismo sistema que uso con clientes:
-          radar de permisos en vivo, generador de carta de intención y tablero con permisos reales de LADBS.
+          Antes de pagar un dólar, puedes probar el mismo sistema que uso con clientes:
+          live permit radar, un generador de LOI y un dashboard con trabajos reales de LADBS.
         </p>
       </div>
       <div style="text-align:right;">
         <p class="mono" style="font-size:12px; color:#666;">
-          Pensado para techos, solar y contratistas en LA County.
-          <br>Se ve bien en el cel para que tu oficina lo use desde cualquier lado.
+          Hecho para roofers, solar y crews de GC en LA County.
+          <br>Mobile-friendly para que tu oficina lo use desde el celular.
         </p>
       </div>
     </div>
 
     <div class="grid grid-3">
+      <!-- Live Permit Radar -->
       <div class="bento-box">
         <div>
           <span class="bento-icon">FREE_TOOL / RADAR</span>
-          <h3>Radar de permisos (demo)</h3>
+          <h3>Radar de Permisos en Vivo (Demo)</h3>
           <p class="muted" style="margin-top: 10px; font-size: 14px;">
-            Ve un feed en vivo de permisos LADBS por giro y ZIP. Es una vista de demo
-            para que sientas qué tan rápido cae la data sin hablar con ningún vendedor.
+            Mira un feed en vivo de permisos LADBS por oficio y ZIP. Es una vista demo
+            para que veas qué tan rápido cae la data sin hablar con nadie.
           </p>
         </div>
         <div style="margin-top:20px;">
           <a href="/radar"
              class="btn btn-ghost mono"
              style="font-size:13px; width:100%; justify-content:space-between;"
-             onclick="gtag('event','click_tool',{tool:'radar', location:'free_tools_es'});">
+             onclick="window.gtag && window.gtag('event','click_tool',{tool:'radar', location:'free_tools_section'});">
             Abrir Radar <span>↗</span>
           </a>
           <div class="tool-meta mono">
-            Feed de muestra. Sin registro.
+            Feed demo. Sin registro.
           </div>
         </div>
       </div>
 
+      <!-- LOI Generator -->
       <div class="bento-box">
         <div>
           <span class="bento-icon">FREE_TOOL / LOI</span>
-          <h3>Generador de Carta de Intención</h3>
+          <h3>Generador de LOI al Instante</h3>
           <p class="muted" style="margin-top: 10px; font-size: 14px;">
-            Convierte una descripción sencilla del proyecto en una carta de intención lista para mandar
-            por texto o correo. Hecha para roofing, solar, ADUs y cambios de panel.
+            Convierte una descripción simple en una Carta de Intención lista para mandar
+            por texto o email en minutos. Hecho para roofing, solar, ADUs y panel upgrades.
           </p>
         </div>
         <div style="margin-top:20px;">
           <a href="/loi"
              class="btn btn-ghost mono"
              style="font-size:13px; width:100%; justify-content:space-between;"
-             onclick="gtag('event','click_tool',{tool:'loi', location:'free_tools_es'});">
-            Abrir herramienta LOI <span>↗</span>
+             onclick="window.gtag && window.gtag('event','click_tool',{tool:'loi', location:'free_tools_section'});">
+            Abrir LOI Tool <span>↗</span>
           </a>
           <div class="tool-meta mono">
-            Úsala en tu próximo estimado. Gratis.
+            Úsalo en tu próxima cotización. Gratis.
           </div>
         </div>
       </div>
 
+      <!-- Top Permits Dashboard -->
       <div class="bento-box">
         <div>
           <span class="bento-icon">FREE_TOOL / DASHBOARD</span>
-          <h3>Top Permits Dashboard</h3>
+          <h3>Dashboard de Top Permits</h3>
           <p class="muted" style="margin-top: 10px; font-size: 14px;">
-            Revisa los permisos más grandes de roofing, solar y ADU en los últimos 30 días.
-            Descarga CSV y ve exactamente a dónde se está yendo el dinero.
+            Explora los permisos más grandes de roofing, solar y ADU en LA de los últimos 30 días.
+            Exporta CSV y ve exactamente dónde está fluyendo el dinero.
           </p>
         </div>
         <div style="margin-top:20px;">
           <a href="/top-permits"
              class="btn btn-ghost mono"
              style="font-size:13px; width:100%; justify-content:space-between;"
-             onclick="gtag('event','click_tool',{tool:'top_permits', location:'free_tools_es'});">
-            Ver top permisos <span>↗</span>
+             onclick="window.gtag && window.gtag('event','click_tool',{tool:'top_permits', location:'free_tools_section'});">
+            Ver Top Permits <span>↗</span>
           </a>
           <div class="tool-meta mono">
-            Filtra por giro. Descarga para tu crew.
+            Filtra por oficio. Descarga y compártelo con tu crew.
           </div>
         </div>
       </div>
@@ -422,10 +584,10 @@
 
     <div style="margin-top:32px; text-align:center;">
       <p class="mono" style="font-size:12px; color:#666;">
-        ¿Te gustó lo que viste? Agenda un recorrido rápido:
+        ¿Te late? Agenda un walkthrough rápido:
         <a href="/booking" style="text-decoration:underline;"
-           onclick="gtag('event','click_booking',{location:'free_tools_es'});">
-          Sesión de 15 min con el fundador
+           onclick="window.gtag && window.gtag('event','click_booking',{location:'free_tools_section'});">
+          Sesión Founder de 15 min
         </a>.
       </p>
     </div>
@@ -436,39 +598,39 @@
   <div class="wrap">
     <div class="grid grid-2">
       <div>
-        <h2 style="margin-bottom: 20px;">La trampa del “lead gen”.</h2>
+        <h2 style="margin-bottom: 20px;">La trampa de los “leads”.</h2>
         <p class="muted" style="max-width: 400px;">
-          Ya te la sabes. Pagas $150 por un “lead”. Llamas en chinga. No contestan.
-          O peor: “Ya contraté a alguien”.
+          Ya te la sabes. Pagas $150 por un lead. Llamas en caliente. No contestan.
+          O peor: “ya contraté a alguien”.
           <br><br>
-          Es porque ese mismo lead se lo vendieron a 3–5 contratistas al mismo tiempo. Guerra de precios inmediata.
+          Porque ese lead se lo vendieron a 4 más al mismo tiempo. Pura guerra de precio.
         </p>
       </div>
-
+      
       <div class="vs-card">
         <div class="pain-point">
           <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
             <span><span class="x-mark">×</span> Leads compartidos</span>
-            <span class="muted mono">Angi / Thumbtack</span>
+            <span class="muted mono">Angi/Thumbtack</span>
           </div>
-          <p class="muted" style="font-size: 14px; padding-left: 20px;">Se lo venden a 3–5 contratistas a la vez. Arranca la guerra de descuentos.</p>
+          <p class="muted" style="font-size: 14px; padding-left: 20px;">Se vende a 3–5 contratistas al mismo tiempo. Guerra de precio inmediato.</p>
         </div>
-
+        
         <div class="pain-point">
           <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
-            <span><span class="x-mark">×</span> Data atrasada</span>
-            <span class="muted mono">BuildZoom / Dodge</span>
+            <span><span class="x-mark">×</span> Data tarde</span>
+            <span class="muted mono">BuildZoom/Dodge</span>
           </div>
-          <p class="muted" style="font-size: 14px; padding-left: 20px;">Te llega el proyecto 2 semanas después de que salió el permiso. Ya es tarde.</p>
+          <p class="muted" style="font-size: 14px; padding-left: 20px;">Te llega 2 semanas después del permiso. Ya fue.</p>
         </div>
 
         <div class="pain-point" style="margin-top: 30px; padding-top:20px; border-top: 1px solid #333;">
           <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
-            <span style="color:white; font-weight:600;"><span class="check-mark">✓</span> Método Pulse</span>
+            <span style="color:white; font-weight:600;"><span class="check-mark">✓</span> El método Pulse</span>
             <span class="orange mono">PermitPulse</span>
           </div>
           <p class="muted" style="font-size: 14px; padding-left: 20px;">
-            Detectamos el permiso la misma hora que se hace público. Enriquecemos la data. Llamamos / texteamos de inmediato. Tú eres el único en el teléfono.
+            Detectamos el permiso en cuanto se publica. Enriquecemos la data. Llamamos/texteamos al instante. Tú eres el único en la línea.
           </p>
         </div>
       </div>
@@ -479,41 +641,42 @@
 <section class="section" style="background: #0a0a0c;">
   <div class="wrap">
     <div class="grid grid-2" style="align-items: center; margin-bottom: 40px;">
-      <h2>Infraestructura.<br>No “magia”.</h2>
-      <p class="muted mono" style="text-align: right;">/ ARQUITECTURA DEL SISTEMA</p>
+      <h2>Infraestructura.<br>No magia.</h2>
+      <p class="muted mono" style="text-align: right;">/ SYSTEM ARCHITECTURE</p>
     </div>
 
     <div class="grid grid-3">
       <div class="bento-box">
         <div>
           <span class="bento-icon">01_RADAR</span>
-          <h3>Escaneo LADBS</h3>
+          <h3>Vigilancia LADBS</h3>
           <p class="muted" style="margin-top: 10px; font-size: 14px;">
-            Corremos un script cada pocas horas buscando tus palabras clave: “Reroof”, “Solar”, “Panel Upgrade”, “ADU”.
+            Corremos un script cada 6 horas buscando tus keywords: “Reroof”, “Solar”, “Panel Upgrade”, “ADU”.
           </p>
         </div>
         <div class="feed-container">
           <div class="feed-header">
-            <span>FEED EN VIVO</span>
+            <span>LIVE FEED</span>
             <span class="status-dot"></span>
           </div>
-          <div class="feed-content" id="feed"></div>
+          <div class="feed-content" id="feed">
+          </div>
         </div>
       </div>
 
       <div class="bento-box">
         <div>
           <span class="bento-icon">02_ENRICH</span>
-          <h3>Data que sí sirve</h3>
+          <h3>Triangulación de datos</h3>
           <p class="muted" style="margin-top: 10px; font-size: 14px;">
-            El permiso trae dirección, no celular. Cruzamos con predial y bases de skip-trace para encontrar el número del dueño.
+            Los permisos traen dirección, no teléfono. Cruzamos registros de propiedad y bases de datos para encontrar el celular del dueño.
           </p>
         </div>
         <div style="margin-top: 20px; opacity: 0.5;">
           <div class="mono" style="font-size: 11px; color: #444; border: 1px solid #333; padding: 10px; margin-bottom: 5px;">
-            &gt; FOUND: M. Hernandez<br>
-            &gt; CELL: (213) 555-0192<br>
-            &gt; SCORE: High Intent
+            > FOUND: M. Hernandez<br>
+            > CELL: (213) 555-0192<br>
+            > SCORE: High Intent
           </div>
         </div>
       </div>
@@ -523,15 +686,15 @@
           <span class="bento-icon">03_FIRST_STRIKE</span>
           <h3>Outreach bilingüe</h3>
           <p class="muted" style="margin-top: 10px; font-size: 14px;">
-            El sistema llama y manda texto de inmediato en inglés y español. Agendamos el estimado. Tú solo llegas y cierras.
+            El sistema llama y textea en inglés y español. Agenda la cita. Tú nomás llegas.
           </p>
         </div>
         <div style="margin-top: auto;">
           <div style="display: flex; gap: 10px; align-items: center; background: #111; padding: 10px; border-radius: 6px;">
             <div style="width: 30px; height: 30px; background: #222; border-radius: 50%;"></div>
             <div style="font-size: 12px; line-height: 1.2;">
-              <div style="color: white;">Cita confirmada</div>
-              <div class="muted">Mar, 14 Nov · 10:00am</div>
+              <div style="color: white;">Appointment Confirmed</div>
+              <div class="muted">Tue, Nov 14 @ 10:00AM</div>
             </div>
           </div>
         </div>
@@ -545,41 +708,41 @@
     <div class="ticket">
       <div class="grid grid-2">
         <div>
-          <h2 style="margin-bottom: 20px;">Tarifa de Fundador</h2>
+          <h2 style="margin-bottom: 20px;">Tarifa Founder</h2>
           <p class="muted" style="margin-bottom: 20px;">
-            Soy builder, no “closer”. Primero construí las herramientas – radar, LOI, dashboards – y luego armé el servicio encima.
-            Ahora necesito 5 socios para probarlo en serio antes de subir a $4k/mes.
+            Yo soy builder, no vendedor. Primero construí las herramientas—radar, LOI, dashboards—y luego lo convertí en servicio.
+            Ahora necesito 5 partners para probarlo a escala antes de subirlo a $4k/mes.
           </p>
           <ul style="list-style: none; margin-bottom: 30px;">
-            <li style="margin-bottom: 10px;">+ Bloqueo exclusivo de ZIPs</li>
-            <li style="margin-bottom: 10px;">+ Leads ilimitados (todo lo que encontremos en tu zona)</li>
-            <li style="margin-bottom: 10px;">+ Outreach en inglés / español</li>
-            <li style="margin-bottom: 10px;">+ Plantillas LOI listas para tu crew</li>
+            <li style="margin-bottom: 10px;">+ Exclusivo: ZIP Code Lock</li>
+            <li style="margin-bottom: 10px;">+ Leads ilimitados (te llega todo lo que encontramos)</li>
+            <li style="margin-bottom: 10px;">+ Outreach AI en inglés/español</li>
+            <li style="margin-bottom: 10px;">+ Templates LOI listos para cerrar</li>
             <li style="color: var(--accent-orange);">+ “Outcome Guarantee”</li>
           </ul>
         </div>
-
+        
         <div style="display: flex; flex-direction: column; justify-content: center; align-items: flex-start; padding-left: 20px; border-left: 1px dashed #333;">
-          <div class="mono strike" style="font-size: 20px;">$4,000/mes</div>
-          <div class="price-huge">$1,997<span style="font-size: 20px; color: #666; font-weight: 400;">/mes</span></div>
+          <div class="mono strike" style="font-size: 20px;">$4,000/mo</div>
+          <div class="price-huge">$1,997<span style="font-size: 20px; color: #666; font-weight: 400;">/mo</span></div>
           <div class="mono badge" style="margin-top: 20px;">Mes a mes. Sin contrato.</div>
-
-          <a href="mailto:hello@getpermitpulse.com?subject=Quiero%20asegurar%20mi%20lugar%20fundador"
+          
+          <a href="mailto:hello@getpermitpulse.com?subject=Asegurar%20Founder%20Spot"
              class="btn btn-orange" style="width: 100%; margin-top: 20px;"
-             onclick="gtag('event','click_founder_spot',{location:'pricing_es'});">
-            Asegurar mi lugar
+             onclick="window.gtag && window.gtag('event','click_founder_spot',{location:'pricing'});">
+            Asegurar mi spot
           </a>
         </div>
       </div>
     </div>
-
+    
     <div style="margin-top: 40px; text-align: center;">
-      <h3 style="margin-bottom: 10px;">Garantía “Lo cumplimos o no cobramos”</h3>
+      <h3 style="margin-bottom: 10px;">La garantía “o cumple o reembolso”</h3>
       <p class="muted" style="max-width: 600px; margin: 0 auto;">
-        Si en los primeros 60 días no ponemos <strong>2 estimados calificados</strong> en tu calendario, te regresamos el dinero completo. Sin cuentos. Sin “marketing spend” excusas.
+        Si no ponemos <strong>2 estimados calificados</strong> en tu calendario en los primeros 60 días, te regresamos el dinero. Sin preguntas. Sin excusas.
       </p>
       <p class="mono" style="font-size:12px; color:#666; margin-top:16px;">
-        Empieza probando las herramientas gratis de arriba. Cuando estés listo, bloquea tus ZIPs y lo prendemos.
+        Empieza probando las herramientas gratis arriba. Cuando estés listo, bloquea tu ZIP y prende el sistema.
       </p>
     </div>
   </div>
@@ -590,11 +753,12 @@
     <div>
       <span class="logo">PermitPulse</span>
       <p style="margin-top: 10px; color: #666; max-width: 300px;">
-        Diseñado en Los Ángeles. Construido para la raza que trabaja.
+        Diseñado en Los Ángeles. Hecho para la construcción.<br>
+        Respeto al hustle.
       </p>
     </div>
     <div style="text-align: right;">
-      <a href="mailto:hello@getpermitpulse.com" style="text-decoration: underline;">hola@getpermitpulse.com</a>
+      <a href="mailto:hello@getpermitpulse.com" style="text-decoration: underline;">hello@getpermitpulse.com</a>
       <br><br>
       <span class="muted mono">© 2025 PermitPulse Inc.</span>
     </div>
@@ -602,17 +766,17 @@
 </footer>
 
 <script>
+  // Script to simulate the live feed in the "Mechanism" section
   const feed = document.getElementById('feed');
   const items = [
     { trade: "ROOFING", loc: "90022", val: "$32k" },
     { trade: "SOLAR", loc: "90731", val: "$48k" },
     { trade: "ADU", loc: "91405", val: "$120k" },
     { trade: "ELEC", loc: "90012", val: "$8k" },
-    { trade: "HVAC", loc: "90210", val: "$14k" }
+    { trade: "HVAC", loc: "90210", val: "$14k" },
   ];
 
   function addFeedItem() {
-    if (!feed) return;
     const item = items[Math.floor(Math.random() * items.length)];
     const div = document.createElement('div');
     div.className = 'feed-item mono';
@@ -621,15 +785,26 @@
       <span class="feed-val">${item.val}</span>
     `;
     feed.prepend(div);
+    
     if (feed.children.length > 5) {
       feed.lastElementChild.remove();
     }
   }
 
+  // Add some initially
   addFeedItem();
   addFeedItem();
+
+  // Add more every few seconds
   setInterval(addFeedItem, 2500);
 </script>
 
+<!-- STICKY START BAR -->
+<div class="sticky-cta" role="navigation" aria-label="Start PermitPulse">
+  <a class="sticky-ghost" href="tel:+15626762691" onclick="window.gtag && window.gtag('event','click_call',{location:'sticky'});">Call</a>
+  <a class="sticky-ghost" href="sms:+15626762691?body=PermitPulse%20Fast-Track%3A%20Direcci%C3%B3n%20%2B%20trabajo%20%2B%20fecha%3A%20" onclick="window.gtag && window.gtag('event','click_text_start',{location:'sticky'});">Textea (2 min)</a>
+  <a class="sticky-primary" href="https://buy.stripe.com/3cI3cw1qT9aP6Jx2Fs1wY0e" target="_blank" rel="noopener" onclick="window.gtag && window.gtag('event','click_pay_fasttrack',{location:'sticky'});">Paga $499</a>
+</div>
+
 </body>
-</html>
+        </html>
