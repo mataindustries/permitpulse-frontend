@@ -11,15 +11,10 @@
   <meta property="og:url" content="https://getpermitpulse.com/" />
   <meta property="og:title" content="PermitPulse | The City Prints Money. Get There First." />
   <meta property="og:description" content="We watch LADBS in real-time and turn permits into booked jobs. Try the free tools before you buy." />
-  <meta property="og:image" content="https://getpermitpulse.com/og-image.png" />
-
-  <meta property="twitter:card" content="summary_large_image" />
-  <meta property="twitter:url" content="https://getpermitpulse.com/" />
-  <meta property="twitter:title" content="PermitPulse | Priority Access to LA Permits" />
-  <meta property="twitter:description" content="Turn live LADBS data into booked jobs. No shared leads. 100% exclusive. Free tools to prove it." />
-  <meta property="twitter:image" content="https://getpermitpulse.com/og-image.png" />
-  <meta name="twitter:image" content="https://getpermitpulse.com/og-permitpulse.png" />
-
+  <meta property="og:image" content="https://getpermitpulse.com/img/permitpulse-og-los-angeles-permit-radar.webp" />
+<meta property="twitter:image" content="https://getpermitpulse.com/img/permitpulse-og-los-angeles-permit-radar.webp" />
+<meta name="twitter:image" content="https://getpermitpulse.com/img/permitpulse-og-los-angeles-permit-radar.webp" />
+  
   <!-- GA4 -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-0S8S6156CV"></script>
   <script>
@@ -152,6 +147,40 @@
       margin-top: 24px;
       margin-bottom: 40px;
     }
+
+    /* --- IMAGE CARDS --- */
+.img-card {
+  border-radius: 16px;
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,0.10);
+  background: #0b0b0c;
+}
+.img-card img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* Hero image gets a subtle readability gradient */
+.hero-media { position: relative; margin-top: 44px; }
+.hero-media::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg,
+    rgba(5,5,5,0.65) 0%,
+    rgba(5,5,5,0.18) 55%,
+    rgba(5,5,5,0) 100%);
+  pointer-events: none;
+}
+@media (max-width: 768px) {
+  .hero-media::before {
+    background: linear-gradient(180deg,
+      rgba(5,5,5,0.70) 0%,
+      rgba(5,5,5,0.18) 55%,
+      rgba(5,5,5,0) 100%);
+  }
+}
 
     /* --- THE PAIN (Comparison) --- */
     .vs-card {
@@ -324,7 +353,7 @@
     "@type": "Organization",
     "name": "PermitPulse",
     "url": "https://getpermitpulse.com/",
-    "logo": "https://getpermitpulse.com/og-image.png",
+    "logo": "https://getpermitpulse.com/img/permitpulse-og-los-angeles-permit-radar.webp",
     "sameAs": [
       "https://twitter.com/permitpulse"
     ]
@@ -393,6 +422,14 @@
   </p>
 
   <div style="display: flex; gap: 16px; flex-wrap: wrap;">
+   <div class="img-card hero-media">
+  <img
+    src="/img/permitpulse-los-angeles-permit-radar-dashboard-hero.webp"
+    alt="Los Angeles skyline behind a dark-mode permit radar dashboard with map pins and charts."
+    loading="eager"
+    decoding="async"
+  />
+   </div> 
   <!-- PRIMARY: ROOFING TOP PERMITS LIST (TEXT-FIRST) -->
   <a
     href="sms:+15626762691?body=ROOF%20%2B%20ZIP%3A%20_____ %0A%0ASend%20me%20today%E2%80%99s%20top%20roofing%20permits%20for%20this%20ZIP%20%2B%20a%20call%20script."
@@ -420,6 +457,58 @@
 </div>
   
 </section>
+
+  <section class="section" id="concierge" style="background:#050506;">
+  <div class="wrap">
+    <div class="grid grid-2" style="align-items:flex-end; margin-bottom:24px;">
+      <div>
+        <div class="tools-eyebrow">NEW / DONE-FOR-YOU</div>
+        <h2 style="margin-bottom:14px;">Permit Concierge</h2>
+        <p class="muted" style="max-width:520px;">
+          Every morning you get 10 permits in your area + homeowner/GC clues + a call list ready to dial.
+        </p>
+
+        <div style="display:flex; gap: 16px; flex-wrap: wrap; margin-top: 18px;">
+          <a
+            href="sms:+15626762691?body=CONCIERGE%20SAMPLE%20%2B%20ZIP%3A%20_____ %0ATrade%3A%20ROOF%20%2F%20SOLAR%20%2F%20ADU%20%2F%20PLUMB%0A%0ASend%20me%20today%E2%80%99s%20sample%20daily%20permit%20package%20(call%20list%20included)."
+            class="btn btn-orange"
+            onclick="gtag && gtag('event','click_concierge_sample',{location:'concierge_section'});"
+          >
+            Text for a Sample
+          </a>
+
+          <a
+            href="/booking"
+            class="btn btn-ghost"
+            onclick="gtag && gtag('event','click_booking',{location:'concierge_section'});"
+          >
+            Book 15-min Walkthrough
+          </a>
+        </div>
+
+        <p class="mono" style="font-size:12px; color:#666; margin-top:12px;">
+          Bridge strategy: service now → software later.
+        </p>
+      </div>
+
+      <div style="text-align:right;">
+        <p class="mono" style="font-size:12px; color:#666;">
+          Built in LA. Built for the trades.<br>
+          Done-for-you daily intel.
+        </p>
+      </div>
+    </div>
+
+    <div class="img-card">
+      <img
+        src="/img/permitpulse-permit-concierge-la-built-infographic.webp"
+        alt="Infographic explaining PermitPulse Permit Concierge: who it’s for, the pain, daily deliverables, and pricing."
+        loading="lazy"
+        decoding="async"
+      />
+    </div>
+  </div>
+  </section>
 
 <!-- FAST-TRACK SECTION -->
 <section class="section" id="fast-track" style="background:#050506;">
