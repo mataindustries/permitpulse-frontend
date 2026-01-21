@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>SGV EV + Battery Permit Radar | PermitPulse</title>
+  <meta name="description" content="See new EV charging, battery storage, and electrical upgrade permits in Glendora, San Dimas, Azusa, Covina, West Covina." />
+  <style>
+    body { margin:0; font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial; background:#050505; color:#eaeaea; }
+    .wrap { max-width:1100px; margin:0 auto; padding:24px; }
+    .card { background:#0b0b0b; border:1px solid #1b1b1b; border-radius:16px; padding:16px; }
+    .row { display:flex; gap:12px; flex-wrap:wrap; }
+    .chip { padding:10px 12px; border-radius:999px; border:1px solid #2a2a2a; background:#0a0a0a; color:#ddd; cursor:pointer; }
+    .chip.on { border-color:#2952ff; box-shadow:0 0 0 1px rgba(41,82,255,.25) inset; }
+    .btn { padding:10px 12px; border-radius:12px; border:1px solid #2a2a2a; background:#111; color:#fff; cursor:pointer; }
+    .btn.primary { border-color:#ff4400; }
+    table { width:100%; border-collapse:collapse; margin-top:12px; }
+    th, td { text-align:left; padding:10px; border-bottom:1px solid #1f1f1f; font-size:14px; vertical-align:top; }
+    th { color:#bdbdbd; font-weight:600; }
+    a { color:#7ea0ff; text-decoration:none; }
+    .muted { color:#9a9a9a; font-size:13px; }
+    .h1 { font-size:28px; font-weight:800; margin:0 0 6px; }
+    .sub { color:#bdbdbd; margin:0 0 18px; }
+    .topbar { display:flex; justify-content:space-between; align-items:center; gap:12px; flex-wrap:wrap; }
+    .right { display:flex; gap:10px; align-items:center; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="topbar">
+      <div>
+        <div class="h1">SGV EV + Battery Permit Radar</div>
+        <p class="sub">Glendora • San Dimas • Azusa • Covina • West Covina</p>
+        <div class="muted" id="updated">Loading…</div>
+      </div>
+      <div class="right">
+        <button class="btn primary" id="csvBtn">Download CSV</button>
+        <a class="btn" href="/booking.html">Get Daily Lead List</a>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="row" style="margin-bottom:10px;">
+        <button class="chip on" data-cat="all">All</button>
+        <button class="chip" data-cat="ev">EV Charging</button>
+        <button class="chip" data-cat="battery">Battery / ESS</button>
+        <button class="chip" data-cat="panel">Panel / Service Upgrades</button>
+        <button class="chip" data-cat="solar">Solar + Storage</button>
+      </div>
+
+      <div class="row">
+        <button class="chip on" data-days="14">14d</button>
+        <button class="chip" data-days="30">30d</button>
+        <button class="chip" data-days="60">60d</button>
+      </div>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>City</th>
+            <th>Address</th>
+            <th>Category</th>
+            <th>Description</th>
+            <th>Source</th>
+          </tr>
+        </thead>
+        <tbody id="rows">
+          <tr><td colspan="6" class="muted">Loading radar…</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <p class="muted" style="margin-top:14px;">
+      Note: early version uses public signals + rapid normalization. Full automation per-city is rolling in.
+    </p>
+  </div>
+
+  <script>
+    const API_BASE = "https://YOUR-WORKER-URL.example.workers.dev"; // <-- replace after deploy
+    let state = { category: "all", days: 14, items: [] };
+
+    function fmtDate(ts) {
+      const d = new Date(ts);
+      return d.toLocaleDateString(undefined, { year:"2-digit", month:"2-digit", day:"2-digit" });
+    }
+
+    function titleCase(s) {
+      return (s || "").replace(/_/g," ").replace(/\b\w/g, c => c.toUpperCase());
+    }
+
+    async function load() {
+      const qs = new URLSearchParams();
+      qs.set("days", String(state.days));
+      qs.set("category", state.category);
+
+      const res = await fetch(`${API_BASE}/v1/sgv/electrification?${qs.toString()}`);
+      const data = await res.json();
+
+      state.items = data.items || [];
+      document.getElementById("updated").textContent =
+        `Updated: ${data.updatedAt || "—"} • Signals: ${data.count || 0}`;
+
+      render();
+    }
+
+    function render() {
+      const tbody = document.getElementById("rows");
+      if (!state.items.length) {
+        tbody.innerHTML = `<tr><td colspan="6" class="muted">No matches yet.</td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = state.items.map(x => `
+        <tr>
+          <td>${fmtDate(x.ts)}</td>
+          <td>${titleCase(x.city)}</td>
+          <td>${x.address}</td>
+          <td>${titleCase(x.category)}</td>
+          <td>${x.description}</td>
+          <td>${x.sourceUrl ? `<a href="${x.sourceUrl}" target="_blank">Open</a>` : "—"}</td>
+        </tr>
+      `).join("");
+    }
+
+    function setCat(cat) {
+      state.category = cat;
+      document.querySelectorAll("[data-cat]").forEach(b => b.classList.toggle("on", b.dataset.cat === cat));
+      load();
+    }
+
+    function setDays(days) {
+      state.days = days;
+      document.querySelectorAll("[data-days]").forEach(b => b.classList.toggle("on", Number(b.dataset.days) === days));
+      load();
+    }
+
+    function downloadCSV() {
+      const headers = ["date","city","address","category","description","status","permitId","sourceUrl"];
+      const lines = [headers.join(",")];
+
+      for (const x of state.items) {
+        const row = [
+          new Date(x.ts).toISOString(),
+          x.city, x.address, x.category,
+          (x.description || "").replace(/"/g,'""'),
+          x.status || "",
+          x.permitId || "",
+          x.sourceUrl || ""
+        ].map(v => `"${String(v)}"`).join(",");
+        lines.push(row);
+      }
+
+      const blob = new Blob([lines.join("\n")], { type:"text/csv;charset=utf-8" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `sgv-electrification-${state.category}-${state.days}d.csv`;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    document.querySelectorAll("[data-cat]").forEach(b => b.addEventListener("click", () => setCat(b.dataset.cat)));
+    document.querySelectorAll("[data-days]").forEach(b => b.addEventListener("click", () => setDays(Number(b.dataset.days))));
+    document.getElementById("csvBtn").addEventListener("click", downloadCSV);
+
+    load();
+  </script>
+</body>
+</html>
