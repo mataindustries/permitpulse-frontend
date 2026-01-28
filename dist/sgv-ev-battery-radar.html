@@ -57,6 +57,7 @@
       <table>
         <thead>
           <tr>
+            <th>Score</th>
             <th>Date</th>
             <th>City</th>
             <th>Address</th>
@@ -112,8 +113,16 @@
       }
 
       tbody.innerHTML = state.items.map(x => `
-        <tr>
-          <td>${fmtDate(x.ts)}</td>
+  <tr>
+    <td>${x.score ?? 0}</td>
+    <td>${fmtDate(x.ts)}</td>
+    <td>${titleCase(x.city)}</td>
+    <td>${x.address}</td>
+    <td>${titleCase(x.category)}</td>
+    <td>${x.description}</td>
+    <td>${x.sourceUrl ? `<a href="${x.sourceUrl}" target="_blank">Open</a>` : "—"}</td>
+  </tr>
+`).join("");
           <td>${titleCase(x.city)}</td>
           <td>${x.address}</td>
           <td>${titleCase(x.category)}</td>
@@ -136,11 +145,12 @@
     }
 
     function downloadCSV() {
-      const headers = ["date","city","address","category","description","status","permitId","sourceUrl"];
+      const headers = ["score","date","city","address","category","description","status","permitId","sourceUrl"];
       const lines = [headers.join(",")];
 
       for (const x of state.items) {
         const row = [
+          x.score ?? 0,
           new Date(x.ts).toISOString(),
           x.city, x.address, x.category,
           (x.description || "").replace(/"/g,'""'),
