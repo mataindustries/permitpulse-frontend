@@ -15,6 +15,10 @@
 /es/piloto-intake          /es/piloto                         301
 /pilot/es                  /es/piloto                         301
 
+# SGV EV + Battery Radar (pretty URL)
+/sgv/ev-battery-radar   /sgv-ev-battery-radar.html   301
+/sgv/ev-battery-radar/  /sgv-ev-battery-radar.html   301
+
 # Pretty landers → static files
 /la-contractors            /la-contractors-la.html            200
 /es/la-contratistas        /es/la-contratistas-la.html        200
