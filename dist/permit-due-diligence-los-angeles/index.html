@@ -28,6 +28,25 @@
     function gtag(){dataLayer.push(arguments);}
     gtag('js', new Date());
     gtag('config', 'G-0S8S6156CV');
+    window.PP_STRIPE = {
+    fast499: "https://buy.stripe.com/9B66oIedF0Ej6Jx4NA1wY0h",
+    bundle1250: "https://buy.stripe.com/14A28s1qT4Uzgk7bbY1wY0i",
+    bundle1950: "https://buy.stripe.com/3cIbJ27Phdr57NBbbY1wY0j"
+  };
+
+  (function(){
+    const qs = new URLSearchParams(location.search);
+    const set = (name, val) => {
+      const el = document.querySelector(`[name="${name}"]`);
+      if (el) el.value = val || "";
+    };
+    set("page_url", location.href);
+    set("utm_source", qs.get("utm_source"));
+    set("utm_medium", qs.get("utm_medium"));
+    set("utm_campaign", qs.get("utm_campaign"));
+    set("utm_content", qs.get("utm_content"));
+    set("utm_term", qs.get("utm_term"));
+  })();
   </script>
 
   <!-- Cloudflare Web Analytics (optional: paste your data-cf-beacon token if you use it on main) -->
@@ -294,7 +313,7 @@
       </p>
 
       <div class="hero-cta" id="start">
-        <a class="btn btn-orange" href="REPLACE_STRIPE_LINK_A">Start Fast-Track $499</a>
+        <a class="btn btn-orange" href="https://buy.stripe.com/9B66oIedF0Ej6Jx4NA1wY0h">Pay $499 (Online Only)</a>
         <a class="btn btn-ghost" href="sms:+15626762691?&body=Address%20or%20permit%20number%3A%20%0AGoal%20(bid%2Fbuy%2Fcloseout)%3A%20%0ADeadline%3A%20">Text ADDRESS + FILE</a>
         <a class="btn btn-ghost" href="#proof">Proof</a>
       </div>
@@ -355,7 +374,7 @@
             1 address or 1 permit. Timeline, status, approved scope summary, open items (if public), risk flags, and portal exports.
           </div>
           <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:16px;">
-            <a class="btn btn-orange" style="padding:14px 18px;" href="REPLACE_STRIPE_LINK_A">Pay & Start</a>
+           <a class="btn btn-orange" href="https://buy.stripe.com/9B66oIedF0Ej6Jx4NA1wY0h">Pay $499 (Online Only)</a>
             <a class="btn btn-ghost" style="padding:14px 18px;" href="REPLACE_INTAKE_LINK">Intake Form</a>
           </div>
         </div>
@@ -367,7 +386,7 @@
             Online dossier + up to 1 in-person public document pull bundle (availability varies by agency/counter).
           </div>
           <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:16px;">
-            <a class="btn btn-orange" style="padding:14px 18px;" href="REPLACE_STRIPE_LINK_B">Pay & Start</a>
+            <a class="btn btn-ghost"  href="https://buy.stripe.com/14A28s1qT4Uzgk7bbY1wY0i">$1250 (+ 1 Retrieval)</a>
             <a class="btn btn-ghost" style="padding:14px 18px;" href="REPLACE_INTAKE_LINK">Intake Form</a>
           </div>
           <div class="small" style="margin-top:12px;">
@@ -382,7 +401,7 @@
             Best for multiple permits, older properties, or messy histories. Includes up to 3 retrieval bundles.
           </div>
           <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:16px;">
-            <a class="btn btn-orange" style="padding:14px 18px;" href="REPLACE_STRIPE_LINK_C">Pay & Start</a>
+            <a class="btn btn-ghost"  href="https://buy.stripe.com/3cIbJ27Phdr57NBbbY1wY0j">$1950 (+ Up to 3 Retrievals)</a>
             <a class="btn btn-ghost" style="padding:14px 18px;" href="REPLACE_INTAKE_LINK">Intake Form</a>
           </div>
 
@@ -473,7 +492,7 @@
 
   <!-- STICKY START BAR -->
   <div class="sticky-cta" aria-label="Sticky actions">
-    <a class="sticky-primary" href="REPLACE_STRIPE_LINK_A">Start $499</a>
+    <a class="primary" href="https://buy.stripe.com/9B66oIedF0Ej6Jx4NA1wY0h">Pay $499</a>
     <a class="sticky-ghost" href="sms:+15626762691?&body=Address%20or%20permit%20number%3A%20%0AGoal%20(bid%2Fbuy%2Fcloseout)%3A%20%0ADeadline%3A%20">Text</a>
     <a class="sticky-ghost" href="tel:+15626762691">Call</a>
   </div>
