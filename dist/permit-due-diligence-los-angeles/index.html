@@ -375,7 +375,7 @@
           </div>
           <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:16px;">
            <a class="btn btn-orange" href="https://buy.stripe.com/9B66oIedF0Ej6Jx4NA1wY0h">Pay $499 (Online Only)</a>
-            <a class="btn btn-ghost" style="padding:14px 18px;" href="https://formspree.io/f/maqdorda">Intake Form</a>
+            <a class="btn btn-ghost" href="#intake">Intake Form</a>
           </div>REPLA
         </div>
 
@@ -387,7 +387,7 @@
           </div>
           <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:16px;">
             <a class="btn btn-ghost"  href="https://buy.stripe.com/14A28s1qT4Uzgk7bbY1wY0i">$1250 (+ 1 Retrieval)</a>
-            <a class="btn btn-ghost" style="padding:14px 18px;" href="https://formspree.io/f/maqdorda">Intake Form</a>
+           <a class="btn btn-ghost" href="#intake">Intake Form</a>
           </div>
           <div class="small" style="margin-top:12px;">
             Agency printing/certification fees billed at cost unless included.
@@ -402,7 +402,7 @@
           </div>
           <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:16px;">
             <a class="btn btn-ghost"  href="https://buy.stripe.com/3cIbJ27Phdr57NBbbY1wY0j">$1950 (+ Up to 3 Retrievals)</a>
-            <a class="btn btn-ghost" style="padding:14px 18px;" href="https://formspree.io/f/maqdorda">Intake Form</a>
+            <a class="btn btn-ghost" href="#intake">Intake Form</a>
           </div>
 
           <div class="small" style="margin-top:12px;">
@@ -412,6 +412,93 @@
       </div>
     </div>
   </section>
+
+  <!-- INTAKE FORM -->
+<section class="section" id="intake">
+  <div class="wrap">
+    <h2>Intake</h2>
+    <p class="muted" style="margin-top:12px;max-width:780px;">
+      Submit the address + goal. If you already paid, submit this and we’ll start immediately.
+    </p>
+
+    <div class="grid grid-2" style="margin-top:26px;">
+      <div class="card">
+        <div class="mono muted" style="font-size:12px;letter-spacing:0.08em;text-transform:uppercase;">
+          What to include
+        </div>
+        <div class="small" style="margin-top:10px;">
+          Address, permit number (if known), deadline, and what you need verified (timeline, status, scope, risk flags, docs).
+        </div>
+        <div class="small muted" style="margin-top:12px;">
+          Public records research and document retrieval support only. Not legal advice.
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="mono muted" style="font-size:12px;letter-spacing:0.08em;text-transform:uppercase;">
+          Submit
+        </div>
+
+        <form action="https://formspree.io/f/maqdorda" method="POST" style="margin-top:14px;">
+          <!-- Hidden tracking fields (your existing head script will populate these) -->
+          <input type="hidden" name="page_url" value="">
+          <input type="hidden" name="utm_source" value="">
+          <input type="hidden" name="utm_medium" value="">
+          <input type="hidden" name="utm_campaign" value="">
+          <input type="hidden" name="utm_content" value="">
+          <input type="hidden" name="utm_term" value="">
+          <input type="hidden" name="_subject" value="PermitPulse Intake — Dossier (LA)">
+
+          <div class="grid" style="gap:12px;">
+            <input name="name" required placeholder="Name"
+              style="width:100%;padding:14px 12px;border-radius:10px;background:#0b0b0c;border:1px solid #222;color:#dedede;">
+
+            <input name="phone" required placeholder="Phone"
+              style="width:100%;padding:14px 12px;border-radius:10px;background:#0b0b0c;border:1px solid #222;color:#dedede;">
+
+            <input type="email" name="email" placeholder="Email (optional)"
+              style="width:100%;padding:14px 12px;border-radius:10px;background:#0b0b0c;border:1px solid #222;color:#dedede;">
+
+            <input name="address" required placeholder="Project address (Los Angeles)"
+              style="width:100%;padding:14px 12px;border-radius:10px;background:#0b0b0c;border:1px solid #222;color:#dedede;">
+
+            <input name="permit_number" placeholder="Permit number (if known)"
+              style="width:100%;padding:14px 12px;border-radius:10px;background:#0b0b0c;border:1px solid #222;color:#dedede;">
+
+            <input name="deadline" placeholder="Deadline (e.g., Friday 3pm)"
+              style="width:100%;padding:14px 12px;border-radius:10px;background:#0b0b0c;border:1px solid #222;color:#dedede;">
+
+            <select name="goal" required
+              style="width:100%;padding:14px 12px;border-radius:10px;background:#0b0b0c;border:1px solid #222;color:#dedede;">
+              <option value="" selected>Primary goal</option>
+              <option>Bid / Estimate</option>
+              <option>Buying / Escrow</option>
+              <option>Closeout / Finals</option>
+              <option>Due diligence / Risk review</option>
+              <option>Other</option>
+            </select>
+
+            <select name="retrieval_needed"
+              style="width:100%;padding:14px 12px;border-radius:10px;background:#0b0b0c;border:1px solid #222;color:#dedede;">
+              <option value="" selected>Need in-person document pulls?</option>
+              <option>No / Not sure</option>
+              <option>Yes (likely)</option>
+            </select>
+
+            <textarea name="notes" rows="4" placeholder="Notes (scope, what you already know, what you need)"
+              style="width:100%;padding:14px 12px;border-radius:10px;background:#0b0b0c;border:1px solid #222;color:#dedede;"></textarea>
+
+            <button class="btn btn-orange" type="submit" style="width:100%;">Submit Intake</button>
+          </div>
+
+          <p class="mono muted" style="margin-top:12px;font-size:12px;line-height:1.6;">
+            After submit: you’ll get a confirmation. If you already paid, include the address and we’ll start.
+          </p>
+        </form>
+      </div>
+    </div>
+  </div>
+</section>
 
   <!-- HOW IT WORKS -->
   <section class="section" id="process">
