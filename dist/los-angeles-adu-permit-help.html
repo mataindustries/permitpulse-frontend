@@ -1,88 +1,536 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Los Angeles ADU Permit Help (LADBS &amp; LA County) • Garage Conversions &amp; Backyard Homes</title>
-  <meta name="description" content="Planning an ADU or garage conversion in Los Angeles? Learn how ADU permits work under LADBS and LA County, and how PermitPulse supports contractors working on ADU projects.">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Planning an ADU or garage conversion in Los Angeles? Learn how ADU permits work under LADBS and LA County, and how PermitPulse supports contractors working on ADU projects." />
+  <meta name="keywords" content="LADBS permits, roofing leads Los Angeles, solar leads, construction marketing, exclusive contractor leads, permit radar, free LOI generator" />
+  
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://getpermitpulse.com/los-angeles-adu-permit-help.html" />
+  <meta property="og:title" content="Los Angeles ADU Permit Help (LADBS &amp; LA County) • Garage Conversions &amp; Backyard Homes" />
+  <meta property="og:description" content="Learn how ADU and garage conversion permits work in LA City and LA County, plus contractor-focused permit workflow tips." />
+<meta property="twitter:image" content="https://getpermitpulse.com/img/permitpulse-og-los-angeles-permit-radar.webp" />
+<!-- GA4 -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-0S8S6156CV"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-0S8S6156CV');
+  </script>
+
+  <!-- Cloudflare Web Analytics --><script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "7046e03c84424a49988d1930fda247b6"}'></script><!-- End Cloudflare Web Analytics -->
+  
+  <link rel="canonical" href="https://getpermitpulse.com/los-angeles-adu-permit-help.html" />
+  
+  <style>
+    /* --- RESET & VARIABLES --- */
+    :root {
+      --bg: #050505;
+      --card-bg: #0f0f11;
+      --card-border: #222;
+      --text-main: #ededed;
+      --text-muted: #888;
+      --accent-orange: #ff4400; /* Safety Orange */
+      --accent-blue: #2952ff;   /* Blueprint Blue */
+      --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+      --font-mono: 'JetBrains Mono', 'Courier New', monospace;
+      --ease: cubic-bezier(0.23, 1, 0.32, 1);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    
+    body {
+      background-color: var(--bg);
+      color: var(--text-main);
+      font-family: var(--font-sans);
+      line-height: 1.4;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+    
+      padding-bottom: 86px; /* sticky CTA */
+    }
+
+    /* --- TYPOGRAPHY --- */
+    h1, h2, h3 { letter-spacing: -0.04em; font-weight: 600; }
+    h1 { font-size: clamp(2.5rem, 8vw, 5rem); line-height: 0.95; }
+    h2 { font-size: clamp(2rem, 5vw, 3rem); }
+    
+    .mono { font-family: var(--font-mono); letter-spacing: -0.02em; }
+    .muted { color: var(--text-muted); }
+    .orange { color: var(--accent-orange); }
+    .blue { color: var(--accent-blue); }
+
+    a { color: inherit; text-decoration: none; }
+
+    /* --- LAYOUT UTILITIES --- */
+    .wrap {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+    
+    .section { padding: 100px 0; border-bottom: 1px solid #111; }
+    .grid { display: grid; gap: 20px; }
+    .grid-2 { grid-template-columns: 1fr 1fr; }
+    .grid-3 { grid-template-columns: repeat(3, 1fr); }
+
+    @media (max-width: 768px) {
+      .grid-2, .grid-3 { grid-template-columns: 1fr; }
+      .section { padding: 60px 0; }
+    }
+
+    /* --- COMPONENTS --- */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px 32px;
+      background: var(--text-main);
+      color: var(--bg);
+      font-weight: 600;
+      border-radius: 4px;
+      transition: transform 0.2s var(--ease), background 0.2s var(--ease), color 0.2s var(--ease), border-color 0.2s var(--ease);
+      font-size: 16px;
+      border: 1px solid transparent;
+      cursor: pointer;
+    }
+    .btn:hover { transform: scale(1.02); }
+    .btn-orange { background: var(--accent-orange); color: white; }
+    .btn-ghost {
+      background: transparent;
+      color: var(--text-main);
+      border-color: #333;
+    }
+    
+    .badge {
+      display: inline-block;
+      padding: 4px 8px;
+      border: 1px solid var(--accent-orange);
+      color: var(--accent-orange);
+      font-family: var(--font-mono);
+      font-size: 12px;
+      text-transform: uppercase;
+      margin-bottom: 16px;
+    }
+
+    /* --- HERO --- */
+    header {
+      padding: 20px 0;
+      position: fixed;
+      width: 100%;
+      top: 0;
+      z-index: 100;
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+      background: rgba(5,5,5,0.85);
+    }
+    
+    .nav-inner { display: flex; justify-content: space-between; align-items: center; }
+    .logo { font-weight: 700; font-size: 18px; letter-spacing: -0.03em; }
+
+    .hero {
+      padding-top: 180px;
+      padding-bottom: 100px;
+      position: relative;
+    }
+
+    .hero p.lead {
+      font-size: clamp(1.1rem, 2vw, 1.4rem);
+      color: var(--text-muted);
+      max-width: 600px;
+      margin-top: 24px;
+      margin-bottom: 40px;
+    }
+
+    /* --- IMAGE CARDS --- */
+.img-card {
+  border-radius: 16px;
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,0.10);
+  background: #0b0b0c;
+}
+.img-card img {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+/* Hero image gets a subtle readability gradient */
+.hero-media { position: relative; margin-top: 44px; }
+.hero-media::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg,
+    rgba(5,5,5,0.65) 0%,
+    rgba(5,5,5,0.18) 55%,
+    rgba(5,5,5,0) 100%);
+  pointer-events: none;
+}
+@media (max-width: 768px) {
+  .hero-media::before {
+    background: linear-gradient(180deg,
+      rgba(5,5,5,0.70) 0%,
+      rgba(5,5,5,0.18) 55%,
+      rgba(5,5,5,0) 100%);
+  }
+}
+
+    /* --- THE PAIN (Comparison) --- */
+    .vs-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      padding: 30px;
+      border-radius: 12px;
+    }
+    
+    .pain-point {
+      margin-bottom: 20px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid #222;
+    }
+    .pain-point:last-child { border: none; margin: 0; padding: 0; }
+    
+    .x-mark { color: #555; font-family: var(--font-mono); margin-right: 10px; }
+    .check-mark { color: var(--accent-orange); font-family: var(--font-mono); margin-right: 10px; }
+
+    /* --- BENTO GRID (How it works) --- */
+    .bento-box {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      padding: 24px;
+      border-radius: 12px;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      min-height: 240px;
+      transition: border-color 0.3s, transform 0.2s var(--ease);
+    }
+    .bento-box:hover { border-color: #333; transform: translateY(-2px); }
+    
+    .bento-icon {
+      font-family: var(--font-mono);
+      color: var(--accent-blue);
+      font-size: 14px;
+      margin-bottom: 12px;
+      display: block;
+    }
+
+    /* --- LIVE FEED SIMULATION --- */
+    .feed-container {
+      background: #000;
+      border: 1px solid #333;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      height: 300px;
+      overflow: hidden;
+      position: relative;
+      border-radius: 8px;
+    }
+    
+    .feed-header {
+      background: #111;
+      padding: 8px 12px;
+      border-bottom: 1px solid #333;
+      display: flex;
+      justify-content: space-between;
+      color: #666;
+    }
+    
+    .feed-content { padding: 10px; }
+    
+    .feed-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 0;
+      border-bottom: 1px dashed #222;
+      opacity: 0;
+      animation: fadeIn 0.5s forwards;
+    }
+    
+    .feed-val { color: var(--accent-orange); }
+
+    /* --- PRICING TICKET --- */
+    .ticket {
+      background: radial-gradient(circle at top right, #1a1a1a, #0f0f11);
+      border: 1px solid var(--accent-orange);
+      border-radius: 16px;
+      padding: 40px;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .ticket::before {
+      content: "FOUNDER ACCESS";
+      position: absolute;
+      top: 20px; right: -30px;
+      background: var(--accent-orange);
+      color: black;
+      font-size: 10px;
+      font-weight: 800;
+      padding: 5px 40px;
+      transform: rotate(45deg);
+    }
+
+    .strike { text-decoration: line-through; color: #555; }
+    .price-huge { font-size: clamp(3rem, 6vw, 5rem); font-weight: 700; letter-spacing: -0.05em; line-height: 1; }
+    
+    /* --- FOOTER --- */
+    footer { padding: 80px 0; color: #444; font-size: 14px; }
+    
+    @keyframes fadeIn { to { opacity: 1; } }
+    
+    /* Utility for the 'blinking' dot */
+    .status-dot {
+      width: 8px; height: 8px; background: var(--accent-orange);
+      border-radius: 50%; display: inline-block;
+      animation: blink 2s infinite;
+    }
+    @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+
+    /* --- FREE TOOLS SECTION --- */
+    .tools-eyebrow {
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--accent-blue);
+      font-family: var(--font-mono);
+      margin-bottom: 8px;
+    }
+    .tool-meta {
+      font-size: 11px;
+      color: #666;
+      margin-top: 8px;
+    }
+
+    /* --- STICKY START BAR --- */
+    .sticky-cta {
+      position: fixed;
+      left: 0; right: 0; bottom: 0;
+      z-index: 9999;
+      display: flex;
+      gap: 10px;
+      padding: 10px;
+      background: rgba(5,5,5,0.92);
+      backdrop-filter: blur(10px);
+      border-top: 1px solid rgba(255,255,255,0.08);
+    }
+    .sticky-cta a {
+      flex: 1;
+      padding: 14px 12px;
+      border-radius: 10px;
+      text-align: center;
+      font-weight: 700;
+      border: 1px solid #222;
+      font-family: var(--font-sans);
+    }
+    .sticky-cta a.sticky-primary {
+      background: var(--accent-orange);
+      color: white;
+      border-color: rgba(255,68,0,0.55);
+    }
+    .sticky-cta a.sticky-ghost {
+      background: rgba(255,255,255,0.04);
+      color: var(--text-main);
+    }
+  </style>
+
+  <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Service",
+  "name": "PermitPulse",
+  "url": "https://getpermitpulse.com/",
+  "serviceType":"Construction Lead Generation & Permit Package Preparation",
+  "provider": {
+    "@type": "Organization",
+    "name": "PermitPulse",
+    "url": "https://getpermitpulse.com/",
+    "logo": "https://getpermitpulse.com/img/permitpulse-og-los-angeles-permit-radar.webp",
+    "sameAs": [
+      "https://twitter.com/permitpulse"
+    ]
+  },
+  "areaServed": {
+    "@type": "City",
+    "name": "Los Angeles"
+  },
+  "description": "Real-time LADBS permit monitoring and AI outreach for Los Angeles contractors. We turn permit data into booked estimates instantly and fast-track permit package preparation for LA/SGV contractors.",
+  "offers": [
+    {"@type":"Offer","price":"499.00","priceCurrency":"USD","name":"Fast-Track Permit Package","url":"https://buy.stripe.com/3cI3cw1qT9aP6Jx2Fs1wY0e"},
+    {"@type":"Offer","price":"99.00","priceCurrency":"USD","name":"Resubmittal / Revision","url":"https://buy.stripe.com/8x28wQedF5YD7NB3Jw1wY0f"},
+    {
+      "@type": "Offer",
+      "price": "1997.00",
+      "priceCurrency": "USD",
+      "priceValidity": "2025-12-31",
+      "name": "Founder's Rate Access"
+    }
+  ],
+  "hasOfferCatalog": {
+    "@type": "OfferCatalog",
+    "name": "Lead Generation Services",
+    "itemListElement": [
+      {
+        "@type": "Offer",
+        "itemOffered": {
+          "@type": "Service",
+          "name": "Live Permit Radar"
+        }
+      },
+      {
+        "@type": "Offer",
+        "itemOffered": {
+          "@type": "Service",
+          "name": "AI Appointment Setting"
+        }
+      }
+    ]
+  }
+}
+  </script>
+  
 </head>
 <body>
+
+<header>
+  <div class="wrap nav-inner">
+    <a href="/" class="logo">PermitPulse <span class="orange">/</span> Beta</a>
+    <div style="display:flex; gap:20px; align-items:center; flex-wrap:wrap; justify-content:flex-end;">
+      <a href="/#fast-track" class="mono" style="font-size: 13px;">Fast-Track $499</a>
+      <a href="/#free-tools" class="mono" style="font-size: 13px;">Free tools</a>
+      <a href="tel:+15626762691" class="mono" style="font-size: 13px;">Call/Text: (562) 676-2691</a>
+      <a href="mailto:hello@getpermitpulse.com?subject=Founder%20Access" class="mono" style="font-size: 13px;">hello@getpermitpulse.com</a>
+    </div>
+  </div>
+</header>
+
 <main>
-  <section class="section">
+  <section class="wrap hero">
+    <div class="badge">Permit help guide</div>
     <h1>Los Angeles ADU Permit Help: Garage Conversions &amp; Backyard Homes</h1>
-
-<p class="mono muted" data-pp-context="dossier" style="margin-top:14px;font-size:13px;">
-  Need a decision-ready PDF for a specific address? Get the <a class="orange" href="/permit-due-diligence-los-angeles/">Permit Due Diligence Dossier</a> (Fast-Track $499).
-</p>
-
-    <p>
-      ADUs (accessory dwelling units) and garage conversions are one of the most popular
-      projects in Los Angeles—but the permitting can feel overwhelming. Between state ADU
-      laws, local zoning rules, and separate building, electrical, mechanical, and plumbing
-      permits, many homeowners and contractors get stuck.
+    <p class="lead">
+      ADU permits under LADBS and LA County, with practical steps for contractors and homeowners.
     </p>
-
-    <h2>Who Handles ADU Permits in LA?</h2>
-    <p>Your permit path depends on where the property sits:</p>
-    <ul>
-      <li><strong>Inside the City of LA:</strong> ADU permits go through LADBS. The city offers an
-        <strong>ADU Standard Plan Program</strong> that can speed up approvals for certain designs.</li>
-      <li><strong>Unincorporated LA County / some cities:</strong> ADU permits may go through LA County
-        Planning &amp; Building &amp; Safety using EPIC-LA.</li>
-    </ul>
-
-    <h2>Key ADU Permit Steps</h2>
-    <ol>
-      <li>Confirm zoning and setbacks (is an ADU allowed on your lot?).</li>
-      <li>Decide on conversion vs detached vs attached unit.</li>
-      <li>Prepare architectural plans and utility layouts.</li>
-      <li>Submit for building, electrical, mechanical, and plumbing permits.</li>
-      <li>Respond to plan check comments and obtain approvals.</li>
-      <li>Schedule and pass inspections up to final sign-off.</li>
-    </ol>
-
-    <h2>How PermitPulse Fits Into ADU Projects</h2>
-    <p>
-      We don’t replace your architect or engineer—but we do help
-      <strong>ADU-focused contractors</strong> keep a full pipeline by:
+    <p class="mono muted" data-pp-context="dossier" style="margin-top:14px;font-size:13px;">
+      Need a decision-ready PDF for a specific address? Get the <a class="orange" href="/permit-due-diligence-los-angeles/">Permit Due Diligence Dossier</a> (Fast-Track $499).
     </p>
-    <ul>
-      <li>Tracking <strong>ADU-related permits</strong> as they’re issued in your target ZIP codes.</li>
-      <li>Identifying homeowners and investors who are actively working on ADUs.</li>
-      <li>Running EN/ES outreach so you can offer construction, roofing, solar, or upgrades.</li>
-      <li>Letting 24/7 AI phone/chat handle FAQs (“Can I add a second ADU?” “What about parking?”).</li>
-    </ul>
+  </section>
 
-    <p>
-      If you build ADUs, garage conversions, or backyard homes in LA, we help you spend
-      less time hunting for work and more time building.
-    </p>
+  <section class="section" style="background:#050506;">
+    <div class="wrap">
+      <div class="vs-card">
+        <p>
+          ADUs (accessory dwelling units) and garage conversions are one of the most popular
+          projects in Los Angeles—but the permitting can feel overwhelming. Between state ADU
+          laws, local zoning rules, and separate building, electrical, mechanical, and plumbing
+          permits, many homeowners and contractors get stuck.
+        </p>
 
-    <p>
-      <a href="/radar/">Browse ADU permits on the live radar →</a><br>
-      <a href="/#outcome-guarantee">See how the Outcome Guarantee works →</a>
-    </p>
+        <h2 style="margin-top:28px;">Who Handles ADU Permits in LA?</h2>
+        <p style="margin-top:14px;">Your permit path depends on where the property sits:</p>
+        <ul style="margin-top:10px; padding-left:22px;">
+          <li><strong>Inside the City of LA:</strong> ADU permits go through LADBS. The city offers an
+            <strong>ADU Standard Plan Program</strong> that can speed up approvals for certain designs.</li>
+          <li><strong>Unincorporated LA County / some cities:</strong> ADU permits may go through LA County
+            Planning &amp; Building &amp; Safety using EPIC-LA.</li>
+        </ul>
 
-    <p class="disclaimer">
-      For specific ADU zoning rules or setbacks, always check directly with LADBS or LA County Planning.
-    </p>
+        <h2 style="margin-top:28px;">Key ADU Permit Steps</h2>
+        <ol style="margin-top:10px; padding-left:22px;">
+          <li>Confirm zoning and setbacks (is an ADU allowed on your lot?).</li>
+          <li>Decide on conversion vs detached vs attached unit.</li>
+          <li>Prepare architectural plans and utility layouts.</li>
+          <li>Submit for building, electrical, mechanical, and plumbing permits.</li>
+          <li>Respond to plan check comments and obtain approvals.</li>
+          <li>Schedule and pass inspections up to final sign-off.</li>
+        </ol>
+
+        <h2 style="margin-top:28px;">How PermitPulse Fits Into ADU Projects</h2>
+        <p style="margin-top:14px;">
+          We don’t replace your architect or engineer—but we do help
+          <strong>ADU-focused contractors</strong> keep a full pipeline by:
+        </p>
+        <ul style="margin-top:10px; padding-left:22px;">
+          <li>Tracking <strong>ADU-related permits</strong> as they’re issued in your target ZIP codes.</li>
+          <li>Identifying homeowners and investors who are actively working on ADUs.</li>
+          <li>Running EN/ES outreach so you can offer construction, roofing, solar, or upgrades.</li>
+          <li>Letting 24/7 AI phone/chat handle FAQs (“Can I add a second ADU?” “What about parking?”).</li>
+        </ul>
+
+        <p style="margin-top:14px;">
+          If you build ADUs, garage conversions, or backyard homes in LA, we help you spend
+          less time hunting for work and more time building.
+        </p>
+
+        <p style="margin-top:14px;">
+          <a href="/radar/">Browse ADU permits on the live radar →</a><br>
+          <a href="/#outcome-guarantee">See how the Outcome Guarantee works →</a>
+        </p>
+
+        <p class="disclaimer muted" style="margin-top:18px; font-size:14px;">
+          For specific ADU zoning rules or setbacks, always check directly with LADBS or LA County Planning.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <section class="section" style="padding-top:0;">
+    <div class="wrap">
+      <div class="vs-card" data-pp-related="dossier">
+        <div class="mono muted" style="font-size:12px;letter-spacing:0.08em;text-transform:uppercase;">FAST-TRACK SERVICE</div>
+        <h2 style="margin-top:10px;">Permit Due Diligence Dossier (LA)</h2>
+        <p style="margin-top:10px;max-width:860px;">
+          Timeline • Status • Approved Scope • Risk Flags. Optional public record pulls when portals are missing details.
+        </p>
+        <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:18px;">
+          <a class="btn btn-orange" href="/permit-due-diligence-los-angeles/">Start Fast-Track $499</a>
+          <a class="btn btn-ghost" href="/permit-history-report-los-angeles/">Permit history report</a>
+          <a class="btn btn-ghost" href="/permit-file-review-los-angeles/">Permit file review</a>
+        </div>
+      </div>
+    </div>
   </section>
 </main>
 
-
-<div class="card" data-pp-related="dossier" style="margin-top:22px;">
-  <div class="mono muted" style="font-size:12px;letter-spacing:0.08em;text-transform:uppercase;">FAST-TRACK SERVICE</div>
-  <h2 style="margin-top:10px;">Permit Due Diligence Dossier (LA)</h2>
-  <p style="margin-top:10px;max-width:860px;">
-    Timeline • Status • Approved Scope • Risk Flags. Optional public record pulls when portals are missing details.
-  </p>
-  <div style="display:flex;gap:12px;flex-wrap:wrap;margin-top:18px;">
-    <a class="btn btn-orange" href="/permit-due-diligence-los-angeles/">Start Fast-Track $499</a>
-    <a class="btn btn-ghost" href="/permit-history-report-los-angeles/">Permit history report</a>
-    <a class="btn btn-ghost" href="/permit-file-review-los-angeles/">Permit file review</a>
+<footer class="wrap">
+  <div class="grid grid-2">
+    <div>
+      <span class="logo">PermitPulse</span>
+      <p style="margin-top: 10px; color: #666; max-width: 300px;">
+        Designed in Los Angeles. Built for the trades.<br>
+        We respect the hustle.
+      </p>
+    </div>
+    <div style="text-align: right;">
+      <a href="mailto:hello@getpermitpulse.com" style="text-decoration: underline;">hello@getpermitpulse.com</a>
+      <br><br>
+      <span class="muted mono">© 2025 PermitPulse Inc.</span>
+    </div>
   </div>
-</div>
+</footer>
 
+<div class="sticky-cta" role="navigation" aria-label="Start PermitPulse">
+  <a class="sticky-primary"
+     href="sms:+15626762691?body=ROOF%20%2B%20ZIP%3A%20_____ %0A%0ASend%20me%20today%E2%80%99s%20top%20roofing%20permits%20for%20this%20ZIP%20%2B%20a%20call%20script."
+     onclick="gtag && gtag('event','click_text_roof_zip',{location:'sticky'});">
+    Text ZIP + ROOF
+  </a>
+
+  <a class="sticky-ghost" href="tel:+15626762691"
+     onclick="gtag && gtag('event','click_call',{location:'sticky'});">
+    Call
+  </a>
+
+  <a class="sticky-ghost" href="/top-permits"
+     onclick="gtag && gtag('event','click_tool',{tool:'top_permits', location:'sticky'});">
+    Proof
+  </a>
+</div>
 
 </body>
 </html>
