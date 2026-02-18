@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Permit Review Times Radar | Free Tool</title>
+  <meta name="description" content="Free permit review time tracker for Los Angeles workflows. Compare expected first review, correction turnaround, and total cycle timing by project type." />
+  <link rel="canonical" href="https://getpermitpulse.com/free-tools/review-times/" />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Permit Review Times Radar | Free Tool" />
+  <meta property="og:description" content="Quickly estimate review timing ranges and identify likely bottlenecks before filing." />
+  <meta property="og:url" content="https://getpermitpulse.com/free-tools/review-times/" />
+  <meta property="og:image" content="https://getpermitpulse.com/img/og/permitpulse-og-live-ladbs-permits-los-angeles-1200x630-2025-10.png" />
+  <style>
+    :root { --bg:#020617; --card-bg:#0f172a; --card-border:#1e293b; --text-main:#e5e7eb; --text-muted:#94a3b8; --accent-blue:#2563eb; --accent-orange:#f97316; --font-sans:system-ui, -apple-system, BlinkMacSystemFont, 'Inter', sans-serif; --font-mono:ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Courier New', monospace; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: var(--font-sans); background: radial-gradient(circle at top, #020617 0, #020617 55%, #01040d 100%); color: var(--text-main); min-height: 100vh; padding-bottom: 86px; }
+    a { color: inherit; text-decoration: none; }
+    .wrap { max-width: 1040px; margin: 0 auto; padding: 0 16px; }
+    header { position: sticky; top: 0; z-index: 30; backdrop-filter: blur(16px); background: rgba(2,6,23,0.9); border-bottom: 1px solid rgba(148,163,184,0.12); }
+    .nav { display: flex; justify-content: space-between; align-items: center; gap: 10px; padding: 14px 0; }
+    .logo { font-weight: 700; font-size: 18px; letter-spacing: -0.04em; }
+    .logo span { color: var(--accent-orange); }
+    .nav-right { display: flex; gap: 14px; align-items: center; font-size: 12px; font-family: var(--font-mono); color: var(--text-muted); flex-wrap: wrap; justify-content: flex-end; }
+    .nav-right a { text-decoration: underline; text-underline-offset: 3px; }
+    main { padding: 28px 0 30px; }
+    h1 { font-size: clamp(1.8rem, 3.8vw, 2.5rem); letter-spacing: -0.04em; line-height: 1.1; }
+    h2 { font-size: clamp(1.1rem, 2.2vw, 1.4rem); letter-spacing: -0.03em; }
+    .hero { margin-bottom: 20px; }
+    .hero-meta { font-size: 11px; font-family: var(--font-mono); color: #64748b; margin-top: 10px; }
+    .lead { margin-top: 12px; max-width: 700px; color: var(--text-muted); font-size: 0.95rem; }
+    .layout { display: grid; grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); gap: 18px; }
+    .card { border-radius: 16px; border: 1px solid rgba(148,163,184,0.18); background: radial-gradient(circle at top left, rgba(148,163,184,0.15), transparent 55%), radial-gradient(circle at bottom right, rgba(30,64,175,0.6), #020617); box-shadow: 0 18px 40px rgba(15,23,42,0.85); padding: 18px 16px; }
+    .field-label { font-size: 11px; font-family: var(--font-mono); color: #9ca3af; margin-bottom: 5px; text-transform: uppercase; letter-spacing: 0.12em; }
+    .controls { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin: 14px 0; }
+    select { width: 100%; padding: 9px 10px; background: rgba(15,23,42,0.9); border: 1px solid rgba(148,163,184,0.4); border-radius: 999px; color: var(--text-main); font-size: 13px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 12px; font-size: 12px; border: 1px solid rgba(51,65,85,0.9); border-radius: 12px; overflow: hidden; }
+    th, td { padding: 9px; border-bottom: 1px solid rgba(30,41,59,0.9); text-align: left; }
+    thead { font-family: var(--font-mono); text-transform: uppercase; letter-spacing: 0.12em; font-size: 10px; color: #9ca3af; }
+    .muted { color: var(--text-muted); }
+    .cta-buttons { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 14px; }
+    .btn { display: inline-flex; align-items: center; justify-content: center; padding: 10px 12px; border-radius: 999px; border: 1px solid rgba(226,232,240,0.7); font-size: 13px; font-weight: 600; }
+    .btn-primary { background: #38bdf8; border-color: #38bdf8; color: #020617; box-shadow: 0 12px 32px rgba(56,189,248,0.65); }
+    .btn-ghost { background: rgba(15,23,42,0.1); color: #e5e7eb; }
+    footer { margin-top: 24px; border-top: 1px solid rgba(15,23,42,0.9); padding: 14px 0 110px; font-size: 11px; color: #64748b; display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; }
+    .sticky-cta { position: fixed; left: 0; right: 0; bottom: 0; z-index: 9999; display: flex; gap: 10px; padding: 10px; background: rgba(2,6,23,0.94); border-top: 1px solid rgba(148,163,184,0.2); }
+    .sticky-cta a { flex: 1; text-align: center; border-radius: 10px; padding: 12px 10px; font-weight: 700; border: 1px solid #334155; }
+    .sticky-primary { background: var(--accent-orange); color: white; border-color: rgba(249,115,22,0.6); }
+    .sticky-ghost { background: rgba(15,23,42,0.55); }
+    @media (max-width: 900px) { .layout { grid-template-columns: 1fr; } .controls { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+<header>
+  <div class="wrap nav">
+    <a href="/" class="logo">PermitPulse<span>/</span> Radar</a>
+    <div class="nav-right">
+      <a href="/guides/">Guides</a>
+      <a href="/free-tools/">Free tools</a>
+      <a href="/free-tools/">Free tools hub</a>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+  <section class="hero">
+    <div class="field-label" style="color:#60a5fa;">Free tool</div>
+    <h1>Permit review time estimator</h1>
+    <p class="lead">Use this planning tool to set realistic expectations for first review, correction cycles, and total timeline. Ranges are planning assumptions, not agency guarantees.</p>
+    <p class="hero-meta">Last updated: 2026-02-18</p>
+  </section>
+
+  <section class="layout">
+    <article class="card">
+      <h2>Review timing ranges</h2>
+      <div class="controls">
+        <div>
+          <div class="field-label">Project type</div>
+          <select id="projectType">
+            <option value="adu" selected>ADU</option>
+            <option value="roof">Roofing</option>
+            <option value="solar">Solar</option>
+            <option value="tenant">Tenant Improvement</option>
+          </select>
+        </div>
+        <div>
+          <div class="field-label">Submittal quality</div>
+          <select id="quality">
+            <option value="strong" selected>Strong set</option>
+            <option value="average">Average set</option>
+            <option value="rough">Rough set</option>
+          </select>
+        </div>
+        <div>
+          <div class="field-label">Corrections expected</div>
+          <select id="rounds">
+            <option value="1">1 round</option>
+            <option value="2" selected>2 rounds</option>
+            <option value="3">3 rounds</option>
+          </select>
+        </div>
+      </div>
+
+      <table>
+        <thead>
+          <tr><th>Stage</th><th>Estimated days</th><th>Notes</th></tr>
+        </thead>
+        <tbody id="resultsBody">
+          <tr><td>First review</td><td>12-20</td><td class="muted">Typical queue + assignment</td></tr>
+          <tr><td>Each correction round</td><td>7-14</td><td class="muted">Depends on scope clarity</td></tr>
+          <tr><td>Post-approval issuance</td><td>2-5</td><td class="muted">Final checks and fees</td></tr>
+          <tr><td><strong>Total planning range</strong></td><td><strong>28-53</strong></td><td class="muted">Update when comments arrive</td></tr>
+        </tbody>
+      </table>
+    </article>
+
+    <aside class="card">
+      <h2>Use with your live workflow</h2>
+      <p class="lead" style="font-size:0.9rem; max-width:none; margin-top:8px;">Pair this with live permit feed checks to spot bottlenecks by trade and neighborhood.</p>
+      <div class="cta-buttons">
+        <a class="btn btn-primary" href="https://buy.stripe.com/3cI3cw1qT9aP6Jx2Fs1wY0e" target="_blank" rel="noopener">Get Permit Dossier ($499)</a>
+        <a class="btn btn-ghost" href="tel:+15626762691">Call/Text</a>
+      </div>
+      <p class="hero-meta" style="margin-top:14px;">Need another free tool? Start at <a href="/free-tools/" style="text-decoration:underline; text-underline-offset:3px;">/free-tools/</a>.</p>
+    </aside>
+  </section>
+
+  <footer>
+    <span>© 2026 PermitPulse · Los Angeles.</span>
+    <span><a href="/guides/" style="text-decoration:underline; text-underline-offset:3px;">Guides</a> · <a href="/free-tools/" style="text-decoration:underline; text-underline-offset:3px;">Radar tools</a></span>
+  </footer>
+</main>
+
+<div class="sticky-cta" role="navigation" aria-label="Start PermitPulse">
+  <a class="sticky-primary" href="https://buy.stripe.com/3cI3cw1qT9aP6Jx2Fs1wY0e" target="_blank" rel="noopener">Get Permit Dossier ($499)</a>
+  <a class="sticky-ghost" href="tel:+15626762691">Call/Text</a>
+</div>
+
+<script>
+(() => {
+  const presets = {
+    adu: { strong: [10, 16], average: [12, 20], rough: [16, 26] },
+    roof: { strong: [6, 12], average: [8, 14], rough: [10, 18] },
+    solar: { strong: [7, 13], average: [9, 15], rough: [11, 20] },
+    tenant: { strong: [9, 16], average: [12, 21], rough: [15, 26] }
+  };
+
+  const correction = {
+    strong: [5, 10],
+    average: [7, 14],
+    rough: [10, 18]
+  };
+
+  const issuance = [2, 5];
+
+  const els = {
+    projectType: document.getElementById('projectType'),
+    quality: document.getElementById('quality'),
+    rounds: document.getElementById('rounds'),
+    body: document.getElementById('resultsBody')
+  };
+
+  function formatRange(pair) {
+    return `${pair[0]}-${pair[1]}`;
+  }
+
+  function render() {
+    const project = els.projectType.value;
+    const quality = els.quality.value;
+    const rounds = Number(els.rounds.value || 2);
+
+    const first = presets[project][quality];
+    const corr = correction[quality];
+    const corrTotal = [corr[0] * rounds, corr[1] * rounds];
+    const total = [first[0] + corrTotal[0] + issuance[0], first[1] + corrTotal[1] + issuance[1]];
+
+    els.body.innerHTML = `
+      <tr><td>First review</td><td>${formatRange(first)}</td><td class="muted">Agency queue + first check</td></tr>
+      <tr><td>Correction rounds (${rounds})</td><td>${formatRange(corrTotal)}</td><td class="muted">Includes applicant response time</td></tr>
+      <tr><td>Post-approval issuance</td><td>${formatRange(issuance)}</td><td class="muted">Final fees and issuance steps</td></tr>
+      <tr><td><strong>Total planning range</strong></td><td><strong>${formatRange(total)}</strong></td><td class="muted">Working estimate only</td></tr>
+    `;
+  }
+
+  ['change', 'input'].forEach(evt => {
+    els.projectType.addEventListener(evt, render);
+    els.quality.addEventListener(evt, render);
+    els.rounds.addEventListener(evt, render);
+  });
+
+  render();
+})();
+</script>
+</body>
+</html>
