@@ -21,6 +21,15 @@
     </image:image>
   </url>
 
+  <!-- Guides + radar hubs -->
+  <url><loc>https://getpermitpulse.com/guides/</loc></url>
+  <url><loc>https://getpermitpulse.com/guides/california/adu-law-changes-2026/</loc></url>
+  <url><loc>https://getpermitpulse.com/guides/los-angeles/adu-permit-process/</loc></url>
+  <url><loc>https://getpermitpulse.com/guides/permit-dossier/</loc></url>
+  <url><loc>https://getpermitpulse.com/free-tools/</loc></url>
+  <url><loc>https://getpermitpulse.com/free-tools/review-times/</loc></url>
+  <url><loc>https://getpermitpulse.com/radar/</loc></url>
+
   <!-- New high-intent service page -->
   <url>
     <loc>https://getpermitpulse.com/permit-due-diligence-los-angeles/</loc>
@@ -36,7 +45,6 @@
   <!-- Global pages -->
   <url><loc>https://getpermitpulse.com/free-csv.html</loc></url>
   <url><loc>https://getpermitpulse.com/es/free-csv.html</loc></url>
-  <url><loc>https://getpermitpulse.com/loi/</loc></url>
 
   <!-- Booking / conversion -->
   <url><loc>https://getpermitpulse.com/book</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>

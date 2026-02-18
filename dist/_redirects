@@ -1,6 +1,6 @@
-/loi                       /loi/index.html                    200
-/loi/*                     /loi/index.html                    200
-/loi.html                  /loi/index.html                    301
+/loi                       /free-tools                        301
+/loi/                      /free-tools                        301
+/loi.html                  /free-tools                        301
 
 # Pretty URLs for pilot & guarantee
 /guarantee                 /permitpulse-guarantee-en.html         200!
@@ -27,7 +27,9 @@
 /city/*                    /city/index.html                   200
 /thank-you                 /thank-you/index.html              200
 /thank-you/                /thank-you/index.html              200   # handles trailing slash
+/radar/review-times        /free-tools/review-times           301
 /radar                     /radar/index.html                  200
+/free-tools                /free-tools/index.html             200
 /top-permits               /top-permits/index.html            200
 /call                      /call/index.html                   200
 /reserve                   /reserve/index.html                200

@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Los Angeles ADU Permit Process | PermitPulse Guide</title>
+  <meta name="description" content="A step-by-step Los Angeles ADU permit process guide: feasibility, filing sequence, plan check, corrections, issuance, and final approvals." />
+  <link rel="canonical" href="https://getpermitpulse.com/guides/los-angeles/adu-permit-process/" />
+  <meta property="og:type" content="article" />
+  <meta property="og:title" content="Los Angeles ADU Permit Process | PermitPulse Guide" />
+  <meta property="og:description" content="Use this practical LA ADU sequence to cut correction loops and move from intake to final sign-off faster." />
+  <meta property="og:url" content="https://getpermitpulse.com/guides/los-angeles/adu-permit-process/" />
+  <meta property="og:image" content="https://getpermitpulse.com/img/og/permitpulse-og-live-ladbs-permits-los-angeles-1200x630-2025-10.png" />
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {"@type":"Question","name":"What should happen before I submit plans to LADBS?","acceptedAnswer":{"@type":"Answer","text":"Confirm zoning feasibility, objective standards, utility assumptions, and ADU scope boundaries before final drawings."}},
+      {"@type":"Question","name":"How many correction rounds are normal for LA ADU permits?","acceptedAnswer":{"@type":"Answer","text":"One to three rounds are common. Fewer rounds depend on complete notes and city-specific sheet expectations."}},
+      {"@type":"Question","name":"Can I overlap plan check tasks with contractor bidding?","acceptedAnswer":{"@type":"Answer","text":"Yes. Most teams bid during plan check, then lock final pricing after correction comments are resolved."}},
+      {"@type":"Question","name":"What delays issuance most often?","acceptedAnswer":{"@type":"Answer","text":"Missing details in structural notes, utility scope conflicts, and unresolved correction comments near approval."}},
+      {"@type":"Question","name":"Should I track permit status manually?","acceptedAnswer":{"@type":"Answer","text":"Manual checks work, but a weekly status log with date-stamped notes prevents missed actions during review."}},
+      {"@type":"Question","name":"When should I order a permit dossier?","acceptedAnswer":{"@type":"Answer","text":"Order it when an address has prior permit history, open finals, or unclear scope that could affect your filing strategy."}}
+    ]
+  }
+  </script>
+  <style>
+    :root { --bg:#050505; --card-bg:#0f0f11; --card-border:#222; --text-main:#ededed; --text-muted:#888; --accent-orange:#ff4400; --accent-blue:#2952ff; --font-sans:'Inter', system-ui, -apple-system, sans-serif; --font-mono:'JetBrains Mono', 'Courier New', monospace; }
+    * { box-sizing:border-box; margin:0; padding:0; }
+    body { background:var(--bg); color:var(--text-main); font-family:var(--font-sans); line-height:1.5; padding-bottom:86px; }
+    a { color:inherit; text-decoration:none; }
+    .wrap { max-width:1000px; margin:0 auto; padding:0 20px; }
+    header { padding:20px 0; position:fixed; width:100%; top:0; z-index:100; backdrop-filter:blur(10px); border-bottom:1px solid rgba(255,255,255,0.05); background:rgba(5,5,5,0.85); }
+    .nav-inner { display:flex; justify-content:space-between; align-items:center; gap:18px; }
+    .logo { font-weight:700; font-size:18px; letter-spacing:-0.03em; }
+    .mono { font-family:var(--font-mono); letter-spacing:-0.02em; }
+    .muted { color:var(--text-muted); }
+    .orange { color:var(--accent-orange); }
+    .hero { padding-top:170px; padding-bottom:40px; }
+    h1,h2,h3 { letter-spacing:-0.04em; font-weight:600; }
+    h1 { font-size:clamp(2.2rem, 6vw, 3.8rem); line-height:1; }
+    h2 { font-size:clamp(1.4rem, 3vw, 2rem); }
+    .section { padding:24px 0 44px; }
+    .grid { display:grid; gap:16px; }
+    .grid-2 { grid-template-columns:repeat(2, minmax(0, 1fr)); }
+    .card { background:var(--card-bg); border:1px solid var(--card-border); border-radius:12px; padding:22px; }
+    .btn { display:inline-flex; align-items:center; justify-content:center; padding:14px 22px; border-radius:4px; border:1px solid transparent; font-weight:600; }
+    .btn-orange { background:var(--accent-orange); color:#fff; }
+    .btn-ghost { border-color:#333; }
+    .link { color:var(--accent-blue); text-decoration:underline; text-underline-offset:3px; }
+    ul { padding-left:18px; color:var(--text-muted); }
+    li { margin:10px 0; }
+    details { border:1px solid #222; border-radius:12px; background:#0b0b0c; padding:14px 16px; }
+    details + details { margin-top:12px; }
+    summary { cursor:pointer; font-weight:700; }
+    details p { margin-top:10px; color:var(--text-muted); }
+    footer { border-top:1px solid #111; padding:30px 0 110px; color:#777; font-size:14px; }
+    .sticky-cta { position:fixed; left:0; right:0; bottom:0; z-index:9999; display:flex; gap:10px; padding:10px; background:rgba(5,5,5,0.92); border-top:1px solid rgba(255,255,255,0.08); }
+    .sticky-cta a { flex:1; text-align:center; border-radius:10px; padding:14px 10px; border:1px solid #222; font-weight:700; }
+    .sticky-primary { background:var(--accent-orange); color:#fff; border-color:rgba(255,68,0,0.55); }
+    .sticky-ghost { background:rgba(255,255,255,0.04); }
+    @media (max-width: 900px) { .grid-2 { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+<header>
+  <div class="wrap nav-inner">
+    <a href="/" class="logo">PermitPulse <span class="orange">/</span> Beta</a>
+    <div style="display:flex; gap:20px; align-items:center; flex-wrap:wrap; justify-content:flex-end;">
+      <a href="/guides/" class="mono" style="font-size:13px;">Guides</a>
+      <a href="/free-tools/" class="mono" style="font-size:13px;">Free tools</a>
+      <a href="/" class="mono" style="font-size:13px;">Home</a>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+  <section class="hero">
+    <div class="mono orange" style="font-size:12px; margin-bottom:12px;">Los Angeles Guide</div>
+    <h1>LA ADU permit process: a practical step-by-step sequence.</h1>
+    <p class="muted" style="margin-top:16px; max-width:760px;">Most ADU delays come from correction loops, not one big blocker. Use this sequence to stage scope, paperwork, and status follow-up without losing weeks.</p>
+    <p class="mono muted" style="margin-top:16px; font-size:12px;">Last updated: 2026-02-18</p>
+    <div style="display:flex; gap:12px; flex-wrap:wrap; margin-top:22px;">
+      <a class="btn btn-orange" href="https://buy.stripe.com/3cI3cw1qT9aP6Jx2Fs1wY0e" target="_blank" rel="noopener">Get Permit Dossier ($499)</a>
+      <a class="btn btn-ghost" href="tel:+15626762691">Call/Text</a>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="grid grid-2">
+      <article class="card">
+        <h2>Process stages</h2>
+        <ul style="margin-top:10px;">
+          <li>Feasibility and scope boundary: ADU-only scope first.</li>
+          <li>Pre-submittal check: objective standards, utilities, and notes.</li>
+          <li>Plan check and correction rounds with date-stamped response log.</li>
+          <li>Permit issuance and inspection sequencing.</li>
+          <li>Final approvals and close-out documentation.</li>
+        </ul>
+      </article>
+      <article class="card">
+        <h2>Useful LA references</h2>
+        <ul style="margin-top:10px;">
+          <li><a class="link" href="/los-angeles-adu-permit-help.html">Los Angeles ADU Permit Help</a></li>
+          <li><a class="link" href="/los-angeles-adu-permits.html">Los Angeles ADU Permits feed</a></li>
+          <li><a class="link" href="/la-city-vs-county-permits.html">LA City vs County permit lane guide</a></li>
+        </ul>
+        <p class="muted" style="margin-top:12px;">Use the feed while your set is in review so you can benchmark timing by trade and area.</p>
+      </article>
+    </div>
+  </section>
+
+  <section class="section">
+    <article class="card">
+      <h2>Execution notes that reduce corrections</h2>
+      <ul style="margin-top:10px;">
+        <li>Track every reviewer request by sheet and response date.</li>
+        <li>Keep a separate internal list for utility and inspection dependencies.</li>
+        <li>Avoid adding unrelated scope late in plan check unless necessary.</li>
+        <li>When status stalls, use precise follow-up with permit number and last action date.</li>
+      </ul>
+    </article>
+  </section>
+
+  <section class="section" id="faq">
+    <h2>FAQ</h2>
+    <div style="margin-top:16px;">
+      <details><summary>What should happen before I submit plans to LADBS?</summary><p>Confirm zoning feasibility, objective standards, utility assumptions, and ADU scope boundaries before final drawings.</p></details>
+      <details><summary>How many correction rounds are normal for LA ADU permits?</summary><p>One to three rounds are common. Fewer rounds depend on complete notes and city-specific sheet expectations.</p></details>
+      <details><summary>Can I overlap plan check tasks with contractor bidding?</summary><p>Yes. Most teams bid during plan check, then lock final pricing after correction comments are resolved.</p></details>
+      <details><summary>What delays issuance most often?</summary><p>Missing details in structural notes, utility scope conflicts, and unresolved correction comments near approval.</p></details>
+      <details><summary>Should I track permit status manually?</summary><p>Manual checks work, but a weekly status log with date-stamped notes prevents missed actions during review.</p></details>
+      <details><summary>When should I order a permit dossier?</summary><p>Order it when an address has prior permit history, open finals, or unclear scope that could affect your filing strategy.</p></details>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap" style="display:flex; justify-content:space-between; gap:14px; flex-wrap:wrap;">
+    <div>© 2026 PermitPulse</div>
+    <div><a href="/guides/" class="link">Guides</a> · <a href="/radar/" class="link">Radar tools</a></div>
+  </div>
+</footer>
+
+<div class="sticky-cta" role="navigation" aria-label="Start PermitPulse">
+  <a class="sticky-primary" href="https://buy.stripe.com/3cI3cw1qT9aP6Jx2Fs1wY0e" target="_blank" rel="noopener">Get Permit Dossier ($499)</a>
+  <a class="sticky-ghost" href="tel:+15626762691">Call/Text</a>
+</div>
+</body>
+</html>
