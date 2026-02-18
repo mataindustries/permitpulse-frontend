@@ -328,6 +328,70 @@
         <a class="btn btn-ghost" href="sms:+15626762691?&body=Address%20or%20permit%20number%3A%20%0AGoal%20(bid%2Fbuy%2Fcloseout)%3A%20%0ADeadline%3A%20">Text ADDRESS + FILE</a>
        <div style="margin-top:12px;">
   <a class="btn btn-ghost" href="/sample-dossier/">See a redacted sample dossier</a>
+        <div class="small" style="margin-top:12px; max-width:520px;">
+  <div class="mono muted" style="font-size:12px; margin-bottom:6px;">
+    Not ready to buy? Get the free submission checklist.
+  </div>
+
+  <form id="ppChecklistFormDossier" action="https://formspree.io/f/mojnlqol" method="POST" style="display:flex; gap:10px; flex-wrap:wrap;">
+    <input type="hidden" name="form_type" value="lead_magnet_checklist" />
+    <input type="hidden" name="page" value="dossier_la" />
+
+    <input
+      name="email"
+      type="email"
+      required
+      placeholder="you@company.com"
+      style="flex:1; min-width:220px; padding:12px 14px; border-radius:12px; border:1px solid #222; background:#0b0b0c; color:#dedede;"
+    />
+
+    <button id="ppChecklistBtnDossier" class="btn btn-ghost" type="submit">
+      Email me the checklist
+    </button>
+  </form>
+
+  <div id="ppChecklistSuccessDossier" class="muted" style="display:none; margin-top:10px; line-height:1.5;">
+    Sent. If you don’t see it in 2 minutes, check spam or text
+    <a class="link" href="tel:+15626762691">562-676-2691</a>.
+  </div>
+</div>
+
+<script>
+(function () {
+  var form = document.getElementById("ppChecklistFormDossier");
+  if (!form) return;
+
+  var btn = document.getElementById("ppChecklistBtnDossier");
+  var success = document.getElementById("ppChecklistSuccessDossier");
+
+  form.addEventListener("submit", async function (e) {
+    e.preventDefault();
+
+    var original = btn ? btn.textContent : "Email me the checklist";
+    if (btn) { btn.disabled = true; btn.textContent = "Sending..."; }
+
+    try {
+      var fd = new FormData(form);
+      var res = await fetch(form.action, {
+        method: "POST",
+        body: fd,
+        headers: { "Accept": "application/json" }
+      });
+
+      if (res.ok) {
+        if (btn) { btn.textContent = "Sent"; }
+        success.style.display = "block";
+      } else {
+        if (btn) { btn.disabled = false; btn.textContent = original; }
+        alert("Could not submit. Try again or text 562-676-2691.");
+      }
+    } catch (err) {
+      if (btn) { btn.disabled = false; btn.textContent = original; }
+      alert("Could not submit. Try again or text 562-676-2691.");
+    }
+  });
+})();
+</script> 
        </div>
       </div>
 
