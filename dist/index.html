@@ -488,6 +488,110 @@
   <p class="mono muted" style="margin:0;">
     <a href="/sample-dossier/" class="link">See a redacted sample dossier</a>
   </p>
+        <!-- Lead Magnet: Checklist (no redirect needed) -->
+<section class="card" id="lead-magnet" style="margin-top:16px;">
+  <div class="kicker">Free</div>
+  <div class="title" style="margin-top:6px;">LA submission checklist</div>
+  <p class="muted" style="margin:10px 0 14px; line-height:1.55;">
+    Email only. Optional address helps confirm routing. You get the checklist on-screen after submit.
+  </p>
+
+  <form id="ppChecklistForm" action="https://formspree.io/f/mojnlqol" method="POST" style="display:grid; gap:10px;">
+    <input type="hidden" name="form_type" value="lead_magnet_checklist" />
+    <input type="hidden" name="page" value="home" />
+
+    <label class="mono muted" style="font-size:12px;">Email</label>
+    <input
+      name="email"
+      type="email"
+      required
+      placeholder="you@company.com"
+      style="width:100%; padding:12px 14px; border-radius:12px; border:1px solid #222; background:#0b0b0c; color:#dedede;"
+    />
+
+    <label class="mono muted" style="font-size:12px;">Project address (optional)</label>
+    <input
+      name="address"
+      type="text"
+      placeholder="123 Main St, Los Angeles, CA"
+      style="width:100%; padding:12px 14px; border-radius:12px; border:1px solid #222; background:#0b0b0c; color:#dedede;"
+    />
+
+    <label class="mono muted" style="font-size:12px;">Scope (optional)</label>
+    <input
+      name="scope"
+      type="text"
+      placeholder="ADU, roof, panel upgrade, remodel"
+      style="width:100%; padding:12px 14px; border-radius:12px; border:1px solid #222; background:#0b0b0c; color:#dedede;"
+    />
+
+    <button id="ppChecklistBtn" class="btn btn-orange" type="submit" style="width:100%;">
+      Send checklist
+    </button>
+
+    <p class="muted" style="margin:0; font-size:12px; line-height:1.4;">
+      If the form fails, text 562-676-2691.
+    </p>
+  </form>
+
+  <div id="ppChecklistSuccess" style="display:none; margin-top:14px;">
+    <div class="hr"></div>
+    <div class="kicker">Checklist</div>
+    <ul style="margin:10px 0 0 18px; line-height:1.6;">
+      <li>Confirm jurisdiction (City vs County) before preparing the packet.</li>
+      <li>Write scope in 3 to 6 bullets. Keep it consistent across plans and forms.</li>
+      <li>Assemble one folder: plans, calculations (if needed), forms, owner authorization (if needed).</li>
+      <li>Verify required sheets are included and match the scope (site plan, floor plans, elevations as needed).</li>
+      <li>Check for department routing triggers (structural, electrical service change, egress, planning overlays).</li>
+      <li>Confirm permit status signals and any open inspections that can block close out.</li>
+      <li>Pre-check common delay causes: missing signatures, missing title blocks, inconsistent addresses.</li>
+      <li>Submit through the correct portal with a complete package to avoid resubmittals.</li>
+    </ul>
+
+    <p class="muted" style="margin:12px 0 0; line-height:1.5;">
+      Want this done for your address?
+      <a class="link" href="https://buy.stripe.com/9B66oIedF0Ej6Jx4NA1wY0h">Get Permit Dossier ($499)</a>
+      or <a class="link" href="tel:+15626762691">Call/Text</a>.
+    </p>
+  </div>
+</section>
+
+<script>
+(function () {
+  var form = document.getElementById("ppChecklistForm");
+  if (!form) return;
+
+  var btn = document.getElementById("ppChecklistBtn");
+  var success = document.getElementById("ppChecklistSuccess");
+
+  form.addEventListener("submit", async function (e) {
+    e.preventDefault();
+
+    var original = btn ? btn.textContent : "Send checklist";
+    if (btn) { btn.disabled = true; btn.textContent = "Sending..."; }
+
+    try {
+      var fd = new FormData(form);
+      var res = await fetch(form.action, {
+        method: "POST",
+        body: fd,
+        headers: { "Accept": "application/json" }
+      });
+
+      if (res.ok) {
+        form.style.display = "none";
+        success.style.display = "block";
+      } else {
+        if (btn) { btn.disabled = false; btn.textContent = original; }
+        alert("Could not submit. Try again or text 562-676-2691.");
+      }
+    } catch (err) {
+      if (btn) { btn.disabled = false; btn.textContent = original; }
+      alert("Could not submit. Try again or text 562-676-2691.");
+    }
+  });
+})();
+</script>  
         </div>
       </div>
     </div>
