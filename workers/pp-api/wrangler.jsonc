@@ -1,0 +1,66 @@
+{
+  "name": "pp-api",
+  "main": "src/worker.js",
+  "workers_dev": true,
+  "preview_urls": false,
+  "compatibility_date": "2025-10-18",
+  "routes": [
+    {
+      "pattern": "api.getpermitpulse.com/*",
+      "zone_name": "getpermitpulse.com"
+    }
+  ],
+  "observability": {
+    "enabled": true,
+    "head_sampling_rate": 1,
+    "logs": {
+      "enabled": true,
+      "head_sampling_rate": 1,
+      "persist": true,
+      "invocation_logs": true
+    },
+    "traces": {
+      "enabled": true,
+      "persist": true,
+      "head_sampling_rate": 1
+    }
+  },
+  "vars": {
+    "CITY_NAME": "Los Angeles",
+    "F_ADDR": "street_name",
+    "F_DESC": "work_description",
+    "F_FILED_AT": "issue_date",
+    "FORWARD_TO": "hello@getpermitpulse.com",
+    "F_PERMIT": "pcis_permit",
+    "F_SUBTYPE": "permit_sub_type",
+    "F_TYPE": "permit_type",
+    "F_VAL": "valuation",
+    "F_ZIP": "zip_code",
+    "SOC_DATASET": "pi9x-tg5x",
+    "SOC_DOMAIN": "data.lacity.org",
+    "STATE_ABBR": "CA",
+    "STATE_CODE": "CA"
+  },
+  "kv_namespaces": [
+    {
+      "id": "73b412d41175494cb9035bb09c4c8d97",
+      "binding": "PERMIT_KV"
+    },
+    {
+      "id": "0a135310f14a4315af6c94418ec7f92f",
+      "binding": "PERMITPULSE_LEADS"
+    },
+    {
+      "id": "7839ddd1857442f9a6d64804e18dc47e",
+      "binding": "PERMITPULSE_RADAR"
+    },
+    {
+      "id": "2ba9796dfb354307b49d222e27c274c0",
+      "binding": "PERMITPULSE_WATCH"
+    },
+    {
+      "id": "7cb94d9224824e349c71f00c57c10b8a",
+      "binding": "PILOT_KV"
+    }
+  ]
+}
