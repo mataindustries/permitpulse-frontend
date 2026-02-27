@@ -1,5 +1,5 @@
 {
-  "name": "pp-api",
+  "name": "pp-api-next",
   "main": "src/worker.js",
   "workers_dev": true,
   "preview_urls": false,
