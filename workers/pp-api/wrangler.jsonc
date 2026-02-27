@@ -4,12 +4,6 @@
   "workers_dev": true,
   "preview_urls": false,
   "compatibility_date": "2025-10-18",
-  "routes": [
-    {
-      "pattern": "api.getpermitpulse.com/*",
-      "zone_name": "getpermitpulse.com"
-    }
-  ],
   "observability": {
     "enabled": true,
     "head_sampling_rate": 1,
