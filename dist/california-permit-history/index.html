@@ -1,0 +1,713 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>California Permit History + Risk Flags | PermitPulse</title>
+  <meta name="description" content="Search California permit history by jurisdiction, address, or keyword. PermitPulse scans open permit datasets, surfaces valuation and recency filters, and highlights permit risk flags." />
+  <meta name="keywords" content="California permit history, permit risk flags, building permit search California, permit dossier, permit valuation search" />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://getpermitpulse.com/california-permit-history/" />
+  <meta property="og:title" content="California Permit History + Risk Flags" />
+  <meta property="og:description" content="Search open permit datasets by jurisdiction and highlight risk flags before you buy, bid, or submit." />
+  <meta property="og:image" content="https://getpermitpulse.com/img/permitpulse-og-los-angeles-permit-radar.webp" />
+  <meta property="twitter:image" content="https://getpermitpulse.com/img/permitpulse-og-los-angeles-permit-radar.webp" />
+  <link rel="canonical" href="https://getpermitpulse.com/california-permit-history/" />
+
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-0S8S6156CV"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-0S8S6156CV');
+  </script>
+  <script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token":"7046e03c84424a49988d1930fda247b6"}'></script>
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "What data sources does this page use?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "PermitPulse searches open public permit datasets exposed by participating jurisdictions, including Socrata-backed permit records where available."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "What does this search not cover?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "This tool does not cover every California permit portal. Some cities and counties restrict access, split records across multiple systems, or publish incomplete public fields."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "When should I buy the Permit Dossier?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Buy the dossier when the address matters to a purchase, bid, underwriting, or filing decision and you need a clean timeline, scope summary, and risk analysis instead of raw portal output."
+        }
+      }
+    ]
+  }
+  </script>
+
+  <style>
+    :root {
+      --bg: #050505;
+      --card-bg: #0f0f11;
+      --card-border: #222;
+      --text-main: #ededed;
+      --text-muted: #888;
+      --accent-orange: #ff4400;
+      --accent-blue: #2952ff;
+      --accent-green: #7dd3a5;
+      --danger: #ff7a7a;
+      --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+      --font-mono: 'JetBrains Mono', 'Courier New', monospace;
+      --ease: cubic-bezier(0.23, 1, 0.32, 1);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background-color: var(--bg);
+      color: var(--text-main);
+      font-family: var(--font-sans);
+      line-height: 1.45;
+      overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
+      padding-bottom: 86px;
+    }
+    a { color: inherit; text-decoration: none; }
+    h1, h2, h3 { letter-spacing: -0.04em; font-weight: 600; }
+    h1 { font-size: clamp(2.3rem, 9vw, 4.6rem); line-height: 0.95; }
+    h2 { font-size: clamp(1.5rem, 5vw, 2.5rem); }
+    .wrap { max-width: 1000px; margin: 0 auto; padding: 0 20px; }
+    .section { padding: 80px 0; border-bottom: 1px solid #111; }
+    .grid { display: grid; gap: 20px; }
+    .grid-2 { grid-template-columns: 1.3fr 0.9fr; }
+    .grid-3 { grid-template-columns: repeat(3, 1fr); }
+    .mono { font-family: var(--font-mono); letter-spacing: -0.02em; }
+    .muted { color: var(--text-muted); }
+    .orange { color: var(--accent-orange); }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 16px 24px;
+      background: var(--text-main);
+      color: var(--bg);
+      font-weight: 600;
+      border-radius: 4px;
+      transition: transform 0.2s var(--ease), background 0.2s var(--ease), color 0.2s var(--ease), border-color 0.2s var(--ease);
+      font-size: 15px;
+      border: 1px solid transparent;
+      cursor: pointer;
+    }
+    .btn:hover { transform: scale(1.02); }
+    .btn-orange { background: var(--accent-orange); color: #fff; }
+    .btn-ghost { background: transparent; color: var(--text-main); border-color: #333; }
+    .badge {
+      display: inline-block;
+      padding: 4px 8px;
+      border: 1px solid var(--accent-orange);
+      color: var(--accent-orange);
+      font-family: var(--font-mono);
+      font-size: 12px;
+      text-transform: uppercase;
+      margin-bottom: 16px;
+    }
+
+    header {
+      padding: 20px 0;
+      position: fixed;
+      width: 100%;
+      top: 0;
+      z-index: 100;
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+      background: rgba(5,5,5,0.85);
+    }
+    .nav-inner { display: flex; justify-content: space-between; align-items: center; gap: 16px; }
+    .logo { font-weight: 700; font-size: 18px; letter-spacing: -0.03em; }
+    .hero { padding-top: 170px; padding-bottom: 70px; }
+    .hero p.lead {
+      font-size: clamp(1rem, 2vw, 1.25rem);
+      color: var(--text-muted);
+      max-width: 700px;
+      margin-top: 20px;
+      margin-bottom: 28px;
+    }
+    .card, .vs-card, .result-card, .faq-item {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+    }
+    .card, .vs-card { padding: 24px; }
+    .tools-eyebrow {
+      font-family: var(--font-mono);
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      font-size: 11px;
+      color: #777;
+      margin-bottom: 12px;
+    }
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-top: 24px;
+    }
+    .stat {
+      padding: 16px;
+      background: #09090a;
+      border: 1px solid #1d1d20;
+      border-radius: 12px;
+    }
+    .stat strong {
+      display: block;
+      font-size: 1.4rem;
+      margin-bottom: 4px;
+    }
+    .search-shell {
+      display: grid;
+      gap: 14px;
+      padding: 24px;
+      background:
+        radial-gradient(circle at top right, rgba(41,82,255,0.15), transparent 36%),
+        radial-gradient(circle at left bottom, rgba(255,68,0,0.12), transparent 30%),
+        var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 18px;
+    }
+    .field-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+    .field-grid.filters {
+      grid-template-columns: repeat(3, 1fr);
+    }
+    label {
+      display: block;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: #9b9b9b;
+      margin-bottom: 6px;
+    }
+    input, select {
+      width: 100%;
+      padding: 13px 14px;
+      border-radius: 10px;
+      border: 1px solid #2d2d31;
+      background: #09090a;
+      color: var(--text-main);
+      font: inherit;
+    }
+    .search-actions {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    .status-line {
+      min-height: 20px;
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+    .results-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      align-items: flex-end;
+      margin-bottom: 18px;
+      flex-wrap: wrap;
+    }
+    .results-list {
+      display: grid;
+      gap: 14px;
+    }
+    .result-card { padding: 18px; }
+    .result-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 14px;
+      align-items: flex-start;
+      margin-bottom: 10px;
+      flex-wrap: wrap;
+    }
+    .result-address {
+      font-size: 1.05rem;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+    .result-meta {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      color: var(--text-muted);
+      font-size: 13px;
+    }
+    .result-value {
+      font-family: var(--font-mono);
+      font-size: 13px;
+      color: var(--accent-green);
+      white-space: nowrap;
+    }
+    .chip-row {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 12px;
+    }
+    .chip {
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid #333;
+      background: #0a0a0b;
+      font-size: 11px;
+      font-family: var(--font-mono);
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: #d9d9d9;
+    }
+    .chip-risk { border-color: rgba(255,68,0,0.45); color: #ffb79f; }
+    .chip-ok { border-color: rgba(125,211,165,0.35); color: var(--accent-green); }
+    .callout {
+      padding: 24px;
+      background: linear-gradient(135deg, rgba(255,68,0,0.16), rgba(41,82,255,0.08));
+      border: 1px solid rgba(255,68,0,0.3);
+      border-radius: 18px;
+    }
+    .faq {
+      display: grid;
+      gap: 14px;
+      margin-top: 24px;
+    }
+    .faq-item { padding: 18px; }
+    .faq-item h3 { font-size: 1rem; margin-bottom: 8px; }
+    footer.wrap {
+      padding-top: 28px;
+      padding-bottom: 110px;
+    }
+    .sticky-cta {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 9999;
+      display: flex;
+      gap: 10px;
+      padding: 10px;
+      background: rgba(5,5,5,0.94);
+      border-top: 1px solid rgba(255,255,255,0.12);
+    }
+    .sticky-cta a {
+      flex: 1;
+      text-align: center;
+      border-radius: 10px;
+      padding: 12px 10px;
+      font-weight: 700;
+      border: 1px solid #333;
+    }
+    .sticky-primary { background: var(--accent-orange); color: #fff; border-color: rgba(255,68,0,0.55); }
+    .sticky-ghost { background: rgba(15,15,17,0.85); }
+
+    @media (max-width: 768px) {
+      .section { padding: 60px 0; }
+      .grid-2, .grid-3, .stats, .field-grid.filters { grid-template-columns: 1fr; }
+      .hero { padding-top: 150px; }
+      .nav-inner { align-items: flex-start; }
+      footer .grid-2 { grid-template-columns: 1fr; }
+      footer .grid-2 > div:last-child { text-align: left !important; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="wrap nav-inner">
+      <a href="/" class="logo">PermitPulse <span class="orange">/</span> Beta</a>
+      <div style="display:flex; gap:20px; align-items:center; flex-wrap:wrap; justify-content:flex-end;">
+        <a href="/guides/" class="mono" style="font-size:13px;">Permit Help Guides</a>
+        <a href="/free-tools/" class="mono" style="font-size:13px;">Free tools</a>
+        <a href="/permit-due-diligence-los-angeles/" class="mono" style="font-size:13px;">Dossier</a>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="wrap hero">
+      <div class="badge">California Permit Search</div>
+      <h1>California Permit History + Risk Flags</h1>
+      <p class="lead">Searches open permit datasets by jurisdiction and highlights risk flags so owners, buyers, estimators, and permit teams can spot high-value filings, recent activity, and missing data fast.</p>
+
+      <div style="display:flex; gap:16px; flex-wrap:wrap;">
+        <a
+          href="https://buy.stripe.com/3cI3cw1qT9aP6Jx2Fs1wY0e"
+          class="btn btn-orange"
+          target="_blank"
+          rel="noopener"
+          onclick="gtag && gtag('event','click_pay_fasttrack',{location:'hero_ca_history'});"
+        >Get Permit Dossier ($499)</a>
+        <a href="#search-tool" class="btn btn-ghost">Search Permit History</a>
+      </div>
+
+      <div class="stats">
+        <div class="stat">
+          <strong>Statewide</strong>
+          <span class="muted">Built to expand as more California jurisdictions expose open permit records.</span>
+        </div>
+        <div class="stat">
+          <strong>Risk Flags</strong>
+          <span class="muted">Highlights missing valuation, missing address, recent filings, and trade clues.</span>
+        </div>
+        <div class="stat">
+          <strong>Actionable</strong>
+          <span class="muted">Use the search to qualify an address, then escalate to a dossier when the decision matters.</span>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="wrap grid grid-2" style="align-items:start;">
+        <div id="search-tool" class="search-shell">
+          <div>
+            <div class="tools-eyebrow">Open dataset search</div>
+            <h2 style="margin-bottom:10px;">Search permit history by jurisdiction</h2>
+            <p class="muted">Default filters focus on the last 30 days and valuations of at least $250,000 to surface higher-signal activity. Adjust them when you need broader context.</p>
+          </div>
+
+          <form id="historySearchForm" class="field-grid">
+            <div>
+              <label for="jurisdiction">Jurisdiction</label>
+              <select id="jurisdiction" name="jurisdiction" aria-describedby="jurisdictionHelp">
+                <option value="la_city">Loading jurisdictions...</option>
+              </select>
+              <div id="jurisdictionHelp" class="status-line"></div>
+            </div>
+
+            <div>
+              <label for="q">Address or keywords</label>
+              <input id="q" name="q" type="text" placeholder="123 Main St, reroof, permit number, solar" />
+            </div>
+
+            <div class="field-grid filters">
+              <div>
+                <label for="days">Days</label>
+                <input id="days" name="days" type="number" min="1" max="365" value="30" />
+              </div>
+              <div>
+                <label for="minVal">Min valuation</label>
+                <input id="minVal" name="minVal" type="number" min="0" step="1000" value="250000" />
+              </div>
+              <div>
+                <label for="limit">Limit</label>
+                <input id="limit" name="limit" type="number" min="1" max="100" value="25" />
+              </div>
+            </div>
+
+            <div class="search-actions">
+              <button id="searchBtn" class="btn btn-orange" type="submit">Search</button>
+              <a class="btn btn-ghost" href="https://buy.stripe.com/3cI3cw1qT9aP6Jx2Fs1wY0e" target="_blank" rel="noopener">Get Permit Dossier ($499)</a>
+            </div>
+            <div id="searchStatus" class="status-line" aria-live="polite"></div>
+          </form>
+        </div>
+
+        <aside class="vs-card">
+          <div class="tools-eyebrow">Why this page exists</div>
+          <h2 style="margin-bottom:12px;">Fast filter before deeper diligence</h2>
+          <p class="muted" style="margin-bottom:16px;">Raw permit portals are inconsistent. This page gives you one fast statewide search lane for participating open datasets, then marks the records that usually deserve another look.</p>
+          <div style="display:grid; gap:12px;">
+            <div>
+              <span class="mono orange" style="font-size:12px;">HIGH_VALUATION</span>
+              <p class="muted" style="margin-top:4px;">Large-dollar jobs often justify source review, timeline checks, and scope verification.</p>
+            </div>
+            <div>
+              <span class="mono orange" style="font-size:12px;">RECENT_FILED</span>
+              <p class="muted" style="margin-top:4px;">Fresh permits can signal active construction, bidding windows, or filing urgency.</p>
+            </div>
+            <div>
+              <span class="mono orange" style="font-size:12px;">MISSING FIELDS</span>
+              <p class="muted" style="margin-top:4px;">Missing valuation or address often means the portal output needs human review before relying on it.</p>
+            </div>
+          </div>
+        </aside>
+      </div>
+    </section>
+
+    <section class="section" style="background:#050506;">
+      <div class="wrap">
+        <div class="results-head">
+          <div>
+            <div class="tools-eyebrow">Search results</div>
+            <h2>Permit matches</h2>
+          </div>
+          <div id="resultsMeta" class="mono muted" style="font-size:12px;">Run a search to load records.</div>
+        </div>
+        <div id="resultsList" class="results-list">
+          <div class="result-card">
+            <p class="muted">No search yet. Pick a jurisdiction, enter an address or keyword if you have one, and run the query.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="wrap">
+        <div class="callout">
+          <div class="tools-eyebrow">Next step</div>
+          <h2 style="margin-bottom:10px;">Need a decision-ready answer instead of raw records?</h2>
+          <p class="muted" style="max-width:650px; margin-bottom:18px;">The Permit Dossier is for addresses where permit history affects a buy, bid, underwriting, scope review, or filing strategy. We turn portal fragments into a clean timeline, summary, and risk readout.</p>
+          <a class="btn btn-orange" href="https://buy.stripe.com/3cI3cw1qT9aP6Jx2Fs1wY0e" target="_blank" rel="noopener">Get Permit Dossier ($499)</a>
+        </div>
+
+        <div class="faq">
+          <div class="faq-item">
+            <h3>What data sources does this page use?</h3>
+            <p class="muted">It queries open public permit datasets published by participating jurisdictions. Today that means the search is only as broad as the public datasets currently wired into PermitPulse.</p>
+          </div>
+          <div class="faq-item">
+            <h3>What does it not cover?</h3>
+            <p class="muted">It does not cover every California portal. Some cities and counties use systems that are closed, fragmented, delayed, or missing public fields like status, valuation, or scope detail.</p>
+          </div>
+          <div class="faq-item">
+            <h3>When should I buy the dossier?</h3>
+            <p class="muted">Buy it when the address matters financially or operationally and you need more than a portal scrape: a cleaner timeline, documented caveats, and a tighter risk summary for the next decision.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="wrap">
+    <div class="grid grid-2">
+      <div>
+        <span class="logo">PermitPulse</span>
+        <p style="margin-top:10px; color:#666; max-width:320px;">
+          Designed in Los Angeles. Built for trades, diligence teams, and owners who need permit clarity.
+        </p>
+      </div>
+      <div style="text-align:right;">
+        <a href="/guides/" style="text-decoration:underline;">Guides</a>
+        ·
+        <a href="/free-tools/" style="text-decoration:underline;">Free tools</a>
+        <br><br>
+        <a href="mailto:hello@getpermitpulse.com" style="text-decoration:underline;">hello@getpermitpulse.com</a>
+        <br><br>
+        <span class="muted mono">© 2026 PermitPulse Inc.</span>
+      </div>
+    </div>
+  </footer>
+
+  <div class="sticky-cta" role="navigation" aria-label="Start PermitPulse">
+    <a class="sticky-primary" href="https://buy.stripe.com/3cI3cw1qT9aP6Jx2Fs1wY0e" target="_blank" rel="noopener">Get Permit Dossier ($499)</a>
+    <a class="sticky-ghost" href="#search-tool">Search</a>
+  </div>
+
+  <script>
+    (function () {
+      const PRIMARY_API_BASE = "https://api.getpermitpulse.com";
+      const FALLBACK_API_BASE = "https://permitpulse-api.matasergio741.workers.dev";
+      const STRIPE_URL = "https://buy.stripe.com/3cI3cw1qT9aP6Jx2Fs1wY0e";
+      const DEFAULT_JURISDICTIONS = [
+        { id: "la_city", name: "Los Angeles", placeholder: true }
+      ];
+
+      const els = {
+        form: document.getElementById("historySearchForm"),
+        jurisdiction: document.getElementById("jurisdiction"),
+        jurisdictionHelp: document.getElementById("jurisdictionHelp"),
+        q: document.getElementById("q"),
+        days: document.getElementById("days"),
+        minVal: document.getElementById("minVal"),
+        limit: document.getElementById("limit"),
+        searchBtn: document.getElementById("searchBtn"),
+        searchStatus: document.getElementById("searchStatus"),
+        resultsMeta: document.getElementById("resultsMeta"),
+        resultsList: document.getElementById("resultsList")
+      };
+
+      let apiBaseInUse = PRIMARY_API_BASE;
+
+      async function apiFetch(path) {
+        const bases = [PRIMARY_API_BASE, FALLBACK_API_BASE];
+        let lastError = null;
+
+        for (const base of bases) {
+          try {
+            const response = await fetch(base + path, { headers: { "Accept": "application/json" } });
+            if (!response.ok) {
+              throw new Error("HTTP " + response.status);
+            }
+            apiBaseInUse = base;
+            return await response.json();
+          } catch (error) {
+            lastError = error;
+          }
+        }
+
+        throw lastError || new Error("request_failed");
+      }
+
+      function escapeHtml(value) {
+        return String(value == null ? "" : value)
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;")
+          .replace(/'/g, "&#39;");
+      }
+
+      function formatDate(value) {
+        if (!value) return "Unknown date";
+        const date = new Date(value);
+        if (Number.isNaN(date.getTime())) return String(value);
+        return date.toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" });
+      }
+
+      function formatCurrency(value) {
+        if (value == null || value === "") return "Valuation unavailable";
+        const number = Number(value);
+        if (!Number.isFinite(number)) return "Valuation unavailable";
+        return new Intl.NumberFormat("en-US", {
+          style: "currency",
+          currency: "USD",
+          maximumFractionDigits: 0
+        }).format(number);
+      }
+
+      function riskLabel(flag) {
+        const map = {
+          HIGH_VALUATION: "High valuation",
+          RECENT_FILED: "Recent filed",
+          MISSING_VALUATION: "Missing valuation",
+          MISSING_ADDRESS: "Missing address",
+          TRADE_ROOFING: "Roofing signal",
+          TRADE_SOLAR: "Solar signal"
+        };
+        return map[flag] || String(flag || "").replace(/_/g, " ").toLowerCase();
+      }
+
+      function renderJurisdictions(items) {
+        const jurisdictions = Array.isArray(items) && items.length ? items : DEFAULT_JURISDICTIONS;
+        els.jurisdiction.innerHTML = jurisdictions.map(function (item) {
+          const selected = item.id === "la_city" ? " selected" : "";
+          return '<option value="' + escapeHtml(item.id) + '"' + selected + '>' + escapeHtml(item.name) + '</option>';
+        }).join("");
+      }
+
+      function renderResults(payload) {
+        const data = payload && payload.data ? payload.data : payload || {};
+        const results = Array.isArray(data.results) ? data.results : [];
+        const sourceUrl = data.meta && data.meta.source_url ? data.meta.source_url : "";
+        const jurisdiction = data.meta && data.meta.jurisdiction ? data.meta.jurisdiction : els.jurisdiction.value;
+
+        els.resultsMeta.textContent = results.length
+          ? results.length + " record" + (results.length === 1 ? "" : "s") + " · " + jurisdiction + (apiBaseInUse ? " · " + new URL(apiBaseInUse).hostname : "")
+          : "No matching permit records found.";
+
+        if (!results.length) {
+          els.resultsList.innerHTML = '<div class="result-card"><p class="muted">No records matched these filters. Try a broader keyword, more days, or a lower valuation threshold.</p></div>';
+          return;
+        }
+
+        els.resultsList.innerHTML = results.map(function (item) {
+          const flags = Array.isArray(item.risk_flags) ? item.risk_flags : [];
+          const chips = flags.length
+            ? flags.map(function (flag) {
+                return '<span class="chip chip-risk">' + escapeHtml(riskLabel(flag)) + '</span>';
+              }).join("")
+            : '<span class="chip chip-ok">No mapped flags</span>';
+
+          const status = item.status || "Status unavailable";
+          const permitType = [item.permit_type, item.subtype].filter(Boolean).join(" / ") || "Type unavailable";
+          const sourceLink = item.source_url
+            ? '<a class="mono muted" style="font-size:12px; text-decoration:underline;" href="' + escapeHtml(item.source_url) + '" target="_blank" rel="noopener">Source</a>'
+            : "";
+
+          return '' +
+            '<article class="result-card">' +
+              '<div class="result-top">' +
+                '<div>' +
+                  '<div class="result-address">' + escapeHtml(item.address || "Address unavailable") + '</div>' +
+                  '<div class="result-meta">' +
+                    '<span>' + escapeHtml(status) + '</span>' +
+                    '<span>' + escapeHtml(permitType) + '</span>' +
+                    '<span>' + escapeHtml(formatDate(item.filed_at)) + '</span>' +
+                  '</div>' +
+                '</div>' +
+                '<div class="result-value">' + escapeHtml(formatCurrency(item.valuation)) + '</div>' +
+              '</div>' +
+              '<div class="chip-row">' + chips + '</div>' +
+              '<div style="margin-top:12px; display:flex; justify-content:space-between; gap:12px; flex-wrap:wrap;">' +
+                sourceLink +
+                '<a class="mono" style="font-size:12px; text-decoration:underline;" href="' + STRIPE_URL + '" target="_blank" rel="noopener">Need a dossier?</a>' +
+              '</div>' +
+            '</article>';
+        }).join("");
+
+        if (sourceUrl) {
+          els.resultsMeta.innerHTML += ' · <a href="' + escapeHtml(sourceUrl) + '" target="_blank" rel="noopener" style="text-decoration:underline; color:inherit;">dataset source</a>';
+        }
+      }
+
+      async function loadJurisdictions() {
+        try {
+          const payload = await apiFetch("/v1/jurisdictions");
+          renderJurisdictions(payload && payload.jurisdictions ? payload.jurisdictions : payload && payload.data && payload.data.jurisdictions);
+          els.jurisdictionHelp.textContent = "Jurisdictions loaded from " + new URL(apiBaseInUse).hostname + ".";
+        } catch (error) {
+          renderJurisdictions(DEFAULT_JURISDICTIONS);
+          els.jurisdictionHelp.textContent = "API unavailable. Defaulting to Los Angeles.";
+        }
+      }
+
+      async function handleSearch(event) {
+        event.preventDefault();
+
+        const params = new URLSearchParams({
+          jurisdiction: els.jurisdiction.value || "la_city",
+          q: els.q.value.trim(),
+          days: String(els.days.value || "30"),
+          minVal: String(els.minVal.value || "250000"),
+          limit: String(els.limit.value || "25")
+        });
+
+        const originalLabel = els.searchBtn.textContent;
+        els.searchBtn.disabled = true;
+        els.searchBtn.textContent = "Searching...";
+        els.searchStatus.textContent = "Searching open permit data...";
+        els.resultsMeta.textContent = "Loading results...";
+        els.resultsList.innerHTML = '<div class="result-card"><p class="muted">Searching permit records...</p></div>';
+
+        try {
+          const payload = await apiFetch("/v1/history/search?" + params.toString());
+          renderResults(payload);
+          els.searchStatus.textContent = "Search complete.";
+          window.gtag && window.gtag("event", "search_permit_history", {
+            jurisdiction: els.jurisdiction.value,
+            q_present: els.q.value.trim() ? "yes" : "no"
+          });
+        } catch (error) {
+          els.resultsMeta.textContent = "Search failed.";
+          els.resultsList.innerHTML = '<div class="result-card"><p class="muted">Search failed. Try again in a moment or move directly to the dossier for a manual review.</p></div>';
+          els.searchStatus.textContent = "Search failed. API unavailable or upstream dataset error.";
+        } finally {
+          els.searchBtn.disabled = false;
+          els.searchBtn.textContent = originalLabel;
+        }
+      }
+
+      els.form.addEventListener("submit", handleSearch);
+      loadJurisdictions();
+    })();
+  </script>
+</body>
+</html>
