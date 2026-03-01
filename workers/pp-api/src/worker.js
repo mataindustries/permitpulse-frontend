@@ -1,13 +1,15 @@
-// pp-api — "ultimate" worker for Radar + Top Permits (LA)
+// pp-api worker for Radar + Top Permits (LA)
 // Runtime: Cloudflare Workers (Modules)
 
-// --- CORS helpers ---
-const ALLOWED_ORIGINS = [
-	'https://getpermitpulse.com',
-	'https://www.getpermitpulse.com',
-	// add your Pages preview if you use it:
-	// 'https://<your-pages-project>.pages.dev'
-];
+import { JURISDICTIONS } from './config/jurisdictions.js';
+import {
+	ALLOWED_ORIGINS,
+	JSON_HEADERS,
+	LADBS_SOURCE,
+	RADAR_KEYWORDS,
+	STORM_WORDS,
+} from './config/permits.js';
+import { fetchSocrataRows } from './providers/socrata.js';
 
 function corsHeaders(origin) {
 	const allow = ALLOWED_ORIGINS.includes(origin) ? origin : ALLOWED_ORIGINS[0];
@@ -20,161 +22,335 @@ function corsHeaders(origin) {
 	};
 }
 
-function withCors(req, resp) {
-	const h = new Headers(resp.headers);
-	const ch = corsHeaders(req.headers.get('Origin') || '');
-	Object.entries(ch).forEach(([k, v]) => h.set(k, v));
-	return new Response(resp.body, { status: resp.status, headers: h });
+function preflightResponse(origin) {
+	return new Response(null, { headers: corsHeaders(origin) });
 }
 
-// Keep your json()/err() helpers if you have them – no need to modify them.
+function withCors(req, resp) {
+	const headers = new Headers(resp.headers);
+	for (const [key, value] of Object.entries(corsHeaders(req.headers.get('Origin') || ''))) {
+		headers.set(key, value);
+	}
+	return new Response(resp.body, { status: resp.status, headers });
+}
 
-const json = (obj, status = 200, extra = {}, req) =>
-	new Response(JSON.stringify(obj), {
+function json(obj, status = 200, extra = {}) {
+	return new Response(JSON.stringify(obj), {
 		status,
 		headers: {
-			'content-type': 'application/json; charset=utf-8',
-			'cache-control': 'no-store',
-			...corsHeaders(req?.headers.get('Origin') || ''),
+			...JSON_HEADERS,
 			...extra,
 		},
 	});
-
-const err = (message, detail = null, status = 500) => json({ ok: false, error: message, detail }, status);
-
-// collapse whitespace in multiline SoQL
-const oneLine = (s) => s.replace(/\s+/g, ' ').trim();
-
-// ISO helpers
-const nowUtc = () => new Date();
-const daysAgo = (n) => new Date(Date.now() - n * 24 * 60 * 60 * 1000);
-const toISO = (d) => d.toISOString();
-
-//// extra time helpers
-const daysAgoUtc = (n) => {
-	const d = new Date();
-	d.setUTCHours(0, 0, 0, 0); // midnight UTC
-	d.setUTCDate(d.getUTCDate() - n);
-	return d;
-};
-
-// aliases so handler names always resolve
-
-const toIsoDate = (d) => d.toISOString().slice(0, 10); // YYYY-MM-DD
-
-// normalize a row into our API shape
-function mapRow(row, env) {
-	const permit = row.pcis_permit ?? row.permit_nbr ?? row.permit ?? row.permit_number ?? null;
-
-	const issued_at = row.issue_date || row.issued_date || null;
-
-	const description = row.work_description ?? row.work_desc ?? row.description ?? '';
-
-	const type = row.permit_type ?? row.type ?? null;
-	const subtype = row.permit_sub_type ?? row.subtype ?? null;
-
-	// address
-	const fullA = row.full_address;
-	const fullB = row.primary_address;
-
-	// A-shape parts
-	const aParts = [row.address_start, row.street_direction, row.street_name, row.street_suffix].filter(Boolean).join(' ');
-
-	const city = env.CITY_NAME || 'Los Angeles';
-	const state = env.STATE_ABBR || 'CA';
-	const zip = row.zip_code || row.zip || null;
-
-	const address = fullA || fullB || (aParts ? `${aParts}, ${city}, ${state} ${zip ?? ''}`.trim() : null);
-
-	const valuation = row.valuation != null ? Number(row.valuation) : null;
-
-	return {
-		permit,
-		issued_at,
-		type,
-		subtype,
-		description,
-		address,
-		zip,
-		valuation,
-	};
 }
 
-// keywords per trade
-const TRADE = {
-	roof: ['ROOF', 'REROOF', 'RE-ROOF'],
-	solar: ['SOLAR', 'PHOTOVOLTAIC', 'PV'],
-	hvac: ['HVAC', 'FURNACE', 'AIR CONDITION', 'A/C', 'AIR-CONDITION'],
-};
-
-function keywordsWhere(field, words) {
-	if (!words?.length) return '1=1';
-	const ups = words.map((w) => `upper(${field}) LIKE '%${w.toUpperCase().replace(/'/g, "''")}%'`);
-	return `(${ups.join(' OR ')})`;
+function err(message, detail = null, status = 500) {
+	return json({ ok: false, error: message, detail }, status);
 }
 
-function buildWhereRadar({ fromISO, toISO, trade }) {
-	// Support both work_description (A) and work_desc (B)
-	const words = TRADE[trade] ?? TRADE.roof;
-	const wA = keywordsWhere('work_description', words);
-	const wB = keywordsWhere('work_desc', words);
-	return oneLine(`
-                                                                                                                                                                                                issue_date BETWEEN '${fromISO}' AND '${toISO}'
-                                                                                                                                                                                                    AND ( ${wA} OR ${wB} )
-                                                                                                                                                                                                      `);
+function jsonWithCache(obj, status = 200, ttlSeconds = 120) {
+	return json(obj, status, {
+		'cache-control': `public, max-age=0, s-maxage=${ttlSeconds}`,
+	});
 }
 
-function buildWhereTop({ fromISO, toISO, minVal }) {
-	// valuation numeric is shared
-	return oneLine(`
-                                                                                                                                                                                                              issue_date BETWEEN '${fromISO}' AND '${toISO}'
-                                                                                                                                                                                                                  AND valuation >= ${Number(minVal)}
-                                                                                                                                                                                                                    `);
+function apiEnvelope(ok, data = null, error = null) {
+	return { ok, data, error };
 }
 
 function qs(params) {
-	const usp = new URLSearchParams();
-	for (const [k, v] of Object.entries(params)) {
-		if (v !== undefined && v !== null && v !== '') usp.set(k, v);
+	const searchParams = new URLSearchParams();
+	for (const [key, value] of Object.entries(params)) {
+		if (value !== undefined && value !== null && value !== '') {
+			searchParams.set(key, value);
+		}
 	}
-	return usp.toString();
+	return searchParams.toString();
 }
 
-// Socrata fetch with optional app token
-async function sodaFetch(env, q) {
-	const base = `https://${env.SOC_DOMAIN}/resource/${env.SOC_DATASET}.json`;
-	const url = `${base}?${q}`;
+function parseIssueDate(value) {
+	if (!value) return null;
+
+	const input = String(value);
+	const isoDate = new Date(input);
+	if (!Number.isNaN(isoDate.getTime())) {
+		return isoDate;
+	}
+
+	const parts = input.split(/[/-]/);
+	if (parts.length !== 3) {
+		return null;
+	}
+
+	const [a, b, c] = parts;
+	if (a.length === 4) {
+		const date = new Date(Number(a), Number(b) - 1, Number(c));
+		return Number.isNaN(date.getTime()) ? null : date;
+	}
+
+	const date = new Date(Number(c), Number(a) - 1, Number(b));
+	return Number.isNaN(date.getTime()) ? null : date;
+}
+
+function parseValuation(value) {
+	if (value == null) return 0;
+	const clean = String(value).replace(/[^0-9.]/g, '');
+	const parsed = parseFloat(clean);
+	return Number.isFinite(parsed) ? parsed : 0;
+}
+
+function normalizePermitRow(row, source = LADBS_SOURCE) {
+	const issueDate = row[source.filedField] || null;
+	return {
+		permitNumber: row[source.permitField] || null,
+		issueDate,
+		issueDateObj: parseIssueDate(issueDate),
+		address: row[source.addrField] || row.address || '',
+		zip: row[source.zipField] || null,
+		value: parseValuation(row[source.valField]),
+		description: row[source.descField] || row.work_description || row.description || null,
+	};
+}
+
+function createLadbsUrl(limit, source = LADBS_SOURCE) {
+	const url = new URL(`https://${source.domain}/resource/${source.dataset}.json`);
+	url.searchParams.set('$order', `${source.filedField} DESC`);
+	url.searchParams.set('$limit', String(limit));
+	return url;
+}
+
+function createSocrataHeaders(env) {
 	const headers = { Accept: 'application/json' };
-	if (env.SOC_APP_TOKEN) headers['X-App-Token'] = env.SOC_APP_TOKEN;
-
-	const r = await fetch(url, { headers });
-	if (!r.ok) {
-		const t = await r.text().catch(() => '');
-		const detail = t || `status ${r.status}`;
-		throw new Error(`upstream ${r.status}: ${detail}`);
+	if (env.SOC_APP_TOKEN) {
+		headers['X-App-Token'] = env.SOC_APP_TOKEN;
 	}
-	const rows = await r.json();
-	return { url, rows };
+	return headers;
 }
 
-// Try A-shape first, then B-shape if A fails due to unknown columns.
-// We keep the WHERE identical across both; only $select changes.
-async function sodaFetchWithFallback(env, paramsA, paramsB) {
+async function fetchJsonFromUrl(url, env) {
+	let status = 200;
+	let error = null;
+	let rows = [];
+	let errorDetail = null;
+
 	try {
-		return { ...(await sodaFetch(env, paramsA())), used: 'A' };
+		const response = await fetch(url.toString(), { headers: createSocrataHeaders(env) });
+		if (!response.ok) {
+			status = 502;
+			error = `ladbs_fetch_failed_${response.status}`;
+			const text = await response.text();
+			errorDetail = text;
+			try {
+				rows = JSON.parse(text);
+			} catch {
+				rows = [];
+			}
+		} else {
+			rows = await response.json();
+		}
 	} catch (e) {
-		// only fallback for column errors or 400s; but in practice we'll fallback for any failure
-		return { ...(await sodaFetch(env, paramsB())), used: 'B' };
+		status = 502;
+		error = 'ladbs_fetch_exception';
+		errorDetail = e && e.message ? String(e.message) : String(e);
+		rows = [];
+	}
+
+	return {
+		status,
+		error,
+		rows: Array.isArray(rows) ? rows : [],
+		errorDetail,
+	};
+}
+
+async function loadLadbsRows(env, limit, source = LADBS_SOURCE) {
+	const socUrl = createLadbsUrl(limit, source);
+	const result = await fetchJsonFromUrl(socUrl, env);
+	return { socUrl, ...result };
+}
+
+function matchesTrade(description, trade, mode = 'normal') {
+	const normalizedDescription = (description || '').toLowerCase();
+	const normalizedTrade = (trade || '').toLowerCase();
+	const normalizedMode = (mode || 'normal').toLowerCase();
+
+	if (!normalizedDescription) {
+		return false;
+	}
+
+	if (normalizedTrade === 'roof') {
+		const basicRoof =
+			normalizedDescription.includes('roof') ||
+			normalizedDescription.includes('reroof') ||
+			normalizedDescription.includes('re-roof') ||
+			normalizedDescription.includes('re roof');
+
+		if (!basicRoof) {
+			return false;
+		}
+
+		if (normalizedMode === 'storm') {
+			return STORM_WORDS.some((word) => normalizedDescription.includes(word));
+		}
+
+		return true;
+	}
+
+	if (normalizedTrade === 'solar') {
+		return (
+			normalizedDescription.includes('solar') ||
+			normalizedDescription.includes('pv') ||
+			normalizedDescription.includes('photovoltaic') ||
+			normalizedDescription.includes('photovoltaics')
+		);
+	}
+
+	if (normalizedTrade === 'hvac') {
+		return (
+			normalizedDescription.includes('hvac') ||
+			normalizedDescription.includes('furnace') ||
+			normalizedDescription.includes('air conditioning') ||
+			normalizedDescription.includes('a/c') ||
+			normalizedDescription.includes('heat pump')
+		);
+	}
+
+	if (normalizedTrade === 'addition') {
+		return (
+			normalizedDescription.includes('addition') ||
+			normalizedDescription.includes('addn') ||
+			normalizedDescription.includes('adu') ||
+			normalizedDescription.includes('garage conversion')
+		);
+	}
+
+	if (normalizedTrade === 'electrical') {
+		return (
+			normalizedDescription.includes('electrical') ||
+			normalizedDescription.includes('service upgrade') ||
+			normalizedDescription.includes('panel') ||
+			normalizedDescription.includes('main switchboard')
+		);
+	}
+
+	return true;
+}
+
+function parseRequestUrl(reqOrUrl) {
+	try {
+		if (reqOrUrl instanceof URL) return reqOrUrl;
+		if (reqOrUrl && typeof reqOrUrl.url === 'string') return new URL(reqOrUrl.url);
+		if (typeof reqOrUrl === 'string') return new URL(reqOrUrl);
+	} catch (_) {}
+	return null;
+}
+
+function sanitizeDomain(domain) {
+	return String(domain || LADBS_SOURCE.domain)
+		.trim()
+		.replace(/^https?:\/\//i, '')
+		.replace(/\/+$/, '');
+}
+
+function isSelfFetchTarget(target) {
+	if (!target) return false;
+
+	try {
+		const hostname = new URL(target).hostname.toLowerCase();
+		return hostname === 'api.getpermitpulse.com' || hostname.endsWith('.workers.dev');
+	} catch {
+		return false;
 	}
 }
 
-/* ---------- handlers ---------- */
+function normalizePathname(pathname) {
+	return pathname.length > 1 && pathname.endsWith('/') ? pathname.slice(0, -1) : pathname;
+}
 
-// --- helper: top permits (pull-then-filter; no $where) ----------------
-async function handleTopPermits(url, env) {
+function findJurisdiction(jurisdictionId) {
+	return JURISDICTIONS.find((jurisdiction) => jurisdiction.id === jurisdictionId) || null;
+}
+
+function normalizeHistoryRecord(row, jurisdiction) {
+	const fields = jurisdiction.provider.fields;
+	const id = row[fields.id] || null;
+	const address = row[fields.address] || null;
+	const filedAt = row[fields.filed_at] || null;
+	const valuation = row[fields.valuation] == null ? null : parseValuation(row[fields.valuation]);
+	const description = String(row[fields.description] || '').toLowerCase();
+	const riskFlags = [];
+
+	if (valuation == null || valuation === 0) {
+		riskFlags.push('MISSING_VALUATION');
+	}
+	if (!address) {
+		riskFlags.push('MISSING_ADDRESS');
+	}
+	if (valuation != null && valuation >= 250000) {
+		riskFlags.push('HIGH_VALUATION');
+	}
+
+	const filedDate = parseIssueDate(filedAt);
+	if (filedDate && filedDate.getTime() >= Date.now() - 14 * 24 * 60 * 60 * 1000) {
+		riskFlags.push('RECENT_FILED');
+	}
+	if (
+		description.includes('roof') ||
+		description.includes('reroof') ||
+		description.includes('re-roof') ||
+		description.includes('re roof')
+	) {
+		riskFlags.push('TRADE_ROOFING');
+	}
+	if (
+		description.includes('solar') ||
+		description.includes('pv') ||
+		description.includes('photovoltaic') ||
+		description.includes('photovoltaics')
+	) {
+		riskFlags.push('TRADE_SOLAR');
+	}
+
+	const sourceUrl = id
+		? `https://${jurisdiction.provider.domain}/resource/${jurisdiction.provider.dataset}.json?${new URLSearchParams({
+				[jurisdiction.provider.fields.id]: id,
+				$limit: '1',
+			}).toString()}`
+		: `https://${jurisdiction.provider.domain}/resource/${jurisdiction.provider.dataset}`;
+
+	return {
+		id,
+		address,
+		status: fields.status ? row[fields.status] || null : null,
+		permit_type: row[fields.permit_type] || null,
+		subtype: row[fields.subtype] || null,
+		filed_at: filedAt,
+		valuation,
+		source_url: sourceUrl,
+		risk_flags: riskFlags,
+	};
+}
+
+function shouldIncludeHistoryRecord(record, days, minVal) {
+	if (record.filed_at) {
+		const filedDate = parseIssueDate(record.filed_at);
+		if (!filedDate) {
+			return false;
+		}
+		if (filedDate.getTime() < Date.now() - days * 24 * 60 * 60 * 1000) {
+			return false;
+		}
+	}
+
+	if (record.valuation == null) {
+		return false;
+	}
+
+	return record.valuation >= minVal;
+}
+
+async function handleTopPermits({ url, env }) {
 	const search = url.searchParams;
-
-	// Query params with sane defaults
 	const rawDays = Number(search.get('days') || '30');
 	const rawMin = Number(search.get('min') || '250000');
 	const rawLimit = Number(search.get('limit') || '25');
@@ -185,213 +361,43 @@ async function handleTopPermits(url, env) {
 	const days = !Number.isFinite(rawDays) || rawDays <= 0 || rawDays > 365 ? 30 : rawDays;
 	const minValue = !Number.isFinite(rawMin) || rawMin < 0 ? 0 : rawMin;
 	const limit = !Number.isFinite(rawLimit) || rawLimit <= 0 || rawLimit > 200 ? 25 : rawLimit;
+	const fetchLimit = Math.max(limit * 5, 500);
 
-	// LADBS dataset + fields (all TEXT in the schema)
-	const dataset = 'pi9x-tg5x';
-	const domain = 'data.lacity.org';
+	const { socUrl, status, error, rows, errorDetail } = await loadLadbsRows(env, fetchLimit);
+	const minTime = Date.now() - days * 24 * 60 * 60 * 1000;
 
-	const filedField = 'issue_date';
-	const valField = 'valuation';
-	const permitField = 'permit_nbr';
-	const zipField = 'zip_code';
-	const addrField = 'primary_address';
-	const descField = 'work_desc';
-
-	// We'll fetch more rows than we ultimately need, then filter in JS
-	const fetchLimit = Math.max(limit * 5, 500); // e.g. 500+
-
-	const socUrl = new URL(`https://${domain}/resource/${dataset}.json`);
-	// Only order + limit, NO $where to avoid type-mismatch
-	socUrl.searchParams.set('$order', `${filedField} DESC`);
-	socUrl.searchParams.set('$limit', String(fetchLimit));
-
-	const headers = { Accept: 'application/json' };
-	if (env.SOC_APP_TOKEN) {
-		headers['X-App-Token'] = env.SOC_APP_TOKEN;
-	}
-
-	let status = 200;
-	let error = null;
-	let raw = [];
-	let errorDetail = null;
-
-	try {
-		const resp = await fetch(socUrl.toString(), { headers });
-
-		if (!resp.ok) {
-			status = 502;
-			error = `ladbs_fetch_failed_${resp.status}`;
-			const text = await resp.text();
-			errorDetail = text;
-			try {
-				raw = JSON.parse(text);
-			} catch {
-				raw = [];
-			}
-		} else {
-			raw = await resp.json();
-		}
-	} catch (e) {
-		status = 502;
-		error = 'ladbs_fetch_exception';
-		errorDetail = e && e.message ? String(e.message) : String(e);
-		raw = [];
-	}
-
-	// Helper to parse LADBS ISSUE_DATE into a Date
-	// Dataset uses ISO timestamps like "2024-12-09T00:00:00"
-	function parseIssueDate(str) {
-		if (!str) return null;
-		const s = String(str);
-
-		// 1) Try native Date parse (handles ISO "YYYY-MM-DDTHH:MM:SS")
-		const dIso = new Date(s);
-		if (!Number.isNaN(dIso.getTime())) return dIso;
-
-		// 2) Fallback: try MM/DD/YYYY or YYYY-MM-DD
-		const parts = s.split(/[/-]/);
-		if (parts.length === 3) {
-			let [a, b, c] = parts;
-			if (a.length === 4) {
-				// YYYY-MM-DD
-				const d = new Date(Number(a), Number(b) - 1, Number(c));
-				if (!Number.isNaN(d.getTime())) return d;
-			} else {
-				// MM/DD/YYYY
-				const d = new Date(Number(c), Number(a) - 1, Number(b));
-				if (!Number.isNaN(d.getTime())) return d;
-			}
-		}
-
-		return null;
-	}
-
-	// Helper to parse valuation text into a Number
-	function parseValuation(str) {
-		if (str == null) return 0;
-		const clean = String(str).replace(/[^0-9.]/g, '');
-		const n = parseFloat(clean);
-		return Number.isFinite(n) ? n : 0;
-	}
-
-	const now = new Date();
-	const minTime = now.getTime() - days * 24 * 60 * 60 * 1000;
-
-	// Trade + storm filter helper used by /api/top-permits and other routes
-	function matchesTrade(desc, trade, mode) {
-		const s = (desc || '').toLowerCase();
-		const t = (trade || '').toLowerCase();
-		const m = (mode || 'normal').toLowerCase();
-
-		if (!s) return false;
-
-		// ---- Roofing ----
-		if (t === 'roof') {
-			const basicRoof = s.includes('roof') || s.includes('reroof') || s.includes('re-roof') || s.includes('re roof');
-
-			if (!basicRoof) return false;
-
-			// Storm mode: leak / emergency / storm-damage language
-			if (m === 'storm') {
-				const stormWords = [
-					'leak',
-					'roof leak',
-					'water damage',
-					'storm',
-					'wind damage',
-					'emergency',
-					'temporary repair',
-					'tarp',
-					'tarps',
-					'dry out',
-					'dry-out',
-					'repair existing roof',
-				];
-				return stormWords.some((w) => s.includes(w));
-			}
-
-			// Normal roofing: any roof job is fine
-			return true;
-		}
-
-		// ---- Solar ----
-		if (t === 'solar') {
-			return s.includes('solar') || s.includes('pv') || s.includes('photovoltaic') || s.includes('photovoltaics');
-		}
-
-		// ---- HVAC ----
-		if (t === 'hvac') {
-			return s.includes('hvac') || s.includes('furnace') || s.includes('air conditioning') || s.includes('a/c') || s.includes('heat pump');
-		}
-
-		// ---- Additions / ADU-ish ----
-		if (t === 'addition') {
-			return s.includes('addition') || s.includes('addn') || s.includes('adu') || s.includes('garage conversion');
-		}
-
-		// ---- Electrical ----
-		if (t === 'electrical') {
-			return s.includes('electrical') || s.includes('service upgrade') || s.includes('panel') || s.includes('main switchboard');
-		}
-
-		// Fallback: if trade is unknown, let it through
-		return true;
-	}
-
-	const rows = Array.isArray(raw) ? raw : [];
-
-	// Map + filter in JS
-	const filtered = rows
-		.map((row) => {
-			const issueDateStr = row[filedField] || null;
-			const issueDateObj = parseIssueDate(issueDateStr);
-			const value = parseValuation(row[valField]);
-			const description = row[descField] || row.work_description || row.description || null;
-			const address = row[addrField] || row.address || '';
-			const zip = row[zipField] || null;
-			const permitNumber = row[permitField] || null;
-
-			return {
-				permitNumber,
-				issueDate: issueDateStr,
-				issueDateObj,
-				address,
-				zip,
-				value,
-				description,
-			};
-		})
-		.filter((p) => {
-			if (!p.issueDateObj) return false;
-			if (p.issueDateObj.getTime() < minTime) return false;
-			if (p.value < minValue) return false;
-			if (!matchesTrade(p.description, trade, mode)) return false;
-			return true;
+	const permits = rows
+		.map((row) => normalizePermitRow(row))
+		.filter((permit) => {
+			if (!permit.issueDateObj) return false;
+			if (permit.issueDateObj.getTime() < minTime) return false;
+			if (permit.value < minValue) return false;
+			return matchesTrade(permit.description, trade, mode);
 		})
 		.sort((a, b) => b.value - a.value)
 		.slice(0, limit)
-		.map((p) => ({
-			permitNumber: p.permitNumber,
-			issueDate: p.issueDate,
-			address: p.address,
-			zip: p.zip,
-			value: p.value,
-			description: p.description,
+		.map((permit) => ({
+			permitNumber: permit.permitNumber,
+			issueDate: permit.issueDate,
+			address: permit.address,
+			zip: permit.zip,
+			value: permit.value,
+			description: permit.description,
 			trade,
 		}));
 
-	const body = {
+	return json({
 		ok: !error,
 		meta: {
 			days,
 			minValue,
 			limit,
 			trade,
-			source: `LADBS permits via https://${domain}/resource/${dataset}`,
+			source: `LADBS permits via https://${LADBS_SOURCE.domain}/resource/${LADBS_SOURCE.dataset}`,
 			error,
-			count: filtered.length,
+			count: permits.length,
 		},
-		permits: filtered,
+		permits,
 		debug: debug
 			? {
 					socUrl: socUrl.toString(),
@@ -399,13 +405,10 @@ async function handleTopPermits(url, env) {
 					errorDetail,
 				}
 			: undefined,
-	};
-
-	return json(body, error ? status : 200);
+	}, error ? status : 200);
 }
-// --- end helper --------------------------------------------------------
-// --- helper: Address Pulse Check --------------------------------------
-async function handleAddressPulse(url, env) {
+
+async function handleAddressPulse({ url, env }) {
 	const search = url.searchParams;
 	const q = (search.get('q') || '').trim();
 	const zipFilter = (search.get('zip') || '').trim();
@@ -414,115 +417,21 @@ async function handleAddressPulse(url, env) {
 
 	const years = !Number.isFinite(rawYears) || rawYears <= 0 || rawYears > 10 ? 3 : rawYears;
 	const days = years * 365;
-
-	const dataset = 'pi9x-tg5x';
-	const domain = 'data.lacity.org';
-
-	const filedField = 'issue_date';
-	const valField = 'valuation';
-	const permitField = 'permit_nbr';
-	const zipField = 'zip_code';
-	const addrField = 'primary_address';
-	const descField = 'work_desc';
-
-	const fetchLimit = 2000;
-
-	const socUrl = new URL(`https://${domain}/resource/${dataset}.json`);
-	socUrl.searchParams.set('$order', `${filedField} DESC`);
-	socUrl.searchParams.set('$limit', String(fetchLimit));
-
-	const headers = { Accept: 'application/json' };
-	if (env.SOC_APP_TOKEN) headers['X-App-Token'] = env.SOC_APP_TOKEN;
-
-	let status = 200;
-	let error = null;
-	let raw = [];
-	let errorDetail = null;
-
-	try {
-		const resp = await fetch(socUrl.toString(), { headers });
-		if (!resp.ok) {
-			status = 502;
-			error = `ladbs_fetch_failed_${resp.status}`;
-			const text = await resp.text();
-			errorDetail = text;
-			try {
-				raw = JSON.parse(text);
-			} catch {
-				raw = [];
-			}
-		} else {
-			raw = await resp.json();
-		}
-	} catch (e) {
-		status = 502;
-		error = 'ladbs_fetch_exception';
-		errorDetail = e && e.message ? String(e.message) : String(e);
-		raw = [];
-	}
-
-	function parseIssueDate(str) {
-		if (!str) return null;
-		const s = String(str);
-		const dIso = new Date(s);
-		if (!Number.isNaN(dIso.getTime())) return dIso;
-		const parts = s.split(/[/-]/);
-		if (parts.length === 3) {
-			let [a, b, c] = parts;
-			if (a.length === 4) {
-				const d = new Date(Number(a), Number(b) - 1, Number(c));
-				if (!Number.isNaN(d.getTime())) return d;
-			} else {
-				const d = new Date(Number(c), Number(a) - 1, Number(b));
-				if (!Number.isNaN(d.getTime())) return d;
-			}
-		}
-		return null;
-	}
-
-	function parseValuation(str) {
-		if (str == null) return 0;
-		const clean = String(str).replace(/[^0-9.]/g, '');
-		const n = parseFloat(clean);
-		return Number.isFinite(n) ? n : 0;
-	}
-
-	const now = new Date();
-	const minTime = now.getTime() - days * 24 * 60 * 60 * 1000;
-	const rows = Array.isArray(raw) ? raw : [];
-
+	const { socUrl, status, error, rows, errorDetail } = await loadLadbsRows(env, 2000);
+	const minTime = Date.now() - days * 24 * 60 * 60 * 1000;
 	const qLower = q.toLowerCase();
 
 	const permits = rows
-		.map((row) => {
-			const issueDateStr = row[filedField] || null;
-			const issueDateObj = parseIssueDate(issueDateStr);
-			const value = parseValuation(row[valField]);
-			const address = row[addrField] || row.address || '';
-			const zip = row[zipField] || null;
-			const permitNumber = row[permitField] || null;
-			const description = row[descField] || row.work_description || row.description || null;
-
-			return {
-				permitNumber,
-				issueDate: issueDateStr,
-				issueDateObj,
-				address,
-				zip,
-				value,
-				description,
-			};
-		})
-		.filter((p) => {
-			if (!p.issueDateObj) return false;
-			if (p.issueDateObj.getTime() < minTime) return false;
-
-			if (zipFilter && p.zip !== zipFilter) return false;
+		.map((row) => normalizePermitRow(row))
+		.filter((permit) => {
+			if (!permit.issueDateObj) return false;
+			if (permit.issueDateObj.getTime() < minTime) return false;
+			if (zipFilter && permit.zip !== zipFilter) return false;
 
 			if (qLower) {
-				const addr = (p.address || '').toLowerCase();
-				const permitStr = String(p.permitNumber || '').toLowerCase();
-				if (!addr.includes(qLower) && !permitStr.includes(qLower)) {
+				const address = (permit.address || '').toLowerCase();
+				const permitNumber = String(permit.permitNumber || '').toLowerCase();
+				if (!address.includes(qLower) && !permitNumber.includes(qLower)) {
 					return false;
 				}
 			}
@@ -532,24 +441,24 @@ async function handleAddressPulse(url, env) {
 		.sort((a, b) => b.issueDateObj - a.issueDateObj)
 		.slice(0, 200);
 
-	const body = {
+	return json({
 		ok: !error,
 		meta: {
 			q,
 			zip: zipFilter,
 			years,
 			days,
-			source: `LADBS permits via https://${domain}/resource/${dataset}`,
+			source: `LADBS permits via https://${LADBS_SOURCE.domain}/resource/${LADBS_SOURCE.dataset}`,
 			error,
 			count: permits.length,
 		},
-		permits: permits.map((p) => ({
-			permitNumber: p.permitNumber,
-			issueDate: p.issueDate,
-			address: p.address,
-			zip: p.zip,
-			value: p.value,
-			description: p.description,
+		permits: permits.map((permit) => ({
+			permitNumber: permit.permitNumber,
+			issueDate: permit.issueDate,
+			address: permit.address,
+			zip: permit.zip,
+			value: permit.value,
+			description: permit.description,
 		})),
 		debug: debug
 			? {
@@ -558,74 +467,59 @@ async function handleAddressPulse(url, env) {
 					errorDetail,
 				}
 			: undefined,
-	};
-
-	return json(body, error ? status : 200);
+	}, error ? status : 200);
 }
 
-async function handleHealth(env) {
+async function sodaFetch(env, query) {
+	const base = `https://${env.SOC_DOMAIN}/resource/${env.SOC_DATASET}.json`;
+	const url = `${base}?${query}`;
+	const headers = createSocrataHeaders(env);
+
+	const response = await fetch(url, { headers });
+	if (!response.ok) {
+		const text = await response.text().catch(() => '');
+		const detail = text || `status ${response.status}`;
+		throw new Error(`upstream ${response.status}: ${detail}`);
+	}
+
+	return { url, rows: await response.json() };
+}
+
+async function handleHealth({ env }) {
 	try {
-		// cheap ping
-		const q = qs({ $select: 'count(1)' });
-		const { url, rows } = await sodaFetch(env, q);
+		const query = qs({ $select: 'count(1)' });
+		const { url, rows } = await sodaFetch(env, query);
 		return json({ ok: true, dataset: env.SOC_DATASET, url, rows });
 	} catch (e) {
 		return err('upstream', e.message);
 	}
 }
 
-//// Accepts Request | URL | string
-async function handleRadar(reqOrUrl, env) {
-	// --- normalize to URL ---
-	const toURL = (x) => {
-		try {
-			if (x instanceof URL) return x;
-			if (x && typeof x.url === 'string') return new URL(x.url);
-			if (typeof x === 'string') return new URL(x);
-		} catch (_) {}
-		return null;
-	};
-	const urlObj = toURL(reqOrUrl);
+async function handleRadar({ url, env }) {
+	const urlObj = parseRequestUrl(url);
 	if (!urlObj) {
 		return new Response(JSON.stringify({ ok: false, error: 'bad_request', detail: 'Bad request URL' }), {
 			status: 400,
-			headers: { 'content-type': 'application/json; charset=utf-8' },
+			headers: JSON_HEADERS,
 		});
 	}
 
-	// --- env cleanup ---
-	const DOMAIN = ((env.SOC_DOMAIN || 'data.lacity.org') + '')
-		.trim()
-		.replace(/^https?:\/\//i, '')
-		.replace(/\/+$/, '');
-	const DATASET = ((env.SOC_DATASET || 'pi9x-tg5x') + '').trim();
-
-	// --- params ---
-	const sp = urlObj.searchParams;
-	const trade = (sp.get('trade') || 'roof').toLowerCase();
-	const days = Math.max(1, Math.min(parseInt(sp.get('days') || '7', 10), 30));
-	const limit = Math.max(1, Math.min(parseInt(sp.get('limit') || '50', 10), 200));
-	const debug = sp.has('debug');
+	const domain = sanitizeDomain(env.SOC_DOMAIN || LADBS_SOURCE.domain);
+	const dataset = String(env.SOC_DATASET || LADBS_SOURCE.dataset).trim();
+	const search = urlObj.searchParams;
+	const trade = (search.get('trade') || 'roof').toLowerCase();
+	const days = Math.max(1, Math.min(parseInt(search.get('days') || '7', 10), 30));
+	const limit = Math.max(1, Math.min(parseInt(search.get('limit') || '50', 10), 200));
+	const debug = search.has('debug');
 
 	const end = new Date();
 	const start = new Date(end.getTime() - days * 86400000);
-	const isoNoZ = (d) => d.toISOString().replace('Z', '');
-
-	// keywords go against work_desc in this dataset
-	const KW = {
-		roof: ['ROOF', 'REROOF', 'RE-ROOF'],
-		solar: ['SOLAR', 'PHOTOVOLTAIC', 'PV'],
-		hvac: ['HVAC', 'MECHANICAL', 'A/C', 'AC'],
-		general: [],
-	};
-	const terms = KW[trade] || KW.roof;
-
-	// --- SOCQL ----
-	const likeBlock = terms.length ? '(' + terms.map((t) => `upper(work_desc) LIKE '%${t.replace(/'/g, "''")}%'`).join(' OR ') + ')' : null;
-
+	const isoNoZ = (date) => date.toISOString().replace('Z', '');
+	const terms = RADAR_KEYWORDS[trade] || RADAR_KEYWORDS.roof;
+	const likeBlock = terms.length
+		? `(${terms.map((term) => `upper(work_desc) LIKE '%${term.replace(/'/g, "''")}%'`).join(' OR ')})`
+		: null;
 	const where = [`issue_date BETWEEN '${isoNoZ(start)}' AND '${isoNoZ(end)}'`, likeBlock].filter(Boolean).join(' AND ');
-
-	// Use real column names from pi9x-tg5x
 	const select = [
 		'permit_nbr',
 		'issue_date',
@@ -639,28 +533,27 @@ async function handleRadar(reqOrUrl, env) {
 		'lon',
 	].join(',');
 
-	const q = new URL(`/resource/${encodeURIComponent(DATASET)}.json`, `https://${DOMAIN}`);
-	q.searchParams.set('$select', select);
-	q.searchParams.set('$where', where);
-	q.searchParams.set('$order', 'issue_date DESC');
-	q.searchParams.set('$limit', String(limit));
+	const queryUrl = new URL(`/resource/${encodeURIComponent(dataset)}.json`, `https://${domain}`);
+	queryUrl.searchParams.set('$select', select);
+	queryUrl.searchParams.set('$where', where);
+	queryUrl.searchParams.set('$order', 'issue_date DESC');
+	queryUrl.searchParams.set('$limit', String(limit));
 
-	const headers = env.SOC_APP_TOKEN ? { 'X-App-Token': env.SOC_APP_TOKEN } : {};
-	let resp;
+	let response;
 	try {
-		resp = await fetch(q, { headers });
+		response = await fetch(queryUrl, { headers: env.SOC_APP_TOKEN ? { 'X-App-Token': env.SOC_APP_TOKEN } : {} });
 	} catch (e) {
-		return new Response(JSON.stringify({ ok: false, error: 'upstream', detail: `fetch failed: ${e.message}`, url: String(q) }), {
+		return new Response(JSON.stringify({ ok: false, error: 'upstream', detail: `fetch failed: ${e.message}`, url: String(queryUrl) }), {
 			status: 502,
-			headers: { 'content-type': 'application/json; charset=utf-8' },
+			headers: JSON_HEADERS,
 		});
 	}
 
-	const text = await resp.text();
-	if (!resp.ok) {
-		return new Response(JSON.stringify({ ok: false, error: 'upstream', url: String(q), detail: text }), {
+	const text = await response.text();
+	if (!response.ok) {
+		return new Response(JSON.stringify({ ok: false, error: 'upstream', url: String(queryUrl), detail: text }), {
 			status: 502,
-			headers: { 'content-type': 'application/json; charset=utf-8' },
+			headers: JSON_HEADERS,
 		});
 	}
 
@@ -668,128 +561,196 @@ async function handleRadar(reqOrUrl, env) {
 	try {
 		rows = JSON.parse(text);
 	} catch {}
+
 	return new Response(
 		JSON.stringify({
 			ok: true,
-
-			// ---- counters (cover all legacy names) ----
-			count: rows.length, // preferred
-			count_1: String(rows.length), // legacy Socrata aggregate
-			'count(*)': rows.length, // another legacy name
-			total: rows.length, // belt & suspenders
-
-			// ---- dataset / view aliases ----
-			view: DATASET, // what the UI likely reads
-			dataset: DATASET, // alt
-			source_view: DATASET, // alt
-			view_id: DATASET, // alt
-
-			// ---- links ----
-			url: String(q), // JSON API link (already works)
-			ui: `https://${DOMAIN}/resource/${DATASET}`, // human Socrata UI
-
-			// ---- data + echo params ----
+			count: rows.length,
+			count_1: String(rows.length),
+			'count(*)': rows.length,
+			total: rows.length,
+			view: dataset,
+			dataset,
+			source_view: dataset,
+			view_id: dataset,
+			url: String(queryUrl),
+			ui: `https://${domain}/resource/${dataset}`,
 			rows,
 			params: { trade, days, limit },
-
-			// ---- optional debug ----
-			...(debug ? { debug: { where, select, domain: DOMAIN, dataset: DATASET } } : {}),
+			...(debug ? { debug: { where, select, domain, dataset } } : {}),
 		}),
-		{
-			headers: {
-				'content-type': 'application/json; charset=utf-8',
-				'cache-control': 'no-store',
-			},
-		},
+		{ headers: JSON_HEADERS },
 	);
 }
 
-/// --- TOP PERMITS
+async function handlePilotIntake({ request, env }) {
+	if (request.method !== 'POST') {
+		return json({ ok: false, error: 'method_not_allowed' }, 405);
+	}
+
+	let data;
+	try {
+		data = await request.json();
+	} catch {
+		return json({ ok: false, error: 'bad_json' }, 400);
+	}
+
+	const required = ['name', 'company', 'phone', 'email'];
+	const missing = required.filter((key) => !String(data[key] || '').trim());
+	if (missing.length) {
+		return json({ ok: false, error: `missing:${missing.join(',')}` }, 400);
+	}
+
+	const payload = {
+		...data,
+		receivedAt: new Date().toISOString(),
+		ua: request.headers.get('user-agent') || '',
+	};
+
+	try {
+		await env.PILOT_KV.put(`pilot:${payload.email}:${Date.now()}`, JSON.stringify(payload), {
+			expirationTtl: 60 * 60 * 24 * 90,
+		});
+	} catch (e) {}
+
+	if (env.FORWARD_TO && !isSelfFetchTarget(env.FORWARD_TO)) {
+		try {
+			await fetch(env.FORWARD_TO, {
+				method: 'POST',
+				headers: { 'content-type': 'application/json' },
+				body: JSON.stringify(payload),
+			});
+		} catch (e) {}
+	}
+
+	return json({ ok: true });
+}
+
+async function handleV1Jurisdictions() {
+	return json({
+		ok: true,
+		jurisdictions: JURISDICTIONS.map(({ id, name, placeholder }) => ({ id, name, placeholder })),
+	});
+}
+
+async function handleV1HistorySearch({ request, url, env, ctx }) {
+	if (request.method !== 'GET') {
+		return json(apiEnvelope(false, null, 'method_not_allowed'), 405);
+	}
+
+	const jurisdictionId = (url.searchParams.get('jurisdiction') || '').trim();
+	if (!jurisdictionId) {
+		return json(apiEnvelope(false, null, 'jurisdiction_required'), 400);
+	}
+
+	const jurisdiction = findJurisdiction(jurisdictionId);
+	if (!jurisdiction?.provider || jurisdiction.provider.type !== 'socrata') {
+		return json(apiEnvelope(false, null, 'unknown_jurisdiction'), 400);
+	}
+
+	const q = (url.searchParams.get('q') || '').trim();
+	const rawDays = Number(url.searchParams.get('days') || '30');
+	const rawMinVal = Number(url.searchParams.get('minVal') || '250000');
+	const rawLimit = Number(url.searchParams.get('limit') || '25');
+	const days = !Number.isFinite(rawDays) || rawDays <= 0 || rawDays > 365 ? 30 : rawDays;
+	const minVal = !Number.isFinite(rawMinVal) || rawMinVal < 0 ? 250000 : rawMinVal;
+	const limit = !Number.isFinite(rawLimit) || rawLimit <= 0 || rawLimit > 100 ? 25 : rawLimit;
+	const fetchLimit = Math.max(limit * 10, 200);
+
+	const cacheUrl = new URL(url.toString());
+	cacheUrl.searchParams.sort();
+	const cacheKey = new Request(cacheUrl.toString(), { method: 'GET' });
+	const cache = caches.default;
+	const cached = await cache.match(cacheKey);
+	if (cached) {
+		return cached;
+	}
+
+	try {
+		const { url: sourceUrl, rows } = await fetchSocrataRows(env, jurisdiction.provider, {
+			q,
+			limit,
+			fetchLimit,
+		});
+
+		const results = (Array.isArray(rows) ? rows : [])
+			.map((row) => normalizeHistoryRecord(row, jurisdiction))
+			.filter((record) => shouldIncludeHistoryRecord(record, days, minVal))
+			.slice(0, limit);
+
+		const response = jsonWithCache(apiEnvelope(true, {
+			jurisdiction: jurisdiction.id,
+			query: {
+				q,
+				days,
+				minVal,
+				limit,
+			},
+			meta: {
+				jurisdiction: jurisdiction.id,
+				count: results.length,
+				fetchLimit,
+				source_url: sourceUrl,
+			},
+			results,
+		}, null));
+
+		if (ctx?.waitUntil) {
+			ctx.waitUntil(cache.put(cacheKey, response.clone()));
+		} else {
+			await cache.put(cacheKey, response.clone());
+		}
+		return response;
+	} catch (e) {
+		return json(apiEnvelope(false, null, `upstream: ${e.message}`), 502);
+	}
+}
+
+function createContext(request, env, ctx) {
+	const url = new URL(request.url);
+	return {
+		request,
+		env,
+		ctx,
+		url,
+		pathname: normalizePathname(url.pathname),
+	};
+}
+
+function createRoutes() {
+	return {
+		'/api/health': handleHealth,
+		'/api/radar': handleRadar,
+		'/api/top': handleTopPermits,
+		'/api/top-permits': handleTopPermits,
+		'/api/address-pulse': handleAddressPulse,
+		'/api/zone-claim': ({ url, env }) => handleZoneClaim(url, env),
+		'/api/pilot-intake': handlePilotIntake,
+		'/pilot-intake': handlePilotIntake,
+		'/v1/health': handleHealth,
+		'/v1/jurisdictions': handleV1Jurisdictions,
+		'/v1/history/search': handleV1HistorySearch,
+	};
+}
+
+async function dispatchRoute(context) {
+	const routes = createRoutes();
+	const handler = routes[context.pathname];
+	if (!handler) {
+		return withCors(context.request, json({ ok: false, error: 'not_found' }, 404));
+	}
+
+	return withCors(context.request, await handler(context));
+}
 
 export default {
-	async fetch(request, env) {
+	async fetch(request, env, ctx) {
 		try {
-			// ---- CORS preflight
 			if (request.method === 'OPTIONS') {
-				return new Response(null, { headers: corsHeaders(request.headers.get('Origin') || '') });
+				return preflightResponse(request.headers.get('Origin') || '');
 			}
 
-			// normalize path (strip trailing slash except for root)
-			const url = new URL(request.url);
-			const rawPath = url.pathname;
-			const pathname = rawPath.length > 1 && rawPath.endsWith('/') ? rawPath.slice(0, -1) : rawPath;
-
-			// CORS preflight (keep if you had this already)
-			if (request.method === 'OPTIONS') {
-				return new Response('', {
-					headers: {
-						'access-control-allow-origin': '*',
-						'access-control-allow-methods': 'GET, POST, OPTIONS',
-						'access-control-allow-headers': 'content-type',
-					},
-				});
-			}
-
-			// ---- routes ----
-			if (pathname === '/api/health') return withCors(request, await handleHealth(env));
-			if (pathname === '/api/radar') return withCors(request, await handleRadar(url, env));
-			if (pathname === '/api/top' || pathname === '/api/top-permits') return withCors(request, await handleTopPermits(url, env));
-			if (pathname === '/api/address-pulse') return withCors(request, await handleAddressPulse(url, env));
-
-			if (pathname === '/api/zone-claim') return withCors(request, await handleZoneClaim(url, env));
-
-			// --- Pilot Intake ---
-			if (pathname === '/api/pilot-intake' || pathname === '/pilot-intake') {
-				// CORS preflight
-				if (request.method === 'OPTIONS') {
-					return new Response(null, { headers: { ...corsHeaders(request.headers.get('Origin') || '') } });
-				}
-
-				if (request.method !== 'POST') {
-					return withCors(request, json({ ok: false, error: 'method_not_allowed' }, 405));
-				}
-
-				// Parse + validate
-				let data;
-				try {
-					data = await request.json();
-				} catch {
-					return withCors(request, json({ ok: false, error: 'bad_json' }, 400));
-				}
-
-				const required = ['name', 'company', 'phone', 'email'];
-				const missing = required.filter((k) => !String(data[k] || '').trim());
-				if (missing.length) {
-					return withCors(request, json({ ok: false, error: 'missing:' + missing.join(',') }, 400));
-				}
-
-				const payload = {
-					...data,
-					receivedAt: new Date().toISOString(),
-					ua: request.headers.get('user-agent') || '',
-				};
-
-				// Optional: backup to KV for 90 days
-				try {
-					await env.PILOT_KV.put(`pilot:${payload.email}:${Date.now()}`, JSON.stringify(payload), { expirationTtl: 60 * 60 * 24 * 90 });
-				} catch (e) {}
-
-				// Optional: forward to webhook/email service
-				if (env.FORWARD_TO) {
-					try {
-						await fetch(env.FORWARD_TO, {
-							method: 'POST',
-							headers: { 'content-type': 'application/json' },
-							body: JSON.stringify(payload),
-						});
-					} catch (e) {}
-				}
-
-				return withCors(request, json({ ok: true }));
-			}
-
-			// 404
-			return withCors(request, json({ ok: false, error: 'not_found' }, 404));
+			return await dispatchRoute(createContext(request, env, ctx));
 		} catch (e) {
 			return err('exception', e.message);
 		}
