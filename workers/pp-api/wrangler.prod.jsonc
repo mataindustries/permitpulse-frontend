@@ -1,0 +1,14 @@
+{
+      "name": "pp-api",
+        "main": "src/worker.js",
+          "workers_dev": true,
+            "compatibility_date": "2025-10-18",
+              "compatibility_flags": ["global_fetch_strictly_public"],
+                "routes": [
+                    {
+                          "pattern": "api.getpermitpulse.com/*",
+                                "zone_name": "getpermitpulse.com"
+                                    }
+                                      ]
+                                      }
+}
