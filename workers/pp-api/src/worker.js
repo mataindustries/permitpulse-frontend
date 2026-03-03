@@ -9,6 +9,7 @@ import {
 	RADAR_KEYWORDS,
 	STORM_WORDS,
 } from './config/permits.js';
+import { arcgisQuery as fetchArcgisRows } from "./providers/arcgis.js";
 import { fetchSocrataRows } from './providers/socrata.js';
 
 function corsHeaders(origin) {
@@ -71,7 +72,16 @@ function qs(params) {
 function parseIssueDate(value) {
 	if (!value) return null;
 
+	if (typeof value === 'number') {
+		const date = new Date(value);
+		return Number.isNaN(date.getTime()) ? null : date;
+	}
+
 	const input = String(value);
+	if (/^\d{11,}$/.test(input)) {
+		const date = new Date(Number(input));
+		return Number.isNaN(date.getTime()) ? null : date;
+	}
 	const isoDate = new Date(input);
 	if (!Number.isNaN(isoDate.getTime())) {
 		return isoDate;
@@ -271,13 +281,64 @@ function findJurisdiction(jurisdictionId) {
 	return JURISDICTIONS.find((jurisdiction) => jurisdiction.id === jurisdictionId) || null;
 }
 
+function normalizeHistoryDate(value) {
+	const parsed = parseIssueDate(value);
+	return parsed ? parsed.toISOString() : null;
+}
+
+function buildHistorySourceUrl(jurisdiction, id) {
+	const provider = jurisdiction.provider;
+	if (provider.type === 'socrata') {
+		return id
+			? `https://${provider.domain}/resource/${provider.dataset}.json?${new URLSearchParams({
+					[provider.fields.id]: id,
+					$limit: '1',
+				}).toString()}`
+			: `https://${provider.domain}/resource/${provider.dataset}`;
+	}
+
+	if (provider.type === 'arcgis') {
+		const url = new URL(`${provider.layerBaseUrl.replace(/\/query\b.*$/, '')}/query`);
+		url.searchParams.set('where', id ? `${provider.fields.id} = '${String(id).replace(/'/g, "''")}'` : '1=1');
+		url.searchParams.set('outFields', '*');
+		url.searchParams.set('returnGeometry', 'false');
+		url.searchParams.set('f', 'json');
+		return url.toString();
+	}
+
+	return null;
+}
+
+function matchesHistoryQuery(record, q) {
+	if (!q) {
+		return true;
+	}
+
+	const needle = q.toLowerCase();
+	return [
+		record.id,
+		record.address,
+		record.status,
+		record.type,
+		record.subtype,
+		record.description,
+	]
+		.filter(Boolean)
+		.some((value) => String(value).toLowerCase().includes(needle));
+}
+
 function normalizeHistoryRecord(row, jurisdiction) {
 	const fields = jurisdiction.provider.fields;
 	const id = row[fields.id] || null;
-	const address = row[fields.address] || null;
-	const filedAt = row[fields.filed_at] || null;
+	const address =
+		row[fields.address] ||
+		(fields.alt_address ? row[fields.alt_address] : null) ||
+		null;
+	const filedAt = normalizeHistoryDate(row[fields.filed_at]);
+	const issuedAt = fields.issued_at ? normalizeHistoryDate(row[fields.issued_at]) : null;
 	const valuation = row[fields.valuation] == null ? null : parseValuation(row[fields.valuation]);
-	const description = String(row[fields.description] || '').toLowerCase();
+	const descriptionText = row[fields.description] || null;
+	const description = String(descriptionText || '').toLowerCase();
 	const riskFlags = [];
 
 	if (valuation == null || valuation === 0) {
@@ -311,27 +372,28 @@ function normalizeHistoryRecord(row, jurisdiction) {
 		riskFlags.push('TRADE_SOLAR');
 	}
 
-	const sourceUrl = id
-		? `https://${jurisdiction.provider.domain}/resource/${jurisdiction.provider.dataset}.json?${new URLSearchParams({
-				[jurisdiction.provider.fields.id]: id,
-				$limit: '1',
-			}).toString()}`
-		: `https://${jurisdiction.provider.domain}/resource/${jurisdiction.provider.dataset}`;
+	const sourceUrl = buildHistorySourceUrl(jurisdiction, id);
 
 	return {
 		id,
 		address,
 		status: fields.status ? row[fields.status] || null : null,
-		permit_type: row[fields.permit_type] || null,
+		type: fields.type ? row[fields.type] || null : null,
 		subtype: row[fields.subtype] || null,
 		filed_at: filedAt,
+		issued_at: issuedAt,
 		valuation,
+		description: descriptionText,
 		source_url: sourceUrl,
 		risk_flags: riskFlags,
 	};
 }
 
-function shouldIncludeHistoryRecord(record, days, minVal) {
+function shouldIncludeHistoryRecord(record, q, days, minVal) {
+	if (!matchesHistoryQuery(record, q)) {
+		return false;
+	}
+
 	if (record.filed_at) {
 		const filedDate = parseIssueDate(record.filed_at);
 		if (!filedDate) {
@@ -347,6 +409,18 @@ function shouldIncludeHistoryRecord(record, days, minVal) {
 	}
 
 	return record.valuation >= minVal;
+}
+
+async function fetchHistoryRows(env, jurisdiction, params) {
+	if (jurisdiction.provider.type === 'socrata') {
+		return fetchSocrataRows(env, jurisdiction.provider, params);
+	}
+
+	if (jurisdiction.provider.type === 'arcgis') {
+		return fetchArcgisRows(jurisdiction.provider, params);
+	}
+
+	throw new Error('unsupported_provider');
 }
 
 async function handleTopPermits({ url, env }) {
@@ -644,7 +718,7 @@ async function handleV1HistorySearch({ request, url, env, ctx }) {
 	}
 
 	const jurisdiction = findJurisdiction(jurisdictionId);
-	if (!jurisdiction?.provider || jurisdiction.provider.type !== 'socrata') {
+	if (!jurisdiction?.provider || !['socrata', 'arcgis'].includes(jurisdiction.provider.type)) {
 		return json(apiEnvelope(false, null, 'unknown_jurisdiction'), 400);
 	}
 
@@ -667,15 +741,11 @@ async function handleV1HistorySearch({ request, url, env, ctx }) {
 	}
 
 	try {
-		const { url: sourceUrl, rows } = await fetchSocrataRows(env, jurisdiction.provider, {
-			q,
-			limit,
-			fetchLimit,
-		});
+		const { url: sourceUrl, rows } = await fetchHistoryRows(env, jurisdiction, { fetchLimit });
 
 		const results = (Array.isArray(rows) ? rows : [])
 			.map((row) => normalizeHistoryRecord(row, jurisdiction))
-			.filter((record) => shouldIncludeHistoryRecord(record, days, minVal))
+			.filter((record) => shouldIncludeHistoryRecord(record, q, days, minVal))
 			.slice(0, limit);
 
 		const response = jsonWithCache(apiEnvelope(true, {

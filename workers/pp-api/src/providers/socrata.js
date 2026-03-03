@@ -11,14 +11,11 @@ function createSocrataHeaders(env) {
 	return headers;
 }
 
-export function buildHistoryQuery(provider, { q, fetchLimit }) {
+export function buildHistoryQuery(provider, { fetchLimit }) {
 	const query = new URLSearchParams();
 	query.set('$select', buildSelectClause(provider));
 	query.set('$order', `${provider.fields.filed_at} DESC`);
 	query.set('$limit', String(fetchLimit));
-	if (q) {
-		query.set('$q', q);
-	}
 	return query.toString();
 }
 
