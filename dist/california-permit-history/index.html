@@ -221,6 +221,11 @@
       font-size: 13px;
       color: var(--text-muted);
     }
+    .field-note {
+      margin-top: 6px;
+      font-size: 12px;
+      color: var(--text-muted);
+    }
     .results-head {
       display: flex;
       justify-content: space-between;
@@ -405,6 +410,7 @@
               <div>
                 <label for="minVal">Min valuation</label>
                 <input id="minVal" name="minVal" type="number" min="0" step="1000" value="250000" />
+                <div id="minValNote" class="field-note" hidden>Valuation data varies by jurisdiction.</div>
               </div>
               <div>
                 <label for="limit">Limit</label>
@@ -514,7 +520,7 @@
   <script>
     (function () {
       const PRIMARY_API_BASE = "https://api.getpermitpulse.com";
-      const FALLBACK_API_BASE = "https://permitpulse-api.matasergio741.workers.dev";
+      const FALLBACK_API_BASE = "https://pp-api.matasergio741.workers.dev";
       const STRIPE_URL = "https://buy.stripe.com/3cI3cw1qT9aP6Jx2Fs1wY0e";
       const DEFAULT_JURISDICTIONS = [
         { id: "la_city", name: "Los Angeles", placeholder: true }
@@ -527,6 +533,7 @@
         q: document.getElementById("q"),
         days: document.getElementById("days"),
         minVal: document.getElementById("minVal"),
+        minValNote: document.getElementById("minValNote"),
         limit: document.getElementById("limit"),
         searchBtn: document.getElementById("searchBtn"),
         searchStatus: document.getElementById("searchStatus"),
@@ -535,6 +542,7 @@
       };
 
       let apiBaseInUse = PRIMARY_API_BASE;
+      let lastApiRequestUrl = "";
 
       async function apiFetch(path) {
         const bases = [PRIMARY_API_BASE, FALLBACK_API_BASE];
@@ -542,11 +550,13 @@
 
         for (const base of bases) {
           try {
-            const response = await fetch(base + path, { headers: { "Accept": "application/json" } });
+            const requestUrl = base + path;
+            const response = await fetch(requestUrl, { headers: { "Accept": "application/json" } });
             if (!response.ok) {
               throw new Error("HTTP " + response.status);
             }
             apiBaseInUse = base;
+            lastApiRequestUrl = requestUrl;
             return await response.json();
           } catch (error) {
             lastError = error;
@@ -595,23 +605,118 @@
         return map[flag] || String(flag || "").replace(/_/g, " ").toLowerCase();
       }
 
+      function parseNumericValue(value) {
+        if (value == null || value === "") return null;
+        if (typeof value === "number") {
+          return Number.isFinite(value) ? value : null;
+        }
+
+        const clean = String(value).replace(/[^0-9.]/g, "");
+        if (!clean) return null;
+        const parsed = Number(clean);
+        return Number.isFinite(parsed) ? parsed : null;
+      }
+
+      function parseRecordDate(value) {
+        if (!value) return null;
+        const date = new Date(value);
+        return Number.isNaN(date.getTime()) ? null : date;
+      }
+
+      function extractResults(payload) {
+        const data = payload && payload.data ? payload.data : payload || {};
+
+        if (Array.isArray(data.results)) return data.results;
+        if (Array.isArray(data.permits)) return data.permits;
+        if (Array.isArray(payload && payload.results)) return payload.results;
+        if (Array.isArray(payload && payload.permits)) return payload.permits;
+
+        return [];
+      }
+
+      function buildResultsMetaHtml(options) {
+        const resultsCount = options && Number.isFinite(options.resultsCount) ? options.resultsCount : 0;
+        const jurisdiction = options && options.jurisdiction ? options.jurisdiction : els.jurisdiction.value;
+        const sourceUrl = options && options.sourceUrl ? options.sourceUrl : "";
+        const requestUrl = options && options.requestUrl ? options.requestUrl : "";
+        const parts = [];
+
+        if (resultsCount > 0) {
+          parts.push(escapeHtml(resultsCount + " record" + (resultsCount === 1 ? "" : "s")));
+          parts.push(escapeHtml(jurisdiction));
+          if (apiBaseInUse) {
+            parts.push(escapeHtml(new URL(apiBaseInUse).hostname));
+          }
+        } else {
+          parts.push("No matching permit records found.");
+        }
+
+        if (sourceUrl) {
+          parts.push('<a href="' + escapeHtml(sourceUrl) + '" target="_blank" rel="noopener" style="text-decoration:underline; color:inherit;">dataset source</a>');
+        }
+
+        if (requestUrl) {
+          parts.push('<a href="' + escapeHtml(requestUrl) + '" target="_blank" rel="noopener" style="text-decoration:underline; color:inherit;">Debug API URL</a>');
+        }
+
+        return parts.join(" · ");
+      }
+
+      function filterResults(results, filters) {
+        const minVal = parseNumericValue(filters.minVal);
+        const days = parseNumericValue(filters.days);
+        const minTime = Number.isFinite(days) && days > 0
+          ? Date.now() - (days * 24 * 60 * 60 * 1000)
+          : null;
+
+        return results.filter(function (item) {
+          const valuation = parseNumericValue(item.valuation);
+          if (minVal != null && valuation != null && valuation < minVal) {
+            return false;
+          }
+
+          if (minTime != null) {
+            const filedDate = parseRecordDate(item.filed_at);
+            const issuedDate = parseRecordDate(item.issued_at);
+            const recordDate = filedDate || issuedDate;
+            if (recordDate && recordDate.getTime() < minTime) {
+              return false;
+            }
+          }
+
+          return true;
+        });
+      }
+
+      function syncJurisdictionDefaults() {
+        const isLaCounty = els.jurisdiction.value === "la_county";
+        els.minValNote.hidden = !isLaCounty;
+        if (isLaCounty && (els.minVal.value === "" || els.minVal.value === "250000")) {
+          els.minVal.value = "0";
+        }
+      }
+
       function renderJurisdictions(items) {
         const jurisdictions = Array.isArray(items) && items.length ? items : DEFAULT_JURISDICTIONS;
         els.jurisdiction.innerHTML = jurisdictions.map(function (item) {
           const selected = item.id === "la_city" ? " selected" : "";
           return '<option value="' + escapeHtml(item.id) + '"' + selected + '>' + escapeHtml(item.name) + '</option>';
         }).join("");
+        syncJurisdictionDefaults();
       }
 
       function renderResults(payload) {
         const data = payload && payload.data ? payload.data : payload || {};
-        const results = Array.isArray(data.results) ? data.results : [];
+        const results = extractResults(payload);
         const sourceUrl = data.meta && data.meta.source_url ? data.meta.source_url : "";
         const jurisdiction = data.meta && data.meta.jurisdiction ? data.meta.jurisdiction : els.jurisdiction.value;
 
-        els.resultsMeta.textContent = results.length
-          ? results.length + " record" + (results.length === 1 ? "" : "s") + " · " + jurisdiction + (apiBaseInUse ? " · " + new URL(apiBaseInUse).hostname : "")
-          : "No matching permit records found.";
+        els.resultsMeta.innerHTML = buildResultsMetaHtml({
+          resultsCount: results.length,
+          jurisdiction: jurisdiction,
+          sourceUrl: sourceUrl,
+          requestUrl: lastApiRequestUrl
+        });
 
         if (!results.length) {
           els.resultsList.innerHTML = '<div class="result-card"><p class="muted">No records matched these filters. Try a broader keyword, more days, or a lower valuation threshold.</p></div>';
@@ -627,7 +732,7 @@
             : '<span class="chip chip-ok">No mapped flags</span>';
 
           const status = item.status || "Status unavailable";
-          const permitType = [item.permit_type, item.subtype].filter(Boolean).join(" / ") || "Type unavailable";
+          const permitType = [item.type || item.permit_type, item.subtype].filter(Boolean).join(" / ") || "Type unavailable";
           const sourceLink = item.source_url
             ? '<a class="mono muted" style="font-size:12px; text-decoration:underline;" href="' + escapeHtml(item.source_url) + '" target="_blank" rel="noopener">Source</a>'
             : "";
@@ -653,9 +758,6 @@
             '</article>';
         }).join("");
 
-        if (sourceUrl) {
-          els.resultsMeta.innerHTML += ' · <a href="' + escapeHtml(sourceUrl) + '" target="_blank" rel="noopener" style="text-decoration:underline; color:inherit;">dataset source</a>';
-        }
       }
 
       async function loadJurisdictions() {
@@ -672,12 +774,20 @@
       async function handleSearch(event) {
         event.preventDefault();
 
+        const submittedJurisdiction = els.jurisdiction.value || "la_city";
+        const submittedDays = String(els.days.value || "30");
+        const submittedMinVal = String(els.minVal.value || (submittedJurisdiction === "la_county" ? "0" : "250000"));
+        const submittedLimit = String(els.limit.value || "25");
+
+        const upstreamDays = "365";
+        const upstreamMinVal = "0";
+
         const params = new URLSearchParams({
-          jurisdiction: els.jurisdiction.value || "la_city",
+          jurisdiction: submittedJurisdiction,
           q: els.q.value.trim(),
-          days: String(els.days.value || "30"),
-          minVal: String(els.minVal.value || "250000"),
-          limit: String(els.limit.value || "25")
+          days: upstreamDays,
+          minVal: upstreamMinVal,
+          limit: submittedLimit
         });
 
         const originalLabel = els.searchBtn.textContent;
@@ -689,10 +799,30 @@
 
         try {
           const payload = await apiFetch("/v1/history/search?" + params.toString());
-          renderResults(payload);
+          const data = payload && payload.data ? payload.data : payload || {};
+          const filteredResults = filterResults(extractResults(payload), {
+            days: submittedDays,
+            minVal: submittedMinVal
+          });
+          renderResults({
+            ok: payload && Object.prototype.hasOwnProperty.call(payload, "ok") ? payload.ok : true,
+            error: payload && Object.prototype.hasOwnProperty.call(payload, "error") ? payload.error : null,
+            data: Object.assign({}, data, {
+              query: Object.assign({}, data.query || {}, {
+                days: parseNumericValue(submittedDays),
+                minVal: parseNumericValue(submittedMinVal),
+                limit: parseNumericValue(submittedLimit)
+              }),
+              meta: Object.assign({}, data.meta || {}, {
+                count: filteredResults.length
+              }),
+              results: filteredResults
+            })
+          });
+          els.searchStatus.textContent = "";
           els.searchStatus.textContent = "Search complete.";
           window.gtag && window.gtag("event", "search_permit_history", {
-            jurisdiction: els.jurisdiction.value,
+            jurisdiction: submittedJurisdiction,
             q_present: els.q.value.trim() ? "yes" : "no"
           });
         } catch (error) {
@@ -706,6 +836,7 @@
       }
 
       els.form.addEventListener("submit", handleSearch);
+      els.jurisdiction.addEventListener("change", syncJurisdictionDefaults);
       loadJurisdictions();
     })();
   </script>
