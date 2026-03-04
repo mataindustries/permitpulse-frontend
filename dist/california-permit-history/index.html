@@ -221,6 +221,12 @@
       font-size: 13px;
       color: var(--text-muted);
     }
+    .debug-link {
+      width: fit-content;
+      font-size: 12px;
+      color: var(--text-muted);
+      text-decoration: underline;
+    }
     .field-note {
       margin-top: 6px;
       font-size: 12px;
@@ -423,6 +429,7 @@
               <a class="btn btn-ghost" href="https://buy.stripe.com/3cI3cw1qT9aP6Jx2Fs1wY0e" target="_blank" rel="noopener">Get Permit Dossier ($499)</a>
             </div>
             <div id="searchStatus" class="status-line" aria-live="polite"></div>
+            <a id="debugApiUrl" class="debug-link mono" href="#" target="_blank" rel="noopener" hidden>Debug API URL</a>
           </form>
         </div>
 
@@ -520,7 +527,7 @@
   <script>
     (function () {
       const PRIMARY_API_BASE = "https://api.getpermitpulse.com";
-      const FALLBACK_API_BASE = "https://pp-api.matasergio741.workers.dev";
+      const FALLBACK_API_BASE = "https://pp-api-next.matasergio741.workers.dev";
       const STRIPE_URL = "https://buy.stripe.com/3cI3cw1qT9aP6Jx2Fs1wY0e";
       const DEFAULT_JURISDICTIONS = [
         { id: "la_city", name: "Los Angeles", placeholder: true }
@@ -537,6 +544,7 @@
         limit: document.getElementById("limit"),
         searchBtn: document.getElementById("searchBtn"),
         searchStatus: document.getElementById("searchStatus"),
+        debugApiUrl: document.getElementById("debugApiUrl"),
         resultsMeta: document.getElementById("resultsMeta"),
         resultsList: document.getElementById("resultsList")
       };
@@ -551,12 +559,12 @@
         for (const base of bases) {
           try {
             const requestUrl = base + path;
+            lastApiRequestUrl = requestUrl;
             const response = await fetch(requestUrl, { headers: { "Accept": "application/json" } });
             if (!response.ok) {
               throw new Error("HTTP " + response.status);
             }
             apiBaseInUse = base;
-            lastApiRequestUrl = requestUrl;
             return await response.json();
           } catch (error) {
             lastError = error;
@@ -760,6 +768,16 @@
 
       }
 
+      function setDebugLink(url) {
+        if (!url) {
+          els.debugApiUrl.hidden = true;
+          els.debugApiUrl.removeAttribute("href");
+          return;
+        }
+        els.debugApiUrl.href = url;
+        els.debugApiUrl.hidden = false;
+      }
+
       async function loadJurisdictions() {
         try {
           const payload = await apiFetch("/v1/jurisdictions");
@@ -794,6 +812,7 @@
         els.searchBtn.disabled = true;
         els.searchBtn.textContent = "Searching...";
         els.searchStatus.textContent = "Searching open permit data...";
+        setDebugLink("");
         els.resultsMeta.textContent = "Loading results...";
         els.resultsList.innerHTML = '<div class="result-card"><p class="muted">Searching permit records...</p></div>';
 
@@ -821,6 +840,7 @@
           });
           els.searchStatus.textContent = "";
           els.searchStatus.textContent = "Search complete.";
+          setDebugLink(lastApiRequestUrl);
           window.gtag && window.gtag("event", "search_permit_history", {
             jurisdiction: submittedJurisdiction,
             q_present: els.q.value.trim() ? "yes" : "no"
@@ -829,6 +849,7 @@
           els.resultsMeta.textContent = "Search failed.";
           els.resultsList.innerHTML = '<div class="result-card"><p class="muted">Search failed. Try again in a moment or move directly to the dossier for a manual review.</p></div>';
           els.searchStatus.textContent = "Search failed. API unavailable or upstream dataset error.";
+          setDebugLink(lastApiRequestUrl);
         } finally {
           els.searchBtn.disabled = false;
           els.searchBtn.textContent = originalLabel;
