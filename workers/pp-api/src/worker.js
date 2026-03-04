@@ -309,6 +309,25 @@ function buildHistorySourceUrl(jurisdiction, id) {
 	return null;
 }
 
+function escapeArcgisWhereValue(value) {
+	return String(value || '').replace(/'/g, "''").toUpperCase();
+}
+
+function buildArcgisHistoryWhere(provider, q) {
+	const query = String(q || '').trim();
+	if (!query) {
+		return '1=1';
+	}
+
+	const fields = Array.isArray(provider.searchFields) ? provider.searchFields.filter(Boolean).slice(0, 4) : [];
+	if (!fields.length) {
+		return '1=1';
+	}
+
+	const escapedQuery = escapeArcgisWhereValue(query);
+	return `(${fields.map((field) => `UPPER(${field}) LIKE '%${escapedQuery}%'`).join(' OR ')})`;
+}
+
 function matchesHistoryQuery(record, q) {
 	if (!q) {
 		return true;
@@ -389,8 +408,8 @@ function normalizeHistoryRecord(row, jurisdiction) {
 	};
 }
 
-function shouldIncludeHistoryRecord(record, q, days, minVal) {
-	if (!matchesHistoryQuery(record, q)) {
+function shouldIncludeHistoryRecord(record, q, days, minVal, options = {}) {
+	if (options.applyQueryFilter !== false && !matchesHistoryQuery(record, q)) {
 		return false;
 	}
 
@@ -417,7 +436,22 @@ async function fetchHistoryRows(env, jurisdiction, params) {
 	}
 
 	if (jurisdiction.provider.type === 'arcgis') {
-		return fetchArcgisRows(jurisdiction.provider, params);
+		const result = await fetchArcgisRows({
+			layerBaseUrl: jurisdiction.provider.layerBaseUrl,
+			outFields: '*',
+			orderByFields: jurisdiction.provider.orderByFields,
+			where: buildArcgisHistoryWhere(jurisdiction.provider, params.q),
+			limit: params.fetchLimit,
+		});
+
+		if (!result?.ok) {
+			throw new Error(`upstream ${result?.status || 502}: ${result?.errorText || 'request failed'}`);
+		}
+
+		return {
+			url: result.url,
+			rows: Array.isArray(result.features) ? result.features.map((feature) => feature?.attributes || {}) : [],
+		};
 	}
 
 	throw new Error('unsupported_provider');
@@ -559,14 +593,12 @@ async function sodaFetch(env, query) {
 	return { url, rows: await response.json() };
 }
 
-async function handleHealth({ env }) {
-	try {
-		const query = qs({ $select: 'count(1)' });
-		const { url, rows } = await sodaFetch(env, query);
-		return json({ ok: true, dataset: env.SOC_DATASET, url, rows });
-	} catch (e) {
-		return err('upstream', e.message);
-	}
+async function handleHealth() {
+	return json({
+		ok: true,
+		service: 'pp-api',
+		ts: new Date().toISOString(),
+	});
 }
 
 async function handleRadar({ url, env }) {
@@ -741,11 +773,15 @@ async function handleV1HistorySearch({ request, url, env, ctx }) {
 	}
 
 	try {
-		const { url: sourceUrl, rows } = await fetchHistoryRows(env, jurisdiction, { fetchLimit });
+		const { url: sourceUrl, rows } = await fetchHistoryRows(env, jurisdiction, { q, fetchLimit });
 
 		const results = (Array.isArray(rows) ? rows : [])
 			.map((row) => normalizeHistoryRecord(row, jurisdiction))
-			.filter((record) => shouldIncludeHistoryRecord(record, q, days, minVal))
+			.filter((record) =>
+				shouldIncludeHistoryRecord(record, q, days, minVal, {
+					applyQueryFilter: jurisdiction.provider.type !== 'arcgis',
+				})
+			)
 			.slice(0, limit);
 
 		const response = jsonWithCache(apiEnvelope(true, {
