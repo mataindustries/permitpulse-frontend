@@ -27,31 +27,10 @@ export const JURISDICTIONS = [
     id: "la_county",
     name: "LA County (EPIC-LA Case History)",
     placeholder: true,
-    enabled: false,
-    reason: "source not wired yet",
-    provider: {
-      type: "arcgis",
-      layerBaseUrl: "https://services.arcgis.com/RmCqQtiZLDCtblq/arcgis/rest/services/LA_County_Permitting_EPIC_LA_Case_History/FeatureServer/0",
-      orderByFields: "STATUS_DATE DESC",
-      fields: {
-        id: "CASE_NUMBER",
-        address: "SITUS_ADDRESS",
-        status: "CASE_STATUS",
-        type: "CASE_TYPE",
-        subtype: "CASE_SUBTYPE",
-        filed_at: "STATUS_DATE",
-        issued_at: "ISSUED_DATE",
-        valuation: "VALUATION",
-        description: "APPLICANT",
-        alt_address: "SITUS_ADDRESS_2",
-        apn: "APN",
-        city: "CITY",
-        zip: "ZIP",
-      },
-      searchFields: [
-        "CASE_NUMBER","SITUS_ADDRESS","SITUS_ADDRESS_2","CASE_STATUS","CASE_TYPE","CASE_SUBTYPE","APPLICANT","APN","CITY","ZIP"
-      ],
-    },
+    enabled: true,
+    provider: null,
+    portalUrl: "https://epicla.lacounty.gov/",
+    portalNotes: "No direct data feed yet. Search via official LA County permit portal.",
   },
 
   {
@@ -136,6 +115,30 @@ export const JURISDICTIONS = [
       searchFields: [
         "Application","Address","Work_Desc","Site_Location","Current_Status","Type","Sub_Type","Parcel_No","ZIP"
       ],
+    },
+  },
+
+  {
+    id: "san_francisco",
+    name: "San Francisco",
+    placeholder: true,
+    enabled: true,
+    provider: {
+      type: "socrata",
+      domain: "data.sfgov.org",
+      dataset: "i98e-djp9",
+      fields: {
+        id: "permit_number",
+        address: "street_name",
+        status: "status",
+        type: "permit_type",
+        subtype: "permit_type_definition",
+        filed_at: "filed_date",
+        issued_at: "issued_date",
+        valuation: "estimated_cost",
+        description: "description",
+      },
+      searchFields: ["permit_number", "description", "status", "permit_type", "permit_type_definition", "street_name"],
     },
   },
 
