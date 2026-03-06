@@ -34,6 +34,30 @@ export const JURISDICTIONS = [
   },
 
   {
+    id: "alameda",
+    name: "Alameda",
+    state: "CA",
+    placeholder: true,
+    enabled: true,
+    provider: null,
+    platform: "Accela",
+    portalUrl: "https://www.alamedaca.gov/aca",
+    portalNotes: "No direct data feed yet. Use the official Accela Citizen Access portal.",
+  },
+
+  {
+    id: "belmont",
+    name: "Belmont",
+    state: "CA",
+    placeholder: true,
+    enabled: true,
+    provider: null,
+    platform: "eTRAKiT",
+    portalUrl: "https://www.belmont.gov/departments/community-development/building-department/search-permits-projects-parcels",
+    portalNotes: "No direct data feed yet. Public search is available via the official eTRAKiT page.",
+  },
+
+  {
     id: "beverly_hills",
     name: "Beverly Hills",
     placeholder: true,
@@ -90,6 +114,54 @@ export const JURISDICTIONS = [
   },
 
   {
+    id: "contra_costa_county",
+    name: "Contra Costa County",
+    state: "CA",
+    placeholder: true,
+    enabled: true,
+    provider: null,
+    platform: "Accela",
+    portalUrl: "https://www.contracosta.ca.gov/8012/ePermit-Center",
+    portalNotes: "No direct data feed yet. Use the official ePermits Center.",
+  },
+
+  {
+    id: "lodi",
+    name: "Lodi",
+    state: "CA",
+    placeholder: true,
+    enabled: true,
+    provider: null,
+    platform: "eTRAKiT",
+    portalUrl: "https://www.lodi.gov/1239/eTRAKiT---Online-Permitting",
+    portalNotes: "No direct data feed yet. Use the official eTRAKiT online permitting page.",
+  },
+
+  {
+    id: "ontario",
+    name: "Ontario",
+    state: "CA",
+    placeholder: true,
+    enabled: true,
+    provider: null,
+    platform: "Accela",
+    portalUrl: "https://aca-prod.accela.com/ont/Default.aspx",
+    portalNotes: "No direct data feed yet. Use the official Citizen Access portal.",
+  },
+
+  {
+    id: "riverside",
+    name: "Riverside",
+    state: "CA",
+    placeholder: true,
+    enabled: true,
+    provider: null,
+    platform: "POSSE",
+    portalUrl: "https://riversideca.gov/cedd/planning/public-permit-portal",
+    portalNotes: "No direct data feed yet. Use the official public permit portal.",
+  },
+
+  {
     id: "sacramento",
     name: "Sacramento",
     placeholder: true,
@@ -119,6 +191,42 @@ export const JURISDICTIONS = [
   },
 
   {
+    id: "sacramento_county",
+    name: "Sacramento County",
+    state: "CA",
+    placeholder: true,
+    enabled: true,
+    provider: null,
+    platform: "Accela",
+    portalUrl: "https://actonline.saccounty.gov/citizenaccess/sacco_help.aspx",
+    portalNotes: "No direct data feed yet. Use the official Accela Citizen Access portal.",
+  },
+
+  {
+    id: "san_bernardino_county",
+    name: "San Bernardino County",
+    state: "CA",
+    placeholder: true,
+    enabled: true,
+    provider: null,
+    platform: "EZOP",
+    portalUrl: "https://wp.sbcounty.gov/ezop/",
+    portalNotes: "No direct data feed yet. Use the official EZOP portal.",
+  },
+
+  {
+    id: "san_diego_county",
+    name: "San Diego County",
+    state: "CA",
+    placeholder: true,
+    enabled: true,
+    provider: null,
+    platform: "Accela",
+    portalUrl: "https://publicservices.sandiegocounty.gov/CitizenAccess/Default.aspx",
+    portalNotes: "No direct data feed yet. Use the official Accela Citizen Access portal.",
+  },
+
+  {
     id: "san_francisco",
     name: "San Francisco",
     placeholder: true,
@@ -140,6 +248,18 @@ export const JURISDICTIONS = [
       },
       searchFields: ["permit_number", "description", "status", "permit_type", "permit_type_definition", "street_name"],
     },
+  },
+
+  {
+    id: "santa_clara_county",
+    name: "Santa Clara County",
+    state: "CA",
+    placeholder: true,
+    enabled: true,
+    provider: null,
+    platform: "Accela",
+    portalUrl: "https://plandev.santaclaracounty.gov/permits",
+    portalNotes: "No direct data feed yet. Use the official public permit portal.",
   },
 
   {
@@ -190,5 +310,17 @@ export const JURISDICTIONS = [
         description: "description",
       },
     },
+  },
+
+  {
+    id: "solana_beach",
+    name: "Solana Beach",
+    state: "CA",
+    placeholder: true,
+    enabled: true,
+    provider: null,
+    platform: "eTRAKiT",
+    portalUrl: "https://www.cityofsolanabeach.org/en/building-services",
+    portalNotes: "No direct data feed yet. Use the official building services page for eTRAKiT access details.",
   },
 ];

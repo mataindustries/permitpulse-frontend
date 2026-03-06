@@ -297,8 +297,10 @@ function buildCkanDatastoreUrl(provider) {
 function buildPortalMeta(jurisdiction) {
 	return {
 		jurisdiction: jurisdiction.id,
+		state: jurisdiction.state || null,
 		portal_url: jurisdiction.portalUrl || null,
 		portal_notes: jurisdiction.portalNotes || null,
+		portal_platform: jurisdiction.platform || null,
 		provider_available: Boolean(jurisdiction.provider),
 	};
 }
@@ -791,12 +793,14 @@ async function handleV1Jurisdictions() {
 		ok: true,
 		jurisdictions: JURISDICTIONS
 			.filter((jurisdiction) => jurisdiction.enabled !== false)
-			.map(({ id, name, placeholder, enabled, provider, portalUrl, portalNotes }) => ({
+			.map(({ id, name, state, placeholder, enabled, provider, platform, portalUrl, portalNotes }) => ({
 				id,
 				name,
+				state: state || null,
 				placeholder,
 				enabled: enabled === true,
 				providerAvailable: Boolean(provider),
+				platform: platform || null,
 				portalUrl: portalUrl || null,
 				portalNotes: portalNotes || null,
 			})),
