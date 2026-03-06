@@ -1,54 +1,90 @@
-// workers/pp-api/src/providers/arcgis.js
+function buildArcgisUrl(layerBaseUrl) {
+	if (!layerBaseUrl || !/^https?:\/\//i.test(layerBaseUrl)) {
+		throw new Error('Invalid layerBaseUrl');
+	}
+
+	const base = layerBaseUrl.replace(/\/query\b.*$/, '').replace(/\/+$/, '');
+	return new URL(`${base}/query`);
+}
+
 export async function arcgisQuery({
-  layerBaseUrl,
-    outFields = "*",
-	  orderByFields,
-	    limit = 200,
-		  offset = 0,
-		    signal,
-			}) {
-			  if (!layerBaseUrl || !/^https?:\/\//i.test(layerBaseUrl)) {
-			      return {
-				        ok: false,
-						      status: 400,
-							        url: String(layerBaseUrl || ""),
-									      errorText: "Invalid layerBaseUrl",
-										      };
-											    }
+	layerBaseUrl,
+	outFields = '*',
+	orderByFields,
+	where = '1=1',
+	limit = 200,
+	offset = 0,
+	signal,
+}) {
+	let url;
+	try {
+		url = buildArcgisUrl(layerBaseUrl);
+	} catch (error) {
+		return {
+			ok: false,
+			status: 400,
+			url: String(layerBaseUrl || ''),
+			errorText: error.message,
+		};
+	}
 
-												  // Ensure we always hit .../FeatureServer/<layer>/query
-												    const base = layerBaseUrl.replace(/\/+$/, ""); // strip trailing slash
-													  const u = new URL(base + "/query");
+	url.searchParams.set('f', 'json');
+	url.searchParams.set('where', where || '1=1');
+	url.searchParams.set('outFields', outFields);
+	url.searchParams.set('returnGeometry', 'false');
+	url.searchParams.set('resultRecordCount', String(limit));
+	url.searchParams.set('resultOffset', String(offset));
+	if (orderByFields) {
+		url.searchParams.set('orderByFields', orderByFields);
+	}
 
-													    u.searchParams.set("f", "json");
-														  u.searchParams.set("where", "1=1");
-														    u.searchParams.set("outFields", outFields);
-															  u.searchParams.set("returnGeometry", "false");
-															    u.searchParams.set("resultRecordCount", String(limit));
-																  u.searchParams.set("resultOffset", String(offset));
-																    if (orderByFields) u.searchParams.set("orderByFields", orderByFields);
+	let response;
+	let text;
+	try {
+		response = await fetch(url.toString(), { signal });
+		text = await response.text();
+	} catch (error) {
+		return {
+			ok: false,
+			status: 502,
+			url: url.toString(),
+			errorText: String(error?.message || error),
+		};
+	}
 
-																	  let res, text;
-																	    try {
-																		    res = await fetch(u.toString(), { signal });
-																			    text = await res.text();
-																				  } catch (e) {
-																				      return { ok: false, status: 502, url: u.toString(), errorText: String(e?.message || e) };
-																					    }
+	if (!response.ok) {
+		return {
+			ok: false,
+			status: response.status,
+			url: url.toString(),
+			errorText: text,
+		};
+	}
 
-																						  if (!res.ok) return { ok: false, status: res.status, url: u.toString(), errorText: text };
+	let data;
+	try {
+		data = JSON.parse(text);
+	} catch {
+		return {
+			ok: false,
+			status: 502,
+			url: url.toString(),
+			errorText: 'ArcGIS returned invalid JSON',
+		};
+	}
 
-																						    let data;
-																							  try {
-																							      data = JSON.parse(text);
-																								    } catch {
-																									    return { ok: false, status: 502, url: u.toString(), errorText: "ArcGIS returned invalid JSON" };
-																										  }
+	if (data?.error) {
+		return {
+			ok: false,
+			status: 502,
+			url: url.toString(),
+			errorText: JSON.stringify(data.error),
+		};
+	}
 
-																										    if (data?.error) {
-																											    return { ok: false, status: 502, url: u.toString(), errorText: JSON.stringify(data.error) };
-																												  }
-
-																												    const features = Array.isArray(data.features) ? data.features : [];
-																													  return { ok: true, url: u.toString(), features };
-																													  }
+	return {
+		ok: true,
+		url: url.toString(),
+		features: Array.isArray(data.features) ? data.features : [],
+	};
+}

@@ -551,21 +551,33 @@
 
       let apiBaseInUse = PRIMARY_API_BASE;
       let lastApiRequestUrl = "";
+      let jurisdictionCatalog = DEFAULT_JURISDICTIONS.slice();
 
       async function apiFetch(path) {
         const bases = [PRIMARY_API_BASE, FALLBACK_API_BASE];
         let lastError = null;
 
         for (const base of bases) {
+          const requestUrl = base + path;
           try {
-            const requestUrl = base + path;
             lastApiRequestUrl = requestUrl;
             const response = await fetch(requestUrl, { headers: { "Accept": "application/json" } });
+            const rawText = await response.text();
+            let payload = {};
+            try {
+              payload = rawText ? JSON.parse(rawText) : {};
+            } catch (_) {
+              payload = {};
+            }
             if (!response.ok) {
-              throw new Error("HTTP " + response.status);
+              const error = new Error("HTTP " + response.status);
+              error.apiStatus = response.status;
+              error.apiPayload = payload;
+              error.requestUrl = requestUrl;
+              throw error;
             }
             apiBaseInUse = base;
-            return await response.json();
+            return payload;
           } catch (error) {
             lastError = error;
           }
@@ -629,6 +641,22 @@
         if (!value) return null;
         const date = new Date(value);
         return Number.isNaN(date.getTime()) ? null : date;
+      }
+
+      function getDefaultMinVal(jurisdictionId) {
+        return jurisdictionId === "la_city" ? "250000" : "0";
+      }
+
+      function getJurisdictionConfig(jurisdictionId) {
+        const jurisdictions = Array.isArray(jurisdictionCatalog) && jurisdictionCatalog.length
+          ? jurisdictionCatalog
+          : DEFAULT_JURISDICTIONS;
+        for (let i = 0; i < jurisdictions.length; i += 1) {
+          if (jurisdictions[i] && jurisdictions[i].id === jurisdictionId) {
+            return jurisdictions[i];
+          }
+        }
+        return null;
       }
 
       function extractResults(payload) {
@@ -697,15 +725,18 @@
       }
 
       function syncJurisdictionDefaults() {
-        const isLaCounty = els.jurisdiction.value === "la_county";
-        els.minValNote.hidden = !isLaCounty;
-        if (isLaCounty && (els.minVal.value === "" || els.minVal.value === "250000")) {
-          els.minVal.value = "0";
-        }
+        const defaultMinVal = getDefaultMinVal(els.jurisdiction.value);
+        els.minVal.value = defaultMinVal;
+        els.minValNote.hidden = true;
       }
 
       function renderJurisdictions(items) {
-        const jurisdictions = Array.isArray(items) && items.length ? items : DEFAULT_JURISDICTIONS;
+        const allItems = Array.isArray(items) && items.length ? items : DEFAULT_JURISDICTIONS;
+        jurisdictionCatalog = allItems.slice();
+        const enabledItems = allItems.filter(function (item) {
+          return item && item.enabled === true;
+        });
+        const jurisdictions = enabledItems.length ? enabledItems : DEFAULT_JURISDICTIONS;
         els.jurisdiction.innerHTML = jurisdictions.map(function (item) {
           const selected = item.id === "la_city" ? " selected" : "";
           return '<option value="' + escapeHtml(item.id) + '"' + selected + '>' + escapeHtml(item.name) + '</option>';
@@ -713,11 +744,34 @@
         syncJurisdictionDefaults();
       }
 
+      function renderFallbackCard(options) {
+        const portalUrl = options && options.portalUrl ? String(options.portalUrl) : "";
+        const portalNotes = options && options.portalNotes ? String(options.portalNotes) : "";
+        const title = options && options.title ? String(options.title) : "Live feed unavailable";
+        const body = options && options.body
+          ? String(options.body)
+          : "This jurisdiction is available through its official permit portal instead of a live PermitPulse feed right now.";
+
+        els.resultsMeta.textContent = title;
+        els.resultsList.innerHTML = '' +
+          '<div class="result-card">' +
+            '<p><strong>' + escapeHtml(title) + '</strong></p>' +
+            '<p class="muted" style="margin-top:8px;">' + escapeHtml(body) + '</p>' +
+            (portalNotes ? '<p class="muted" style="margin-top:8px;">' + escapeHtml(portalNotes) + '</p>' : '') +
+            (portalUrl
+              ? '<div style="margin-top:12px;"><a class="mono" style="font-size:12px; text-decoration:underline;" href="' + escapeHtml(portalUrl) + '" target="_blank" rel="noopener">Open official permit portal</a></div>'
+              : '') +
+          '</div>';
+      }
+
       function renderResults(payload) {
         const data = payload && payload.data ? payload.data : payload || {};
         const results = extractResults(payload);
         const sourceUrl = data.meta && data.meta.source_url ? data.meta.source_url : "";
         const jurisdiction = data.meta && data.meta.jurisdiction ? data.meta.jurisdiction : els.jurisdiction.value;
+        const providerAvailable = !(data.meta && data.meta.provider_available === false);
+        const portalUrl = data.meta && data.meta.portal_url ? data.meta.portal_url : "";
+        const portalNotes = data.meta && data.meta.portal_notes ? data.meta.portal_notes : "";
 
         els.resultsMeta.innerHTML = buildResultsMetaHtml({
           resultsCount: results.length,
@@ -725,6 +779,16 @@
           sourceUrl: sourceUrl,
           requestUrl: lastApiRequestUrl
         });
+
+        if (!providerAvailable) {
+          renderFallbackCard({
+            title: "Portal-only jurisdiction",
+            body: "PermitPulse does not have a live feed for this jurisdiction right now.",
+            portalUrl: portalUrl,
+            portalNotes: portalNotes
+          });
+          return;
+        }
 
         if (!results.length) {
           els.resultsList.innerHTML = '<div class="result-card"><p class="muted">No records matched these filters. Try a broader keyword, more days, or a lower valuation threshold.</p></div>';
@@ -768,6 +832,39 @@
 
       }
 
+      function renderSearchError(payload, requestUrl) {
+        const errorText = payload && payload.error ? String(payload.error) : "request_failed";
+        const detailText = payload && payload.detail ? String(payload.detail) : "";
+        const meta = payload && payload.meta ? payload.meta : {};
+        const selectedJurisdiction = getJurisdictionConfig(els.jurisdiction.value) || {};
+        const portalUrl = meta.portal_url || selectedJurisdiction.portalUrl || "";
+        const portalNotes = meta.portal_notes || selectedJurisdiction.portalNotes || "";
+        const debugLinkHtml = requestUrl
+          ? '<a class="mono" style="font-size:12px; text-decoration:underline;" href="' + escapeHtml(requestUrl) + '" target="_blank" rel="noopener">Debug API URL</a>'
+          : "";
+
+        if (portalUrl || portalNotes || selectedJurisdiction.providerAvailable === false) {
+          renderFallbackCard({
+            title: "Live feed unavailable",
+            body: "The upstream dataset is unavailable right now. Use the official portal while the feed recovers.",
+            portalUrl: portalUrl,
+            portalNotes: portalNotes
+          });
+          if (debugLinkHtml) {
+            els.resultsList.innerHTML += '<div style="margin-top:12px;">' + debugLinkHtml + '</div>';
+          }
+          return;
+        }
+
+        els.resultsMeta.innerHTML = "Search error.";
+        els.resultsList.innerHTML = '' +
+          '<div class="result-card">' +
+            '<p class="muted"><strong>Error:</strong> ' + escapeHtml(errorText) + '</p>' +
+            (detailText ? '<p class="muted" style="margin-top:8px;"><strong>Detail:</strong> ' + escapeHtml(detailText) + '</p>' : "") +
+            (debugLinkHtml ? '<div style="margin-top:12px;">' + debugLinkHtml + '</div>' : "") +
+          '</div>';
+      }
+
       function setDebugLink(url) {
         if (!url) {
           els.debugApiUrl.hidden = true;
@@ -794,7 +891,7 @@
 
         const submittedJurisdiction = els.jurisdiction.value || "la_city";
         const submittedDays = String(els.days.value || "30");
-        const submittedMinVal = String(els.minVal.value || (submittedJurisdiction === "la_county" ? "0" : "250000"));
+        const submittedMinVal = String(els.minVal.value || getDefaultMinVal(submittedJurisdiction));
         const submittedLimit = String(els.limit.value || "25");
 
         const upstreamDays = "365";
@@ -818,6 +915,13 @@
 
         try {
           const payload = await apiFetch("/v1/history/search?" + params.toString());
+          if (payload && Object.prototype.hasOwnProperty.call(payload, "ok") && payload.ok === false) {
+            renderSearchError(payload, lastApiRequestUrl);
+            els.searchStatus.textContent = "Search returned an API error.";
+            setDebugLink(lastApiRequestUrl);
+            return;
+          }
+
           const data = payload && payload.data ? payload.data : payload || {};
           const filteredResults = filterResults(extractResults(payload), {
             days: submittedDays,
@@ -846,8 +950,8 @@
             q_present: els.q.value.trim() ? "yes" : "no"
           });
         } catch (error) {
-          els.resultsMeta.textContent = "Search failed.";
-          els.resultsList.innerHTML = '<div class="result-card"><p class="muted">Search failed. Try again in a moment or move directly to the dossier for a manual review.</p></div>';
+          const errorPayload = error && error.apiPayload ? error.apiPayload : {};
+          renderSearchError(errorPayload, (error && error.requestUrl) || lastApiRequestUrl);
           els.searchStatus.textContent = "Search failed. API unavailable or upstream dataset error.";
           setDebugLink(lastApiRequestUrl);
         } finally {
