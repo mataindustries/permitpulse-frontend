@@ -220,10 +220,28 @@ export const JURISDICTIONS = [
     state: "CA",
     placeholder: true,
     enabled: true,
-    provider: null,
+    provider: {
+      type: "socrata",
+      domain: "data.sandiegocounty.gov",
+      dataset: "dyzh-7eat",
+      fields: {
+        id: "record_id",
+        address: "full_address",
+        status: "record_status",
+        type: "record_type",
+        subtype: "record_category",
+        filed_at: "open_date",
+        issued_at: "issued_date",
+        valuation: "valuation",
+        description: "use",
+      },
+      searchFields: [
+        "record_id","full_address","street_address","city","zip_code","parcel_number","record_status","record_type","record_subtype","record_category","use","contractor_name"
+      ],
+    },
     platform: "Accela",
     portalUrl: "https://publicservices.sandiegocounty.gov/CitizenAccess/Default.aspx",
-    portalNotes: "No direct data feed yet. Use the official Accela Citizen Access portal.",
+    portalNotes: "Official Accela Citizen Access portal fallback for record lookup.",
   },
 
   {
