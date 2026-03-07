@@ -10,7 +10,6 @@ import {
 	STORM_WORDS,
 } from './config/permits.js';
 import { arcgisQuery as fetchArcgisRows } from "./providers/arcgis.js";
-import { fetchCkanRows } from './providers/ckan.js';
 import { fetchSocrataRows } from './providers/socrata.js';
 
 function corsHeaders(origin) {
@@ -294,6 +293,41 @@ function buildCkanDatastoreUrl(provider) {
 	return '';
 }
 
+async function fetchCkanRows({ baseUrl, resourceId, q, limit = 200, sort }) {
+	if (!baseUrl || !resourceId) {
+		throw new Error('invalid_ckan_provider');
+	}
+
+	const url = new URL(baseUrl);
+	url.searchParams.set('resource_id', resourceId);
+	url.searchParams.set('limit', String(limit));
+	if (sort) {
+		url.searchParams.set('sort', sort);
+	}
+	if (q) {
+		url.searchParams.set('q', q);
+	}
+
+	const response = await fetch(url.toString(), {
+		headers: { Accept: 'application/json' },
+	});
+
+	if (!response.ok) {
+		const detail = await response.text().catch(() => '');
+		throw new Error(`upstream ${response.status}: ${detail || 'request failed'}`);
+	}
+
+	const data = await response.json().catch(() => null);
+	if (!data?.success || !data?.result) {
+		throw new Error('upstream 502: invalid ckan response');
+	}
+
+	return {
+		url: url.toString(),
+		rows: Array.isArray(data.result.records) ? data.result.records : [],
+	};
+}
+
 function buildPortalMeta(jurisdiction) {
 	return {
 		jurisdiction: jurisdiction.id,
@@ -501,7 +535,6 @@ async function fetchHistoryRows(env, jurisdiction, params) {
 			sort:
 				jurisdiction.provider.sort ||
 				(jurisdiction.provider.fields?.filed_at ? `${jurisdiction.provider.fields.filed_at} desc` : undefined),
-			fields: jurisdiction.provider.fields,
 		});
 	}
 

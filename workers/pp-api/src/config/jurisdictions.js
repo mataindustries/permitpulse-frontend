@@ -227,6 +227,31 @@ export const JURISDICTIONS = [
   },
 
   {
+    id: "san_jose",
+    name: "San Jose",
+    state: "CA",
+    placeholder: true,
+    enabled: true,
+    provider: {
+      type: "ckan",
+      domain: "data.sanjoseca.gov",
+      resourceId: "761b7ae8-3be1-4ad6-923d-c7af6404a904",
+      sort: "ISSUEDATE desc",
+      fields: {
+        id: "FOLDERNUMBER",
+        address: null,
+        status: "Status",
+        type: "FOLDERDESC",
+        subtype: "SUBTYPEDESCRIPTION",
+        filed_at: "ISSUEDATE",
+        issued_at: "ISSUEDATE",
+        valuation: "PERMITVALUATION",
+        description: "WORKDESCRIPTION",
+      },
+    },
+  },
+
+  {
     id: "san_francisco",
     name: "San Francisco",
     placeholder: true,
