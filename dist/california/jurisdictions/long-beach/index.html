@@ -17,6 +17,7 @@
   <meta name="twitter:image" content="https://getpermitpulse.com/img/permitpulse-og-los-angeles-permit-radar.webp" />
   <link rel="canonical" href="https://getpermitpulse.com/california/jurisdictions/long-beach/" />
   <link rel="stylesheet" href="/assets/jurisdictions.css" />
+  <link rel="stylesheet" href="/assets/launch-conversion.css" />
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-0S8S6156CV"></script>
   <script>
     window.dataLayer = window.dataLayer || [];
@@ -25,9 +26,10 @@
     gtag('config', 'G-0S8S6156CV');
   </script>
   <script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token":"7046e03c84424a49988d1930fda247b6"}'></script>
+  <script defer src="/assets/launch-conversion.js"></script>
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebPage","name":"Long Beach Permit History + Risk Report","url":"https://getpermitpulse.com/california/jurisdictions/long-beach/","description":"Review Long Beach permit portal access, PermitPulse coverage notes, and request a permit history and risk report for residential or commercial project due diligence.","isPartOf":{"@type":"WebSite","name":"PermitPulse","url":"https://getpermitpulse.com"},"breadcrumb":{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://getpermitpulse.com"},{"@type":"ListItem","position":2,"name":"California jurisdictions","item":"https://getpermitpulse.com/california/jurisdictions/"},{"@type":"ListItem","position":3,"name":"Long Beach","item":"https://getpermitpulse.com/california/jurisdictions/long-beach/"}]}}</script>
 </head>
-<body>
+<body data-pp-page-type="jurisdiction" data-pp-jurisdiction-slug="long-beach" data-pp-jurisdiction-name="Long Beach">
 <header>
   <div class="wrap nav-inner">
     <a href="/" class="logo">PermitPulse <span style="color:var(--accent-orange);">/</span> Beta</a>
@@ -49,8 +51,8 @@
       <h1>Long Beach permit history and risk report</h1>
       <p class="lead">Long Beach projects range from simple online reroof permits to bigger multifamily, coastal, and commercial files that need more context than one portal screen provides. This page gives you the official city system and a clean handoff into PermitPulse when the record matters.</p>
       <div class="btn-row">
-        <a class="btn btn-primary" href="https://buy.stripe.com/3cI3cw1qT9aP6Jx2Fs1wY0e" target="_blank" rel="noopener">Request Permit History + Risk Report</a>
-        <a class="btn btn-secondary" href="https://permitslicenses.longbeach.gov/" target="_blank" rel="noopener">Open Long Beach permitting and licensing portal</a>
+        <a class="btn btn-primary" href="#jurisdiction-intake" data-pp-track="request_report" data-pp-location="hero">Request Permit History + Risk Report</a>
+        <a class="btn btn-secondary" href="https://permitslicenses.longbeach.gov/" target="_blank" rel="noopener" data-pp-track="official_portal" data-pp-location="hero">Open Long Beach permitting and licensing portal</a>
       </div>
       <p class="mono muted" style="font-size:12px;">Need statewide search instead? Start at <a href="/california-permit-history/" class="link-line">/california-permit-history/</a>.</p>
     </div>
@@ -72,7 +74,7 @@
         <h2 style="margin:8px 0 14px;">Start with the jurisdiction source</h2>
         <p class="muted">LB Services is the City of Long Beach online permit system for permit applications, search, and licensing workflows.</p>
         <div class="btn-row">
-          <a class="btn btn-secondary" href="https://permitslicenses.longbeach.gov/" target="_blank" rel="noopener">Open Long Beach permitting and licensing portal</a>
+          <a class="btn btn-secondary" href="https://permitslicenses.longbeach.gov/" target="_blank" rel="noopener" data-pp-track="official_portal" data-pp-location="detail-card">Open Long Beach permitting and licensing portal</a>
         </div>
         <p class="mono muted" style="font-size:12px; margin-top:10px;">Canonical launch URL: https://getpermitpulse.com/california/jurisdictions/long-beach/</p>
       </aside>
@@ -105,10 +107,16 @@
           <p class="lead">For a specific Long Beach address, PermitPulse can package permit history, timeline context, risk flags, and scope notes into a decision-ready report.</p>
         </div>
         <div class="btn-row">
-          <a class="btn btn-primary" href="https://buy.stripe.com/3cI3cw1qT9aP6Jx2Fs1wY0e" target="_blank" rel="noopener">Request Permit History + Risk Report</a>
+          <a class="btn btn-primary" href="#jurisdiction-intake" data-pp-track="request_report" data-pp-location="cta-panel">Request Permit History + Risk Report</a>
           <a class="btn btn-secondary" href="/permit-history-report-los-angeles/">See how the report workflow works</a>
         </div>
       </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap">
+      <div id="jurisdiction-intake" class="pp-anchor-target" data-pp-intake-root data-pp-intake-title="Request a Long Beach Permit History + Risk Report" data-pp-intake-context="Share the address and what decision you need to make. PermitPulse will confirm routing, report scope, and next steps for Long Beach." data-pp-intake-source="jurisdiction_page" data-pp-intake-jurisdiction="Long Beach" data-pp-intake-button="Request Long Beach report"></div>
     </div>
   </section>
 
@@ -174,8 +182,8 @@
   </div>
 </footer>
 <div class="sticky-cta" role="navigation" aria-label="Start PermitPulse">
-  <a class="sticky-primary" href="https://buy.stripe.com/3cI3cw1qT9aP6Jx2Fs1wY0e" target="_blank" rel="noopener">Request Permit History + Risk Report</a>
-  <a class="sticky-ghost" href="/california/jurisdictions/">Browse California hub</a>
+  <a class="sticky-primary" href="#jurisdiction-intake" data-pp-track="request_report" data-pp-location="sticky">Request Permit History + Risk Report</a>
+  <a class="sticky-ghost" href="/sample-dossier/">View sample report</a>
 </div>
 </body>
 </html>

@@ -1,0 +1,304 @@
+.pp-anchor-target {
+  scroll-margin-top: 120px;
+}
+
+.pp-stack {
+  display: grid;
+  gap: 20px;
+}
+
+.pp-intake {
+  position: relative;
+  overflow: hidden;
+  padding: 24px;
+  border-radius: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background:
+    radial-gradient(circle at top right, rgba(255, 68, 0, 0.16), transparent 34%),
+    radial-gradient(circle at bottom left, rgba(41, 82, 255, 0.16), transparent 32%),
+    var(--card-bg, #0f0f11);
+}
+
+.pp-intake::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.03), transparent 48%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.03), transparent 32%);
+}
+
+.pp-intake > * {
+  position: relative;
+}
+
+.btn-primary {
+  background: var(--accent-orange, #ff4400);
+  color: #fff;
+  border-color: rgba(255, 68, 0, 0.55);
+}
+
+.btn-secondary {
+  background: rgba(255, 255, 255, 0.03);
+  color: var(--text-main, #ededed);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.pp-intake-head {
+  display: grid;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.pp-intake-head p {
+  max-width: 620px;
+}
+
+.pp-intake-grid {
+  display: grid;
+  gap: 14px;
+}
+
+.pp-intake-row {
+  display: grid;
+  gap: 14px;
+}
+
+.pp-field {
+  display: grid;
+  gap: 8px;
+}
+
+.pp-field label {
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-muted, #8b8b92);
+}
+
+.pp-field input,
+.pp-field select,
+.pp-field textarea {
+  width: 100%;
+  padding: 14px 15px;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  background: rgba(7, 7, 8, 0.88);
+  color: var(--text-main, #ededed);
+  font: inherit;
+  transition: border-color 0.2s ease, background 0.2s ease;
+}
+
+.pp-field input::placeholder,
+.pp-field textarea::placeholder {
+  color: rgba(237, 237, 237, 0.42);
+}
+
+.pp-field input:focus,
+.pp-field select:focus,
+.pp-field textarea:focus {
+  outline: none;
+  border-color: rgba(255, 68, 0, 0.55);
+  background: rgba(12, 12, 14, 0.96);
+}
+
+.pp-field textarea {
+  min-height: 120px;
+  resize: vertical;
+}
+
+.pp-inline-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+  font-size: 13px;
+}
+
+.pp-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  padding: 7px 11px;
+  color: var(--text-muted, #8b8b92);
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 12px;
+}
+
+.pp-intake-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.pp-intake-actions .btn,
+.pp-intake-actions .btn-primary,
+.pp-intake-actions .btn-orange,
+.pp-intake-actions .btnSecondary {
+  min-height: 52px;
+}
+
+.pp-form-note,
+.pp-form-state {
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.pp-form-note {
+  color: var(--text-muted, #8b8b92);
+}
+
+.pp-form-state {
+  min-height: 20px;
+}
+
+.pp-form-state.is-error {
+  color: #ff9f8a;
+}
+
+.pp-form-state.is-success {
+  color: var(--text-main, #ededed);
+}
+
+.pp-selected-tier {
+  color: var(--text-main, #ededed);
+}
+
+.pp-faq {
+  display: grid;
+  gap: 14px;
+}
+
+.pp-faq-item {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 16px;
+  padding: 20px;
+}
+
+.pp-faq-item h3 {
+  margin-bottom: 10px;
+}
+
+.pp-faq-item p {
+  color: var(--text-muted, #8b8b92);
+  line-height: 1.6;
+}
+
+.pp-pricing-grid {
+  display: grid;
+  gap: 18px;
+}
+
+.pp-tier {
+  height: 100%;
+  display: grid;
+  gap: 18px;
+  border-radius: 18px;
+  padding: 24px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0.015)),
+    var(--card-bg, #0f0f11);
+}
+
+.pp-tier.is-featured {
+  border-color: rgba(255, 68, 0, 0.42);
+  box-shadow: 0 0 0 1px rgba(255, 68, 0, 0.12) inset;
+}
+
+.pp-tier-head {
+  display: grid;
+  gap: 8px;
+}
+
+.pp-tier-head p,
+.pp-tier ul,
+.pp-tier li {
+  color: var(--text-muted, #8b8b92);
+}
+
+.pp-tier-price {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+}
+
+.pp-tier-price strong {
+  font-size: clamp(2rem, 5vw, 3.1rem);
+  line-height: 1;
+  letter-spacing: -0.05em;
+}
+
+.pp-tier-price span {
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-muted, #8b8b92);
+}
+
+.pp-tier ul {
+  padding-left: 18px;
+}
+
+.pp-tier li + li {
+  margin-top: 8px;
+}
+
+.pp-tier-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: auto;
+}
+
+.pp-tier-actions .btn,
+.pp-tier-actions .btn-primary,
+.pp-tier-actions .btn-orange {
+  flex: 1;
+  min-width: 180px;
+}
+
+.pp-tier-callout {
+  display: inline-flex;
+  width: fit-content;
+  align-items: center;
+  border-radius: 999px;
+  background: rgba(255, 68, 0, 0.12);
+  border: 1px solid rgba(255, 68, 0, 0.22);
+  color: var(--accent-orange, #ff4400);
+  font-family: var(--font-mono, ui-monospace, monospace);
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 8px 12px;
+}
+
+@media (min-width: 780px) {
+  .pp-intake-row {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .pp-pricing-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 779px) {
+  .pp-intake-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .pp-tier-actions .btn,
+  .pp-tier-actions .btn-primary,
+  .pp-tier-actions .btn-orange {
+    min-width: 1px;
+  }
+}

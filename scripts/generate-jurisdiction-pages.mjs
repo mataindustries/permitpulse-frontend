@@ -798,6 +798,7 @@ function renderHead({ title, description, canonicalPath, structuredData, pageTyp
   <meta name="twitter:image" content="${OG_IMAGE}" />
   <link rel="canonical" href="${buildCanonical(canonicalPath)}" />
   <link rel="stylesheet" href="/assets/jurisdictions.css" />
+  <link rel="stylesheet" href="/assets/launch-conversion.css" />
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-0S8S6156CV"></script>
   <script>
     window.dataLayer = window.dataLayer || [];
@@ -806,6 +807,7 @@ function renderHead({ title, description, canonicalPath, structuredData, pageTyp
     gtag('config', 'G-0S8S6156CV');
   </script>
   <script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token":"7046e03c84424a49988d1930fda247b6"}'></script>
+  <script defer src="/assets/launch-conversion.js"></script>
   <script type="application/ld+json">${JSON.stringify(structuredData)}</script>
 </head>`;
 }
@@ -849,10 +851,10 @@ function renderFooter() {
 </footer>`;
 }
 
-function renderStickyCta() {
+function renderStickyCta(primaryHref = '#jurisdiction-intake') {
   return `<div class="sticky-cta" role="navigation" aria-label="Start PermitPulse">
-  <a class="sticky-primary" href="${STRIPE_URL}" target="_blank" rel="noopener">Request Permit History + Risk Report</a>
-  <a class="sticky-ghost" href="/california/jurisdictions/">Browse California hub</a>
+  <a class="sticky-primary" href="${primaryHref}" data-pp-track="request_report" data-pp-location="sticky">Request Permit History + Risk Report</a>
+  <a class="sticky-ghost" href="/sample-dossier/">View sample report</a>
 </div>`;
 }
 
@@ -887,7 +889,7 @@ function renderJurisdictionPage(entry, entryMap) {
     canonicalPath: pathname,
     structuredData,
   })}
-<body>
+<body data-pp-page-type="jurisdiction" data-pp-jurisdiction-slug="${escapeHtml(entry.slug)}" data-pp-jurisdiction-name="${escapeHtml(entry.name)}">
 ${renderHeader()}
 <main>
   <section class="wrap hero">
@@ -899,8 +901,8 @@ ${renderHeader()}
       <h1>${escapeHtml(entry.h1)}</h1>
       <p class="lead">${escapeHtml(entry.intro)}</p>
       <div class="btn-row">
-        <a class="btn btn-primary" href="${STRIPE_URL}" target="_blank" rel="noopener">Request Permit History + Risk Report</a>
-        <a class="btn btn-secondary" href="${escapeHtml(entry.officialPortalUrl)}" target="_blank" rel="noopener">${escapeHtml(entry.officialPortalLabel)}</a>
+        <a class="btn btn-primary" href="#jurisdiction-intake" data-pp-track="request_report" data-pp-location="hero">Request Permit History + Risk Report</a>
+        <a class="btn btn-secondary" href="${escapeHtml(entry.officialPortalUrl)}" target="_blank" rel="noopener" data-pp-track="official_portal" data-pp-location="hero">${escapeHtml(entry.officialPortalLabel)}</a>
       </div>
       <p class="mono muted" style="font-size:12px;">Need statewide search instead? Start at <a href="/california-permit-history/" class="link-line">/california-permit-history/</a>.</p>
     </div>
@@ -920,7 +922,7 @@ ${renderHeader()}
         <h2 style="margin:8px 0 14px;">Start with the jurisdiction source</h2>
         <p class="muted">${escapeHtml(entry.officialPortalNote)}</p>
         <div class="btn-row">
-          <a class="btn btn-secondary" href="${escapeHtml(entry.officialPortalUrl)}" target="_blank" rel="noopener">${escapeHtml(entry.officialPortalLabel)}</a>
+          <a class="btn btn-secondary" href="${escapeHtml(entry.officialPortalUrl)}" target="_blank" rel="noopener" data-pp-track="official_portal" data-pp-location="detail-card">${escapeHtml(entry.officialPortalLabel)}</a>
         </div>
         <p class="mono muted" style="font-size:12px; margin-top:10px;">Canonical launch URL: ${escapeHtml(buildCanonical(pathname))}</p>
       </aside>
@@ -951,10 +953,16 @@ ${renderHeader()}
           <p class="lead">For a specific ${escapeHtml(entry.name)} address, PermitPulse can package permit history, timeline context, risk flags, and scope notes into a decision-ready report.</p>
         </div>
         <div class="btn-row">
-          <a class="btn btn-primary" href="${STRIPE_URL}" target="_blank" rel="noopener">Request Permit History + Risk Report</a>
+          <a class="btn btn-primary" href="#jurisdiction-intake" data-pp-track="request_report" data-pp-location="cta-panel">Request Permit History + Risk Report</a>
           <a class="btn btn-secondary" href="/permit-history-report-los-angeles/">See how the report workflow works</a>
         </div>
       </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap">
+      <div id="jurisdiction-intake" class="pp-anchor-target" data-pp-intake-root data-pp-intake-title="Request a ${escapeHtml(entry.name)} Permit History + Risk Report" data-pp-intake-context="Share the address and what decision you need to make. PermitPulse will confirm routing, report scope, and next steps for ${escapeHtml(entry.name)}." data-pp-intake-source="jurisdiction_page" data-pp-intake-jurisdiction="${escapeHtml(entry.name)}" data-pp-intake-button="Request ${escapeHtml(entry.name)} report"></div>
     </div>
   </section>
 
@@ -994,7 +1002,7 @@ function renderHubPage(entries) {
   </div>
   <div class="page-card-actions mono" style="font-size:12px;">
     <a class="link-line" href="${buildPagePath(entry.slug)}">Open page</a>
-    <a class="link-line" href="${escapeHtml(entry.officialPortalUrl)}" target="_blank" rel="noopener">Official portal</a>
+    <a class="link-line" href="${escapeHtml(entry.officialPortalUrl)}" target="_blank" rel="noopener" data-pp-track="official_portal" data-pp-location="hub-card">Official portal</a>
   </div>
 </article>`;
     })
@@ -1021,7 +1029,7 @@ function renderHubPage(entries) {
     canonicalPath: '/california/jurisdictions/',
     structuredData,
   })}
-<body>
+<body data-pp-page-type="jurisdiction_hub">
 ${renderHeader()}
 <main>
   <section class="wrap hero">
@@ -1030,7 +1038,7 @@ ${renderHeader()}
       <h1>Covered California jurisdictions</h1>
       <p class="lead">This hub gives search traffic a clear, crawlable path into PermitPulse jurisdiction coverage pages. Each link is an indexable public page built for real permit research, not thin doorway copy.</p>
       <div class="btn-row">
-        <a class="btn btn-primary" href="${STRIPE_URL}" target="_blank" rel="noopener">Request Permit History + Risk Report</a>
+        <a class="btn btn-primary" href="/#launch-intake" data-pp-track="request_report" data-pp-location="hub-hero">Request Permit History + Risk Report</a>
         <a class="btn btn-secondary" href="/california-permit-history/">Open California permit search</a>
       </div>
       <div class="stats">
@@ -1080,7 +1088,7 @@ ${renderHeader()}
   </section>
 </main>
 ${renderFooter()}
-${renderStickyCta()}
+${renderStickyCta('/#launch-intake')}
 </body>
 </html>
 `;

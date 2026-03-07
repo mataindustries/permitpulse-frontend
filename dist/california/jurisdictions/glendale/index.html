@@ -17,6 +17,7 @@
   <meta name="twitter:image" content="https://getpermitpulse.com/img/permitpulse-og-los-angeles-permit-radar.webp" />
   <link rel="canonical" href="https://getpermitpulse.com/california/jurisdictions/glendale/" />
   <link rel="stylesheet" href="/assets/jurisdictions.css" />
+  <link rel="stylesheet" href="/assets/launch-conversion.css" />
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-0S8S6156CV"></script>
   <script>
     window.dataLayer = window.dataLayer || [];
@@ -25,9 +26,10 @@
     gtag('config', 'G-0S8S6156CV');
   </script>
   <script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token":"7046e03c84424a49988d1930fda247b6"}'></script>
+  <script defer src="/assets/launch-conversion.js"></script>
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebPage","name":"Glendale Permit History + Risk Report","url":"https://getpermitpulse.com/california/jurisdictions/glendale/","description":"Use the Glendale permit portal, review PermitPulse coverage notes, and request a permit history and risk report for projects that need a cleaner jurisdiction read.","isPartOf":{"@type":"WebSite","name":"PermitPulse","url":"https://getpermitpulse.com"},"breadcrumb":{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://getpermitpulse.com"},{"@type":"ListItem","position":2,"name":"California jurisdictions","item":"https://getpermitpulse.com/california/jurisdictions/"},{"@type":"ListItem","position":3,"name":"Glendale","item":"https://getpermitpulse.com/california/jurisdictions/glendale/"}]}}</script>
 </head>
-<body>
+<body data-pp-page-type="jurisdiction" data-pp-jurisdiction-slug="glendale" data-pp-jurisdiction-name="Glendale">
 <header>
   <div class="wrap nav-inner">
     <a href="/" class="logo">PermitPulse <span style="color:var(--accent-orange);">/</span> Beta</a>
@@ -49,8 +51,8 @@
       <h1>Glendale permit history and risk report</h1>
       <p class="lead">Glendale permit checks usually need a fast answer on record status, scope, and whether the visible work lines up with what the city actually has on file. This page keeps the workflow simple: start in the official portal, then move to a report when the project needs more than a raw lookup.</p>
       <div class="btn-row">
-        <a class="btn btn-primary" href="https://buy.stripe.com/3cI3cw1qT9aP6Jx2Fs1wY0e" target="_blank" rel="noopener">Request Permit History + Risk Report</a>
-        <a class="btn btn-secondary" href="https://glendaleca-energovweb.tylerhost.net/apps/SelfService#/home" target="_blank" rel="noopener">Open Glendale self-service portal</a>
+        <a class="btn btn-primary" href="#jurisdiction-intake" data-pp-track="request_report" data-pp-location="hero">Request Permit History + Risk Report</a>
+        <a class="btn btn-secondary" href="https://glendaleca-energovweb.tylerhost.net/apps/SelfService#/home" target="_blank" rel="noopener" data-pp-track="official_portal" data-pp-location="hero">Open Glendale self-service portal</a>
       </div>
       <p class="mono muted" style="font-size:12px;">Need statewide search instead? Start at <a href="/california-permit-history/" class="link-line">/california-permit-history/</a>.</p>
     </div>
@@ -72,7 +74,7 @@
         <h2 style="margin:8px 0 14px;">Start with the jurisdiction source</h2>
         <p class="muted">Glendale uses the city self-service portal for online permit access and customer-facing permit tasks.</p>
         <div class="btn-row">
-          <a class="btn btn-secondary" href="https://glendaleca-energovweb.tylerhost.net/apps/SelfService#/home" target="_blank" rel="noopener">Open Glendale self-service portal</a>
+          <a class="btn btn-secondary" href="https://glendaleca-energovweb.tylerhost.net/apps/SelfService#/home" target="_blank" rel="noopener" data-pp-track="official_portal" data-pp-location="detail-card">Open Glendale self-service portal</a>
         </div>
         <p class="mono muted" style="font-size:12px; margin-top:10px;">Canonical launch URL: https://getpermitpulse.com/california/jurisdictions/glendale/</p>
       </aside>
@@ -105,10 +107,16 @@
           <p class="lead">For a specific Glendale address, PermitPulse can package permit history, timeline context, risk flags, and scope notes into a decision-ready report.</p>
         </div>
         <div class="btn-row">
-          <a class="btn btn-primary" href="https://buy.stripe.com/3cI3cw1qT9aP6Jx2Fs1wY0e" target="_blank" rel="noopener">Request Permit History + Risk Report</a>
+          <a class="btn btn-primary" href="#jurisdiction-intake" data-pp-track="request_report" data-pp-location="cta-panel">Request Permit History + Risk Report</a>
           <a class="btn btn-secondary" href="/permit-history-report-los-angeles/">See how the report workflow works</a>
         </div>
       </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap">
+      <div id="jurisdiction-intake" class="pp-anchor-target" data-pp-intake-root data-pp-intake-title="Request a Glendale Permit History + Risk Report" data-pp-intake-context="Share the address and what decision you need to make. PermitPulse will confirm routing, report scope, and next steps for Glendale." data-pp-intake-source="jurisdiction_page" data-pp-intake-jurisdiction="Glendale" data-pp-intake-button="Request Glendale report"></div>
     </div>
   </section>
 
@@ -174,8 +182,8 @@
   </div>
 </footer>
 <div class="sticky-cta" role="navigation" aria-label="Start PermitPulse">
-  <a class="sticky-primary" href="https://buy.stripe.com/3cI3cw1qT9aP6Jx2Fs1wY0e" target="_blank" rel="noopener">Request Permit History + Risk Report</a>
-  <a class="sticky-ghost" href="/california/jurisdictions/">Browse California hub</a>
+  <a class="sticky-primary" href="#jurisdiction-intake" data-pp-track="request_report" data-pp-location="sticky">Request Permit History + Risk Report</a>
+  <a class="sticky-ghost" href="/sample-dossier/">View sample report</a>
 </div>
 </body>
 </html>
