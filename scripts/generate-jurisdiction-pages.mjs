@@ -10,8 +10,40 @@ const DIST_DIR = path.join(ROOT_DIR, 'dist');
 const HUB_DIR = path.join(DIST_DIR, 'california', 'jurisdictions');
 const SITE_URL = 'https://getpermitpulse.com';
 const STRIPE_URL = 'https://buy.stripe.com/3cI3cw1qT9aP6Jx2Fs1wY0e';
-const LASTMOD = '2026-03-07';
+const LASTMOD = '2026-03-11';
 const OG_IMAGE = `${SITE_URL}/img/permitpulse-og-los-angeles-permit-radar.webp`;
+const GUIDE_LIBRARY = {
+  losAngelesHistory: {
+    href: '/guides/how-to-check-permit-history-los-angeles/',
+    title: 'How to Check Permit History in Los Angeles',
+    summary:
+      'A practical LADBS-first workflow for permit history checks, routing, and escalation.',
+  },
+  laCityCounty: {
+    href: '/guides/la-city-vs-county-permits/',
+    title: 'Los Angeles City vs County Permits',
+    summary:
+      'A short routing guide for LADBS versus EPIC-LA addresses and mixed-jurisdiction confusion.',
+  },
+  sacramentoPortal: {
+    href: '/guides/how-to-use-sacramento-permit-portal/',
+    title: 'How to Use the Sacramento Permit Portal',
+    summary:
+      'What to search, what to save, and when portal review stops being enough.',
+  },
+  santaMonicaDiligence: {
+    href: '/guides/property-due-diligence-santa-monica/',
+    title: 'What to Verify Before Buying a Property in Santa Monica',
+    summary:
+      'A local permit-focused checklist for acquisition and property diligence.',
+  },
+  californiaAdu: {
+    href: '/guides/adu-permit-due-diligence-checklist-california/',
+    title: 'ADU Permit Due Diligence Checklist for California Owners',
+    summary:
+      'A statewide checklist for jurisdiction checks, permit history review, and ADU handoffs.',
+  },
+};
 
 const JURISDICTION_SOURCE = new Map(
   JURISDICTIONS.map((entry) => [entry.id, entry]),
@@ -45,6 +77,7 @@ const LAUNCH_JURISDICTIONS = [
       'Use a Permit History + Risk Report when you need a clearer timeline, scope summary, or caveats documented in one place.',
     ],
     related: ['los-angeles-county', 'beverly-hills', 'pasadena'],
+    guideLinks: [GUIDE_LIBRARY.losAngelesHistory, GUIDE_LIBRARY.laCityCounty],
   },
   {
     slug: 'los-angeles-county',
@@ -73,6 +106,7 @@ const LAUNCH_JURISDICTIONS = [
       'Request a Permit History + Risk Report when county scope, status gaps, or historical records need manual interpretation.',
     ],
     related: ['los-angeles', 'glendale', 'long-beach'],
+    guideLinks: [GUIDE_LIBRARY.laCityCounty],
   },
   {
     slug: 'sacramento',
@@ -101,6 +135,7 @@ const LAUNCH_JURISDICTIONS = [
       'Move to a Permit History + Risk Report when entitlement context, sequencing, or record caveats matter to the decision.',
     ],
     related: ['san-diego', 'long-beach', 'los-angeles'],
+    guideLinks: [GUIDE_LIBRARY.sacramentoPortal, GUIDE_LIBRARY.californiaAdu],
   },
   {
     slug: 'santa-monica',
@@ -129,6 +164,7 @@ const LAUNCH_JURISDICTIONS = [
       'Request a Permit History + Risk Report when project sequencing, corrections, or missing attachments matter to the decision.',
     ],
     related: ['culver-city', 'beverly-hills', 'los-angeles'],
+    guideLinks: [GUIDE_LIBRARY.santaMonicaDiligence, GUIDE_LIBRARY.californiaAdu],
   },
   {
     slug: 'culver-city',
@@ -564,6 +600,12 @@ li + li {
   gap: 18px;
 }
 
+.guide-grid {
+  display: grid;
+  gap: 18px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
 .hub-grid {
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
@@ -681,7 +723,8 @@ footer {
   .grid-2,
   .grid-3,
   .grid-4,
-  .hub-grid {
+  .hub-grid,
+  .guide-grid {
     grid-template-columns: 1fr;
   }
 
@@ -875,10 +918,27 @@ function renderRelatedCards(entry, entryMap) {
     .join('\n');
 }
 
+function renderGuideCards(guideLinks = []) {
+  return guideLinks
+    .map(
+      (guide) => `<a class="card soft page-card" href="${escapeHtml(guide.href)}">
+  <div class="eyebrow">
+    <span class="pill portal">Guide</span>
+  </div>
+  <div>
+    <h3 style="margin-bottom:8px;">${escapeHtml(guide.title)}</h3>
+    <p>${escapeHtml(guide.summary)}</p>
+  </div>
+</a>`,
+    )
+    .join('\n');
+}
+
 function renderJurisdictionPage(entry, entryMap) {
   const status = buildStatus(entry);
   const pathname = buildPagePath(entry.slug);
   const relatedCards = renderRelatedCards(entry, entryMap);
+  const guideCards = renderGuideCards(entry.guideLinks ?? []);
   const structuredData = buildStructuredData(entry);
 
   return `${renderHead({
@@ -957,6 +1017,23 @@ ${renderHeader()}
       </div>
     </div>
   </section>
+
+  ${
+    guideCards
+      ? `<section class="section">
+    <div class="wrap">
+      <div class="section-head">
+        <div class="kicker">Related guides</div>
+        <h2>Need context before you request the report?</h2>
+        <p class="lead">These guide pages help users route the question correctly before they escalate to property-level review.</p>
+      </div>
+      <div class="guide-grid">
+        ${guideCards}
+      </div>
+    </div>
+  </section>`
+      : ''
+  }
 
   <section class="section">
     <div class="wrap">
@@ -1068,12 +1145,13 @@ ${renderHeader()}
       <div class="card cta-panel">
         <div class="section-head" style="margin-bottom:0;">
           <div class="kicker">Internal linking</div>
-          <h2>Need statewide search instead of a single jurisdiction page?</h2>
-          <p class="lead">Use the California permit history search to scan supported public datasets, then come back to the jurisdiction pages when you need a more local landing page or a report request path.</p>
+          <h2>Need more than a single jurisdiction page?</h2>
+          <p class="lead">Use the California permit history search for broader scanning, the guides hub for workflow context, and the launch page when you want the current rollout summarized in one place.</p>
         </div>
         <div class="btn-row">
           <a class="btn btn-secondary" href="/california-permit-history/">Open California permit search</a>
-          <a class="btn btn-secondary" href="/">Return to homepage</a>
+          <a class="btn btn-secondary" href="/guides/">Open guides hub</a>
+          <a class="btn btn-secondary" href="/launch/permitpulse-california-launch/">Read launch page</a>
         </div>
       </div>
     </div>
@@ -1133,6 +1211,10 @@ function renderSitemapIndex() {
 <sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <sitemap>
     <loc>${SITE_URL}/sitemap-pages.xml</loc>
+    <lastmod>${LASTMOD}</lastmod>
+  </sitemap>
+  <sitemap>
+    <loc>${SITE_URL}/sitemap-guides.xml</loc>
     <lastmod>${LASTMOD}</lastmod>
   </sitemap>
   <sitemap>

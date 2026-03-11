@@ -3,111 +3,211 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>PermitPulse Guides | ADU and Permit Workflows</title>
-  <meta name="description" content="Practical permit guides for California and Los Angeles projects, plus a playbook for decision-ready permit dossiers." />
-  <link rel="canonical" href="https://getpermitpulse.com/guides/" />
+  <title>PermitPulse Guides | Permit History and Due Diligence</title>
+  <meta name="description" content="Practical California permit guides covering permit history checks, city-versus-county routing, portal use, due diligence, and ADU research." />
+  <meta name="robots" content="index,follow" />
   <meta property="og:type" content="website" />
-  <meta property="og:title" content="PermitPulse Guides | ADU and Permit Workflows" />
-  <meta property="og:description" content="Use these guides to move faster on ADU filings, permit timelines, and due-diligence decisions." />
+  <meta property="og:title" content="PermitPulse Guides | Permit History and Due Diligence" />
+  <meta property="og:description" content="Use the PermitPulse content hub for practical California permit research, due diligence, and Permit History + Risk Report workflows." />
   <meta property="og:url" content="https://getpermitpulse.com/guides/" />
-  <meta property="og:image" content="https://getpermitpulse.com/img/og/permitpulse-og-live-ladbs-permits-los-angeles-1200x630-2025-10.png" />
-  <style>
-    :root {
-      --bg: #050505;
-      --card-bg: #0f0f11;
-      --card-border: #222;
-      --text-main: #ededed;
-      --text-muted: #888;
-      --accent-orange: #ff4400;
-      --accent-blue: #2952ff;
-      --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
-      --font-mono: 'JetBrains Mono', 'Courier New', monospace;
-    }
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { background: var(--bg); color: var(--text-main); font-family: var(--font-sans); line-height: 1.45; padding-bottom: 86px; }
-    a { color: inherit; text-decoration: none; }
-    .wrap { max-width: 1000px; margin: 0 auto; padding: 0 20px; }
-    header { padding: 20px 0; position: fixed; width: 100%; top: 0; z-index: 100; backdrop-filter: blur(10px); border-bottom: 1px solid rgba(255,255,255,0.05); background: rgba(5,5,5,0.85); }
-    .nav-inner { display: flex; justify-content: space-between; align-items: center; gap: 18px; }
-    .logo { font-weight: 700; font-size: 18px; letter-spacing: -0.03em; }
-    .mono { font-family: var(--font-mono); letter-spacing: -0.02em; }
-    .orange { color: var(--accent-orange); }
-    .muted { color: var(--text-muted); }
-    .hero { padding-top: 170px; padding-bottom: 40px; }
-    h1, h2 { letter-spacing: -0.04em; font-weight: 600; }
-    h1 { font-size: clamp(2.2rem, 6vw, 4rem); line-height: 1; }
-    h2 { font-size: clamp(1.4rem, 3vw, 2rem); }
-    .grid { display: grid; gap: 18px; }
-    .grid-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-    .card { background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 12px; padding: 22px; }
-    .section { padding: 40px 0 80px; }
-    .btn { display: inline-flex; align-items: center; justify-content: center; border: 1px solid transparent; border-radius: 4px; padding: 14px 22px; font-weight: 600; }
-    .btn-orange { background: var(--accent-orange); color: #fff; }
-    .btn-ghost { background: transparent; border-color: #333; }
-    footer { border-top: 1px solid #111; padding: 30px 0 110px; color: #777; font-size: 14px; }
-    .link { color: var(--accent-blue); text-decoration: underline; text-underline-offset: 3px; }
-    .sticky-cta { position: fixed; left: 0; right: 0; bottom: 0; z-index: 9999; display: flex; gap: 10px; padding: 10px; background: rgba(5,5,5,0.92); border-top: 1px solid rgba(255,255,255,0.08); }
-    .sticky-cta a { flex: 1; text-align: center; border-radius: 10px; padding: 14px 10px; border: 1px solid #222; font-weight: 700; }
-    .sticky-primary { background: var(--accent-orange); color: #fff; border-color: rgba(255,68,0,0.55); }
-    .sticky-ghost { background: rgba(255,255,255,0.04); }
-    @media (max-width: 900px) { .grid-3 { grid-template-columns: 1fr; } }
-  </style>
+  <meta property="og:image" content="https://getpermitpulse.com/img/permitpulse-og-los-angeles-permit-radar.webp" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="PermitPulse Guides | Permit History and Due Diligence" />
+  <meta name="twitter:description" content="Practical California permit guides covering permit history checks, city-versus-county routing, portal use, due diligence, and ADU research." />
+  <meta name="twitter:image" content="https://getpermitpulse.com/img/permitpulse-og-los-angeles-permit-radar.webp" />
+  <link rel="canonical" href="https://getpermitpulse.com/guides/" />
+  <link rel="stylesheet" href="/assets/launch-content.css" />
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-0S8S6156CV"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-0S8S6156CV');
+  </script>
+  <script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token":"7046e03c84424a49988d1930fda247b6"}'></script>
 </head>
 <body>
 <header>
   <div class="wrap nav-inner">
-    <a href="/" class="logo">PermitPulse <span class="orange">/</span> Beta</a>
-    <div style="display:flex; gap:20px; align-items:center; flex-wrap:wrap; justify-content:flex-end;">
-      <a href="/guides/" class="mono" style="font-size:13px;">Guides</a>
-      <a href="/free-tools/" class="mono" style="font-size:13px;">Free tools</a>
-      <a href="/" class="mono" style="font-size:13px;">Home</a>
-    </div>
+    <a href="/" class="logo">PermitPulse <span style="color:var(--orange);">/</span> Beta</a>
+    <nav class="nav-links mono" style="font-size:13px;">
+      <a href="/california/jurisdictions/">California hub</a>
+      <a href="/launch/permitpulse-california-launch/">Launch</a>
+      <a href="/guides/">Guides</a>
+      <a href="/partners/">Partners</a>
+    </nav>
   </div>
 </header>
 
 <main>
   <section class="wrap hero">
-    <div class="mono orange" style="font-size:12px; margin-bottom:12px;">Permit Help Library</div>
-    <h1>Guides for permit decisions that cannot wait.</h1>
-    <p class="muted" style="max-width:680px; margin-top:18px;">Use these pages to understand 2026 ADU rule changes, move through the LA ADU process, and scope what belongs in a permit dossier.</p>
-    <p class="mono muted" style="margin-top:18px; font-size:12px;">Last updated: 2026-02-18</p>
-    <div style="display:flex; gap:12px; flex-wrap:wrap; margin-top:24px;">
-      <a href="https://buy.stripe.com/3cI3cw1qT9aP6Jx2Fs1wY0e" class="btn btn-orange" target="_blank" rel="noopener">Get Permit Dossier ($499)</a>
-      <a href="tel:+15626762691" class="btn btn-ghost">Call/Text</a>
+    <div class="hero-copy">
+      <div class="eyebrow">
+        <span class="badge">PermitPulse content hub</span>
+        <span class="pill blue">Flagship: Permit History + Risk Report</span>
+      </div>
+      <h1>Guides for California permit research that stays practical.</h1>
+      <p class="lead">This hub is built for buyers, owners, architects, expediters, and small project teams who need better permit context before they bid, buy, or move a property forward. The focus is simple: route the address correctly, use the portal well, and know when a Permit History + Risk Report is worth ordering.</p>
+      <div class="btn-row hero-actions">
+        <a class="btn btn-primary" href="https://buy.stripe.com/3cI3cw1qT9aP6Jx2Fs1wY0e" target="_blank" rel="noopener">Request Permit History + Risk Report</a>
+        <a class="btn btn-secondary" href="/california/jurisdictions/">Browse California jurisdictions</a>
+      </div>
+      <p class="mono muted" style="font-size:12px;">Start with a guide if you need context. Start with the report if the property already matters financially.</p>
     </div>
   </section>
 
-  <section class="wrap section">
-    <div class="grid grid-3">
+  <section class="section">
+    <div class="wrap">
+      <div class="section-head">
+        <div class="kicker">Launch guides</div>
+        <h2>Five practical starting points</h2>
+        <p class="lead">Each guide is short by design and tied to real California jurisdictions already covered in the launch hub.</p>
+      </div>
+      <div class="grid grid-3">
+        <article class="card page-card">
+          <div class="eyebrow"><span class="pill green">Permit history</span></div>
+          <div>
+            <h3>How to Check Permit History in Los Angeles</h3>
+            <p>Use LADBS records more efficiently, avoid over-reading one screen, and know when to escalate.</p>
+          </div>
+          <div class="page-card-actions mono" style="font-size:12px;">
+            <a class="link-line" href="/guides/how-to-check-permit-history-los-angeles/">Open guide</a>
+            <a class="link-line" href="/california/jurisdictions/los-angeles/">Los Angeles page</a>
+          </div>
+        </article>
+        <article class="card page-card">
+          <div class="eyebrow"><span class="pill yellow">Routing</span></div>
+          <div>
+            <h3>Los Angeles City vs County Permits</h3>
+            <p>A clean city-versus-county routing guide for addresses that can waste time if handled in the wrong lane.</p>
+          </div>
+          <div class="page-card-actions mono" style="font-size:12px;">
+            <a class="link-line" href="/guides/la-city-vs-county-permits/">Open guide</a>
+            <a class="link-line" href="/california/jurisdictions/los-angeles-county/">County page</a>
+          </div>
+        </article>
+        <article class="card page-card">
+          <div class="eyebrow"><span class="pill blue">Portal use</span></div>
+          <div>
+            <h3>How to Use the Sacramento Permit Portal</h3>
+            <p>Search smarter, read the results faster, and know which portal gaps still require manual review.</p>
+          </div>
+          <div class="page-card-actions mono" style="font-size:12px;">
+            <a class="link-line" href="/guides/how-to-use-sacramento-permit-portal/">Open guide</a>
+            <a class="link-line" href="/california/jurisdictions/sacramento/">Sacramento page</a>
+          </div>
+        </article>
+        <article class="card page-card">
+          <div class="eyebrow"><span class="pill green">Due diligence</span></div>
+          <div>
+            <h3>What to Verify Before Buying in Santa Monica</h3>
+            <p>A local checklist for permit history, visible scope, and records you should request before closing.</p>
+          </div>
+          <div class="page-card-actions mono" style="font-size:12px;">
+            <a class="link-line" href="/guides/property-due-diligence-santa-monica/">Open guide</a>
+            <a class="link-line" href="/california/jurisdictions/santa-monica/">Santa Monica page</a>
+          </div>
+        </article>
+        <article class="card page-card">
+          <div class="eyebrow"><span class="pill yellow">ADU research</span></div>
+          <div>
+            <h3>California ADU Permit Due Diligence Checklist</h3>
+            <p>A concise owner-facing framework for checking permit history before planning, refinancing, or selling around an ADU.</p>
+          </div>
+          <div class="page-card-actions mono" style="font-size:12px;">
+            <a class="link-line" href="/guides/adu-permit-due-diligence-checklist-california/">Open guide</a>
+            <a class="link-line" href="/california/jurisdictions/">California hub</a>
+          </div>
+        </article>
+        <article class="card page-card soft">
+          <div class="eyebrow"><span class="pill blue">Launch context</span></div>
+          <div>
+            <h3>PermitPulse California Launch</h3>
+            <p>See what the public launch covers now, who it is built for, and where the flagship report fits.</p>
+          </div>
+          <div class="page-card-actions mono" style="font-size:12px;">
+            <a class="link-line" href="/launch/permitpulse-california-launch/">Open launch page</a>
+            <a class="link-line" href="/partners/">Partner page</a>
+          </div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap grid grid-2">
       <article class="card">
-        <h2>California ADU Law Changes (2026)</h2>
-        <p class="muted" style="margin-top:10px;">What shifted statewide, what cities can still control, and what to check before filing.</p>
-        <p style="margin-top:16px;"><a class="link" href="/guides/california/adu-law-changes-2026/">Open guide</a></p>
+        <div class="section-head" style="margin-bottom:18px;">
+          <div class="kicker">Guide clusters</div>
+          <h2>Use the right guide for the question you actually have</h2>
+        </div>
+        <div class="split-list">
+          <div class="split-item">
+            <h3>Permit history</h3>
+            <p>Start with Los Angeles if you need a city-record workflow and want a clean handoff into a report. Then compare with the <a class="link-line" href="/california/jurisdictions/los-angeles/">Los Angeles jurisdiction page</a>.</p>
+          </div>
+          <div class="split-item">
+            <h3>City vs county routing</h3>
+            <p>Use the routing guide when the address could be in a county-served pocket or when someone already told you “it should be LADBS” without proof. Pair it with <a class="link-line" href="/california/jurisdictions/los-angeles-county/">Los Angeles County</a>.</p>
+          </div>
+          <div class="split-item">
+            <h3>Permit portal use</h3>
+            <p>The Sacramento guide is built for portal-first research: what to search, what to capture, and what not to assume from one record line. It complements the <a class="link-line" href="/california/jurisdictions/sacramento/">Sacramento coverage page</a>.</p>
+          </div>
+          <div class="split-item">
+            <h3>Property due diligence</h3>
+            <p>Santa Monica is a good example of where permit history, project timing, and visible work need to line up before a transaction feels clean. Use that guide with the <a class="link-line" href="/california/jurisdictions/santa-monica/">Santa Monica jurisdiction page</a>.</p>
+          </div>
+          <div class="split-item">
+            <h3>ADU and property research</h3>
+            <p>The California ADU checklist stays general on purpose. It helps owners and teams gather the right record trail before they spend money or make assumptions across multiple cities.</p>
+          </div>
+        </div>
       </article>
-      <article class="card">
-        <h2>Los Angeles ADU Permit Process</h2>
-        <p class="muted" style="margin-top:10px;">A practical sequence from feasibility to finals, including common LADBS stall points.</p>
-        <p style="margin-top:16px;"><a class="link" href="/guides/los-angeles/adu-permit-process/">Open guide</a></p>
-      </article>
-      <article class="card">
-        <h2>Permit Dossier Guide</h2>
-        <p class="muted" style="margin-top:10px;">How to define scope, pull records, and package a dossier your team can act on quickly.</p>
-        <p style="margin-top:16px;"><a class="link" href="/guides/permit-dossier/">Open guide</a></p>
-      </article>
+      <aside class="card soft callout">
+        <div class="section-head" style="margin-bottom:18px;">
+          <div class="kicker">Fastest path</div>
+          <h2>If the property is already live, skip straight to the report.</h2>
+        </div>
+        <p class="lead" style="max-width:none;">The guides help you ask sharper questions. The Permit History + Risk Report is for the point where you need one address summarized clearly enough to forward to a client, partner, or internal team.</p>
+        <ul class="checklist" style="margin-top:18px;">
+          <li>One property, one decision-ready output.</li>
+          <li>Permit timeline, scope summary, and obvious risk flags.</li>
+          <li>Better fit for acquisitions, design intake, owner review, and quote cleanup.</li>
+        </ul>
+        <div class="btn-row" style="margin-top:22px;">
+          <a class="btn btn-primary" href="https://buy.stripe.com/3cI3cw1qT9aP6Jx2Fs1wY0e" target="_blank" rel="noopener">Request report</a>
+          <a class="btn btn-secondary" href="/sample-dossier/">See sample report</a>
+        </div>
+      </aside>
     </div>
   </section>
 </main>
 
-<footer>
-  <div class="wrap" style="display:flex; justify-content:space-between; gap:14px; flex-wrap:wrap;">
-    <div>© 2026 PermitPulse</div>
-    <div><a href="/guides/" class="link">Guides</a> · <a href="/radar/" class="link">Radar tools</a></div>
+<footer class="wrap">
+  <div class="grid grid-2">
+    <div>
+      <span class="logo">PermitPulse</span>
+      <p style="margin-top:10px; max-width:360px;" class="muted">Built for California permit intelligence: jurisdiction routing, permit history, and due diligence that is clearer than a portal screenshot.</p>
+    </div>
+    <div>
+      <div class="footer-links">
+        <a href="/california/jurisdictions/" class="link-line">California hub</a>
+        <a href="/launch/permitpulse-california-launch/" class="link-line">Launch</a>
+        <a href="/partners/" class="link-line">Partners</a>
+        <a href="/sample-dossier/" class="link-line">Sample report</a>
+      </div>
+      <div style="margin-top:18px; text-align:right;">
+        <a href="mailto:hello@getpermitpulse.com" class="link-line">hello@getpermitpulse.com</a>
+        <div class="muted mono" style="margin-top:18px;">© 2026 PermitPulse Inc.</div>
+      </div>
+    </div>
   </div>
 </footer>
 
 <div class="sticky-cta" role="navigation" aria-label="Start PermitPulse">
-  <a class="sticky-primary" href="https://buy.stripe.com/3cI3cw1qT9aP6Jx2Fs1wY0e" target="_blank" rel="noopener">Get Permit Dossier ($499)</a>
-  <a class="sticky-ghost" href="tel:+15626762691">Call/Text</a>
+  <a class="sticky-primary" href="https://buy.stripe.com/3cI3cw1qT9aP6Jx2Fs1wY0e" target="_blank" rel="noopener">Request Permit History + Risk Report</a>
+  <a class="sticky-ghost" href="/california/jurisdictions/">Browse California hub</a>
 </div>
 </body>
 </html>
