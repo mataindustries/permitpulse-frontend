@@ -52,7 +52,7 @@
           <div class="command-head">
             <div>
               <p class="command-kicker" id="command-bar-title">Hero Command Bar</p>
-              <p class="command-sub">Input an address, city, and APN to stage a mock permit intelligence run.</p>
+              <p class="command-sub">Input an address, city, and APN to stage a polished mock permit intelligence run.</p>
             </div>
             <div class="live-chip">
               <span class="live-dot"></span>
@@ -100,7 +100,7 @@
             </div>
 
             <div class="command-actions">
-              <p class="command-hint">Simulated run only. Real jurisdiction and permit APIs are stubbed behind TODOs.</p>
+              <p class="command-hint">Mock only. Real parcel, jurisdiction, and permit lookups remain intentionally disconnected.</p>
               <button class="run-btn" id="runButton" type="submit">Run Mission Scan</button>
             </div>
           </form>
@@ -108,16 +108,23 @@
       </section>
 
       <section class="loading-panel wrap" id="loadingPanel" hidden aria-live="polite">
-        <div class="panel">
+        <div class="panel loading-card">
           <div class="panel-head">
-            <p class="panel-kicker">Loading State</p>
-            <p class="panel-title">Building permit dossier</p>
+            <div>
+              <p class="panel-kicker">Loading State</p>
+              <p class="panel-title">Building permit dossier</p>
+            </div>
+            <div class="scan-orbit" aria-hidden="true"></div>
+          </div>
+          <div class="loading-progress">
+            <div class="loading-progress-fill" id="loadingProgressFill"></div>
           </div>
           <ul class="loading-steps" id="loadingSteps">
             <li><span class="step-icon">○</span><span>Parsing property identity and jurisdiction route</span></li>
             <li><span class="step-icon">○</span><span>Pulling permit activity and public record signals</span></li>
             <li><span class="step-icon">○</span><span>Assembling project header and risk narrative</span></li>
             <li><span class="step-icon">○</span><span>Scoring red flags and operator actions</span></li>
+            <li><span class="step-icon">○</span><span>Staging client-ready outputs and export package</span></li>
           </ul>
         </div>
       </section>
@@ -127,7 +134,7 @@
           <p class="panel-kicker">Awaiting Input</p>
           <h2 class="panel-title">No dossier loaded yet.</h2>
           <p class="panel-copy">
-            Submit the command bar above to render the mock Mission Control case file.
+            Submit the command bar above to render the Mission Control mock case file.
           </p>
         </div>
       </section>
@@ -135,10 +142,16 @@
       <section class="dossier wrap" id="dossier" hidden>
         <div class="dossier-layout">
           <div class="dossier-primary">
-            <article class="panel project-header-panel">
+            <article class="panel project-header-panel reveal">
               <div class="panel-head">
-                <p class="panel-kicker">Project Header</p>
-                <p class="panel-title" id="projectName">Mission dossier</p>
+                <div>
+                  <p class="panel-kicker">Project Header</p>
+                  <p class="panel-title" id="projectName">Mission dossier</p>
+                </div>
+                <div class="header-badges">
+                  <span class="header-badge badge-confidence" id="confidenceBadge">0% confidence</span>
+                  <span class="header-badge badge-pulse" id="pulseBadge">Dormant pulse</span>
+                </div>
               </div>
               <div class="project-header-grid">
                 <div class="project-main">
@@ -149,13 +162,35 @@
               </div>
             </article>
 
-            <article class="panel">
+            <article class="panel action-hub-panel reveal">
+              <div class="panel-head">
+                <div>
+                  <p class="panel-kicker">Action Layer</p>
+                  <p class="panel-title">Interactive mock operators</p>
+                </div>
+              </div>
+              <div class="action-toolbar">
+                <button class="tool-btn" data-mission-action="client-summary" type="button">Generate client-ready summary</button>
+                <button class="tool-btn" data-mission-action="outreach-angle" type="button">Create outreach angle</button>
+                <button class="tool-btn" data-mission-action="export-report" type="button">Export report</button>
+                <button class="tool-btn" data-mission-action="request-report" type="button">Request full report</button>
+              </div>
+              <div class="action-output" id="actionOutput">
+                <p class="action-output-kicker">Output Console</p>
+                <p class="action-output-body">Run a dossier, then tap an action above to generate a mock operator artifact.</p>
+              </div>
+            </article>
+
+            <article class="panel reveal">
               <div class="panel-head">
                 <p class="panel-kicker">Risk Narrative</p>
                 <p class="panel-title">What is happening here</p>
               </div>
               <div class="narrative-grid">
-                <p class="panel-copy" id="riskNarrative"></p>
+                <div class="narrative-stack">
+                  <p class="panel-copy" id="riskNarrative"></p>
+                  <div class="signal-strip" id="signalStrip"></div>
+                </div>
                 <div class="confidence-box">
                   <span class="confidence-label">Confidence</span>
                   <strong id="confidenceValue">0%</strong>
@@ -166,17 +201,20 @@
               </div>
             </article>
 
-            <article class="panel">
+            <article class="panel reveal">
               <div class="panel-head">
-                <p class="panel-kicker">Permit Timeline</p>
-                <p class="panel-title">Sequence of visible activity</p>
+                <div>
+                  <p class="panel-kicker">Permit Timeline</p>
+                  <p class="panel-title">Sequence of visible activity</p>
+                </div>
+                <p class="timeline-hint">Recent first. Optimized for thumb scanning.</p>
               </div>
               <ol class="timeline" id="timelineList"></ol>
             </article>
           </div>
 
           <aside class="dossier-secondary">
-            <article class="panel">
+            <article class="panel reveal">
               <div class="panel-head">
                 <p class="panel-kicker">Red Flags</p>
                 <p class="panel-title">Signals worth escalation</p>
@@ -184,7 +222,7 @@
               <div class="stack-list" id="redFlagsList"></div>
             </article>
 
-            <article class="panel">
+            <article class="panel reveal">
               <div class="panel-head">
                 <p class="panel-kicker">Next Best Actions</p>
                 <p class="panel-title">Recommended operator moves</p>
@@ -192,7 +230,7 @@
               <div class="action-list" id="actionsList"></div>
             </article>
 
-            <article class="panel">
+            <article class="panel reveal">
               <div class="panel-head">
                 <p class="panel-kicker">Operator Mode</p>
                 <p class="panel-title">Suggested call posture</p>
