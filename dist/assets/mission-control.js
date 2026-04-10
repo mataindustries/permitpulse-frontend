@@ -1,4 +1,5 @@
 (function () {
+  const REPORT_ENDPOINT = "/api/mission-control/report";
   const state = {
     activeDossier: null,
     activeAction: "",
@@ -60,6 +61,7 @@
       address: String(formData.get("address") || "").trim(),
       city: String(formData.get("city") || "").trim(),
       apn: String(formData.get("apn") || "").trim(),
+      permit_number: String(formData.get("permit_number") || "").trim(),
     };
 
     if (!input.address) {
@@ -74,14 +76,16 @@
     resetLoadingIndicators();
 
     try {
-      await simulateLoading();
-      const mockDossier = await buildMockDossier(input);
-      state.activeDossier = mockDossier;
+      const [apiDossier] = await Promise.all([
+        fetchMissionControlDossier(input),
+        simulateLoading()
+      ]);
+      state.activeDossier = apiDossier;
       state.activeAction = "";
       toolButtons.forEach(function (button) {
         button.classList.remove("is-active");
       });
-      renderDossier(mockDossier);
+      renderDossier(apiDossier);
       renderDefaultActionOutput();
       dossier.hidden = false;
       dossier.scrollIntoView({ behavior: "smooth", block: "start" });
@@ -127,14 +131,13 @@
   async function buildMockDossier(input) {
     await wait(180);
 
-    // TODO: Replace this mock builder with a real PermitPulse dossier request.
-    // Keep the normalized shape below when wiring live APIs later.
     const city = input.city || "Los Angeles";
     const address = input.address + ", " + city + ", CA";
     const apn = input.apn || "5182-014-031";
+    const permitNumber = input.permit_number || "MC-2026-01884";
 
     return {
-      projectName: "Adaptive Reuse / Tenant Improvement",
+      projectName: permitNumber ? "Permit " + permitNumber : "Adaptive Reuse / Tenant Improvement",
       address: address,
       apn: apn,
       pulseLabel: "Live pulse: review loop",
@@ -144,10 +147,11 @@
       stats: [
         { label: "Risk Posture", value: "Moderate / Watchlist" },
         { label: "Primary APN", value: apn },
+        { label: "Permit Number", value: permitNumber },
         { label: "Jurisdiction", value: city + " Building + Fire" },
         { label: "Job Type", value: "Adaptive reuse + TI" },
         { label: "Permit Family", value: "Core shell / TI / signage" },
-        { label: "Latest Activity", value: "Revision request 6 days ago" }
+        { label: "Latest Activity", value: "Revision request 6 days ago" },
       ],
       confidence: 87,
       riskNarrative:
@@ -246,6 +250,285 @@
           "Full report request staged: Mission Control would hand this case off to PermitPulse's deeper dossier workflow, adding public-record retrieval, linked permit verification, correction memo review, and client formatting. No live submission is connected yet."
       }
     };
+  }
+
+  async function fetchMissionControlDossier(input) {
+    try {
+      const response = await fetch(REPORT_ENDPOINT, {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+        },
+        body: JSON.stringify({
+          address: input.address,
+          city: input.city,
+          apn: input.apn,
+          permit_number: input.permit_number,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("report_request_failed:" + response.status);
+      }
+
+      const payload = await response.json();
+      return normalizeApiDossier(payload, input);
+    } catch (error) {
+      return buildFallbackDossierFromError(input, error);
+    }
+  }
+
+  async function buildFallbackDossierFromError(input, error) {
+    const fallbackDossier = await buildMockDossier(input);
+    const reason = String((error && error.message) || error || "unknown_error");
+
+    fallbackDossier.pulseLabel = "Fallback pulse: local mock";
+    fallbackDossier.projectSummary =
+      fallbackDossier.projectSummary +
+      " API fallback engaged after report request error (" +
+      reason +
+      ").";
+    fallbackDossier.stats = [
+      { label: "Mode", value: "Frontend fallback" },
+      { label: "Primary APN", value: fallbackDossier.apn },
+      { label: "Permit Number", value: input.permit_number || "Not supplied" },
+      { label: "Jurisdiction", value: input.city || "Los Angeles" },
+      { label: "Endpoint", value: REPORT_ENDPOINT },
+      { label: "Fallback Reason", value: reason },
+    ];
+    fallbackDossier.outputs.exportReport =
+      "Export staged: frontend fallback mock dossier is rendering because the Mission Control API did not complete successfully.";
+    fallbackDossier.outputs.requestReport =
+      "Full report request unavailable from the frontend fallback state. Re-run once /api/mission-control/report is reachable.";
+
+    return fallbackDossier;
+  }
+
+  function normalizeApiDossier(payload, input) {
+    if (!payload || payload.ok !== true) {
+      throw new Error("invalid_report_payload");
+    }
+
+    const city = input.city || "Los Angeles";
+    const addressLine = input.address || "Address pending";
+    const address = addressLine + ", " + city + ", CA";
+    const permitNumber = input.permit_number || "Not supplied";
+    const apn = input.apn || "Not supplied";
+    const confidence = clampPercentage(payload.confidence_score);
+    const pulseLabel = payload.project_pulse || "Live pulse: dossier ready";
+    const sourceLinks = Array.isArray(payload.source_links) ? payload.source_links : [];
+
+    return {
+      projectName: permitNumber !== "Not supplied" ? "Permit " + permitNumber : "Mission Control dossier",
+      address: address,
+      apn: apn,
+      pulseLabel: pulseLabel,
+      projectSummary: String(payload.project_summary || "").trim() || "Mission Control returned a dossier without a summary.",
+      pulledAt: new Date().toLocaleString(),
+      stats: buildStatsFromApiPayload(payload, permitNumber, apn),
+      confidence: confidence,
+      riskNarrative: buildRiskNarrativeFromPayload(payload),
+      signals: buildSignalsFromPayload(payload, sourceLinks),
+      timeline: normalizeTimeline(payload.timeline),
+      redFlags: normalizeRedFlags(payload.red_flags),
+      actions: normalizeActions(payload.next_actions),
+      operatorTags: buildOperatorTags(payload, sourceLinks),
+      operatorScript: buildOperatorScript(payload, input),
+      outputs: buildOutputsFromApiPayload(payload, input, sourceLinks),
+    };
+  }
+
+  function buildStatsFromApiPayload(payload, permitNumber, apn) {
+    const timeline = Array.isArray(payload.timeline) ? payload.timeline : [];
+    const latestActivity = timeline.length ? String(timeline[0].date || "Recent activity available") : "Timeline pending";
+
+    return [
+      { label: "Risk Posture", value: confidenceBand(payload.confidence_score) },
+      { label: "Primary APN", value: apn },
+      { label: "Permit Number", value: permitNumber },
+      { label: "Jurisdiction", value: String(payload.jurisdiction || "Jurisdiction pending") },
+      { label: "Mode", value: String(payload.mode || "report") },
+      { label: "Latest Activity", value: latestActivity },
+    ];
+  }
+
+  function buildRiskNarrativeFromPayload(payload) {
+    const redFlags = Array.isArray(payload.red_flags) ? payload.red_flags : [];
+    const nextActions = Array.isArray(payload.next_actions) ? payload.next_actions : [];
+    const narrativeParts = [String(payload.project_summary || "").trim()];
+
+    if (redFlags.length) {
+      narrativeParts.push("Primary escalation point: " + String(redFlags[0].detail || "").trim());
+    }
+
+    if (nextActions.length) {
+      narrativeParts.push("Immediate next move: " + String(nextActions[0].detail || "").trim());
+    }
+
+    return narrativeParts.filter(Boolean).join(" ");
+  }
+
+  function buildSignalsFromPayload(payload, sourceLinks) {
+    const redFlags = Array.isArray(payload.red_flags) ? payload.red_flags : [];
+    const signals = redFlags.slice(0, 3).map(function (flag) {
+      return String(flag.title || "").trim();
+    }).filter(Boolean);
+
+    if (payload.mode) {
+      signals.push("Mode: " + String(payload.mode));
+    }
+
+    if (sourceLinks.length) {
+      signals.push("Sources: " + sourceLinks.length);
+    }
+
+    if (!signals.length && payload.project_pulse) {
+      signals.push(String(payload.project_pulse));
+    }
+
+    return signals.slice(0, 5);
+  }
+
+  function normalizeTimeline(entries) {
+    const timeline = Array.isArray(entries) ? entries : [];
+
+    return timeline.map(function (entry) {
+      return {
+        date: formatTimelineDate(entry && entry.date),
+        title: String((entry && entry.event) || "Timeline event").trim(),
+        detail: String((entry && entry.detail) || "").trim(),
+        status: normalizeStatus(entry && entry.status),
+      };
+    });
+  }
+
+  function normalizeRedFlags(flags) {
+    const redFlags = Array.isArray(flags) ? flags : [];
+
+    return redFlags.map(function (flag) {
+      return {
+        title: String((flag && flag.title) || "Flag").trim(),
+        detail: String((flag && flag.detail) || "").trim(),
+        severity: normalizeSeverity(flag && flag.severity),
+      };
+    });
+  }
+
+  function normalizeActions(actions) {
+    const nextActions = Array.isArray(actions) ? actions : [];
+
+    return nextActions.map(function (action, index) {
+      return {
+        step: String((action && action.step) || ("Action " + padActionNumber(index + 1))).trim(),
+        title: String((action && action.title) || "Recommended action").trim(),
+        copy: String((action && action.detail) || "").trim(),
+      };
+    });
+  }
+
+  function buildOperatorTags(payload, sourceLinks) {
+    const tags = [];
+
+    tags.push("Mode: " + String(payload.mode || "report"));
+    tags.push("Confidence: " + clampPercentage(payload.confidence_score) + "%");
+    tags.push("Jurisdiction: " + String(payload.jurisdiction || "pending"));
+
+    if (sourceLinks.length) {
+      tags.push("Sources: " + sourceLinks.length);
+    }
+
+    return tags;
+  }
+
+  function buildOperatorScript(payload, input) {
+    const addressLine = input.address || "the subject property";
+    const city = input.city || "the target jurisdiction";
+    const timeline = Array.isArray(payload.timeline) ? payload.timeline : [];
+    const firstAction = Array.isArray(payload.next_actions) && payload.next_actions.length
+      ? payload.next_actions[0]
+      : null;
+
+    return [
+      "This is PermitPulse Mission Control.",
+      "",
+      "We are tracking " + addressLine + " in " + city + ".",
+      "Current pulse: " + String(payload.project_pulse || "permit activity under review") + ".",
+      "",
+      "Immediate operator posture:",
+      "1. Confirm the most recent visible event: " + String((timeline[0] && timeline[0].event) || "timeline pending") + ".",
+      "2. Pressure-test the lead blocker described in the dossier before making schedule claims.",
+      "3. Move next on " + String((firstAction && firstAction.title) || "record validation") + ".",
+    ].join("\n");
+  }
+
+  function buildOutputsFromApiPayload(payload, input, sourceLinks) {
+    const sourceLabel = sourceLinks.length
+      ? sourceLinks.map(function (link) { return link.label; }).join(", ")
+      : "Mission Control sources";
+
+    return {
+      clientSummary:
+        "Client-ready readout: " + String(payload.project_summary || "").trim(),
+      outreachAngle:
+        "Outreach angle: " + String(payload.outreach_angle || "").trim(),
+      exportReport:
+        "Export staged: dossier rendered from /api/mission-control/report for " +
+        (input.address || "the requested property") +
+        ". Source set: " +
+        sourceLabel +
+        ".",
+      requestReport:
+        "Full report request staged: Mission Control dossier returned in " +
+        String(payload.mode || "report") +
+        " mode. Use this output as the intake layer for deeper PermitPulse review.",
+    };
+  }
+
+  function confidenceBand(value) {
+    const confidence = clampPercentage(value);
+
+    if (confidence >= 80) return "High / Moving";
+    if (confidence >= 60) return "Moderate / Watchlist";
+    if (confidence >= 40) return "Cautious / Validate";
+    return "Low / Thin record";
+  }
+
+  function clampPercentage(value) {
+    return Math.max(0, Math.min(100, Number(value) || 0));
+  }
+
+  function normalizeStatus(value) {
+    const status = String(value || "").toLowerCase();
+    if (status === "done" || status === "warn" || status === "active") {
+      return status;
+    }
+    return "active";
+  }
+
+  function normalizeSeverity(value) {
+    const severity = String(value || "").toLowerCase();
+    if (severity === "high" || severity === "medium" || severity === "low") {
+      return severity;
+    }
+    return "low";
+  }
+
+  function formatTimelineDate(value) {
+    if (!value) return "Unknown";
+
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) {
+      return String(value);
+    }
+
+    return date.toLocaleDateString("en-US", {
+      month: "short",
+      day: "2-digit",
+    });
+  }
+
+  function padActionNumber(value) {
+    return String(value).padStart(2, "0");
   }
 
   function renderDossier(data) {

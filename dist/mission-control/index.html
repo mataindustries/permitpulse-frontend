@@ -52,7 +52,7 @@
           <div class="command-head">
             <div>
               <p class="command-kicker" id="command-bar-title">Hero Command Bar</p>
-              <p class="command-sub">Input an address, city, and APN to stage a polished mock permit intelligence run.</p>
+              <p class="command-sub">Input an address, city, APN, and optional permit number to stage a tactical permit intelligence run.</p>
             </div>
             <div class="live-chip">
               <span class="live-dot"></span>
@@ -85,6 +85,20 @@
                   value="Los Angeles"
                 />
               </label>
+            </div>
+
+            <div class="command-row">
+              <label class="field">
+                <span>Permit Number</span>
+                <input
+                  id="permitNumberInput"
+                  name="permit_number"
+                  type="text"
+                  autocomplete="off"
+                  placeholder="MC-2026-01884"
+                  value="MC-2026-01884"
+                />
+              </label>
 
               <label class="field">
                 <span>APN</span>
@@ -100,7 +114,7 @@
             </div>
 
             <div class="command-actions">
-              <p class="command-hint">Mock only. Real parcel, jurisdiction, and permit lookups remain intentionally disconnected.</p>
+              <p class="command-hint">Runs against the Mission Control report endpoint, with demo-safe fallback behavior when live data is unavailable.</p>
               <button class="run-btn" id="runButton" type="submit">Run Mission Scan</button>
             </div>
           </form>
