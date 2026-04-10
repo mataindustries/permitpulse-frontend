@@ -65,6 +65,7 @@
     };
 
     if (!input.address) {
+      renderEmptyState("Address required", "Enter a project address to stage a Mission Control scan.");
       document.getElementById("addressInput").focus();
       return;
     }
@@ -239,6 +240,21 @@
         "This is PermitPulse Mission Control.\n\nWe are tracking a live permit file at " +
         address +
         ". The visible pattern suggests the project is active but trapped in a review loop.\n\nImmediate operator posture:\n1. Confirm whether the latest activity represents accepted corrections or just reviewer routing.\n2. Ask if any linked tenant-improvement, signage, or deferred-submittal permits must clear before issuance.\n3. If the fire comments are still open, move the conversation toward exact outstanding items, responsible party, and response timing.",
+      sourceCount: 3,
+      modeLabel: "Fallback preview",
+      statusTitle: "Mission scan complete",
+      statusSummary:
+        "Beta dossier assembled from the safe local preview path. The interaction flow is live even when the backend report is unavailable.",
+      statusHighlights: [
+        "Tactical beta readout",
+        "Review loop detected",
+        "Premium handoff available"
+      ],
+      recommendedAction: "Confirm the exact fire hold item before offering timing guidance.",
+      operatorStateLabel: "Recovery posture",
+      trustSignalCopy:
+        "This preview combines permit movement, risk framing, and operator guidance into a single tactical beta output.",
+      statusBanner: "",
       outputs: {
         clientSummary:
           "Client-ready readout: The project remains active and recoverable, but issuance is likely being paced by unresolved fire review comments and multi-permit coordination. Momentum is real, yet not clean. Near-term success depends on closing the exact life-safety comments and aligning linked permit numbers before another review loop forms.",
@@ -247,7 +263,9 @@
         exportReport:
           "Export staged: mock PDF dossier package prepared with project header, risk narrative, timeline, red flags, action plan, and operator script. This is a UI-only simulation and does not generate a file yet.",
         requestReport:
-          "Full report request staged: Mission Control would hand this case off to PermitPulse's deeper dossier workflow, adding public-record retrieval, linked permit verification, correction memo review, and client formatting. No live submission is connected yet."
+          "Full report request staged: Mission Control would hand this case off to PermitPulse's deeper dossier workflow, adding public-record retrieval, linked permit verification, correction memo review, and client formatting. No live submission is connected yet.",
+        permitSnapshot:
+          "Permit Snapshot staged: 24-hour turnaround package would compress the current file into a tight blocker summary, permit-family map, and executive readout for decision-makers."
       }
     };
   }
@@ -283,11 +301,26 @@
     const reason = String((error && error.message) || error || "unknown_error");
 
     fallbackDossier.pulseLabel = "Fallback pulse: local mock";
+    fallbackDossier.modeLabel = "Fallback preview";
     fallbackDossier.projectSummary =
       fallbackDossier.projectSummary +
       " API fallback engaged after report request error (" +
       reason +
       ").";
+    fallbackDossier.statusSummary =
+      "Live report data did not complete, so Mission Control switched to the beta-safe local dossier path without breaking the review flow.";
+    fallbackDossier.statusHighlights = [
+      "Live endpoint unavailable",
+      "Fallback dossier staged",
+      "Operator flow preserved"
+    ];
+    fallbackDossier.statusBanner =
+      "Live report endpoint did not complete successfully. Showing a safe fallback dossier so the beta flow still previews correctly.";
+    fallbackDossier.recommendedAction =
+      "Re-run the scan when the report endpoint is reachable, then confirm whether the live signals match this preview.";
+    fallbackDossier.operatorStateLabel = "Fallback review";
+    fallbackDossier.trustSignalCopy =
+      "The current view is a safe fallback preview. Use it to assess flow and hierarchy, not as a final live-data determination.";
     fallbackDossier.stats = [
       { label: "Mode", value: "Frontend fallback" },
       { label: "Primary APN", value: fallbackDossier.apn },
@@ -300,6 +333,8 @@
       "Export staged: frontend fallback mock dossier is rendering because the Mission Control API did not complete successfully.";
     fallbackDossier.outputs.requestReport =
       "Full report request unavailable from the frontend fallback state. Re-run once /api/mission-control/report is reachable.";
+    fallbackDossier.outputs.permitSnapshot =
+      "Permit Snapshot staging is limited in fallback mode. Re-run once live dossier data is available to prepare a 24-hour premium read.";
 
     return fallbackDossier;
   }
@@ -317,6 +352,10 @@
     const confidence = clampPercentage(payload.confidence_score);
     const pulseLabel = payload.project_pulse || "Live pulse: dossier ready";
     const sourceLinks = Array.isArray(payload.source_links) ? payload.source_links : [];
+    const timeline = normalizeTimeline(payload.timeline);
+    const redFlags = normalizeRedFlags(payload.red_flags);
+    const nextActions = normalizeActions(payload.next_actions);
+    const confidenceBandLabel = confidenceBand(payload.confidence_score);
 
     return {
       projectName: permitNumber !== "Not supplied" ? "Permit " + permitNumber : "Mission Control dossier",
@@ -329,11 +368,20 @@
       confidence: confidence,
       riskNarrative: buildRiskNarrativeFromPayload(payload),
       signals: buildSignalsFromPayload(payload, sourceLinks),
-      timeline: normalizeTimeline(payload.timeline),
-      redFlags: normalizeRedFlags(payload.red_flags),
-      actions: normalizeActions(payload.next_actions),
+      timeline: timeline,
+      redFlags: redFlags,
+      actions: nextActions,
       operatorTags: buildOperatorTags(payload, sourceLinks),
       operatorScript: buildOperatorScript(payload, input),
+      sourceCount: sourceLinks.length,
+      modeLabel: String(payload.mode || "Live report"),
+      statusTitle: confidence >= 70 ? "Mission scan complete" : "Mission scan ready for validation",
+      statusSummary: buildStatusSummary(payload, confidenceBandLabel, sourceLinks, redFlags, nextActions),
+      statusHighlights: buildStatusHighlights(payload, sourceLinks, redFlags, nextActions),
+      recommendedAction: nextActions.length ? nextActions[0].title : "Validate the thin record before escalation.",
+      operatorStateLabel: confidence >= 70 ? "Decision-ready" : "Validate before commitment",
+      trustSignalCopy: buildTrustSignalCopy(sourceLinks, timeline),
+      statusBanner: buildStatusBanner(payload, sourceLinks, timeline),
       outputs: buildOutputsFromApiPayload(payload, input, sourceLinks),
     };
   }
@@ -481,7 +529,90 @@
         "Full report request staged: Mission Control dossier returned in " +
         String(payload.mode || "report") +
         " mode. Use this output as the intake layer for deeper PermitPulse review.",
+      permitSnapshot:
+        "Permit Snapshot staged: Mission Control would compress this file into a 24-hour premium read with blocker priority, linked permit context, and an executive summary for owner-side decisions.",
     };
+  }
+
+  function buildStatusSummary(payload, confidenceBandLabel, sourceLinks, redFlags, nextActions) {
+    const summary = String(payload.project_summary || "").trim();
+    const parts = [];
+
+    if (summary) {
+      parts.push(summary);
+    }
+
+    parts.push("Confidence band: " + confidenceBandLabel + ".");
+
+    if (redFlags.length) {
+      parts.push(redFlags.length + " escalation signal" + (redFlags.length === 1 ? "" : "s") + " surfaced.");
+    }
+
+    if (nextActions.length) {
+      parts.push("Lead next move: " + nextActions[0].title + ".");
+    }
+
+    if (sourceLinks.length) {
+      parts.push(sourceLinks.length + " source link" + (sourceLinks.length === 1 ? "" : "s") + " attached.");
+    }
+
+    return parts.join(" ");
+  }
+
+  function buildStatusHighlights(payload, sourceLinks, redFlags, nextActions) {
+    const highlights = [];
+
+    if (payload.project_pulse) {
+      highlights.push(String(payload.project_pulse));
+    }
+
+    if (redFlags.length) {
+      highlights.push(redFlags[0].title);
+    }
+
+    if (nextActions.length) {
+      highlights.push("Next: " + nextActions[0].step);
+    }
+
+    if (sourceLinks.length) {
+      highlights.push(sourceLinks.length + " source" + (sourceLinks.length === 1 ? "" : "s"));
+    }
+
+    if (payload.mode) {
+      highlights.push("Mode: " + String(payload.mode));
+    }
+
+    return highlights.slice(0, 5);
+  }
+
+  function buildTrustSignalCopy(sourceLinks, timeline) {
+    const pieces = [];
+
+    pieces.push("Mission Control is grounding this read in " + (timeline.length ? "structured timeline activity" : "limited visible activity") + ".");
+
+    if (sourceLinks.length) {
+      pieces.push(sourceLinks.length + " source link" + (sourceLinks.length === 1 ? " is" : "s are") + " attached to the dossier.");
+    } else {
+      pieces.push("Source links are thin, so the operator should validate before overcommitting.");
+    }
+
+    return pieces.join(" ");
+  }
+
+  function buildStatusBanner(payload, sourceLinks, timeline) {
+    if (String(payload.mode || "").toLowerCase() === "fallback") {
+      return "The dossier is in fallback mode. Treat this as a preview and re-run before using it for client-facing decisions.";
+    }
+
+    if (!timeline.length) {
+      return "Timeline data is thin. The tactical read is still usable, but schedule claims should wait for more direct record confirmation.";
+    }
+
+    if (!sourceLinks.length) {
+      return "No source links were attached to this dossier. Use the next actions as an operator guide, then validate against the live permit record.";
+    }
+
+    return "";
   }
 
   function confidenceBand(value) {
@@ -532,6 +663,15 @@
   }
 
   function renderDossier(data) {
+    document.getElementById("scanStatusTitle").textContent = data.statusTitle || "Mission scan complete";
+    document.getElementById("scanStatusSummary").textContent =
+      data.statusSummary || "Tactical dossier assembled and ready for operator review.";
+    document.getElementById("dataModeBadge").textContent = data.modeLabel || "Live report";
+    document.getElementById("sourceCountBadge").textContent = (Number(data.sourceCount) || 0) + " source" + ((Number(data.sourceCount) || 0) === 1 ? "" : "s");
+    document.getElementById("recommendedAction").textContent = data.recommendedAction || "Validate before escalation";
+    document.getElementById("operatorStateLabel").textContent = data.operatorStateLabel || "Standby";
+    document.getElementById("trustSignalCopy").textContent =
+      data.trustSignalCopy || "Mission Control blends permit activity, timeline structure, and operator action framing into one scan.";
     document.getElementById("projectName").textContent = data.projectName;
     document.getElementById("projectAddress").textContent = data.address;
     document.getElementById("projectSummary").textContent =
@@ -556,51 +696,27 @@
       return '<span class="signal-pill">' + escapeHtml(signal) + "</span>";
     }).join("");
 
-    document.getElementById("timelineList").innerHTML = data.timeline.map(function (entry) {
-      return (
-        '<li class="timeline-item">' +
-          '<div class="timeline-date">' + escapeHtml(entry.date) + "</div>" +
-          '<div class="timeline-main">' +
-            '<span class="timeline-dot ' + escapeHtml(entry.status) + '"></span>' +
-            '<h3 class="timeline-title">' + escapeHtml(entry.title) + "</h3>" +
-            '<p class="timeline-detail">' + escapeHtml(entry.detail) + "</p>" +
-          "</div>" +
-        "</li>"
-      );
+    document.getElementById("scanHighlights").innerHTML = ensureItems(data.statusHighlights, [
+      "Dossier ready",
+      "Operator review staged"
+    ]).map(function (item) {
+      return '<span class="scan-highlight">' + escapeHtml(item) + "</span>";
     }).join("");
 
-    document.getElementById("redFlagsList").innerHTML = data.redFlags.map(function (flag) {
-      const severityLabel = flag.severity === "high" ? "High" : flag.severity === "medium" ? "Medium" : "Low";
-      return (
-        '<section class="flag-card">' +
-          '<div class="flag-head">' +
-            '<h3 class="flag-title">' + escapeHtml(flag.title) + "</h3>" +
-            '<span class="severity ' + escapeHtml(flag.severity) + '">' + severityLabel + "</span>" +
-          "</div>" +
-          '<p class="flag-meta">' + escapeHtml(flag.detail) + "</p>" +
-        "</section>"
-      );
-    }).join("");
-
-    document.getElementById("actionsList").innerHTML = data.actions.map(function (action) {
-      return (
-        '<section class="action-card">' +
-          '<div class="action-step"><span>' + escapeHtml(action.step) + "</span></div>" +
-          '<h3 class="action-title">' + escapeHtml(action.title) + "</h3>" +
-          '<p class="action-copy">' + escapeHtml(action.copy) + "</p>" +
-        "</section>"
-      );
-    }).join("");
-
-    document.getElementById("operatorTags").innerHTML = data.operatorTags.map(function (tag) {
+    document.getElementById("timelineList").innerHTML = renderTimeline(data.timeline);
+    document.getElementById("redFlagsList").innerHTML = renderRedFlags(data.redFlags);
+    document.getElementById("actionsList").innerHTML = renderActions(data.actions);
+    document.getElementById("operatorTags").innerHTML = ensureItems(data.operatorTags, ["Mode: review pending"]).map(function (tag) {
       return '<span class="operator-tag">' + escapeHtml(tag) + "</span>";
     }).join("");
+
+    renderStatusBanner(data.statusBanner);
   }
 
   function renderDefaultActionOutput() {
     actionOutput.innerHTML =
       '<p class="action-output-kicker">Output Console</p>' +
-      '<p class="action-output-body">The dossier is live. Tap an action above to generate a mock client summary, outreach angle, export status, or full-report handoff.</p>';
+      '<p class="action-output-body">The dossier is live. Tap an action above to generate a client summary, outreach angle, export status, full-risk handoff, or 24-hour Permit Snapshot.</p>';
   }
 
   function renderActionOutput(action, dossierData) {
@@ -608,14 +724,16 @@
       "client-summary": dossierData.outputs.clientSummary,
       "outreach-angle": dossierData.outputs.outreachAngle,
       "export-report": dossierData.outputs.exportReport,
-      "request-report": dossierData.outputs.requestReport
+      "request-report": dossierData.outputs.requestReport,
+      "permit-snapshot": dossierData.outputs.permitSnapshot
     };
 
     const labels = {
       "client-summary": "Client Summary",
       "outreach-angle": "Outreach Angle",
       "export-report": "Export Report",
-      "request-report": "Full Report Request"
+      "request-report": "Full Report Request",
+      "permit-snapshot": "Permit Snapshot"
     };
 
     actionOutput.innerHTML =
@@ -629,6 +747,95 @@
     setTimeout(function () {
       button.textContent = original;
     }, 1200);
+  }
+
+  function ensureItems(items, fallback) {
+    if (Array.isArray(items) && items.length) {
+      return items;
+    }
+    return Array.isArray(fallback) ? fallback : [];
+  }
+
+  function renderTimeline(items) {
+    const timeline = ensureItems(items);
+    if (!timeline.length) {
+      return renderPlaceholderCard("Timeline pending", "No visible activity timeline was returned for this scan. Use the action layer to stage follow-up.");
+    }
+
+    return timeline.map(function (entry) {
+      return (
+        '<li class="timeline-item">' +
+          '<div class="timeline-date">' + escapeHtml(entry.date) + "</div>" +
+          '<div class="timeline-main">' +
+            '<span class="timeline-dot ' + escapeHtml(entry.status) + '"></span>' +
+            '<h3 class="timeline-title">' + escapeHtml(entry.title) + "</h3>" +
+            '<p class="timeline-detail">' + escapeHtml(entry.detail) + "</p>" +
+          "</div>" +
+        "</li>"
+      );
+    }).join("");
+  }
+
+  function renderRedFlags(items) {
+    const redFlags = ensureItems(items);
+    if (!redFlags.length) {
+      return renderPlaceholderCard("No red flags surfaced", "Mission Control did not detect a specific escalation signal from the current record set.");
+    }
+
+    return redFlags.map(function (flag) {
+      const severityLabel = flag.severity === "high" ? "High" : flag.severity === "medium" ? "Medium" : "Low";
+      return (
+        '<section class="flag-card">' +
+          '<div class="flag-head">' +
+            '<h3 class="flag-title">' + escapeHtml(flag.title) + "</h3>" +
+            '<span class="severity ' + escapeHtml(flag.severity) + '">' + severityLabel + "</span>" +
+          "</div>" +
+          '<p class="flag-meta">' + escapeHtml(flag.detail) + "</p>" +
+        "</section>"
+      );
+    }).join("");
+  }
+
+  function renderActions(items) {
+    const actions = ensureItems(items);
+    if (!actions.length) {
+      return renderPlaceholderCard("No recommended actions yet", "The dossier returned without next actions. Use the operator script as the current fallback guide.");
+    }
+
+    return actions.map(function (action) {
+      return (
+        '<section class="action-card">' +
+          '<div class="action-step"><span>' + escapeHtml(action.step) + "</span></div>" +
+          '<h3 class="action-title">' + escapeHtml(action.title) + "</h3>" +
+          '<p class="action-copy">' + escapeHtml(action.copy) + "</p>" +
+        "</section>"
+      );
+    }).join("");
+  }
+
+  function renderPlaceholderCard(title, copy) {
+    return (
+      '<section class="flag-card">' +
+        '<div class="flag-head">' +
+          '<h3 class="flag-title">' + escapeHtml(title) + "</h3>" +
+        "</div>" +
+        '<p class="flag-meta">' + escapeHtml(copy) + "</p>" +
+      "</section>"
+    );
+  }
+
+  function renderEmptyState(title, copy) {
+    emptyPanel.hidden = false;
+    dossier.hidden = true;
+    emptyPanel.querySelector(".panel-title").textContent = title;
+    emptyPanel.querySelector(".panel-copy").textContent = copy;
+  }
+
+  function renderStatusBanner(copy) {
+    const banner = document.getElementById("statusBanner");
+    const text = String(copy || "").trim();
+    banner.hidden = !text;
+    banner.textContent = text;
   }
 
   function escapeHtml(value) {
