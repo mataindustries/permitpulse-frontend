@@ -3,3 +3,7 @@ cf_token.txt
 cf_account_id.txt
 .cf_token
 .cf_account_id
+
+.dev.vars
+workers/pp-api/.dev.vars
+.codex/
