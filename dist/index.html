@@ -145,6 +145,29 @@
       margin-bottom: 40px;
     }
 
+    .hero-value-block {
+      display: grid;
+      gap: 12px;
+      margin-top: 18px;
+      max-width: 760px;
+    }
+    .hero-value-points {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 12px;
+    }
+    .hero-value-points div {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 10px;
+      padding: 12px 14px;
+      font-size: 14px;
+      color: var(--text-main);
+    }
+    @media (max-width: 768px) {
+      .hero-value-points { grid-template-columns: 1fr; }
+    }
+
     /* --- IMAGE CARDS --- */
 .img-card {
   border-radius: 16px;
@@ -428,6 +451,28 @@
     Built for contractors and owners who need a confident next step.
   </p>
 
+  <div class="hero-value-block">
+    <div style="display:flex; gap: 16px; flex-wrap: wrap;">
+      <a
+        href="/mission-control/"
+        class="btn btn-orange"
+        onclick="gtag && gtag('event','click_mission_control_beta',{location:'hero_primary'});"
+      >
+        Try Mission Control Beta
+      </a>
+    </div>
+
+    <p class="mono muted" style="font-size:12px; margin:0;">
+      Enter an address. Get the case file.
+    </p>
+
+    <div class="hero-value-points" aria-label="Mission Control value points">
+      <div>Permit timeline</div>
+      <div>Red flags</div>
+      <div>Next best actions</div>
+    </div>
+  </div>
+
   <div class="img-card hero-media">
     <img
       src="/img/permitpulse-los-angeles-permit-radar-dashboard-hero.webp"
@@ -609,9 +654,16 @@
         </p>
       </div>
       <div style="text-align:right;">
-        <p class="mono" style="font-size:12px; color:#666;">
+        <p class="mono" style="font-size:12px; color:#666; margin-bottom:12px;">
           Consistent deliverables. Clear next steps.
         </p>
+        <a
+          href="/booking.html"
+          class="btn btn-ghost"
+          onclick="gtag && gtag('event','click_full_risk_report',{location:'pricing_header'});"
+        >
+          Request Full Risk Report
+        </a>
       </div>
     </div>
 

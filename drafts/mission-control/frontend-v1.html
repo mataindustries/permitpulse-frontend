@@ -1,0 +1,1359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>PermitPulse — Mission Control</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,300;0,400;0,500;0,600;1,400&family=Syne:wght@600;700;800&family=Inter:wght@300;400;500&display=swap" rel="stylesheet" />
+<style>
+  /* ─── TOKENS ─────────────────────────────────────────────── */
+  :root {
+    --bg:        #080b0f;
+    --surface:   #0d1117;
+    --border:    #1c2330;
+    --border-hi: #2a3850;
+    --pulse:     #00d4ff;
+    --pulse-dim: rgba(0,212,255,.12);
+    --amber:     #f5a623;
+    --amber-dim: rgba(245,166,35,.12);
+    --red:       #ff4d4d;
+    --red-dim:   rgba(255,77,77,.10);
+    --green:     #2dcc70;
+    --green-dim: rgba(45,204,112,.10);
+    --muted:     #4a5568;
+    --text:      #d4dce8;
+    --text-hi:   #eaf0fb;
+    --mono:      'IBM Plex Mono', monospace;
+    --display:   'Syne', sans-serif;
+    --body:      'Inter', sans-serif;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--body);
+    font-size: 14px;
+    line-height: 1.6;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ─── SCANLINE OVERLAY ───────────────────────────────────── */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background: repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(0,0,0,.06) 2px,
+      rgba(0,0,0,.06) 4px
+    );
+    pointer-events: none;
+    z-index: 9999;
+  }
+
+  /* ─── TOP BAR ────────────────────────────────────────────── */
+  .topbar {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    height: 48px;
+    background: rgba(8,11,15,.92);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 24px;
+    z-index: 100;
+    backdrop-filter: blur(12px);
+  }
+
+  .topbar-logo {
+    font-family: var(--display);
+    font-size: 15px;
+    font-weight: 800;
+    letter-spacing: .04em;
+    color: var(--text-hi);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .topbar-logo .dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--pulse);
+    box-shadow: 0 0 8px var(--pulse);
+    animation: pulse-dot 2s ease-in-out infinite;
+  }
+
+  @keyframes pulse-dot {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: .5; transform: scale(.75); }
+  }
+
+  .topbar-right {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--muted);
+  }
+
+  .status-pill {
+    padding: 2px 8px;
+    border-radius: 2px;
+    border: 1px solid var(--border-hi);
+    color: var(--pulse);
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: .08em;
+  }
+
+  /* ─── HERO ───────────────────────────────────────────────── */
+  .hero {
+    padding: 120px 24px 60px;
+    max-width: 860px;
+    margin: 0 auto;
+    text-align: center;
+  }
+
+  .hero-eyebrow {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: .15em;
+    color: var(--pulse);
+    text-transform: uppercase;
+    margin-bottom: 20px;
+    opacity: .8;
+  }
+
+  .hero-h1 {
+    font-family: var(--display);
+    font-size: clamp(32px, 5vw, 58px);
+    font-weight: 800;
+    color: var(--text-hi);
+    line-height: 1.05;
+    letter-spacing: -.01em;
+    margin-bottom: 20px;
+  }
+
+  .hero-h1 span {
+    color: var(--pulse);
+    text-shadow: 0 0 40px rgba(0,212,255,.4);
+  }
+
+  .hero-sub {
+    font-size: 16px;
+    color: var(--muted);
+    max-width: 520px;
+    margin: 0 auto 48px;
+    font-weight: 300;
+    line-height: 1.7;
+  }
+
+  /* ─── COMMAND BAR ────────────────────────────────────────── */
+  .command-wrap {
+    max-width: 760px;
+    margin: 0 auto 24px;
+    padding: 0 24px;
+  }
+
+  .command-bar {
+    background: var(--surface);
+    border: 1px solid var(--border-hi);
+    border-radius: 6px;
+    overflow: hidden;
+    transition: border-color .2s, box-shadow .2s;
+  }
+
+  .command-bar:focus-within {
+    border-color: var(--pulse);
+    box-shadow: 0 0 0 3px var(--pulse-dim), 0 0 40px rgba(0,212,255,.08);
+  }
+
+  .command-bar-top {
+    display: flex;
+    align-items: center;
+    padding: 0 16px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .command-bar-top .cmd-icon {
+    font-family: var(--mono);
+    font-size: 14px;
+    color: var(--pulse);
+    margin-right: 12px;
+    opacity: .7;
+  }
+
+  .command-bar-top input {
+    flex: 1;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: var(--text-hi);
+    font-family: var(--mono);
+    font-size: 15px;
+    padding: 18px 0;
+    caret-color: var(--pulse);
+  }
+
+  .command-bar-top input::placeholder {
+    color: var(--muted);
+    font-style: italic;
+  }
+
+  .command-bar-fields {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    border-top: 1px solid var(--border);
+  }
+
+  .cmd-field {
+    padding: 12px 16px;
+    border-right: 1px solid var(--border);
+  }
+
+  .cmd-field:last-child { border-right: none; }
+
+  .cmd-field label {
+    display: block;
+    font-family: var(--mono);
+    font-size: 9px;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 4px;
+  }
+
+  .cmd-field input {
+    width: 100%;
+    background: transparent;
+    border: none;
+    outline: none;
+    color: var(--text);
+    font-family: var(--mono);
+    font-size: 13px;
+    caret-color: var(--pulse);
+  }
+
+  .cmd-field input::placeholder { color: #2e3d52; }
+
+  .command-bar-action {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    border-top: 1px solid var(--border);
+  }
+
+  .cmd-hint {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--muted);
+  }
+
+  .run-btn {
+    background: var(--pulse);
+    color: #000;
+    border: none;
+    border-radius: 3px;
+    padding: 8px 20px;
+    font-family: var(--display);
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: .06em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background .15s, box-shadow .15s, transform .1s;
+  }
+
+  .run-btn:hover {
+    background: #33deff;
+    box-shadow: 0 0 20px rgba(0,212,255,.4);
+  }
+
+  .run-btn:active { transform: scale(.97); }
+
+  .run-btn:disabled {
+    background: var(--border-hi);
+    color: var(--muted);
+    cursor: not-allowed;
+    box-shadow: none;
+  }
+
+  /* ─── LOADING STATE ──────────────────────────────────────── */
+  #loading-state {
+    display: none;
+    max-width: 760px;
+    margin: 32px auto;
+    padding: 0 24px;
+  }
+
+  .loading-inner {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 32px;
+    text-align: center;
+  }
+
+  .loading-label {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: .12em;
+    color: var(--pulse);
+    text-transform: uppercase;
+    margin-bottom: 20px;
+    animation: blink .8s step-end infinite;
+  }
+
+  @keyframes blink { 50% { opacity: 0; } }
+
+  .loading-steps {
+    list-style: none;
+    text-align: left;
+    max-width: 360px;
+    margin: 0 auto;
+  }
+
+  .loading-steps li {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--muted);
+    padding: 6px 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .loading-steps li:last-child { border-bottom: none; }
+
+  .step-icon { width: 14px; text-align: center; }
+
+  .step-done { color: var(--green); }
+  .step-active { color: var(--pulse); animation: blink .6s step-end infinite; }
+
+  /* ─── DOSSIER GRID ───────────────────────────────────────── */
+  #dossier {
+    display: none;
+    max-width: 1100px;
+    margin: 40px auto 80px;
+    padding: 0 24px;
+  }
+
+  .dossier-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 28px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid var(--border);
+    gap: 20px;
+    flex-wrap: wrap;
+  }
+
+  .dossier-address {
+    font-family: var(--display);
+    font-size: clamp(18px, 2.5vw, 26px);
+    font-weight: 700;
+    color: var(--text-hi);
+    line-height: 1.2;
+  }
+
+  .dossier-meta {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 6px;
+    letter-spacing: .04em;
+  }
+
+  .dossier-badges {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: flex-start;
+  }
+
+  .badge {
+    padding: 4px 10px;
+    border-radius: 2px;
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    font-weight: 500;
+    white-space: nowrap;
+  }
+
+  .badge-risk-hi  { background: var(--red-dim);   color: var(--red);   border: 1px solid rgba(255,77,77,.3);  }
+  .badge-risk-mid { background: var(--amber-dim);  color: var(--amber); border: 1px solid rgba(245,166,35,.3); }
+  .badge-risk-lo  { background: var(--green-dim);  color: var(--green); border: 1px solid rgba(45,204,112,.3); }
+  .badge-conf     { background: var(--pulse-dim);  color: var(--pulse); border: 1px solid rgba(0,212,255,.3);  }
+
+  /* 2-col layout */
+  .dossier-grid {
+    display: grid;
+    grid-template-columns: 1fr 380px;
+    gap: 20px;
+    align-items: start;
+  }
+
+  @media (max-width: 820px) {
+    .dossier-grid { grid-template-columns: 1fr; }
+  }
+
+  /* ─── CARDS ──────────────────────────────────────────────── */
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    overflow: hidden;
+    margin-bottom: 20px;
+    transition: border-color .2s;
+  }
+
+  .card:hover { border-color: var(--border-hi); }
+
+  .card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 14px 18px;
+    border-bottom: 1px solid var(--border);
+    background: rgba(255,255,255,.015);
+  }
+
+  .card-title {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: .15em;
+    text-transform: uppercase;
+    color: var(--muted);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .card-title .icon { opacity: .6; }
+
+  .card-action {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--pulse);
+    cursor: pointer;
+    opacity: .7;
+    transition: opacity .15s;
+    background: none;
+    border: none;
+    letter-spacing: .06em;
+  }
+
+  .card-action:hover { opacity: 1; }
+
+  .card-body { padding: 18px; }
+
+  /* ─── SUMMARY CARD ───────────────────────────────────────── */
+  .summary-text {
+    font-size: 14px;
+    line-height: 1.75;
+    color: var(--text);
+  }
+
+  /* ─── TIMELINE CARD ──────────────────────────────────────── */
+  .timeline { list-style: none; position: relative; padding-left: 24px; }
+
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: 6px; top: 8px; bottom: 8px;
+    width: 1px;
+    background: var(--border-hi);
+  }
+
+  .timeline-item {
+    position: relative;
+    margin-bottom: 20px;
+    padding-bottom: 4px;
+  }
+
+  .timeline-item:last-child { margin-bottom: 0; }
+
+  .timeline-dot {
+    position: absolute;
+    left: -20px; top: 4px;
+    width: 10px; height: 10px;
+    border-radius: 50%;
+    border: 1px solid var(--border-hi);
+    background: var(--surface);
+    z-index: 1;
+  }
+
+  .timeline-dot.active {
+    background: var(--pulse);
+    border-color: var(--pulse);
+    box-shadow: 0 0 8px var(--pulse);
+  }
+
+  .timeline-dot.warn {
+    background: var(--amber);
+    border-color: var(--amber);
+  }
+
+  .timeline-dot.done {
+    background: var(--green);
+    border-color: var(--green);
+  }
+
+  .timeline-date {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--muted);
+    margin-bottom: 2px;
+    letter-spacing: .04em;
+  }
+
+  .timeline-event {
+    font-size: 13px;
+    color: var(--text-hi);
+    font-weight: 500;
+  }
+
+  .timeline-detail {
+    font-size: 12px;
+    color: var(--muted);
+    margin-top: 2px;
+  }
+
+  /* ─── RED FLAGS ──────────────────────────────────────────── */
+  .flag-list { list-style: none; }
+
+  .flag-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .flag-item:last-child { border-bottom: none; }
+
+  .flag-sev {
+    flex-shrink: 0;
+    width: 28px; height: 28px;
+    border-radius: 3px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: var(--mono);
+    font-size: 10px;
+    font-weight: 600;
+  }
+
+  .sev-hi  { background: var(--red-dim);   color: var(--red);   }
+  .sev-mid { background: var(--amber-dim); color: var(--amber); }
+  .sev-lo  { background: var(--green-dim); color: var(--green); }
+
+  .flag-copy { flex: 1; }
+
+  .flag-title {
+    font-size: 13px;
+    color: var(--text-hi);
+    font-weight: 500;
+    margin-bottom: 2px;
+  }
+
+  .flag-desc {
+    font-size: 12px;
+    color: var(--muted);
+    line-height: 1.5;
+  }
+
+  .flag-conf {
+    font-family: var(--mono);
+    font-size: 9px;
+    color: var(--muted);
+    margin-top: 4px;
+    letter-spacing: .06em;
+  }
+
+  /* ─── NEXT ACTION ────────────────────────────────────────── */
+  .next-action-box {
+    background: rgba(0,212,255,.04);
+    border: 1px solid rgba(0,212,255,.18);
+    border-radius: 4px;
+    padding: 16px;
+    margin-bottom: 14px;
+  }
+
+  .next-action-box .step-num {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--pulse);
+    letter-spacing: .1em;
+    margin-bottom: 6px;
+  }
+
+  .next-action-box .step-text {
+    font-size: 13px;
+    color: var(--text-hi);
+    line-height: 1.6;
+  }
+
+  /* ─── OPERATOR SCRIPT ────────────────────────────────────── */
+  .script-box {
+    background: rgba(8,11,15,.8);
+    border: 1px solid var(--border-hi);
+    border-radius: 4px;
+    padding: 16px;
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--text);
+    line-height: 1.8;
+    white-space: pre-wrap;
+    position: relative;
+  }
+
+  .script-copy-btn {
+    position: absolute;
+    top: 10px; right: 10px;
+    background: var(--border-hi);
+    border: none;
+    border-radius: 3px;
+    padding: 4px 10px;
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--muted);
+    cursor: pointer;
+    transition: background .15s, color .15s;
+  }
+
+  .script-copy-btn:hover {
+    background: var(--pulse-dim);
+    color: var(--pulse);
+  }
+
+  .script-highlight { color: var(--pulse); }
+
+  /* ─── JURISDICTION CARD ──────────────────────────────────── */
+  .jurisdiction-profile {
+    background: var(--amber-dim);
+    border: 1px solid rgba(245,166,35,.2);
+    border-radius: 4px;
+    padding: 14px;
+    margin-bottom: 14px;
+  }
+
+  .jur-name {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: .1em;
+    color: var(--amber);
+    text-transform: uppercase;
+    margin-bottom: 8px;
+  }
+
+  .jur-item {
+    display: flex;
+    gap: 8px;
+    font-size: 12px;
+    color: var(--text);
+    margin-bottom: 6px;
+    line-height: 1.5;
+  }
+
+  .jur-item:last-child { margin-bottom: 0; }
+
+  .jur-dot { color: var(--amber); flex-shrink: 0; margin-top: 2px; }
+
+  /* ─── SOURCE LINKS ───────────────────────────────────────── */
+  .source-list { list-style: none; }
+
+  .source-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 9px 0;
+    border-bottom: 1px solid var(--border);
+    font-size: 12px;
+  }
+
+  .source-item:last-child { border-bottom: none; }
+
+  .source-icon {
+    width: 20px; height: 20px;
+    background: var(--border-hi);
+    border-radius: 3px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    font-size: 10px;
+  }
+
+  .source-label { color: var(--text); flex: 1; }
+
+  .source-link {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--pulse);
+    text-decoration: none;
+    opacity: .7;
+    transition: opacity .15s;
+  }
+
+  .source-link:hover { opacity: 1; }
+
+  /* ─── CONFIDENCE BAR ─────────────────────────────────────── */
+  .conf-bar-wrap {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 8px;
+  }
+
+  .conf-bar {
+    flex: 1;
+    height: 3px;
+    background: var(--border);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+
+  .conf-fill {
+    height: 100%;
+    border-radius: 2px;
+    background: var(--pulse);
+    transition: width 1s cubic-bezier(.4,0,.2,1);
+  }
+
+  .conf-label {
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--muted);
+    white-space: nowrap;
+  }
+
+  /* ─── DELTA RADAR TEASER ─────────────────────────────────── */
+  .radar-teaser {
+    background: var(--surface);
+    border: 1px dashed var(--border-hi);
+    border-radius: 6px;
+    padding: 24px;
+    text-align: center;
+    margin-bottom: 20px;
+  }
+
+  .radar-teaser-icon {
+    font-size: 28px;
+    margin-bottom: 12px;
+    opacity: .5;
+  }
+
+  .radar-teaser-title {
+    font-family: var(--display);
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--text-hi);
+    margin-bottom: 6px;
+  }
+
+  .radar-teaser-sub {
+    font-size: 12px;
+    color: var(--muted);
+    margin-bottom: 14px;
+    line-height: 1.6;
+  }
+
+  .radar-btn {
+    background: transparent;
+    border: 1px solid var(--border-hi);
+    border-radius: 3px;
+    padding: 6px 16px;
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--muted);
+    cursor: pointer;
+    transition: border-color .2s, color .2s;
+  }
+
+  .radar-btn:hover {
+    border-color: var(--pulse);
+    color: var(--pulse);
+  }
+
+  /* ─── EMPTY STATE ────────────────────────────────────────── */
+  .empty-state {
+    text-align: center;
+    padding: 80px 24px;
+    color: var(--muted);
+  }
+
+  .empty-glyph {
+    font-family: var(--mono);
+    font-size: 48px;
+    opacity: .15;
+    margin-bottom: 16px;
+    line-height: 1;
+  }
+
+  .empty-label {
+    font-family: var(--mono);
+    font-size: 11px;
+    letter-spacing: .12em;
+    text-transform: uppercase;
+    opacity: .4;
+  }
+
+  /* ─── FOOTER ─────────────────────────────────────────────── */
+  .footer {
+    text-align: center;
+    padding: 40px 24px;
+    font-family: var(--mono);
+    font-size: 10px;
+    color: var(--border-hi);
+    letter-spacing: .08em;
+    border-top: 1px solid var(--border);
+  }
+
+  /* ─── MISC UTILS ─────────────────────────────────────────── */
+  .mt-0 { margin-top: 0; }
+  .mb-12 { margin-bottom: 12px; }
+  .text-pulse { color: var(--pulse); }
+  .text-amber { color: var(--amber); }
+  .text-red   { color: var(--red); }
+  .text-green { color: var(--green); }
+  .text-muted { color: var(--muted); }
+  .mono { font-family: var(--mono); }
+
+  .divider {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 16px 0;
+  }
+
+  /* ─── FADE IN ANIMATION ──────────────────────────────────── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(12px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .fade-up { animation: fadeUp .4s ease forwards; }
+  .delay-1 { animation-delay: .08s; }
+  .delay-2 { animation-delay: .16s; }
+  .delay-3 { animation-delay: .24s; }
+  .delay-4 { animation-delay: .32s; }
+</style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<header class="topbar">
+  <div class="topbar-logo">
+    <div class="dot"></div>
+    PERMITPULSE
+  </div>
+  <div class="topbar-right">
+    <span class="status-pill">BETA</span>
+    <span id="clock">--:--:--</span>
+  </div>
+</header>
+
+<!-- HERO -->
+<section class="hero" id="hero-section">
+  <div class="hero-eyebrow">⬡ Mission Control</div>
+  <h1 class="hero-h1">Enter an address.<br><span>Get the case file.</span></h1>
+  <p class="hero-sub">AI permit intelligence for California projects. Understand momentum, spot risk, and know exactly who to call next.</p>
+</section>
+
+<!-- COMMAND BAR -->
+<div class="command-wrap">
+  <div class="command-bar" id="commandBar">
+    <div class="command-bar-top">
+      <span class="cmd-icon">⌕</span>
+      <input
+        type="text"
+        id="addressInput"
+        placeholder="123 Main St, Covina CA 91722 — or paste any permit address..."
+        autocomplete="off"
+      />
+    </div>
+    <div class="command-bar-fields">
+      <div class="cmd-field">
+        <label>APN / Parcel #</label>
+        <input type="text" id="apnInput" placeholder="8437-021-017" autocomplete="off" />
+      </div>
+      <div class="cmd-field">
+        <label>Permit # (optional)</label>
+        <input type="text" id="permitInput" placeholder="B-2024-04412" autocomplete="off" />
+      </div>
+      <div class="cmd-field">
+        <label>City / County</label>
+        <input type="text" id="cityInput" placeholder="Covina" autocomplete="off" />
+      </div>
+    </div>
+    <div class="command-bar-action">
+      <span class="cmd-hint">↵ Enter to run · Results in ~10s</span>
+      <button class="run-btn" id="runBtn" onclick="runAnalysis()">Run Intelligence</button>
+    </div>
+  </div>
+</div>
+
+<!-- LOADING STATE -->
+<div id="loading-state">
+  <div class="loading-inner">
+    <div class="loading-label" id="loadingLabel">Initializing Case File...</div>
+    <ul class="loading-steps" id="loadingSteps">
+      <li id="step-0"><span class="step-icon step-active">▶</span> Parsing address &amp; jurisdiction</li>
+      <li id="step-1"><span class="step-icon">○</span> Querying permit database</li>
+      <li id="step-2"><span class="step-icon">○</span> Building permit timeline</li>
+      <li id="step-3"><span class="step-icon">○</span> Running risk analysis</li>
+      <li id="step-4"><span class="step-icon">○</span> Generating operator recommendations</li>
+      <li id="step-5"><span class="step-icon">○</span> Compiling dossier</li>
+    </ul>
+  </div>
+</div>
+
+<!-- DOSSIER -->
+<div id="dossier">
+  <!-- Header -->
+  <div class="dossier-header fade-up">
+    <div>
+      <div class="dossier-address" id="dossierAddress">—</div>
+      <div class="dossier-meta" id="dossierMeta">—</div>
+    </div>
+    <div class="dossier-badges" id="dossierBadges">
+      <!-- Injected by JS -->
+    </div>
+  </div>
+
+  <!-- 2-col grid -->
+  <div class="dossier-grid">
+
+    <!-- LEFT COLUMN -->
+    <div>
+
+      <!-- Summary -->
+      <div class="card fade-up delay-1">
+        <div class="card-header">
+          <span class="card-title"><span class="icon">◈</span> AI Summary</span>
+          <button class="card-action" id="summaryConfBtn">—% confidence</button>
+        </div>
+        <div class="card-body">
+          <p class="summary-text" id="summaryText">—</p>
+          <div class="conf-bar-wrap mt-0" style="margin-top:14px">
+            <div class="conf-bar"><div class="conf-fill" id="summaryConfBar" style="width:0%"></div></div>
+            <span class="conf-label" id="summaryConfLabel">—</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Timeline -->
+      <div class="card fade-up delay-2">
+        <div class="card-header">
+          <span class="card-title"><span class="icon">◷</span> Permit Timeline</span>
+          <button class="card-action">Export</button>
+        </div>
+        <div class="card-body">
+          <ul class="timeline" id="permitTimeline">
+            <!-- Injected by JS -->
+          </ul>
+        </div>
+      </div>
+
+      <!-- Red Flags -->
+      <div class="card fade-up delay-3">
+        <div class="card-header">
+          <span class="card-title"><span class="icon text-red">⚑</span> Red Flags</span>
+          <button class="card-action" id="flagCount">0 flagged</button>
+        </div>
+        <div class="card-body">
+          <ul class="flag-list" id="redFlags">
+            <!-- Injected by JS -->
+          </ul>
+        </div>
+      </div>
+
+      <!-- Operator Script -->
+      <div class="card fade-up delay-4">
+        <div class="card-header">
+          <span class="card-title"><span class="icon">⟡</span> Outreach Script</span>
+          <button class="card-action" onclick="copyScript()">Copy</button>
+        </div>
+        <div class="card-body">
+          <div class="script-box" id="scriptBox">
+            <button class="script-copy-btn" onclick="copyScript()">COPY</button>
+            <span id="scriptContent">—</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- RIGHT COLUMN -->
+    <div>
+
+      <!-- Next Actions -->
+      <div class="card fade-up delay-1">
+        <div class="card-header">
+          <span class="card-title"><span class="icon text-pulse">▷</span> Next Best Actions</span>
+        </div>
+        <div class="card-body" id="nextActions">
+          <!-- Injected by JS -->
+        </div>
+      </div>
+
+      <!-- Jurisdiction Memory -->
+      <div class="card fade-up delay-2">
+        <div class="card-header">
+          <span class="card-title"><span class="icon text-amber">⊕</span> Jurisdiction Memory</span>
+          <button class="card-action">Edit</button>
+        </div>
+        <div class="card-body">
+          <div class="jurisdiction-profile" id="jurisdictionProfile">
+            <!-- Injected by JS -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Source Links -->
+      <div class="card fade-up delay-3">
+        <div class="card-header">
+          <span class="card-title"><span class="icon">◎</span> Sources</span>
+        </div>
+        <div class="card-body">
+          <ul class="source-list" id="sourceList">
+            <!-- Injected by JS -->
+          </ul>
+        </div>
+      </div>
+
+      <!-- Delta Radar teaser -->
+      <div class="radar-teaser fade-up delay-4">
+        <div class="radar-teaser-icon">◉</div>
+        <div class="radar-teaser-title">Delta Radar</div>
+        <div class="radar-teaser-sub">
+          Get notified when this property's permit status changes, inspections post, or resubmittals appear.
+        </div>
+        <button class="radar-btn" onclick="watchProperty()">Watch This Property →</button>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<!-- EMPTY STATE (default) -->
+<div class="empty-state" id="emptyState">
+  <div class="empty-glyph">[  ]</div>
+  <div class="empty-label">No case file loaded — enter an address above</div>
+</div>
+
+<footer class="footer">
+  PERMITPULSE MISSION CONTROL · CALIFORNIA PERMIT INTELLIGENCE OPERATOR · BETA
+</footer>
+
+<script>
+// ─── CLOCK ─────────────────────────────────────────────────────────────────
+function updateClock() {
+  const now = new Date();
+  const t = [now.getHours(), now.getMinutes(), now.getSeconds()]
+    .map(n => String(n).padStart(2, '0')).join(':');
+  document.getElementById('clock').textContent = t;
+}
+setInterval(updateClock, 1000);
+updateClock();
+
+// ─── ENTER KEY ──────────────────────────────────────────────────────────────
+document.getElementById('addressInput').addEventListener('keydown', e => {
+  if (e.key === 'Enter') runAnalysis();
+});
+
+// ─── LOADING STEPS SIMULATOR ─────────────────────────────────────────────────
+// TODO (Codex): Replace this with real API progress events from your backend.
+function simulateLoadingSteps(callback) {
+  const steps = document.querySelectorAll('#loadingSteps li');
+  let i = 0;
+
+  function markStep(index, status) {
+    const icon = steps[index].querySelector('.step-icon');
+    if (status === 'done') {
+      icon.textContent = '✓';
+      icon.className = 'step-icon step-done';
+    } else if (status === 'active') {
+      icon.textContent = '▶';
+      icon.className = 'step-icon step-active';
+    }
+  }
+
+  function next() {
+    if (i > 0) markStep(i - 1, 'done');
+    if (i < steps.length) {
+      markStep(i, 'active');
+      i++;
+      setTimeout(next, 900 + Math.random() * 400);
+    } else {
+      setTimeout(callback, 300);
+    }
+  }
+
+  next();
+}
+
+// ─── MAIN ANALYSIS RUNNER ───────────────────────────────────────────────────
+async function runAnalysis() {
+  const address = document.getElementById('addressInput').value.trim();
+  if (!address) {
+    document.getElementById('addressInput').focus();
+    return;
+  }
+
+  const apn    = document.getElementById('apnInput').value.trim();
+  const permit = document.getElementById('permitInput').value.trim();
+  const city   = document.getElementById('cityInput').value.trim();
+
+  // UI state: loading
+  document.getElementById('runBtn').disabled = true;
+  document.getElementById('emptyState').style.display = 'none';
+  document.getElementById('dossier').style.display = 'none';
+  document.getElementById('loading-state').style.display = 'block';
+
+  // Reset loading steps
+  document.querySelectorAll('#loadingSteps li').forEach(li => {
+    li.querySelector('.step-icon').textContent = '○';
+    li.querySelector('.step-icon').className = 'step-icon';
+  });
+
+  simulateLoadingSteps(async () => {
+    try {
+      // ── CALL AI ──────────────────────────────────────────────
+      // TODO (Codex): Replace the fetch below with your real permit data fetching
+      // layer. Ideal pattern: fetch raw permit data first, then pass it to the
+      // AI along with the address for analysis. See CODEX_NOTES below.
+      const dossierData = await callPermitIntelligence({ address, apn, permit, city });
+      renderDossier(dossierData);
+    } catch (err) {
+      alert('Intelligence request failed: ' + err.message);
+      console.error(err);
+    } finally {
+      document.getElementById('loading-state').style.display = 'none';
+      document.getElementById('runBtn').disabled = false;
+    }
+  });
+}
+
+// ─── AI CALL (SWAP THIS OUT FOR YOUR REAL DATA + BACKEND) ──────────────────
+/*
+  CODEX_NOTES for PermitPulse Codex build-out:
+
+  STEP 1 — Permit data layer:
+    - Query CA public permit APIs (BuiltWith, city portals, OpenPermit, etc.)
+    - Or scrape target jurisdiction portals (Covina, Azusa, etc.)
+    - Normalize raw data into a structured object before passing to AI
+
+  STEP 2 — AI analysis (using OpenAI Responses API):
+    - Use gpt-4o or gpt-4o-mini with Structured Outputs
+    - System prompt should specify exact JSON schema (see schema below)
+    - Pass normalized permit data + address as user message
+    - Request: summary, timeline, red_flags, next_actions, outreach_script,
+               jurisdiction_notes, sources, confidence, risk_score
+
+  STEP 3 — Return schema (Structured Outputs):
+    {
+      address: string,
+      apn: string,
+      city: string,
+      pulled_at: ISO timestamp,
+      risk_score: "HIGH" | "MEDIUM" | "LOW",
+      confidence: number (0-100),
+      summary: string,
+      timeline: [{ date, event, detail, status: "done"|"warn"|"active" }],
+      red_flags: [{ title, description, severity: "HI"|"MID"|"LO", confidence }],
+      next_actions: [{ step_num, text }],
+      outreach_script: string,
+      jurisdiction: { name, notes: string[] },
+      sources: [{ label, url }]
+    }
+
+  STEP 4 — For Delta Radar:
+    Store address + last result hash in Supabase/Neon
+    Cron job re-runs analysis and diffs results
+    Alert via email/SMS when changes detected
+*/
+async function callPermitIntelligence({ address, apn, permit, city }) {
+  // ── DEMO MODE ─────────────────────────────────────────────────────────────
+  // Remove this block and implement real API call when connecting to backend.
+  // This returns realistic mock data so the UI renders fully for development.
+  await new Promise(r => setTimeout(r, 200)); // simulate latency
+
+  return {
+    address: address || '1847 Barranca Ave, Covina CA 91724',
+    apn: apn || '8437-021-017',
+    city: city || 'Covina',
+    pulled_at: new Date().toISOString(),
+    risk_score: 'MEDIUM',
+    confidence: 74,
+    summary: 'This property shows a permit history with active residential addition work initiated in early 2023. The primary permit (B-2023-01884) for a 480 sq ft ADU conversion is currently in Plan Check Review — a status it has held for 14 months, which is atypically long for this jurisdiction. Electrical sub-permit was finalized in December 2023, suggesting partial contractor activity. Final inspection has not been scheduled. Resubmittal activity detected in August 2024 suggests a correction cycle may be in progress, though no approval has followed. Momentum risk is elevated.',
+    timeline: [
+      { date: 'Mar 2023', event: 'Permit Applied', detail: 'ADU conversion 480 sq ft — B-2023-01884', status: 'done' },
+      { date: 'Apr 2023', event: 'Plan Check Initiated', detail: 'Assigned to plan checker T. Nguyen', status: 'done' },
+      { date: 'Jul 2023', event: 'Correction Notice Issued', detail: '3 structural corrections required', status: 'warn' },
+      { date: 'Dec 2023', event: 'Electrical Sub-Permit Finaled', detail: 'E-2023-2218 — completed', status: 'done' },
+      { date: 'Aug 2024', event: 'Resubmittal Detected', detail: 'Documents uploaded — no approval yet', status: 'warn' },
+      { date: 'Present', event: 'Plan Check Review — Stalled', detail: 'No activity in 7+ months', status: 'active' },
+    ],
+    red_flags: [
+      { title: 'Plan Check Stall — 14 Months', description: 'Primary permit has been in Plan Check Review for 14 months. Average for this jurisdiction is 6–8 weeks. Likely cause: unresolved corrections or applicant non-response.', severity: 'HI', confidence: 88 },
+      { title: 'Resubmittal Without Approval', description: 'Documents were resubmitted in Aug 2024 but no approval has followed. May indicate incomplete corrections or reviewer backlog.', severity: 'MID', confidence: 71 },
+      { title: 'Partial Finalization Pattern', description: 'Electrical sub-permit finalized but no other sub-permits or final inspection scheduled. Suggests work may have stopped mid-project.', severity: 'MID', confidence: 65 },
+    ],
+    next_actions: [
+      { step_num: 1, text: 'Call Covina Building & Safety (626-858-7238) to confirm current plan check status and whether corrections have been received and accepted.' },
+      { step_num: 2, text: 'Request a copy of the correction notice (if public record). Determine if applicant responded to all 3 structural items.' },
+      { step_num: 3, text: 'Identify the contractor of record via permit documents. Verify if they are still active on this project.' },
+    ],
+    outreach_script: `Hi, this is [YOUR NAME] — I work with permit expediting and project recovery in the SGV area.
+
+I'm looking at a project at [ADDRESS] that appears to be stalled in Plan Check for over a year. I help contractors and property owners get these unstuck.
+
+Quick question: are you the GC on this, or have you handed it off?
+
+[IF STILL INVOLVED]
+I have a few contacts at Covina Building & Safety and can usually get corrections clarified within a week. Would it make sense to get on a quick call?`,
+    jurisdiction: {
+      name: 'City of Covina — Building & Safety',
+      notes: [
+        'Plan check turnaround averages 6–8 weeks for residential ADU projects',
+        'Correction notices are issued via email — applicants frequently miss them',
+        'Inspections must be scheduled via eTRAKiT portal — walk-ins not accepted',
+        'Stalled permits past 6 months may require reactivation fee ($220–$480)',
+      ]
+    },
+    sources: [
+      { label: 'Covina eTRAKiT Portal', url: 'https://www.covinaca.gov/etrakit' },
+      { label: 'LA County Assessor (APN Lookup)', url: 'https://assessor.lacounty.gov' },
+      { label: 'CA ADU Database', url: 'https://caadudatabase.org' },
+      { label: 'Covina Building & Safety Dept', url: 'https://www.covinaca.gov/building' },
+    ]
+  };
+  // ── END DEMO MODE ──────────────────────────────────────────────────────────
+}
+
+// ─── RENDER DOSSIER ──────────────────────────────────────────────────────────
+function renderDossier(data) {
+  // Header
+  document.getElementById('dossierAddress').textContent = data.address;
+  document.getElementById('dossierMeta').textContent =
+    `APN: ${data.apn || '—'} · ${data.city || '—'} · Pulled ${new Date(data.pulled_at).toLocaleString()}`;
+
+  // Badges
+  const riskClass = { HIGH: 'badge-risk-hi', MEDIUM: 'badge-risk-mid', LOW: 'badge-risk-lo' }[data.risk_score] || 'badge-risk-mid';
+  document.getElementById('dossierBadges').innerHTML = `
+    <span class="badge ${riskClass}">${data.risk_score} RISK</span>
+    <span class="badge badge-conf">${data.confidence}% CONFIDENCE</span>
+  `;
+
+  // Summary
+  document.getElementById('summaryText').textContent = data.summary;
+  document.getElementById('summaryConfBar').style.width = data.confidence + '%';
+  document.getElementById('summaryConfLabel').textContent = data.confidence + '% confidence';
+  document.getElementById('summaryConfBtn').textContent = data.confidence + '% confidence';
+
+  // Timeline
+  const tlEl = document.getElementById('permitTimeline');
+  tlEl.innerHTML = data.timeline.map(t => `
+    <li class="timeline-item">
+      <div class="timeline-dot ${t.status}"></div>
+      <div class="timeline-date">${t.date}</div>
+      <div class="timeline-event">${t.event}</div>
+      <div class="timeline-detail">${t.detail}</div>
+    </li>
+  `).join('');
+
+  // Red Flags
+  const flagEl = document.getElementById('redFlags');
+  document.getElementById('flagCount').textContent = data.red_flags.length + ' flagged';
+  flagEl.innerHTML = data.red_flags.map(f => `
+    <li class="flag-item">
+      <div class="flag-sev sev-${f.severity.toLowerCase()}">${f.severity}</div>
+      <div class="flag-copy">
+        <div class="flag-title">${f.title}</div>
+        <div class="flag-desc">${f.description}</div>
+        <div class="flag-conf">CONFIDENCE: ${f.confidence}%</div>
+      </div>
+    </li>
+  `).join('');
+
+  // Next Actions
+  const naEl = document.getElementById('nextActions');
+  naEl.innerHTML = data.next_actions.map(a => `
+    <div class="next-action-box">
+      <div class="step-num">STEP ${a.step_num}</div>
+      <div class="step-text">${a.text}</div>
+    </div>
+  `).join('');
+
+  // Outreach Script
+  document.getElementById('scriptContent').textContent = data.outreach_script;
+
+  // Jurisdiction
+  const jurEl = document.getElementById('jurisdictionProfile');
+  jurEl.innerHTML = `
+    <div class="jur-name">⊕ ${data.jurisdiction.name}</div>
+    ${data.jurisdiction.notes.map(n => `
+      <div class="jur-item"><span class="jur-dot">·</span><span>${n}</span></div>
+    `).join('')}
+  `;
+
+  // Sources
+  const srcEl = document.getElementById('sourceList');
+  srcEl.innerHTML = data.sources.map(s => `
+    <li class="source-item">
+      <div class="source-icon">⌁</div>
+      <span class="source-label">${s.label}</span>
+      <a class="source-link" href="${s.url}" target="_blank" rel="noopener">OPEN →</a>
+    </li>
+  `).join('');
+
+  // Show dossier
+  document.getElementById('dossier').style.display = 'block';
+  document.getElementById('emptyState').style.display = 'none';
+
+  // Scroll into view
+  setTimeout(() => {
+    document.getElementById('dossier').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, 100);
+}
+
+// ─── COPY SCRIPT ────────────────────────────────────────────────────────────
+function copyScript() {
+  const text = document.getElementById('scriptContent').textContent;
+  navigator.clipboard.writeText(text).then(() => {
+    const btn = document.querySelector('.script-copy-btn');
+    btn.textContent = 'COPIED ✓';
+    btn.style.color = 'var(--green)';
+    setTimeout(() => {
+      btn.textContent = 'COPY';
+      btn.style.color = '';
+    }, 1500);
+  });
+}
+
+// ─── WATCH PROPERTY ──────────────────────────────────────────────────────────
+// TODO (Codex): Wire to Supabase insert + cron-based Delta Radar backend
+function watchProperty() {
+  alert('Delta Radar: Coming soon. Will alert you when permit status, inspections, or resubmittals change on this property.');
+}
+</script>
+</body>
+</html>

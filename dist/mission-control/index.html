@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Mission Control | PermitPulse</title>
+  <meta
+    name="description"
+    content="Mission Control is PermitPulse's tactical permit intelligence interface for reviewing permit risk, timelines, flags, and next actions."
+  />
+  <meta property="og:title" content="Mission Control | PermitPulse" />
+  <meta
+    property="og:description"
+    content="A tactical dark permit intelligence console for reviewing project risk and permit momentum."
+  />
+  <meta property="og:type" content="website" />
+  <link rel="canonical" href="https://getpermitpulse.com/mission-control/" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap"
+    rel="stylesheet"
+  />
+  <link rel="stylesheet" href="/assets/mission-control.css" />
+</head>
+<body>
+  <div class="mission-shell">
+    <div class="mission-grid" aria-hidden="true"></div>
+
+    <header class="topbar">
+      <div class="wrap topbar-inner">
+        <a class="brand" href="/">PermitPulse</a>
+        <div class="topbar-meta">
+          <span class="status-chip">Mission Control Beta</span>
+          <span class="clock" id="missionClock">--:--:-- UTC</span>
+        </div>
+      </div>
+    </header>
+
+    <main>
+      <section class="hero wrap">
+        <div class="hero-copy">
+          <div class="eyebrow">Permit Intelligence Console</div>
+          <h1>Mission control for permit risk, momentum, and operator decisions.</h1>
+          <p class="lead">
+            Run a tactical dossier on a property, inspect likely blockers, and
+            move directly into next actions with a mobile-first command surface.
+          </p>
+        </div>
+
+        <section class="command-card" aria-labelledby="command-bar-title">
+          <div class="command-head">
+            <div>
+              <p class="command-kicker" id="command-bar-title">Hero Command Bar</p>
+              <p class="command-sub">Input an address, city, APN, and optional permit number to stage a tactical permit intelligence run.</p>
+            </div>
+            <div class="live-chip">
+              <span class="live-dot"></span>
+              Mock Ops
+            </div>
+          </div>
+
+          <form class="command-form" id="missionForm">
+            <label class="field field-address">
+              <span>Project Address</span>
+              <input
+                id="addressInput"
+                name="address"
+                type="text"
+                autocomplete="street-address"
+                placeholder="742 S Mission Rd"
+                value="742 S Mission Rd"
+              />
+            </label>
+
+            <div class="command-row">
+              <label class="field">
+                <span>City</span>
+                <input
+                  id="cityInput"
+                  name="city"
+                  type="text"
+                  autocomplete="address-level2"
+                  placeholder="Los Angeles"
+                  value="Los Angeles"
+                />
+              </label>
+            </div>
+
+            <div class="command-row">
+              <label class="field">
+                <span>Permit Number</span>
+                <input
+                  id="permitNumberInput"
+                  name="permit_number"
+                  type="text"
+                  autocomplete="off"
+                  placeholder="MC-2026-01884"
+                  value="MC-2026-01884"
+                />
+              </label>
+
+              <label class="field">
+                <span>APN</span>
+                <input
+                  id="apnInput"
+                  name="apn"
+                  type="text"
+                  autocomplete="off"
+                  placeholder="5182-014-031"
+                  value="5182-014-031"
+                />
+              </label>
+            </div>
+
+            <div class="command-actions">
+              <p class="command-hint">Runs against the Mission Control report endpoint, with demo-safe fallback behavior when live data is unavailable.</p>
+              <button class="run-btn" id="runButton" type="submit">Run Mission Scan</button>
+            </div>
+          </form>
+        </section>
+      </section>
+
+      <section class="loading-panel wrap" id="loadingPanel" hidden aria-live="polite">
+        <div class="panel loading-card">
+          <div class="panel-head">
+            <div>
+              <p class="panel-kicker">Loading State</p>
+              <p class="panel-title">Building permit dossier</p>
+            </div>
+            <div class="scan-orbit" aria-hidden="true"></div>
+          </div>
+          <div class="loading-progress">
+            <div class="loading-progress-fill" id="loadingProgressFill"></div>
+          </div>
+          <ul class="loading-steps" id="loadingSteps">
+            <li><span class="step-icon">○</span><span>Parsing property identity and jurisdiction route</span></li>
+            <li><span class="step-icon">○</span><span>Pulling permit activity and public record signals</span></li>
+            <li><span class="step-icon">○</span><span>Assembling project header and risk narrative</span></li>
+            <li><span class="step-icon">○</span><span>Scoring red flags and operator actions</span></li>
+            <li><span class="step-icon">○</span><span>Staging client-ready outputs and export package</span></li>
+          </ul>
+        </div>
+      </section>
+
+      <section class="empty-panel wrap" id="emptyPanel">
+        <div class="panel empty-card">
+          <p class="panel-kicker">Awaiting Input</p>
+          <h2 class="panel-title">No dossier loaded yet.</h2>
+          <p class="panel-copy">
+            Submit the command bar above to render the Mission Control mock case file.
+          </p>
+          <div class="empty-state-grid">
+            <div class="empty-state-block">
+              <span class="mini-label">Best Inputs</span>
+              <p class="panel-copy">Address is required. Add city, APN, or permit number for a tighter read.</p>
+            </div>
+            <div class="empty-state-block">
+              <span class="mini-label">Beta Flow</span>
+              <p class="panel-copy">Mission Control returns a tactical dossier first, then stages premium follow-up options.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="dossier wrap" id="dossier" hidden>
+        <div class="dossier-layout">
+          <div class="dossier-primary">
+            <article class="panel scan-status-panel reveal">
+              <div class="scan-status-head">
+                <div>
+                  <p class="panel-kicker">Scan Status</p>
+                  <p class="panel-title" id="scanStatusTitle">Mission scan complete</p>
+                </div>
+                <div class="status-cluster">
+                  <span class="header-badge badge-mode" id="dataModeBadge">Live report</span>
+                  <span class="header-badge badge-source" id="sourceCountBadge">0 sources</span>
+                </div>
+              </div>
+              <div class="scan-status-grid">
+                <div class="scan-status-main">
+                  <p class="scan-status-summary" id="scanStatusSummary">
+                    Tactical dossier assembled and ready for operator review.
+                  </p>
+                  <div class="scan-status-chips" id="scanHighlights"></div>
+                </div>
+                <div class="scan-status-side">
+                  <div class="mini-metric">
+                    <span class="mini-label">Recommended Next Move</span>
+                    <strong id="recommendedAction">Awaiting dossier</strong>
+                  </div>
+                  <div class="mini-metric">
+                    <span class="mini-label">Operator State</span>
+                    <strong id="operatorStateLabel">Standby</strong>
+                  </div>
+                </div>
+              </div>
+              <div class="status-banner" id="statusBanner" hidden></div>
+            </article>
+
+            <article class="panel project-header-panel reveal">
+              <div class="panel-head">
+                <div>
+                  <p class="panel-kicker">Project Header</p>
+                  <p class="panel-title" id="projectName">Mission dossier</p>
+                </div>
+                <div class="header-badges">
+                  <span class="header-badge badge-confidence" id="confidenceBadge">0% confidence</span>
+                  <span class="header-badge badge-pulse" id="pulseBadge">Dormant pulse</span>
+                </div>
+              </div>
+              <div class="project-header-grid">
+                <div class="project-main">
+                  <h2 class="project-address" id="projectAddress">742 S Mission Rd, Los Angeles, CA</h2>
+                  <p class="project-summary" id="projectSummary">Loading summary.</p>
+                </div>
+                <div class="project-stats" id="projectStats"></div>
+              </div>
+            </article>
+
+            <article class="panel action-hub-panel reveal">
+              <div class="panel-head">
+                <div>
+                  <p class="panel-kicker">Action Layer</p>
+                  <p class="panel-title">Interactive mock operators</p>
+                </div>
+              </div>
+              <div class="action-toolbar">
+                <button class="tool-btn" data-mission-action="client-summary" type="button">Generate client-ready summary</button>
+                <button class="tool-btn" data-mission-action="outreach-angle" type="button">Create outreach angle</button>
+                <button class="tool-btn" data-mission-action="export-report" type="button">Export report</button>
+                <button class="tool-btn" data-mission-action="request-report" type="button">Request full report</button>
+              </div>
+              <div class="action-output" id="actionOutput">
+                <p class="action-output-kicker">Output Console</p>
+                <p class="action-output-body">Run a dossier, then tap an action above to generate a mock operator artifact.</p>
+              </div>
+            </article>
+
+            <article class="panel premium-cta-panel reveal">
+              <div class="panel-head">
+                <div>
+                  <p class="panel-kicker">Premium Next Step</p>
+                  <p class="panel-title">Convert the beta read into a client-ready deliverable</p>
+                </div>
+              </div>
+              <div class="premium-grid">
+                <section class="premium-card">
+                  <span class="premium-tag">Flag Escalation</span>
+                  <h3 class="premium-title">Request Full Risk Report</h3>
+                  <p class="panel-copy">
+                    Escalate from this tactical scan into a deeper review with linked permit verification, public-record pull, and a formatted client handoff.
+                  </p>
+                  <button class="premium-btn" id="requestRiskReportButton" data-mission-action="request-report" type="button">
+                    Request Full Risk Report
+                  </button>
+                </section>
+                <section class="premium-card premium-card-accent">
+                  <span class="premium-tag">Fast Turnaround</span>
+                  <h3 class="premium-title">Permit Snapshot</h3>
+                  <p class="panel-copy">
+                    Need a cleaner answer fast? Stage a 24-hour Permit Snapshot for a sharper blocker read and concise executive summary.
+                  </p>
+                  <button class="premium-btn premium-btn-alt" id="permitSnapshotButton" data-mission-action="permit-snapshot" type="button">
+                    Permit Snapshot (24-hour turnaround)
+                  </button>
+                </section>
+              </div>
+            </article>
+
+            <article class="panel reveal">
+              <div class="panel-head">
+                <p class="panel-kicker">Risk Narrative</p>
+                <p class="panel-title">What is happening here</p>
+              </div>
+              <div class="narrative-grid">
+                <div class="narrative-stack">
+                  <p class="panel-copy" id="riskNarrative"></p>
+                  <div class="signal-strip" id="signalStrip"></div>
+                </div>
+                <div class="confidence-box">
+                  <span class="confidence-label">Confidence</span>
+                  <strong id="confidenceValue">0%</strong>
+                  <div class="confidence-bar">
+                    <div class="confidence-fill" id="confidenceFill"></div>
+                  </div>
+                </div>
+              </div>
+            </article>
+
+            <article class="panel reveal">
+              <div class="panel-head">
+                <div>
+                  <p class="panel-kicker">Permit Timeline</p>
+                  <p class="panel-title">Sequence of visible activity</p>
+                </div>
+                <p class="timeline-hint">Recent first. Optimized for thumb scanning.</p>
+              </div>
+              <ol class="timeline" id="timelineList"></ol>
+            </article>
+          </div>
+
+          <aside class="dossier-secondary">
+            <article class="panel reveal">
+              <div class="panel-head">
+                <p class="panel-kicker">Red Flags</p>
+                <p class="panel-title">Signals worth escalation</p>
+              </div>
+              <div class="stack-list" id="redFlagsList"></div>
+            </article>
+
+            <article class="panel reveal">
+              <div class="panel-head">
+                <p class="panel-kicker">Next Best Actions</p>
+                <p class="panel-title">Recommended operator moves</p>
+              </div>
+              <div class="action-list" id="actionsList"></div>
+            </article>
+
+            <article class="panel reveal">
+              <div class="panel-head">
+                <p class="panel-kicker">Operator Mode</p>
+                <p class="panel-title">Suggested call posture</p>
+              </div>
+              <div class="operator-mode">
+                <div class="operator-tags" id="operatorTags"></div>
+                <div class="operator-script-wrap">
+                  <button class="ghost-btn" id="copyScriptButton" type="button">Copy Script</button>
+                  <pre class="operator-script" id="operatorScript"></pre>
+                </div>
+              </div>
+            </article>
+
+            <article class="panel trust-panel reveal">
+              <div class="panel-head">
+                <div>
+                  <p class="panel-kicker">Why This Read Holds Up</p>
+                  <p class="panel-title">Small proof layer, not a hype layer</p>
+                </div>
+              </div>
+              <div class="trust-grid">
+                <div class="trust-item">
+                  <span class="mini-label">Signal Mix</span>
+                  <p class="panel-copy" id="trustSignalCopy">Mission Control blends permit activity, timeline structure, and operator action framing into one scan.</p>
+                </div>
+                <div class="trust-item">
+                  <span class="mini-label">Operator Use</span>
+                  <p class="panel-copy">Built to help owners, expediters, and GCs decide whether a file is actually moving or just generating surface activity.</p>
+                </div>
+                <div class="trust-item">
+                  <span class="mini-label">Beta Promise</span>
+                  <p class="panel-copy">Fast tactical read first. Deeper review only when the case actually warrants escalation.</p>
+                </div>
+              </div>
+            </article>
+          </aside>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script src="/assets/mission-control.js"></script>
+</body>
+</html>

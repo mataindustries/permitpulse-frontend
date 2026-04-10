@@ -10,6 +10,7 @@ import {
 	STORM_WORDS,
 } from './config/permits.js';
 import { arcgisQuery as fetchArcgisRows } from "./providers/arcgis.js";
+import { handleMissionControlReport } from './mission-control/report.js';
 import { fetchSocrataRows } from './providers/socrata.js';
 
 function corsHeaders(origin) {
@@ -948,6 +949,7 @@ function createRoutes() {
 		'/api/top': handleTopPermits,
 		'/api/top-permits': handleTopPermits,
 		'/api/address-pulse': handleAddressPulse,
+		'/api/mission-control/report': handleMissionControlReport,
 		'/api/zone-claim': ({ url, env }) => handleZoneClaim(url, env),
 		'/api/pilot-intake': handlePilotIntake,
 		'/pilot-intake': handlePilotIntake,
