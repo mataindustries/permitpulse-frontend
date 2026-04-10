@@ -1,5 +1,5 @@
 (function () {
-  const REPORT_ENDPOINT = "/api/mission-control/report";
+  const REPORT_ENDPOINT = "https://api.getpermitpulse.com/api/mission-control/report";
   const state = {
     activeDossier: null,
     activeAction: "",
