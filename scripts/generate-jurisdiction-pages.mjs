@@ -824,6 +824,10 @@ function buildPermitsCityPath(entry) {
   return `${buildPermitsStatePath(entry.state)}${getJurisdictionSlug(entry)}/`;
 }
 
+function buildBuildingPermitsCityPath(entry) {
+  return `/building-permits/${getStateSlug(entry.state)}/${getJurisdictionSlug(entry)}/`;
+}
+
 function buildPermitPortalAliasPath(entry) {
   return `/permit-portal/${getStateSlug(entry.state)}/${getJurisdictionSlug(entry)}/`;
 }
@@ -1043,6 +1047,60 @@ function buildPermitsStructuredData({ stateCode, stateName, statePath, entry = n
     breadcrumb: {
       '@type': 'BreadcrumbList',
       itemListElement: items,
+    },
+  };
+}
+
+function buildBuildingPermitsStructuredData(entry) {
+  const stateName = getStateName(entry.state);
+  const buildingPath = buildBuildingPermitsCityPath(entry);
+  const permitsPath = buildPermitsCityPath(entry);
+
+  return {
+    '@context': 'https://schema.org',
+    '@type': 'WebPage',
+    name: `${entry.name}, ${stateName} Building Permits | PermitPulse`,
+    url: buildCanonical(buildingPath),
+    description: `${entry.name}, ${stateName} building permits page with the official permit portal, coverage tier, fallback notes, and links into the main permit directory.`,
+    isPartOf: {
+      '@type': 'WebSite',
+      name: 'PermitPulse',
+      url: SITE_URL,
+    },
+    breadcrumb: {
+      '@type': 'BreadcrumbList',
+      itemListElement: [
+        {
+          '@type': 'ListItem',
+          position: 1,
+          name: 'Home',
+          item: SITE_URL,
+        },
+        {
+          '@type': 'ListItem',
+          position: 2,
+          name: 'Permit pages',
+          item: `${SITE_URL}${buildPermitsHubPath()}`,
+        },
+        {
+          '@type': 'ListItem',
+          position: 3,
+          name: stateName,
+          item: `${SITE_URL}${buildPermitsStatePath(entry.state)}`,
+        },
+        {
+          '@type': 'ListItem',
+          position: 4,
+          name: `${entry.name} permits`,
+          item: `${SITE_URL}${permitsPath}`,
+        },
+        {
+          '@type': 'ListItem',
+          position: 5,
+          name: `${entry.name} building permits`,
+          item: `${SITE_URL}${buildingPath}`,
+        },
+      ],
     },
   };
 }
@@ -1679,6 +1737,7 @@ ${renderHeader()}
       <p class="lead">${escapeHtml(`${entry.name} is listed in the current PermitPulse jurisdiction catalog as ${tierArticle} ${tierPhrase} jurisdiction in ${stateName}. Start with the official ${entry.platform || 'permit'} portal, review the current coverage notes below, and use Mission Control when the permit record needs more context.`)}</p>
       <div class="btn-row">
         ${entry.portalUrl ? `<a class="btn btn-primary" href="${escapeHtml(entry.portalUrl)}" target="_blank" rel="noopener">Open official permit portal</a>` : ''}
+        <a class="btn btn-secondary" href="${buildBuildingPermitsCityPath(entry)}">Open building permits page</a>
         <a class="btn btn-secondary" href="/mission-control/">Open Mission Control</a>
         <a class="btn btn-secondary" href="${buildPermitsStatePath(entry.state)}">Back to ${escapeHtml(stateName)}</a>
       </div>
@@ -1738,6 +1797,116 @@ ${renderHeader()}
       </div>
       <div class="card">
         <div class="page-card-actions" style="font-size:14px;">
+          <a class="link-line" href="${buildBuildingPermitsCityPath(entry)}">${escapeHtml(entry.name)} building permits</a>
+          <a class="link-line" href="${buildPermitsStatePath(entry.state)}">${escapeHtml(stateName)} permit directory</a>
+          <a class="link-line" href="/mission-control/">Mission Control</a>
+          ${relatedEntries
+            .map(
+              (relatedEntry) =>
+                `<a class="link-line" href="${buildPermitsCityPath(relatedEntry)}">${escapeHtml(relatedEntry.name)}, ${escapeHtml(stateName)}</a>`,
+            )
+            .join('\n          ')}
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+${renderFooter()}
+${renderStickyCta()}
+</body>
+</html>
+`;
+}
+
+function renderBuildingPermitsCityPage(entry, stateEntries) {
+  const stateName = getStateName(entry.state);
+  const coverage = buildCoverage(entry);
+  const tierPhrase = coverage.id === 'api_backed' ? 'API-backed' : 'portal-only';
+  const fallbackNote = entry.provider
+    ? `${entry.name} has catalog-backed public data coverage, but the official ${entry.platform || 'permit'} portal remains the primary source for building permit lookup and record confirmation.`
+    : `${entry.name} is currently routed as portal-only coverage, so building permit lookup should start in the official ${entry.platform || 'permit'} portal before moving into Mission Control.`;
+  const relatedEntries = getRelatedPermitEntries(entry, stateEntries);
+  const pathname = buildBuildingPermitsCityPath(entry);
+
+  return `${renderHead({
+    title: `${entry.name}, ${stateName} Building Permits | PermitPulse`,
+    description: `Find ${entry.name}, ${stateName} building permits with the official ${entry.platform || 'permit'} portal, ${tierPhrase} coverage notes, and links to the main PermitPulse permit page.`,
+    canonicalPath: pathname,
+    structuredData: buildBuildingPermitsStructuredData(entry),
+  })}
+<body>
+${renderHeader()}
+<main>
+  <section class="wrap hero">
+    <div class="hero-copy">
+      <div class="eyebrow">
+        <span class="badge">${escapeHtml(stateName)} building permits</span>
+        <span class="pill ${coverage.className}">${escapeHtml(coverage.label)}</span>
+      </div>
+      <h1>${escapeHtml(`${entry.name} building permits`)}</h1>
+      <p class="lead">${escapeHtml(`Find building permits in ${entry.name}, ${stateName} using the current jurisdiction catalog and the official ${entry.platform || 'permit'} portal. This page is framed for building-permit lookup first, with direct links into the broader PermitPulse permit page and Mission Control when the record needs a wider review.`)}</p>
+      <div class="btn-row">
+        ${entry.portalUrl ? `<a class="btn btn-primary" href="${escapeHtml(entry.portalUrl)}" target="_blank" rel="noopener">Find building permits in official portal</a>` : ''}
+        <a class="btn btn-secondary" href="${buildPermitsCityPath(entry)}">Open main permit page</a>
+        <a class="btn btn-secondary" href="/mission-control/">Open Mission Control</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap grid grid-2">
+      <article class="card">
+        <div class="kicker">Building permits snapshot</div>
+        <h2 style="margin:8px 0 14px;">Current catalog facts for ${escapeHtml(entry.name)}</h2>
+        <ul class="notes-list">
+          <li><strong>City:</strong> ${escapeHtml(entry.name)}</li>
+          <li><strong>State:</strong> ${escapeHtml(stateName)} (${escapeHtml(entry.state)})</li>
+          <li><strong>Platform:</strong> ${escapeHtml(entry.platform || 'Not set')}</li>
+          <li><strong>Coverage tier:</strong> ${escapeHtml(coverage.label)}</li>
+          <li><strong>Route:</strong> <span class="mono">${escapeHtml(pathname)}</span></li>
+          <li><strong>Main permit page:</strong> <span class="mono">${escapeHtml(buildPermitsCityPath(entry))}</span></li>
+        </ul>
+      </article>
+      <aside class="card soft">
+        <div class="kicker">Fallback notes</div>
+        <h2 style="margin:8px 0 14px;">Portal-first building permit lookup</h2>
+        <p class="muted">${escapeHtml(entry.portalNotes || 'Official permit portal route available from the shared PermitPulse catalog.')}</p>
+        <p class="muted" style="margin-top:10px;">${escapeHtml(fallbackNote)}</p>
+        <div class="btn-row">
+          ${entry.portalUrl ? `<a class="btn btn-secondary" href="${escapeHtml(entry.portalUrl)}" target="_blank" rel="noopener">Open official permit portal</a>` : ''}
+          <a class="btn btn-secondary" href="${buildPermitsStatePath(entry.state)}">Back to ${escapeHtml(stateName)}</a>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap">
+      <div class="card cta-panel">
+        <div class="section-head" style="margin-bottom:0;">
+          <div class="kicker">PermitPulse paths</div>
+          <h2>Need the broader permit view?</h2>
+          <p class="lead">${escapeHtml(`Use the official portal first for ${entry.name} building permits, then move to the main PermitPulse permit page for the full jurisdiction view or Mission Control when the next step is unclear.`)}</p>
+        </div>
+        <div class="btn-row">
+          <a class="btn btn-primary" href="${buildPermitsCityPath(entry)}">Open main permit page</a>
+          <a class="btn btn-secondary" href="/mission-control/">Open Mission Control</a>
+          <a class="btn btn-secondary" href="${buildPermitsStatePath(entry.state)}">Browse ${escapeHtml(stateName)}</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap">
+      <div class="section-head">
+        <div class="kicker">Related links</div>
+        <h2>More ways to navigate ${escapeHtml(entry.name)} permit coverage</h2>
+        <p class="lead">These links keep the building-permits route connected to the main permit directory without adding non-catalog content.</p>
+      </div>
+      <div class="card">
+        <div class="page-card-actions" style="font-size:14px;">
+          <a class="link-line" href="${buildPermitsCityPath(entry)}">${escapeHtml(entry.name)} permit page</a>
           <a class="link-line" href="${buildPermitsStatePath(entry.state)}">${escapeHtml(stateName)} permit directory</a>
           <a class="link-line" href="/mission-control/">Mission Control</a>
           ${relatedEntries
@@ -1860,6 +2029,25 @@ ${urls
 `;
 }
 
+function renderBuildingPermitsSitemap(entries) {
+  const urls = entries.map((entry) => buildBuildingPermitsCityPath(entry));
+
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+${urls
+  .map(
+    (pathname) => `  <url>
+    <loc>${buildCanonical(pathname)}</loc>
+    <lastmod>${LASTMOD}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+  </url>`,
+  )
+  .join('\n')}
+</urlset>
+`;
+}
+
 function renderSitemapIndex() {
   return `<?xml version="1.0" encoding="UTF-8"?>
 <sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
@@ -1875,6 +2063,10 @@ function renderSitemapIndex() {
     <loc>${SITE_URL}/sitemap-permits.xml</loc>
     <lastmod>${LASTMOD}</lastmod>
   </sitemap>
+  <sitemap>
+    <loc>${SITE_URL}/sitemap-building-permits.xml</loc>
+    <lastmod>${LASTMOD}</lastmod>
+  </sitemap>
 </sitemapindex>
 `;
 }
@@ -1882,12 +2074,14 @@ function renderSitemapIndex() {
 async function main() {
   const entryMap = new Map(LAUNCH_JURISDICTIONS.map((entry) => [entry.slug, entry]));
   const permitsHubDir = path.join(DIST_DIR, 'permits');
+  const buildingPermitsDir = path.join(DIST_DIR, 'building-permits');
   const permitPortalDir = path.join(DIST_DIR, 'permit-portal');
   const usJurisdictions = getEnabledUsJurisdictions();
   const stateGroups = groupJurisdictionsByState(usJurisdictions);
   const stateEntriesByCode = mapJurisdictionsByState(stateGroups);
 
   await rm(permitsHubDir, { recursive: true, force: true });
+  await rm(buildingPermitsDir, { recursive: true, force: true });
   await rm(permitPortalDir, { recursive: true, force: true });
   await writeTextFile(path.join(DIST_DIR, 'assets', 'jurisdictions.css'), CSS.trimStart());
   await writeTextFile(path.join(HUB_DIR, 'index.html'), renderHubPage(LAUNCH_JURISDICTIONS));
@@ -1910,6 +2104,10 @@ async function main() {
         renderPermitsCityPage(entry, stateEntriesByCode.get(state.stateCode) || []),
       );
       await writeTextFile(
+        path.join(buildingPermitsDir, state.stateSlug, getJurisdictionSlug(entry), 'index.html'),
+        renderBuildingPermitsCityPage(entry, stateEntriesByCode.get(state.stateCode) || []),
+      );
+      await writeTextFile(
         path.join(permitPortalDir, state.stateSlug, getJurisdictionSlug(entry), 'index.html'),
         renderPermitPortalAliasPage(entry),
       );
@@ -1925,6 +2123,10 @@ async function main() {
   await writeTextFile(
     path.join(DIST_DIR, 'sitemap-permits.xml'),
     renderPermitsSitemap(stateGroups),
+  );
+  await writeTextFile(
+    path.join(DIST_DIR, 'sitemap-building-permits.xml'),
+    renderBuildingPermitsSitemap(usJurisdictions),
   );
   await writeTextFile(path.join(DIST_DIR, 'sitemap.xml'), renderSitemapIndex());
 }

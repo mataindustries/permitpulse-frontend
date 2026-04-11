@@ -12,4 +12,8 @@
     <loc>https://getpermitpulse.com/sitemap-permits.xml</loc>
     <lastmod>2026-04-11</lastmod>
   </sitemap>
+  <sitemap>
+    <loc>https://getpermitpulse.com/sitemap-building-permits.xml</loc>
+    <lastmod>2026-04-11</lastmod>
+  </sitemap>
 </sitemapindex>
