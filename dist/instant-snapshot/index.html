@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Instant Snapshot | PermitPulse</title>
+  <meta name="description" content="Generate a fast PermitPulse permit intake brief from an address, city, and project description in under a minute." />
+  <meta property="og:title" content="Instant Snapshot | PermitPulse" />
+  <meta property="og:description" content="A mobile-first PermitPulse intake brief that turns a property address and project description into likely permit next steps." />
+  <meta property="og:type" content="website" />
+  <meta property="og:url" content="https://getpermitpulse.com/instant-snapshot/" />
+  <meta property="og:image" content="https://getpermitpulse.com/img/permitpulse-og-los-angeles-permit-radar.webp" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Instant Snapshot | PermitPulse" />
+  <meta name="twitter:description" content="Fast permit intake brief, likely jurisdiction, portal routing, missing info, and next step recommendations." />
+  <meta name="twitter:image" content="https://getpermitpulse.com/img/permitpulse-og-los-angeles-permit-radar.webp" />
+  <link rel="canonical" href="https://getpermitpulse.com/instant-snapshot/" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/assets/instant-snapshot.css" />
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-0S8S6156CV"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);} 
+    gtag('js', new Date());
+    gtag('config', 'G-0S8S6156CV');
+  </script>
+  <script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token":"7046e03c84424a49988d1930fda247b6"}'></script>
+  <script defer src="/assets/instant-snapshot.js"></script>
+</head>
+<body>
+  <div class="shell">
+    <header class="topbar">
+      <div class="wrap topbar-inner">
+        <a class="brand" href="/">PermitPulse</a>
+        <div class="topbar-meta">
+          <a class="chip" href="/permits/">Permit Directory</a>
+          <a class="chip" href="/mission-control/">Mission Control</a>
+          <span class="clock" id="snapshotClock">--:--:-- UTC</span>
+        </div>
+      </div>
+    </header>
+
+    <main>
+      <section class="hero wrap">
+        <div class="hero-grid">
+          <div class="hero-copy">
+            <div class="eyebrow">Permit Intake Brief</div>
+            <h1>Generate a credible permit snapshot before the phone call starts.</h1>
+            <p class="lead">Instant Snapshot turns a property address, city, and project description into a polished PermitPulse intake brief with likely jurisdiction, portal routing, missing details, friction notes, and the next best move.</p>
+            <div class="hero-points">
+              <div class="hero-point">
+                <span class="mini-label">Fast first read</span>
+                <strong>Address to brief in one pass</strong>
+              </div>
+              <div class="hero-point">
+                <span class="mini-label">Real catalog</span>
+                <strong>Jurisdiction lookup from current PermitPulse data</strong>
+              </div>
+              <div class="hero-point">
+                <span class="mini-label">Built to sell</span>
+                <strong>Naturally hands off into full paid help</strong>
+              </div>
+            </div>
+          </div>
+
+          <section class="command-card" aria-labelledby="snapshot-title">
+            <div class="command-head">
+              <div>
+                <p class="kicker" id="snapshot-title">Instant Snapshot</p>
+                <p class="panel-copy">Mobile-first intake for quick demos, warm leads, and early permit triage.</p>
+              </div>
+              <span class="status-pill">Beta Live</span>
+            </div>
+
+            <form class="command-form" id="snapshotForm">
+              <label class="field">
+                <span>Property address</span>
+                <input name="address" type="text" autocomplete="street-address" placeholder="742 S Mission Rd" required />
+              </label>
+
+              <div class="field-grid-tight">
+                <label class="field">
+                  <span>City</span>
+                  <input name="city" type="text" autocomplete="address-level2" placeholder="Los Angeles" required />
+                </label>
+                <label class="field">
+                  <span>Optional APN</span>
+                  <input name="apn" type="text" autocomplete="off" placeholder="5182-014-031" />
+                </label>
+              </div>
+
+              <label class="field">
+                <span>Project description</span>
+                <textarea name="project_description" placeholder="Interior remodel with panel upgrade and two new bathrooms." required></textarea>
+              </label>
+
+              <div class="field-grid">
+                <label class="field">
+                  <span>Optional role</span>
+                  <select name="role">
+                    <option value="">Select role</option>
+                    <option value="homeowner">Homeowner</option>
+                    <option value="contractor">Contractor</option>
+                    <option value="investor">Investor</option>
+                    <option value="expeditor">Expeditor</option>
+                  </select>
+                </label>
+                <label class="field">
+                  <span>Optional voice transcript</span>
+                  <textarea name="voice_transcript" placeholder="Dropped notes from a call, site walk, or voicemail."></textarea>
+                </label>
+              </div>
+
+              <div class="top-cta-row">
+                <p class="field-note">Informational intake brief only. This is not a permit filing flow or official approval advice.</p>
+                <button class="btn btn-primary" id="generateButton" type="submit">Generate Snapshot</button>
+              </div>
+            </form>
+          </section>
+        </div>
+      </section>
+
+      <section class="results wrap">
+        <div class="results-layout">
+          <section class="result-shell" id="emptyState">
+            <div class="result-head">
+              <div>
+                <p class="kicker">Awaiting input</p>
+                <h2>Nothing staged yet.</h2>
+              </div>
+              <span class="badge">Phone-ready demo</span>
+            </div>
+            <p class="empty-copy">Run a snapshot to generate likely permit routing, missing intake items, friction flags, and a clean next move you can use on the spot.</p>
+            <div class="mini-grid">
+              <div class="metric-card">
+                <span class="mini-label">Best inputs</span>
+                <strong class="metric-value">Address, city, and plain-English scope</strong>
+              </div>
+              <div class="metric-card">
+                <span class="mini-label">What comes back</span>
+                <strong class="metric-value">Jurisdiction, portal, risk notes, and CTA-ready handoff</strong>
+              </div>
+            </div>
+          </section>
+
+          <section class="loading-card" id="loadingState" hidden>
+            <p class="kicker">Generating brief</p>
+            <h2>Staging permit intake readout.</h2>
+            <p class="panel-copy">Matching the city against the PermitPulse jurisdiction catalog, tightening the project summary, and preparing the next-step recommendation.</p>
+            <div class="loading-bar"><div class="loading-fill"></div></div>
+            <ul class="loading-list">
+              <li>Checking likely jurisdiction and official portal lane</li>
+              <li>Summarizing scope into a cleaner intake brief</li>
+              <li>Flagging missing info before the first submission attempt</li>
+            </ul>
+          </section>
+
+          <section class="error-card" id="errorState" hidden>
+            <p class="kicker">Snapshot error</p>
+            <h2>PermitPulse could not generate the brief.</h2>
+            <p class="error-copy" id="errorCopy">Try again with a fuller address, city, and project description.</p>
+            <button class="btn btn-secondary" type="button" onclick="window.scrollTo({ top: 0, behavior: 'smooth' });">Back to intake</button>
+          </section>
+
+          <section class="result-shell" id="resultState" hidden>
+            <div class="result-head">
+              <div>
+                <p class="kicker">Instant Snapshot</p>
+                <h2 id="resultJurisdiction">Likely jurisdiction</h2>
+                <p class="result-meta" id="resultMeta">Portal routing</p>
+              </div>
+              <div class="result-badges">
+                <div class="confidence-ring" id="confidenceRing"><strong class="confidence-value" id="resultConfidence">0% confidence</strong></div>
+              </div>
+            </div>
+
+            <div class="result-grid">
+              <div class="result-main">
+                <div class="highlight-card">
+                  <p class="list-label">Project summary</p>
+                  <p class="result-copy" id="resultSummary"></p>
+                </div>
+
+                <div class="list-card">
+                  <p class="list-label">Likely permit path</p>
+                  <ul id="resultPermitPath"></ul>
+                </div>
+
+                <div class="list-card">
+                  <p class="list-label">Missing info checklist</p>
+                  <ul id="resultMissingInfo"></ul>
+                </div>
+
+                <div class="list-card">
+                  <p class="list-label">Friction or risk notes</p>
+                  <ul id="resultRiskNotes"></ul>
+                </div>
+              </div>
+
+              <aside class="result-sidebar">
+                <div class="portal-card">
+                  <p class="list-label">Official portal</p>
+                  <p class="result-copy" id="resultPortal"></p>
+                  <div class="cta-stack" style="margin-top:12px;">
+                    <a class="btn btn-secondary" id="resultPortalAction" href="#" target="_blank" rel="noopener" hidden>Open Official Portal</a>
+                    <a class="btn btn-ghost" id="resultPermitPage" href="/permits/" hidden>Open Permit Directory Page</a>
+                  </div>
+                </div>
+
+                <div class="metric-card">
+                  <p class="list-label">Next best step</p>
+                  <p class="result-copy" id="resultNextStep"></p>
+                </div>
+
+                <div class="cta-card">
+                  <p class="list-label">Move from demo to deal</p>
+                  <p class="result-copy">Use the intake brief to sell the next action while the project details are still fresh.</p>
+                  <div class="cta-stack" style="margin-top:12px;">
+                    <a class="btn btn-primary" id="resultFullReport" href="https://buy.stripe.com/3cI3cw1qT9aP6Jx2Fs1wY0e" target="_blank" rel="noopener">Buy Full Permit History + Risk Report</a>
+                    <a class="btn btn-secondary" id="resultDoneForYou" href="/call/">Request Done For You Help</a>
+                  </div>
+                </div>
+              </aside>
+            </div>
+
+            <p class="disclaimer" id="resultDisclaimer"></p>
+          </section>
+        </div>
+      </section>
+
+      <div class="footer-note wrap">Instant Snapshot is designed for fast intake triage and next-step recommendations. Final routing still depends on the official jurisdiction portal and project specifics.</div>
+    </main>
+  </div>
+</body>
+</html>
