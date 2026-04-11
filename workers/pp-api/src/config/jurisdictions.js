@@ -2,8 +2,12 @@ export const JURISDICTIONS = [
   {
     id: "la_city",
     name: "Los Angeles",
+    state: "CA",
     placeholder: true,
     enabled: true,
+    platform: "LADBS",
+    portalUrl: "https://www.ladbs.org/services/check-status/online-building-records",
+    portalNotes: "Official LADBS building records portal for permit lookup, status checks, and property research.",
     provider: {
       type: "socrata",
       domain: "data.lacity.org",
@@ -26,9 +30,11 @@ export const JURISDICTIONS = [
   {
     id: "la_county",
     name: "LA County (EPIC-LA Case History)",
+    state: "CA",
     placeholder: true,
     enabled: true,
     provider: null,
+    platform: "EPIC-LA",
     portalUrl: "https://epicla.lacounty.gov/",
     portalNotes: "No direct data feed yet. Search via official LA County permit portal.",
   },
@@ -60,8 +66,12 @@ export const JURISDICTIONS = [
   {
     id: "beverly_hills",
     name: "Beverly Hills",
+    state: "CA",
     placeholder: true,
     enabled: true,
+    platform: "Community Development Portal",
+    portalUrl: "https://cs.beverlyhills.org/csforms/permitapps/",
+    portalNotes: "Official Beverly Hills portal for permit applications, plan review, and project lookup.",
     provider: {
       type: "arcgis",
       layerBaseUrl: "https://services5.arcgis.com/7CXE3aevo18HlHBC/arcgis/rest/services/Permit_Issued_All/FeatureServer/0",
@@ -87,8 +97,12 @@ export const JURISDICTIONS = [
   {
     id: "culver_city",
     name: "Culver City",
+    state: "CA",
     placeholder: true,
     enabled: true,
+    platform: "Accela",
+    portalUrl: "https://aca-prod.accela.com/CULVERCITY/Default.aspx",
+    portalNotes: "Official Culver City Accela portal for permit applications, history lookup, and inspections.",
     provider: {
       type: "arcgis",
       layerBaseUrl: "https://services2.arcgis.com/LNAhiRpezPbHTIUO/arcgis/rest/services/Accela_Building_Safety_Permits/FeatureServer/0",
@@ -254,6 +268,9 @@ export const JURISDICTIONS = [
     state: "CA",
     placeholder: true,
     enabled: true,
+    platform: "SJPermits",
+    portalUrl: "https://sjpermits.org/",
+    portalNotes: "Official San Jose permit portal for permit applications, record lookup, and development services.",
     provider: {
       type: "ckan",
       domain: "data.sanjoseca.gov",
@@ -276,8 +293,12 @@ export const JURISDICTIONS = [
   {
     id: "san_francisco",
     name: "San Francisco",
+    state: "CA",
     placeholder: true,
     enabled: true,
+    platform: "DBI Permit Tracking",
+    portalUrl: "https://dbiweb02.sfgov.org/dbipts/",
+    portalNotes: "Official San Francisco DBI permit tracking portal for permit and address research.",
     provider: {
       type: "socrata",
       domain: "data.sfgov.org",
@@ -337,8 +358,12 @@ export const JURISDICTIONS = [
   {
     id: "santa_monica",
     name: "Santa Monica",
+    state: "CA",
     placeholder: true,
     enabled: true,
+    platform: "Citizen Access",
+    portalUrl: "https://epermit.smgov.net/CitizenAccess/Default.aspx",
+    portalNotes: "Official Santa Monica Citizen Access portal for permit applications, status lookup, and inspections.",
     searchFields: ["permit_number", "address", "description", "status", "permit_type", "sub_type"],
     provider: {
       type: "ckan",

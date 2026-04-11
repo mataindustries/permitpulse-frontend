@@ -1,4 +1,4 @@
-import { mkdir, readFile, writeFile } from 'node:fs/promises';
+import { mkdir, readFile, rm, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -727,8 +727,134 @@ function buildCanonical(pathname) {
   return `${SITE_URL}${pathname}`;
 }
 
+const STATE_NAMES = {
+  AL: 'Alabama',
+  AK: 'Alaska',
+  AZ: 'Arizona',
+  AR: 'Arkansas',
+  CA: 'California',
+  CO: 'Colorado',
+  CT: 'Connecticut',
+  DC: 'District of Columbia',
+  DE: 'Delaware',
+  FL: 'Florida',
+  GA: 'Georgia',
+  HI: 'Hawaii',
+  IA: 'Iowa',
+  ID: 'Idaho',
+  IL: 'Illinois',
+  IN: 'Indiana',
+  KS: 'Kansas',
+  KY: 'Kentucky',
+  LA: 'Louisiana',
+  MA: 'Massachusetts',
+  MD: 'Maryland',
+  ME: 'Maine',
+  MI: 'Michigan',
+  MN: 'Minnesota',
+  MO: 'Missouri',
+  MS: 'Mississippi',
+  MT: 'Montana',
+  NC: 'North Carolina',
+  ND: 'North Dakota',
+  NE: 'Nebraska',
+  NH: 'New Hampshire',
+  NJ: 'New Jersey',
+  NM: 'New Mexico',
+  NV: 'Nevada',
+  NY: 'New York',
+  OH: 'Ohio',
+  OK: 'Oklahoma',
+  OR: 'Oregon',
+  PA: 'Pennsylvania',
+  RI: 'Rhode Island',
+  SC: 'South Carolina',
+  SD: 'South Dakota',
+  TN: 'Tennessee',
+  TX: 'Texas',
+  UT: 'Utah',
+  VA: 'Virginia',
+  VT: 'Vermont',
+  WA: 'Washington',
+  WI: 'Wisconsin',
+  WV: 'West Virginia',
+  WY: 'Wyoming',
+};
+
 function buildPagePath(slug) {
   return `/california/jurisdictions/${slug}/`;
+}
+
+function slugify(value) {
+  return String(value ?? '')
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+}
+
+function buildPermitsHubPath() {
+  return '/permits/';
+}
+
+function getJurisdictionSlug(entry) {
+  const cleanedName = String(entry.name || '')
+    .replace(/\s+\(.+?\)\s*$/g, '')
+    .replace(/\+/g, ' and ');
+  return slugify(cleanedName);
+}
+
+function getIndefiniteArticle(value) {
+  return /^[aeiou]/i.test(String(value || '').trim()) ? 'an' : 'a';
+}
+
+function getStateName(stateCode) {
+  return STATE_NAMES[stateCode] || stateCode;
+}
+
+function getStateSlug(stateCode) {
+  return slugify(getStateName(stateCode));
+}
+
+function buildPermitsStatePath(stateCode) {
+  return `/permits/${getStateSlug(stateCode)}/`;
+}
+
+function buildPermitsCityPath(entry) {
+  return `${buildPermitsStatePath(entry.state)}${getJurisdictionSlug(entry)}/`;
+}
+
+function buildPermitPortalAliasPath(entry) {
+  return `/permit-portal/${getStateSlug(entry.state)}/${getJurisdictionSlug(entry)}/`;
+}
+
+function getEnabledUsJurisdictions() {
+  return JURISDICTIONS
+    .filter((entry) => entry.enabled !== false && entry.state)
+    .sort((a, b) => {
+      if (a.state !== b.state) return a.state.localeCompare(b.state);
+      return a.name.localeCompare(b.name);
+    });
+}
+
+function groupJurisdictionsByState(entries) {
+  const map = new Map();
+
+  for (const entry of entries) {
+    if (!map.has(entry.state)) {
+      map.set(entry.state, []);
+    }
+    map.get(entry.state).push(entry);
+  }
+
+  return [...map.entries()]
+    .map(([stateCode, stateEntries]) => ({
+      stateCode,
+      stateName: getStateName(stateCode),
+      stateSlug: getStateSlug(stateCode),
+      entries: stateEntries.slice().sort((a, b) => a.name.localeCompare(b.name)),
+    }))
+    .sort((a, b) => a.stateName.localeCompare(b.stateName));
 }
 
 function buildStatus(entry) {
@@ -737,6 +863,24 @@ function buildStatus(entry) {
     return { label: 'Live search', className: 'live' };
   }
   return { label: 'Portal-assisted', className: 'portal' };
+}
+
+function buildCoverage(entry) {
+  if (entry.provider && entry.enabled !== false) {
+    return {
+      id: 'api_backed',
+      label: 'API-backed',
+      className: 'live',
+      indicator: 'Public JSON feed available',
+    };
+  }
+
+  return {
+    id: 'portal_only',
+    label: 'Portal-only',
+    className: 'portal',
+    indicator: 'Official portal fallback',
+  };
 }
 
 function buildStructuredData(entry) {
@@ -778,7 +922,68 @@ function buildStructuredData(entry) {
   };
 }
 
-function renderHead({ title, description, canonicalPath, structuredData, pageType = 'website' }) {
+function buildPermitsStructuredData({ stateCode, stateName, statePath, entry = null }) {
+  const items = [
+    {
+      '@type': 'ListItem',
+      position: 1,
+      name: 'Home',
+      item: SITE_URL,
+    },
+    {
+      '@type': 'ListItem',
+      position: 2,
+      name: 'Permit pages',
+      item: `${SITE_URL}${buildPermitsHubPath()}`,
+    },
+    {
+      '@type': 'ListItem',
+      position: 3,
+      name: stateName,
+      item: `${SITE_URL}${statePath}`,
+    },
+  ];
+
+  if (entry) {
+    items.push({
+      '@type': 'ListItem',
+      position: 4,
+      name: entry.name,
+      item: buildCanonical(buildPermitsCityPath(entry)),
+    });
+  }
+
+  return {
+    '@context': 'https://schema.org',
+    '@type': entry ? 'WebPage' : 'CollectionPage',
+    name: entry
+      ? `${entry.name}, ${stateName} Permit Coverage`
+      : `${stateName} Permit Pages | PermitPulse`,
+    url: entry ? buildCanonical(buildPermitsCityPath(entry)) : buildCanonical(statePath),
+    description: entry
+      ? `${entry.name}, ${stateName} permit coverage page with the official permit portal, platform details, and PermitPulse coverage notes.`
+      : `${stateName} permit coverage pages for jurisdictions currently listed in the PermitPulse catalog.`,
+    isPartOf: {
+      '@type': 'WebSite',
+      name: 'PermitPulse',
+      url: SITE_URL,
+    },
+    breadcrumb: {
+      '@type': 'BreadcrumbList',
+      itemListElement: items,
+    },
+  };
+}
+
+function renderHead({
+  title,
+  description,
+  canonicalPath,
+  structuredData,
+  pageType = 'website',
+  robots = 'index,follow',
+  extraHead = '',
+}) {
   return `<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -786,7 +991,7 @@ function renderHead({ title, description, canonicalPath, structuredData, pageTyp
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>${escapeHtml(title)}</title>
   <meta name="description" content="${escapeHtml(description)}" />
-  <meta name="robots" content="index,follow" />
+  <meta name="robots" content="${escapeHtml(robots)}" />
   <meta property="og:type" content="${escapeHtml(pageType)}" />
   <meta property="og:url" content="${buildCanonical(canonicalPath)}" />
   <meta property="og:title" content="${escapeHtml(title.replace(' | PermitPulse', ''))}" />
@@ -806,6 +1011,7 @@ function renderHead({ title, description, canonicalPath, structuredData, pageTyp
     gtag('config', 'G-0S8S6156CV');
   </script>
   <script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token":"7046e03c84424a49988d1930fda247b6"}'></script>
+  ${extraHead}
   <script type="application/ld+json">${JSON.stringify(structuredData)}</script>
 </head>`;
 }
@@ -815,8 +1021,10 @@ function renderHeader() {
   <div class="wrap nav-inner">
     <a href="/" class="logo">PermitPulse <span style="color:var(--accent-orange);">/</span> Beta</a>
     <nav class="nav-links mono" style="font-size:13px;">
+      <a href="/permits/">Permit directory</a>
       <a href="/california/jurisdictions/">California hub</a>
       <a href="/california-permit-history/">California search</a>
+      <a href="/mission-control/">Mission Control</a>
       <a href="/guides/">Guides</a>
       <a href="/free-tools/">Free tools</a>
     </nav>
@@ -835,8 +1043,10 @@ function renderFooter() {
     </div>
     <div>
       <div class="footer-links">
+        <a href="/permits/" class="link-line">Permit directory</a>
         <a href="/california/jurisdictions/" class="link-line">California hub</a>
         <a href="/california-permit-history/" class="link-line">California search</a>
+        <a href="/mission-control/" class="link-line">Mission Control</a>
         <a href="/guides/" class="link-line">Guides</a>
         <a href="/free-tools/" class="link-line">Free tools</a>
       </div>
@@ -852,7 +1062,7 @@ function renderFooter() {
 function renderStickyCta() {
   return `<div class="sticky-cta" role="navigation" aria-label="Start PermitPulse">
   <a class="sticky-primary" href="${STRIPE_URL}" target="_blank" rel="noopener">Request Permit History + Risk Report</a>
-  <a class="sticky-ghost" href="/california/jurisdictions/">Browse California hub</a>
+  <a class="sticky-ghost" href="/permits/">Browse permit directory</a>
 </div>`;
 }
 
@@ -1032,6 +1242,7 @@ ${renderHeader()}
       <div class="btn-row">
         <a class="btn btn-primary" href="${STRIPE_URL}" target="_blank" rel="noopener">Request Permit History + Risk Report</a>
         <a class="btn btn-secondary" href="/california-permit-history/">Open California permit search</a>
+        <a class="btn btn-secondary" href="/permits/">Open U.S. permit directory</a>
       </div>
       <div class="stats">
         <div class="stat">
@@ -1073,6 +1284,7 @@ ${renderHeader()}
         </div>
         <div class="btn-row">
           <a class="btn btn-secondary" href="/california-permit-history/">Open California permit search</a>
+          <a class="btn btn-secondary" href="/permits/">Open U.S. permit directory</a>
           <a class="btn btn-secondary" href="/">Return to homepage</a>
         </div>
       </div>
@@ -1081,6 +1293,306 @@ ${renderHeader()}
 </main>
 ${renderFooter()}
 ${renderStickyCta()}
+</body>
+</html>
+`;
+}
+
+function renderPermitsHubPage(states) {
+  const totalCities = states.reduce((sum, state) => sum + state.entries.length, 0);
+  const apiBacked = states.reduce((sum, state) => sum + state.entries.filter((entry) => entry.provider).length, 0);
+  const cards = states
+    .map((state) => {
+      const apiCount = state.entries.filter((entry) => entry.provider).length;
+      const portalCount = state.entries.length - apiCount;
+
+      return `<article class="card page-card">
+  <div class="eyebrow">
+    <span class="pill ${apiCount ? 'live' : 'portal'}">${apiCount ? `${apiCount} API-backed` : 'Portal-only'}</span>
+  </div>
+  <div>
+    <h3 style="margin-bottom:8px;">${escapeHtml(state.stateName)}</h3>
+    <p>${escapeHtml(`${state.entries.length} covered jurisdictions. ${apiCount} API-backed and ${portalCount} portal-only based on the live PermitPulse catalog.`)}</p>
+  </div>
+  <div class="page-card-actions mono" style="font-size:12px;">
+    <a class="link-line" href="${buildPermitsStatePath(state.stateCode)}">Open state page</a>
+  </div>
+</article>`;
+    })
+    .join('\n');
+
+  const structuredData = {
+    '@context': 'https://schema.org',
+    '@type': 'CollectionPage',
+    name: 'Permit Pages | PermitPulse',
+    url: `${SITE_URL}${buildPermitsHubPath()}`,
+    description: 'Browse PermitPulse state permit pages and city permit coverage pages driven from the live jurisdiction catalog.',
+    isPartOf: {
+      '@type': 'WebSite',
+      name: 'PermitPulse',
+      url: SITE_URL,
+    },
+  };
+
+  return `${renderHead({
+    title: 'Permit Pages | PermitPulse',
+    description: 'Browse PermitPulse permit coverage by state and city using official portal links, coverage tiers, and Mission Control routing.',
+    canonicalPath: buildPermitsHubPath(),
+    structuredData,
+  })}
+<body>
+${renderHeader()}
+<main>
+  <section class="wrap hero">
+    <div class="hero-copy">
+      <span class="badge">U.S. permit directory</span>
+      <h1>Permit pages organized by state and jurisdiction.</h1>
+      <p class="lead">This directory is generated directly from the live PermitPulse jurisdiction catalog. Use it to browse covered permit portals, API-backed jurisdictions, and Mission Control routing without guessing where coverage exists.</p>
+      <div class="btn-row">
+        <a class="btn btn-primary" href="/mission-control/">Open Mission Control</a>
+        <a class="btn btn-secondary" href="/california-permit-history/">Open California permit search</a>
+      </div>
+      <div class="stats">
+        <div class="stat">
+          <strong>${states.length}</strong>
+          <span class="muted">State pages</span>
+        </div>
+        <div class="stat">
+          <strong>${totalCities}</strong>
+          <span class="muted">Covered jurisdictions</span>
+        </div>
+        <div class="stat">
+          <strong>${apiBacked}</strong>
+          <span class="muted">API-backed jurisdictions</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap">
+      <div class="section-head">
+        <div class="kicker">State pages</div>
+        <h2>Browse coverage by state</h2>
+        <p class="lead">Every state page lists the covered jurisdictions currently available in the shared PermitPulse catalog, with links into each city or county permit page.</p>
+      </div>
+      <div class="hub-grid">
+        ${cards}
+      </div>
+    </div>
+  </section>
+</main>
+${renderFooter()}
+${renderStickyCta()}
+</body>
+</html>
+`;
+}
+
+function renderPermitsStatePage(state) {
+  const apiCount = state.entries.filter((entry) => entry.provider).length;
+  const portalCount = state.entries.length - apiCount;
+  const cards = state.entries
+    .map((entry) => {
+      const coverage = buildCoverage(entry);
+      return `<article class="card page-card">
+  <div class="eyebrow">
+    <span class="pill ${coverage.className}">${escapeHtml(coverage.label)}</span>
+  </div>
+  <div>
+    <h3 style="margin-bottom:8px;">${escapeHtml(entry.name)}</h3>
+    <p>${escapeHtml(`${entry.platform || 'Official permit portal'} · ${coverage.indicator}.`)}</p>
+    <p class="muted" style="margin-top:10px;">${escapeHtml(entry.portalNotes || 'Official permit portal route available from the shared PermitPulse catalog.')}</p>
+  </div>
+  <div class="page-card-actions mono" style="font-size:12px;">
+    <a class="link-line" href="${buildPermitsCityPath(entry)}">Open permit page</a>
+    ${entry.portalUrl ? `<a class="link-line" href="${escapeHtml(entry.portalUrl)}" target="_blank" rel="noopener">Official portal</a>` : ''}
+  </div>
+</article>`;
+    })
+    .join('\n');
+
+  const pathname = buildPermitsStatePath(state.stateCode);
+  return `${renderHead({
+    title: `${state.stateName} Permit Pages | PermitPulse`,
+    description: `${state.stateName} permit pages for ${state.entries.length} covered jurisdictions in PermitPulse, with official portals, coverage tiers, and Mission Control links.`,
+    canonicalPath: pathname,
+    structuredData: buildPermitsStructuredData({
+      stateCode: state.stateCode,
+      stateName: state.stateName,
+      statePath: pathname,
+    }),
+  })}
+<body>
+${renderHeader()}
+<main>
+  <section class="wrap hero">
+    <div class="hero-copy">
+      <div class="eyebrow">
+        <span class="badge">State permit page</span>
+        <span class="pill ${apiCount ? 'live' : 'portal'}">${apiCount ? `${apiCount} API-backed` : 'Portal-first coverage'}</span>
+      </div>
+      <h1>${escapeHtml(state.stateName)} permit pages</h1>
+      <p class="lead">${escapeHtml(`${state.stateName} currently has ${state.entries.length} covered jurisdictions in the PermitPulse catalog. ${apiCount} are API-backed and ${portalCount} are portal-only.`)}</p>
+      <div class="btn-row">
+        <a class="btn btn-primary" href="/mission-control/">Open Mission Control</a>
+        <a class="btn btn-secondary" href="/permits/">Browse all states</a>
+      </div>
+      <div class="stats">
+        <div class="stat">
+          <strong>${state.entries.length}</strong>
+          <span class="muted">Covered jurisdictions</span>
+        </div>
+        <div class="stat">
+          <strong>${apiCount}</strong>
+          <span class="muted">API-backed</span>
+        </div>
+        <div class="stat">
+          <strong>${portalCount}</strong>
+          <span class="muted">Portal-only</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap">
+      <div class="section-head">
+        <div class="kicker">Covered jurisdictions</div>
+        <h2>${escapeHtml(state.stateName)} city and county permit pages</h2>
+        <p class="lead">These pages are generated directly from current jurisdiction metadata. Each one includes the official permit portal, platform label, coverage tier, and Mission Control path.</p>
+      </div>
+      <div class="hub-grid">
+        ${cards}
+      </div>
+    </div>
+  </section>
+</main>
+${renderFooter()}
+${renderStickyCta()}
+</body>
+</html>
+`;
+}
+
+function renderPermitsCityPage(entry) {
+  const stateName = getStateName(entry.state);
+  const pathname = buildPermitsCityPath(entry);
+  const coverage = buildCoverage(entry);
+  const apiIndicator = entry.provider ? 'Yes' : 'No';
+  const tierPhrase = coverage.id === 'api_backed' ? 'API-backed' : 'portal-only';
+  const tierArticle = getIndefiniteArticle(tierPhrase);
+
+  return `${renderHead({
+    title: `${entry.name}, ${stateName} Permit Portal | PermitPulse`,
+    description: `${entry.name}, ${stateName} permit page with the official permit portal, platform details, ${tierPhrase} coverage, and Mission Control routing.`,
+    canonicalPath: pathname,
+    structuredData: buildPermitsStructuredData({
+      stateCode: entry.state,
+      stateName,
+      statePath: buildPermitsStatePath(entry.state),
+      entry,
+    }),
+  })}
+<body>
+${renderHeader()}
+<main>
+  <section class="wrap hero">
+    <div class="hero-copy">
+      <div class="eyebrow">
+        <span class="badge">${escapeHtml(stateName)} permit page</span>
+        <span class="pill ${coverage.className}">${escapeHtml(coverage.label)}</span>
+      </div>
+      <h1>${escapeHtml(entry.name)} permit portal and PermitPulse coverage</h1>
+      <p class="lead">${escapeHtml(`${entry.name} is listed in the PermitPulse jurisdiction catalog as ${tierArticle} ${tierPhrase} jurisdiction in ${stateName}. Start with the official ${entry.platform || 'permit'} portal and use Mission Control when you need a clearer permit read.`)}</p>
+      <div class="btn-row">
+        ${entry.portalUrl ? `<a class="btn btn-primary" href="${escapeHtml(entry.portalUrl)}" target="_blank" rel="noopener">Open official permit portal</a>` : ''}
+        <a class="btn btn-secondary" href="/mission-control/">Open Mission Control</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap grid grid-2">
+      <article class="card">
+        <div class="kicker">Catalog snapshot</div>
+        <h2 style="margin:8px 0 14px;">Current jurisdiction metadata</h2>
+        <ul class="notes-list">
+          <li><strong>Catalog ID:</strong> <span class="mono">${escapeHtml(entry.id)}</span></li>
+          <li><strong>City:</strong> ${escapeHtml(entry.name)}</li>
+          <li><strong>State:</strong> ${escapeHtml(stateName)} (${escapeHtml(entry.state)})</li>
+          <li><strong>Platform:</strong> ${escapeHtml(entry.platform || 'Not set')}</li>
+          <li><strong>Coverage tier:</strong> ${escapeHtml(coverage.label)}</li>
+          <li><strong>API-backed:</strong> ${escapeHtml(apiIndicator)}</li>
+          <li><strong>Route slug:</strong> <span class="mono">${escapeHtml(getJurisdictionSlug(entry))}</span></li>
+        </ul>
+      </article>
+      <aside class="card soft">
+        <div class="kicker">Official route</div>
+        <h2 style="margin:8px 0 14px;">Use the jurisdiction source first</h2>
+        <p class="muted">${escapeHtml(entry.portalNotes || 'Official permit portal route available from the shared PermitPulse catalog.')}</p>
+        <div class="btn-row">
+          ${entry.portalUrl ? `<a class="btn btn-secondary" href="${escapeHtml(entry.portalUrl)}" target="_blank" rel="noopener">Open official permit portal</a>` : ''}
+          <a class="btn btn-secondary" href="${buildPermitsStatePath(entry.state)}">Back to ${escapeHtml(stateName)}</a>
+        </div>
+      </aside>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap">
+      <div class="card cta-panel">
+        <div class="section-head" style="margin-bottom:0;">
+          <div class="kicker">Mission Control</div>
+          <h2>Need more than the permit portal?</h2>
+          <p class="lead">${escapeHtml(`${entry.name} is available in PermitPulse with ${tierPhrase} coverage. Mission Control keeps the current portal-first behavior intact while giving operators a cleaner route into the next action.`)}</p>
+        </div>
+        <div class="btn-row">
+          <a class="btn btn-primary" href="/mission-control/">Open Mission Control</a>
+          <a class="btn btn-secondary" href="${buildPermitsStatePath(entry.state)}">Browse ${escapeHtml(stateName)} permit pages</a>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+${renderFooter()}
+${renderStickyCta()}
+</body>
+</html>
+`;
+}
+
+function renderPermitPortalAliasPage(entry) {
+  const canonicalPath = buildPermitsCityPath(entry);
+  return `${renderHead({
+    title: `${entry.name} permit portal | PermitPulse`,
+    description: `${entry.name} permit portal alias route for PermitPulse coverage.`,
+    canonicalPath,
+    structuredData: buildPermitsStructuredData({
+      stateCode: entry.state,
+      stateName: getStateName(entry.state),
+      statePath: buildPermitsStatePath(entry.state),
+      entry,
+    }),
+    robots: 'noindex,follow',
+    extraHead: `<meta http-equiv="refresh" content="0; url=${canonicalPath}" />`,
+  })}
+<body>
+${renderHeader()}
+<main>
+  <section class="wrap hero">
+    <div class="hero-copy">
+      <span class="badge">Permit portal alias</span>
+      <h1>${escapeHtml(entry.name)} permit page</h1>
+      <p class="lead">This alias route resolves to the canonical PermitPulse permit page for ${escapeHtml(entry.name)}.</p>
+      <div class="btn-row">
+        <a class="btn btn-primary" href="${canonicalPath}">Open canonical permit page</a>
+        ${entry.portalUrl ? `<a class="btn btn-secondary" href="${escapeHtml(entry.portalUrl)}" target="_blank" rel="noopener">Open official permit portal</a>` : ''}
+      </div>
+    </div>
+  </section>
+</main>
+${renderFooter()}
 </body>
 </html>
 `;
@@ -1128,6 +1640,29 @@ ${urls
 `;
 }
 
+function renderPermitsSitemap(states) {
+  const urls = [
+    buildPermitsHubPath(),
+    ...states.map((state) => buildPermitsStatePath(state.stateCode)),
+    ...states.flatMap((state) => state.entries.map((entry) => buildPermitsCityPath(entry))),
+  ];
+
+  return `<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
+${urls
+  .map(
+    (pathname) => `  <url>
+    <loc>${buildCanonical(pathname)}</loc>
+    <lastmod>${LASTMOD}</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>${pathname === buildPermitsHubPath() ? '0.8' : pathname.split('/').length === 4 ? '0.7' : '0.6'}</priority>
+  </url>`,
+  )
+  .join('\n')}
+</urlset>
+`;
+}
+
 function renderSitemapIndex() {
   return `<?xml version="1.0" encoding="UTF-8"?>
 <sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
@@ -1139,19 +1674,48 @@ function renderSitemapIndex() {
     <loc>${SITE_URL}/sitemap-jurisdictions.xml</loc>
     <lastmod>${LASTMOD}</lastmod>
   </sitemap>
+  <sitemap>
+    <loc>${SITE_URL}/sitemap-permits.xml</loc>
+    <lastmod>${LASTMOD}</lastmod>
+  </sitemap>
 </sitemapindex>
 `;
 }
 
 async function main() {
   const entryMap = new Map(LAUNCH_JURISDICTIONS.map((entry) => [entry.slug, entry]));
+  const permitsHubDir = path.join(DIST_DIR, 'permits');
+  const permitPortalDir = path.join(DIST_DIR, 'permit-portal');
+  const usJurisdictions = getEnabledUsJurisdictions();
+  const stateGroups = groupJurisdictionsByState(usJurisdictions);
 
+  await rm(permitsHubDir, { recursive: true, force: true });
+  await rm(permitPortalDir, { recursive: true, force: true });
   await writeTextFile(path.join(DIST_DIR, 'assets', 'jurisdictions.css'), CSS.trimStart());
   await writeTextFile(path.join(HUB_DIR, 'index.html'), renderHubPage(LAUNCH_JURISDICTIONS));
+  await writeTextFile(path.join(permitsHubDir, 'index.html'), renderPermitsHubPage(stateGroups));
 
   for (const entry of LAUNCH_JURISDICTIONS) {
     const outputPath = path.join(HUB_DIR, entry.slug, 'index.html');
     await writeTextFile(outputPath, renderJurisdictionPage(entry, entryMap));
+  }
+
+  for (const state of stateGroups) {
+    await writeTextFile(
+      path.join(permitsHubDir, state.stateSlug, 'index.html'),
+      renderPermitsStatePage(state),
+    );
+
+    for (const entry of state.entries) {
+      await writeTextFile(
+        path.join(permitsHubDir, state.stateSlug, getJurisdictionSlug(entry), 'index.html'),
+        renderPermitsCityPage(entry),
+      );
+      await writeTextFile(
+        path.join(permitPortalDir, state.stateSlug, getJurisdictionSlug(entry), 'index.html'),
+        renderPermitPortalAliasPage(entry),
+      );
+    }
   }
 
   const baseSitemap = await loadBaseSitemap();
@@ -1159,6 +1723,10 @@ async function main() {
   await writeTextFile(
     path.join(DIST_DIR, 'sitemap-jurisdictions.xml'),
     renderJurisdictionSitemap(LAUNCH_JURISDICTIONS),
+  );
+  await writeTextFile(
+    path.join(DIST_DIR, 'sitemap-permits.xml'),
+    renderPermitsSitemap(stateGroups),
   );
   await writeTextFile(path.join(DIST_DIR, 'sitemap.xml'), renderSitemapIndex());
 }

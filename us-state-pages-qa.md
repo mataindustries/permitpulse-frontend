@@ -1,0 +1,21 @@
+## US State Pages QA
+
+- Total state pages: 24
+- Total city pages: 57
+- Alias routes created: 57 under `/permit-portal/[state]/[city]`
+- Metadata coverage summary:
+  - `/permits/`, `/permits/[state]/`, and `/permits/[state]/[city]` pages generate title, meta description, canonical, and open graph title/description through the shared page renderer
+  - `/permit-portal/[state]/[city]` alias pages generate title, meta description, canonical to the matching `/permits/...` page, and `noindex,follow`
+  - City pages now expose `Catalog ID`, normalized `Coverage tier`, and `Route slug` in the catalog snapshot for easier QA against the shared jurisdiction catalog
+- QA checks completed:
+  - Route generation matches the current enabled catalog entries with `state` metadata
+  - No duplicate generated state/city route slugs were found
+  - State pages group and link to their covered jurisdictions correctly
+  - Portal-only pages retain useful fallback content with official portal CTA, platform label, coverage tier, and Mission Control link
+  - Internal links from Mission Control, the homepage, and California permit search to `/permits/` are present
+  - `dist/sitemap.xml` includes `dist/sitemap-permits.xml`, and the permits sitemap includes the generated state and city routes
+  - The shared generator now clears `dist/permits` and `dist/permit-portal` before rebuild so stale routes do not persist after slug changes
+- Unresolved items:
+  - Route slugs are intentionally name-derived rather than ID-derived, so some routes are cleaner than their catalog IDs; the city pages now surface both values to keep that mapping explicit
+  - Only enabled catalog entries with a populated `state` field participate in the `/permits/...` generation flow
+  - The existing Node `MODULE_TYPELESS_PACKAGE_JSON` warning still appears when running the generator or verifiers; it is pre-existing and does not block output
