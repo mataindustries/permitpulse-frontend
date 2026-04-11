@@ -29,6 +29,7 @@
 /thank-you/                /thank-you/index.html              200   # handles trailing slash
 /radar/review-times        /free-tools/review-times           301
 /radar                     /radar/index.html                  200
+/instant-snapshot          /instant-snapshot/index.html       200
 /free-tools                /free-tools/index.html             200
 /top-permits               /top-permits/index.html            200
 /call                      /call/index.html                   200
