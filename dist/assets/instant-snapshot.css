@@ -134,17 +134,17 @@ a {
 }
 
 .hero {
-  padding: 24px 0 20px;
+  padding: 18px 0 16px;
 }
 
 .hero-grid {
   display: grid;
-  gap: 18px;
+  gap: 14px;
 }
 
 .hero-copy {
   display: grid;
-  gap: 12px;
+  gap: 10px;
 }
 
 .eyebrow,
@@ -195,8 +195,8 @@ h1 {
 }
 
 .lead {
-  font-size: 1rem;
-  max-width: 58ch;
+  font-size: 0.96rem;
+  max-width: 54ch;
 }
 
 .hero-points {
@@ -229,7 +229,7 @@ h1 {
 .empty-card,
 .error-card,
 .loading-card {
-  padding: 18px;
+  padding: 16px;
 }
 
 .hero-point::before,
@@ -271,12 +271,12 @@ h1 {
 }
 
 .command-head {
-  margin-bottom: 16px;
+  margin-bottom: 12px;
 }
 
 .command-form {
   display: grid;
-  gap: 12px;
+  gap: 10px;
 }
 
 .field-grid,
@@ -299,7 +299,7 @@ h1 {
 
 .field {
   display: grid;
-  gap: 8px;
+  gap: 6px;
 }
 
 .field span {
@@ -314,7 +314,7 @@ h1 {
   background: rgba(5, 8, 14, 0.84);
   color: var(--snap-text);
   border-radius: var(--radius-md);
-  padding: 15px 14px;
+  padding: 14px 14px;
   outline: none;
   transition: border-color 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
 }
@@ -332,7 +332,44 @@ h1 {
 }
 
 .field-note {
-  font-size: 0.82rem;
+  font-size: 0.78rem;
+  max-width: 34ch;
+}
+
+.demo-helper {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px 12px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--radius-md);
+  background: rgba(255, 255, 255, 0.025);
+}
+
+.demo-chip {
+  border: 1px solid rgba(116, 188, 255, 0.18);
+  border-radius: 999px;
+  background: rgba(116, 188, 255, 0.08);
+  color: var(--snap-text);
+  padding: 8px 12px;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  transition: background 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+}
+
+.demo-chip:hover {
+  transform: translateY(-1px);
+  border-color: rgba(116, 188, 255, 0.32);
+  background: rgba(116, 188, 255, 0.12);
+}
+
+.demo-chip:disabled {
+  cursor: wait;
+  opacity: 0.72;
+  transform: none;
 }
 
 .btn {
@@ -342,7 +379,7 @@ h1 {
   gap: 8px;
   border-radius: 14px;
   border: 1px solid transparent;
-  padding: 15px 18px;
+  padding: 14px 18px;
   font-weight: 700;
   cursor: pointer;
   transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease, opacity 0.2s ease;
@@ -358,9 +395,10 @@ h1 {
 }
 
 .btn-primary {
-  background: var(--snap-orange);
+  background: linear-gradient(135deg, #ff774a, #ff5f37);
   color: white;
   border-color: rgba(255, 106, 61, 0.45);
+  box-shadow: 0 10px 24px rgba(255, 106, 61, 0.18);
 }
 
 .btn-secondary {
@@ -382,22 +420,23 @@ h1 {
 }
 
 .results {
-  padding-top: 8px;
+  padding-top: 6px;
 }
 
 .results-layout {
   grid-template-columns: 1fr;
+  min-height: 420px;
 }
 
 .result-shell,
 .loading-card,
 .empty-card,
 .error-card {
-  min-height: 240px;
+  min-height: 420px;
 }
 
 .result-head {
-  margin-bottom: 16px;
+  margin-bottom: 14px;
 }
 
 .result-badges {
@@ -414,7 +453,7 @@ h1 {
 .result-main,
 .result-sidebar {
   display: grid;
-  gap: 12px;
+  gap: 10px;
 }
 
 .highlight-card,
@@ -425,7 +464,7 @@ h1 {
   border: 1px solid rgba(255, 255, 255, 0.08);
   border-radius: var(--radius-lg);
   background: var(--snap-surface-2);
-  padding: 15px;
+  padding: 14px;
 }
 
 .metric-card {
@@ -434,7 +473,7 @@ h1 {
 }
 
 .metric-value {
-  font-size: 1.15rem;
+  font-size: 1.06rem;
 }
 
 .confidence-ring {
@@ -448,7 +487,8 @@ h1 {
 }
 
 .confidence-value {
-  font-size: 1rem;
+  font-size: 0.95rem;
+  text-align: center;
 }
 
 .list-card ul,
@@ -462,7 +502,7 @@ h1 {
 .loading-list li,
 .mini-list li {
   color: var(--snap-text);
-  line-height: 1.55;
+  line-height: 1.5;
 }
 
 .list-card li + li,
@@ -484,6 +524,7 @@ h1 {
 
 .disclaimer {
   margin-top: 14px;
+  max-width: 62ch;
 }
 
 .loading-card,
@@ -492,6 +533,24 @@ h1 {
   display: grid;
   align-content: center;
   gap: 12px;
+}
+
+.portal-actions,
+.cta-actions {
+  margin-top: 12px;
+}
+
+.portal-card .result-copy,
+.highlight-card .result-copy,
+.metric-card .result-copy,
+.cta-card .result-copy,
+.error-copy,
+.empty-copy {
+  font-size: 0.94rem;
+}
+
+.cta-card .btn-primary {
+  min-height: 50px;
 }
 
 .loading-bar {
@@ -565,6 +624,29 @@ h1 {
   .hero-points,
   .field-grid-tight {
     grid-template-columns: 1fr;
+  }
+
+  .hero-points {
+    gap: 8px;
+  }
+
+  .demo-helper {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .result-shell,
+  .loading-card,
+  .error-card {
+    min-height: 280px;
+  }
+
+  .result-head {
+    gap: 10px;
+  }
+
+  .top-cta-row {
+    align-items: stretch;
   }
 
   .btn {

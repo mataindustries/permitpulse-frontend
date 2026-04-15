@@ -2,9 +2,18 @@
   const API_ENDPOINT = '/api/instant-snapshot';
   const FULL_REPORT_URL = 'https://buy.stripe.com/3cI3cw1qT9aP6Jx2Fs1wY0e';
   const DONE_FOR_YOU_URL = '/call/';
+  const DEMO_EXAMPLE = {
+    address: '742 S Mission Rd',
+    city: 'Los Angeles',
+    project_description: 'Interior remodel with panel upgrade and two new bathrooms.',
+    apn: '',
+    role: 'contractor',
+    voice_transcript: '',
+  };
 
   const form = document.getElementById('snapshotForm');
   const generateButton = document.getElementById('generateButton');
+  const demoExampleButton = document.getElementById('demoExampleButton');
   const clock = document.getElementById('snapshotClock');
   const emptyState = document.getElementById('emptyState');
   const loadingState = document.getElementById('loadingState');
@@ -26,6 +35,23 @@
   const resultPortalAction = document.getElementById('resultPortalAction');
   const resultFullReport = document.getElementById('resultFullReport');
   const resultDoneForYou = document.getElementById('resultDoneForYou');
+  const runAnotherSnapshot = document.getElementById('runAnotherSnapshot');
+  const summaryCard = document.getElementById('summaryCard');
+  const permitPathCard = document.getElementById('permitPathCard');
+  const missingInfoCard = document.getElementById('missingInfoCard');
+  const riskNotesCard = document.getElementById('riskNotesCard');
+  const nextStepCard = document.getElementById('nextStepCard');
+  const portalCard = document.getElementById('portalCard');
+
+  function setSubmitting(isSubmitting) {
+    generateButton.disabled = isSubmitting;
+    generateButton.setAttribute('aria-busy', isSubmitting ? 'true' : 'false');
+    generateButton.textContent = isSubmitting ? 'Running Snapshot...' : 'Run Instant Snapshot';
+    if (demoExampleButton) {
+      demoExampleButton.disabled = isSubmitting;
+      demoExampleButton.setAttribute('aria-disabled', isSubmitting ? 'true' : 'false');
+    }
+  }
 
   function updateClock() {
     clock.textContent = new Date().toISOString().slice(11, 19) + ' UTC';
@@ -48,10 +74,39 @@
   }
 
   function renderList(target, items, emptyCopy) {
-    const values = Array.isArray(items) && items.length ? items : [emptyCopy];
+    const values = Array.isArray(items) && items.filter(Boolean).length ? items.filter(Boolean) : [emptyCopy];
     target.innerHTML = values.map(function (item) {
       return '<li>' + escapeHtml(item) + '</li>';
     }).join('');
+  }
+
+  function setCardVisibility(card, shouldShow) {
+    if (!card) return;
+    card.hidden = !shouldShow;
+  }
+
+  function focusFirstField() {
+    const firstField = form.querySelector('input[name="address"]');
+    if (firstField) {
+      firstField.focus();
+      firstField.select();
+    }
+  }
+
+  function resetForAnotherRun() {
+    setView('empty');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    setTimeout(focusFirstField, 180);
+  }
+
+  function applyDemoExample() {
+    Object.keys(DEMO_EXAMPLE).forEach(function (key) {
+      const field = form.elements.namedItem(key);
+      if (field) {
+        field.value = DEMO_EXAMPLE[key];
+      }
+    });
+    focusFirstField();
   }
 
   function renderPortal(snapshot) {
@@ -60,10 +115,26 @@
       resultPortalAction.href = snapshot.portal_url;
       resultPortalAction.hidden = false;
     } else {
-      resultPortal.textContent = 'No catalog-backed portal link was matched from the current intake.';
+      resultPortal.textContent = 'No official portal link was confidently matched from this intake. Confirm the exact jurisdiction first, then use PermitPulse to route the filing lane cleanly.';
       resultPortalAction.hidden = true;
       resultPortalAction.removeAttribute('href');
     }
+  }
+
+  function getMatchMeta(jurisdiction, confidence) {
+    if (!jurisdiction || !jurisdiction.name) {
+      return confidence >= 50 ? 'Directional jurisdiction match' : 'Jurisdiction still needs confirmation';
+    }
+
+    if (jurisdiction.match_type === 'exact_city') {
+      return (jurisdiction.platform ? jurisdiction.platform + ' portal' : 'Catalog-backed match') + ' · strong city match';
+    }
+
+    if (jurisdiction.match_type === 'partial_city' || jurisdiction.match_type === 'ambiguous_city') {
+      return (jurisdiction.platform ? jurisdiction.platform + ' portal' : 'Catalog-backed match') + ' · directional city match';
+    }
+
+    return confidence >= 50 ? 'Directional catalog match' : 'Jurisdiction still needs confirmation';
   }
 
   function renderSnapshot(snapshot) {
@@ -72,28 +143,43 @@
     const confidenceDegrees = Math.round((confidence / 100) * 360);
     const jurisdictionLabel = [jurisdiction.name, jurisdiction.state_name || jurisdiction.state].filter(Boolean).join(', ') || 'Partial match';
     const permitPath = jurisdiction.permits_path || '/permits/';
-    const matchLabel = jurisdiction.match_type ? jurisdiction.match_type.replace(/_/g, ' ') : 'partial match';
+    const summary = String(snapshot.project_summary || '').trim();
+    const nextStep = String(snapshot.next_step || '').trim();
+    const permitPathItems = Array.isArray(snapshot.likely_permit_path) ? snapshot.likely_permit_path.filter(Boolean) : [];
+    const missingInfoItems = Array.isArray(snapshot.missing_info) ? snapshot.missing_info.filter(Boolean) : [];
+    const riskNotesItems = Array.isArray(snapshot.risk_notes) ? snapshot.risk_notes.filter(Boolean) : [];
 
     confidenceRing.style.setProperty('--progress', confidenceDegrees + 'deg');
     resultConfidence.textContent = confidence + '% confidence';
     resultJurisdiction.textContent = jurisdictionLabel;
-    resultSummary.textContent = snapshot.project_summary || 'No summary returned.';
-    resultNextStep.textContent = snapshot.next_step || 'No next step returned.';
+    resultSummary.textContent = summary || 'PermitPulse generated a directional intake read from the address, city, and scope provided.';
+    resultNextStep.textContent = nextStep || 'Confirm the exact jurisdiction, then decide whether to route directly or escalate into PermitPulse help.';
     resultDisclaimer.textContent = snapshot.disclaimer || 'Informational intake brief only.';
-    resultMeta.textContent = (jurisdiction.platform ? jurisdiction.platform + ' · ' : '') + matchLabel;
+    resultMeta.textContent = getMatchMeta(jurisdiction, confidence);
     resultPermitPage.href = permitPath;
     resultPermitPage.hidden = !jurisdiction.permits_path;
     resultFullReport.href = FULL_REPORT_URL;
     resultDoneForYou.href = DONE_FOR_YOU_URL;
 
     renderPortal(snapshot);
-    renderList(resultPermitPath, snapshot.likely_permit_path, 'General building permit intake with scope clarification.');
-    renderList(resultMissingInfo, snapshot.missing_info, 'No critical missing info surfaced from the first-pass intake.');
-    renderList(resultRiskNotes, snapshot.risk_notes, 'Official portal routing still controls the final permit path.');
+    renderList(resultPermitPath, permitPathItems, 'General building permit intake with tighter scope confirmation before filing.');
+    renderList(resultMissingInfo, missingInfoItems, 'No major intake gaps surfaced from the current draft. Pressure-test the scope before the first portal pass.');
+    renderList(resultRiskNotes, riskNotesItems, 'Official jurisdiction routing still controls the final filing lane and permit sequence.');
+
+    setCardVisibility(summaryCard, true);
+    setCardVisibility(portalCard, true);
+    setCardVisibility(permitPathCard, true);
+    setCardVisibility(missingInfoCard, true);
+    setCardVisibility(riskNotesCard, true);
+    setCardVisibility(nextStepCard, true);
   }
 
   async function runSnapshot(event) {
     event.preventDefault();
+
+    if (generateButton.disabled) {
+      return;
+    }
 
     const formData = new FormData(form);
     const payload = {
@@ -111,8 +197,7 @@
       return;
     }
 
-    generateButton.disabled = true;
-    generateButton.textContent = 'Generating Snapshot...';
+    setSubmitting(true);
     setView('loading');
 
     try {
@@ -144,18 +229,24 @@
       if (error && error.message === 'missing_required_fields') {
         errorCopy.textContent = 'Address, city, and project description are required before PermitPulse can stage a snapshot.';
       } else if (error && error.message === 'invalid_json') {
-        errorCopy.textContent = 'Snapshot generation returned an invalid response. Re-run the intake and try again.';
+        errorCopy.textContent = 'Snapshot returned an unreadable response. Re-run the intake and keep the address, city, and scope tight.';
       } else {
-        errorCopy.textContent = 'Snapshot generation failed. Re-run the intake or try a tighter city and scope description.';
+        errorCopy.textContent = 'Snapshot could not finish this pass. Try a fuller address, confirmed city, and a tighter project scope.';
       }
       setView('error');
     } finally {
-      generateButton.disabled = false;
-      generateButton.textContent = 'Generate Snapshot';
+      setSubmitting(false);
     }
   }
 
   updateClock();
   setInterval(updateClock, 1000);
+  setSubmitting(false);
   form.addEventListener('submit', runSnapshot);
+  if (demoExampleButton) {
+    demoExampleButton.addEventListener('click', applyDemoExample);
+  }
+  if (runAnotherSnapshot) {
+    runAnotherSnapshot.addEventListener('click', resetForAnotherRun);
+  }
 })();
