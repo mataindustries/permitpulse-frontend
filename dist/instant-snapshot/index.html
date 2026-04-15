@@ -47,20 +47,20 @@
         <div class="hero-grid">
           <div class="hero-copy">
             <div class="eyebrow">Permit Intake Brief</div>
-            <h1>Generate a credible permit snapshot before the phone call starts.</h1>
-            <p class="lead">Instant Snapshot turns a property address, city, and project description into a polished PermitPulse intake brief with likely jurisdiction, portal routing, missing details, friction notes, and the next best move.</p>
+            <h1>Get a permit read before the conversation cools off.</h1>
+            <p class="lead">Enter an address, city, and project idea to generate a fast PermitPulse brief with likely jurisdiction, portal direction, intake gaps, and the next move.</p>
             <div class="hero-points">
               <div class="hero-point">
                 <span class="mini-label">Fast first read</span>
-                <strong>Address to brief in one pass</strong>
+                <strong>Address to permit brief in one pass</strong>
               </div>
               <div class="hero-point">
                 <span class="mini-label">Real catalog</span>
-                <strong>Jurisdiction lookup from current PermitPulse data</strong>
+                <strong>Jurisdiction routing from current PermitPulse data</strong>
               </div>
               <div class="hero-point">
                 <span class="mini-label">Built to sell</span>
-                <strong>Naturally hands off into full paid help</strong>
+                <strong>Turns a first read into a paid next step</strong>
               </div>
             </div>
           </div>
@@ -69,12 +69,17 @@
             <div class="command-head">
               <div>
                 <p class="kicker" id="snapshot-title">Instant Snapshot</p>
-                <p class="panel-copy">Mobile-first intake for quick demos, warm leads, and early permit triage.</p>
+                <p class="panel-copy">Fast intake for live demos, warm leads, and first-pass permit triage.</p>
               </div>
               <span class="status-pill">Beta Live</span>
             </div>
 
             <form class="command-form" id="snapshotForm">
+              <div class="demo-helper">
+                <span class="mini-label">Demo Example</span>
+                <button class="demo-chip" id="demoExampleButton" type="button">Prefill LA interior remodel</button>
+              </div>
+
               <label class="field">
                 <span>Property address</span>
                 <input name="address" type="text" autocomplete="street-address" placeholder="742 S Mission Rd" required />
@@ -114,8 +119,8 @@
               </div>
 
               <div class="top-cta-row">
-                <p class="field-note">Informational intake brief only. This is not a permit filing flow or official approval advice.</p>
-                <button class="btn btn-primary" id="generateButton" type="submit">Generate Snapshot</button>
+                <p class="field-note">Informational intake brief only. Not a filing flow or approval advice.</p>
+                <button class="btn btn-primary" id="generateButton" type="submit">Run Instant Snapshot</button>
               </div>
             </form>
           </section>
@@ -128,46 +133,46 @@
             <div class="result-head">
               <div>
                 <p class="kicker">Awaiting input</p>
-                <h2>Nothing staged yet.</h2>
+                <h2>Ready for a fast permit read.</h2>
               </div>
               <span class="badge">Phone-ready demo</span>
             </div>
-            <p class="empty-copy">Run a snapshot to generate likely permit routing, missing intake items, friction flags, and a clean next move you can use on the spot.</p>
+            <p class="empty-copy">Run a snapshot to stage likely routing, intake gaps, risk notes, and a paid next step in under a minute.</p>
             <div class="mini-grid">
               <div class="metric-card">
                 <span class="mini-label">Best inputs</span>
-                <strong class="metric-value">Address, city, and plain-English scope</strong>
+                <strong class="metric-value">Street address, city, and plain-English scope</strong>
               </div>
               <div class="metric-card">
                 <span class="mini-label">What comes back</span>
-                <strong class="metric-value">Jurisdiction, portal, risk notes, and CTA-ready handoff</strong>
+                <strong class="metric-value">Jurisdiction, portal direction, risk notes, and a strong next move</strong>
               </div>
             </div>
           </section>
 
           <section class="loading-card" id="loadingState" hidden>
-            <p class="kicker">Generating brief</p>
-            <h2>Staging permit intake readout.</h2>
-            <p class="panel-copy">Matching the city against the PermitPulse jurisdiction catalog, tightening the project summary, and preparing the next-step recommendation.</p>
+            <p class="kicker">Running snapshot</p>
+            <h2>Building a fast permit read.</h2>
+            <p class="panel-copy">Checking the jurisdiction catalog, shaping the likely permit lane, and preparing the clearest next step for this intake.</p>
             <div class="loading-bar"><div class="loading-fill"></div></div>
             <ul class="loading-list">
               <li>Checking likely jurisdiction and official portal lane</li>
-              <li>Summarizing scope into a cleaner intake brief</li>
-              <li>Flagging missing info before the first submission attempt</li>
+              <li>Turning the scope into a tighter intake brief</li>
+              <li>Flagging missing info before the first portal pass</li>
             </ul>
           </section>
 
           <section class="error-card" id="errorState" hidden>
             <p class="kicker">Snapshot error</p>
-            <h2>PermitPulse could not generate the brief.</h2>
+            <h2>Snapshot not ready yet.</h2>
             <p class="error-copy" id="errorCopy">Try again with a fuller address, city, and project description.</p>
             <button class="btn btn-secondary" type="button" onclick="window.scrollTo({ top: 0, behavior: 'smooth' });">Back to intake</button>
           </section>
 
-          <section class="result-shell" id="resultState" hidden>
+          <section class="result-shell" id="resultState" hidden aria-live="polite">
             <div class="result-head">
               <div>
-                <p class="kicker">Instant Snapshot</p>
+                <p class="kicker">Snapshot ready</p>
                 <h2 id="resultJurisdiction">Likely jurisdiction</h2>
                 <p class="result-meta" id="resultMeta">Portal routing</p>
               </div>
@@ -178,48 +183,49 @@
 
             <div class="result-grid">
               <div class="result-main">
-                <div class="highlight-card">
-                  <p class="list-label">Project summary</p>
-                  <p class="result-copy" id="resultSummary"></p>
-                </div>
-
-                <div class="list-card">
-                  <p class="list-label">Likely permit path</p>
-                  <ul id="resultPermitPath"></ul>
-                </div>
-
-                <div class="list-card">
-                  <p class="list-label">Missing info checklist</p>
-                  <ul id="resultMissingInfo"></ul>
-                </div>
-
-                <div class="list-card">
-                  <p class="list-label">Friction or risk notes</p>
-                  <ul id="resultRiskNotes"></ul>
-                </div>
-              </div>
-
-              <aside class="result-sidebar">
-                <div class="portal-card">
+                <div class="portal-card" id="portalCard">
                   <p class="list-label">Official portal</p>
                   <p class="result-copy" id="resultPortal"></p>
-                  <div class="cta-stack" style="margin-top:12px;">
+                  <div class="cta-stack portal-actions">
                     <a class="btn btn-secondary" id="resultPortalAction" href="#" target="_blank" rel="noopener" hidden>Open Official Portal</a>
                     <a class="btn btn-ghost" id="resultPermitPage" href="/permits/" hidden>Open Permit Directory Page</a>
                   </div>
                 </div>
 
-                <div class="metric-card">
+                <div class="list-card" id="permitPathCard">
+                  <p class="list-label">Likely permit path</p>
+                  <ul id="resultPermitPath"></ul>
+                </div>
+
+                <div class="list-card" id="missingInfoCard">
+                  <p class="list-label">Missing info</p>
+                  <ul id="resultMissingInfo"></ul>
+                </div>
+
+                <div class="list-card" id="riskNotesCard">
+                  <p class="list-label">Risk notes</p>
+                  <ul id="resultRiskNotes"></ul>
+                </div>
+
+                <div class="metric-card" id="nextStepCard">
                   <p class="list-label">Next best step</p>
                   <p class="result-copy" id="resultNextStep"></p>
                 </div>
+              </div>
+
+              <aside class="result-sidebar">
+                <div class="highlight-card" id="summaryCard">
+                  <p class="list-label">Snapshot read</p>
+                  <p class="result-copy" id="resultSummary"></p>
+                </div>
 
                 <div class="cta-card">
-                  <p class="list-label">Move from demo to deal</p>
-                  <p class="result-copy">Use the intake brief to sell the next action while the project details are still fresh.</p>
-                  <div class="cta-stack" style="margin-top:12px;">
-                    <a class="btn btn-primary" id="resultFullReport" href="https://buy.stripe.com/3cI3cw1qT9aP6Jx2Fs1wY0e" target="_blank" rel="noopener">Buy Full Permit History + Risk Report</a>
-                    <a class="btn btn-secondary" id="resultDoneForYou" href="/call/">Request Done For You Help</a>
+                  <p class="list-label">Move this into a paid next step</p>
+                  <p class="result-copy">Use this snapshot as the first read, then escalate into a deeper PermitPulse deliverable while the project context is still fresh.</p>
+                  <div class="cta-stack cta-actions">
+                    <a class="btn btn-primary" id="resultFullReport" href="https://buy.stripe.com/3cI3cw1qT9aP6Jx2Fs1wY0e" target="_blank" rel="noopener">Upgrade to Full Risk Report</a>
+                    <a class="btn btn-secondary" id="resultDoneForYou" href="/call/">Request Done-for-You Help</a>
+                    <button class="btn btn-ghost" id="runAnotherSnapshot" type="button">Run Another Snapshot</button>
                   </div>
                 </div>
               </aside>
