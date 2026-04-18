@@ -164,6 +164,42 @@ export const JURISDICTIONS = [
   },
 
   {
+    id: "pasadena",
+    name: "Pasadena",
+    state: "CA",
+    placeholder: true,
+    enabled: true,
+    platform: "Open Data (ArcGIS)",
+    portalUrl: "https://mypermits.cityofpasadena.net/",
+    portalNotes: "Official Pasadena permit portal for permit lookup and status research. PermitPulse also queries the city's public ArcGIS permit activity feed.",
+    provider: {
+      type: "arcgis",
+      // Permit Activity is the primary live feed because it exposes the latest activity date.
+      // Pasadena also publishes an Active Building Permits view, but that view only exposes
+      // address, case number, and description fields.
+      layerBaseUrl: "https://services2.arcgis.com/zNjnZafDYCAJAbN0/arcgis/rest/services/Permit_Activity/FeatureServer/0",
+      orderByFields: "LATEST_ACTIVITY DESC",
+      fields: {
+        id: "CASE_NUMBER",
+        address: "ADDRESS",
+        status: null,
+        type: null,
+        subtype: null,
+        filed_at: "LATEST_ACTIVITY",
+        issued_at: null,
+        valuation: null,
+        description: "DESCRIPTION",
+        updated_at: "LATEST_ACTIVITY",
+        apn: "LAND_PARCEL_NO",
+        parcel: "PARCEL_NO",
+      },
+      searchFields: [
+        "CASE_NUMBER","ADDRESS","DESCRIPTION","LAND_PARCEL_NO","PARCEL_NO"
+      ],
+    },
+  },
+
+  {
     id: "riverside",
     name: "Riverside",
     state: "CA",
