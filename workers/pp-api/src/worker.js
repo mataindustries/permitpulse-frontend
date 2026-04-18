@@ -14,8 +14,32 @@ import { handleMissionControlReport } from './mission-control/report.js';
 import { fetchSocrataRows } from './providers/socrata.js';
 
 const PASADENA_JURISDICTION_ID = 'pasadena';
+const SANTA_MONICA_JURISDICTION_ID = 'santa_monica';
+const SANTA_MONICA_ROUTE_SLUG = 'santa-monica';
+const SANTA_MONICA_DEMOLITION_ROUTE_SLUG = 'santa-monica-demolition';
 const PASADENA_ACTIVE_BUILDING_PERMITS_LAYER_URL =
 	'https://services2.arcgis.com/zNjnZafDYCAJAbN0/arcgis/rest/services/Active_Building_Permits_view/FeatureServer/0';
+const SANTA_MONICA_DEMOLITION_PROVIDER = {
+	type: 'ckan',
+	domain: 'data.santamonica.gov',
+	resourceId: '055bb060-f212-460c-a3cf-0d58a7ca755f',
+	sort: 'date_entered desc',
+	fields: {
+		id: 'permit_number',
+		address: 'address',
+		status: 'status',
+		filed_at: 'date_entered',
+		valuation: 'valuation',
+		latitude: 'latitude',
+		longitude: 'longitude',
+		parcel: 'parcel_no',
+		permit_type: 'permit_type',
+		source_subtype: 'permit_sub_type',
+		class_code: 'class_code',
+		class_code_description: 'class_code_description',
+		class_code_section: 'class_code_section',
+	},
+};
 
 function corsHeaders(origin) {
 	const allow = ALLOWED_ORIGINS.includes(origin) ? origin : ALLOWED_ORIGINS[0];
@@ -76,6 +100,20 @@ function qs(params) {
 
 function uniqueNonEmptyValues(values) {
 	return [...new Set((Array.isArray(values) ? values : []).filter(Boolean))];
+}
+
+function normalizeJurisdictionId(value) {
+	return String(value || '')
+		.trim()
+		.toLowerCase()
+		.replace(/[\s-]+/g, '_');
+}
+
+function toPublicJurisdictionId(value) {
+	return String(value || '')
+		.trim()
+		.toLowerCase()
+		.replace(/_/g, '-');
 }
 
 function parseIssueDate(value) {
@@ -287,7 +325,8 @@ function normalizePathname(pathname) {
 }
 
 function findJurisdiction(jurisdictionId) {
-	return JURISDICTIONS.find((jurisdiction) => jurisdiction.id === jurisdictionId) || null;
+	const normalized = normalizeJurisdictionId(jurisdictionId);
+	return JURISDICTIONS.find((jurisdiction) => jurisdiction.id === normalized) || null;
 }
 
 function getPasadenaJurisdiction() {
@@ -295,9 +334,47 @@ function getPasadenaJurisdiction() {
 	return jurisdiction?.provider?.type === 'arcgis' ? jurisdiction : null;
 }
 
+function getSantaMonicaJurisdiction() {
+	const jurisdiction = findJurisdiction(SANTA_MONICA_JURISDICTION_ID);
+	return jurisdiction?.provider?.type === 'ckan' ? jurisdiction : null;
+}
+
 function normalizeHistoryDate(value) {
 	const parsed = parseIssueDate(value);
-	return parsed ? parsed.toISOString() : null;
+	if (!parsed || parsed.getUTCFullYear() <= 1900) {
+		return null;
+	}
+	return parsed.toISOString();
+}
+
+function selectLatestHistoryDate(...values) {
+	let latest = null;
+
+	for (const value of values) {
+		const normalized = normalizeHistoryDate(value);
+		if (!normalized) {
+			continue;
+		}
+		if (!latest || normalized > latest) {
+			latest = normalized;
+		}
+	}
+
+	return latest;
+}
+
+function normalizeOptionalNumber(value) {
+	if (value == null || value === '') {
+		return null;
+	}
+
+	const parsed = Number(value);
+	return Number.isFinite(parsed) ? parsed : null;
+}
+
+function getCalendarYear(value) {
+	const parsed = parseIssueDate(value);
+	return parsed ? parsed.getUTCFullYear() : null;
 }
 
 function buildProviderOutFields(provider, extraFields = []) {
@@ -378,7 +455,83 @@ function buildCkanDatastoreUrl(provider) {
 	return '';
 }
 
-async function fetchCkanRows({ baseUrl, resourceId, q, limit = 200, sort }) {
+function buildSantaMonicaDemolitionSource() {
+	return {
+		id: SANTA_MONICA_JURISDICTION_ID,
+		name: 'Santa Monica Demolition Plan Checks',
+		state: 'CA',
+		platform: 'Citizen Access',
+		portalUrl: 'https://epermit.smgov.net/CitizenAccess/Default.aspx',
+		provider: SANTA_MONICA_DEMOLITION_PROVIDER,
+	};
+}
+
+function buildSantaMonicaDemolitionDescription(row) {
+	const classDescription = row?.class_code_description || null;
+	const classSection = row?.class_code_section || null;
+	const permitType = row?.permit_type || null;
+	const subtype = row?.permit_sub_type || null;
+	return [
+		'Demolition plan check',
+		classDescription,
+		classSection,
+		permitType,
+		subtype,
+	]
+		.filter(Boolean)
+		.join(' · ');
+}
+
+function normalizeSantaMonicaDemolitionRecord(row) {
+	const source = buildSantaMonicaDemolitionSource();
+	const fields = source.provider.fields;
+	const id = row?.[fields.id] || null;
+	const filedAt = normalizeHistoryDate(row?.[fields.filed_at]);
+	const updatedAt = filedAt;
+	const description = buildSantaMonicaDemolitionDescription(row);
+	const enteredYear = getCalendarYear(row?.[fields.filed_at]);
+	const riskFlags = ['TRADE_DEMOLITION'];
+
+	if (enteredYear != null && enteredYear <= 2016) {
+		riskFlags.push('POSSIBLE_STALE_DEMO_RECORD');
+	}
+	if (!row?.[fields.address]) {
+		riskFlags.push('MISSING_ADDRESS');
+	}
+	if (row?.[fields.valuation] == null || parseValuation(row?.[fields.valuation]) === 0) {
+		riskFlags.push('MISSING_VALUATION');
+	}
+
+	return {
+		id,
+		permit_id: id,
+		jurisdiction: SANTA_MONICA_ROUTE_SLUG,
+		address: row?.[fields.address] ?? null,
+		status: row?.[fields.status] ?? null,
+		type: 'demolition',
+		subtype: 'demolition-plan-check',
+		filed_at: filedAt,
+		issued_at: null,
+		updated_at: updatedAt,
+		applied_at: filedAt,
+		valuation: row?.[fields.valuation] == null ? null : parseValuation(row[fields.valuation]),
+		description,
+		project_type: null,
+		permit_type: row?.[fields.permit_type] ?? null,
+		latitude: normalizeOptionalNumber(row?.[fields.latitude]),
+		longitude: normalizeOptionalNumber(row?.[fields.longitude]),
+		apn: null,
+		parcel: row?.[fields.parcel] ?? null,
+		class_code: row?.[fields.class_code] ?? null,
+		class_code_description: row?.[fields.class_code_description] ?? null,
+		class_code_section: row?.[fields.class_code_section] ?? null,
+		source_url: buildHistorySourceUrl(source, id),
+		risk_flags: riskFlags,
+		watch_type: 'demolition-watch',
+	};
+}
+
+async function fetchCkanRows({ baseUrl, resourceId, q, limit = 200, sort, filters }) {
 	if (!baseUrl || !resourceId) {
 		throw new Error('invalid_ckan_provider');
 	}
@@ -391,6 +544,9 @@ async function fetchCkanRows({ baseUrl, resourceId, q, limit = 200, sort }) {
 	}
 	if (q) {
 		url.searchParams.set('q', q);
+	}
+	if (filters && Object.keys(filters).length) {
+		url.searchParams.set('filters', JSON.stringify(filters));
 	}
 
 	const response = await fetch(url.toString(), {
@@ -454,7 +610,7 @@ function buildHistorySourceUrl(jurisdiction, id) {
 		url.searchParams.set('resource_id', resourceId);
 		url.searchParams.set('limit', '1');
 		if (id) {
-			url.searchParams.set('q', String(id));
+			url.searchParams.set('filters', JSON.stringify({ [provider.fields.id]: String(id) }));
 		}
 		return url.toString();
 	}
@@ -509,9 +665,25 @@ function normalizeHistoryRecord(row, jurisdiction) {
 		null;
 	const filedAt = normalizeHistoryDate(row.filed_at ?? row[fields.filed_at]);
 	const issuedAt = normalizeHistoryDate(fields.issued_at ? (row.issued_at ?? row[fields.issued_at]) : row.issued_at);
+	const updatedAt = selectLatestHistoryDate(
+		row.updated_at,
+		fields.updated_at ? row[fields.updated_at] : null,
+		fields.completed_at ? row[fields.completed_at] : null,
+		fields.renewed_at ? row[fields.renewed_at] : null,
+		fields.issued_at ? row[fields.issued_at] : null,
+		row.issued_at,
+		fields.filed_at ? row[fields.filed_at] : null,
+		row.filed_at,
+	);
 	const rawValuation = row.valuation ?? row[fields.valuation];
 	const valuation = rawValuation == null ? null : parseValuation(rawValuation);
 	const descriptionText = (row.description ?? row[fields.description]) || null;
+	const projectType = fields.project_type ? row[fields.project_type] ?? null : null;
+	const permitType = fields.permit_type ? row[fields.permit_type] ?? null : null;
+	const typeValue =
+		row.type ??
+		(fields.type ? row[fields.type] ?? null : null) ??
+		(fields.type_fallback ? row[fields.type_fallback] ?? null : null);
 	const description = String(descriptionText || '').toLowerCase();
 	const riskFlags = [];
 
@@ -550,14 +722,27 @@ function normalizeHistoryRecord(row, jurisdiction) {
 
 	return {
 		id,
+		permit_id: id,
+		jurisdiction: toPublicJurisdictionId(jurisdiction.id),
 		address,
 		status: row.status ?? (fields.status ? row[fields.status] ?? null : null),
-		type: row.type ?? (fields.type ? row[fields.type] ?? null : null),
+		type: typeValue,
 		subtype: row.subtype ?? (fields.subtype ? row[fields.subtype] ?? null : null),
 		filed_at: filedAt,
 		issued_at: issuedAt,
+		updated_at: updatedAt,
+		applied_at: fields.applied_at ? normalizeHistoryDate(row[fields.applied_at]) : null,
 		valuation,
 		description: descriptionText,
+		project_type: projectType,
+		permit_type: permitType,
+		latitude: fields.latitude ? normalizeOptionalNumber(row[fields.latitude]) : null,
+		longitude: fields.longitude ? normalizeOptionalNumber(row[fields.longitude]) : null,
+		apn: fields.apn ? row[fields.apn] ?? null : null,
+		parcel: fields.parcel ? row[fields.parcel] ?? null : null,
+		class_code: fields.class_code ? row[fields.class_code] ?? null : null,
+		class_code_description: fields.class_code_description ? row[fields.class_code_description] ?? null : null,
+		class_code_section: fields.class_code_section ? row[fields.class_code_section] ?? null : null,
 		source_url: sourceUrl,
 		risk_flags: riskFlags,
 	};
@@ -687,8 +872,123 @@ async function probePasadenaLiveData() {
 	}
 }
 
+async function probeSantaMonicaLiveData() {
+	const jurisdiction = getSantaMonicaJurisdiction();
+	if (!jurisdiction) {
+		return {
+			ok: false,
+			error: 'santa_monica_not_configured',
+		};
+	}
+
+	try {
+		const { url, rows } = await fetchHistoryRows(null, jurisdiction, { q: '', fetchLimit: 1 });
+		const first = rows[0] || {};
+		return {
+			ok: rows.length > 0,
+			count: rows.length,
+			source_url: url,
+			latest_id: first[jurisdiction.provider.fields.id] || null,
+		};
+	} catch (error) {
+		return {
+			ok: false,
+			error: String(error?.message || error),
+		};
+	}
+}
+
+async function probeSantaMonicaDemolitionData() {
+	const source = buildSantaMonicaDemolitionSource();
+
+	try {
+		const { url, rows } = await fetchCkanRows({
+			baseUrl: buildCkanDatastoreUrl(source.provider),
+			resourceId: source.provider.resourceId,
+			limit: 1,
+			sort: source.provider.sort,
+		});
+		const first = rows[0] || {};
+		return {
+			ok: rows.length > 0,
+			count: rows.length,
+			source_url: url,
+			latest_id: first[source.provider.fields.id] || null,
+		};
+	} catch (error) {
+		return {
+			ok: false,
+			error: String(error?.message || error),
+		};
+	}
+}
+
+async function loadSantaMonicaLiveResults({ q = '', limit = 25, sinceDays = null }) {
+	const jurisdiction = getSantaMonicaJurisdiction();
+	if (!jurisdiction) {
+		throw new Error('santa_monica_not_configured');
+	}
+
+	const fetchLimit = Math.max(limit * 8, 200);
+	const { url: sourceUrl, rows } = await fetchHistoryRows(null, jurisdiction, {
+		q,
+		fetchLimit,
+	});
+
+	const results = (Array.isArray(rows) ? rows : [])
+		.map((row) => normalizeHistoryRecord(row, jurisdiction))
+		.filter((record) => record.id)
+		.filter((record) => (q ? matchesHistoryQuery(record, q) : true))
+		.filter((record) => isWithinSinceDays(record.updated_at || record.issued_at || record.filed_at, sinceDays))
+		.sort((a, b) => {
+			const aDate = a.updated_at || a.issued_at || a.filed_at || '';
+			const bDate = b.updated_at || b.issued_at || b.filed_at || '';
+			return bDate.localeCompare(aDate);
+		})
+		.slice(0, limit);
+
+	return {
+		jurisdiction,
+		sourceUrl,
+		fetchLimit,
+		results,
+	};
+}
+
+async function loadSantaMonicaDemolitionResults({ q = '', limit = 25, sinceDays = null }) {
+	const source = buildSantaMonicaDemolitionSource();
+	const fetchLimit = Math.max(limit * 8, 100);
+	const { url: sourceUrl, rows } = await fetchCkanRows({
+		baseUrl: buildCkanDatastoreUrl(source.provider),
+		resourceId: source.provider.resourceId,
+		q,
+		limit: fetchLimit,
+		sort: source.provider.sort,
+	});
+
+	const results = (Array.isArray(rows) ? rows : [])
+		.map((row) => normalizeSantaMonicaDemolitionRecord(row))
+		.filter((record) => record.id)
+		.filter((record) => (q ? matchesHistoryQuery(record, q) : true))
+		.filter((record) => isWithinSinceDays(record.updated_at || record.filed_at, sinceDays))
+		.sort((a, b) => {
+			const aDate = a.updated_at || a.filed_at || '';
+			const bDate = b.updated_at || b.filed_at || '';
+			return bDate.localeCompare(aDate);
+		})
+		.slice(0, limit);
+
+	return {
+		source,
+		sourceUrl,
+		fetchLimit,
+		results,
+	};
+}
+
 async function handleTopPermits({ url, env }) {
 	const search = url.searchParams;
+	const jurisdictionId = normalizeJurisdictionId(search.get('jurisdiction') || 'la_city');
 	const rawDays = Number(search.get('days') || '30');
 	const rawMin = Number(search.get('min') || '250000');
 	const rawLimit = Number(search.get('limit') || '25');
@@ -700,6 +1000,65 @@ async function handleTopPermits({ url, env }) {
 	const minValue = !Number.isFinite(rawMin) || rawMin < 0 ? 0 : rawMin;
 	const limit = !Number.isFinite(rawLimit) || rawLimit <= 0 || rawLimit > 200 ? 25 : rawLimit;
 	const fetchLimit = Math.max(limit * 5, 500);
+
+	if (jurisdictionId === SANTA_MONICA_JURISDICTION_ID) {
+		try {
+			const jurisdiction = getSantaMonicaJurisdiction();
+			const { url: sourceUrl, rows } = await fetchHistoryRows(null, jurisdiction, { q: '', fetchLimit });
+			const minTime = Date.now() - days * 24 * 60 * 60 * 1000;
+			const permits = (Array.isArray(rows) ? rows : [])
+				.map((row) => normalizeHistoryRecord(row, jurisdiction))
+				.filter((record) => {
+					const activityDate = parseIssueDate(record.issued_at || record.updated_at || record.filed_at);
+					if (!activityDate) return false;
+					if (activityDate.getTime() < minTime) return false;
+					if ((record.valuation ?? 0) < minValue) return false;
+					return matchesTrade(record.description, trade, mode);
+				})
+				.sort((a, b) => (b.valuation ?? 0) - (a.valuation ?? 0))
+				.slice(0, limit)
+				.map((record) => ({
+					permitNumber: record.id,
+					issueDate: record.issued_at || record.updated_at || record.filed_at,
+					address: record.address,
+					zip: null,
+					value: record.valuation ?? 0,
+					description: record.description,
+					trade,
+					source_url: record.source_url,
+					jurisdiction: record.jurisdiction,
+				}));
+
+			return json({
+				ok: true,
+				meta: {
+					jurisdiction: SANTA_MONICA_ROUTE_SLUG,
+					days,
+					minValue,
+					limit,
+					trade,
+					source: sourceUrl,
+					count: permits.length,
+				},
+				permits,
+				debug: debug
+					? {
+							fetchedRows: rows.length,
+							sourceUrl,
+						}
+					: undefined,
+			});
+		} catch (error) {
+			return json({
+				ok: false,
+				error: 'upstream',
+				detail: String(error?.message || error),
+				meta: {
+					jurisdiction: SANTA_MONICA_ROUTE_SLUG,
+				},
+			}, 502);
+		}
+	}
 
 	const { socUrl, status, error, rows, errorDetail } = await loadLadbsRows(env, fetchLimit);
 	const minTime = Date.now() - days * 24 * 60 * 60 * 1000;
@@ -829,6 +1188,14 @@ async function handleHealth() {
 	if (!pasadena.ok) {
 		failing.push(PASADENA_JURISDICTION_ID);
 	}
+	const santaMonica = await probeSantaMonicaLiveData();
+	if (!santaMonica.ok) {
+		failing.push(SANTA_MONICA_JURISDICTION_ID);
+	}
+	const santaMonicaDemolition = await probeSantaMonicaDemolitionData();
+	if (!santaMonicaDemolition.ok) {
+		failing.push(SANTA_MONICA_DEMOLITION_ROUTE_SLUG);
+	}
 
 	return json({
 		ok: true,
@@ -838,6 +1205,8 @@ async function handleHealth() {
 			upstream_ok: failing.length === 0,
 			failing,
 			pasadena,
+			santa_monica: santaMonica,
+			santa_monica_demolition: santaMonicaDemolition,
 		},
 	});
 }
@@ -854,7 +1223,7 @@ async function handleRadar({ url, env }) {
 	const domain = sanitizeDomain(env.SOC_DOMAIN || LADBS_SOURCE.domain);
 	const dataset = String(env.SOC_DATASET || LADBS_SOURCE.dataset).trim();
 	const search = urlObj.searchParams;
-	const jurisdictionId = (search.get('jurisdiction') || 'la_city').trim().toLowerCase();
+	const jurisdictionId = normalizeJurisdictionId(search.get('jurisdiction') || 'la_city');
 	const trade = (search.get('trade') || 'roof').toLowerCase();
 	const days = Math.max(1, Math.min(parseInt(search.get('days') || '7', 10), 30));
 	const limit = Math.max(1, Math.min(parseInt(search.get('limit') || '50', 10), 200));
@@ -922,6 +1291,148 @@ async function handleRadar({ url, env }) {
 					error: 'upstream',
 					detail: String(error?.message || error),
 					jurisdiction: PASADENA_JURISDICTION_ID,
+				}),
+				{
+					status: 502,
+					headers: JSON_HEADERS,
+				},
+			);
+		}
+	}
+
+	if (jurisdictionId === SANTA_MONICA_JURISDICTION_ID) {
+		if (trade === 'demolition') {
+			try {
+				const fetchLimit = Math.max(limit * 5, 100);
+				const { source, sourceUrl, results } = await loadSantaMonicaDemolitionResults({
+					limit: fetchLimit,
+					sinceDays: days,
+				});
+				const rows = results
+					.slice(0, limit)
+					.map((record) => ({
+						permit_nbr: record.id,
+						issue_date: record.updated_at || record.filed_at,
+						work_desc: record.description,
+						permit_type: record.type,
+						permit_sub_type: record.subtype,
+						primary_address: record.address,
+						zip_code: null,
+						valuation: record.valuation,
+						lat: record.latitude,
+						lon: record.longitude,
+						status: record.status,
+						source_url: record.source_url,
+						jurisdiction: record.jurisdiction,
+						project_type: record.project_type,
+						parcel: record.parcel,
+						risk_flags: record.risk_flags,
+					}));
+
+				return new Response(
+					JSON.stringify({
+						ok: true,
+						count: rows.length,
+						count_1: String(rows.length),
+						'count(*)': rows.length,
+						total: rows.length,
+						view: SANTA_MONICA_DEMOLITION_ROUTE_SLUG,
+						dataset: SANTA_MONICA_DEMOLITION_ROUTE_SLUG,
+						source_view: SANTA_MONICA_DEMOLITION_ROUTE_SLUG,
+						view_id: SANTA_MONICA_DEMOLITION_ROUTE_SLUG,
+						url: sourceUrl,
+						ui: buildCkanDatastoreUrl(source.provider),
+						rows,
+						params: { jurisdiction: SANTA_MONICA_ROUTE_SLUG, trade, days, limit },
+						...(debug
+							? {
+									debug: {
+										source_dataset_url: buildCkanDatastoreUrl(source.provider),
+										resource_id: source.provider.resourceId,
+										fetchLimit,
+									},
+								}
+							: {}),
+					}),
+					{ headers: JSON_HEADERS },
+				);
+			} catch (error) {
+				return new Response(
+					JSON.stringify({
+						ok: false,
+						error: 'upstream',
+						detail: String(error?.message || error),
+						jurisdiction: SANTA_MONICA_DEMOLITION_ROUTE_SLUG,
+					}),
+					{
+						status: 502,
+						headers: JSON_HEADERS,
+					},
+				);
+			}
+		}
+
+		try {
+			const fetchLimit = Math.max(limit * 5, 200);
+			const { jurisdiction, sourceUrl, results } = await loadSantaMonicaLiveResults({
+				limit: fetchLimit,
+				sinceDays: days,
+			});
+			const rows = results
+				.filter((record) => matchesTrade(record.description, trade))
+				.slice(0, limit)
+				.map((record) => ({
+					permit_nbr: record.id,
+					issue_date: record.updated_at || record.issued_at || record.filed_at,
+					work_desc: record.description,
+					permit_type: record.type || record.permit_type,
+					permit_sub_type: record.subtype,
+					primary_address: record.address,
+					zip_code: null,
+					valuation: record.valuation,
+					lat: record.latitude,
+					lon: record.longitude,
+					status: record.status,
+					source_url: record.source_url,
+					jurisdiction: record.jurisdiction,
+					project_type: record.project_type,
+					parcel: record.parcel,
+				}));
+
+			return new Response(
+				JSON.stringify({
+					ok: true,
+					count: rows.length,
+					count_1: String(rows.length),
+					'count(*)': rows.length,
+					total: rows.length,
+					view: SANTA_MONICA_ROUTE_SLUG,
+					dataset: SANTA_MONICA_ROUTE_SLUG,
+					source_view: SANTA_MONICA_ROUTE_SLUG,
+					view_id: SANTA_MONICA_ROUTE_SLUG,
+					url: sourceUrl,
+					ui: buildCkanDatastoreUrl(jurisdiction.provider),
+					rows,
+					params: { jurisdiction: SANTA_MONICA_ROUTE_SLUG, trade, days, limit },
+					...(debug
+						? {
+								debug: {
+									source_dataset_url: buildCkanDatastoreUrl(jurisdiction.provider),
+									resource_id: jurisdiction.provider.resourceId || jurisdiction.provider.resource_id,
+									fetchLimit,
+								},
+							}
+						: {}),
+				}),
+				{ headers: JSON_HEADERS },
+			);
+		} catch (error) {
+			return new Response(
+				JSON.stringify({
+					ok: false,
+					error: 'upstream',
+					detail: String(error?.message || error),
+					jurisdiction: SANTA_MONICA_ROUTE_SLUG,
 				}),
 				{
 					status: 502,
@@ -1080,6 +1591,153 @@ async function handlePasadenaLive({ request, url }) {
 	}
 }
 
+async function handleSantaMonicaLive({ request, url }) {
+	if (request.method !== 'GET') {
+		return json(apiEnvelope(false, null, 'method_not_allowed'), 405);
+	}
+
+	const jurisdiction = getSantaMonicaJurisdiction();
+	if (!jurisdiction) {
+		return json(apiEnvelope(false, null, 'unknown_jurisdiction'), 400);
+	}
+
+	const q = (url.searchParams.get('q') || '').trim();
+	const rawLimit = Number(url.searchParams.get('limit') || '25');
+	const rawSinceDays = url.searchParams.get('since_days');
+	const debug = url.searchParams.get('debug') === '1';
+	const limit = !Number.isFinite(rawLimit) || rawLimit <= 0 || rawLimit > 100 ? 25 : rawLimit;
+	const parsedSinceDays =
+		rawSinceDays == null || rawSinceDays === '' ? null : Number(rawSinceDays);
+	const sinceDays =
+		parsedSinceDays == null || !Number.isFinite(parsedSinceDays) || parsedSinceDays <= 0
+			? null
+			: Math.min(parsedSinceDays, 3650);
+
+	try {
+		const { sourceUrl, fetchLimit, results } = await loadSantaMonicaLiveResults({
+			q,
+			limit,
+			sinceDays,
+		});
+
+		return jsonWithCache(
+			apiEnvelope(true, {
+				jurisdiction: SANTA_MONICA_ROUTE_SLUG,
+				query: {
+					q,
+					limit,
+					since_days: sinceDays,
+				},
+				meta: {
+					jurisdiction: SANTA_MONICA_ROUTE_SLUG,
+					count: results.length,
+					fetchLimit,
+					source_url: sourceUrl,
+					selected_endpoint: buildCkanDatastoreUrl(jurisdiction.provider),
+					resource_id: jurisdiction.provider.resourceId || jurisdiction.provider.resource_id,
+				},
+				results,
+				...(debug
+					? {
+							debug: {
+								selected_endpoint: buildCkanDatastoreUrl(jurisdiction.provider),
+								resource_id: jurisdiction.provider.resourceId || jurisdiction.provider.resource_id,
+							},
+						}
+					: {}),
+			}, null),
+			200,
+			60,
+		);
+	} catch (error) {
+		return json(
+			{
+				ok: false,
+				error: 'upstream',
+				detail: String(error?.message || error),
+				meta: buildPortalMeta(jurisdiction),
+			},
+			502,
+		);
+	}
+}
+
+async function handleSantaMonicaDemolitionLive({ request, url }) {
+	if (request.method !== 'GET') {
+		return json(apiEnvelope(false, null, 'method_not_allowed'), 405);
+	}
+
+	const source = buildSantaMonicaDemolitionSource();
+	const q = (url.searchParams.get('q') || '').trim();
+	const rawLimit = Number(url.searchParams.get('limit') || '25');
+	const rawSinceDays = url.searchParams.get('since_days');
+	const debug = url.searchParams.get('debug') === '1';
+	const limit = !Number.isFinite(rawLimit) || rawLimit <= 0 || rawLimit > 100 ? 25 : rawLimit;
+	const parsedSinceDays =
+		rawSinceDays == null || rawSinceDays === '' ? null : Number(rawSinceDays);
+	const sinceDays =
+		parsedSinceDays == null || !Number.isFinite(parsedSinceDays) || parsedSinceDays <= 0
+			? null
+			: Math.min(parsedSinceDays, 3650);
+
+	try {
+		const { sourceUrl, fetchLimit, results } = await loadSantaMonicaDemolitionResults({
+			q,
+			limit,
+			sinceDays,
+		});
+
+		return jsonWithCache(
+			apiEnvelope(true, {
+				jurisdiction: SANTA_MONICA_ROUTE_SLUG,
+				feed: SANTA_MONICA_DEMOLITION_ROUTE_SLUG,
+				query: {
+					q,
+					limit,
+					since_days: sinceDays,
+				},
+				meta: {
+					jurisdiction: SANTA_MONICA_ROUTE_SLUG,
+					feed: SANTA_MONICA_DEMOLITION_ROUTE_SLUG,
+					count: results.length,
+					fetchLimit,
+					source_url: sourceUrl,
+					selected_endpoint: buildCkanDatastoreUrl(source.provider),
+					resource_id: source.provider.resourceId,
+					caveat:
+						'City note: applications from 2016 and earlier may be incorrectly shown as active or in review. Treat this feed as demolition-watch, not definitive current permit status for old records.',
+				},
+				results,
+				...(debug
+					? {
+							debug: {
+								selected_endpoint: buildCkanDatastoreUrl(source.provider),
+								resource_id: source.provider.resourceId,
+							},
+						}
+					: {}),
+			}, null),
+			200,
+			60,
+		);
+	} catch (error) {
+		return json(
+			{
+				ok: false,
+				error: 'upstream',
+				detail: String(error?.message || error),
+				meta: {
+					jurisdiction: SANTA_MONICA_ROUTE_SLUG,
+					feed: SANTA_MONICA_DEMOLITION_ROUTE_SLUG,
+					portal_url: source.portalUrl,
+					portal_platform: source.platform,
+				},
+			},
+			502,
+		);
+	}
+}
+
 async function handlePilotIntake({ request, env }) {
 	if (request.method !== 'POST') {
 		return json({ ok: false, error: 'method_not_allowed' }, 405);
@@ -1147,7 +1805,7 @@ async function handleV1HistorySearch({ request, url, env, ctx }) {
 		return json(apiEnvelope(false, null, 'method_not_allowed'), 405);
 	}
 
-	const jurisdictionId = (url.searchParams.get('jurisdiction') || '').trim();
+	const jurisdictionId = normalizeJurisdictionId(url.searchParams.get('jurisdiction') || '');
 	if (!jurisdictionId) {
 		return json(apiEnvelope(false, null, 'jurisdiction_required'), 400);
 	}
@@ -1247,6 +1905,8 @@ function createRoutes() {
 	return {
 		'/health': handleHealth,
 		'/live/pasadena': handlePasadenaLive,
+		'/live/santa-monica': handleSantaMonicaLive,
+		'/live/santa-monica-demolition': handleSantaMonicaDemolitionLive,
 		'/api/health': handleHealth,
 		'/api/radar': handleRadar,
 		'/api/top': handleTopPermits,
