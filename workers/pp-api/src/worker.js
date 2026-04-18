@@ -13,6 +13,10 @@ import { arcgisQuery as fetchArcgisRows } from "./providers/arcgis.js";
 import { handleMissionControlReport } from './mission-control/report.js';
 import { fetchSocrataRows } from './providers/socrata.js';
 
+const PASADENA_JURISDICTION_ID = 'pasadena';
+const PASADENA_ACTIVE_BUILDING_PERMITS_LAYER_URL =
+	'https://services2.arcgis.com/zNjnZafDYCAJAbN0/arcgis/rest/services/Active_Building_Permits_view/FeatureServer/0';
+
 function corsHeaders(origin) {
 	const allow = ALLOWED_ORIGINS.includes(origin) ? origin : ALLOWED_ORIGINS[0];
 	return {
@@ -68,6 +72,10 @@ function qs(params) {
 		}
 	}
 	return searchParams.toString();
+}
+
+function uniqueNonEmptyValues(values) {
+	return [...new Set((Array.isArray(values) ? values : []).filter(Boolean))];
 }
 
 function parseIssueDate(value) {
@@ -282,9 +290,85 @@ function findJurisdiction(jurisdictionId) {
 	return JURISDICTIONS.find((jurisdiction) => jurisdiction.id === jurisdictionId) || null;
 }
 
+function getPasadenaJurisdiction() {
+	const jurisdiction = findJurisdiction(PASADENA_JURISDICTION_ID);
+	return jurisdiction?.provider?.type === 'arcgis' ? jurisdiction : null;
+}
+
 function normalizeHistoryDate(value) {
 	const parsed = parseIssueDate(value);
 	return parsed ? parsed.toISOString() : null;
+}
+
+function buildProviderOutFields(provider, extraFields = []) {
+	return uniqueNonEmptyValues([...Object.values(provider?.fields || {}), ...extraFields]).join(',');
+}
+
+function normalizeArcgisPointGeometry(geometry) {
+	if (!geometry || typeof geometry.x !== 'number' || typeof geometry.y !== 'number') {
+		return { latitude: null, longitude: null };
+	}
+
+	if (Math.abs(geometry.x) <= 180 && Math.abs(geometry.y) <= 90) {
+		return {
+			longitude: Number(geometry.x.toFixed(6)),
+			latitude: Number(geometry.y.toFixed(6)),
+		};
+	}
+
+	const longitude = (geometry.x / 20037508.34) * 180;
+	let latitude = (geometry.y / 20037508.34) * 180;
+	latitude = (180 / Math.PI) * (2 * Math.atan(Math.exp((latitude * Math.PI) / 180)) - Math.PI / 2);
+
+	return {
+		longitude: Number(longitude.toFixed(6)),
+		latitude: Number(latitude.toFixed(6)),
+	};
+}
+
+function isWithinSinceDays(dateValue, sinceDays) {
+	if (sinceDays == null) {
+		return true;
+	}
+
+	const parsed = parseIssueDate(dateValue);
+	if (!parsed) {
+		return false;
+	}
+
+	return parsed.getTime() >= Date.now() - sinceDays * 24 * 60 * 60 * 1000;
+}
+
+function normalizePasadenaLiveRecord(feature, jurisdiction) {
+	const provider = jurisdiction?.provider;
+	const fields = provider?.fields || {};
+	const row = feature?.attributes || {};
+	const geometry = normalizeArcgisPointGeometry(feature?.geometry);
+	const id = row[fields.id] || null;
+	const filedAt = normalizeHistoryDate(row[fields.filed_at]);
+	const issuedAt = fields.issued_at ? normalizeHistoryDate(row[fields.issued_at]) : null;
+	const updatedAt = fields.updated_at ? normalizeHistoryDate(row[fields.updated_at]) : filedAt;
+	const rawValuation = fields.valuation ? row[fields.valuation] : null;
+
+	return {
+		id,
+		permit_id: id,
+		jurisdiction: jurisdiction.id,
+		status: fields.status ? row[fields.status] ?? null : null,
+		type: fields.type ? row[fields.type] ?? null : null,
+		description: fields.description ? row[fields.description] ?? null : null,
+		address: fields.address ? row[fields.address] ?? null : null,
+		applied_at: null,
+		filed_at: filedAt,
+		issued_at: issuedAt,
+		updated_at: updatedAt,
+		valuation: rawValuation == null ? null : parseValuation(rawValuation),
+		latitude: geometry.latitude,
+		longitude: geometry.longitude,
+		source_url: buildHistorySourceUrl(jurisdiction, id),
+		apn: fields.apn ? row[fields.apn] ?? null : null,
+		parcel: fields.parcel ? row[fields.parcel] ?? null : null,
+	};
 }
 
 function buildCkanDatastoreUrl(provider) {
@@ -542,6 +626,67 @@ async function fetchHistoryRows(env, jurisdiction, params) {
 	throw new Error('unsupported_provider');
 }
 
+async function fetchPasadenaArcgisFeatures({ q = '', limit = 25, returnGeometry = false, outFields }) {
+	const jurisdiction = getPasadenaJurisdiction();
+	if (!jurisdiction) {
+		throw new Error('pasadena_not_configured');
+	}
+
+	const result = await fetchArcgisRows({
+		layerBaseUrl: jurisdiction.provider.layerBaseUrl,
+		outFields: outFields || buildProviderOutFields(jurisdiction.provider),
+		orderByFields: jurisdiction.provider.orderByFields,
+		where: buildArcgisHistoryWhere(jurisdiction.provider, q),
+		limit: Math.max(1, Math.min(limit, 2000)),
+		returnGeometry,
+		outSR: returnGeometry ? 4326 : undefined,
+	});
+
+	if (!result?.ok) {
+		throw new Error(`upstream ${result?.status || 502}: ${result?.errorText || 'request failed'}`);
+	}
+
+	return {
+		jurisdiction,
+		url: result.url,
+		features: Array.isArray(result.features) ? result.features : [],
+	};
+}
+
+async function probePasadenaLiveData() {
+	const jurisdiction = getPasadenaJurisdiction();
+	if (!jurisdiction) {
+		return {
+			ok: false,
+			error: 'pasadena_not_configured',
+		};
+	}
+
+	try {
+		const { url, features } = await fetchPasadenaArcgisFeatures({
+			limit: 1,
+			returnGeometry: false,
+			outFields: uniqueNonEmptyValues([
+				jurisdiction.provider.fields.id,
+				jurisdiction.provider.fields.filed_at,
+				jurisdiction.provider.fields.updated_at,
+			]).join(','),
+		});
+		const first = features[0]?.attributes || {};
+		return {
+			ok: features.length > 0,
+			count: features.length,
+			source_url: url,
+			latest_id: first[jurisdiction.provider.fields.id] || null,
+		};
+	} catch (error) {
+		return {
+			ok: false,
+			error: String(error?.message || error),
+		};
+	}
+}
+
 async function handleTopPermits({ url, env }) {
 	const search = url.searchParams;
 	const rawDays = Number(search.get('days') || '30');
@@ -680,6 +825,11 @@ async function sodaFetch(env, query) {
 
 async function handleHealth() {
 	const failing = JURISDICTIONS.filter((jurisdiction) => jurisdiction.enabled === false).map((jurisdiction) => jurisdiction.id);
+	const pasadena = await probePasadenaLiveData();
+	if (!pasadena.ok) {
+		failing.push(PASADENA_JURISDICTION_ID);
+	}
+
 	return json({
 		ok: true,
 		service: 'pp-api',
@@ -687,6 +837,7 @@ async function handleHealth() {
 		upstreams: {
 			upstream_ok: failing.length === 0,
 			failing,
+			pasadena,
 		},
 	});
 }
@@ -703,10 +854,82 @@ async function handleRadar({ url, env }) {
 	const domain = sanitizeDomain(env.SOC_DOMAIN || LADBS_SOURCE.domain);
 	const dataset = String(env.SOC_DATASET || LADBS_SOURCE.dataset).trim();
 	const search = urlObj.searchParams;
+	const jurisdictionId = (search.get('jurisdiction') || 'la_city').trim().toLowerCase();
 	const trade = (search.get('trade') || 'roof').toLowerCase();
 	const days = Math.max(1, Math.min(parseInt(search.get('days') || '7', 10), 30));
 	const limit = Math.max(1, Math.min(parseInt(search.get('limit') || '50', 10), 200));
 	const debug = search.has('debug');
+
+	if (jurisdictionId === PASADENA_JURISDICTION_ID) {
+		try {
+			const fetchLimit = Math.max(limit * 5, 200);
+			const { jurisdiction, url: sourceUrl, features } = await fetchPasadenaArcgisFeatures({
+				limit: fetchLimit,
+				returnGeometry: true,
+			});
+			const rows = features
+				.map((feature) => normalizePasadenaLiveRecord(feature, jurisdiction))
+				.filter((record) => matchesTrade(record.description, trade))
+				.filter((record) => isWithinSinceDays(record.updated_at || record.filed_at || record.issued_at, days))
+				.slice(0, limit)
+				.map((record) => ({
+					permit_nbr: record.id,
+					issue_date: record.updated_at || record.filed_at || record.issued_at,
+					work_desc: record.description,
+					permit_type: record.type,
+					permit_sub_type: null,
+					primary_address: record.address,
+					zip_code: null,
+					valuation: record.valuation,
+					lat: record.latitude,
+					lon: record.longitude,
+					status: record.status,
+					source_url: record.source_url,
+					jurisdiction: record.jurisdiction,
+				}));
+
+			return new Response(
+				JSON.stringify({
+					ok: true,
+					count: rows.length,
+					count_1: String(rows.length),
+					'count(*)': rows.length,
+					total: rows.length,
+					view: PASADENA_JURISDICTION_ID,
+					dataset: PASADENA_JURISDICTION_ID,
+					source_view: PASADENA_JURISDICTION_ID,
+					view_id: PASADENA_JURISDICTION_ID,
+					url: sourceUrl,
+					ui: jurisdiction.provider.layerBaseUrl,
+					rows,
+					params: { jurisdiction: PASADENA_JURISDICTION_ID, trade, days, limit },
+					...(debug
+						? {
+								debug: {
+									source_layer_url: jurisdiction.provider.layerBaseUrl,
+									secondary_layer_url: PASADENA_ACTIVE_BUILDING_PERMITS_LAYER_URL,
+									fetchLimit,
+								},
+							}
+						: {}),
+				}),
+				{ headers: JSON_HEADERS },
+			);
+		} catch (error) {
+			return new Response(
+				JSON.stringify({
+					ok: false,
+					error: 'upstream',
+					detail: String(error?.message || error),
+					jurisdiction: PASADENA_JURISDICTION_ID,
+				}),
+				{
+					status: 502,
+					headers: JSON_HEADERS,
+				},
+			);
+		}
+	}
 
 	const end = new Date();
 	const start = new Date(end.getTime() - days * 86400000);
@@ -777,6 +1000,84 @@ async function handleRadar({ url, env }) {
 		}),
 		{ headers: JSON_HEADERS },
 	);
+}
+
+async function handlePasadenaLive({ request, url }) {
+	if (request.method !== 'GET') {
+		return json(apiEnvelope(false, null, 'method_not_allowed'), 405);
+	}
+
+	const jurisdiction = getPasadenaJurisdiction();
+	if (!jurisdiction) {
+		return json(apiEnvelope(false, null, 'unknown_jurisdiction'), 400);
+	}
+
+	const q = (url.searchParams.get('q') || '').trim();
+	const rawLimit = Number(url.searchParams.get('limit') || '25');
+	const rawSinceDays = url.searchParams.get('since_days');
+	const debug = url.searchParams.get('debug') === '1';
+	const limit = !Number.isFinite(rawLimit) || rawLimit <= 0 || rawLimit > 100 ? 25 : rawLimit;
+	const parsedSinceDays =
+		rawSinceDays == null || rawSinceDays === '' ? null : Number(rawSinceDays);
+	const sinceDays =
+		parsedSinceDays == null || !Number.isFinite(parsedSinceDays) || parsedSinceDays <= 0
+			? null
+			: Math.min(parsedSinceDays, 3650);
+	const fetchLimit = Math.max(limit * 8, 200);
+
+	try {
+		const { url: sourceUrl, features } = await fetchPasadenaArcgisFeatures({
+			q,
+			limit: fetchLimit,
+			returnGeometry: true,
+		});
+		const results = features
+			.map((feature) => normalizePasadenaLiveRecord(feature, jurisdiction))
+			.filter((record) => record.id)
+			.filter((record) => (q ? matchesHistoryQuery(record, q) : true))
+			.filter((record) => isWithinSinceDays(record.updated_at || record.filed_at || record.issued_at, sinceDays))
+			.slice(0, limit);
+
+		return jsonWithCache(
+			apiEnvelope(true, {
+				jurisdiction: jurisdiction.id,
+				query: {
+					q,
+					limit,
+					since_days: sinceDays,
+				},
+				meta: {
+					jurisdiction: jurisdiction.id,
+					count: results.length,
+					fetchLimit,
+					source_url: sourceUrl,
+					selected_endpoint: jurisdiction.provider.layerBaseUrl,
+					secondary_endpoint: PASADENA_ACTIVE_BUILDING_PERMITS_LAYER_URL,
+				},
+				results,
+				...(debug
+					? {
+							debug: {
+								selected_endpoint: jurisdiction.provider.layerBaseUrl,
+								secondary_endpoint: PASADENA_ACTIVE_BUILDING_PERMITS_LAYER_URL,
+							},
+						}
+					: {}),
+			}, null),
+			200,
+			60,
+		);
+	} catch (error) {
+		return json(
+			{
+				ok: false,
+				error: 'upstream',
+				detail: String(error?.message || error),
+				meta: buildPortalMeta(jurisdiction),
+			},
+			502,
+		);
+	}
 }
 
 async function handlePilotIntake({ request, env }) {
@@ -944,6 +1245,8 @@ function createContext(request, env, ctx) {
 
 function createRoutes() {
 	return {
+		'/health': handleHealth,
+		'/live/pasadena': handlePasadenaLive,
 		'/api/health': handleHealth,
 		'/api/radar': handleRadar,
 		'/api/top': handleTopPermits,

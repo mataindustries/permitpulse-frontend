@@ -14,6 +14,8 @@ export async function arcgisQuery({
 	where = '1=1',
 	limit = 200,
 	offset = 0,
+	returnGeometry = false,
+	outSR,
 	signal,
 }) {
 	let url;
@@ -31,11 +33,14 @@ export async function arcgisQuery({
 	url.searchParams.set('f', 'json');
 	url.searchParams.set('where', where || '1=1');
 	url.searchParams.set('outFields', outFields);
-	url.searchParams.set('returnGeometry', 'false');
+	url.searchParams.set('returnGeometry', returnGeometry ? 'true' : 'false');
 	url.searchParams.set('resultRecordCount', String(limit));
 	url.searchParams.set('resultOffset', String(offset));
 	if (orderByFields) {
 		url.searchParams.set('orderByFields', orderByFields);
+	}
+	if (outSR) {
+		url.searchParams.set('outSR', String(outSR));
 	}
 
 	let response;
