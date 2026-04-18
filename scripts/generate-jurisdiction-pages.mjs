@@ -10,7 +10,7 @@ const DIST_DIR = path.join(ROOT_DIR, 'dist');
 const HUB_DIR = path.join(DIST_DIR, 'california', 'jurisdictions');
 const SITE_URL = 'https://getpermitpulse.com';
 const STRIPE_URL = 'https://buy.stripe.com/3cI3cw1qT9aP6Jx2Fs1wY0e';
-const LASTMOD = '2026-04-11';
+const LASTMOD = '2026-04-18';
 const OG_IMAGE = `${SITE_URL}/img/permitpulse-og-los-angeles-permit-radar.webp`;
 
 const JURISDICTION_SOURCE = new Map(
@@ -188,29 +188,29 @@ const LAUNCH_JURISDICTIONS = [
   },
   {
     slug: 'pasadena',
-    jurisdictionId: null,
+    jurisdictionId: 'pasadena',
     name: 'Pasadena',
-    title: 'Pasadena Permit History + Risk Report | PermitPulse',
-    h1: 'Pasadena permit history and risk report',
+    title: 'Pasadena Permit Activity + History | PermitPulse',
+    h1: 'Pasadena live permit activity and permit history',
     description:
-      'Review Pasadena permit history, official permit portal access, and PermitPulse support for address-level permit diligence before design, bidding, or acquisition decisions.',
+      'Track Pasadena permit activity, search address-level permit history, and use PermitPulse for radar and research workflows backed by the city public feed.',
     intro:
-      'Pasadena projects often turn on older housing stock, layered remodel history, and permit records that need context rather than a quick skim. This page gives you the official portal lane and a cleaner path to a report when the address matters.',
+      'PermitPulse now supports Pasadena through the city public permit activity feed, so recent activity, address research, and permit history context are available without treating Pasadena like a placeholder. Field depth is still lighter than LADBS, which makes this lane strong for activity and research, not valuation-heavy or status-heavy claims.',
     summary:
-      'Portal-assisted Pasadena permit coverage for address research, permit routing, and report requests.',
+      'Live Pasadena permit activity with address-level history context, radar visibility, and clear field-coverage limits.',
     officialPortalUrl: 'https://mypermits.cityofpasadena.net/',
     officialPortalLabel: 'Open Pasadena permit portal',
     officialPortalNote:
-      'Pasadena routes online permit activity through the city permit portal and Permit Center online workflow.',
+      'Use the city permit portal when you need the jurisdiction record view. PermitPulse also surfaces Pasadena public permit activity for live activity checks and address research.',
     focusPoints: [
-      'Confirm the correct Pasadena permit lane before relying on a partial project memory or stale paperwork.',
-      'Use the official portal to anchor address-level research and separate routine permit history from higher-risk questions.',
-      'Escalate when older remodels, additions, or unclear permit close-out make the record harder to trust.',
+      'Check recent Pasadena activity and address-level permit history before you assume a project is quiet.',
+      'Use PermitPulse for live search, radar visibility, and property research when you need a faster read on recent city activity.',
+      'Treat valuation, issued date, and permit status as limited Pasadena feed fields, and verify them directly with the city when they matter.',
     ],
     coverageNotes: [
-      'PermitPulse currently treats Pasadena as a portal-assisted jurisdiction for public launch pages.',
-      'This is the right fit when you need the official city portal plus a fast path to a manual Permit History + Risk Report.',
-      'Use a report when permit history, scope changes, or unresolved status questions affect your next decision.',
+      'PermitPulse now supports Pasadena through the city public permit activity feed.',
+      'Pasadena is useful for live activity, radar visibility, and address-level permit history context.',
+      'Coverage note: the public feed does not currently publish valuation, issued date, or a reliable permit status field, so Pasadena is not yet a parity match for LADBS.',
     ],
     related: ['glendale', 'los-angeles', 'los-angeles-county'],
   },
@@ -868,7 +868,7 @@ function mapJurisdictionsByState(states) {
 function buildStatus(entry) {
   const source = entry.jurisdictionId ? JURISDICTION_SOURCE.get(entry.jurisdictionId) : null;
   if (source && source.provider && source.enabled !== false) {
-    return { label: 'Live search', className: 'live' };
+    return { label: 'Live data', className: 'live' };
   }
   return { label: 'Portal-assisted', className: 'portal' };
 }
@@ -1417,7 +1417,7 @@ ${renderHeader()}
         </div>
         <div class="stat">
           <strong>${liveCount}</strong>
-          <span class="muted">Pages tied to live public datasets</span>
+          <span class="muted">Live data pages</span>
         </div>
         <div class="stat">
           <strong>${portalCount}</strong>

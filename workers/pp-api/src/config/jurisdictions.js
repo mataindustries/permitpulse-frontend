@@ -171,7 +171,7 @@ export const JURISDICTIONS = [
     enabled: true,
     platform: "Open Data (ArcGIS)",
     portalUrl: "https://mypermits.cityofpasadena.net/",
-    portalNotes: "Official Pasadena permit portal for permit lookup and status research. PermitPulse also queries the city's public ArcGIS permit activity feed.",
+    portalNotes: "Official Pasadena permit portal for address and permit lookup. PermitPulse also queries the city's public permit activity feed for live activity and history context, but valuation, issued date, and reliable status fields are not published.",
     provider: {
       type: "arcgis",
       // Permit Activity is the primary live feed because it exposes the latest activity date.
