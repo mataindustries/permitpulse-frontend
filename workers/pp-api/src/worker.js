@@ -14,6 +14,10 @@ import { handleMissionControlReport } from './mission-control/report.js';
 import { fetchSocrataRows } from './providers/socrata.js';
 
 const PASADENA_JURISDICTION_ID = 'pasadena';
+const SAN_DIEGO_COUNTY_JURISDICTION_ID = 'san_diego_county';
+const SAN_DIEGO_COUNTY_ROUTE_SLUG = 'san-diego-county';
+const SAN_JOSE_JURISDICTION_ID = 'san_jose';
+const SAN_JOSE_ROUTE_SLUG = 'san-jose';
 const SANTA_MONICA_JURISDICTION_ID = 'santa_monica';
 const SANTA_MONICA_ROUTE_SLUG = 'santa-monica';
 const SANTA_MONICA_DEMOLITION_ROUTE_SLUG = 'santa-monica-demolition';
@@ -339,6 +343,16 @@ function getSantaMonicaJurisdiction() {
 	return jurisdiction?.provider?.type === 'ckan' ? jurisdiction : null;
 }
 
+function getSanDiegoCountyJurisdiction() {
+	const jurisdiction = findJurisdiction(SAN_DIEGO_COUNTY_JURISDICTION_ID);
+	return jurisdiction?.provider?.type === 'socrata' ? jurisdiction : null;
+}
+
+function getSanJoseJurisdiction() {
+	const jurisdiction = findJurisdiction(SAN_JOSE_JURISDICTION_ID);
+	return jurisdiction?.provider?.type === 'ckan' ? jurisdiction : null;
+}
+
 function normalizeHistoryDate(value) {
 	const parsed = parseIssueDate(value);
 	if (!parsed || parsed.getUTCFullYear() <= 1900) {
@@ -370,6 +384,40 @@ function normalizeOptionalNumber(value) {
 
 	const parsed = Number(value);
 	return Number.isFinite(parsed) ? parsed : null;
+}
+
+function normalizeTextValue(value) {
+	if (value == null) {
+		return null;
+	}
+
+	const normalized = String(value)
+		.replace(/\s*,\s*/g, ', ')
+		.replace(/\s+/g, ' ')
+		.trim();
+	return normalized || null;
+}
+
+function getProviderFieldValue(row, fieldName) {
+	if (!row || !fieldName) {
+		return null;
+	}
+
+	const path = String(fieldName).trim();
+	if (!path) {
+		return null;
+	}
+
+	if (!path.includes('.')) {
+		return row[path] ?? null;
+	}
+
+	return path.split('.').reduce((value, segment) => {
+		if (value == null || typeof value !== 'object') {
+			return null;
+		}
+		return value[segment] ?? null;
+	}, row);
 }
 
 function getCalendarYear(value) {
@@ -580,6 +628,35 @@ function buildPortalMeta(jurisdiction) {
 	};
 }
 
+function buildProviderSelectionMeta(jurisdiction) {
+	const provider = jurisdiction?.provider;
+	if (!provider) {
+		return {};
+	}
+
+	if (provider.type === 'ckan') {
+		return {
+			selected_endpoint: buildCkanDatastoreUrl(provider),
+			resource_id: provider.resourceId || provider.resource_id || null,
+		};
+	}
+
+	if (provider.type === 'socrata') {
+		return {
+			selected_endpoint: `https://${provider.domain}/resource/${provider.dataset}.json`,
+			dataset: provider.dataset,
+		};
+	}
+
+	if (provider.type === 'arcgis') {
+		return {
+			selected_endpoint: provider.layerBaseUrl,
+		};
+	}
+
+	return {};
+}
+
 function buildHistorySourceUrl(jurisdiction, id) {
 	const provider = jurisdiction.provider;
 	if (!provider) {
@@ -657,33 +734,40 @@ function matchesHistoryQuery(record, q) {
 
 function normalizeHistoryRecord(row, jurisdiction) {
 	const fields = jurisdiction.provider.fields;
-	const id = row.id || row.permit_number || row[fields.id] || null;
-	const address =
+	const id = normalizeTextValue(getProviderFieldValue(row, fields.id) || row.id || row.permit_number || null);
+	const address = normalizeTextValue(
 		row.address ||
-		row[fields.address] ||
-		(fields.alt_address ? row[fields.alt_address] : null) ||
-		null;
-	const filedAt = normalizeHistoryDate(row.filed_at ?? row[fields.filed_at]);
-	const issuedAt = normalizeHistoryDate(fields.issued_at ? (row.issued_at ?? row[fields.issued_at]) : row.issued_at);
+			getProviderFieldValue(row, fields.address) ||
+			(fields.alt_address ? getProviderFieldValue(row, fields.alt_address) : null) ||
+			null,
+	);
+	const filedAt = normalizeHistoryDate(row.filed_at ?? getProviderFieldValue(row, fields.filed_at));
+	const issuedAt = normalizeHistoryDate(
+		fields.issued_at ? (row.issued_at ?? getProviderFieldValue(row, fields.issued_at)) : row.issued_at,
+	);
 	const updatedAt = selectLatestHistoryDate(
 		row.updated_at,
-		fields.updated_at ? row[fields.updated_at] : null,
-		fields.completed_at ? row[fields.completed_at] : null,
-		fields.renewed_at ? row[fields.renewed_at] : null,
-		fields.issued_at ? row[fields.issued_at] : null,
+		fields.updated_at ? getProviderFieldValue(row, fields.updated_at) : null,
+		fields.completed_at ? getProviderFieldValue(row, fields.completed_at) : null,
+		fields.renewed_at ? getProviderFieldValue(row, fields.renewed_at) : null,
+		fields.issued_at ? getProviderFieldValue(row, fields.issued_at) : null,
 		row.issued_at,
-		fields.filed_at ? row[fields.filed_at] : null,
+		fields.filed_at ? getProviderFieldValue(row, fields.filed_at) : null,
 		row.filed_at,
 	);
-	const rawValuation = row.valuation ?? row[fields.valuation];
+	const rawValuation = row.valuation ?? getProviderFieldValue(row, fields.valuation);
 	const valuation = rawValuation == null ? null : parseValuation(rawValuation);
-	const descriptionText = (row.description ?? row[fields.description]) || null;
-	const projectType = fields.project_type ? row[fields.project_type] ?? null : null;
-	const permitType = fields.permit_type ? row[fields.permit_type] ?? null : null;
+	const descriptionText = normalizeTextValue(row.description ?? getProviderFieldValue(row, fields.description));
+	const projectType = fields.project_type
+		? normalizeTextValue(getProviderFieldValue(row, fields.project_type) ?? null)
+		: null;
+	const permitType = fields.permit_type
+		? normalizeTextValue(getProviderFieldValue(row, fields.permit_type) ?? null)
+		: null;
 	const typeValue =
-		row.type ??
-		(fields.type ? row[fields.type] ?? null : null) ??
-		(fields.type_fallback ? row[fields.type_fallback] ?? null : null);
+		normalizeTextValue(row.type) ??
+		(fields.type ? normalizeTextValue(getProviderFieldValue(row, fields.type) ?? null) : null) ??
+		(fields.type_fallback ? normalizeTextValue(getProviderFieldValue(row, fields.type_fallback) ?? null) : null);
 	const description = String(descriptionText || '').toLowerCase();
 	const riskFlags = [];
 
@@ -725,24 +809,28 @@ function normalizeHistoryRecord(row, jurisdiction) {
 		permit_id: id,
 		jurisdiction: toPublicJurisdictionId(jurisdiction.id),
 		address,
-		status: row.status ?? (fields.status ? row[fields.status] ?? null : null),
+		status: normalizeTextValue(row.status ?? (fields.status ? getProviderFieldValue(row, fields.status) ?? null : null)),
 		type: typeValue,
-		subtype: row.subtype ?? (fields.subtype ? row[fields.subtype] ?? null : null),
+		subtype: normalizeTextValue(row.subtype ?? (fields.subtype ? getProviderFieldValue(row, fields.subtype) ?? null : null)),
 		filed_at: filedAt,
 		issued_at: issuedAt,
 		updated_at: updatedAt,
-		applied_at: fields.applied_at ? normalizeHistoryDate(row[fields.applied_at]) : null,
+		applied_at: fields.applied_at ? normalizeHistoryDate(getProviderFieldValue(row, fields.applied_at)) : null,
 		valuation,
 		description: descriptionText,
 		project_type: projectType,
 		permit_type: permitType,
-		latitude: fields.latitude ? normalizeOptionalNumber(row[fields.latitude]) : null,
-		longitude: fields.longitude ? normalizeOptionalNumber(row[fields.longitude]) : null,
-		apn: fields.apn ? row[fields.apn] ?? null : null,
-		parcel: fields.parcel ? row[fields.parcel] ?? null : null,
-		class_code: fields.class_code ? row[fields.class_code] ?? null : null,
-		class_code_description: fields.class_code_description ? row[fields.class_code_description] ?? null : null,
-		class_code_section: fields.class_code_section ? row[fields.class_code_section] ?? null : null,
+		latitude: fields.latitude ? normalizeOptionalNumber(getProviderFieldValue(row, fields.latitude)) : null,
+		longitude: fields.longitude ? normalizeOptionalNumber(getProviderFieldValue(row, fields.longitude)) : null,
+		apn: fields.apn ? normalizeTextValue(getProviderFieldValue(row, fields.apn) ?? null) : null,
+		parcel: fields.parcel ? normalizeTextValue(getProviderFieldValue(row, fields.parcel) ?? null) : null,
+		class_code: fields.class_code ? normalizeTextValue(getProviderFieldValue(row, fields.class_code) ?? null) : null,
+		class_code_description: fields.class_code_description
+			? normalizeTextValue(getProviderFieldValue(row, fields.class_code_description) ?? null)
+			: null,
+		class_code_section: fields.class_code_section
+			? normalizeTextValue(getProviderFieldValue(row, fields.class_code_section) ?? null)
+			: null,
 		source_url: sourceUrl,
 		risk_flags: riskFlags,
 	};
@@ -811,6 +899,140 @@ async function fetchHistoryRows(env, jurisdiction, params) {
 	throw new Error('unsupported_provider');
 }
 
+async function loadNormalizedHistoryRecords({ env, jurisdiction, q = '', fetchLimit = 200 }) {
+	const { url: sourceUrl, rows } = await fetchHistoryRows(env, jurisdiction, { q, fetchLimit });
+	const records = (Array.isArray(rows) ? rows : [])
+		.map((row) => normalizeHistoryRecord(row, jurisdiction))
+		.filter((record) => record.id)
+		.filter((record) => (q ? matchesHistoryQuery(record, q) : true));
+
+	return {
+		sourceUrl,
+		rows,
+		records,
+	};
+}
+
+async function loadHistoryLiveResults({ env, jurisdiction, q = '', limit = 25, sinceDays = null }) {
+	const fetchLimit = Math.max(limit * 8, 200);
+	const { sourceUrl, records } = await loadNormalizedHistoryRecords({
+		env,
+		jurisdiction,
+		q,
+		fetchLimit,
+	});
+
+	const results = records
+		.filter((record) => isWithinSinceDays(record.updated_at || record.issued_at || record.filed_at, sinceDays))
+		.sort((a, b) => {
+			const aDate = a.updated_at || a.issued_at || a.filed_at || '';
+			const bDate = b.updated_at || b.issued_at || b.filed_at || '';
+			return bDate.localeCompare(aDate);
+		})
+		.slice(0, limit);
+
+	return {
+		sourceUrl,
+		fetchLimit,
+		results,
+	};
+}
+
+async function loadHistoryTopPermits({ env, jurisdiction, days, minValue, trade, mode, limit, fetchLimit }) {
+	const { sourceUrl, records } = await loadNormalizedHistoryRecords({
+		env,
+		jurisdiction,
+		q: '',
+		fetchLimit,
+	});
+	const minTime = Date.now() - days * 24 * 60 * 60 * 1000;
+	const permits = records
+		.filter((record) => {
+			const activityDate = parseIssueDate(record.issued_at || record.updated_at || record.filed_at);
+			if (!activityDate) return false;
+			if (activityDate.getTime() < minTime) return false;
+			if ((record.valuation ?? 0) < minValue) return false;
+			return matchesTrade(record.description, trade, mode);
+		})
+		.sort((a, b) => (b.valuation ?? 0) - (a.valuation ?? 0))
+		.slice(0, limit)
+		.map((record) => ({
+			permitNumber: record.id,
+			issueDate: record.issued_at || record.updated_at || record.filed_at,
+			address: record.address,
+			zip: null,
+			value: record.valuation ?? 0,
+			description: record.description,
+			trade,
+			source_url: record.source_url,
+			jurisdiction: record.jurisdiction,
+		}));
+
+	return {
+		sourceUrl,
+		recordCount: records.length,
+		permits,
+	};
+}
+
+async function buildHistoryRadarPayload({ env, jurisdiction, routeSlug, trade, days, limit }) {
+	const fetchLimit = Math.max(limit * 8, 300);
+	const { sourceUrl, records } = await loadNormalizedHistoryRecords({
+		env,
+		jurisdiction,
+		q: '',
+		fetchLimit,
+	});
+	const rows = records
+		.filter((record) => matchesTrade(record.description, trade))
+		.filter((record) => isWithinSinceDays(record.updated_at || record.issued_at || record.filed_at, days))
+		.sort((a, b) => {
+			const aDate = a.updated_at || a.issued_at || a.filed_at || '';
+			const bDate = b.updated_at || b.issued_at || b.filed_at || '';
+			return bDate.localeCompare(aDate);
+		})
+		.slice(0, limit)
+		.map((record) => ({
+			permit_nbr: record.id,
+			issue_date: record.updated_at || record.issued_at || record.filed_at,
+			work_desc: record.description,
+			permit_type: record.type || record.permit_type,
+			permit_sub_type: record.subtype,
+			primary_address: record.address,
+			zip_code: null,
+			valuation: record.valuation,
+			lat: record.latitude,
+			lon: record.longitude,
+			status: record.status,
+			source_url: record.source_url,
+			jurisdiction: record.jurisdiction,
+			project_type: record.project_type,
+			parcel: record.parcel,
+		}));
+
+	return {
+		count: rows.length,
+		count_1: String(rows.length),
+		'count(*)': rows.length,
+		total: rows.length,
+		view: routeSlug,
+		dataset: routeSlug,
+		source_view: routeSlug,
+		view_id: routeSlug,
+		url: sourceUrl,
+		ui:
+			jurisdiction.provider?.type === 'ckan'
+				? buildCkanDatastoreUrl(jurisdiction.provider)
+				: buildHistorySourceUrl(jurisdiction),
+		rows,
+		params: { jurisdiction: routeSlug, trade, days, limit },
+		debugMeta: {
+			...buildProviderSelectionMeta(jurisdiction),
+			fetchLimit,
+		},
+	};
+}
+
 async function fetchPasadenaArcgisFeatures({ q = '', limit = 25, returnGeometry = false, outFields }) {
 	const jurisdiction = getPasadenaJurisdiction();
 	if (!jurisdiction) {
@@ -872,7 +1094,7 @@ async function probePasadenaLiveData() {
 	}
 }
 
-async function probeSantaMonicaLiveData() {
+async function probeSantaMonicaLiveData(env) {
 	const jurisdiction = getSantaMonicaJurisdiction();
 	if (!jurisdiction) {
 		return {
@@ -882,13 +1104,39 @@ async function probeSantaMonicaLiveData() {
 	}
 
 	try {
-		const { url, rows } = await fetchHistoryRows(null, jurisdiction, { q: '', fetchLimit: 1 });
+		const { url, rows } = await fetchHistoryRows(env, jurisdiction, { q: '', fetchLimit: 1 });
 		const first = rows[0] || {};
 		return {
 			ok: rows.length > 0,
 			count: rows.length,
 			source_url: url,
 			latest_id: first[jurisdiction.provider.fields.id] || null,
+		};
+	} catch (error) {
+		return {
+			ok: false,
+			error: String(error?.message || error),
+		};
+	}
+}
+
+async function probeHistoryJurisdictionData(env, jurisdictionId) {
+	const jurisdiction = findJurisdiction(jurisdictionId);
+	if (!jurisdiction?.provider) {
+		return {
+			ok: false,
+			error: 'jurisdiction_not_configured',
+		};
+	}
+
+	try {
+		const { url, rows } = await fetchHistoryRows(env, jurisdiction, { q: '', fetchLimit: 1 });
+		const first = rows[0] || {};
+		return {
+			ok: rows.length > 0,
+			count: rows.length,
+			source_url: url,
+			latest_id: getProviderFieldValue(first, jurisdiction.provider.fields.id) || null,
 		};
 	} catch (error) {
 		return {
@@ -1000,6 +1248,104 @@ async function handleTopPermits({ url, env }) {
 	const minValue = !Number.isFinite(rawMin) || rawMin < 0 ? 0 : rawMin;
 	const limit = !Number.isFinite(rawLimit) || rawLimit <= 0 || rawLimit > 200 ? 25 : rawLimit;
 	const fetchLimit = Math.max(limit * 5, 500);
+
+	if (jurisdictionId === SAN_DIEGO_COUNTY_JURISDICTION_ID) {
+		try {
+			const jurisdiction = getSanDiegoCountyJurisdiction();
+			const { sourceUrl, recordCount, permits } = await loadHistoryTopPermits({
+				env,
+				jurisdiction,
+				days,
+				minValue,
+				trade,
+				mode,
+				limit,
+				fetchLimit: Math.max(limit * 20, 1000),
+			});
+
+			return json({
+				ok: true,
+				meta: {
+					jurisdiction: SAN_DIEGO_COUNTY_ROUTE_SLUG,
+					days,
+					minValue,
+					limit,
+					trade,
+					source: sourceUrl,
+					count: permits.length,
+				},
+				permits,
+				debug: debug
+					? {
+							fetchedRows: recordCount,
+							sourceUrl,
+						}
+					: undefined,
+			});
+		} catch (error) {
+			return json(
+				{
+					ok: false,
+					error: 'upstream',
+					detail: String(error?.message || error),
+					meta: {
+						jurisdiction: SAN_DIEGO_COUNTY_ROUTE_SLUG,
+					},
+				},
+				502,
+			);
+		}
+	}
+
+	if (jurisdictionId === SAN_JOSE_JURISDICTION_ID) {
+		try {
+			const jurisdiction = getSanJoseJurisdiction();
+			const { sourceUrl, recordCount, permits } = await loadHistoryTopPermits({
+				env,
+				jurisdiction,
+				days,
+				minValue,
+				trade,
+				mode,
+				limit,
+				fetchLimit: Math.max(limit * 20, 1000),
+			});
+
+			return json({
+				ok: true,
+				meta: {
+					jurisdiction: SAN_JOSE_ROUTE_SLUG,
+					days,
+					minValue,
+					limit,
+					trade,
+					source: sourceUrl,
+					count: permits.length,
+					caveat:
+						'San Jose Active Building Permits includes PERMITVALUATION, but many recent active sub-trade permits carry 0 values. Rankings are usable for records with populated valuation and can be sparse at default thresholds.',
+				},
+				permits,
+				debug: debug
+					? {
+							fetchedRows: recordCount,
+							sourceUrl,
+						}
+					: undefined,
+			});
+		} catch (error) {
+			return json(
+				{
+					ok: false,
+					error: 'upstream',
+					detail: String(error?.message || error),
+					meta: {
+						jurisdiction: SAN_JOSE_ROUTE_SLUG,
+					},
+				},
+				502,
+			);
+		}
+	}
 
 	if (jurisdictionId === SANTA_MONICA_JURISDICTION_ID) {
 		try {
@@ -1182,13 +1528,21 @@ async function sodaFetch(env, query) {
 	return { url, rows: await response.json() };
 }
 
-async function handleHealth() {
+async function handleHealth({ env }) {
 	const failing = JURISDICTIONS.filter((jurisdiction) => jurisdiction.enabled === false).map((jurisdiction) => jurisdiction.id);
 	const pasadena = await probePasadenaLiveData();
 	if (!pasadena.ok) {
 		failing.push(PASADENA_JURISDICTION_ID);
 	}
-	const santaMonica = await probeSantaMonicaLiveData();
+	const sanDiegoCounty = await probeHistoryJurisdictionData(env, SAN_DIEGO_COUNTY_JURISDICTION_ID);
+	if (!sanDiegoCounty.ok) {
+		failing.push(SAN_DIEGO_COUNTY_JURISDICTION_ID);
+	}
+	const sanJose = await probeHistoryJurisdictionData(env, SAN_JOSE_JURISDICTION_ID);
+	if (!sanJose.ok) {
+		failing.push(SAN_JOSE_JURISDICTION_ID);
+	}
+	const santaMonica = await probeSantaMonicaLiveData(env);
 	if (!santaMonica.ok) {
 		failing.push(SANTA_MONICA_JURISDICTION_ID);
 	}
@@ -1205,6 +1559,8 @@ async function handleHealth() {
 			upstream_ok: failing.length === 0,
 			failing,
 			pasadena,
+			san_diego_county: sanDiegoCounty,
+			san_jose: sanJose,
 			santa_monica: santaMonica,
 			santa_monica_demolition: santaMonicaDemolition,
 		},
@@ -1442,6 +1798,80 @@ async function handleRadar({ url, env }) {
 		}
 	}
 
+	if (jurisdictionId === SAN_DIEGO_COUNTY_JURISDICTION_ID) {
+		try {
+			const jurisdiction = getSanDiegoCountyJurisdiction();
+			const payload = await buildHistoryRadarPayload({
+				env,
+				jurisdiction,
+				routeSlug: SAN_DIEGO_COUNTY_ROUTE_SLUG,
+				trade,
+				days,
+				limit,
+			});
+			const { debugMeta, ...responsePayload } = payload;
+
+			return new Response(
+				JSON.stringify({
+					ok: true,
+					...responsePayload,
+					...(debug ? { debug: debugMeta } : {}),
+				}),
+				{ headers: JSON_HEADERS },
+			);
+		} catch (error) {
+			return new Response(
+				JSON.stringify({
+					ok: false,
+					error: 'upstream',
+					detail: String(error?.message || error),
+					jurisdiction: SAN_DIEGO_COUNTY_ROUTE_SLUG,
+				}),
+				{
+					status: 502,
+					headers: JSON_HEADERS,
+				},
+			);
+		}
+	}
+
+	if (jurisdictionId === SAN_JOSE_JURISDICTION_ID) {
+		try {
+			const jurisdiction = getSanJoseJurisdiction();
+			const payload = await buildHistoryRadarPayload({
+				env,
+				jurisdiction,
+				routeSlug: SAN_JOSE_ROUTE_SLUG,
+				trade,
+				days,
+				limit,
+			});
+			const { debugMeta, ...responsePayload } = payload;
+
+			return new Response(
+				JSON.stringify({
+					ok: true,
+					...responsePayload,
+					...(debug ? { debug: debugMeta } : {}),
+				}),
+				{ headers: JSON_HEADERS },
+			);
+		} catch (error) {
+			return new Response(
+				JSON.stringify({
+					ok: false,
+					error: 'upstream',
+					detail: String(error?.message || error),
+					jurisdiction: SAN_JOSE_ROUTE_SLUG,
+				}),
+				{
+					status: 502,
+					headers: JSON_HEADERS,
+				},
+			);
+		}
+	}
+
 	const end = new Date();
 	const start = new Date(end.getTime() - days * 86400000);
 	const isoNoZ = (date) => date.toISOString().replace('Z', '');
@@ -1574,6 +2004,142 @@ async function handlePasadenaLive({ request, url }) {
 							},
 						}
 					: {}),
+			}, null),
+			200,
+			60,
+		);
+	} catch (error) {
+		return json(
+			{
+				ok: false,
+				error: 'upstream',
+				detail: String(error?.message || error),
+				meta: buildPortalMeta(jurisdiction),
+			},
+			502,
+		);
+	}
+}
+
+async function handleSanDiegoCountyLive({ request, url, env }) {
+	if (request.method !== 'GET') {
+		return json(apiEnvelope(false, null, 'method_not_allowed'), 405);
+	}
+
+	const jurisdiction = getSanDiegoCountyJurisdiction();
+	if (!jurisdiction) {
+		return json(apiEnvelope(false, null, 'unknown_jurisdiction'), 400);
+	}
+
+	const q = (url.searchParams.get('q') || '').trim();
+	const rawLimit = Number(url.searchParams.get('limit') || '25');
+	const rawSinceDays = url.searchParams.get('since_days');
+	const debug = url.searchParams.get('debug') === '1';
+	const limit = !Number.isFinite(rawLimit) || rawLimit <= 0 || rawLimit > 100 ? 25 : rawLimit;
+	const parsedSinceDays = rawSinceDays == null || rawSinceDays === '' ? null : Number(rawSinceDays);
+	const sinceDays =
+		parsedSinceDays == null || !Number.isFinite(parsedSinceDays) || parsedSinceDays <= 0
+			? null
+			: Math.min(parsedSinceDays, 3650);
+
+	try {
+		const { sourceUrl, fetchLimit, results } = await loadHistoryLiveResults({
+			env,
+			jurisdiction,
+			q,
+			limit,
+			sinceDays,
+		});
+
+		return jsonWithCache(
+			apiEnvelope(true, {
+				jurisdiction: SAN_DIEGO_COUNTY_ROUTE_SLUG,
+				query: {
+					q,
+					limit,
+					since_days: sinceDays,
+				},
+				meta: {
+					jurisdiction: SAN_DIEGO_COUNTY_ROUTE_SLUG,
+					count: results.length,
+					fetchLimit,
+					source_url: sourceUrl,
+					selected_endpoint: buildHistorySourceUrl(jurisdiction),
+				},
+				results,
+				...(debug
+					? {
+							debug: {
+								selected_endpoint: buildHistorySourceUrl(jurisdiction),
+							},
+						}
+					: {}),
+			}, null),
+			200,
+			60,
+		);
+	} catch (error) {
+		return json(
+			{
+				ok: false,
+				error: 'upstream',
+				detail: String(error?.message || error),
+				meta: buildPortalMeta(jurisdiction),
+			},
+			502,
+		);
+	}
+}
+
+async function handleSanJoseLive({ request, url, env }) {
+	if (request.method !== 'GET') {
+		return json(apiEnvelope(false, null, 'method_not_allowed'), 405);
+	}
+
+	const jurisdiction = getSanJoseJurisdiction();
+	if (!jurisdiction) {
+		return json(apiEnvelope(false, null, 'unknown_jurisdiction'), 400);
+	}
+
+	const q = (url.searchParams.get('q') || '').trim();
+	const rawLimit = Number(url.searchParams.get('limit') || '25');
+	const rawSinceDays = url.searchParams.get('since_days');
+	const debug = url.searchParams.get('debug') === '1';
+	const limit = !Number.isFinite(rawLimit) || rawLimit <= 0 || rawLimit > 100 ? 25 : rawLimit;
+	const parsedSinceDays =
+		rawSinceDays == null || rawSinceDays === '' ? null : Number(rawSinceDays);
+	const sinceDays =
+		parsedSinceDays == null || !Number.isFinite(parsedSinceDays) || parsedSinceDays <= 0
+			? null
+			: Math.min(parsedSinceDays, 3650);
+
+	try {
+		const { sourceUrl, fetchLimit, results } = await loadHistoryLiveResults({
+			env,
+			jurisdiction,
+			q,
+			limit,
+			sinceDays,
+		});
+		const providerMeta = buildProviderSelectionMeta(jurisdiction);
+
+		return jsonWithCache(
+			apiEnvelope(true, {
+				jurisdiction: SAN_JOSE_ROUTE_SLUG,
+				query: {
+					q,
+					limit,
+					since_days: sinceDays,
+				},
+				meta: {
+					jurisdiction: SAN_JOSE_ROUTE_SLUG,
+					count: results.length,
+					fetchLimit,
+					source_url: sourceUrl,
+					...providerMeta,
+				},
+				results,
+				...(debug ? { debug: providerMeta } : {}),
 			}, null),
 			200,
 			60,
@@ -1905,6 +2471,8 @@ function createRoutes() {
 	return {
 		'/health': handleHealth,
 		'/live/pasadena': handlePasadenaLive,
+		'/live/san-diego-county': handleSanDiegoCountyLive,
+		'/live/san-jose': handleSanJoseLive,
 		'/live/santa-monica': handleSantaMonicaLive,
 		'/live/santa-monica-demolition': handleSantaMonicaDemolitionLive,
 		'/api/health': handleHealth,

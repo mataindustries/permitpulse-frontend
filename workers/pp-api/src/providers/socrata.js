@@ -1,5 +1,14 @@
+function normalizeFieldName(field) {
+	return String(field || '')
+		.trim()
+		.split('.')[0];
+}
+
 function buildSelectClause(provider) {
-	const fields = Object.values(provider.fields).filter(Boolean);
+	const fields = Object.values(provider.fields || {})
+		.filter(Boolean)
+		.map(normalizeFieldName)
+		.filter(Boolean);
 	return [...new Set(fields)].join(',');
 }
 
@@ -13,8 +22,15 @@ function createSocrataHeaders(env) {
 
 export function buildHistoryQuery(provider, { fetchLimit }) {
 	const query = new URLSearchParams();
-	query.set('$select', buildSelectClause(provider));
-	query.set('$order', `${provider.fields.filed_at} DESC`);
+	const orderField = normalizeFieldName(
+		provider?.fields?.updated_at || provider?.fields?.filed_at || provider?.fields?.issued_at,
+	);
+	if (provider?.omitSelect !== true) {
+		query.set('$select', buildSelectClause(provider));
+	}
+	if (orderField) {
+		query.set('$order', `${orderField} DESC`);
+	}
 	query.set('$limit', String(fetchLimit));
 	return query.toString();
 }
