@@ -217,31 +217,10 @@ export const JURISDICTIONS = [
     state: "CA",
     placeholder: true,
     enabled: true,
-    platform: "Open Data (ArcGIS)",
+    platform: "Permit Services",
     portalUrl: "https://www.cityofsacramento.gov/community-development/building/permit-services",
-    portalNotes: "Official Sacramento permit services page with access to the public permit portal. PermitPulse also queries the city's public ArcGIS permit feed.",
-    provider: {
-      type: "arcgis",
-      layerBaseUrl: "https://services5.arcgis.com/54falWtcpty3V47Z/arcgis/rest/services/BldgPermitIssued_CurrentYear/FeatureServer/0",
-      orderByFields: "OBJECTID DESC",
-      fields: {
-        id: "Application",
-        address: "Address",
-        status: "Current_Status",
-        type: "Type",
-        subtype: "Sub_Type",
-        filed_at: "Status_Date",
-        issued_at: "Status_Date",
-        valuation: "Valuation",
-        description: "Work_Desc",
-        alt_address: "Site_Location",
-        apn: "Parcel_No",
-        zip: "ZIP",
-      },
-      searchFields: [
-        "Application","Address","Work_Desc","Site_Location","Current_Status","Type","Sub_Type","Parcel_No","ZIP"
-      ],
-    },
+    portalNotes: "Official Sacramento permit services page with access to the public permit portal. PermitPulse inspected the city's current-year ArcGIS permit tables on 2026-04-19, but the latest raw Status_Date observed was 2026-03-22, so the live API connector is deferred until the official data looks current again.",
+    provider: null,
   },
 
   {
