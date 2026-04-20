@@ -299,10 +299,25 @@ export const JURISDICTIONS = [
       type: "ckan",
       domain: "data.sanjoseca.gov",
       resourceId: "761b7ae8-3be1-4ad6-923d-c7af6404a904",
-      sort: "ISSUEDATE desc",
+      // ISSUEDATE is stored as text in the CKAN datastore, so lexicographic sorting
+      // can surface stale rows. FOLDERNUMBER is monotonic and keeps the newest active
+      // permits at the top during freshness checks and live fetches.
+      sort: "FOLDERNUMBER desc",
+      searchFields: [
+        "FOLDERNUMBER",
+        "gx_location",
+        "FOLDERDESC",
+        "FOLDERNAME",
+        "SUBTYPEDESCRIPTION",
+        "WORKDESCRIPTION",
+        "ASSESSORS_PARCEL_NUMBER",
+        "APPLICANT",
+        "OWNERNAME",
+        "CONTRACTOR"
+      ],
       fields: {
         id: "FOLDERNUMBER",
-        address: null,
+        address: "gx_location",
         status: "Status",
         type: "FOLDERDESC",
         subtype: "SUBTYPEDESCRIPTION",
@@ -310,6 +325,10 @@ export const JURISDICTIONS = [
         issued_at: "ISSUEDATE",
         valuation: "PERMITVALUATION",
         description: "WORKDESCRIPTION",
+        project_type: "FOLDERNAME",
+        permit_type: "PERMITAPPROVALS",
+        apn: "ASSESSORS_PARCEL_NUMBER",
+        parcel: "ASSESSORS_PARCEL_NUMBER",
       },
     },
   },
