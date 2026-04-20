@@ -294,7 +294,7 @@ export const JURISDICTIONS = [
     enabled: true,
     platform: "SJPermits",
     portalUrl: "https://sjpermits.org/",
-    portalNotes: "Official San Jose permit portal for permit applications, record lookup, and development services.",
+    portalNotes: "Official San Jose permit portal for source confirmation, applications, and workflow steps. PermitPulse also supports the city's official active permit dataset for recent activity, address research, and radar visibility.",
     provider: {
       type: "ckan",
       domain: "data.sanjoseca.gov",

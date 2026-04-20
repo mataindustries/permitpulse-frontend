@@ -804,10 +804,6 @@ function getJurisdictionSlug(entry) {
   return slugify(cleanedName);
 }
 
-function getIndefiniteArticle(value) {
-  return /^[aeiou]/i.test(String(value || '').trim()) ? 'an' : 'a';
-}
-
 function getStateName(stateCode) {
   return STATE_NAMES[stateCode] || stateCode;
 }
@@ -873,13 +869,17 @@ function buildStatus(entry) {
   return { label: 'Portal-assisted', className: 'portal' };
 }
 
+function isSanJose(entry) {
+  return entry?.id === 'san_jose';
+}
+
 function buildCoverage(entry) {
   if (entry.provider && entry.enabled !== false) {
     return {
       id: 'api_backed',
-      label: 'API-backed',
+      label: 'Live data supported',
       className: 'live',
-      indicator: 'Public JSON feed available',
+      indicator: 'Official public permit dataset connected',
     };
   }
 
@@ -889,6 +889,91 @@ function buildCoverage(entry) {
     className: 'portal',
     indicator: 'Official portal fallback',
   };
+}
+
+function getPermitsCityPageCopy(entry, stateName, coverage) {
+  const tierPhrase = coverage.id === 'api_backed' ? 'live-data supported' : 'portal-only';
+
+  const defaults = {
+    title: `${entry.name}, ${stateName} Permit Portal + Coverage | PermitPulse`,
+    description: `${entry.name}, ${stateName} permit page with the official ${entry.platform || 'permit'} portal, ${tierPhrase} coverage, and Mission Control access.`,
+    h1: `${entry.name} permit portal and PermitPulse coverage`,
+    heroLead:
+      coverage.id === 'api_backed'
+        ? `${entry.name} is listed in the current PermitPulse jurisdiction catalog with live-data support in ${stateName}. Start with the official ${entry.platform || 'permit'} portal, review the current coverage notes below, and use Mission Control when the permit record needs more context.`
+        : `${entry.name} is listed in the current PermitPulse jurisdiction catalog with portal-only coverage in ${stateName}. Start with the official ${entry.platform || 'permit'} portal, review the current coverage notes below, and use Mission Control when the permit record needs more context.`,
+    fallbackNote:
+      coverage.id === 'api_backed'
+        ? `${entry.name} has public permit data connected in PermitPulse, but the official ${entry.platform || 'permit'} portal remains the jurisdiction source for direct record confirmation and workflow steps.`
+        : `${entry.name} is currently cataloged as portal-only coverage, so the official ${entry.platform || 'permit'} portal is the primary lookup path.`,
+    missionLead:
+      coverage.id === 'api_backed'
+        ? `${entry.name} is available in PermitPulse with live-data support. Use it for faster permit context around a city record, then use the official portal when the next step requires source confirmation.`
+        : `${entry.name} is available in PermitPulse with portal-only coverage. Mission Control keeps the current portal-first behavior intact while giving operators a cleaner route into the next action.`,
+    supportLabel: 'Live data support',
+    supportValue:
+      coverage.id === 'api_backed' ? 'Supported through the official public permit dataset' : 'Not connected yet',
+  };
+
+  if (isSanJose(entry)) {
+    return {
+      title: 'San Jose, California Live Permit Activity + Coverage | PermitPulse',
+      description:
+        'Live San Jose permit activity, address-level permit context, and radar-style monitoring backed by the official city permit dataset.',
+      h1: 'San Jose permit portal, live activity, and PermitPulse coverage',
+      heroLead:
+        'San Jose is now a live-data-supported jurisdiction in PermitPulse. Use the official SJPermits portal for direct record confirmation, then use PermitPulse for recent permit activity, address-level permit context, and radar-style visibility from the city’s official active permit dataset.',
+      fallbackNote:
+        'PermitPulse supports San Jose live activity, history search, and radar visibility from the official city dataset. Use SJPermits when you need exact record confirmation, workflow detail, or the jurisdiction source view.',
+      missionLead:
+        'San Jose is strong for recent activity, address research, and radar monitoring. It is lighter than LADBS for valuation ranking depth, field completeness, and map detail, so treat it as a live research lane rather than a parity match.',
+      supportLabel: 'Live data support',
+      supportValue: 'Recent activity, history context, and radar visibility are supported',
+    };
+  }
+
+  return defaults;
+}
+
+function getBuildingPermitsPageCopy(entry, stateName, coverage) {
+  const tierPhrase = coverage.id === 'api_backed' ? 'live-data supported' : 'portal-only';
+
+  const defaults = {
+    title: `${entry.name}, ${stateName} Building Permits | PermitPulse`,
+    description: `Find ${entry.name}, ${stateName} building permits with the official ${entry.platform || 'permit'} portal, ${tierPhrase} coverage notes, and links to the main PermitPulse permit page.`,
+    h1: `${entry.name} building permits`,
+    heroLead: `Find building permits in ${entry.name}, ${stateName} using the current jurisdiction catalog and the official ${entry.platform || 'permit'} portal. This page is framed for building-permit lookup first, with direct links into the broader PermitPulse permit page and Mission Control when the record needs a wider review.`,
+    fallbackNote:
+      coverage.id === 'api_backed'
+        ? `${entry.name} has public data coverage in PermitPulse, but the official ${entry.platform || 'permit'} portal remains the primary source for building permit lookup and record confirmation.`
+        : `${entry.name} is currently routed as portal-only coverage, so building permit lookup should start in the official ${entry.platform || 'permit'} portal before moving into Mission Control.`,
+    fallbackKicker: coverage.id === 'api_backed' ? 'Coverage notes' : 'Fallback notes',
+    fallbackHeading:
+      coverage.id === 'api_backed' ? 'Official portal plus live coverage' : 'Portal-first building permit lookup',
+    ctaLead:
+      coverage.id === 'api_backed'
+        ? `Use PermitPulse when you need faster building-permit context around ${entry.name} records, then move to the official portal when the next step requires direct source confirmation.`
+        : `Use the official portal first for ${entry.name} building permits, then move to the main PermitPulse permit page for the full jurisdiction view or Mission Control when the next step is unclear.`,
+  };
+
+  if (isSanJose(entry)) {
+    return {
+      title: 'San Jose, California Building Permits + Live Activity | PermitPulse',
+      description:
+        'Find San Jose building permits with official SJPermits access plus live permit activity, address search context, and radar visibility from the city dataset.',
+      h1: 'San Jose building permits and live permit activity',
+      heroLead:
+        'Find building permits in San Jose, California with official SJPermits access plus live PermitPulse coverage for recent permit activity, address-level context, and radar visibility. This lane is useful for current activity and research, but it is not a LADBS-style map or ranking product.',
+      fallbackNote:
+        'PermitPulse can surface recent San Jose permit activity and search context from the official city dataset. Use SJPermits when you need source confirmation, exact workflow detail, or the jurisdiction’s own record view.',
+      fallbackKicker: 'Coverage notes',
+      fallbackHeading: 'Official portal plus live San Jose coverage',
+      ctaLead:
+        'Use PermitPulse when you need recent San Jose activity, address research, or radar visibility around a property. Use the city portal when exact status wording, map precision, or deeper record confirmation matters.',
+    };
+  }
+
+  return defaults;
 }
 
 function getCoverageCounts(entries) {
@@ -998,7 +1083,7 @@ function buildStructuredData(entry) {
   };
 }
 
-function buildPermitsStructuredData({ stateCode, stateName, statePath, entry = null }) {
+function buildPermitsStructuredData({ stateCode, stateName, statePath, entry = null, descriptionOverride = null }) {
   const items = [
     {
       '@type': 'ListItem',
@@ -1036,9 +1121,11 @@ function buildPermitsStructuredData({ stateCode, stateName, statePath, entry = n
       ? `${entry.name}, ${stateName} Permit Coverage`
       : `${stateName} Permit Pages | PermitPulse`,
     url: entry ? buildCanonical(buildPermitsCityPath(entry)) : buildCanonical(statePath),
-    description: entry
-      ? `${entry.name}, ${stateName} permit coverage page with the official permit portal, platform details, and PermitPulse coverage notes.`
-      : `${stateName} permit coverage pages for jurisdictions currently listed in the PermitPulse catalog.`,
+    description:
+      descriptionOverride ||
+      (entry
+        ? `${entry.name}, ${stateName} permit coverage page with the official permit portal, platform details, and PermitPulse coverage notes.`
+        : `${stateName} permit coverage pages for jurisdictions currently listed in the PermitPulse catalog.`),
     isPartOf: {
       '@type': 'WebSite',
       name: 'PermitPulse',
@@ -1051,7 +1138,7 @@ function buildPermitsStructuredData({ stateCode, stateName, statePath, entry = n
   };
 }
 
-function buildBuildingPermitsStructuredData(entry) {
+function buildBuildingPermitsStructuredData(entry, descriptionOverride = null) {
   const stateName = getStateName(entry.state);
   const buildingPath = buildBuildingPermitsCityPath(entry);
   const permitsPath = buildPermitsCityPath(entry);
@@ -1061,7 +1148,9 @@ function buildBuildingPermitsStructuredData(entry) {
     '@type': 'WebPage',
     name: `${entry.name}, ${stateName} Building Permits | PermitPulse`,
     url: buildCanonical(buildingPath),
-    description: `${entry.name}, ${stateName} building permits page with the official permit portal, coverage tier, fallback notes, and links into the main permit directory.`,
+    description:
+      descriptionOverride ||
+      `${entry.name}, ${stateName} building permits page with the official permit portal, coverage tier, fallback notes, and links into the main permit directory.`,
     isPartOf: {
       '@type': 'WebSite',
       name: 'PermitPulse',
@@ -1476,11 +1565,11 @@ function renderPermitsHubPage(states) {
 
       return `<article class="card page-card">
   <div class="eyebrow">
-    <span class="pill ${apiCount ? 'live' : 'portal'}">${apiCount ? `${apiCount} API-backed` : 'Portal-only'}</span>
+    <span class="pill ${apiCount ? 'live' : 'portal'}">${apiCount ? `${apiCount} live-data supported` : 'Portal-only'}</span>
   </div>
   <div>
     <h3 style="margin-bottom:8px;">${escapeHtml(state.stateName)}</h3>
-    <p>${escapeHtml(`${state.entries.length} covered jurisdictions. ${apiCount} API-backed and ${portalCount} portal-only based on the live PermitPulse catalog.`)}</p>
+    <p>${escapeHtml(`${state.entries.length} covered jurisdictions. ${apiCount} are live-data supported and ${portalCount} are portal-only based on the current PermitPulse catalog.`)}</p>
   </div>
   <div class="page-card-actions mono" style="font-size:12px;">
     <a class="link-line" href="${buildPermitsStatePath(state.stateCode)}">Open state page</a>
@@ -1502,7 +1591,7 @@ ${renderHeader()}
     <div class="hero-copy">
       <span class="badge">U.S. permit directory</span>
       <h1>Permit pages organized by state and jurisdiction.</h1>
-      <p class="lead">PermitPulse generates this directory from the current shared jurisdiction catalog. Use it to find covered state pages, city permit portals, coverage tiers, and the right path into Mission Control.</p>
+      <p class="lead">PermitPulse generates this directory from the current shared jurisdiction catalog. Use it to find covered state pages, city permit portals, live-data support levels, and the right path into Mission Control.</p>
       <div class="btn-row">
         <a class="btn btn-primary" href="/mission-control/">Open Mission Control</a>
         <a class="btn btn-secondary" href="/california-permit-history/">Open California permit search</a>
@@ -1518,7 +1607,7 @@ ${renderHeader()}
         </div>
         <div class="stat">
           <strong>${apiBacked}</strong>
-          <span class="muted">API-backed jurisdictions</span>
+          <span class="muted">Live-data jurisdictions</span>
         </div>
       </div>
     </div>
@@ -1632,10 +1721,10 @@ ${renderHeader()}
     <div class="hero-copy">
       <div class="eyebrow">
         <span class="badge">State permit page</span>
-        <span class="pill ${coverageCounts.apiBacked ? 'live' : 'portal'}">${coverageCounts.apiBacked ? `${coverageCounts.apiBacked} API-backed` : 'Portal-first coverage'}</span>
+        <span class="pill ${coverageCounts.apiBacked ? 'live' : 'portal'}">${coverageCounts.apiBacked ? `${coverageCounts.apiBacked} live-data supported` : 'Portal-only coverage'}</span>
       </div>
       <h1>${escapeHtml(state.stateName)} permit pages</h1>
-      <p class="lead">${escapeHtml(`${state.stateName} currently has ${coverageCounts.total} covered jurisdictions in the PermitPulse catalog. ${coverageCounts.apiBacked} are API-backed, ${coverageCounts.portalOnly} are portal-only, and the current platform mix includes ${platformSummary}.`)}</p>
+      <p class="lead">${escapeHtml(`${state.stateName} currently has ${coverageCounts.total} covered jurisdictions in the PermitPulse catalog. ${coverageCounts.apiBacked} have live-data support, ${coverageCounts.portalOnly} are portal-only, and the current platform mix includes ${platformSummary}.`)}</p>
       <div class="btn-row">
         <a class="btn btn-primary" href="/mission-control/">Open Mission Control</a>
         <a class="btn btn-secondary" href="/permits/">Browse all states</a>
@@ -1647,7 +1736,7 @@ ${renderHeader()}
         </div>
         <div class="stat">
           <strong>${coverageCounts.apiBacked}</strong>
-          <span class="muted">API-backed</span>
+          <span class="muted">Live data</span>
         </div>
         <div class="stat">
           <strong>${coverageCounts.portalOnly}</strong>
@@ -1662,7 +1751,7 @@ ${renderHeader()}
       <div class="section-head">
         <div class="kicker">Covered jurisdictions</div>
         <h2>${escapeHtml(state.stateName)} city and county permit pages</h2>
-        <p class="lead">These pages are generated directly from current jurisdiction metadata. Each one includes the official permit portal, platform label, coverage tier, and Mission Control path.</p>
+        <p class="lead">These pages are generated directly from current jurisdiction metadata. Each one includes the official permit portal, platform label, current support level, and Mission Control path.</p>
       </div>
       <div class="hub-grid">
         ${cards}
@@ -1687,8 +1776,8 @@ ${renderHeader()}
       <aside class="card soft">
         <div class="kicker">Coverage grouping</div>
         <h2 style="margin:8px 0 14px;">Current catalog split</h2>
-        <p class="muted">${escapeHtml(`This state page is generated from current catalog metadata only. Use the grouped links below to move between API-backed and portal-only coverage without leaving the canonical directory layer.`)}</p>
-        ${apiEntries.length ? `<p class="mono muted" style="font-size:12px; margin-top:14px;">API-backed: ${escapeHtml(apiEntries.map((entry) => entry.name).join(', '))}</p>` : ''}
+        <p class="muted">${escapeHtml(`This state page is generated from current catalog metadata only. Use the grouped links below to move between live-data-supported and portal-only coverage without leaving the canonical directory layer.`)}</p>
+        ${apiEntries.length ? `<p class="mono muted" style="font-size:12px; margin-top:14px;">Live data supported: ${escapeHtml(apiEntries.map((entry) => entry.name).join(', '))}</p>` : ''}
         ${portalEntries.length ? `<p class="mono muted" style="font-size:12px; margin-top:14px;">Portal-only: ${escapeHtml(portalEntries.map((entry) => entry.name).join(', '))}</p>` : ''}
       </aside>
     </div>
@@ -1705,23 +1794,19 @@ function renderPermitsCityPage(entry, stateEntries) {
   const stateName = getStateName(entry.state);
   const pathname = buildPermitsCityPath(entry);
   const coverage = buildCoverage(entry);
-  const apiIndicator = entry.provider ? 'Yes' : 'No';
-  const tierPhrase = coverage.id === 'api_backed' ? 'API-backed' : 'portal-only';
-  const tierArticle = getIndefiniteArticle(tierPhrase);
-  const fallbackNote = entry.provider
-    ? `${entry.name} has a public data source in the current catalog, but the official ${entry.platform || 'permit'} portal remains the authoritative jurisdiction source.`
-    : `${entry.name} is currently cataloged as portal-only coverage, so the official ${entry.platform || 'permit'} portal is the primary lookup path.`;
+  const copy = getPermitsCityPageCopy(entry, stateName, coverage);
   const relatedEntries = getRelatedPermitEntries(entry, stateEntries);
 
   return `${renderHead({
-    title: `${entry.name}, ${stateName} Permit Portal + Coverage | PermitPulse`,
-    description: `${entry.name}, ${stateName} permit page with the official ${entry.platform || 'permit'} portal, ${tierPhrase} coverage, and Mission Control access.`,
+    title: copy.title,
+    description: copy.description,
     canonicalPath: pathname,
     structuredData: buildPermitsStructuredData({
       stateCode: entry.state,
       stateName,
       statePath: buildPermitsStatePath(entry.state),
       entry,
+      descriptionOverride: copy.description,
     }),
   })}
 <body>
@@ -1733,8 +1818,8 @@ ${renderHeader()}
         <span class="badge">${escapeHtml(stateName)} permit page</span>
         <span class="pill ${coverage.className}">${escapeHtml(coverage.label)}</span>
       </div>
-      <h1>${escapeHtml(entry.name)} permit portal and PermitPulse coverage</h1>
-      <p class="lead">${escapeHtml(`${entry.name} is listed in the current PermitPulse jurisdiction catalog as ${tierArticle} ${tierPhrase} jurisdiction in ${stateName}. Start with the official ${entry.platform || 'permit'} portal, review the current coverage notes below, and use Mission Control when the permit record needs more context.`)}</p>
+      <h1>${escapeHtml(copy.h1)}</h1>
+      <p class="lead">${escapeHtml(copy.heroLead)}</p>
       <div class="btn-row">
         ${entry.portalUrl ? `<a class="btn btn-primary" href="${escapeHtml(entry.portalUrl)}" target="_blank" rel="noopener">Open official permit portal</a>` : ''}
         <a class="btn btn-secondary" href="${buildBuildingPermitsCityPath(entry)}">Open building permits page</a>
@@ -1755,7 +1840,7 @@ ${renderHeader()}
           <li><strong>State:</strong> ${escapeHtml(stateName)} (${escapeHtml(entry.state)})</li>
           <li><strong>Platform:</strong> ${escapeHtml(entry.platform || 'Not set')}</li>
           <li><strong>Coverage tier:</strong> ${escapeHtml(coverage.label)}</li>
-          <li><strong>API-backed:</strong> ${escapeHtml(apiIndicator)}</li>
+          <li><strong>${escapeHtml(copy.supportLabel)}:</strong> ${escapeHtml(copy.supportValue)}</li>
           <li><strong>Route slug:</strong> <span class="mono">${escapeHtml(getJurisdictionSlug(entry))}</span></li>
         </ul>
       </article>
@@ -1763,7 +1848,7 @@ ${renderHeader()}
         <div class="kicker">Official route</div>
         <h2 style="margin:8px 0 14px;">Use the jurisdiction source first</h2>
         <p class="muted">${escapeHtml(entry.portalNotes || 'Official permit portal route available from the shared PermitPulse catalog.')}</p>
-        <p class="muted" style="margin-top:10px;">${escapeHtml(fallbackNote)}</p>
+        <p class="muted" style="margin-top:10px;">${escapeHtml(copy.fallbackNote)}</p>
         <div class="btn-row">
           ${entry.portalUrl ? `<a class="btn btn-secondary" href="${escapeHtml(entry.portalUrl)}" target="_blank" rel="noopener">Open official permit portal</a>` : ''}
           <a class="btn btn-secondary" href="${buildPermitsStatePath(entry.state)}">Back to ${escapeHtml(stateName)}</a>
@@ -1778,7 +1863,7 @@ ${renderHeader()}
         <div class="section-head" style="margin-bottom:0;">
           <div class="kicker">Mission Control</div>
           <h2>Need more than the permit portal?</h2>
-          <p class="lead">${escapeHtml(`${entry.name} is available in PermitPulse with ${tierPhrase} coverage. Mission Control keeps the current portal-first behavior intact while giving operators a cleaner route into the next action.`)}</p>
+          <p class="lead">${escapeHtml(copy.missionLead)}</p>
         </div>
         <div class="btn-row">
           <a class="btn btn-primary" href="/mission-control/">Open Mission Control</a>
@@ -1821,18 +1906,15 @@ ${renderStickyCta()}
 function renderBuildingPermitsCityPage(entry, stateEntries) {
   const stateName = getStateName(entry.state);
   const coverage = buildCoverage(entry);
-  const tierPhrase = coverage.id === 'api_backed' ? 'API-backed' : 'portal-only';
-  const fallbackNote = entry.provider
-    ? `${entry.name} has catalog-backed public data coverage, but the official ${entry.platform || 'permit'} portal remains the primary source for building permit lookup and record confirmation.`
-    : `${entry.name} is currently routed as portal-only coverage, so building permit lookup should start in the official ${entry.platform || 'permit'} portal before moving into Mission Control.`;
+  const copy = getBuildingPermitsPageCopy(entry, stateName, coverage);
   const relatedEntries = getRelatedPermitEntries(entry, stateEntries);
   const pathname = buildBuildingPermitsCityPath(entry);
 
   return `${renderHead({
-    title: `${entry.name}, ${stateName} Building Permits | PermitPulse`,
-    description: `Find ${entry.name}, ${stateName} building permits with the official ${entry.platform || 'permit'} portal, ${tierPhrase} coverage notes, and links to the main PermitPulse permit page.`,
+    title: copy.title,
+    description: copy.description,
     canonicalPath: pathname,
-    structuredData: buildBuildingPermitsStructuredData(entry),
+    structuredData: buildBuildingPermitsStructuredData(entry, copy.description),
   })}
 <body>
 ${renderHeader()}
@@ -1843,8 +1925,8 @@ ${renderHeader()}
         <span class="badge">${escapeHtml(stateName)} building permits</span>
         <span class="pill ${coverage.className}">${escapeHtml(coverage.label)}</span>
       </div>
-      <h1>${escapeHtml(`${entry.name} building permits`)}</h1>
-      <p class="lead">${escapeHtml(`Find building permits in ${entry.name}, ${stateName} using the current jurisdiction catalog and the official ${entry.platform || 'permit'} portal. This page is framed for building-permit lookup first, with direct links into the broader PermitPulse permit page and Mission Control when the record needs a wider review.`)}</p>
+      <h1>${escapeHtml(copy.h1)}</h1>
+      <p class="lead">${escapeHtml(copy.heroLead)}</p>
       <div class="btn-row">
         ${entry.portalUrl ? `<a class="btn btn-primary" href="${escapeHtml(entry.portalUrl)}" target="_blank" rel="noopener">Find building permits in official portal</a>` : ''}
         <a class="btn btn-secondary" href="${buildPermitsCityPath(entry)}">Open main permit page</a>
@@ -1868,10 +1950,10 @@ ${renderHeader()}
         </ul>
       </article>
       <aside class="card soft">
-        <div class="kicker">Fallback notes</div>
-        <h2 style="margin:8px 0 14px;">Portal-first building permit lookup</h2>
+        <div class="kicker">${escapeHtml(copy.fallbackKicker)}</div>
+        <h2 style="margin:8px 0 14px;">${escapeHtml(copy.fallbackHeading)}</h2>
         <p class="muted">${escapeHtml(entry.portalNotes || 'Official permit portal route available from the shared PermitPulse catalog.')}</p>
-        <p class="muted" style="margin-top:10px;">${escapeHtml(fallbackNote)}</p>
+        <p class="muted" style="margin-top:10px;">${escapeHtml(copy.fallbackNote)}</p>
         <div class="btn-row">
           ${entry.portalUrl ? `<a class="btn btn-secondary" href="${escapeHtml(entry.portalUrl)}" target="_blank" rel="noopener">Open official permit portal</a>` : ''}
           <a class="btn btn-secondary" href="${buildPermitsStatePath(entry.state)}">Back to ${escapeHtml(stateName)}</a>
@@ -1886,7 +1968,7 @@ ${renderHeader()}
         <div class="section-head" style="margin-bottom:0;">
           <div class="kicker">PermitPulse paths</div>
           <h2>Need the broader permit view?</h2>
-          <p class="lead">${escapeHtml(`Use the official portal first for ${entry.name} building permits, then move to the main PermitPulse permit page for the full jurisdiction view or Mission Control when the next step is unclear.`)}</p>
+          <p class="lead">${escapeHtml(copy.ctaLead)}</p>
         </div>
         <div class="btn-row">
           <a class="btn btn-primary" href="${buildPermitsCityPath(entry)}">Open main permit page</a>
@@ -1930,6 +2012,7 @@ ${renderStickyCta()}
 function renderPermitPortalAliasPage(entry) {
   const canonicalPath = buildPermitsCityPath(entry);
   const stateName = getStateName(entry.state);
+  const copy = getPermitsCityPageCopy(entry, stateName, buildCoverage(entry));
   return `${renderHead({
     title: `${entry.name}, ${stateName} Permit Portal Alias | PermitPulse`,
     description: `${entry.name}, ${stateName} alias route pointing to the canonical PermitPulse permit page.`,
@@ -1939,6 +2022,7 @@ function renderPermitPortalAliasPage(entry) {
       stateName,
       statePath: buildPermitsStatePath(entry.state),
       entry,
+      descriptionOverride: copy.description,
     }),
     robots: 'noindex,follow',
     extraHead: `<meta http-equiv="refresh" content="0; url=${canonicalPath}" />`,
