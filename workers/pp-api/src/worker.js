@@ -14,6 +14,8 @@ import { handleMissionControlReport } from './mission-control/report.js';
 import { fetchSocrataRows } from './providers/socrata.js';
 
 const PASADENA_JURISDICTION_ID = 'pasadena';
+const SAN_FRANCISCO_JURISDICTION_ID = 'san_francisco';
+const SAN_FRANCISCO_ROUTE_SLUG = 'san-francisco';
 const SAN_DIEGO_COUNTY_JURISDICTION_ID = 'san_diego_county';
 const SAN_DIEGO_COUNTY_ROUTE_SLUG = 'san-diego-county';
 const SAN_JOSE_JURISDICTION_ID = 'san_jose';
@@ -338,6 +340,11 @@ function getPasadenaJurisdiction() {
 	return jurisdiction?.provider?.type === 'arcgis' ? jurisdiction : null;
 }
 
+function getSanFranciscoJurisdiction() {
+	const jurisdiction = findJurisdiction(SAN_FRANCISCO_JURISDICTION_ID);
+	return jurisdiction?.provider?.type === 'socrata' ? jurisdiction : null;
+}
+
 function getSantaMonicaJurisdiction() {
 	const jurisdiction = findJurisdiction(SANTA_MONICA_JURISDICTION_ID);
 	return jurisdiction?.provider?.type === 'ckan' ? jurisdiction : null;
@@ -351,6 +358,36 @@ function getSanDiegoCountyJurisdiction() {
 function getSanJoseJurisdiction() {
 	const jurisdiction = findJurisdiction(SAN_JOSE_JURISDICTION_ID);
 	return jurisdiction?.provider?.type === 'ckan' ? jurisdiction : null;
+}
+
+function getHistoryTopPermitsConfig(jurisdictionId) {
+	if (jurisdictionId === SAN_DIEGO_COUNTY_JURISDICTION_ID) {
+		return {
+			jurisdiction: getSanDiegoCountyJurisdiction(),
+			routeSlug: SAN_DIEGO_COUNTY_ROUTE_SLUG,
+			caveat: null,
+		};
+	}
+
+	if (jurisdictionId === SAN_FRANCISCO_JURISDICTION_ID) {
+		return {
+			jurisdiction: getSanFranciscoJurisdiction(),
+			routeSlug: SAN_FRANCISCO_ROUTE_SLUG,
+			caveat:
+				'San Francisco rankings use the larger of revised_cost and estimated_cost from the official DataSF building permits feed.',
+		};
+	}
+
+	if (jurisdictionId === SAN_JOSE_JURISDICTION_ID) {
+		return {
+			jurisdiction: getSanJoseJurisdiction(),
+			routeSlug: SAN_JOSE_ROUTE_SLUG,
+			caveat:
+				'San Jose Active Building Permits includes PERMITVALUATION, but many recent active sub-trade permits carry 0 values. Rankings are usable for records with populated valuation and can be sparse at default thresholds.',
+		};
+	}
+
+	return null;
 }
 
 function normalizeHistoryDate(value) {
@@ -396,6 +433,49 @@ function normalizeTextValue(value) {
 		.replace(/\s+/g, ' ')
 		.trim();
 	return normalized || null;
+}
+
+function normalizeHistoryValuation(row, fields = {}) {
+	const rawValues = [
+		row?.valuation,
+		fields.valuation ? getProviderFieldValue(row, fields.valuation) : null,
+		fields.valuation_fallback ? getProviderFieldValue(row, fields.valuation_fallback) : null,
+	].filter((value) => value != null && value !== '');
+
+	if (!rawValues.length) {
+		return null;
+	}
+
+	const parsedValues = rawValues
+		.map((value) => parseValuation(value))
+		.filter((value) => Number.isFinite(value));
+
+	return parsedValues.length ? Math.max(...parsedValues) : null;
+}
+
+function buildHistoryAddress(row, fields = {}) {
+	const directAddress = normalizeTextValue(
+		row.address ||
+			(fields.address ? getProviderFieldValue(row, fields.address) : null) ||
+			(fields.alt_address ? getProviderFieldValue(row, fields.alt_address) : null) ||
+			null,
+	);
+	if (directAddress) {
+		return directAddress;
+	}
+
+	const addressParts = [
+		fields.street_number ? normalizeTextValue(getProviderFieldValue(row, fields.street_number)) : null,
+		fields.street_name ? normalizeTextValue(getProviderFieldValue(row, fields.street_name)) : null,
+		fields.street_suffix ? normalizeTextValue(getProviderFieldValue(row, fields.street_suffix)) : null,
+	].filter(Boolean);
+	const unit = fields.unit ? normalizeTextValue(getProviderFieldValue(row, fields.unit)) : null;
+
+	if (unit) {
+		addressParts.push(/^(unit|apt|ste|suite|#)/i.test(unit) ? unit : `#${unit}`);
+	}
+
+	return addressParts.length ? addressParts.join(' ') : null;
 }
 
 function getProviderFieldValue(row, fieldName) {
@@ -735,12 +815,7 @@ function matchesHistoryQuery(record, q) {
 function normalizeHistoryRecord(row, jurisdiction) {
 	const fields = jurisdiction.provider.fields;
 	const id = normalizeTextValue(getProviderFieldValue(row, fields.id) || row.id || row.permit_number || null);
-	const address = normalizeTextValue(
-		row.address ||
-			getProviderFieldValue(row, fields.address) ||
-			(fields.alt_address ? getProviderFieldValue(row, fields.alt_address) : null) ||
-			null,
-	);
+	const address = buildHistoryAddress(row, fields);
 	const filedAt = normalizeHistoryDate(row.filed_at ?? getProviderFieldValue(row, fields.filed_at));
 	const issuedAt = normalizeHistoryDate(
 		fields.issued_at ? (row.issued_at ?? getProviderFieldValue(row, fields.issued_at)) : row.issued_at,
@@ -755,8 +830,7 @@ function normalizeHistoryRecord(row, jurisdiction) {
 		fields.filed_at ? getProviderFieldValue(row, fields.filed_at) : null,
 		row.filed_at,
 	);
-	const rawValuation = row.valuation ?? getProviderFieldValue(row, fields.valuation);
-	const valuation = rawValuation == null ? null : parseValuation(rawValuation);
+	const valuation = normalizeHistoryValuation(row, fields);
 	const descriptionText = normalizeTextValue(row.description ?? getProviderFieldValue(row, fields.description));
 	const projectType = fields.project_type
 		? normalizeTextValue(getProviderFieldValue(row, fields.project_type) ?? null)
@@ -1248,10 +1322,11 @@ async function handleTopPermits({ url, env }) {
 	const minValue = !Number.isFinite(rawMin) || rawMin < 0 ? 0 : rawMin;
 	const limit = !Number.isFinite(rawLimit) || rawLimit <= 0 || rawLimit > 200 ? 25 : rawLimit;
 	const fetchLimit = Math.max(limit * 5, 500);
+	const historyTopPermitsConfig = getHistoryTopPermitsConfig(jurisdictionId);
 
-	if (jurisdictionId === SAN_DIEGO_COUNTY_JURISDICTION_ID) {
+	if (historyTopPermitsConfig) {
+		const { jurisdiction, routeSlug, caveat } = historyTopPermitsConfig;
 		try {
-			const jurisdiction = getSanDiegoCountyJurisdiction();
 			const { sourceUrl, recordCount, permits } = await loadHistoryTopPermits({
 				env,
 				jurisdiction,
@@ -1266,13 +1341,14 @@ async function handleTopPermits({ url, env }) {
 			return json({
 				ok: true,
 				meta: {
-					jurisdiction: SAN_DIEGO_COUNTY_ROUTE_SLUG,
+					jurisdiction: routeSlug,
 					days,
 					minValue,
 					limit,
 					trade,
 					source: sourceUrl,
 					count: permits.length,
+					...(caveat ? { caveat } : {}),
 				},
 				permits,
 				debug: debug
@@ -1289,57 +1365,7 @@ async function handleTopPermits({ url, env }) {
 					error: 'upstream',
 					detail: String(error?.message || error),
 					meta: {
-						jurisdiction: SAN_DIEGO_COUNTY_ROUTE_SLUG,
-					},
-				},
-				502,
-			);
-		}
-	}
-
-	if (jurisdictionId === SAN_JOSE_JURISDICTION_ID) {
-		try {
-			const jurisdiction = getSanJoseJurisdiction();
-			const { sourceUrl, recordCount, permits } = await loadHistoryTopPermits({
-				env,
-				jurisdiction,
-				days,
-				minValue,
-				trade,
-				mode,
-				limit,
-				fetchLimit: Math.max(limit * 20, 1000),
-			});
-
-			return json({
-				ok: true,
-				meta: {
-					jurisdiction: SAN_JOSE_ROUTE_SLUG,
-					days,
-					minValue,
-					limit,
-					trade,
-					source: sourceUrl,
-					count: permits.length,
-					caveat:
-						'San Jose Active Building Permits includes PERMITVALUATION, but many recent active sub-trade permits carry 0 values. Rankings are usable for records with populated valuation and can be sparse at default thresholds.',
-				},
-				permits,
-				debug: debug
-					? {
-							fetchedRows: recordCount,
-							sourceUrl,
-						}
-					: undefined,
-			});
-		} catch (error) {
-			return json(
-				{
-					ok: false,
-					error: 'upstream',
-					detail: String(error?.message || error),
-					meta: {
-						jurisdiction: SAN_JOSE_ROUTE_SLUG,
+						jurisdiction: routeSlug,
 					},
 				},
 				502,
@@ -1529,7 +1555,8 @@ async function sodaFetch(env, query) {
 }
 
 async function handleHealth({ env }) {
-	const failing = JURISDICTIONS.filter((jurisdiction) => jurisdiction.enabled === false).map((jurisdiction) => jurisdiction.id);
+	const disabled = JURISDICTIONS.filter((jurisdiction) => jurisdiction.enabled === false).map((jurisdiction) => jurisdiction.id);
+	const failing = [];
 	const pasadena = await probePasadenaLiveData();
 	if (!pasadena.ok) {
 		failing.push(PASADENA_JURISDICTION_ID);
@@ -1537,6 +1564,10 @@ async function handleHealth({ env }) {
 	const sanDiegoCounty = await probeHistoryJurisdictionData(env, SAN_DIEGO_COUNTY_JURISDICTION_ID);
 	if (!sanDiegoCounty.ok) {
 		failing.push(SAN_DIEGO_COUNTY_JURISDICTION_ID);
+	}
+	const sanFrancisco = await probeHistoryJurisdictionData(env, SAN_FRANCISCO_JURISDICTION_ID);
+	if (!sanFrancisco.ok) {
+		failing.push(SAN_FRANCISCO_JURISDICTION_ID);
 	}
 	const sanJose = await probeHistoryJurisdictionData(env, SAN_JOSE_JURISDICTION_ID);
 	if (!sanJose.ok) {
@@ -1558,8 +1589,10 @@ async function handleHealth({ env }) {
 		upstreams: {
 			upstream_ok: failing.length === 0,
 			failing,
+			disabled,
 			pasadena,
 			san_diego_county: sanDiegoCounty,
+			san_francisco: sanFrancisco,
 			san_jose: sanJose,
 			santa_monica: santaMonica,
 			santa_monica_demolition: santaMonicaDemolition,
@@ -1835,6 +1868,43 @@ async function handleRadar({ url, env }) {
 		}
 	}
 
+	if (jurisdictionId === SAN_FRANCISCO_JURISDICTION_ID) {
+		try {
+			const jurisdiction = getSanFranciscoJurisdiction();
+			const payload = await buildHistoryRadarPayload({
+				env,
+				jurisdiction,
+				routeSlug: SAN_FRANCISCO_ROUTE_SLUG,
+				trade,
+				days,
+				limit,
+			});
+			const { debugMeta, ...responsePayload } = payload;
+
+			return new Response(
+				JSON.stringify({
+					ok: true,
+					...responsePayload,
+					...(debug ? { debug: debugMeta } : {}),
+				}),
+				{ headers: JSON_HEADERS },
+			);
+		} catch (error) {
+			return new Response(
+				JSON.stringify({
+					ok: false,
+					error: 'upstream',
+					detail: String(error?.message || error),
+					jurisdiction: SAN_FRANCISCO_ROUTE_SLUG,
+				}),
+				{
+					status: 502,
+					headers: JSON_HEADERS,
+				},
+			);
+		}
+	}
+
 	if (jurisdictionId === SAN_JOSE_JURISDICTION_ID) {
 		try {
 			const jurisdiction = getSanJoseJurisdiction();
@@ -2074,6 +2144,71 @@ async function handleSanDiegoCountyLive({ request, url, env }) {
 							},
 						}
 					: {}),
+			}, null),
+			200,
+			60,
+		);
+	} catch (error) {
+		return json(
+			{
+				ok: false,
+				error: 'upstream',
+				detail: String(error?.message || error),
+				meta: buildPortalMeta(jurisdiction),
+			},
+			502,
+		);
+	}
+}
+
+async function handleSanFranciscoLive({ request, url, env }) {
+	if (request.method !== 'GET') {
+		return json(apiEnvelope(false, null, 'method_not_allowed'), 405);
+	}
+
+	const jurisdiction = getSanFranciscoJurisdiction();
+	if (!jurisdiction) {
+		return json(apiEnvelope(false, null, 'unknown_jurisdiction'), 400);
+	}
+
+	const q = (url.searchParams.get('q') || '').trim();
+	const rawLimit = Number(url.searchParams.get('limit') || '25');
+	const rawSinceDays = url.searchParams.get('since_days');
+	const debug = url.searchParams.get('debug') === '1';
+	const limit = !Number.isFinite(rawLimit) || rawLimit <= 0 || rawLimit > 100 ? 25 : rawLimit;
+	const parsedSinceDays = rawSinceDays == null || rawSinceDays === '' ? null : Number(rawSinceDays);
+	const sinceDays =
+		parsedSinceDays == null || !Number.isFinite(parsedSinceDays) || parsedSinceDays <= 0
+			? null
+			: Math.min(parsedSinceDays, 3650);
+
+	try {
+		const { sourceUrl, fetchLimit, results } = await loadHistoryLiveResults({
+			env,
+			jurisdiction,
+			q,
+			limit,
+			sinceDays,
+		});
+		const providerMeta = buildProviderSelectionMeta(jurisdiction);
+
+		return jsonWithCache(
+			apiEnvelope(true, {
+				jurisdiction: SAN_FRANCISCO_ROUTE_SLUG,
+				query: {
+					q,
+					limit,
+					since_days: sinceDays,
+				},
+				meta: {
+					jurisdiction: SAN_FRANCISCO_ROUTE_SLUG,
+					count: results.length,
+					fetchLimit,
+					source_url: sourceUrl,
+					...providerMeta,
+				},
+				results,
+				...(debug ? { debug: providerMeta } : {}),
 			}, null),
 			200,
 			60,
@@ -2472,6 +2607,7 @@ function createRoutes() {
 		'/health': handleHealth,
 		'/live/pasadena': handlePasadenaLive,
 		'/live/san-diego-county': handleSanDiegoCountyLive,
+		'/live/san-francisco': handleSanFranciscoLive,
 		'/live/san-jose': handleSanJoseLive,
 		'/live/santa-monica': handleSantaMonicaLive,
 		'/live/santa-monica-demolition': handleSantaMonicaDemolitionLive,
