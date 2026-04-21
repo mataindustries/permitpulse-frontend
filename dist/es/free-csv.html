@@ -58,6 +58,7 @@
     <p class="text-sm text-gray-600 mt-6">
       Tip: usa palabras más precisas como <em>“solar”</em> o <em>“re-roof”</em> pa’ resultados más chidos.
     </p>
+    <p id="successNote" class="text-sm text-green-700 mt-4 hidden">Tu CSV se abrió en otra pestaña. Revisa tu correo para la alerta de bienvenida.</p>
   </main>
 
   <script>
@@ -111,8 +112,11 @@
       fireGAEvent('csv_download');
       window.open(csvUrl, '_blank');
 
-      // 3) Optional thank-you (EN page for now)
-      setTimeout(() => { location.href = '/thank-you/'; }, 300);
+      // 3) Quédate aquí para no mandar solicitudes gratis al thank-you de pago
+      const successNote = document.getElementById('successNote');
+      if (successNote) {
+        successNote.classList.remove('hidden');
+      }
     });
   </script>
   <script>

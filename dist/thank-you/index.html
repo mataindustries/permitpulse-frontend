@@ -1,178 +1,246 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width,initial-scale=1"/>
-  <title>PermitPulse — Thank You</title>
-  <meta name="theme-color" content="#0B1220">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Payment received | PermitPulse</title>
+  <meta name="description" content="Permit Triage payment received. Send the property address and callback number so PermitPulse can review the public record and confirm the next step by text." />
+  <meta name="theme-color" content="#07111f" />
+  <link rel="canonical" href="https://getpermitpulse.com/thank-you/" />
   <style>
-    :root{--navy:#0B1220;--blue:#2563EB;--turq:#2EE6D6;--gold:#F6C744}
+    :root{
+      --bg:#07111f;
+      --bg-2:#0d1a2d;
+      --panel:rgba(13, 26, 45, 0.88);
+      --panel-strong:rgba(9, 18, 32, 0.96);
+      --line:rgba(156, 194, 255, 0.18);
+      --text:#f3f6fb;
+      --muted:#a5b4cc;
+      --blue:#8cb6ff;
+      --blue-strong:#2b62f4;
+      --accent:#4ee3d0;
+    }
     *{box-sizing:border-box}
-    body{font-family:Inter,ui-sans-serif,system-ui,Segoe UI,Roboto,Arial,sans-serif;margin:0;background:linear-gradient(180deg,#0B1220 0%,#0E1A2E 100%);color:#E5E7EB;}
-    .wrap{max-width:860px;margin:40px auto;background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);border-radius:18px;padding:22px}
-    h1{margin:0 0 6px;color:#fff}
-    p{color:#cbd5e1;margin:8px 0}
-    .row{display:flex;gap:10px;flex-wrap:wrap;margin:16px 0}
-    .btn{display:inline-flex;align-items:center;justify-content:center;padding:12px 16px;border-radius:12px;text-decoration:none;font-weight:700}
-    .btn-primary{background:#2563EB;color:#fff;box-shadow:0 8px 24px rgba(37,99,235,.45)}
-    .btn-ghost{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);color:#fff}
-    .muted{color:#94A3B8;font-size:14px}
-    .card{background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.08);border-radius:14px;padding:14px;margin-top:12px}
-    .section{margin-top:12px}
-    .check{color:#2EE6D6;font-weight:800}
-    .split{display:grid;grid-template-columns:1fr;gap:12px}
-    @media(min-width:800px){.split{grid-template-columns:1.1fr .9fr}}
-    .list{line-height:1.8;margin:6px 0}
-    .tag{display:inline-block;background:rgba(46,230,214,.12);color:#A7F3D0;border:1px solid rgba(46,230,214,.35);padding:4px 8px;border-radius:999px;font-size:12px;margin-right:6px}
-  
-
-.link{
-  color: var(--accent-blue, #2952ff);
-  text-decoration: underline;
-  text-underline-offset: 3px;
-}
-.link:hover{
-  color: var(--accent-orange, #ff4400);
-}
-
-</style>
+    body{
+      margin:0;
+      min-height:100vh;
+      font-family:Inter,ui-sans-serif,system-ui,Segoe UI,Roboto,Arial,sans-serif;
+      color:var(--text);
+      background:
+        radial-gradient(circle at top, rgba(60,113,255,0.22), transparent 34%),
+        linear-gradient(180deg, var(--bg) 0%, #050a12 100%);
+    }
+    a{color:inherit}
+    .page{
+      width:min(100%, 760px);
+      margin:0 auto;
+      padding:24px 16px 48px;
+    }
+    .shell{
+      border:1px solid var(--line);
+      border-radius:24px;
+      background:linear-gradient(180deg, rgba(12,24,40,0.92), rgba(6,12,22,0.96));
+      box-shadow:0 24px 80px rgba(0,0,0,0.36);
+      overflow:hidden;
+    }
+    .hero{
+      padding:28px 20px 20px;
+      background:
+        linear-gradient(135deg, rgba(43,98,244,0.18), rgba(78,227,208,0.08)),
+        linear-gradient(180deg, rgba(10,18,31,0.9), rgba(10,18,31,0.65));
+      border-bottom:1px solid var(--line);
+    }
+    .eyebrow{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:7px 11px;
+      border-radius:999px;
+      background:rgba(140,182,255,0.12);
+      border:1px solid rgba(140,182,255,0.2);
+      color:var(--blue);
+      font-size:12px;
+      font-weight:700;
+      letter-spacing:0.08em;
+      text-transform:uppercase;
+    }
+    h1{
+      margin:18px 0 10px;
+      font-size:clamp(2rem, 7vw, 3.3rem);
+      line-height:1;
+    }
+    .subhead{
+      margin:0;
+      color:#dbe7fb;
+      font-size:clamp(1rem, 3.6vw, 1.2rem);
+      line-height:1.45;
+    }
+    .content{
+      display:grid;
+      gap:16px;
+      padding:20px;
+    }
+    .card{
+      padding:18px;
+      border-radius:18px;
+      background:var(--panel);
+      border:1px solid var(--line);
+    }
+    .card strong{color:#fff}
+    .body-copy{
+      margin:0;
+      color:#d7e0ef;
+      line-height:1.65;
+      font-size:1rem;
+    }
+    .checklist{
+      margin:14px 0 0;
+      padding:0;
+      list-style:none;
+      display:grid;
+      gap:10px;
+    }
+    .checklist li{
+      display:flex;
+      align-items:flex-start;
+      gap:10px;
+      color:#edf3ff;
+      line-height:1.5;
+    }
+    .check{
+      flex:0 0 auto;
+      width:22px;
+      height:22px;
+      border-radius:999px;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      background:rgba(78,227,208,0.16);
+      border:1px solid rgba(78,227,208,0.26);
+      color:var(--accent);
+      font-size:13px;
+      font-weight:800;
+      margin-top:1px;
+    }
+    .actions{
+      display:grid;
+      gap:10px;
+      margin-top:18px;
+    }
+    .btn{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      min-height:50px;
+      padding:14px 18px;
+      border-radius:14px;
+      text-decoration:none;
+      font-weight:700;
+      transition:transform 0.18s ease, border-color 0.18s ease, background 0.18s ease;
+    }
+    .btn:hover{
+      transform:translateY(-1px);
+    }
+    .btn-primary{
+      background:linear-gradient(135deg, #3776ff, var(--blue-strong));
+      color:#fff;
+      box-shadow:0 16px 36px rgba(43,98,244,0.34);
+    }
+    .btn-secondary{
+      background:rgba(255,255,255,0.04);
+      border:1px solid rgba(255,255,255,0.12);
+      color:#f3f6fb;
+    }
+    .note{
+      padding:16px 18px;
+      border-radius:18px;
+      background:var(--panel-strong);
+      border:1px solid var(--line);
+    }
+    .note p{
+      margin:0;
+      color:var(--muted);
+      line-height:1.6;
+      font-size:0.95rem;
+    }
+    .foot{
+      padding:0 20px 22px;
+      color:#7d8ba5;
+      font-size:12px;
+      letter-spacing:0.04em;
+      text-transform:uppercase;
+    }
+    @media (min-width: 720px){
+      .content{
+        grid-template-columns:1.1fr 0.9fr;
+        align-items:start;
+      }
+      .actions{
+        grid-template-columns:1fr 1fr;
+      }
+    }
+  </style>
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-0S8S6156CV"></script>
   <script>
-    window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date()); gtag('config','G-0S8S6156CV');
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){ dataLayer.push(arguments); }
+    gtag('js', new Date());
+    gtag('config', 'G-0S8S6156CV');
   </script>
 </head>
 <body>
-  <div class="wrap">
-    <div id="en">
-      <h1>🎉 Pilot Confirmed</h1>
-      <p class="muted" id="who-en"></p>
-      <div class="split">
-        <div>
-          <div class="card">
-            <p><span class="check">✓</span> We’ll text your first list by <strong>6pm today</strong> (LA time).</p>
-            <p><span class="check">✓</span> You’ll also get a weekly report card (watched • contacted • visits • booked).</p>
-            <p><span class="check">✓</span> Remember: <strong>1–2 booked estimates in 14 days — or you don’t pay.</strong></p>
+  <main class="page">
+    <section class="shell">
+      <div class="hero">
+        <div class="eyebrow">Permit Triage</div>
+        <h1>Payment received</h1>
+        <p class="subhead">You’re set for Permit Triage.</p>
+      </div>
+
+      <div class="content">
+        <section class="card">
+          <p class="body-copy">
+            Send the property address and best callback number so I can review the public record and confirm the next step by text.
+          </p>
+
+          <ul class="checklist" aria-label="Next steps">
+            <li><span class="check">✓</span><span>Send the property address</span></li>
+            <li><span class="check">✓</span><span>Include your best callback number</span></li>
+            <li><span class="check">✓</span><span>Add any short note about the permit issue or question</span></li>
+          </ul>
+        </section>
+
+        <section class="card">
+          <div class="actions">
+            <a class="btn btn-primary" href="sms:+15626762691?body=Hi%20Sergio%20%E2%80%94%20I%20just%20paid%20for%20Permit%20Triage.%0A%0AProperty%20address%3A%0ACallback%20number%3A%0APermit%20issue%20or%20question%3A%20">
+              Text Sergio
+            </a>
+            <a class="btn btn-secondary" href="mailto:hello@getpermitpulse.com?subject=Permit%20Triage&body=Hi%20Sergio%20%E2%80%94%20I%20just%20paid%20for%20Permit%20Triage.%0A%0AProperty%20address%3A%0ABest%20callback%20number%3A%0APermit%20issue%20or%20question%3A%20">
+              Email Sergio
+            </a>
           </div>
-          <div class="row">
-            <a id="btn-sample-en" class="btn btn-ghost" href="/leaderboard?city=los-angeles">View sample permits</a>
-            <a id="btn-radar-en" class="btn btn-ghost" href="/radar">Open your watchlist</a>
-          </div>
-          <div class="card">
-            <h3 style="margin:0 0 6px">What to do now</h3>
-            <ul class="list">
-              <li>Reply to our SMS with any <em>must-have keywords</em> or streets you want prioritized.</li>
-              <li>Have someone ready to call/text new permits within <strong>2 hours</strong> of alert.</li>
-              <li>Optionally add <span class="tag">Door Hangers</span> or <span class="tag">Canvassing</span> and we’ll route 25 nearby doors per hot permit.</li>
-            </ul>
-          </div>
+        </section>
+      </div>
+
+      <div class="content" style="padding-top:0;">
+        <div class="note">
+          <p>If you already sent the address, I’ll follow up by text.</p>
         </div>
-        <div>
-          <div class="card">
-            <h3 style="margin:0 0 6px">15‑min kickoff call</h3>
-            <p>Prefer to tune filters live? Add this to your calendar.</p>
-            <div class="row">
-              <a class="btn btn-primary" href="#" id="add-ics-en">Add Kickoff (ICS)</a>
-              <a class="btn btn-ghost" id="sms-en" href="#">Text us</a>
-              <a class="btn btn-ghost" href="mailto:hello@getpermitpulse.com">Email us</a>
-            </div>
-          </div>
-          <div class="card">
-            <h3 style="margin:0 0 6px">Need results faster?</h3>
-            <p>Add the <strong>Ambition Boost</strong>: extra permits + bilingual canvassing for 7 days.</p>
-          </div>
+        <div class="note">
+          <p>Permit Triage is credited toward a full Permit Review if you decide to move forward.</p>
         </div>
       </div>
-    </div>
 
-    <div id="es" style="display:none">
-      <h1>🎉 Piloto Confirmado</h1>
-      <p class="muted" id="who-es"></p>
-      <div class="split">
-        <div>
-          <div class="card">
-            <p><span class="check">✓</span> Te mandamos la primera lista hoy antes de <strong>las 6 pm</strong>.</p>
-            <p><span class="check">✓</span> También recibirás un <strong>reporte semanal</strong> (vistos • contactados • visitas • estimados).</p>
-            <p><span class="check">✓</span> Recuerda: <strong>1–2 estimados en 14 días o no pagas.</strong></p>
-          </div>
-          <div class="row">
-            <a id="btn-sample-es" class="btn btn-ghost" href="/leaderboard?city=los-angeles">Ver permisos de muestra</a>
-            <a id="btn-radar-es" class="btn btn-ghost" href="/radar">Abrir tu lista</a>
-          </div>
-          <div class="card">
-            <h3 style="margin:0 0 6px">Qué hacer ahora</h3>
-            <ul class="list">
-              <li>Responde por SMS con palabras clave o calles que quieras priorizar.</li>
-              <li>Ten a alguien listo para llamar/texto dentro de <strong>2 horas</strong> del aviso.</li>
-              <li>Opcional: agrega <span class="tag">Volanteo</span> o <span class="tag">Puerta por puerta</span> y trazamos 25 puertas por permiso caliente.</li>
-            </ul>
-          </div>
-        </div>
-        <div>
-          <div class="card">
-            <h3 style="margin:0 0 6px">Llamada de arranque (15 min)</h3>
-            <p>¿Quieres ajustar filtros en vivo? Agrégala a tu calendario.</p>
-            <div class="row">
-              <a class="btn btn-primary" href="#" id="add-ics-es">Agregar Llamada (ICS)</a>
-              <a class="btn btn-ghost" id="sms-es" href="#">Mandar SMS</a>
-              <a class="btn btn-ghost" href="mailto:hello@getpermitpulse.com">Escribir correo</a>
-            </div>
-          </div>
-          <div class="card">
-            <h3 style="margin:0 0 6px">¿Quieres acelerar?</h3>
-            <p>Activa el <strong>Ambition Boost</strong>: más permisos + canvassing bilingüe por 7 días.</p>
-          </div>
-        </div>
-      </div>
-    </div>
+      <div class="foot">PermitPulse • Los Angeles</div>
+    </section>
+  </main>
 
-    <p class="muted" style="margin-top:16px">© 2025 PermitPulse</p>
-  </div>
-
-<script>
-  const qs = new URLSearchParams(location.search);
-  const lang = (qs.get('lang')||'en').toLowerCase().startsWith('es') ? 'es' : 'en';
-  const name = qs.get('name') || '';
-  const trade = qs.get('trade') || '';
-  const zips = qs.get('zips') || '';
-  const phone = qs.get('phone') || '';
-  const start = qs.get('start') || qs.get('start_date') || '';
-
-  function setText(id, text){ const el=document.getElementById(id); if(el) el.textContent=text; }
-
-  if(lang==='es'){
-    document.getElementById('en').style.display='none';
-    document.getElementById('es').style.display='block';
-    setText('who-es', (name?name+' · ':'') + (trade?trade+' · ':'') + (zips?('Zonas: '+zips):''));
-  }else{
-    setText('who-en', (name?name+' · ':'') + (trade?trade+' · ':'') + (zips?('ZIPs: '+zips):''));
-  }
-
-  // SMS links
-  const smsMsg = encodeURIComponent('PermitPulse Pilot — ready to start. My trade: '+trade+' | ZIPs: '+zips);
-  ['sms-en','sms-es'].forEach(id=>{ const a=document.getElementById(id); if(a){ a.href = 'sms:?&body='+smsMsg; }});
-
-  // ICS generator
-  function addICS(locale){
-    const startDate = start ? new Date(start+'T10:00:00') : new Date(Date.now()+86400000);
-    const endDate = new Date(startDate.getTime()+15*60000);
-    function fmt(dt){ const p=n=>String(n).padStart(2,'0'); return dt.getUTCFullYear()+p(dt.getUTCMonth()+1)+p(dt.getUTCDate())+'T'+p(dt.getUTCHours())+p(dt.getUTCMinutes())+'00Z'; }
-    const title = locale==='es' ? 'Llamada de arranque — PermitPulse' : 'PermitPulse Kickoff Call';
-    const ics = [
-      'BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//PermitPulse//Pilot//EN','BEGIN:VEVENT',
-      'DTSTAMP:'+fmt(new Date()),'DTSTART:'+fmt(startDate),'DTEND:'+fmt(endDate),
-      'SUMMARY:'+title,'DESCRIPTION:Kickoff for 14-Day Outcome Pilot','LOCATION:Phone/Video',
-      'END:VEVENT','END:VCALENDAR'
-    ].join('\n');
-    const blob = new Blob([ics], {type:'text/calendar'});
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a'); a.href=url; a.download='permitpulse-kickoff.ics'; a.click();
-    setTimeout(()=>URL.revokeObjectURL(url),1500);
-  }
-  document.getElementById('add-ics-en').addEventListener('click', e=>{e.preventDefault(); addICS('en');});
-  document.getElementById('add-ics-es').addEventListener('click', e=>{e.preventDefault(); addICS('es');});
-
-  try{window.gtag&&gtag('event','thank_you_view',{lang});}catch{}
-</script>
+  <script>
+    try {
+      window.gtag && gtag('event', 'thank_you_view', {
+        flow: 'permit_triage_paid'
+      });
+    } catch (error) {}
+  </script>
 </body>
 </html>
