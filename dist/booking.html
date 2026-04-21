@@ -3,7 +3,8 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Book an Outcome Guarantee Call — PermitPulse</title>
+  <title>Book Permit Triage ($149) — PermitPulse</title>
+  <meta name="description" content="Book a 15-minute Permit Triage call for one address. The $149 fee is credited toward a full Permit Review." />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
   <link rel="canonical" href="https://getpermitpulse.com/booking.html">
@@ -16,7 +17,7 @@
   "email":"hello@getpermitpulse.com",
   "potentialAction":{
     "@type":"ScheduleAction",
-    "name":"Book an Outcome Guarantee intro call",
+    "name":"Book Permit Triage",
     "target":{
       "@type":"EntryPoint",
       "urlTemplate":"https://getpermitpulse.com/booking.html",
@@ -148,10 +149,10 @@
           <div class="badge">PermitPulse</div>
           <div class="badge">
             <span class="badge-dot"></span>
-            <span id="ogBadge">Outcome Guarantee</span>
+            <span id="ogBadge">Permit Triage</span>
           </div>
         </div>
-        <h1 id="title">Book an Outcome Guarantee intro call (15–30 min)</h1>
+        <h1 id="title">Book Permit Triage (15 minutes)</h1>
       </div>
     </header>
 
@@ -159,7 +160,7 @@
       Times shown are in <b>Pacific Time</b>.
     </p>
     <p class="muted" id="ogLine" style="margin-top:2px">
-      Outcome Guarantee: <b>1–2 booked estimates</b> or full refund.
+      Fee: <b>$149 for one address</b>. Credited toward a full Permit Review.
     </p>
 
     <div class="card">
@@ -200,9 +201,9 @@
         </div>
         <div>
           <label for="notes"><span id="lblNotes">Notes</span></label>
-          <textarea id="notes" rows="3" placeholder="Anything we should know?"></textarea>
+          <textarea id="notes" rows="3" placeholder="Address, city, and what you need clarified."></textarea>
         </div>
-        <button id="submit" class="btn">Book it</button>
+        <button id="submit" class="btn">Book Permit Triage</button>
         <div id="msg"></div>
       </div>
     </div>
@@ -223,11 +224,11 @@ let currentLang = 'en';
 
 const i18n = {
   en: {
-    title: 'Book an Outcome Guarantee intro call (15–30 min)',
+    title: 'Book Permit Triage (15 minutes)',
     tzNote: 'Times shown are in <b>Pacific Time</b>.',
-    ogLine: 'Outcome Guarantee: <b>1–2 booked estimates</b> or full refund.',
+    ogLine: 'Fee: <b>$149 for one address</b>. Credited toward a full Permit Review.',
     labels: { date:'Date', time:'Time', name:'Name', phone:'Phone', email:'Email', lang:'Language', notes:'Notes' },
-    submit: 'Book it',
+    submit: 'Book Permit Triage',
     helpHtml: 'Having trouble? Email <a href="mailto:hello@getpermitpulse.com">hello@getpermitpulse.com</a>',
     errors: { pickDateTime:'Pick a date and time.', enterName:'Enter your name.', enterEmail:'Enter your email.' },
     successPrefix: '<b>Booked!</b> Check your email/text. Add to calendar:',
@@ -236,9 +237,9 @@ const i18n = {
     noTimes: 'No times available for this date.'
   },
   es: {
-    title: 'Agenda una llamada (15–30 min) — Garantía de Resultados',
+    title: 'Agenda Permit Triage (15 minutos)',
     tzNote: 'Los horarios se muestran en <b>Hora del Pacífico</b>.',
-    ogLine: 'Garantía de Resultados: <b>1–2 estimados agendados</b> o reembolso total.',
+    ogLine: 'Costo: <b>$149 por una dirección</b>. Se acredita a un Permit Review completo.',
     labels: { date:'Fecha', time:'Hora', name:'Nombre', phone:'Teléfono', email:'Correo', lang:'Idioma', notes:'Notas' },
     submit: 'Agendar',
     helpHtml: '¿Problemas? Escríbenos a <a href="mailto:hola@getpermitpulse.com">hola@getpermitpulse.com</a>',
