@@ -85,7 +85,7 @@ const LAUNCH_JURISDICTIONS = [
     intro:
       'Sacramento permit searches often need a fast answer on whether a job is already issued, still routing through review, or carrying enough value to deserve deeper diligence. PermitPulse turns the raw city record into a cleaner first read before you decide how much more work is warranted.',
     summary:
-      'City of Sacramento permit coverage for issued records, valuation checks, and higher-value project triage.',
+      'City of Sacramento permit coverage for issued records, valuation checks, and higher-value project review.',
     officialPortalUrl: 'https://aca.accela.com/sacramento/Default.aspx',
     officialPortalLabel: 'Open Sacramento public permit portal',
     officialPortalNote:
@@ -141,7 +141,7 @@ const LAUNCH_JURISDICTIONS = [
     intro:
       'Culver City records can move quickly from a straightforward permit number to a more complicated story about status, trade scope, and whether the work is actually complete. PermitPulse gives you a better read on that record before you sink time into a manual file chase.',
     summary:
-      'Culver City permit coverage for building and MEP records, status review, and permit-history triage.',
+      'Culver City permit coverage for building and MEP records, status review, and permit-history review.',
     officialPortalUrl: 'https://aca-prod.accela.com/CULVERCITY/Default.aspx',
     officialPortalLabel: 'Open Culver City permit portal',
     officialPortalNote:
@@ -281,7 +281,7 @@ const LAUNCH_JURISDICTIONS = [
     intro:
       'San Diego permit research can split across city systems depending on the record type, timing, and workflow. This page is built to keep the search practical: start with the official city approvals portal, then move to a report if the address still carries open permit risk.',
     summary:
-      'Portal-assisted San Diego coverage for city permit lookup, record triage, and report requests.',
+      'Portal-assisted San Diego coverage for city permit lookup, record review, and report requests.',
     officialPortalUrl: 'https://opendsd.sandiego.gov/web/approvals/',
     officialPortalLabel: 'Open San Diego OpenDSD approvals portal',
     officialPortalNote:

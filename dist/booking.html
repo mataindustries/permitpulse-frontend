@@ -3,8 +3,8 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Book Permit Triage ($149) — PermitPulse</title>
-  <meta name="description" content="Book a 15-minute Permit Triage call for one address. The $149 fee is credited toward a full Permit Review." />
+  <title>PermitPulse | Permit Review Plus</title>
+  <meta name="description" content="Get Permit Review Plus for one address: a fast public-record permit and property review to spot red flags and understand next steps." />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
   <link rel="canonical" href="https://getpermitpulse.com/booking.html">
@@ -17,7 +17,7 @@
   "email":"hello@getpermitpulse.com",
   "potentialAction":{
     "@type":"ScheduleAction",
-    "name":"Book Permit Triage",
+    "name":"Get Permit Review Plus",
     "target":{
       "@type":"EntryPoint",
       "urlTemplate":"https://getpermitpulse.com/booking.html",
@@ -112,6 +112,10 @@
         border-color:#64748b;
       }
       .btn{
+        display:inline-flex;
+        align-items:center;
+        justify-content:center;
+        text-decoration:none;
         background:var(--accent);
         color:#0b1220;
         font-weight:700;
@@ -149,10 +153,10 @@
           <div class="badge">PermitPulse</div>
           <div class="badge">
             <span class="badge-dot"></span>
-            <span id="ogBadge">Permit Triage</span>
+            <span id="ogBadge">Permit Review Plus</span>
           </div>
         </div>
-        <h1 id="title">Book Permit Triage (15 minutes)</h1>
+        <h1 id="title">Permit Review Plus</h1>
       </div>
     </header>
 
@@ -160,7 +164,10 @@
       Times shown are in <b>Pacific Time</b>.
     </p>
     <p class="muted" id="ogLine" style="margin-top:2px">
-      Fee: <b>$149 for one address</b>. Credited toward a full Permit Review.
+      Fee: <b>$149 for one address</b>. Public-record permit and property review with a clear next-step summary.
+    </p>
+    <p style="margin:12px 0 0">
+      <a class="btn" href="https://buy.stripe.com/9B614ofhJ72H5Ft93Q1wY0l" target="_blank" rel="noopener">Get Permit Review Plus — $149</a>
     </p>
 
     <div class="card">
@@ -203,7 +210,7 @@
           <label for="notes"><span id="lblNotes">Notes</span></label>
           <textarea id="notes" rows="3" placeholder="Address, city, and what you need clarified."></textarea>
         </div>
-        <button id="submit" class="btn">Book Permit Triage</button>
+        <button id="submit" class="btn">Ask a Question First</button>
         <div id="msg"></div>
       </div>
     </div>
@@ -224,11 +231,11 @@ let currentLang = 'en';
 
 const i18n = {
   en: {
-    title: 'Book Permit Triage (15 minutes)',
+    title: 'Permit Review Plus',
     tzNote: 'Times shown are in <b>Pacific Time</b>.',
-    ogLine: 'Fee: <b>$149 for one address</b>. Credited toward a full Permit Review.',
+    ogLine: 'Fee: <b>$149 for one address</b>. Public-record permit and property review with a clear next-step summary.',
     labels: { date:'Date', time:'Time', name:'Name', phone:'Phone', email:'Email', lang:'Language', notes:'Notes' },
-    submit: 'Book Permit Triage',
+    submit: 'Ask a Question First',
     helpHtml: 'Having trouble? Email <a href="mailto:hello@getpermitpulse.com">hello@getpermitpulse.com</a>',
     errors: { pickDateTime:'Pick a date and time.', enterName:'Enter your name.', enterEmail:'Enter your email.' },
     successPrefix: '<b>Booked!</b> Check your email/text. Add to calendar:',
@@ -237,9 +244,9 @@ const i18n = {
     noTimes: 'No times available for this date.'
   },
   es: {
-    title: 'Agenda Permit Triage (15 minutos)',
+    title: 'Permit Review Plus',
     tzNote: 'Los horarios se muestran en <b>Hora del Pacífico</b>.',
-    ogLine: 'Costo: <b>$149 por una dirección</b>. Se acredita a un Permit Review completo.',
+    ogLine: 'Costo: <b>$149 por una dirección</b>. Revisión de registros públicos de permisos y propiedad con resumen del próximo paso.',
     labels: { date:'Fecha', time:'Hora', name:'Nombre', phone:'Teléfono', email:'Correo', lang:'Idioma', notes:'Notas' },
     submit: 'Agendar',
     helpHtml: '¿Problemas? Escríbenos a <a href="mailto:hola@getpermitpulse.com">hola@getpermitpulse.com</a>',

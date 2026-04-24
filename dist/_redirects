@@ -2,18 +2,18 @@
 /loi/                      /free-tools                        301
 /loi.html                  /free-tools                        301
 
-# Pretty URLs for pilot & guarantee
-/guarantee                 /permitpulse-guarantee-en.html         200!
-/pilot                     /permitpulse-pilot-intake-en.html      200!
-/es/garantia               /es/permitpulse-garantia-es.html       200!
-/es/piloto                 /es/permitpulse-piloto-intake-es.html  200!                 
+# Legacy offer URLs
+/guarantee                 /                                   301
+/pilot                     /                                   301
+/es/garantia               /                                   301
+/es/piloto                 /                                   301
 
 # Helpful aliases (permanent redirects)
-/risk-free                 /guarantee                         301
-/outcome                   /guarantee                         301
-/piloto                    /es/piloto                         301
-/es/piloto-intake          /es/piloto                         301
-/pilot/es                  /es/piloto                         301
+/risk-free                 /                                   301
+/outcome                   /                                   301
+/piloto                    /                                   301
+/es/piloto-intake          /                                   301
+/pilot/es                  /                                   301
 
 # SGV EV + Battery Radar (pretty URL)
 /sgv/ev-battery-radar   /sgv-ev-battery-radar.html   301
