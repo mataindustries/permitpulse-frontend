@@ -244,7 +244,7 @@
       modeLabel: "Fallback preview",
       statusTitle: "Mission scan complete",
       statusSummary:
-        "Beta dossier assembled from the safe local preview path. The interaction flow is live even when the backend report is unavailable.",
+        "Beta permit review assembled from the safe local preview path. The interaction flow is live even when the backend report is unavailable.",
       statusHighlights: [
         "Tactical beta readout",
         "Review loop detected",
@@ -261,9 +261,9 @@
         outreachAngle:
           "Outreach angle: position PermitPulse as the team that clarifies hidden blockers across linked permit families. Lead with speed to diagnosis, not generic expediting. The strongest hook is helping the owner or GC understand whether the file is truly close or only showing procedural activity.",
         exportReport:
-          "Export staged: mock PDF dossier package prepared with project header, risk narrative, timeline, red flags, action plan, and operator script. This is a UI-only simulation and does not generate a file yet.",
+          "Export staged: mock PDF permit review package prepared with project header, risk narrative, timeline, red flags, action plan, and operator script. This is a UI-only simulation and does not generate a file yet.",
         requestReport:
-          "Full report request staged: Mission Control would hand this case off to PermitPulse's deeper dossier workflow, adding public-record retrieval, linked permit verification, correction memo review, and client formatting. No live submission is connected yet.",
+          "Full report request staged: Mission Control would hand this case off to PermitPulse's deeper permit review workflow, adding public-record retrieval, linked permit verification, correction memo review, and client formatting. No live submission is connected yet.",
         permitSnapshot:
           "Permit Snapshot staged: 24-hour turnaround package would compress the current file into a tight blocker summary, permit-family map, and executive readout for decision-makers."
       }
@@ -308,14 +308,14 @@
       reason +
       ").";
     fallbackDossier.statusSummary =
-      "Live report data did not complete, so Mission Control switched to the beta-safe local dossier path without breaking the review flow.";
+      "Live report data did not complete, so Mission Control switched to the beta-safe local permit review path without breaking the review flow.";
     fallbackDossier.statusHighlights = [
       "Live endpoint unavailable",
-      "Fallback dossier staged",
+      "Fallback permit review staged",
       "Operator flow preserved"
     ];
     fallbackDossier.statusBanner =
-      "Live report endpoint did not complete successfully. Showing a safe fallback dossier so the beta flow still previews correctly.";
+      "Live report endpoint did not complete successfully. Showing a safe fallback permit review so the beta flow still previews correctly.";
     fallbackDossier.recommendedAction =
       "Re-run the scan when the report endpoint is reachable, then confirm whether the live signals match this preview.";
     fallbackDossier.operatorStateLabel = "Fallback review";
@@ -330,11 +330,11 @@
       { label: "Fallback Reason", value: reason },
     ];
     fallbackDossier.outputs.exportReport =
-      "Export staged: frontend fallback mock dossier is rendering because the Mission Control API did not complete successfully.";
+      "Export staged: frontend fallback mock permit review is rendering because the Mission Control API did not complete successfully.";
     fallbackDossier.outputs.requestReport =
       "Full report request unavailable from the frontend fallback state. Re-run once /api/mission-control/report is reachable.";
     fallbackDossier.outputs.permitSnapshot =
-      "Permit Snapshot staging is limited in fallback mode. Re-run once live dossier data is available to prepare a 24-hour premium read.";
+      "Permit Snapshot staging is limited in fallback mode. Re-run once live permit review data is available to prepare a 24-hour premium read.";
 
     return fallbackDossier;
   }
@@ -350,7 +350,7 @@
     const permitNumber = input.permit_number || "Not supplied";
     const apn = input.apn || "Not supplied";
     const confidence = clampPercentage(payload.confidence_score);
-    const pulseLabel = payload.project_pulse || "Live pulse: dossier ready";
+    const pulseLabel = payload.project_pulse || "Live pulse: permit review ready";
     const sourceLinks = Array.isArray(payload.source_links) ? payload.source_links : [];
     const timeline = normalizeTimeline(payload.timeline);
     const redFlags = normalizeRedFlags(payload.red_flags);
@@ -358,11 +358,11 @@
     const confidenceBandLabel = confidenceBand(payload.confidence_score);
 
     return {
-      projectName: permitNumber !== "Not supplied" ? "Permit " + permitNumber : "Mission Control dossier",
+      projectName: permitNumber !== "Not supplied" ? "Permit " + permitNumber : "Mission Control permit review",
       address: address,
       apn: apn,
       pulseLabel: pulseLabel,
-      projectSummary: String(payload.project_summary || "").trim() || "Mission Control returned a dossier without a summary.",
+      projectSummary: String(payload.project_summary || "").trim() || "Mission Control returned a permit review without a summary.",
       pulledAt: new Date().toLocaleString(),
       stats: buildStatsFromApiPayload(payload, permitNumber, apn),
       confidence: confidence,
@@ -504,7 +504,7 @@
       "",
       "Immediate operator posture:",
       "1. Confirm the most recent visible event: " + String((timeline[0] && timeline[0].event) || "timeline pending") + ".",
-      "2. Pressure-test the lead blocker described in the dossier before making schedule claims.",
+      "2. Pressure-test the lead blocker described in the permit review before making schedule claims.",
       "3. Move next on " + String((firstAction && firstAction.title) || "record validation") + ".",
     ].join("\n");
   }
@@ -520,13 +520,13 @@
       outreachAngle:
         "Outreach angle: " + String(payload.outreach_angle || "").trim(),
       exportReport:
-        "Export staged: dossier rendered from /api/mission-control/report for " +
+        "Export staged: permit review rendered from /api/mission-control/report for " +
         (input.address || "the requested property") +
         ". Source set: " +
         sourceLabel +
         ".",
       requestReport:
-        "Full report request staged: Mission Control dossier returned in " +
+        "Full report request staged: Mission Control permit review returned in " +
         String(payload.mode || "report") +
         " mode. Use this output as the intake layer for deeper PermitPulse review.",
       permitSnapshot:
@@ -591,7 +591,7 @@
     pieces.push("Mission Control is grounding this read in " + (timeline.length ? "structured timeline activity" : "limited visible activity") + ".");
 
     if (sourceLinks.length) {
-      pieces.push(sourceLinks.length + " source link" + (sourceLinks.length === 1 ? " is" : "s are") + " attached to the dossier.");
+      pieces.push(sourceLinks.length + " source link" + (sourceLinks.length === 1 ? " is" : "s are") + " attached to the permit review.");
     } else {
       pieces.push("Source links are thin, so the operator should validate before overcommitting.");
     }
@@ -601,7 +601,7 @@
 
   function buildStatusBanner(payload, sourceLinks, timeline) {
     if (String(payload.mode || "").toLowerCase() === "fallback") {
-      return "The dossier is in fallback mode. Treat this as a preview and re-run before using it for client-facing decisions.";
+      return "The permit review is in fallback mode. Treat this as a preview and re-run before using it for client-facing decisions.";
     }
 
     if (!timeline.length) {
@@ -609,7 +609,7 @@
     }
 
     if (!sourceLinks.length) {
-      return "No source links were attached to this dossier. Use the next actions as an operator guide, then validate against the live permit record.";
+      return "No source links were attached to this permit review. Use the next actions as an operator guide, then validate against the live permit record.";
     }
 
     return "";
@@ -665,7 +665,7 @@
   function renderDossier(data) {
     document.getElementById("scanStatusTitle").textContent = data.statusTitle || "Mission scan complete";
     document.getElementById("scanStatusSummary").textContent =
-      data.statusSummary || "Tactical dossier assembled and ready for operator review.";
+      data.statusSummary || "Tactical permit review assembled and ready for operator review.";
     document.getElementById("dataModeBadge").textContent = data.modeLabel || "Live report";
     document.getElementById("sourceCountBadge").textContent = (Number(data.sourceCount) || 0) + " source" + ((Number(data.sourceCount) || 0) === 1 ? "" : "s");
     document.getElementById("recommendedAction").textContent = data.recommendedAction || "Validate before escalation";
@@ -697,7 +697,7 @@
     }).join("");
 
     document.getElementById("scanHighlights").innerHTML = ensureItems(data.statusHighlights, [
-      "Dossier ready",
+      "Permit review ready",
       "Operator review staged"
     ]).map(function (item) {
       return '<span class="scan-highlight">' + escapeHtml(item) + "</span>";
@@ -716,7 +716,7 @@
   function renderDefaultActionOutput() {
     actionOutput.innerHTML =
       '<p class="action-output-kicker">Output Console</p>' +
-      '<p class="action-output-body">The dossier is live. Tap an action above to generate a client summary, outreach angle, export status, full-risk handoff, or 24-hour Permit Snapshot.</p>';
+      '<p class="action-output-body">The permit review is live. Tap an action above to generate a client summary, outreach angle, export status, full-risk handoff, or 24-hour Permit Snapshot.</p>';
   }
 
   function renderActionOutput(action, dossierData) {
@@ -799,7 +799,7 @@
   function renderActions(items) {
     const actions = ensureItems(items);
     if (!actions.length) {
-      return renderPlaceholderCard("No recommended actions yet", "The dossier returned without next actions. Use the operator script as the current fallback guide.");
+      return renderPlaceholderCard("No recommended actions yet", "The permit review returned without next actions. Use the operator script as the current fallback guide.");
     }
 
     return actions.map(function (action) {

@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>California Permit History + Risk Flags | PermitPulse</title>
   <meta name="description" content="Search California permit history by jurisdiction, address, or keyword. PermitPulse scans open permit datasets, surfaces valuation and recency filters, and highlights permit risk flags." />
-  <meta name="keywords" content="California permit history, permit risk flags, building permit search California, permit dossier, permit valuation search" />
+  <meta name="keywords" content="California permit history, permit risk flags, building permit search California, permit review summary, permit valuation search" />
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://getpermitpulse.com/california-permit-history/" />
   <meta property="og:title" content="California Permit History + Risk Flags" />
@@ -46,10 +46,10 @@
       },
       {
         "@type": "Question",
-        "name": "When should I buy the Permit Dossier?",
+        "name": "When should I use Permit Review Plus?",
         "acceptedAnswer": {
           "@type": "Answer",
-          "text": "Buy the dossier when the address matters to a purchase, bid, underwriting, or filing decision and you need a clean timeline, scope summary, and risk analysis instead of raw portal output."
+          "text": "Buy the permit review summary when the address matters to a purchase, bid, underwriting, or filing decision and you need a clean timeline, scope summary, and risk analysis instead of raw portal output."
         }
       }
     ]
@@ -347,7 +347,7 @@
       <div style="display:flex; gap:20px; align-items:center; flex-wrap:wrap; justify-content:flex-end;">
         <a href="/guides/" class="mono" style="font-size:13px;">Permit Help Guides</a>
         <a href="/free-tools/" class="mono" style="font-size:13px;">Free tools</a>
-        <a href="/permit-due-diligence-los-angeles/" class="mono" style="font-size:13px;">Dossier</a>
+        <a href="/permit-due-diligence-los-angeles/" class="mono" style="font-size:13px;">Permit Review Plus</a>
       </div>
     </div>
   </header>
@@ -360,12 +360,12 @@
 
       <div style="display:flex; gap:16px; flex-wrap:wrap;">
         <a
-          href="https://buy.stripe.com/3cI3cw1qT9aP6Jx2Fs1wY0e"
+          href="https://buy.stripe.com/9B614ofhJ72H5Ft93Q1wY0l"
           class="btn btn-orange"
           target="_blank"
           rel="noopener"
           onclick="gtag && gtag('event','click_pay_fasttrack',{location:'hero_ca_history'});"
-        >Get Permit Dossier ($499)</a>
+        >Get Permit Review Plus — $149</a>
         <a href="#search-tool" class="btn btn-ghost">Search Permit History</a>
       </div>
 
@@ -380,7 +380,7 @@
         </div>
         <div class="stat">
           <strong>Actionable</strong>
-          <span class="muted">Use the search to qualify an address, then escalate to a dossier when the decision matters.</span>
+          <span class="muted">Use the search to qualify an address, then escalate to a permit review summary when the decision matters.</span>
         </div>
       </div>
     </section>
@@ -426,7 +426,7 @@
 
             <div class="search-actions">
               <button id="searchBtn" class="btn btn-orange" type="submit">Search</button>
-              <a class="btn btn-ghost" href="https://buy.stripe.com/3cI3cw1qT9aP6Jx2Fs1wY0e" target="_blank" rel="noopener">Get Permit Dossier ($499)</a>
+              <a class="btn btn-ghost" href="https://buy.stripe.com/9B614ofhJ72H5Ft93Q1wY0l" target="_blank" rel="noopener">Get Permit Review Plus — $149</a>
             </div>
             <div id="searchStatus" class="status-line" aria-live="polite"></div>
             <a id="debugApiUrl" class="debug-link mono" href="#" target="_blank" rel="noopener" hidden>Debug API URL</a>
@@ -505,8 +505,8 @@
         <div class="callout">
           <div class="tools-eyebrow">Next step</div>
           <h2 style="margin-bottom:10px;">Need a decision-ready answer instead of raw records?</h2>
-          <p class="muted" style="max-width:650px; margin-bottom:18px;">The Permit Dossier is for addresses where permit history affects a buy, bid, underwriting, scope review, or filing strategy. We turn portal fragments into a clean timeline, summary, and risk readout.</p>
-          <a class="btn btn-orange" href="https://buy.stripe.com/3cI3cw1qT9aP6Jx2Fs1wY0e" target="_blank" rel="noopener">Get Permit Dossier ($499)</a>
+          <p class="muted" style="max-width:650px; margin-bottom:18px;">Permit Review Plus is for addresses where permit history affects a buy, bid, underwriting, scope review, or filing strategy. We turn portal fragments into a clean timeline, summary, and risk readout.</p>
+          <a class="btn btn-orange" href="https://buy.stripe.com/9B614ofhJ72H5Ft93Q1wY0l" target="_blank" rel="noopener">Get Permit Review Plus — $149</a>
         </div>
 
         <div class="faq">
@@ -519,7 +519,7 @@
             <p class="muted">It does not cover every California portal. Some cities and counties use systems that are closed, fragmented, delayed, or missing public fields like status, valuation, or scope detail.</p>
           </div>
           <div class="faq-item">
-            <h3>When should I buy the dossier?</h3>
+            <h3>When should I buy the permit review summary?</h3>
             <p class="muted">Buy it when the address matters financially or operationally and you need more than a portal scrape: a cleaner timeline, documented caveats, and a tighter risk summary for the next decision.</p>
           </div>
         </div>
@@ -550,7 +550,7 @@
   </footer>
 
   <div class="sticky-cta" role="navigation" aria-label="Start PermitPulse">
-    <a class="sticky-primary" href="https://buy.stripe.com/3cI3cw1qT9aP6Jx2Fs1wY0e" target="_blank" rel="noopener">Get Permit Dossier ($499)</a>
+    <a class="sticky-primary" href="https://buy.stripe.com/9B614ofhJ72H5Ft93Q1wY0l" target="_blank" rel="noopener">Get Permit Review Plus — $149</a>
     <a class="sticky-ghost" href="#search-tool">Search</a>
   </div>
 
@@ -558,7 +558,7 @@
     (function () {
       const PRIMARY_API_BASE = "https://api.getpermitpulse.com";
       const FALLBACK_API_BASE = "https://pp-api-next.matasergio741.workers.dev";
-      const STRIPE_URL = "https://buy.stripe.com/3cI3cw1qT9aP6Jx2Fs1wY0e";
+      const STRIPE_URL = "https://buy.stripe.com/9B614ofhJ72H5Ft93Q1wY0l";
       const DEFAULT_JURISDICTIONS = [
         { id: "la_city", name: "Los Angeles", placeholder: true }
       ];
@@ -855,7 +855,7 @@
               '<div class="chip-row">' + chips + '</div>' +
               '<div style="margin-top:12px; display:flex; justify-content:space-between; gap:12px; flex-wrap:wrap;">' +
                 sourceLink +
-                '<a class="mono" style="font-size:12px; text-decoration:underline;" href="' + STRIPE_URL + '" target="_blank" rel="noopener">Need a dossier?</a>' +
+                '<a class="mono" style="font-size:12px; text-decoration:underline;" href="' + STRIPE_URL + '" target="_blank" rel="noopener">Need a permit review summary?</a>' +
               '</div>' +
             '</article>';
         }).join("");
