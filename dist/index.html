@@ -120,6 +120,20 @@
       margin-bottom: 16px;
     }
 
+    .turnaround-pill {
+      display: inline-block;
+      width: fit-content;
+      max-width: 100%;
+      padding: 8px 12px;
+      border: 1px solid rgba(255, 68, 0, 0.5);
+      border-radius: 999px;
+      background: rgba(255, 68, 0, 0.1);
+      color: #ffb08a;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      line-height: 1.4;
+    }
+
     .hero-actions,
     .final-cta-actions,
     .offer-actions {
@@ -348,18 +362,6 @@
       overflow: hidden;
     }
     
-    .ticket::before {
-      content: "FOUNDER ACCESS";
-      position: absolute;
-      top: 20px; right: -30px;
-      background: var(--accent-orange);
-      color: black;
-      font-size: 10px;
-      font-weight: 800;
-      padding: 5px 40px;
-      transform: rotate(45deg);
-    }
-
     .strike { text-decoration: line-through; color: #555; }
     .price-huge { font-size: clamp(3rem, 6vw, 5rem); font-weight: 700; letter-spacing: -0.05em; line-height: 1; }
     
@@ -491,10 +493,10 @@
 
 <section class="wrap hero">
   <div class="badge">PERMIT REVIEW PLUS</div>
-  <h1>Permit Review Plus</h1>
+  <h1>Know what’s in the permit record before you make the wrong move.</h1>
 
   <p class="lead">
-    A fast permit and property review before you waste time chasing the wrong answer.
+    One address. One clear answer. $149. PermitPulse reviews the available public permit record, flags obvious risks, and sends back a clear next-step summary.
   </p>
 
   <div class="hero-actions">
@@ -509,16 +511,16 @@
     </a>
 
     <a
-      href="mailto:hello@getpermitpulse.com?subject=Permit%20Review%20Plus%20Question"
+      href="tel:+15626762691"
       class="btn btn-ghost"
-      onclick="gtag && gtag('event','ask_question_first',{location:'hero_secondary'});"
+      onclick="gtag && gtag('event','call_text_first',{location:'hero_secondary'});"
     >
-      Ask a Question First
+      Call / Text First
     </a>
   </div>
 
-  <p class="mono muted" style="margin-top:14px;font-size:12px;max-width:780px;">
-    Send the property address and a short note. I’ll review available public records, check the permit situation, look for obvious red flags, and send back a clear next-step summary.
+  <p class="turnaround-pill" style="margin-top:16px;">
+    Delivered within 24–48 business hours after the address and notes are received.
   </p>
 
   <div class="hero-value-block">
@@ -639,6 +641,38 @@
   </div>
 </section>
 
+<section class="section" style="background:#050506;">
+  <div class="wrap">
+    <div class="vs-card">
+      <div class="tools-eyebrow">Real-world use case</div>
+      <h2 style="margin-bottom:14px;">The kind of issue this is built to catch.</h2>
+      <p class="muted" style="max-width:820px; line-height:1.6;">
+        Example: before moving forward on a triplex, the permit record shows an old addition, unclear final sign-off, and a scope mismatch. That does not automatically kill the deal, but it tells you what to verify before spending more money.
+      </p>
+      <div class="grid grid-3" style="margin-top:22px;">
+        <div class="bento-box" style="min-height:auto;">
+          <div>
+            <span class="bento-icon">USE CASE</span>
+            <h3>Unclear final sign-off</h3>
+          </div>
+        </div>
+        <div class="bento-box" style="min-height:auto;">
+          <div>
+            <span class="bento-icon">USE CASE</span>
+            <h3>Scope mismatch</h3>
+          </div>
+        </div>
+        <div class="bento-box" style="min-height:auto;">
+          <div>
+            <span class="bento-icon">USE CASE</span>
+            <h3>Next question to ask before moving forward</h3>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
 <section class="section" id="offers">
   <div class="wrap">
     <div class="grid grid-2" style="align-items:flex-end; margin-bottom:24px;">
@@ -658,6 +692,9 @@
         <p class="muted" style="margin-top:12px; max-width:720px;">
           A fast permit and property review to help you spot red flags, understand next steps, and avoid wasting time before calling the city, contractor, architect, or permit expeditor.
         </p>
+        <p class="muted" style="margin-top:10px; max-width:720px;">
+          Best for one property, one permit question, or one unclear record.
+        </p>
         <ul class="muted" style="margin:14px 0 0 20px; line-height:1.8;">
           <li>Permit history review</li>
           <li>Jurisdiction lookup</li>
@@ -669,6 +706,9 @@
         <div class="offer-actions" style="margin-top:18px;">
           <a class="btn btn-orange" href="https://buy.stripe.com/9B614ofhJ72H5Ft93Q1wY0l" target="_blank" rel="noopener">Get Permit Review Plus — $149</a>
         </div>
+        <p class="turnaround-pill" style="margin-top:16px;">
+          Delivered within 24–48 business hours after the address and notes are received.
+        </p>
         <p class="mono muted" style="margin-top:16px;font-size:12px;max-width:760px;">
           Permit Review Plus helps you understand one property or permit situation. Gold Desk gives your business a monthly permit and workflow advantage.
         </p>
@@ -720,6 +760,9 @@
     <div class="vs-card">
       <div class="tools-eyebrow">PermitPulse Gold Desk</div>
       <h2 style="margin-bottom:14px;">For operators who do not want to guess.</h2>
+      <p class="turnaround-pill" style="margin-bottom:18px;">
+        Founding seats start at $499/mo.
+      </p>
       <p class="muted" style="max-width:860px; line-height:1.6;">
         Gold Desk is a private monthly permit intelligence and workflow support desk for permit-heavy operators. It is built for expeditors, ADU contractors, builders, property managers, investors, and real estate operators who want faster answers, cleaner follow-ups, and better systems around permits, projects, clients, and documents.
       </p>
@@ -749,7 +792,7 @@
         />
       </div>
       <div class="offer-actions" style="margin-top:20px;">
-        <a class="btn btn-ghost" href="mailto:hello@getpermitpulse.com?subject=Gold%20Desk%20Founding%20Seat">Request a Gold Desk Founding Seat</a>
+        <a class="btn btn-ghost" href="mailto:hello@getpermitpulse.com?subject=Gold%20Desk%20Founding%20Seat">Ask About Gold Desk</a>
       </div>
     </div>
   </div>
@@ -783,13 +826,13 @@
   <div class="wrap">
     <div class="ticket">
       <div class="tools-eyebrow" style="color:#ffb08a;">Final CTA</div>
-      <h2 style="margin-bottom:14px;">Have an address already?</h2>
+      <h2 style="margin-bottom:14px;">Have an address you’re unsure about?</h2>
       <p class="muted" style="max-width:680px; line-height:1.6;">
-        Start with the quick $149 Permit Review Plus.
+        Start with the quick $149 Permit Review Plus. Send the address, share what you’re trying to figure out, and get a clear written read before your next call, offer, filing, or site visit.
       </p>
       <div class="final-cta-actions" style="margin-top:24px;">
         <a class="btn btn-orange" href="https://buy.stripe.com/9B614ofhJ72H5Ft93Q1wY0l" target="_blank" rel="noopener">Get Permit Review Plus — $149</a>
-        <a class="btn btn-ghost" href="mailto:hello@getpermitpulse.com?subject=Permit%20Review%20Plus%20Question">Ask a Question First</a>
+        <a class="btn btn-ghost" href="tel:+15626762691">Call / Text First</a>
       </div>
     </div>
   </div>
@@ -829,9 +872,9 @@
     Get Permit Review Plus — $149
   </a>
 
-  <a class="sticky-ghost" href="mailto:hello@getpermitpulse.com?subject=Permit%20Review%20Plus%20Question"
-     onclick="gtag && gtag('event','ask_question_first',{location:'sticky'});">
-    Ask a Question First
+  <a class="sticky-ghost" href="tel:+15626762691"
+     onclick="gtag && gtag('event','call_text_first',{location:'sticky'});">
+    Call / Text First
   </a>
 </div>
 
