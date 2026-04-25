@@ -11,7 +11,11 @@
   <meta property="og:url" content="https://getpermitpulse.com/" />
   <meta property="og:title" content="PermitPulse | Permit Review Plus" />
   <meta property="og:description" content="A fast permit and property review before you waste time chasing the wrong answer." />
-<meta property="twitter:image" content="https://getpermitpulse.com/img/permitpulse-og-los-angeles-permit-radar.webp" />
+  <meta property="og:image" content="https://getpermitpulse.com/assets/images/permitpulse-permit-review-plus-los-angeles-og-image.png" />
+  <meta property="og:image:alt" content="PermitPulse Permit Review Plus banner for Los Angeles permit intelligence and property review services." />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta property="twitter:image" content="https://getpermitpulse.com/assets/images/permitpulse-permit-review-plus-los-angeles-og-image.png" />
+  <meta name="twitter:image:alt" content="PermitPulse Permit Review Plus banner for Los Angeles permit intelligence and property review services." />
 <!-- GA4 -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-0S8S6156CV"></script>
   <script>
@@ -232,6 +236,14 @@
 
 /* Hero image gets a subtle readability gradient */
 .hero-media { position: relative; margin-top: 44px; }
+.section-media { margin-top: 28px; }
+.section-media img {
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+}
+.section-media.compact {
+  margin-top: 0;
+}
 .hero-media::before {
   content: "";
   position: absolute;
@@ -433,7 +445,7 @@
     "@type": "Organization",
     "name": "PermitPulse",
     "url": "https://getpermitpulse.com/",
-    "logo": "https://getpermitpulse.com/img/permitpulse-og-los-angeles-permit-radar.webp",
+    "logo": "https://getpermitpulse.com/assets/images/permitpulse-permit-review-plus-los-angeles-og-image.png",
     "sameAs": [
       "https://twitter.com/permitpulse"
     ]
@@ -520,8 +532,8 @@
 
   <div class="img-card hero-media">
     <img
-      src="/img/permitpulse-los-angeles-permit-radar-dashboard-hero.webp"
-      alt="Los Angeles skyline behind a dark-mode permit review dashboard with map pins and charts."
+      src="/assets/images/permit-review-plus-los-angeles-permit-documents-workspace.png"
+      alt="Permit review workspace with Los Angeles building permit documents, plan check corrections, parcel maps, and architectural plans."
       loading="eager"
       decoding="async"
     />
@@ -576,6 +588,15 @@
           <p class="muted" style="margin-top:10px; font-size:14px;">Direct guidance on what to verify, file, request, or escalate next.</p>
         </div>
       </div>
+    </div>
+
+    <div class="img-card section-media">
+      <img
+        src="/assets/images/adu-contractor-reviewing-plans-permit-review-plus.png"
+        alt="Contractor reviewing ADU construction plans and permit documents at a Southern California jobsite."
+        loading="lazy"
+        decoding="async"
+      />
     </div>
   </div>
 </section>
@@ -684,6 +705,14 @@
       <p class="mono muted" style="margin-top:18px;font-size:12px;">
         Founding seats are limited while this remains hands-on.
       </p>
+      <div class="img-card section-media">
+        <img
+          src="/assets/images/permitpulse-gold-desk-private-permit-workflow-support.png"
+          alt="Private permit and workflow support desk with monitors showing project timelines, permit documents, and property maps."
+          loading="lazy"
+          decoding="async"
+        />
+      </div>
       <div class="offer-actions" style="margin-top:20px;">
         <a class="btn btn-ghost" href="mailto:hello@getpermitpulse.com?subject=Gold%20Desk%20Founding%20Seat">Request a Gold Desk Founding Seat</a>
       </div>
@@ -694,11 +723,23 @@
 <section class="section" style="background:#050506;">
   <div class="wrap">
     <div class="vs-card">
-      <div class="tools-eyebrow">Coverage note</div>
-      <h2 style="margin-bottom:14px;">LA is the strongest market today.</h2>
-      <p class="muted" style="max-width:820px; line-height:1.6;">
-        Public permit data quality varies by city. Los Angeles is the deepest market today. Selected live support is also available in Pasadena, Santa Monica, and San Jose.
-      </p>
+      <div class="grid grid-2" style="align-items:center;">
+        <div>
+          <div class="tools-eyebrow">Coverage note</div>
+          <h2 style="margin-bottom:14px;">LA is the strongest market today.</h2>
+          <p class="muted" style="max-width:820px; line-height:1.6;">
+            Public permit data quality varies by city. Los Angeles is the deepest market today. Selected live support is also available in Pasadena, Santa Monica, and San Jose.
+          </p>
+        </div>
+        <div class="img-card section-media compact">
+          <img
+            src="/assets/images/pasadena-adu-construction-site-permit-review-work-truck.png"
+            alt="Drone view of a Pasadena-style ADU construction site with framing, workers, and a contractor work truck."
+            loading="lazy"
+            decoding="async"
+          />
+        </div>
+      </div>
     </div>
   </div>
 </section>
