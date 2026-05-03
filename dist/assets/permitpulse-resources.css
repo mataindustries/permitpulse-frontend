@@ -151,6 +151,29 @@ header {
     #0f0f11;
 }
 .hotline h2 { margin-bottom: 10px; }
+.express-review {
+  margin-top: 18px;
+  padding: 20px;
+  border: 1px solid rgba(255, 68, 0, 0.48);
+  border-radius: 12px;
+  background: linear-gradient(135deg, rgba(255, 68, 0, 0.12), rgba(255,255,255,0.03) 46%, rgba(0,0,0,0.12));
+}
+.express-review h3 {
+  margin-top: 8px;
+  font-size: 1.08rem;
+  letter-spacing: -0.02em;
+}
+.express-review p { margin-top: 10px; }
+.express-kicker {
+  color: #ffb08a;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+.express-disclaimer {
+  font-size: 12px;
+  line-height: 1.55;
+}
 .hotline-grid {
   width: 100%;
   max-width: 100%;
