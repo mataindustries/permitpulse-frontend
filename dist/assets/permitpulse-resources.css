@@ -99,6 +99,21 @@ header {
 .btn-ghost { background: transparent; border-color: #333; color: var(--text-main); }
 .actions { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 24px; }
 
+.media-frame {
+  overflow: hidden;
+  border: 1px solid rgba(255,255,255,0.1);
+  border-radius: 14px;
+  background: #0b0b0c;
+}
+.media-frame img {
+  display: block;
+  width: 100%;
+  height: auto;
+  aspect-ratio: 1672 / 941;
+  object-fit: cover;
+}
+.hero-media-panel { margin-top: 34px; }
+
 .article { display: grid; gap: 42px; }
 .article section { display: grid; gap: 12px; }
 .article ul, .article ol { margin-left: 20px; color: var(--text-muted); line-height: 1.8; }
@@ -132,8 +147,21 @@ header {
     #0f0f11;
 }
 .hotline h2 { margin-bottom: 10px; }
+.hotline-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(240px, 0.85fr);
+  gap: 22px;
+  align-items: center;
+}
+.hotline-media { border-radius: 12px; }
 
 .form-grid { display: grid; gap: 12px; }
+.field { display: grid; gap: 7px; }
+.field span {
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  font-size: 12px;
+}
 input, select, textarea {
   width: 100%;
   padding: 14px 12px;
@@ -178,6 +206,7 @@ footer { padding: 70px 0; color: #555; font-size: 14px; }
   .nav-inner { align-items: flex-start; }
   .nav-links { gap: 12px; }
   .grid-2, .grid-3 { grid-template-columns: 1fr; }
+  .hotline-grid { grid-template-columns: 1fr; }
   .section { padding: 54px 0; }
   .actions { display: grid; }
   .btn { width: 100%; }

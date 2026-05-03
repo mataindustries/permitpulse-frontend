@@ -14,6 +14,7 @@
     gtag('js',new Date());
     gtag('config','G-0S8S6156CV');
   </script>
+  <script defer src="/assets/permitpulse-tracking.js"></script>
 </head>
 <body>
   <header>
@@ -37,6 +38,15 @@
         <div class="actions">
           <a class="btn btn-orange" href="#snapshot-form">Request Free Snapshot</a>
           <a class="btn btn-ghost" href="tel:+15626762691">Text an Address</a>
+        </div>
+        <div class="media-frame hero-media-panel">
+          <img
+            src="/assets/images/permitpulse-snapshot-property-record-triage.png"
+            alt="PermitPulse Snapshot image showing a smartphone, parcel map, and public-record documents for quick property triage"
+            width="1672"
+            height="941"
+            decoding="async"
+          />
         </div>
       </div>
     </section>
@@ -81,38 +91,38 @@
 
         <div class="card">
           <form id="snapshotLeadForm" action="https://formspree.io/f/mbdwdklj" method="POST" class="form-grid">
-            <input type="hidden" name="_subject" value="PermitPulse Snapshot Request" />
-            <input type="hidden" name="form_type" value="permitpulse_snapshot" />
+            <input type="hidden" name="_subject" value="New PermitPulse Snapshot Lead" />
+            <input type="hidden" name="form_name" value="PermitPulse Snapshot" />
+            <input type="hidden" name="lead_source" value="snapshot-page" />
             <input type="hidden" name="page_url" value="https://getpermitpulse.com/snapshot/" />
-            <input name="name" required placeholder="Name" />
-            <input name="email" type="email" required placeholder="Email" />
-            <input name="phone" placeholder="Phone (optional)" />
-            <input name="property_address" required placeholder="Property address" />
-            <select name="decision" required>
-              <option value="" selected>What are you trying to decide?</option>
-              <option>Buying a property</option>
-              <option>Listing a property</option>
-              <option>Bidding a job</option>
-              <option>Quoting an ADU conversation</option>
-              <option>Checking a permit claim</option>
-              <option>Research only</option>
-            </select>
-            <select name="timeline" required>
-              <option value="" selected>Timeline</option>
-              <option>ASAP</option>
-              <option>This week</option>
-              <option>Research only</option>
-            </select>
-            <textarea name="notes" placeholder="Notes: what did someone claim, what worries you, or what do you need to verify?"></textarea>
+            <input type="hidden" name="_next" value="https://getpermitpulse.com/snapshot-thank-you/" />
+            <input type="text" name="_gotcha" style="display:none" tabindex="-1" autocomplete="off" />
+            <label class="field"><span>Name</span><input name="name" required autocomplete="name" /></label>
+            <label class="field"><span>Email</span><input name="email" type="email" required autocomplete="email" /></label>
+            <label class="field"><span>Phone, optional</span><input name="phone" autocomplete="tel" /></label>
+            <label class="field"><span>Property address</span><input name="property_address" required autocomplete="street-address" /></label>
+            <label class="field"><span>What are you trying to decide?</span>
+              <select name="decision_goal" required>
+                <option value="" selected>Select one</option>
+                <option>Buying a property</option>
+                <option>Listing a property</option>
+                <option>Bidding a job</option>
+                <option>Quoting an ADU conversation</option>
+                <option>Checking a permit claim</option>
+                <option>Research only</option>
+              </select>
+            </label>
+            <label class="field"><span>Timeline</span>
+              <select name="timeline" required>
+                <option value="" selected>Select one</option>
+                <option>ASAP</option>
+                <option>This week</option>
+                <option>Research only</option>
+              </select>
+            </label>
+            <label class="field"><span>Notes, optional</span><textarea name="notes" placeholder="What did someone claim, what worries you, or what do you need to verify?"></textarea></label>
             <button id="snapshotLeadBtn" class="btn btn-orange" type="submit">Request Free Snapshot</button>
           </form>
-          <div id="snapshotLeadSuccess" class="card" style="display:none;margin-top:14px;border-color:rgba(255,68,0,0.55);">
-            <h3>Snapshot request sent.</h3>
-            <p style="margin-top:8px;">For a full checked report with official record screenshots, red flags, and a next-step memo, order Permit Review Plus for $149.</p>
-            <div class="actions">
-              <a class="btn btn-orange" href="https://buy.stripe.com/9B614ofhJ72H5Ft93Q1wY0l" target="_blank" rel="noopener">Order $149 Permit Review Plus</a>
-            </div>
-          </div>
           <p class="mono muted" style="margin-top:14px;font-size:12px;">Not legal, architectural, engineering, or permit approval advice.</p>
         </div>
       </div>
@@ -120,12 +130,24 @@
 
     <section class="section">
       <div class="wrap">
-        <div class="hotline">
-          <div class="eyebrow">Permit Problem Hotline</div>
-          <h2>Text one address. We'll point you toward the records worth checking.</h2>
-          <div class="actions">
-            <a class="btn btn-orange" href="tel:+15626762691">Text an Address</a>
-            <a class="btn btn-ghost" href="https://buy.stripe.com/9B614ofhJ72H5Ft93Q1wY0l" target="_blank" rel="noopener">Order $149 Permit Review Plus</a>
+        <div class="hotline hotline-grid">
+          <div>
+            <div class="eyebrow">Permit Problem Hotline</div>
+            <h2>Text one address. We'll point you toward the records worth checking.</h2>
+            <div class="actions">
+              <a class="btn btn-orange" href="tel:+15626762691">Text an Address</a>
+              <a class="btn btn-ghost" href="https://buy.stripe.com/9B614ofhJ72H5Ft93Q1wY0l" target="_blank" rel="noopener">Order $149 Permit Review Plus</a>
+            </div>
+          </div>
+          <div class="media-frame hotline-media">
+            <img
+              src="/assets/images/permit-problem-hotline-property-address-text-support.png"
+              alt="Permit Problem Hotline image showing a smartphone, parcel map, and permit notes for quick address-based property record help"
+              width="1672"
+              height="941"
+              loading="lazy"
+              decoding="async"
+            />
           </div>
         </div>
       </div>
@@ -143,37 +165,5 @@
     <a class="sticky-primary" href="tel:+15626762691">Text an Address</a>
     <a class="sticky-ghost" href="https://buy.stripe.com/9B614ofhJ72H5Ft93Q1wY0l" target="_blank" rel="noopener">Order $149 Review</a>
   </div>
-
-  <script>
-  (function () {
-    var form = document.getElementById("snapshotLeadForm");
-    if (!form) return;
-    var btn = document.getElementById("snapshotLeadBtn");
-    var success = document.getElementById("snapshotLeadSuccess");
-    form.addEventListener("submit", async function (e) {
-      e.preventDefault();
-      var original = btn.textContent;
-      btn.disabled = true;
-      btn.textContent = "Sending...";
-      try {
-        var res = await fetch(form.action, { method: "POST", body: new FormData(form), headers: { "Accept": "application/json" } });
-        if (res.ok) {
-          form.reset();
-          btn.textContent = "Sent";
-          success.style.display = "block";
-          gtag && gtag("event", "snapshot_request_submit", { location: "snapshot_page" });
-        } else {
-          btn.disabled = false;
-          btn.textContent = original;
-          alert("Could not submit. Try again or text 562-676-2691.");
-        }
-      } catch (err) {
-        btn.disabled = false;
-        btn.textContent = original;
-        alert("Could not submit. Try again or text 562-676-2691.");
-      }
-    });
-  })();
-  </script>
 </body>
 </html>

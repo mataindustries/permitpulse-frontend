@@ -24,6 +24,7 @@
     gtag('js', new Date());
     gtag('config', 'G-0S8S6156CV');
   </script>
+  <script defer src="/assets/permitpulse-tracking.js"></script>
 
   <!-- Cloudflare Web Analytics --><script defer src='https://static.cloudflareinsights.com/beacon.min.js' data-cf-beacon='{"token": "7046e03c84424a49988d1930fda247b6"}'></script><!-- End Cloudflare Web Analytics -->
   
@@ -233,6 +234,7 @@
       .offer-actions .btn {
         width: 100%;
       }
+      .hotline-grid { grid-template-columns: 1fr; }
     }
 
     /* --- IMAGE CARDS --- */
@@ -370,6 +372,25 @@
       border-radius: 16px;
       padding: 32px;
       background: radial-gradient(circle at top right, rgba(255,68,0,0.14), transparent 45%), #0f0f11;
+    }
+    .hotline-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.15fr) minmax(240px, 0.85fr);
+      gap: 22px;
+      align-items: center;
+    }
+    .hotline-media {
+      overflow: hidden;
+      border: 1px solid rgba(255,255,255,0.1);
+      border-radius: 12px;
+      background: #0b0b0c;
+    }
+    .hotline-media img {
+      display: block;
+      width: 100%;
+      height: auto;
+      aspect-ratio: 1672 / 941;
+      object-fit: cover;
     }
     
     /* --- FOOTER --- */
@@ -709,12 +730,24 @@
 
 <section class="section" style="background:#050506;">
   <div class="wrap">
-    <div class="hotline-cta">
-      <div class="tools-eyebrow" style="color:#ffb08a;">Permit Problem Hotline</div>
-      <h2 style="margin-bottom:14px;">Text one address. We’ll point you toward the records worth checking.</h2>
-      <div class="final-cta-actions" style="margin-top:22px;">
-        <a class="btn btn-orange" href="tel:+15626762691">Text an Address</a>
-        <a class="btn btn-ghost" href="https://buy.stripe.com/9B614ofhJ72H5Ft93Q1wY0l" target="_blank" rel="noopener">Order Permit Review Plus</a>
+    <div class="hotline-cta hotline-grid">
+      <div>
+        <div class="tools-eyebrow" style="color:#ffb08a;">Permit Problem Hotline</div>
+        <h2 style="margin-bottom:14px;">Text one address. We’ll point you toward the records worth checking.</h2>
+        <div class="final-cta-actions" style="margin-top:22px;">
+          <a class="btn btn-orange" href="tel:+15626762691">Text an Address</a>
+          <a class="btn btn-ghost" href="https://buy.stripe.com/9B614ofhJ72H5Ft93Q1wY0l" target="_blank" rel="noopener">Order Permit Review Plus</a>
+        </div>
+      </div>
+      <div class="hotline-media">
+        <img
+          src="/assets/images/permit-problem-hotline-property-address-text-support.png"
+          alt="Permit Problem Hotline image showing a smartphone, parcel map, and permit notes for quick address-based property record help"
+          width="1672"
+          height="941"
+          loading="lazy"
+          decoding="async"
+        />
       </div>
     </div>
   </div>
