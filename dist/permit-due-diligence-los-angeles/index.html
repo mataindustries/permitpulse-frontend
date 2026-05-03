@@ -244,6 +244,9 @@
       background:radial-gradient(circle at top right, rgba(255,68,0,0.14), transparent 45%), #0f0f11;
     }
     .media-frame{
+      width:100%;
+      max-width:100%;
+      min-width:0;
       overflow:hidden;
       border:1px solid rgba(255,255,255,0.1);
       border-radius:14px;
@@ -252,18 +255,22 @@
     .media-frame img{
       display:block;
       width:100%;
+      max-width:100%;
       height:auto;
       aspect-ratio:1672 / 941;
       object-fit:cover;
     }
     .hero-media-panel{margin-top:30px}
     .hotline-grid{
+      width:100%;
+      max-width:100%;
       display:grid;
       grid-template-columns:minmax(0,1.15fr) minmax(240px,0.85fr);
       gap:22px;
       align-items:center;
     }
-    .hotline-media{border-radius:12px}
+    .hotline-grid > *{min-width:0}
+    .hotline-media{width:100%;max-width:100%;border-radius:12px}
 
     /* FAQ */
     details{border:1px solid #222;border-radius:12px;padding:14px 16px;background:#0b0b0b}
@@ -302,7 +309,11 @@
     }
 
     footer{padding:80px 0;color:#444;font-size:14px}
-    @media (max-width:768px){.hotline-grid{grid-template-columns:1fr}}
+    @media (max-width:768px){
+      .hotline-grid{grid-template-columns:1fr}
+      .media-frame,.hotline-media{width:100%;max-width:100%}
+      .media-frame img,.hotline-media img{width:100%;max-width:100%;height:auto;max-height:none}
+    }
   
 
 .link{

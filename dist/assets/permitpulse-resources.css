@@ -100,6 +100,9 @@ header {
 .actions { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 24px; }
 
 .media-frame {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
   overflow: hidden;
   border: 1px solid rgba(255,255,255,0.1);
   border-radius: 14px;
@@ -108,6 +111,7 @@ header {
 .media-frame img {
   display: block;
   width: 100%;
+  max-width: 100%;
   height: auto;
   aspect-ratio: 1672 / 941;
   object-fit: cover;
@@ -148,12 +152,19 @@ header {
 }
 .hotline h2 { margin-bottom: 10px; }
 .hotline-grid {
+  width: 100%;
+  max-width: 100%;
   display: grid;
   grid-template-columns: minmax(0, 1.15fr) minmax(240px, 0.85fr);
   gap: 22px;
   align-items: center;
 }
-.hotline-media { border-radius: 12px; }
+.hotline-grid > * { min-width: 0; }
+.hotline-media {
+  width: 100%;
+  max-width: 100%;
+  border-radius: 12px;
+}
 
 .form-grid { display: grid; gap: 12px; }
 .field { display: grid; gap: 7px; }
@@ -207,6 +218,15 @@ footer { padding: 70px 0; color: #555; font-size: 14px; }
   .nav-links { gap: 12px; }
   .grid-2, .grid-3 { grid-template-columns: 1fr; }
   .hotline-grid { grid-template-columns: 1fr; }
+  .media-frame,
+  .hotline-media { width: 100%; max-width: 100%; }
+  .media-frame img,
+  .hotline-media img {
+    width: 100%;
+    max-width: 100%;
+    height: auto;
+    max-height: none;
+  }
   .section { padding: 54px 0; }
   .actions { display: grid; }
   .btn { width: 100%; }
