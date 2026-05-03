@@ -1,12 +1,12 @@
 # PermitPulse (Beta)
 
 PermitPulse is a lightweight, static front-end for LA-area permit due diligence and permit intel.
-This repo ships the marketing site + service pages (Dossier, Radar) and conversion flows (Stripe + intake).
+This repo ships the marketing site + service pages (Permit Review Plus, Radar) and conversion flows (Stripe + intake).
 
 ## What’s live in this version
 
-- **Permit Due Diligence Dossier ($499)**: portal-based timeline/status/scope/risk summary for 1 address / 1 permit (when public).
-- **Sample Dossier (redacted)**: example output format at `/sample-dossier/`.
+- **Permit Review Plus ($149)**: portal-based timeline/status/scope/risk summary for 1 address / 1 permit (when public).
+- **Sample Report (redacted)**: example output format at `/sample-report/`.
 - **Radar**: free tool entrypoint at `/radar/` (header “Free tools” should link here).
 - **Help Guides**: LA permit help pages + internal links.
 - **Sitemap**: `dist/sitemap.xml`
@@ -22,15 +22,15 @@ This repo ships the marketing site + service pages (Dossier, Radar) and conversi
 
 - `dist/` – production site (HTML/CSS/JS) served by hosting
   - `dist/index.html` – homepage
-    - `dist/permit-due-diligence-los-angeles/index.html` – Dossier landing page
-      - `dist/sample-dossier/index.html` – redacted sample
+    - `dist/permit-due-diligence-los-angeles/index.html` – Permit Review Plus landing page
+      - `dist/sample-report/index.html` – redacted sample
         - `dist/sitemap.xml` – sitemap
 
         ## Key routes
 
         - `/` – Home
-        - `/permit-due-diligence-los-angeles/` – Dossier
-        - `/sample-dossier/` – Redacted sample dossier
+        - `/permit-due-diligence-los-angeles/` – Permit Review Plus
+        - `/sample-report/` – Redacted sample report
         - `/radar/` – Free tools / radar
         - `/pricing/` – Pricing (if present)
         - `/book` or `/booking.html` – Booking / intake (if present)

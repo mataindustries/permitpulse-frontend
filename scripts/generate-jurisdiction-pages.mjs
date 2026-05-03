@@ -9,7 +9,7 @@ const ROOT_DIR = path.resolve(__dirname, '..');
 const DIST_DIR = path.join(ROOT_DIR, 'dist');
 const HUB_DIR = path.join(DIST_DIR, 'california', 'jurisdictions');
 const SITE_URL = 'https://getpermitpulse.com';
-const STRIPE_URL = 'https://buy.stripe.com/3cI3cw1qT9aP6Jx2Fs1wY0e';
+const STRIPE_URL = 'https://buy.stripe.com/9B614ofhJ72H5Ft93Q1wY0l';
 const LASTMOD = '2026-04-18';
 const OG_IMAGE = `${SITE_URL}/img/permitpulse-og-los-angeles-permit-radar.webp`;
 
@@ -1316,7 +1316,7 @@ function renderFooter() {
 
 function renderStickyCta() {
   return `<div class="sticky-cta" role="navigation" aria-label="Start PermitPulse">
-  <a class="sticky-primary" href="${STRIPE_URL}" target="_blank" rel="noopener">Request Permit History + Risk Report</a>
+  <a class="sticky-primary" href="${STRIPE_URL}" target="_blank" rel="noopener">Get Permit Review Plus — $149</a>
   <a class="sticky-ghost" href="/permits/">Browse permit directory</a>
 </div>`;
 }
@@ -1364,7 +1364,7 @@ ${renderHeader()}
       <h1>${escapeHtml(entry.h1)}</h1>
       <p class="lead">${escapeHtml(entry.intro)}</p>
       <div class="btn-row">
-        <a class="btn btn-primary" href="${STRIPE_URL}" target="_blank" rel="noopener">Request Permit History + Risk Report</a>
+        <a class="btn btn-primary" href="${STRIPE_URL}" target="_blank" rel="noopener">Get Permit Review Plus — $149</a>
         <a class="btn btn-secondary" href="${escapeHtml(entry.officialPortalUrl)}" target="_blank" rel="noopener">${escapeHtml(entry.officialPortalLabel)}</a>
       </div>
       <p class="mono muted" style="font-size:12px;">Need statewide search instead? Start at <a href="/california-permit-history/" class="link-line">/california-permit-history/</a>.</p>
@@ -1416,7 +1416,7 @@ ${renderHeader()}
           <p class="lead">For a specific ${escapeHtml(entry.name)} address, PermitPulse can package permit history, timeline context, risk flags, and scope notes into a decision-ready report.</p>
         </div>
         <div class="btn-row">
-          <a class="btn btn-primary" href="${STRIPE_URL}" target="_blank" rel="noopener">Request Permit History + Risk Report</a>
+          <a class="btn btn-primary" href="${STRIPE_URL}" target="_blank" rel="noopener">Get Permit Review Plus — $149</a>
           <a class="btn btn-secondary" href="/permit-history-report-los-angeles/">See how the report workflow works</a>
         </div>
       </div>
@@ -1495,7 +1495,7 @@ ${renderHeader()}
       <h1>Covered California jurisdictions</h1>
       <p class="lead">This hub gives search traffic a clear, crawlable path into PermitPulse jurisdiction coverage pages. Each link is an indexable public page built for real permit research, not thin doorway copy.</p>
       <div class="btn-row">
-        <a class="btn btn-primary" href="${STRIPE_URL}" target="_blank" rel="noopener">Request Permit History + Risk Report</a>
+        <a class="btn btn-primary" href="${STRIPE_URL}" target="_blank" rel="noopener">Get Permit Review Plus — $149</a>
         <a class="btn btn-secondary" href="/california-permit-history/">Open California permit search</a>
         <a class="btn btn-secondary" href="/permits/">Open U.S. permit directory</a>
       </div>

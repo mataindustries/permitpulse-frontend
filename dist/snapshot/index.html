@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>PermitPulse Snapshot | Free Permit Record Triage</title>
+  <meta name="description" content="Send one Los Angeles address for a free PermitPulse Snapshot: jurisdiction guess, likely public portals, first-pass risk category, and records to verify next." />
+  <link rel="canonical" href="https://getpermitpulse.com/snapshot/" />
+  <link rel="stylesheet" href="/assets/permitpulse-resources.css" />
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-0S8S6156CV"></script>
+  <script>
+    window.dataLayer=window.dataLayer||[];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js',new Date());
+    gtag('config','G-0S8S6156CV');
+  </script>
+</head>
+<body>
+  <header>
+    <div class="wrap nav-inner">
+      <a href="/" class="logo">PermitPulse</a>
+      <nav class="nav-links mono" aria-label="Primary">
+        <a href="/resources/">Resources</a>
+        <a href="/snapshot/">Snapshot</a>
+        <a href="/sample-report/">Sample</a>
+        <a href="/permit-due-diligence-los-angeles/">Permit Review Plus</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero blueprint">
+      <div class="wrap">
+        <div class="eyebrow">PermitPulse Snapshot</div>
+        <h1>Send one address. We'll tell you what needs checking first.</h1>
+        <p class="lead">A free first-look triage that points you toward the public records worth checking before you spend real money.</p>
+        <div class="actions">
+          <a class="btn btn-orange" href="#snapshot-form">Request Free Snapshot</a>
+          <a class="btn btn-ghost" href="tel:+15626762691">Text an Address</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="wrap grid grid-2">
+        <div class="card">
+          <h2>Included</h2>
+          <ul style="margin:16px 0 0 20px;color:var(--text-muted);line-height:1.9;">
+            <li>Jurisdiction guess</li>
+            <li>Likely public portals to check</li>
+            <li>First-pass risk category: Low / Medium / Unknown</li>
+            <li>3 records worth verifying next</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h2>Not included</h2>
+          <ul style="margin:16px 0 0 20px;color:var(--text-muted);line-height:1.9;">
+            <li>Full official screenshot packet</li>
+            <li>Full permit history memo</li>
+            <li>Design, legal, engineering, or approval advice</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" id="snapshot-form">
+      <div class="wrap grid grid-2" style="align-items:start;">
+        <div>
+          <div class="eyebrow">Free Intake</div>
+          <h2>Give us the address and the decision.</h2>
+          <p style="margin-top:14px;">The better the context, the better the triage. Keep it short: buying, listing, bidding, ADU, remodel, unpermitted work, or general research.</p>
+          <div class="hotline" style="margin-top:24px;">
+            <h2 style="font-size:clamp(1.5rem,3vw,2rem);">Need the full checked report?</h2>
+            <p>Permit Review Plus is $149 per address.</p>
+            <div class="actions">
+              <a class="btn btn-orange" href="https://buy.stripe.com/9B614ofhJ72H5Ft93Q1wY0l" target="_blank" rel="noopener">Order $149 Permit Review Plus</a>
+              <a class="btn btn-ghost" href="/sample-report/">See Sample Report</a>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <form id="snapshotLeadForm" action="https://formspree.io/f/maqdorda" method="POST" class="form-grid">
+            <input type="hidden" name="_subject" value="PermitPulse Snapshot Request" />
+            <input type="hidden" name="form_type" value="permitpulse_snapshot" />
+            <input type="hidden" name="page_url" value="https://getpermitpulse.com/snapshot/" />
+            <input name="name" required placeholder="Name" />
+            <input name="email" type="email" required placeholder="Email" />
+            <input name="phone" placeholder="Phone (optional)" />
+            <input name="property_address" required placeholder="Property address" />
+            <select name="decision" required>
+              <option value="" selected>What are you trying to decide?</option>
+              <option>Buying a property</option>
+              <option>Listing a property</option>
+              <option>Bidding a job</option>
+              <option>Quoting an ADU conversation</option>
+              <option>Checking a permit claim</option>
+              <option>Research only</option>
+            </select>
+            <select name="timeline" required>
+              <option value="" selected>Timeline</option>
+              <option>ASAP</option>
+              <option>This week</option>
+              <option>Research only</option>
+            </select>
+            <textarea name="notes" placeholder="Notes: what did someone claim, what worries you, or what do you need to verify?"></textarea>
+            <button id="snapshotLeadBtn" class="btn btn-orange" type="submit">Request Free Snapshot</button>
+          </form>
+          <div id="snapshotLeadSuccess" class="card" style="display:none;margin-top:14px;border-color:rgba(255,68,0,0.55);">
+            <h3>Snapshot request sent.</h3>
+            <p style="margin-top:8px;">For a full checked report with official record screenshots, red flags, and a next-step memo, order Permit Review Plus for $149.</p>
+            <div class="actions">
+              <a class="btn btn-orange" href="https://buy.stripe.com/9B614ofhJ72H5Ft93Q1wY0l" target="_blank" rel="noopener">Order $149 Permit Review Plus</a>
+            </div>
+          </div>
+          <p class="mono muted" style="margin-top:14px;font-size:12px;">Not legal, architectural, engineering, or permit approval advice.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="wrap">
+        <div class="hotline">
+          <div class="eyebrow">Permit Problem Hotline</div>
+          <h2>Text one address. We'll point you toward the records worth checking.</h2>
+          <div class="actions">
+            <a class="btn btn-orange" href="tel:+15626762691">Text an Address</a>
+            <a class="btn btn-ghost" href="https://buy.stripe.com/9B614ofhJ72H5Ft93Q1wY0l" target="_blank" rel="noopener">Order $149 Permit Review Plus</a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="wrap">
+    <a class="link" href="/resources/">Resource hub</a> ·
+    <a class="link" href="/permit-due-diligence-los-angeles/">Permit Review Plus</a> ·
+    <a class="link" href="/sample-report/">Sample report</a>
+    <p style="margin-top:12px;">PermitPulse reviews public records and points to practical next checks. It does not guarantee permit approval.</p>
+  </footer>
+
+  <div class="sticky-cta" aria-label="Start PermitPulse">
+    <a class="sticky-primary" href="tel:+15626762691">Text an Address</a>
+    <a class="sticky-ghost" href="https://buy.stripe.com/9B614ofhJ72H5Ft93Q1wY0l" target="_blank" rel="noopener">Order $149 Review</a>
+  </div>
+
+  <script>
+  (function () {
+    var form = document.getElementById("snapshotLeadForm");
+    if (!form) return;
+    var btn = document.getElementById("snapshotLeadBtn");
+    var success = document.getElementById("snapshotLeadSuccess");
+    form.addEventListener("submit", async function (e) {
+      e.preventDefault();
+      var original = btn.textContent;
+      btn.disabled = true;
+      btn.textContent = "Sending...";
+      try {
+        var res = await fetch(form.action, { method: "POST", body: new FormData(form), headers: { "Accept": "application/json" } });
+        if (res.ok) {
+          form.reset();
+          btn.textContent = "Sent";
+          success.style.display = "block";
+          gtag && gtag("event", "snapshot_request_submit", { location: "snapshot_page" });
+        } else {
+          btn.disabled = false;
+          btn.textContent = original;
+          alert("Could not submit. Try again or text 562-676-2691.");
+        }
+      } catch (err) {
+        btn.disabled = false;
+        btn.textContent = original;
+        alert("Could not submit. Try again or text 562-676-2691.");
+      }
+    });
+  })();
+  </script>
+</body>
+</html>

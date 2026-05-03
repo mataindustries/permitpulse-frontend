@@ -208,7 +208,7 @@ function buildFallbackDossier(input, records, mode, reason, sourceLinks) {
 		mode,
 		fallback_reason: reason,
 		project_summary:
-			`Mock dossier for ${addressLine}. The visible permit context suggests an active but non-linear project path. ` +
+			`Mock permit review for ${addressLine}. The visible permit context suggests an active but non-linear project path. ` +
 			`Permit ${permitNumber} and parcel ${apn} should be treated as operator inputs until live connectors are wired.`,
 		jurisdiction,
 		confidence_score: 72,
@@ -216,7 +216,7 @@ function buildFallbackDossier(input, records, mode, reason, sourceLinks) {
 		timeline: [
 			{
 				date: '2026-04-03',
-				event: 'Mock dossier generated',
+				event: 'Mock permit review generated',
 				detail: 'Fallback mode synthesized a tactical timeline because live permit records were unavailable.',
 				status: 'active',
 			},
@@ -230,7 +230,7 @@ function buildFallbackDossier(input, records, mode, reason, sourceLinks) {
 		red_flags: [
 			{
 				title: 'Live permit context incomplete',
-				detail: 'The dossier is operating on mock or partial records, so issue timing and blockers should be validated before client use.',
+				detail: 'The permit review is operating on mock or partial records, so issue timing and blockers should be validated before client use.',
 				severity: 'high',
 			},
 			{
@@ -248,7 +248,7 @@ function buildFallbackDossier(input, records, mode, reason, sourceLinks) {
 			{
 				step: 'Action 02',
 				title: 'Wire live permit connectors',
-				detail: 'Future live connector data should plug in ahead of dossier generation so the AI sees normalized portal history instead of mock records.',
+				detail: 'Future live connector data should plug in ahead of permit review generation so the AI sees normalized portal history instead of mock records.',
 			},
 		],
 		outreach_angle:
@@ -280,7 +280,7 @@ function buildOpenAIRequest(input, records) {
 					{
 						type: 'input_text',
 						text:
-							'You are PermitPulse Mission Control. Build a concise permit dossier from the provided property context and permit records. ' +
+							'You are PermitPulse Mission Control. Build a concise permit review from the provided property context and permit records. ' +
 							'Stay grounded in supplied facts. If the records are thin, say so indirectly through lower confidence and cautious wording. ' +
 							'Timeline items must be reverse chronological. Red flags and next actions must be specific and actionable.',
 					},
@@ -406,7 +406,7 @@ export async function handleMissionControlReport({ request, env }) {
 
 	// Future live connector plug-in point:
 	// normalize portal/API records here before calling OpenAI so every upstream
-	// source lands in the same record shape for dossier generation.
+	// source lands in the same record shape for permit review generation.
 	const sourceRecords = input.source_records;
 	const mockRecords = input.mock_records;
 	const hasLiveRecords = sourceRecords.length > 0;

@@ -236,6 +236,12 @@
     }
     .price-huge{font-size:clamp(2.3rem, 6vw, 3.6rem);font-weight:700;letter-spacing:-0.04em}
     .small{font-size:13px;color:var(--text-muted);line-height:1.55}
+    .hotline-cta{
+      border:1px solid rgba(255,68,0,0.62);
+      border-radius:16px;
+      padding:28px;
+      background:radial-gradient(circle at top right, rgba(255,68,0,0.14), transparent 45%), #0f0f11;
+    }
 
     /* FAQ */
     details{border:1px solid #222;border-radius:12px;padding:14px 16px;background:#0b0b0b}
@@ -296,6 +302,8 @@
 
         <div class="nav-right">
           <a class="nav-link" href="#start">Permit Review Plus</a>
+          <a class="nav-link" href="/resources/">Resources</a>
+          <a class="nav-link" href="/snapshot/">Snapshot</a>
           <a class="nav-link" href="/free-tools/">Free tools</a>
 
           <div class="contact mono">
@@ -318,22 +326,23 @@
       </h1>
 
       <p class="lead">
+        PermitPulse is not a raw lookup. It is a second set of eyes on the official record before you buy, build, bid, list, or quote.
         For one LA-area address, get a fast written review with <span class="orange">timeline</span>, <span class="orange">status context</span>,
         <span class="orange">approved scope</span>, risk flags, and next-step guidance.
         Conditional <span class="blue">public-record lookup</span> is available when portal detail is thin.
       </p>
 
       <div class="hero-cta" id="start">
-        <a class="btn btn-orange" href="https://buy.stripe.com/9B614ofhJ72H5Ft93Q1wY0l">Get Permit Review Plus — $149</a>
+        <a class="btn btn-orange" href="https://buy.stripe.com/9B614ofhJ72H5Ft93Q1wY0l">Get Permit Review Plus - $149</a>
         <a class="btn btn-ghost" href="mailto:hello@getpermitpulse.com?subject=Permit%20Review%20Plus%20Question">Ask a Question First</a>
        <div style="margin-top:12px;">
-  <a class="btn btn-ghost" href="/sample-dossier/">See a redacted sample review</a>
+  <a class="btn btn-ghost" href="/sample-report/">See a redacted sample review</a>
         <div class="small" style="margin-top:12px; max-width:520px;">
   <div class="mono muted" style="font-size:12px; margin-bottom:6px;">
     Not ready to buy? Get the free submission checklist.
   </div>
 
-  <form id="ppChecklistFormDossier" action="https://formspree.io/f/mojnlqol" method="POST" style="display:flex; gap:10px; flex-wrap:wrap;">
+  <form id="ppChecklistFormReview" action="https://formspree.io/f/mojnlqol" method="POST" style="display:flex; gap:10px; flex-wrap:wrap;">
     <input type="hidden" name="form_type" value="lead_magnet_checklist" />
     <input type="hidden" name="page" value="permit_review_la" />
 
@@ -345,12 +354,12 @@
       style="flex:1; min-width:220px; padding:12px 14px; border-radius:12px; border:1px solid #222; background:#0b0b0c; color:#dedede;"
     />
 
-    <button id="ppChecklistBtnDossier" class="btn btn-ghost" type="submit">
+    <button id="ppChecklistBtnReview" class="btn btn-ghost" type="submit">
       Email me the checklist
     </button>
   </form>
 
-  <div id="ppChecklistSuccessDossier" class="muted" style="display:none; margin-top:10px; line-height:1.5;">
+  <div id="ppChecklistSuccessReview" class="muted" style="display:none; margin-top:10px; line-height:1.5;">
     Sent. If you don’t see it in 2 minutes, check spam or text
     <a class="link" href="tel:+15626762691">562-676-2691</a>.
   </div>
@@ -358,11 +367,11 @@
 
 <script>
 (function () {
-  var form = document.getElementById("ppChecklistFormDossier");
+  var form = document.getElementById("ppChecklistFormReview");
   if (!form) return;
 
-  var btn = document.getElementById("ppChecklistBtnDossier");
-  var success = document.getElementById("ppChecklistSuccessDossier");
+  var btn = document.getElementById("ppChecklistBtnReview");
+  var success = document.getElementById("ppChecklistSuccessReview");
 
   form.addEventListener("submit", async function (e) {
     e.preventDefault();
@@ -398,6 +407,34 @@
       <p class="small mono" style="margin-top:14px;">
         24–48h online • Retrieval depends on counter hours/queues (often 2–5 business days)
       </p>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap">
+      <div class="grid grid-2" style="align-items:flex-start;">
+        <div>
+          <div class="badge mono">BEFORE YOU MAKE THE MOVE</div>
+          <h2>Check the record.</h2>
+          <p class="muted" style="margin-top:14px;max-width:720px;">
+            One address. One clear first-pass record check. $149.
+          </p>
+          <div class="hero-cta" style="margin-top:20px;">
+            <a class="btn btn-orange" href="https://buy.stripe.com/9B614ofhJ72H5Ft93Q1wY0l">Get Permit Review Plus - $149</a>
+            <a class="btn btn-ghost" href="/snapshot/">Try Free Snapshot</a>
+          </div>
+        </div>
+        <div class="card">
+          <div class="bullets">
+            <div class="bullet"><span class="check-mark">✓</span><div>Before buying a property</div></div>
+            <div class="bullet"><span class="check-mark">✓</span><div>Before listing a permit-sensitive property</div></div>
+            <div class="bullet"><span class="check-mark">✓</span><div>Before bidding a job</div></div>
+            <div class="bullet"><span class="check-mark">✓</span><div>Before quoting an ADU conversation</div></div>
+            <div class="bullet"><span class="check-mark">✓</span><div>Before trusting “it was permitted” based on memory</div></div>
+            <div class="bullet"><span class="check-mark">✓</span><div>Before spending money on design or deeper feasibility</div></div>
+          </div>
+        </div>
+      </div>
     </div>
   </section>
 
@@ -452,7 +489,7 @@ Research and document retrieval support only. Not legal advice.
             1 address or 1 permit. Timeline, status, approved scope summary, open items (if public), risk flags, and portal exports.
           </div>
           <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:16px;">
-           <a class="btn btn-orange" href="https://buy.stripe.com/9B614ofhJ72H5Ft93Q1wY0l">Get Permit Review Plus — $149</a>
+           <a class="btn btn-orange" href="https://buy.stripe.com/9B614ofhJ72H5Ft93Q1wY0l">Get Permit Review Plus - $149</a>
             <a class="btn btn-ghost" href="#intake">Intake Form</a>
       
         </div>
@@ -525,7 +562,7 @@ Research and document retrieval support only. Not legal advice.
           <input type="hidden" name="utm_campaign" value="">
           <input type="hidden" name="utm_content" value="">
           <input type="hidden" name="utm_term" value="">
-          <input type="hidden" name="_subject" value="PermitPulse Intake — Permit Review (LA)">
+          <input type="hidden" name="_subject" value="PermitPulse Intake - Permit Review (LA)">
 
           <div class="grid" style="gap:12px;">
             <input name="name" required placeholder="Name"
@@ -636,8 +673,21 @@ Research and document retrieval support only. Not legal advice.
       </div>
 
       <div style="margin-top:26px;">
-        <a class="primary" href="https://buy.stripe.com/9B614ofhJ72H5Ft93Q1wY0l">Get Permit Review Plus — $149</a>
+        <a class="btn btn-orange" href="https://buy.stripe.com/9B614ofhJ72H5Ft93Q1wY0l">Get Permit Review Plus - $149</a>
         <a class="btn btn-ghost" style="margin-left:10px;" href="mailto:hello@getpermitpulse.com?subject=Permit%20Review%20Plus%20Question">Ask a Question First</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="wrap">
+      <div class="hotline-cta">
+        <div class="badge mono">Permit Problem Hotline</div>
+        <h2>Text one address. We’ll point you toward the records worth checking.</h2>
+        <div class="hero-cta" style="margin-top:20px;">
+          <a class="btn btn-orange" href="tel:+15626762691">Text an Address</a>
+          <a class="btn btn-ghost" href="https://buy.stripe.com/9B614ofhJ72H5Ft93Q1wY0l">Order Permit Review Plus</a>
+        </div>
       </div>
     </div>
   </section>
@@ -657,9 +707,8 @@ Research and document retrieval support only. Not legal advice.
 
   <!-- STICKY START BAR -->
   <div class="sticky-cta" aria-label="Sticky actions">
-    <a class="primary" href="https://buy.stripe.com/9B614ofhJ72H5Ft93Q1wY0l">Get Permit Review Plus — $149</a>
-    <a class="sticky-ghost" href="mailto:hello@getpermitpulse.com?subject=Permit%20Review%20Plus%20Question">Ask a Question First</a>
-    <a class="sticky-ghost" href="tel:+15626762691">Call</a>
+    <a class="sticky-primary" href="tel:+15626762691">Text an Address</a>
+    <a class="sticky-ghost" href="https://buy.stripe.com/9B614ofhJ72H5Ft93Q1wY0l">Order Permit Review Plus</a>
   </div>
 </body>
 </html>

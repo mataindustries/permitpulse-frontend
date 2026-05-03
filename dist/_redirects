@@ -14,6 +14,10 @@
 /piloto                    /                                   301
 /es/piloto-intake          /                                   301
 /pilot/es                  /                                   301
+/guides/permit-dossier     /resources/los-angeles-permit-record-checklist/ 301
+/guides/permit-dossier/    /resources/los-angeles-permit-record-checklist/ 301
+/sample-dossier            /sample-report/                    301
+/sample-dossier/           /sample-report/                    301
 
 # SGV EV + Battery Radar (pretty URL)
 /sgv/ev-battery-radar   /sgv-ev-battery-radar.html   301
@@ -30,6 +34,8 @@
 /radar/review-times        /free-tools/review-times           301
 /radar                     /radar/index.html                  200
 /instant-snapshot          /instant-snapshot/index.html       200
+/snapshot                  /snapshot/index.html               200
+/resources                 /resources/index.html              200
 /free-tools                /free-tools/index.html             200
 /top-permits               /top-permits/index.html            200
 /call                      /call/index.html                   200
