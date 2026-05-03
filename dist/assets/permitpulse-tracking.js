@@ -9,16 +9,6 @@
     }
   };
 
-  document.addEventListener("submit", function (event) {
-    if (event.target && event.target.id === "snapshotLeadForm") {
-      window.ppTrack("snapshot_form_submit", {
-        page_path: pagePath(),
-        form_name: "PermitPulse Snapshot",
-        lead_source: "snapshot-page"
-      });
-    }
-  }, true);
-
   document.addEventListener("click", function (event) {
     var link = event.target && event.target.closest ? event.target.closest("a") : null;
     if (!link) return;
