@@ -26,7 +26,7 @@
       return;
     }
 
-    if (href.indexOf("tel:+15626762691") === 0) {
+    if (href.indexOf("tel:+15626762691") === 0 || href.indexOf("sms:+15626762691") === 0) {
       window.ppTrack("hotline_click", {
         page_path: pagePath(),
         cta_location: link.getAttribute("data-pp-location") || pagePath()
