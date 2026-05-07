@@ -321,11 +321,16 @@
       }
       .hero::before {
         background:
-          linear-gradient(180deg, rgba(5,5,5,0.98) 0%, rgba(5,5,5,0.90) 46%, rgba(5,5,5,0.74) 100%),
-          linear-gradient(90deg, rgba(5,5,5,0.98) 0%, rgba(5,5,5,0.58) 100%);
+          linear-gradient(180deg, rgba(5,5,5,0.98) 0%, rgba(5,5,5,0.88) 42%, rgba(5,5,5,0.62) 100%),
+          linear-gradient(90deg, rgba(5,5,5,0.98) 0%, rgba(5,5,5,0.55) 50%, rgba(5,5,5,0.36) 78%, rgba(5,5,5,0.50) 100%);
+      }
+      .hero::after {
+        background:
+          radial-gradient(ellipse at 76% 62%, transparent 0 34%, rgba(5,5,5,0.10) 58%, rgba(5,5,5,0.54) 100%),
+          linear-gradient(180deg, transparent 0%, rgba(5,5,5,0.50) 94%, #050506 100%);
       }
       .parcel-scan-stage {
-        opacity: 0.92;
+        opacity: 1;
         background-size: auto, auto, 40px 40px, 40px 40px;
       }
       .hero-value-points { grid-template-columns: 1fr; }
@@ -1147,8 +1152,18 @@
   var CONFIRMATION_END = 0.76;
   var CONFIRMATION_X_DESKTOP = 0.63;
   var CONFIRMATION_Y_DESKTOP = 0.69;
-  var CONFIRMATION_X_MOBILE = 0.14;
-  var CONFIRMATION_Y_MOBILE = 0.84;
+  var MOBILE_PARCEL_CENTER_X = 0.72;
+  var MOBILE_PARCEL_CENTER_Y = 0.60;
+  var MOBILE_SELECTED_PARCEL_BASE_OPACITY = 0.92;
+  var MOBILE_SELECTED_PARCEL_ORANGE_OPACITY = 0.48;
+  var MOBILE_HIGHLIGHT_INTENSITY = 1.34;
+  var MOBILE_CORNER_LOCK_OPACITY = 0.96;
+  var MOBILE_PARCEL_LABEL_OPACITY = 0.98;
+  var MOBILE_CONFIRMATION_OPACITY = 1;
+  var MOBILE_CONFIRMATION_START = 0.42;
+  var MOBILE_CONFIRMATION_END = 0.82;
+  var CONFIRMATION_X_MOBILE = 0.34;
+  var CONFIRMATION_Y_MOBILE = 0.70;
   var running = false;
   var raf = 0;
   var width = 0;
@@ -1203,9 +1218,15 @@
     }
 
     selectedParcel = parcels[compact ? 7 : 20] || parcels[Math.floor(parcels.length / 2)];
+    if (compact && selectedParcel) {
+      selectedParcel.w = Math.min(selectedParcel.w * 1.12, width * 0.24);
+      selectedParcel.h = Math.min(selectedParcel.h * 1.08, height * 0.16);
+      selectedParcel.x = clamp(width * MOBILE_PARCEL_CENTER_X - selectedParcel.w / 2, width * 0.54, width - selectedParcel.w - 18);
+      selectedParcel.y = clamp(height * MOBILE_PARCEL_CENTER_Y - selectedParcel.h / 2, height * 0.42, height * 0.72);
+    }
 
     labels = compact ? [
-      { text: 'Parcel matched', x: width * 0.58, y: height * 0.76, start: 0.42, end: 0.60, tone: 'orange' }
+      { text: 'Parcel matched', x: width * 0.62, y: height * 0.70, start: 0.38, end: 0.66, tone: 'orange' }
     ] : [
       { text: 'Parcel matched', x: width * 0.69, y: height * 0.34, start: 0.24, end: 0.44, tone: 'blue' },
       { text: 'Permit history checked', x: width * 0.75, y: height * 0.56, start: 0.40, end: 0.62, tone: 'orange' }
@@ -1252,7 +1273,7 @@
   }
 
   function drawParcel(parcel, alpha, stroke, fill, lineWidth) {
-    ctx.globalAlpha = alpha;
+    ctx.globalAlpha = clamp(alpha, 0, 1);
     ctx.fillStyle = fill;
     ctx.strokeStyle = stroke;
     ctx.lineWidth = lineWidth;
@@ -1263,6 +1284,7 @@
   }
 
   function drawCornerLocks(parcel, alpha) {
+    alpha = clamp(alpha, 0, 1);
     var size = Math.min(22, parcel.w * 0.28, parcel.h * 0.28);
     var inset = 5;
     var x = parcel.x - inset;
@@ -1290,36 +1312,36 @@
   function drawParcelLabel(parcel, loopProgress) {
     var compact = width < 760;
     var active = windowAlpha(loopProgress, 0.32, 0.78, 0.12);
-    var alpha = Math.max(0.36, active) * PARCEL_LABEL_OPACITY;
+    var alpha = clamp(Math.max(compact ? 0.72 : 0.36, active) * (compact ? MOBILE_PARCEL_LABEL_OPACITY : PARCEL_LABEL_OPACITY), 0, 1);
     var label = 'PARCEL LOCATED';
-    var labelX = compact ? parcel.x - 18 : parcel.x + parcel.w + 18;
-    var labelY = compact ? parcel.y + parcel.h + 28 : parcel.y + parcel.h * 0.34;
     var dotX = parcel.x + parcel.w * 0.52;
     var dotY = parcel.y + parcel.h * 0.5;
     ctx.font = '10px JetBrains Mono, Courier New, monospace';
     var textWidth = ctx.measureText(label).width + 22;
+    var labelX = compact ? clamp(parcel.x - 8, 16, width - textWidth - 16) : parcel.x + parcel.w + 18;
+    var labelY = compact ? clamp(parcel.y - 10, 42, height - 66) : parcel.y + parcel.h * 0.34;
 
     ctx.save();
     ctx.globalAlpha = alpha;
-    ctx.strokeStyle = 'rgba(255,90,31,0.40)';
+    ctx.strokeStyle = compact ? 'rgba(255,90,31,0.68)' : 'rgba(255,90,31,0.40)';
     ctx.lineWidth = 1;
     ctx.beginPath();
     ctx.moveTo(dotX, dotY);
     ctx.lineTo(labelX + 8, labelY - 11);
     ctx.stroke();
 
-    ctx.fillStyle = 'rgba(255,90,31,0.92)';
+    ctx.fillStyle = compact ? 'rgba(255,90,31,1)' : 'rgba(255,90,31,0.92)';
     ctx.beginPath();
-    ctx.arc(dotX, dotY, 3.2, 0, Math.PI * 2);
+    ctx.arc(dotX, dotY, compact ? 3.8 : 3.2, 0, Math.PI * 2);
     ctx.fill();
 
-    ctx.fillStyle = 'rgba(7,8,11,0.82)';
-    ctx.strokeStyle = 'rgba(255,90,31,0.38)';
+    ctx.fillStyle = compact ? 'rgba(7,8,11,0.96)' : 'rgba(7,8,11,0.82)';
+    ctx.strokeStyle = compact ? 'rgba(255,90,31,0.72)' : 'rgba(255,90,31,0.38)';
     roundedRect(labelX, labelY - 24, textWidth, 24, 6);
     ctx.fill();
     ctx.stroke();
 
-    ctx.fillStyle = 'rgba(245,247,251,0.88)';
+    ctx.fillStyle = compact ? 'rgba(245,247,251,1)' : 'rgba(245,247,251,0.88)';
     ctx.fillText(label, labelX + 11, labelY - 8);
     ctx.restore();
   }
@@ -1362,32 +1384,39 @@
   }
 
   function drawConfirmation(loopProgress) {
-    var alpha = windowAlpha(loopProgress, CONFIRMATION_START, CONFIRMATION_END, 0.08) * CONFIRMATION_OPACITY;
+    var compact = width < 760;
+    var start = compact ? MOBILE_CONFIRMATION_START : CONFIRMATION_START;
+    var end = compact ? MOBILE_CONFIRMATION_END : CONFIRMATION_END;
+    var alpha = clamp(windowAlpha(loopProgress, start, end, compact ? 0.10 : 0.08) * (compact ? MOBILE_CONFIRMATION_OPACITY : CONFIRMATION_OPACITY), 0, 1);
     if (!alpha) return;
 
-    var compact = width < 760;
     var text = 'PUBLIC RECORD SIGNAL FOUND';
-    var x = width * (compact ? CONFIRMATION_X_MOBILE : CONFIRMATION_X_DESKTOP);
-    var y = height * (compact ? CONFIRMATION_Y_MOBILE : CONFIRMATION_Y_DESKTOP);
-    var scale = 0.992 + easeInOut(clamp((loopProgress - CONFIRMATION_START) / 0.10, 0, 1)) * 0.01;
+    var scale = 0.992 + easeInOut(clamp((loopProgress - start) / 0.10, 0, 1)) * 0.01;
 
     ctx.save();
-    ctx.translate(x, y);
-    ctx.scale(scale, scale);
     ctx.globalAlpha = alpha;
     ctx.font = '12px JetBrains Mono, Courier New, monospace';
     var textWidth = ctx.measureText(text).width;
     var boxW = textWidth + 34;
     var boxH = 38;
+    var x = width * (compact ? CONFIRMATION_X_MOBILE : CONFIRMATION_X_DESKTOP);
+    var y = height * (compact ? CONFIRMATION_Y_MOBILE : CONFIRMATION_Y_DESKTOP);
+    if (compact) {
+      x = clamp(x, 16, width - boxW - 16);
+      y = clamp(y, 54, height - boxH - 52);
+    }
 
-    ctx.fillStyle = 'rgba(5,6,8,0.95)';
-    ctx.strokeStyle = 'rgba(255,90,31,0.92)';
+    ctx.translate(x, y);
+    ctx.scale(scale, scale);
+
+    ctx.fillStyle = compact ? 'rgba(5,6,8,0.98)' : 'rgba(5,6,8,0.95)';
+    ctx.strokeStyle = compact ? 'rgba(255,90,31,1)' : 'rgba(255,90,31,0.92)';
     ctx.lineWidth = 1;
     roundedRect(0, 0, boxW, boxH, 8);
     ctx.fill();
     ctx.stroke();
 
-    ctx.strokeStyle = 'rgba(47,91,255,0.62)';
+    ctx.strokeStyle = compact ? 'rgba(47,91,255,0.78)' : 'rgba(47,91,255,0.62)';
     ctx.beginPath();
     ctx.moveTo(12, boxH - 8);
     ctx.lineTo(boxW - 12, boxH - 8);
@@ -1427,16 +1456,19 @@
     });
 
     if (selectedParcel) {
-      drawParcel(selectedParcel, SELECTED_PARCEL_BASE_OPACITY, 'rgba(166,187,255,1)', 'rgba(47,91,255,0.07)', 1.45);
-      drawParcel(selectedParcel, 0.32, 'rgba(255,90,31,0.82)', 'rgba(255,90,31,0.055)', 1.18);
-      drawCornerLocks(selectedParcel, CORNER_LOCK_OPACITY * 0.52);
+      var selectedBaseAlpha = compact ? MOBILE_SELECTED_PARCEL_BASE_OPACITY : SELECTED_PARCEL_BASE_OPACITY;
+      var selectedOrangeAlpha = compact ? MOBILE_SELECTED_PARCEL_ORANGE_OPACITY : 0.32;
+      var lockBaseAlpha = compact ? MOBILE_CORNER_LOCK_OPACITY * 0.78 : CORNER_LOCK_OPACITY * 0.52;
+      drawParcel(selectedParcel, selectedBaseAlpha, 'rgba(166,187,255,1)', compact ? 'rgba(47,91,255,0.11)' : 'rgba(47,91,255,0.07)', compact ? 1.7 : 1.45);
+      drawParcel(selectedParcel, selectedOrangeAlpha, 'rgba(255,90,31,0.92)', compact ? 'rgba(255,90,31,0.09)' : 'rgba(255,90,31,0.055)', compact ? 1.55 : 1.18);
+      drawCornerLocks(selectedParcel, lockBaseAlpha);
       drawParcelLabel(selectedParcel, progress);
     }
 
-    var highlightAlpha = windowAlpha(progress, 0.30, 0.78, 0.14) * HIGHLIGHT_INTENSITY;
+    var highlightAlpha = windowAlpha(progress, 0.30, compact ? 0.82 : 0.78, compact ? 0.16 : 0.14) * (compact ? MOBILE_HIGHLIGHT_INTENSITY : HIGHLIGHT_INTENSITY);
     if (selectedParcel && highlightAlpha) {
-      drawParcel(selectedParcel, highlightAlpha, 'rgba(255,90,31,1)', 'rgba(255,90,31,0.22)', 2.05);
-      drawCornerLocks(selectedParcel, Math.min(1, highlightAlpha * CORNER_LOCK_OPACITY));
+      drawParcel(selectedParcel, highlightAlpha, 'rgba(255,90,31,1)', compact ? 'rgba(255,90,31,0.28)' : 'rgba(255,90,31,0.22)', compact ? 2.25 : 2.05);
+      drawCornerLocks(selectedParcel, Math.min(1, highlightAlpha * (compact ? MOBILE_CORNER_LOCK_OPACITY : CORNER_LOCK_OPACITY)));
     }
 
     if (!motionQuery.matches) {
