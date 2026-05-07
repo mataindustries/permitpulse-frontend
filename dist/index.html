@@ -214,17 +214,75 @@
     .logo { font-weight: 700; font-size: 18px; letter-spacing: -0.03em; }
 
     .hero {
-      padding-top: 180px;
-      padding-bottom: 100px;
+      padding-top: 172px;
+      padding-bottom: 72px;
       position: relative;
+      min-height: min(820px, calc(100svh - 18px));
+      overflow: visible;
+      isolation: isolate;
+      background:
+        linear-gradient(90deg, rgba(5,5,5,0.99) 0%, rgba(5,5,5,0.94) 46%, rgba(5,5,5,0.54) 75%, rgba(5,5,5,0.82) 100%),
+        linear-gradient(rgba(255,255,255,0.035) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.028) 1px, transparent 1px),
+        radial-gradient(circle at 78% 38%, rgba(41,82,255,0.12), transparent 34%),
+        radial-gradient(circle at 88% 72%, rgba(255,68,0,0.08), transparent 28%),
+        var(--bg);
+      background-size: auto, 44px 44px, 44px 44px, auto, auto, auto;
+    }
+
+    .hero::before,
+    .hero::after {
+      content: "";
+      position: absolute;
+      inset: 0 calc(50% - 50vw);
+      pointer-events: none;
+      z-index: -1;
+    }
+
+    .hero::before {
+      background:
+        linear-gradient(90deg, rgba(5,5,5,1) 0%, rgba(5,5,5,0.98) 42%, rgba(5,5,5,0.56) 71%, rgba(5,5,5,0.82) 100%),
+        linear-gradient(180deg, rgba(5,5,5,0.98) 0%, transparent 30%, rgba(5,5,5,0.82) 100%);
+    }
+
+    .hero::after {
+      background:
+        radial-gradient(circle at 74% 44%, transparent 0 24%, rgba(5,5,5,0.28) 52%, rgba(5,5,5,0.94) 100%),
+        linear-gradient(180deg, transparent 0%, rgba(5,5,5,0.88) 92%, #050506 100%);
+      mix-blend-mode: normal;
+    }
+
+    .hero > :not(.parcel-scan-stage) {
+      position: relative;
+      z-index: 2;
+    }
+
+    .hero h1 {
+      max-width: 850px;
+      text-shadow: 0 2px 26px rgba(0,0,0,0.78);
+    }
+
+    .parcel-scan-stage {
+      position: absolute;
+      inset: 0 calc(50% - 50vw);
+      z-index: -2;
+      overflow: hidden;
+      pointer-events: none;
+    }
+
+    .parcel-scan-stage canvas {
+      width: 100%;
+      height: 100%;
+      display: block;
     }
 
     .hero p.lead {
       font-size: clamp(1.1rem, 2vw, 1.4rem);
-      color: var(--text-muted);
-      max-width: 600px;
+      color: #c9c9c9;
+      max-width: 640px;
       margin-top: 24px;
       margin-bottom: 40px;
+      text-shadow: 0 1px 22px rgba(0,0,0,0.82);
     }
 
     .hero-value-block {
@@ -239,14 +297,27 @@
       gap: 12px;
     }
     .hero-value-points div {
-      background: rgba(255,255,255,0.03);
-      border: 1px solid rgba(255,255,255,0.08);
+      background: rgba(8,8,9,0.72);
+      border: 1px solid rgba(255,255,255,0.12);
       border-radius: 10px;
+      backdrop-filter: blur(10px);
       padding: 12px 14px;
       font-size: 14px;
       color: var(--text-main);
     }
     @media (max-width: 768px) {
+      .hero {
+        padding-top: 132px;
+        padding-bottom: 54px;
+        min-height: auto;
+        background-size: auto, 34px 34px, 34px 34px, auto, auto, auto;
+      }
+      .hero::before {
+        background:
+          linear-gradient(180deg, rgba(5,5,5,0.98) 0%, rgba(5,5,5,0.90) 46%, rgba(5,5,5,0.74) 100%),
+          linear-gradient(90deg, rgba(5,5,5,0.98) 0%, rgba(5,5,5,0.58) 100%);
+      }
+      .parcel-scan-stage { opacity: 0.48; }
       .hero-value-points { grid-template-columns: 1fr; }
       .hero-actions,
       .final-cta-actions,
@@ -262,6 +333,16 @@
       .hotline-media,
       .hotline-media img { width: 100%; max-width: 100%; }
       .hotline-media img { height: auto; max-height: none; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .parcel-scan-stage canvas {
+        opacity: 0.72;
+      }
+      .btn:hover,
+      .bento-box:hover {
+        transform: none;
+      }
     }
 
     /* --- IMAGE CARDS --- */
@@ -555,6 +636,10 @@
 </header>
 
 <section class="wrap hero">
+  <div class="parcel-scan-stage" aria-hidden="true">
+    <canvas id="parcelScanHero"></canvas>
+  </div>
+
   <div class="badge">PERMIT REVIEW PLUS</div>
   <h1>Know what’s in the permit record before you make the wrong move.</h1>
 
@@ -596,14 +681,6 @@
     </div>
   </div>
 
-  <div class="img-card hero-media">
-    <img
-      src="/assets/images/permit-review-plus-los-angeles-permit-documents-workspace.png"
-      alt="Permit review workspace with Los Angeles building permit documents, plan check corrections, parcel maps, and architectural plans."
-      loading="eager"
-      decoding="async"
-    />
-  </div>
 </section>
 
 <section class="section" style="background:#050506;">
@@ -1006,6 +1083,347 @@
     Order Permit Review Plus
   </a>
 </div>
+
+<script>
+(function () {
+  var canvas = document.getElementById('parcelScanHero');
+  if (!canvas || !canvas.getContext) return;
+
+  var ctx = canvas.getContext('2d', { alpha: true });
+  if (!ctx) return;
+
+  var stage = canvas.parentElement;
+  var motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+  var LOOP_MS = 12800;
+  var FRAME_INTERVAL_MS = 33;
+  var SCAN_INTENSITY = 0.72;
+  var LABEL_OPACITY = 0.68;
+  var HIGHLIGHT_INTENSITY = 0.78;
+  var running = false;
+  var raf = 0;
+  var width = 0;
+  var height = 0;
+  var dpr = 1;
+  var parcels = [];
+  var labels = [];
+  var selectedParcel = null;
+  var startTime = 0;
+  var lastDrawTime = 0;
+
+  function clamp(value, min, max) {
+    return Math.max(min, Math.min(max, value));
+  }
+
+  function easeInOut(value) {
+    return value < 0.5 ? 2 * value * value : 1 - Math.pow(-2 * value + 2, 2) / 2;
+  }
+
+  function windowAlpha(time, start, end, fade) {
+    if (time < start || time > end) return 0;
+    return Math.min(clamp((time - start) / fade, 0, 1), clamp((end - time) / fade, 0, 1));
+  }
+
+  function makeScene() {
+    var compact = width < 760;
+    var left = compact ? width * 0.44 : width * 0.50;
+    var top = compact ? height * 0.32 : height * 0.14;
+    var gridW = compact ? width * 0.46 : width * 0.42;
+    var gridH = compact ? height * 0.48 : height * 0.66;
+    var cols = compact ? 3 : 6;
+    var rows = compact ? 4 : 5;
+    var gap = compact ? 7 : 10;
+    var cellW = (gridW - gap * (cols - 1)) / cols;
+    var cellH = (gridH - gap * (rows - 1)) / rows;
+
+    parcels = [];
+    labels = [];
+
+    for (var y = 0; y < rows; y += 1) {
+      for (var x = 0; x < cols; x += 1) {
+        var wide = !compact && (x + y) % 8 === 2 ? 1.34 : 1;
+        var tall = (x * 2 + y) % 10 === 3 ? 1.2 : 1;
+        parcels.push({
+          x: left + x * (cellW + gap),
+          y: top + y * (cellH + gap),
+          w: Math.min(cellW * wide, gridW - x * (cellW + gap)),
+          h: Math.min(cellH * tall, gridH - y * (cellH + gap)),
+          tone: (x + y) % 3
+        });
+      }
+    }
+
+    selectedParcel = parcels[compact ? 7 : 20] || parcels[Math.floor(parcels.length / 2)];
+
+    labels = compact ? [
+      { text: 'Parcel matched', x: width * 0.58, y: height * 0.72, start: 0.52, end: 0.68, tone: 'orange' }
+    ] : [
+      { text: 'Parcel matched', x: width * 0.70, y: height * 0.36, start: 0.34, end: 0.52, tone: 'blue' },
+      { text: 'Permit history checked', x: width * 0.74, y: height * 0.56, start: 0.49, end: 0.68, tone: 'orange' }
+    ];
+  }
+
+  function resize() {
+    var rect = stage.getBoundingClientRect();
+    width = Math.max(1, Math.floor(rect.width));
+    height = Math.max(1, Math.floor(rect.height));
+    dpr = Math.min(window.devicePixelRatio || 1, width < 760 ? 1.1 : 1.35);
+    canvas.width = Math.floor(width * dpr);
+    canvas.height = Math.floor(height * dpr);
+    canvas.style.width = width + 'px';
+    canvas.style.height = height + 'px';
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    makeScene();
+    draw(motionQuery.matches ? 0.58 : 0);
+  }
+
+  function line(x1, y1, x2, y2, color, alpha, size) {
+    ctx.globalAlpha = alpha;
+    ctx.strokeStyle = color;
+    ctx.lineWidth = size || 1;
+    ctx.beginPath();
+    ctx.moveTo(x1, y1);
+    ctx.lineTo(x2, y2);
+    ctx.stroke();
+    ctx.globalAlpha = 1;
+  }
+
+  function roundedRect(x, y, w, h, r) {
+    var radius = Math.min(r, w / 2, h / 2);
+    ctx.beginPath();
+    ctx.moveTo(x + radius, y);
+    ctx.lineTo(x + w - radius, y);
+    ctx.quadraticCurveTo(x + w, y, x + w, y + radius);
+    ctx.lineTo(x + w, y + h - radius);
+    ctx.quadraticCurveTo(x + w, y + h, x + w - radius, y + h);
+    ctx.lineTo(x + radius, y + h);
+    ctx.quadraticCurveTo(x, y + h, x, y + h - radius);
+    ctx.lineTo(x, y + radius);
+    ctx.quadraticCurveTo(x, y, x + radius, y);
+  }
+
+  function drawParcel(parcel, alpha, stroke, fill, lineWidth) {
+    ctx.globalAlpha = alpha;
+    ctx.fillStyle = fill;
+    ctx.strokeStyle = stroke;
+    ctx.lineWidth = lineWidth;
+    roundedRect(parcel.x, parcel.y, parcel.w, parcel.h, 5);
+    ctx.fill();
+    ctx.stroke();
+    ctx.globalAlpha = 1;
+  }
+
+  function drawCornerLocks(parcel, alpha) {
+    var size = Math.min(18, parcel.w * 0.24, parcel.h * 0.24);
+    var x = parcel.x;
+    var y = parcel.y;
+    var w = parcel.w;
+    var h = parcel.h;
+    ctx.strokeStyle = 'rgba(255,90,31,' + alpha + ')';
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.moveTo(x, y + size);
+    ctx.lineTo(x, y);
+    ctx.lineTo(x + size, y);
+    ctx.moveTo(x + w - size, y);
+    ctx.lineTo(x + w, y);
+    ctx.lineTo(x + w, y + size);
+    ctx.moveTo(x + w, y + h - size);
+    ctx.lineTo(x + w, y + h);
+    ctx.lineTo(x + w - size, y + h);
+    ctx.moveTo(x + size, y + h);
+    ctx.lineTo(x, y + h);
+    ctx.lineTo(x, y + h - size);
+    ctx.stroke();
+  }
+
+  function drawLabel(label, loopProgress) {
+    var alpha = windowAlpha(loopProgress, label.start, label.end, 0.075) * LABEL_OPACITY;
+    if (!alpha) return;
+
+    var color = label.tone === 'orange' ? '255,90,31' : '47,91,255';
+    var dotX = label.x;
+    var dotY = label.y;
+    var textX = label.x + 13;
+    var textY = label.y - 5;
+    var text = label.text.toUpperCase();
+    var textWidth = ctx.measureText(text).width + 18;
+
+    ctx.globalAlpha = alpha;
+    ctx.strokeStyle = 'rgba(' + color + ',0.22)';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(dotX, dotY);
+    ctx.lineTo(textX + 4, textY - 12);
+    ctx.stroke();
+
+    ctx.fillStyle = 'rgba(' + color + ',0.72)';
+    ctx.beginPath();
+    ctx.arc(dotX, dotY, 2.8, 0, Math.PI * 2);
+    ctx.fill();
+
+    ctx.fillStyle = 'rgba(7,8,11,0.56)';
+    ctx.strokeStyle = 'rgba(255,255,255,0.075)';
+    roundedRect(textX, textY - 23, textWidth, 22, 6);
+    ctx.fill();
+    ctx.stroke();
+
+    ctx.fillStyle = 'rgba(245,247,251,0.62)';
+    ctx.font = '10px JetBrains Mono, Courier New, monospace';
+    ctx.fillText(text, textX + 9, textY - 8);
+    ctx.globalAlpha = 1;
+  }
+
+  function drawConfirmation(loopProgress) {
+    var alpha = windowAlpha(loopProgress, 0.60, 0.70, 0.055) * 0.86;
+    if (!alpha) return;
+
+    var compact = width < 760;
+    var text = 'PUBLIC RECORD SIGNAL FOUND';
+    var x = compact ? width * 0.18 : width * 0.64;
+    var y = compact ? height * 0.79 : height * 0.75;
+    var scale = 0.992 + easeInOut(clamp((loopProgress - 0.60) / 0.07, 0, 1)) * 0.008;
+
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.scale(scale, scale);
+    ctx.globalAlpha = alpha;
+    ctx.font = '11px JetBrains Mono, Courier New, monospace';
+    var textWidth = ctx.measureText(text).width;
+    var boxW = textWidth + 28;
+    var boxH = 32;
+
+    ctx.fillStyle = 'rgba(7,8,11,0.68)';
+    ctx.strokeStyle = 'rgba(255,90,31,0.42)';
+    ctx.lineWidth = 1;
+    roundedRect(0, 0, boxW, boxH, 7);
+    ctx.fill();
+    ctx.stroke();
+
+    ctx.strokeStyle = 'rgba(47,91,255,0.28)';
+    ctx.beginPath();
+    ctx.moveTo(10, boxH - 7);
+    ctx.lineTo(boxW - 10, boxH - 7);
+    ctx.stroke();
+
+    ctx.fillStyle = 'rgba(255,90,31,0.68)';
+    ctx.fillRect(11, 9, 2, 13);
+    ctx.fillStyle = 'rgba(245,247,251,0.78)';
+    ctx.fillText(text, 21, 21);
+    ctx.restore();
+  }
+
+  function draw(progress) {
+    ctx.clearRect(0, 0, width, height);
+
+    var compact = width < 760;
+    var grid = compact ? 38 : 52;
+    var lineGlow = 0.026 + windowAlpha(progress, 0.10, 0.88, 0.26) * 0.012;
+
+    var gradient = ctx.createLinearGradient(0, 0, width, height);
+    gradient.addColorStop(0, 'rgba(5,6,8,0)');
+    gradient.addColorStop(0.58, 'rgba(47,91,255,0.052)');
+    gradient.addColorStop(1, 'rgba(255,90,31,0.032)');
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, 0, width, height);
+
+    for (var x = -grid; x < width + grid; x += grid) {
+      line(x, 0, x + height * 0.16, height, '#dce5ff', lineGlow, 1);
+    }
+    for (var y = 0; y < height + grid; y += grid) {
+      line(0, y, width, y - width * 0.035, '#dce5ff', lineGlow * 0.82, 1);
+    }
+
+    parcels.forEach(function (parcel) {
+      var alpha = 0.17 + parcel.tone * 0.018;
+      drawParcel(parcel, alpha, 'rgba(115,143,255,0.48)', 'rgba(255,255,255,0.014)', 1);
+    });
+
+    var highlightAlpha = windowAlpha(progress, 0.48, 0.74, 0.12) * HIGHLIGHT_INTENSITY;
+    if (selectedParcel && highlightAlpha) {
+      drawParcel(selectedParcel, highlightAlpha, 'rgba(255,90,31,0.86)', 'rgba(255,90,31,0.07)', 1.35);
+      drawCornerLocks(selectedParcel, highlightAlpha * 0.84);
+    }
+
+    if (!motionQuery.matches) {
+      var sweepPhase = clamp((progress - 0.19) / 0.58, 0, 1);
+      if (sweepPhase > 0 && sweepPhase < 1) {
+        var easedSweep = easeInOut(sweepPhase);
+        var sweepX = width * (-0.05 + easedSweep * 1.12);
+        var sweep = ctx.createLinearGradient(sweepX - 130, 0, sweepX + 130, 0);
+        sweep.addColorStop(0, 'rgba(47,91,255,0)');
+        sweep.addColorStop(0.46, 'rgba(47,91,255,' + (0.082 * SCAN_INTENSITY) + ')');
+        sweep.addColorStop(0.52, 'rgba(245,247,251,' + (0.15 * SCAN_INTENSITY) + ')');
+        sweep.addColorStop(0.62, 'rgba(255,90,31,' + (0.062 * SCAN_INTENSITY) + ')');
+        sweep.addColorStop(1, 'rgba(255,90,31,0)');
+        ctx.fillStyle = sweep;
+        ctx.beginPath();
+        ctx.moveTo(sweepX - 130, 0);
+        ctx.lineTo(sweepX + 32, 0);
+        ctx.lineTo(sweepX + 118, height);
+        ctx.lineTo(sweepX - 48, height);
+        ctx.closePath();
+        ctx.fill();
+      }
+    }
+
+    ctx.font = '10px JetBrains Mono, Courier New, monospace';
+    labels.forEach(function (label) {
+      drawLabel(label, progress);
+    });
+    drawConfirmation(progress);
+  }
+
+  function frame(now) {
+    if (!running) return;
+    if (!startTime) startTime = now;
+    if (now - lastDrawTime < FRAME_INTERVAL_MS) {
+      raf = window.requestAnimationFrame(frame);
+      return;
+    }
+    lastDrawTime = now;
+    draw(((now - startTime) % LOOP_MS) / LOOP_MS);
+    raf = window.requestAnimationFrame(frame);
+  }
+
+  function start() {
+    if (running || motionQuery.matches) return;
+    running = true;
+    startTime = 0;
+    lastDrawTime = 0;
+    raf = window.requestAnimationFrame(frame);
+  }
+
+  function stop() {
+    running = false;
+    if (raf) window.cancelAnimationFrame(raf);
+    draw(0.58);
+  }
+
+  resize();
+  window.addEventListener('resize', resize, { passive: true });
+
+  if ('IntersectionObserver' in window) {
+    new IntersectionObserver(function (entries) {
+      if (entries[0] && entries[0].isIntersecting) start();
+      else stop();
+    }, { threshold: 0.08 }).observe(stage);
+  } else {
+    start();
+  }
+
+  function handleMotionChange() {
+    resize();
+    if (motionQuery.matches) stop();
+    else start();
+  }
+
+  if (motionQuery.addEventListener) {
+    motionQuery.addEventListener('change', handleMotionChange);
+  } else if (motionQuery.addListener) {
+    motionQuery.addListener(handleMotionChange);
+  }
+})();
+</script>
 
 </body>
 </html>
