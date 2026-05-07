@@ -241,14 +241,14 @@
 
     .hero::before {
       background:
-        linear-gradient(90deg, rgba(5,5,5,0.98) 0%, rgba(5,5,5,0.92) 40%, rgba(5,5,5,0.28) 72%, rgba(5,5,5,0.64) 100%),
-        linear-gradient(180deg, rgba(5,5,5,0.92) 0%, transparent 34%, rgba(5,5,5,0.68) 100%);
+        linear-gradient(90deg, rgba(5,5,5,0.98) 0%, rgba(5,5,5,0.92) 40%, rgba(5,5,5,0.22) 72%, rgba(5,5,5,0.58) 100%),
+        linear-gradient(180deg, rgba(5,5,5,0.92) 0%, transparent 34%, rgba(5,5,5,0.62) 100%);
     }
 
     .hero::after {
       background:
-        radial-gradient(circle at 74% 44%, transparent 0 25%, rgba(5,5,5,0.14) 54%, rgba(5,5,5,0.78) 100%),
-        linear-gradient(180deg, transparent 0%, rgba(5,5,5,0.70) 92%, #050506 100%);
+        radial-gradient(circle at 74% 44%, transparent 0 25%, rgba(5,5,5,0.10) 54%, rgba(5,5,5,0.72) 100%),
+        linear-gradient(180deg, transparent 0%, rgba(5,5,5,0.64) 92%, #050506 100%);
       mix-blend-mode: normal;
     }
 
@@ -1137,12 +1137,12 @@
   var FRAME_INTERVAL_MS = 33;
   var SCAN_INTENSITY = 1.15;
   var LABEL_OPACITY = 0.86;
-  var HIGHLIGHT_INTENSITY = 1.08;
+  var HIGHLIGHT_INTENSITY = 1.16;
   var PARCEL_BASE_OPACITY = 0.46;
-  var SELECTED_PARCEL_BASE_OPACITY = 0.62;
-  var CORNER_LOCK_OPACITY = 0.72;
+  var SELECTED_PARCEL_BASE_OPACITY = 0.70;
+  var CORNER_LOCK_OPACITY = 0.80;
   var PARCEL_LABEL_OPACITY = 0.9;
-  var CONFIRMATION_OPACITY = 1;
+  var CONFIRMATION_OPACITY = 1.08;
   var CONFIRMATION_START = 0.46;
   var CONFIRMATION_END = 0.76;
   var CONFIRMATION_X_DESKTOP = 0.63;
@@ -1380,14 +1380,14 @@
     var boxW = textWidth + 34;
     var boxH = 38;
 
-    ctx.fillStyle = 'rgba(5,6,8,0.92)';
-    ctx.strokeStyle = 'rgba(255,90,31,0.82)';
+    ctx.fillStyle = 'rgba(5,6,8,0.95)';
+    ctx.strokeStyle = 'rgba(255,90,31,0.92)';
     ctx.lineWidth = 1;
     roundedRect(0, 0, boxW, boxH, 8);
     ctx.fill();
     ctx.stroke();
 
-    ctx.strokeStyle = 'rgba(47,91,255,0.54)';
+    ctx.strokeStyle = 'rgba(47,91,255,0.62)';
     ctx.beginPath();
     ctx.moveTo(12, boxH - 8);
     ctx.lineTo(boxW - 12, boxH - 8);
@@ -1395,7 +1395,7 @@
 
     ctx.fillStyle = 'rgba(255,90,31,1)';
     ctx.fillRect(12, 10, 2, 16);
-    ctx.fillStyle = 'rgba(245,247,251,0.96)';
+    ctx.fillStyle = 'rgba(245,247,251,1)';
     ctx.fillText(text, 23, 24);
     ctx.restore();
   }
@@ -1427,15 +1427,15 @@
     });
 
     if (selectedParcel) {
-      drawParcel(selectedParcel, SELECTED_PARCEL_BASE_OPACITY, 'rgba(154,176,255,0.95)', 'rgba(47,91,255,0.055)', 1.35);
-      drawParcel(selectedParcel, 0.26, 'rgba(255,90,31,0.72)', 'rgba(255,90,31,0.045)', 1.1);
+      drawParcel(selectedParcel, SELECTED_PARCEL_BASE_OPACITY, 'rgba(166,187,255,1)', 'rgba(47,91,255,0.07)', 1.45);
+      drawParcel(selectedParcel, 0.32, 'rgba(255,90,31,0.82)', 'rgba(255,90,31,0.055)', 1.18);
       drawCornerLocks(selectedParcel, CORNER_LOCK_OPACITY * 0.52);
       drawParcelLabel(selectedParcel, progress);
     }
 
     var highlightAlpha = windowAlpha(progress, 0.30, 0.78, 0.14) * HIGHLIGHT_INTENSITY;
     if (selectedParcel && highlightAlpha) {
-      drawParcel(selectedParcel, highlightAlpha, 'rgba(255,90,31,1)', 'rgba(255,90,31,0.18)', 1.9);
+      drawParcel(selectedParcel, highlightAlpha, 'rgba(255,90,31,1)', 'rgba(255,90,31,0.22)', 2.05);
       drawCornerLocks(selectedParcel, Math.min(1, highlightAlpha * CORNER_LOCK_OPACITY));
     }
 
