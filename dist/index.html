@@ -283,6 +283,10 @@
       display: block;
     }
 
+    .mobile-parcel-fallback {
+      display: none;
+    }
+
     .hero p.lead {
       font-size: clamp(1.1rem, 2vw, 1.4rem);
       color: #c9c9c9;
@@ -329,9 +333,142 @@
           radial-gradient(ellipse at 76% 62%, transparent 0 34%, rgba(5,5,5,0.10) 58%, rgba(5,5,5,0.54) 100%),
           linear-gradient(180deg, transparent 0%, rgba(5,5,5,0.50) 94%, #050506 100%);
       }
+      .hero::before,
+      .hero::after {
+        z-index: 0;
+      }
+      .hero > :not(.parcel-scan-stage) {
+        z-index: 3;
+      }
       .parcel-scan-stage {
+        --mobile-parcel-x: 54%;
+        --mobile-parcel-y: 50%;
+        --mobile-parcel-w: min(25vw, 96px);
+        --mobile-parcel-h: min(17vw, 68px);
+        --mobile-parcel-grid-opacity: 0.30;
+        --mobile-parcel-outline-opacity: 0.90;
+        --mobile-parcel-lock-opacity: 0.95;
+        --mobile-parcel-label-opacity: 0.92;
+        --mobile-record-signal-opacity: 0.96;
+        z-index: 1;
         opacity: 1;
         background-size: auto, auto, 40px 40px, 40px 40px;
+      }
+      .mobile-parcel-fallback {
+        display: block;
+        position: absolute;
+        left: var(--mobile-parcel-x);
+        top: var(--mobile-parcel-y);
+        width: min(38vw, 152px);
+        height: min(31vw, 124px);
+        pointer-events: none;
+        opacity: 1;
+        transform: translateZ(0);
+      }
+      .mobile-parcel-grid {
+        position: absolute;
+        inset: -20px -24px -18px -22px;
+        opacity: var(--mobile-parcel-grid-opacity);
+        background:
+          linear-gradient(rgba(154,176,255,0.48) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(154,176,255,0.40) 1px, transparent 1px);
+        background-size: 24px 24px;
+        mask-image: linear-gradient(90deg, transparent 0%, #000 18%, #000 82%, transparent 100%);
+      }
+      .mobile-parcel-lock {
+        position: absolute;
+        left: 18px;
+        top: 12px;
+        width: var(--mobile-parcel-w);
+        height: var(--mobile-parcel-h);
+        border: 1px solid rgba(175,194,255,var(--mobile-parcel-outline-opacity));
+        border-radius: 7px;
+        background:
+          linear-gradient(135deg, rgba(47,91,255,0.16), rgba(255,90,31,0.10)),
+          rgba(6,8,14,0.40);
+        box-shadow:
+          0 0 0 1px rgba(47,91,255,0.18),
+          0 0 22px rgba(255,90,31,0.14);
+      }
+      .mobile-parcel-lock::before,
+      .mobile-parcel-lock::after,
+      .mobile-parcel-lock span::before,
+      .mobile-parcel-lock span::after {
+        content: "";
+        position: absolute;
+        width: 17px;
+        height: 17px;
+        border-color: rgba(255,90,31,var(--mobile-parcel-lock-opacity));
+        border-style: solid;
+        filter: drop-shadow(0 0 7px rgba(255,90,31,0.26));
+      }
+      .mobile-parcel-lock::before {
+        left: -7px;
+        top: -7px;
+        border-width: 2px 0 0 2px;
+      }
+      .mobile-parcel-lock::after {
+        right: -7px;
+        top: -7px;
+        border-width: 2px 2px 0 0;
+      }
+      .mobile-parcel-lock span::before {
+        left: -7px;
+        bottom: -7px;
+        border-width: 0 0 2px 2px;
+      }
+      .mobile-parcel-lock span::after {
+        right: -7px;
+        bottom: -7px;
+        border-width: 0 2px 2px 0;
+      }
+      .mobile-parcel-label,
+      .mobile-record-signal {
+        position: absolute;
+        font-family: var(--font-mono);
+        letter-spacing: 0;
+        white-space: nowrap;
+        border-radius: 7px;
+        background: rgba(5,6,8,0.94);
+        backdrop-filter: blur(6px);
+      }
+      .mobile-parcel-label {
+        left: 4px;
+        top: -24px;
+        padding: 5px 8px;
+        border: 1px solid rgba(255,90,31,0.64);
+        color: rgba(245,247,251,0.96);
+        font-size: 10px;
+        opacity: var(--mobile-parcel-label-opacity);
+      }
+      .mobile-record-signal {
+        left: -34px;
+        top: calc(var(--mobile-parcel-h) + 30px);
+        padding: 9px 12px 10px 15px;
+        border: 1px solid rgba(255,90,31,0.86);
+        color: rgba(245,247,251,0.98);
+        font-size: 11px;
+        line-height: 1;
+        opacity: var(--mobile-record-signal-opacity);
+        box-shadow: 0 10px 28px rgba(0,0,0,0.30);
+      }
+      .mobile-record-signal::before {
+        content: "";
+        position: absolute;
+        left: 8px;
+        top: 8px;
+        width: 2px;
+        height: 14px;
+        background: rgba(255,90,31,1);
+      }
+      .mobile-record-signal::after {
+        content: "";
+        position: absolute;
+        left: 11px;
+        right: 11px;
+        bottom: 7px;
+        height: 1px;
+        background: rgba(47,91,255,0.72);
       }
       .hero-value-points { grid-template-columns: 1fr; }
       .hero-actions,
@@ -354,10 +491,41 @@
       .parcel-scan-stage canvas {
         opacity: 0.72;
       }
+      .mobile-parcel-fallback,
+      .mobile-parcel-lock {
+        animation: none;
+      }
       .btn:hover,
       .bento-box:hover {
         transform: none;
       }
+    }
+
+    @media (max-width: 768px) and (prefers-reduced-motion: no-preference) {
+      .mobile-parcel-lock {
+        animation: mobileParcelPulse 5.8s ease-in-out infinite;
+      }
+      .mobile-record-signal {
+        animation: mobileRecordSignal 5.8s ease-in-out infinite;
+      }
+    }
+
+    @keyframes mobileParcelPulse {
+      0%, 100% {
+        box-shadow:
+          0 0 0 1px rgba(47,91,255,0.18),
+          0 0 18px rgba(255,90,31,0.11);
+      }
+      45%, 72% {
+        box-shadow:
+          0 0 0 1px rgba(47,91,255,0.26),
+          0 0 28px rgba(255,90,31,0.24);
+      }
+    }
+
+    @keyframes mobileRecordSignal {
+      0%, 28%, 100% { opacity: 0.78; }
+      42%, 82% { opacity: var(--mobile-record-signal-opacity); }
     }
 
     /* --- IMAGE CARDS --- */
@@ -682,6 +850,12 @@
 <section class="wrap hero">
   <div class="parcel-scan-stage" aria-hidden="true">
     <canvas id="parcelScanHero"></canvas>
+    <div class="mobile-parcel-fallback">
+      <div class="mobile-parcel-grid"></div>
+      <div class="mobile-parcel-lock"><span></span></div>
+      <div class="mobile-parcel-label">PARCEL LOCATED</div>
+      <div class="mobile-record-signal">PUBLIC RECORD SIGNAL FOUND</div>
+    </div>
   </div>
 
   <div class="badge">PERMIT REVIEW PLUS</div>
