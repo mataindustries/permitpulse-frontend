@@ -342,7 +342,7 @@
       }
       .parcel-scan-stage {
         --mobile-parcel-x: 56%;
-        --mobile-parcel-y: 51%;
+        --mobile-parcel-y: clamp(455px, 52svh, 500px);
         --mobile-parcel-w: min(22vw, 84px);
         --mobile-parcel-h: min(15vw, 58px);
         --mobile-parcel-grid-opacity: 0.20;
@@ -479,6 +479,14 @@
       .hero-actions {
         max-width: 340px;
         gap: 0;
+        margin-bottom: 154px;
+      }
+      .hero .turnaround-pill {
+        margin-top: 0 !important;
+        margin-bottom: 18px;
+      }
+      .hero-value-block {
+        margin-top: 0;
       }
       .hero-actions .btn,
       .final-cta-actions .btn,
