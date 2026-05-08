@@ -1,0 +1,1395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>PermitPulse Red Tape Index</title>
+  <meta name="description" content="A public-record permit intelligence dashboard showing where LA projects appear to be moving, stacking up, or carrying higher permit-friction signals." />
+  <link rel="canonical" href="https://getpermitpulse.com/red-tape-index/" />
+
+  <!-- GA4 -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-0S8S6156CV"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag("js", new Date());
+    gtag("config", "G-0S8S6156CV");
+  </script>
+  <script defer src="/assets/permitpulse-tracking.js"></script>
+
+  <style>
+    :root {
+      --bg: #050505;
+      --panel: #0b0d12;
+      --panel-2: #101620;
+      --line: rgba(148, 163, 184, 0.22);
+      --line-strong: rgba(59, 130, 246, 0.42);
+      --text: #ededed;
+      --muted: #9ca3af;
+      --faint: #64748b;
+      --blue: #2952ff;
+      --blue-soft: #38bdf8;
+      --orange: #ff4400;
+      --orange-soft: #ffb08a;
+      --green: #22c55e;
+      --font-sans: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      --ease: cubic-bezier(0.23, 1, 0.32, 1);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html { background: var(--bg); scroll-behavior: smooth; }
+
+    body {
+      min-width: 320px;
+      min-height: 100vh;
+      overflow-x: hidden;
+      background:
+        linear-gradient(rgba(41, 82, 255, 0.075) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(41, 82, 255, 0.055) 1px, transparent 1px),
+        radial-gradient(circle at 16% 0%, rgba(41, 82, 255, 0.24), transparent 28rem),
+        radial-gradient(circle at 86% 12%, rgba(255, 68, 0, 0.13), transparent 22rem),
+        #050505;
+      background-size: 42px 42px, 42px 42px, auto, auto, auto;
+      color: var(--text);
+      font-family: var(--font-sans);
+      line-height: 1.45;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    a { color: inherit; text-decoration: none; }
+
+    button, input, select, textarea { font: inherit; }
+
+    button { cursor: pointer; }
+
+    .wrap {
+      width: min(100%, 1180px);
+      margin: 0 auto;
+      padding: 0 16px;
+    }
+
+    .mono {
+      font-family: var(--font-mono);
+      letter-spacing: 0;
+    }
+
+    .muted { color: var(--muted); }
+
+    .page-shell {
+      position: relative;
+      isolation: isolate;
+    }
+
+    .radar-lines {
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      pointer-events: none;
+      opacity: 0.48;
+      background:
+        linear-gradient(130deg, transparent 0 46%, rgba(56, 189, 248, 0.12) 46.2% 46.6%, transparent 46.8%),
+        linear-gradient(28deg, transparent 0 58%, rgba(255, 68, 0, 0.12) 58.2% 58.5%, transparent 58.7%);
+      mask-image: linear-gradient(to bottom, black, transparent 86%);
+    }
+
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 30;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+      background: rgba(5, 5, 5, 0.84);
+      backdrop-filter: blur(14px);
+    }
+
+    .nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 14px 0;
+    }
+
+    .logo {
+      flex: 0 0 auto;
+      font-weight: 700;
+      font-size: 16px;
+      letter-spacing: -0.03em;
+    }
+
+    .logo span { color: var(--orange); }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      overflow-x: auto;
+      max-width: 68vw;
+      padding-bottom: 2px;
+      scrollbar-width: none;
+    }
+
+    .nav-links::-webkit-scrollbar { display: none; }
+
+    .nav-links a {
+      flex: 0 0 auto;
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 11px;
+    }
+
+    .nav-links a.active {
+      color: var(--text);
+      border-bottom: 1px solid var(--orange);
+    }
+
+    main { padding-bottom: 52px; }
+
+    .hero {
+      min-height: min(760px, calc(100svh - 54px));
+      display: grid;
+      align-items: end;
+      padding: 54px 0 30px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+    }
+
+    .hero-grid {
+      display: grid;
+      gap: 22px;
+    }
+
+    .badge {
+      display: inline-flex;
+      width: fit-content;
+      max-width: 100%;
+      padding: 6px 9px;
+      border: 1px solid rgba(255, 68, 0, 0.72);
+      color: var(--orange-soft);
+      background: rgba(255, 68, 0, 0.08);
+      font-family: var(--font-mono);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+
+    h1, h2, h3 {
+      font-weight: 650;
+      letter-spacing: -0.04em;
+      line-height: 1;
+    }
+
+    h1 {
+      max-width: 840px;
+      font-size: clamp(3.1rem, 12vw, 7.2rem);
+    }
+
+    h2 { font-size: clamp(1.75rem, 7vw, 3.2rem); }
+
+    h3 {
+      font-size: 1rem;
+      letter-spacing: -0.02em;
+      line-height: 1.15;
+    }
+
+    .lead {
+      max-width: 680px;
+      color: #cbd5e1;
+      font-size: clamp(1rem, 4vw, 1.25rem);
+    }
+
+    .trust-line {
+      max-width: 720px;
+      color: var(--faint);
+      font-family: var(--font-mono);
+      font-size: 12px;
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 46px;
+      padding: 12px 16px;
+      border: 1px solid transparent;
+      border-radius: 4px;
+      font-weight: 700;
+      line-height: 1.1;
+      transition: transform 0.18s var(--ease), border-color 0.18s var(--ease), background 0.18s var(--ease);
+    }
+
+    .btn:hover { transform: translateY(-1px); }
+
+    .btn-orange {
+      background: var(--orange);
+      color: #fff;
+      box-shadow: 0 14px 32px rgba(255, 68, 0, 0.28);
+    }
+
+    .btn-blue {
+      background: rgba(41, 82, 255, 0.16);
+      border-color: rgba(56, 189, 248, 0.38);
+      color: #dbeafe;
+    }
+
+    .btn-ghost {
+      background: rgba(255, 255, 255, 0.02);
+      border-color: rgba(255, 255, 255, 0.14);
+      color: var(--text);
+    }
+
+    .section {
+      padding: 44px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
+
+    .section-head {
+      display: grid;
+      gap: 8px;
+      margin-bottom: 18px;
+    }
+
+    .eyebrow {
+      color: var(--blue-soft);
+      font-family: var(--font-mono);
+      font-size: 11px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+    }
+
+    .card-grid {
+      display: grid;
+      gap: 10px;
+    }
+
+    .score-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+
+    .card {
+      min-width: 0;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background:
+        linear-gradient(135deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.01)),
+        rgba(8, 13, 20, 0.92);
+      box-shadow: 0 18px 42px rgba(0, 0, 0, 0.28);
+    }
+
+    .metric {
+      min-height: 128px;
+      padding: 16px;
+      display: grid;
+      align-content: space-between;
+      gap: 14px;
+    }
+
+    .metric-label {
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+
+    .metric-value {
+      overflow-wrap: anywhere;
+      font-size: clamp(1.55rem, 9vw, 2.5rem);
+      font-weight: 720;
+      letter-spacing: -0.05em;
+      line-height: 0.95;
+    }
+
+    .metric-note {
+      color: var(--faint);
+      font-size: 12px;
+    }
+
+    .source-strip {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+      margin-top: 12px;
+      color: var(--faint);
+      font-family: var(--font-mono);
+      font-size: 11px;
+    }
+
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 5px 8px;
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.03);
+      color: #cbd5e1;
+    }
+
+    .status-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--orange);
+      box-shadow: 0 0 12px rgba(255, 68, 0, 0.75);
+    }
+
+    .status-dot.ok {
+      background: var(--green);
+      box-shadow: 0 0 12px rgba(34, 197, 94, 0.75);
+    }
+
+    .filter-bar {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding-bottom: 8px;
+      scrollbar-width: none;
+    }
+
+    .filter-bar::-webkit-scrollbar { display: none; }
+
+    .filter-btn {
+      flex: 0 0 auto;
+      min-height: 38px;
+      padding: 9px 12px;
+      border: 1px solid rgba(148, 163, 184, 0.24);
+      border-radius: 999px;
+      background: rgba(8, 13, 20, 0.86);
+      color: var(--muted);
+      font-family: var(--font-mono);
+      font-size: 12px;
+    }
+
+    .filter-btn.active {
+      border-color: rgba(56, 189, 248, 0.72);
+      color: #e0f2fe;
+      background: rgba(41, 82, 255, 0.18);
+    }
+
+    .leaderboard {
+      display: grid;
+      gap: 10px;
+    }
+
+    .leader-card {
+      display: grid;
+      grid-template-columns: 42px minmax(0, 1fr);
+      gap: 12px;
+      padding: 14px;
+    }
+
+    .rank {
+      width: 34px;
+      height: 34px;
+      display: grid;
+      place-items: center;
+      border: 1px solid rgba(56, 189, 248, 0.38);
+      border-radius: 50%;
+      color: #bfdbfe;
+      font-family: var(--font-mono);
+      font-size: 12px;
+    }
+
+    .leader-main {
+      display: grid;
+      min-width: 0;
+      gap: 10px;
+    }
+
+    .leader-title {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .risk {
+      flex: 0 0 auto;
+      padding: 4px 7px;
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      border-radius: 999px;
+      color: #e5e7eb;
+      font-family: var(--font-mono);
+      font-size: 10px;
+      text-transform: uppercase;
+    }
+
+    .risk.high {
+      border-color: rgba(255, 68, 0, 0.65);
+      color: var(--orange-soft);
+      background: rgba(255, 68, 0, 0.08);
+    }
+
+    .risk.elevated {
+      border-color: rgba(251, 191, 36, 0.56);
+      color: #fde68a;
+      background: rgba(251, 191, 36, 0.06);
+    }
+
+    .leader-stats {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .stat {
+      min-width: 0;
+      padding: 9px;
+      border: 1px solid rgba(148, 163, 184, 0.15);
+      border-radius: 6px;
+      background: rgba(255, 255, 255, 0.025);
+    }
+
+    .stat span {
+      display: block;
+      color: var(--faint);
+      font-family: var(--font-mono);
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .stat strong {
+      display: block;
+      margin-top: 4px;
+      overflow-wrap: anywhere;
+      font-size: 14px;
+      font-weight: 650;
+    }
+
+    .small-link {
+      width: fit-content;
+      color: var(--orange-soft);
+      font-family: var(--font-mono);
+      font-size: 12px;
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+
+    .watchlist {
+      display: grid;
+      gap: 10px;
+    }
+
+    .watch-item {
+      padding: 14px;
+      display: grid;
+      gap: 12px;
+    }
+
+    .watch-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      align-items: flex-start;
+    }
+
+    .watch-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .mini-pill {
+      padding: 5px 8px;
+      border: 1px solid rgba(148, 163, 184, 0.18);
+      border-radius: 999px;
+      color: #cbd5e1;
+      background: rgba(255, 255, 255, 0.03);
+      font-family: var(--font-mono);
+      font-size: 11px;
+    }
+
+    .reason-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .reason-card {
+      padding: 16px;
+      min-height: 116px;
+      display: grid;
+      gap: 10px;
+    }
+
+    .reason-card p {
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .form-layout {
+      display: grid;
+      gap: 14px;
+    }
+
+    .form-card, .plus-card, .disclaimer-card {
+      padding: 18px;
+    }
+
+    .form-grid {
+      display: grid;
+      gap: 12px;
+      margin-top: 16px;
+    }
+
+    .field {
+      display: grid;
+      gap: 6px;
+    }
+
+    .field span {
+      color: #cbd5e1;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+
+    input, select, textarea {
+      width: 100%;
+      min-width: 0;
+      border: 1px solid rgba(148, 163, 184, 0.28);
+      border-radius: 6px;
+      background: #070a10;
+      color: var(--text);
+      padding: 12px;
+      outline: none;
+    }
+
+    textarea {
+      min-height: 112px;
+      resize: vertical;
+    }
+
+    input:focus, select:focus, textarea:focus {
+      border-color: rgba(56, 189, 248, 0.74);
+      box-shadow: 0 0 0 3px rgba(41, 82, 255, 0.14);
+    }
+
+    .form-actions {
+      display: grid;
+      gap: 10px;
+    }
+
+    .success {
+      display: none;
+      padding: 12px;
+      border: 1px solid rgba(34, 197, 94, 0.38);
+      border-radius: 6px;
+      color: #bbf7d0;
+      background: rgba(34, 197, 94, 0.08);
+      font-size: 14px;
+    }
+
+    .plus-card {
+      display: grid;
+      gap: 14px;
+      background:
+        linear-gradient(145deg, rgba(255, 68, 0, 0.14), rgba(41, 82, 255, 0.1)),
+        rgba(8, 13, 20, 0.94);
+      border-color: rgba(255, 68, 0, 0.34);
+    }
+
+    .price-row {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .price-box {
+      padding: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 6px;
+      background: rgba(0, 0, 0, 0.16);
+    }
+
+    .price-box span {
+      display: block;
+      color: var(--faint);
+      font-family: var(--font-mono);
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    .price-box strong {
+      display: block;
+      margin-top: 4px;
+      font-size: 20px;
+      letter-spacing: -0.04em;
+    }
+
+    .disclaimer-card {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    footer {
+      padding: 24px 0 38px;
+      color: var(--faint);
+      font-family: var(--font-mono);
+      font-size: 11px;
+    }
+
+    @media (max-width: 520px) {
+      .actions .btn { width: 100%; }
+      .leader-stats, .price-row, .score-grid { grid-template-columns: 1fr; }
+      .leader-title { flex-direction: column; }
+      .metric { min-height: 116px; }
+    }
+
+    @media (min-width: 760px) {
+      .wrap { padding: 0 24px; }
+      .hero { padding-top: 84px; padding-bottom: 42px; }
+      .hero-grid { gap: 26px; }
+      .score-grid { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+      .reason-grid { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+      .leader-card { grid-template-columns: 54px minmax(0, 1fr); }
+      .leader-stats { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+      .watchlist { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .form-layout { grid-template-columns: minmax(0, 1.18fr) minmax(320px, 0.82fr); align-items: start; }
+      .form-grid.two-col { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .span-2 { grid-column: 1 / -1; }
+    }
+
+    @media (min-width: 1080px) {
+      .hero { min-height: 720px; }
+      .watchlist { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="page-shell">
+    <div class="radar-lines" aria-hidden="true"></div>
+
+    <header>
+      <div class="wrap nav">
+        <a class="logo" href="/">PermitPulse<span>/</span> Red Tape Index</a>
+        <nav class="nav-links" aria-label="Primary navigation">
+          <a href="/radar/">Radar</a>
+          <a href="/top-permits/">Top permits</a>
+          <a href="/red-tape-index/" class="active">Red Tape Index</a>
+          <a href="/free-tools/">Free tools</a>
+        </nav>
+      </div>
+    </header>
+
+    <main>
+      <section class="hero">
+        <div class="wrap hero-grid">
+          <div class="badge">Beta public-record dashboard</div>
+          <h1>LA permit delays are not random.</h1>
+          <p class="lead">Track where projects appear to be moving, stacking up, and carrying higher friction signals based on public permit records.</p>
+          <div class="actions">
+            <a class="btn btn-orange" href="#address-checker">Check if your address is in the red zone</a>
+            <a class="btn btn-blue" href="mailto:hello@getpermitpulse.com?subject=Weekly%20Red%20Tape%20Index&body=Please%20send%20me%20the%20weekly%20PermitPulse%20Red%20Tape%20Index." data-pp-event="red_tape_weekly_signup" data-pp-location="hero" data-pp-destination="weekly_index_email">Get the weekly index</a>
+          </div>
+          <p class="trust-line">Built from public permit data where available. Manual verification recommended before decisions.</p>
+        </div>
+      </section>
+
+      <section class="section" aria-labelledby="scorecard-title">
+        <div class="wrap">
+          <div class="section-head">
+            <div class="eyebrow">Index scorecard</div>
+            <h2 id="scorecard-title">Red Tape Index scorecard</h2>
+          </div>
+
+          <div class="card-grid score-grid" id="scoreGrid">
+            <article class="card metric"><div class="metric-label">Active permit signals</div><div class="metric-value" id="metricActive">Checking</div><div class="metric-note">Records found across reused PermitPulse APIs.</div></article>
+            <article class="card metric"><div class="metric-label">High-value records</div><div class="metric-value" id="metricHighValue">Checking</div><div class="metric-note">Signals at or above the current high-value threshold.</div></article>
+            <article class="card metric"><div class="metric-label">Oldest open signal</div><div class="metric-value" id="metricOldest">Checking</div><div class="metric-note">Age is estimated from available public date fields.</div></article>
+            <article class="card metric"><div class="metric-label">Highest-friction category</div><div class="metric-value" id="metricCategory">Checking</div><div class="metric-note">Based on age, volume, and value signals.</div></article>
+            <article class="card metric"><div class="metric-label">Last refreshed</div><div class="metric-value" id="metricRefreshed">Checking</div><div class="metric-note">Only marked connected when API records load.</div></article>
+          </div>
+
+          <div class="source-strip" aria-live="polite">
+            <span class="status-pill"><span class="status-dot" id="apiDot"></span><span id="apiStatus">Checking PermitPulse API routes</span></span>
+            <span id="sourceNote">Fetching /api/radar and /api/top-permits from the browser.</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" aria-labelledby="filters-title">
+        <div class="wrap">
+          <div class="section-head">
+            <div class="eyebrow">Category filters</div>
+            <h2 id="filters-title">Project categories</h2>
+          </div>
+          <div class="filter-bar" role="tablist" aria-label="Permit category filters">
+            <button class="filter-btn" type="button" data-filter="ADU">ADU</button>
+            <button class="filter-btn" type="button" data-filter="Remodels / Additions">Remodels / Additions</button>
+            <button class="filter-btn" type="button" data-filter="Commercial TI">Commercial TI</button>
+            <button class="filter-btn" type="button" data-filter="Multifamily">Multifamily</button>
+            <button class="filter-btn" type="button" data-filter="Solar / Electrical">Solar / Electrical</button>
+            <button class="filter-btn active" type="button" data-filter="All">All</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" aria-labelledby="leaderboard-title">
+        <div class="wrap">
+          <div class="section-head">
+            <div class="eyebrow">Area movement</div>
+            <h2 id="leaderboard-title">Leaderboard</h2>
+            <p class="muted">Grouped by ZIP or area where public fields provide enough signal.</p>
+          </div>
+          <div class="leaderboard" id="leaderboard" aria-live="polite"></div>
+        </div>
+      </section>
+
+      <section class="section" aria-labelledby="watchlist-title">
+        <div class="wrap">
+          <div class="section-head">
+            <div class="eyebrow">Anonymized signals</div>
+            <h2 id="watchlist-title">Stuck Permit Watchlist</h2>
+            <p class="muted">Public-facing entries are intentionally anonymized. Owner names, emails, phone numbers, and full addresses are not shown here.</p>
+          </div>
+          <div class="watchlist" id="watchlist" aria-live="polite"></div>
+        </div>
+      </section>
+
+      <section class="section" aria-labelledby="why-title">
+        <div class="wrap">
+          <div class="section-head">
+            <div class="eyebrow">Friction patterns</div>
+            <h2 id="why-title">Why projects get stuck</h2>
+          </div>
+          <div class="card-grid reason-grid">
+            <article class="card reason-card"><h3>Zoning or overlay mismatch</h3><p>Project scope can collide with local overlays, use limits, parking rules, or neighborhood-specific review triggers.</p></article>
+            <article class="card reason-card"><h3>Prior permit record issue</h3><p>Old permits, expired applications, or unresolved final records can slow the next clean approval path.</p></article>
+            <article class="card reason-card"><h3>Fire / hillside / site constraints</h3><p>Special site conditions can add layers that are easy to miss in a basic permit search.</p></article>
+            <article class="card reason-card"><h3>Missing clearance</h3><p>A permit can appear close while waiting on planning, public works, fire, sanitation, or other required clearances.</p></article>
+            <article class="card reason-card"><h3>Correction-cycle drag</h3><p>Repeated corrections, unclear scope, or incomplete response packages can turn a normal review into a long hold.</p></article>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="address-checker" aria-labelledby="checker-title">
+        <div class="wrap form-layout">
+          <article class="card form-card">
+            <div class="section-head">
+              <div class="eyebrow">Address checker</div>
+              <h2 id="checker-title">Check if your address is in the red zone</h2>
+              <p class="muted">Send one address and project type. I’ll review the public-record trail and return a first-pass read.</p>
+            </div>
+
+            <form id="redTapeAddressForm" action="https://formspree.io/f/mbdwdklj" method="POST">
+              <input type="hidden" name="_subject" value="New PermitPulse Red Tape Index Lead" />
+              <input type="hidden" name="form_name" value="PermitPulse Red Tape Index Address Checker" />
+              <input type="hidden" name="lead_source" value="red-tape-index" />
+              <input type="hidden" name="page_url" value="https://getpermitpulse.com/red-tape-index/" />
+              <input type="text" name="_gotcha" style="display:none" tabindex="-1" autocomplete="off" />
+
+              <div class="form-grid two-col">
+                <label class="field"><span>Name</span><input name="name" required autocomplete="name" /></label>
+                <label class="field"><span>Email</span><input name="email" type="email" required autocomplete="email" /></label>
+                <label class="field"><span>Phone optional</span><input name="phone" autocomplete="tel" /></label>
+                <label class="field"><span>Project type</span>
+                  <select name="project_type" required>
+                    <option value="" selected>Select one</option>
+                    <option>ADU</option>
+                    <option>Remodel / addition</option>
+                    <option>Commercial TI</option>
+                    <option>Multifamily</option>
+                    <option>Solar / electrical</option>
+                    <option>Other</option>
+                  </select>
+                </label>
+                <label class="field span-2"><span>Project address</span><input name="project_address" required autocomplete="street-address" /></label>
+                <label class="field span-2"><span>Is it currently stuck?</span>
+                  <select name="currently_stuck" required>
+                    <option value="" selected>Select one</option>
+                    <option>Yes</option>
+                    <option>No</option>
+                    <option>Not sure</option>
+                  </select>
+                </label>
+                <label class="field span-2"><span>Notes</span><textarea name="notes" placeholder="Permit number, city, project status, or what you are trying to decide."></textarea></label>
+              </div>
+
+              <div class="form-actions" style="margin-top:14px;">
+                <button class="btn btn-orange" id="addressSubmitBtn" type="submit">Submit address for review</button>
+                <div class="success" id="addressSuccess">Got it. I’ll review the public-record trail and send back the first-pass read.</div>
+                <p class="muted mono" style="font-size:11px;">Form handled through the existing PermitPulse Formspree pattern.</p>
+              </div>
+            </form>
+          </article>
+
+          <aside class="card plus-card">
+            <div class="eyebrow">Permit Review Plus</div>
+            <h2>Need the full first-pass review?</h2>
+            <p class="muted">Permit Review Plus checks official public records for one address, including permit history, planning/zoning signals, parcel profile, map layers, and obvious risk flags.</p>
+            <div class="price-row">
+              <div class="price-box"><span>Price</span><strong>$149</strong></div>
+              <div class="price-box"><span>Turnaround</span><strong>24-48 business hours</strong></div>
+            </div>
+            <p class="muted">Express option: available for rush jobs when schedule allows.</p>
+            <a class="btn btn-orange" href="https://buy.stripe.com/9B614ofhJ72H5Ft93Q1wY0l" target="_blank" rel="noopener" data-pp-event="red_tape_pr_plus_click" data-pp-location="red_tape_index" data-pp-price="149">Start Permit Review Plus</a>
+          </aside>
+        </div>
+      </section>
+
+      <section class="section" aria-labelledby="disclaimer-title">
+        <div class="wrap">
+          <article class="card disclaimer-card">
+            <div class="eyebrow" id="disclaimer-title">Disclaimer</div>
+            <p>This dashboard is a public-record intelligence tool. It is not a legal opinion, architectural opinion, engineering review, title report, survey, or guarantee. Always verify with the relevant agency and licensed professionals before making decisions.</p>
+          </article>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <div class="wrap">© 2026 PermitPulse. Public-record permit intelligence for first-pass review.</div>
+    </footer>
+  </div>
+
+  <script>
+  (function () {
+    var HIGH_VALUE_THRESHOLD = 250000;
+    var currentFilter = "All";
+    var allRecords = [];
+    var usingFallback = false;
+    var apiUsable = false;
+
+    var demoRecords = [
+      {
+        permit: "DEMO-ADU-01",
+        status: "Open",
+        type: "ADU",
+        description: "Detached ADU plan check with zoning clearance pending",
+        zip: "90026",
+        value: 185000,
+        filed_at: "2025-08-18",
+        raw: { source: "fallback_demo" }
+      },
+      {
+        permit_id: "DEMO-TI-02",
+        status: "In review",
+        type: "Commercial alteration",
+        subtype: "Tenant improvement",
+        description: "Restaurant tenant improvement with fire clearance signal",
+        zip: "90013",
+        valuation: 460000,
+        filed_at: "2025-06-03",
+        raw: { source: "fallback_demo" }
+      },
+      {
+        id: "DEMO-MF-03",
+        status: "Correction",
+        type: "Multifamily",
+        description: "Multifamily renovation correction cycle",
+        zip: "90004",
+        value: 720000,
+        status_at: "2025-05-22",
+        raw: { source: "fallback_demo" }
+      },
+      {
+        permit: "DEMO-SOLAR-04",
+        status: "Open",
+        type: "Electrical",
+        description: "Solar and service panel upgrade awaiting review",
+        zip: "90065",
+        value: 42000,
+        filed_at: "2025-10-09",
+        raw: { source: "fallback_demo" }
+      },
+      {
+        permit: "DEMO-ADD-05",
+        status: "Open",
+        type: "Addition",
+        description: "Residential remodel and addition under plan check",
+        zip: "90039",
+        value: 310000,
+        filed_at: "2025-07-14",
+        raw: { source: "fallback_demo" }
+      }
+    ];
+
+    var els = {
+      active: document.getElementById("metricActive"),
+      highValue: document.getElementById("metricHighValue"),
+      oldest: document.getElementById("metricOldest"),
+      category: document.getElementById("metricCategory"),
+      refreshed: document.getElementById("metricRefreshed"),
+      status: document.getElementById("apiStatus"),
+      sourceNote: document.getElementById("sourceNote"),
+      dot: document.getElementById("apiDot"),
+      leaderboard: document.getElementById("leaderboard"),
+      watchlist: document.getElementById("watchlist"),
+      form: document.getElementById("redTapeAddressForm"),
+      submitBtn: document.getElementById("addressSubmitBtn"),
+      success: document.getElementById("addressSuccess")
+    };
+
+    function track(eventName, params) {
+      if (typeof window.ppTrack === "function") {
+        window.ppTrack(eventName, params || {});
+      } else if (typeof window.gtag === "function") {
+        window.gtag("event", eventName, params || {});
+      }
+    }
+
+    function escapeHtml(value) {
+      return String(value == null ? "" : value).replace(/[&<>"']/g, function (char) {
+        return {
+          "&": "&amp;",
+          "<": "&lt;",
+          ">": "&gt;",
+          '"': "&quot;",
+          "'": "&#39;"
+        }[char];
+      });
+    }
+
+    function firstValue(row, keys) {
+      if (!row || typeof row !== "object") return "";
+      var sources = [row];
+      if (row.raw && typeof row.raw === "object") sources.push(row.raw);
+
+      for (var s = 0; s < sources.length; s++) {
+        var source = sources[s];
+        var lookup = {};
+        Object.keys(source).forEach(function (key) {
+          lookup[key.toLowerCase()] = key;
+        });
+
+        for (var i = 0; i < keys.length; i++) {
+          var wanted = keys[i].toLowerCase();
+          var actual = lookup[wanted];
+          if (actual && source[actual] !== null && source[actual] !== undefined && source[actual] !== "") {
+            return source[actual];
+          }
+        }
+      }
+      return "";
+    }
+
+    function collectRows(payload) {
+      var rows = [];
+      var seen = [];
+      var containers = ["rows", "permits", "records", "results", "items", "data", "features"];
+
+      function visit(node, depth) {
+        if (!node || depth > 4) return;
+        if (Array.isArray(node)) {
+          node.forEach(function (item) { visit(item, depth + 1); });
+          return;
+        }
+        if (typeof node !== "object") return;
+        if (seen.indexOf(node) >= 0) return;
+        seen.push(node);
+
+        if (node.attributes && typeof node.attributes === "object") {
+          var featureRow = Object.assign({}, node.attributes);
+          if (node.geometry && typeof node.geometry === "object") {
+            featureRow.lat = node.geometry.y || node.geometry.latitude || featureRow.lat;
+            featureRow.lon = node.geometry.x || node.geometry.longitude || featureRow.lon;
+          }
+          rows.push(featureRow);
+          return;
+        }
+
+        var keys = Object.keys(node);
+        var hasRecordShape = keys.some(function (key) {
+          return /^(permit|permit_id|id|permitNumber|permit_nbr|permit_num|pcis_permit|status|current_status|permit_status|address|primary_address|site_address|location_address|zip|zip_code|zipcode|postal_code|valuation|permit_valuation|est_valuation|value|description|work_desc|work_description|scope_of_work|filed_at|filed_date|issued_at|issued_date|issue_date|status_at|status_date|updated_at|last_updated|type|permit_type|subtype|permit_sub_type|trade)$/i.test(key);
+        });
+        if (hasRecordShape) rows.push(node);
+
+        containers.forEach(function (key) {
+          if (node[key]) visit(node[key], depth + 1);
+        });
+      }
+
+      visit(payload, 0);
+      return rows;
+    }
+
+    function numberFromValue(value) {
+      if (value === null || value === undefined || value === "") return null;
+      if (typeof value === "number") return isFinite(value) ? value : null;
+      var cleaned = String(value).replace(/[^0-9.-]/g, "");
+      var parsed = Number(cleaned);
+      return isFinite(parsed) ? parsed : null;
+    }
+
+    function dateFromValue(value) {
+      if (!value) return null;
+      var date = new Date(value);
+      if (isNaN(date.getTime())) return null;
+      return date;
+    }
+
+    function daysSince(date) {
+      if (!date) return null;
+      var ms = Date.now() - date.getTime();
+      if (!isFinite(ms)) return null;
+      return Math.max(0, Math.floor(ms / 86400000));
+    }
+
+    function formatAge(days) {
+      if (days === null || days === undefined) return "Unknown";
+      if (days === 0) return "Today";
+      if (days === 1) return "1 day";
+      return days + " days";
+    }
+
+    function formatMoney(value) {
+      if (value === null || value === undefined) return "Unknown";
+      if (value >= 1000000) return "$" + (value / 1000000).toFixed(1).replace(".0", "") + "M";
+      if (value >= 1000) return "$" + Math.round(value / 1000) + "k";
+      return "$" + Math.round(value).toLocaleString("en-US");
+    }
+
+    function valuationBand(value) {
+      if (value === null || value === undefined) return "valuation unknown";
+      if (value >= 1000000) return "$1M+";
+      if (value >= 500000) return "$500k-$1M";
+      if (value >= 250000) return "$250k-$500k";
+      if (value >= 100000) return "$100k-$250k";
+      if (value >= 50000) return "$50k-$100k";
+      return "under $50k";
+    }
+
+    function zipFromAddress(address) {
+      var match = String(address || "").match(/\b9\d{4}\b/);
+      return match ? match[0] : "";
+    }
+
+    function partialZip(zip) {
+      var clean = String(zip || "").match(/\d{5}/);
+      if (!clean) return "ZIP not shown";
+      return clean[0].slice(0, 3) + "**";
+    }
+
+    function inferCategory(row) {
+      var text = [
+        firstValue(row, ["type", "permit_type", "trade"]),
+        firstValue(row, ["subtype", "permit_sub_type", "permit_subtype"]),
+        firstValue(row, ["description", "work_desc", "work_description", "scope_of_work"])
+      ].join(" ").toLowerCase();
+
+      if (/adu|accessory dwelling|second unit|granny/.test(text)) return "ADU";
+      if (/tenant improvement|commercial|restaurant|office|retail|ti\b|t\.i\./.test(text)) return "Commercial TI";
+      if (/multi|apartment|condo|dwelling units|unit building/.test(text)) return "Multifamily";
+      if (/solar|photovoltaic|\bpv\b|electrical|panel|service upgrade|meter/.test(text)) return "Solar / Electrical";
+      if (/addition|remodel|alteration|renovation|repair|convert/.test(text)) return "Remodels / Additions";
+      return "Other";
+    }
+
+    function normalizeRow(row, source) {
+      var address = firstValue(row, ["address", "primary_address", "site_address", "location_address", "full_address"]);
+      var zip = firstValue(row, ["zip", "zip_code", "zipcode", "postal_code"]) || zipFromAddress(address);
+      var filed = dateFromValue(firstValue(row, ["filed_at", "filed_date", "apply_date", "application_date", "issue_date"]));
+      var issued = dateFromValue(firstValue(row, ["issued_at", "issued_date", "issueDate", "issue_date"]));
+      var statusDate = dateFromValue(firstValue(row, ["status_at", "status_date", "updated_at", "last_updated"]));
+      var signalDate = statusDate || filed || issued;
+      var value = numberFromValue(firstValue(row, ["value", "valuation", "permit_valuation", "est_valuation"]));
+      var description = firstValue(row, ["description", "work_desc", "work_description", "scope_of_work"]) || "";
+      var status = firstValue(row, ["status", "current_status", "permit_status"]) || "Status unavailable";
+      var category = inferCategory(row);
+
+      return {
+        id: firstValue(row, ["permit", "permit_id", "id", "permitNumber", "permit_nbr", "permit_num", "pcis_permit"]) || source + "-" + Math.random().toString(16).slice(2),
+        source: source,
+        status: String(status),
+        type: firstValue(row, ["type", "permit_type", "trade"]) || category,
+        subtype: firstValue(row, ["subtype", "permit_sub_type", "permit_subtype"]),
+        description: String(description),
+        address: String(address || ""),
+        zip: String(zip || ""),
+        area: zip ? "ZIP " + String(zip).slice(0, 5) : "Area unavailable",
+        value: value,
+        filedAt: filed,
+        issuedAt: issued,
+        statusAt: statusDate,
+        signalDate: signalDate,
+        ageDays: daysSince(signalDate),
+        category: category,
+        lat: firstValue(row, ["lat", "latitude"]),
+        lon: firstValue(row, ["lon", "lng", "longitude"]),
+        raw: row
+      };
+    }
+
+    function dedupe(records) {
+      var seen = {};
+      return records.filter(function (record) {
+        var key = [record.id, record.area, record.category, record.value, record.description.slice(0, 40)].join("|");
+        if (seen[key]) return false;
+        seen[key] = true;
+        return true;
+      });
+    }
+
+    function visibleRecords() {
+      if (currentFilter === "All") return allRecords;
+      return allRecords.filter(function (record) { return record.category === currentFilter; });
+    }
+
+    function categoryScore(record) {
+      var age = record.ageDays || 0;
+      var valueScore = record.value && record.value >= HIGH_VALUE_THRESHOLD ? 20 : 0;
+      var statusScore = /correction|hold|pending|open|review|clearance/i.test(record.status + " " + record.description) ? 20 : 0;
+      return age + valueScore + statusScore;
+    }
+
+    function summarize(records) {
+      var highValue = records.filter(function (record) { return record.value >= HIGH_VALUE_THRESHOLD; }).length;
+      var oldest = records.reduce(function (best, record) {
+        if (record.ageDays === null || record.ageDays === undefined) return best;
+        if (!best || record.ageDays > best.ageDays) return record;
+        return best;
+      }, null);
+
+      var byCategory = {};
+      records.forEach(function (record) {
+        if (!byCategory[record.category]) byCategory[record.category] = { count: 0, score: 0 };
+        byCategory[record.category].count += 1;
+        byCategory[record.category].score += categoryScore(record);
+      });
+
+      var topCategory = Object.keys(byCategory).sort(function (a, b) {
+        return byCategory[b].score - byCategory[a].score;
+      })[0] || "Unknown";
+
+      return { highValue: highValue, oldest: oldest, topCategory: topCategory };
+    }
+
+    function groupByArea(records) {
+      var groups = {};
+      records.forEach(function (record) {
+        var key = record.area || "Area unavailable";
+        if (!groups[key]) {
+          groups[key] = {
+            area: key,
+            records: [],
+            highValue: 0,
+            categories: {},
+            oldest: null,
+            score: 0
+          };
+        }
+        var group = groups[key];
+        group.records.push(record);
+        if (record.value >= HIGH_VALUE_THRESHOLD) group.highValue += 1;
+        group.categories[record.category] = (group.categories[record.category] || 0) + 1;
+        if (record.ageDays !== null && record.ageDays !== undefined && (!group.oldest || record.ageDays > group.oldest.ageDays)) {
+          group.oldest = record;
+        }
+        group.score += categoryScore(record);
+      });
+
+      return Object.keys(groups).map(function (key) {
+        var group = groups[key];
+        group.topCategory = Object.keys(group.categories).sort(function (a, b) {
+          return group.categories[b] - group.categories[a];
+        })[0] || "Unknown";
+        group.risk = group.score >= 120 || group.highValue >= 3 ? "High" : group.score >= 60 || group.highValue >= 1 ? "Elevated" : "Watch";
+        return group;
+      }).sort(function (a, b) {
+        return b.score - a.score || b.records.length - a.records.length;
+      }).slice(0, 6);
+    }
+
+    function renderScorecard(records) {
+      var summary = summarize(records);
+      els.active.textContent = records.length ? String(records.length) : "0";
+      els.highValue.textContent = String(summary.highValue);
+      els.oldest.textContent = summary.oldest ? formatAge(summary.oldest.ageDays) : "Unknown";
+      els.category.textContent = summary.topCategory;
+      els.refreshed.textContent = apiUsable ? new Date().toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" }) : "Demo";
+
+      if (usingFallback) {
+        els.status.textContent = "API unavailable or missing usable fields. Showing fallback/demo records.";
+        els.sourceNote.textContent = "Fallback/demo data is labeled and should not be used for permit decisions.";
+        els.dot.classList.remove("ok");
+      } else if (apiUsable) {
+        els.status.textContent = "PermitPulse API connected. Showing public-record signals returned by existing routes.";
+        els.sourceNote.textContent = "Fetched /api/radar and /api/top-permits from the browser.";
+        els.dot.classList.add("ok");
+      } else {
+        els.status.textContent = "No usable records found yet.";
+        els.sourceNote.textContent = "The dashboard will remain available with fallback/demo records if needed.";
+        els.dot.classList.remove("ok");
+      }
+    }
+
+    function renderLeaderboard(records) {
+      var groups = groupByArea(records);
+      els.leaderboard.innerHTML = "";
+
+      if (!groups.length) {
+        els.leaderboard.innerHTML = '<article class="card leader-card"><div class="rank">0</div><div class="leader-main muted">No grouped permit signals for this filter.</div></article>';
+        return;
+      }
+
+      groups.forEach(function (group, index) {
+        var riskClass = group.risk === "High" ? "high" : group.risk === "Elevated" ? "elevated" : "";
+        var item = document.createElement("article");
+        item.className = "card leader-card";
+        item.innerHTML =
+          '<div class="rank">' + (index + 1) + '</div>' +
+          '<div class="leader-main">' +
+            '<div class="leader-title">' +
+              '<div><h3>' + escapeHtml(group.area) + '</h3><p class="muted">' + escapeHtml(group.topCategory) + '</p></div>' +
+              '<span class="risk ' + riskClass + '">' + escapeHtml(group.risk) + '</span>' +
+            '</div>' +
+            '<div class="leader-stats">' +
+              '<div class="stat"><span>Rank</span><strong>' + (index + 1) + '</strong></div>' +
+              '<div class="stat"><span>Area / ZIP</span><strong>' + escapeHtml(group.area) + '</strong></div>' +
+              '<div class="stat"><span>Permit category</span><strong>' + escapeHtml(group.topCategory) + '</strong></div>' +
+              '<div class="stat"><span>Active records</span><strong>' + group.records.length + '</strong></div>' +
+              '<div class="stat"><span>High-value signals</span><strong>' + group.highValue + '</strong></div>' +
+              '<div class="stat"><span>Oldest open signal</span><strong>' + (group.oldest ? formatAge(group.oldest.ageDays) : "Unknown") + '</strong></div>' +
+              '<div class="stat"><span>Risk level</span><strong>' + escapeHtml(group.risk) + '</strong></div>' +
+            '</div>' +
+            '<a class="small-link" href="#address-checker">Check similar project</a>' +
+          '</div>';
+        els.leaderboard.appendChild(item);
+      });
+    }
+
+    function renderWatchlist(records) {
+      var ranked = records.slice().sort(function (a, b) {
+        return categoryScore(b) - categoryScore(a);
+      }).slice(0, 8);
+      els.watchlist.innerHTML = "";
+
+      if (!ranked.length) {
+        els.watchlist.innerHTML = '<article class="card watch-item muted">No anonymized watchlist entries for this filter.</article>';
+        return;
+      }
+
+      ranked.forEach(function (record) {
+        var item = document.createElement("article");
+        item.className = "card watch-item";
+        item.innerHTML =
+          '<div class="watch-top">' +
+            '<div><h3>' + escapeHtml(record.category) + '</h3><p class="muted">' + escapeHtml(record.status) + '</p></div>' +
+            (usingFallback || record.source === "fallback" ? '<span class="risk elevated">Demo</span>' : '<span class="risk">Public record</span>') +
+          '</div>' +
+          '<div class="watch-meta">' +
+            '<span class="mini-pill">' + escapeHtml(partialZip(record.zip)) + '</span>' +
+            '<span class="mini-pill">' + escapeHtml(formatAge(record.ageDays)) + '</span>' +
+            '<span class="mini-pill">' + escapeHtml(valuationBand(record.value)) + '</span>' +
+          '</div>' +
+          '<a class="small-link" href="#address-checker">Check similar project</a>';
+        els.watchlist.appendChild(item);
+      });
+    }
+
+    function render() {
+      var records = visibleRecords();
+      renderScorecard(records);
+      renderLeaderboard(records);
+      renderWatchlist(records);
+    }
+
+    async function fetchJson(path) {
+      var response = await fetch(path, { headers: { Accept: "application/json" } });
+      if (!response.ok) throw new Error(path + " returned " + response.status);
+      return response.json();
+    }
+
+    async function loadApiData() {
+      var results = await Promise.allSettled([
+        fetchJson("/api/radar"),
+        fetchJson("/api/top-permits")
+      ]);
+
+      var records = [];
+      results.forEach(function (result, index) {
+        if (result.status !== "fulfilled") return;
+        var source = index === 0 ? "radar" : "top-permits";
+        collectRows(result.value).forEach(function (row) {
+          records.push(normalizeRow(row, source));
+        });
+      });
+
+      records = dedupe(records).filter(function (record) {
+        return record.category || record.zip || record.value !== null || record.description;
+      });
+
+      return {
+        records: records,
+        failed: results.some(function (result) { return result.status === "rejected"; })
+      };
+    }
+
+    function useFallback() {
+      usingFallback = true;
+      apiUsable = false;
+      allRecords = demoRecords.map(function (row) { return normalizeRow(row, "fallback"); });
+      track("red_tape_api_fallback", { page_path: "/red-tape-index/" });
+      render();
+    }
+
+    async function init() {
+      track("red_tape_index_view", { page_path: "/red-tape-index/" });
+      try {
+        var loaded = await loadApiData();
+        if (!loaded.records.length) {
+          useFallback();
+          return;
+        }
+        usingFallback = false;
+        apiUsable = true;
+        allRecords = loaded.records;
+        if (loaded.failed) {
+          els.sourceNote.textContent = "One API route failed, but usable records loaded from the other existing route.";
+        }
+        render();
+      } catch (error) {
+        useFallback();
+      }
+    }
+
+    document.querySelectorAll(".filter-btn").forEach(function (button) {
+      button.addEventListener("click", function () {
+        document.querySelectorAll(".filter-btn").forEach(function (btn) { btn.classList.remove("active"); });
+        button.classList.add("active");
+        currentFilter = button.getAttribute("data-filter") || "All";
+        render();
+      });
+    });
+
+    if (els.form) {
+      els.form.addEventListener("submit", async function (event) {
+        event.preventDefault();
+        track("red_tape_address_submit", { page_path: "/red-tape-index/" });
+        var originalText = els.submitBtn.textContent;
+        els.submitBtn.disabled = true;
+        els.submitBtn.textContent = "Sending";
+
+        try {
+          var response = await fetch(els.form.action, {
+            method: "POST",
+            body: new FormData(els.form),
+            headers: { Accept: "application/json" }
+          });
+          if (!response.ok) throw new Error("form_failed");
+          els.form.reset();
+          els.success.style.display = "block";
+        } catch (error) {
+          window.location.href = "mailto:hello@getpermitpulse.com?subject=Red%20Tape%20Index%20Address%20Check&body=Please%20include%20name%2C%20email%2C%20phone%2C%20project%20address%2C%20project%20type%2C%20stuck%20status%2C%20and%20notes.";
+        } finally {
+          els.submitBtn.disabled = false;
+          els.submitBtn.textContent = originalText;
+        }
+      });
+    }
+
+    init();
+  })();
+  </script>
+</body>
+</html>
