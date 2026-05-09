@@ -470,7 +470,7 @@
 
     .filter-btn {
       flex: 0 0 auto;
-      min-height: 38px;
+      min-height: 44px;
       padding: 9px 12px;
       border: 1px solid rgba(148, 163, 184, 0.24);
       border-radius: 999px;
@@ -527,8 +527,14 @@
       font-size: 1.12rem;
     }
 
+    .leader-title > div,
+    .watch-top > div {
+      min-width: 0;
+    }
+
     .risk {
       flex: 0 0 auto;
+      max-width: 100%;
       padding: 4px 7px;
       border: 1px solid rgba(255, 255, 255, 0.14);
       border-radius: 999px;
@@ -619,6 +625,7 @@
 
     .watch-top {
       display: flex;
+      flex-wrap: wrap;
       justify-content: space-between;
       gap: 10px;
       align-items: flex-start;
@@ -710,6 +717,17 @@
       gap: 10px;
     }
 
+    .weekly-form {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr);
+      gap: 9px;
+      margin-top: 2px;
+    }
+
+    .weekly-form input {
+      min-height: 46px;
+    }
+
     .success {
       display: none;
       padding: 12px;
@@ -718,6 +736,14 @@
       color: #bbf7d0;
       background: rgba(34, 197, 94, 0.08);
       font-size: 14px;
+    }
+
+    .form-error {
+      display: none;
+      color: var(--orange-soft);
+      font-family: var(--font-mono);
+      font-size: 11px;
+      line-height: 1.5;
     }
 
     .plus-card {
@@ -822,6 +848,7 @@
       .form-layout { grid-template-columns: minmax(0, 1.18fr) minmax(320px, 0.82fr); align-items: start; }
       .form-grid.two-col { grid-template-columns: repeat(2, minmax(0, 1fr)); }
       .span-2 { grid-column: 1 / -1; }
+      .weekly-form { grid-template-columns: minmax(0, 1fr) auto; }
     }
 
     @media (min-width: 1080px) {
@@ -853,15 +880,25 @@
         <div class="wrap hero-grid">
           <div class="hero-copy">
             <div class="badge">Beta public-record dashboard</div>
-            <h1>LA permit delays are not random.</h1>
+            <h1>LA permit friction appears in patterns.</h1>
             <p class="lead">Track where projects appear to be moving, stacking up, and carrying higher friction signals based on public permit records.</p>
             <div class="hero-cta">
               <a class="btn btn-orange" href="#address-checker">Check if your address is in the red zone</a>
               <p class="cta-note">Estimated public-record signals only. Manual verification recommended before decisions.</p>
             </div>
-            <div class="actions">
-              <a class="btn btn-blue" href="mailto:hello@getpermitpulse.com?subject=Weekly%20Red%20Tape%20Index&body=Please%20send%20me%20the%20weekly%20PermitPulse%20Red%20Tape%20Index." data-pp-event="red_tape_weekly_signup" data-pp-location="hero" data-pp-destination="weekly_index_email">Get the weekly index</a>
-            </div>
+            <form class="weekly-form" id="redTapeWeeklyForm" action="https://formspree.io/f/mbdwdklj" method="POST">
+              <input type="hidden" name="_subject" value="New PermitPulse Weekly Red Tape Index Signup" />
+              <input type="hidden" name="form_name" value="PermitPulse Weekly Red Tape Index" />
+              <input type="hidden" name="lead_source" value="red-tape-index-weekly" />
+              <input type="hidden" name="page_url" value="https://getpermitpulse.com/red-tape-index/" />
+              <input type="text" name="_gotcha" style="display:none" tabindex="-1" autocomplete="off" />
+              <label class="field" aria-label="Email address for weekly Red Tape Index">
+                <input name="email" type="email" required autocomplete="email" placeholder="you@example.com" />
+              </label>
+              <button class="btn btn-blue" id="weeklySubmitBtn" type="submit">Get the weekly Red Tape Index</button>
+              <div class="success span-2" id="weeklySuccess">You are on the weekly Red Tape Index list.</div>
+              <p class="form-error span-2" id="weeklyError">Could not submit. Please try again or email hello@getpermitpulse.com.</p>
+            </form>
             <p class="trust-line">Built from public permit data where available. Manual verification recommended before decisions.</p>
           </div>
 
@@ -955,7 +992,7 @@
           </div>
           <div class="card-grid reason-grid">
             <article class="card reason-card"><h3>Zoning or overlay mismatch</h3><p>Project scope can collide with local overlays, use limits, parking rules, or neighborhood-specific review triggers.</p></article>
-            <article class="card reason-card"><h3>Prior permit record issue</h3><p>Old permits, expired applications, or unresolved final records can slow the next clean approval path.</p></article>
+            <article class="card reason-card"><h3>Prior permit record issue</h3><p>Old permits, expired applications, or unresolved final records can slow the next clean review path.</p></article>
             <article class="card reason-card"><h3>Fire / hillside / site constraints</h3><p>Special site conditions can add layers that are easy to miss in a basic permit search.</p></article>
             <article class="card reason-card"><h3>Missing clearance</h3><p>A permit can appear close while waiting on planning, public works, fire, sanitation, or other required clearances.</p></article>
             <article class="card reason-card"><h3>Correction-cycle drag</h3><p>Repeated corrections, unclear scope, or incomplete response packages can turn a normal review into a long hold.</p></article>
@@ -995,8 +1032,8 @@
                   </select>
                 </label>
                 <label class="field span-2"><span>Project address</span><input name="project_address" required autocomplete="street-address" /></label>
-                <label class="field span-2"><span>Is it currently stuck?</span>
-                  <select name="currently_stuck" required>
+                <label class="field span-2"><span>Is it currently stuck? Optional</span>
+                  <select name="currently_stuck">
                     <option value="" selected>Select one</option>
                     <option>Yes</option>
                     <option>No</option>
@@ -1009,6 +1046,7 @@
               <div class="form-actions" style="margin-top:14px;">
                 <button class="btn btn-orange" id="addressSubmitBtn" type="submit">Submit address for review</button>
                 <div class="success" id="addressSuccess">Got it. I’ll review the public-record trail and send back the first-pass read.</div>
+                <p class="form-error" id="addressError">Could not submit. Please try again or email hello@getpermitpulse.com.</p>
                 <p class="muted mono" style="font-size:11px;">Form handled through the existing PermitPulse Formspree pattern.</p>
               </div>
             </form>
@@ -1026,7 +1064,7 @@
               <div class="price-box"><span>Price</span><strong>$149</strong></div>
               <div class="price-box"><span>Turnaround</span><strong>24-48 business hours</strong></div>
             </div>
-            <p class="muted">Express option: available for rush jobs when schedule allows.</p>
+            <p class="muted">Express option available when schedule allows.</p>
             <a class="btn btn-orange" href="https://buy.stripe.com/9B614ofhJ72H5Ft93Q1wY0l" target="_blank" rel="noopener" data-pp-event="red_tape_pr_plus_click" data-pp-location="red_tape_index" data-pp-price="149">Start Permit Review Plus</a>
           </aside>
         </div>
@@ -1129,7 +1167,12 @@
       watchlist: document.getElementById("watchlist"),
       form: document.getElementById("redTapeAddressForm"),
       submitBtn: document.getElementById("addressSubmitBtn"),
-      success: document.getElementById("addressSuccess")
+      success: document.getElementById("addressSuccess"),
+      error: document.getElementById("addressError"),
+      weeklyForm: document.getElementById("redTapeWeeklyForm"),
+      weeklySubmitBtn: document.getElementById("weeklySubmitBtn"),
+      weeklySuccess: document.getElementById("weeklySuccess"),
+      weeklyError: document.getElementById("weeklyError")
     };
 
     function track(eventName, params) {
@@ -1625,6 +1668,8 @@
       els.form.addEventListener("submit", async function (event) {
         event.preventDefault();
         track("red_tape_address_submit", { page_path: "/red-tape-index/" });
+        if (els.error) els.error.style.display = "none";
+        if (els.success) els.success.style.display = "none";
         var originalText = els.submitBtn.textContent;
         els.submitBtn.disabled = true;
         els.submitBtn.textContent = "Sending";
@@ -1639,10 +1684,39 @@
           els.form.reset();
           els.success.style.display = "block";
         } catch (error) {
-          window.location.href = "mailto:hello@getpermitpulse.com?subject=Red%20Tape%20Index%20Address%20Check&body=Please%20include%20name%2C%20email%2C%20phone%2C%20project%20address%2C%20project%20type%2C%20stuck%20status%2C%20and%20notes.";
+          if (els.error) els.error.style.display = "block";
         } finally {
           els.submitBtn.disabled = false;
           els.submitBtn.textContent = originalText;
+        }
+      });
+    }
+
+    if (els.weeklyForm) {
+      els.weeklyForm.addEventListener("submit", async function (event) {
+        event.preventDefault();
+        if (els.weeklyError) els.weeklyError.style.display = "none";
+        if (els.weeklySuccess) els.weeklySuccess.style.display = "none";
+
+        var originalText = els.weeklySubmitBtn.textContent;
+        els.weeklySubmitBtn.disabled = true;
+        els.weeklySubmitBtn.textContent = "Sending";
+
+        try {
+          var response = await fetch(els.weeklyForm.action, {
+            method: "POST",
+            body: new FormData(els.weeklyForm),
+            headers: { Accept: "application/json" }
+          });
+          if (!response.ok) throw new Error("weekly_form_failed");
+          els.weeklyForm.reset();
+          if (els.weeklySuccess) els.weeklySuccess.style.display = "block";
+          track("red_tape_weekly_signup", { page_path: "/red-tape-index/" });
+        } catch (error) {
+          if (els.weeklyError) els.weeklyError.style.display = "block";
+        } finally {
+          els.weeklySubmitBtn.disabled = false;
+          els.weeklySubmitBtn.textContent = originalText;
         }
       });
     }
