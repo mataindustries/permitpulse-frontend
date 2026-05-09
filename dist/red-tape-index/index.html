@@ -1059,6 +1059,8 @@
     var lastApiFailureReason = "";
     var liveSourceNote = "";
     var PRIMARY_API_BASE = "https://api.getpermitpulse.com";
+    var RADAR_API_PATH = "/api/radar?days=365&limit=100";
+    var TOP_PERMITS_API_PATH = "/api/top-permits?days=365&minValue=0&limit=100&trade=all";
 
     var demoRecords = [
       {
@@ -1200,7 +1202,7 @@
 
         var keys = Object.keys(node);
         var hasRecordShape = keys.some(function (key) {
-          return /^(permit|permit_id|id|permitNumber|permit_nbr|permit_num|pcis_permit|status|current_status|permit_status|address|primary_address|site_address|location_address|zip|zip_code|zipcode|postal_code|valuation|permit_valuation|est_valuation|value|description|work_desc|work_description|scope_of_work|filed_at|filed_date|issued_at|issued_date|issue_date|status_at|status_date|updated_at|last_updated|type|permit_type|subtype|permit_sub_type|trade)$/i.test(key);
+          return /^(permit|permit_id|id|permitNumber|permit_nbr|permit_num|pcis_permit|status|current_status|permit_status|address|primaryAddress|primary_address|site_address|location_address|zip|zipCode|zip_code|zipcode|postal_code|valuation|permit_valuation|est_valuation|value|description|workDesc|work_desc|work_description|scope_of_work|filed_at|filed_date|issued_at|issued_date|issueDate|issue_date|status_at|status_date|updated_at|last_updated|type|permitType|permit_type|subtype|permitSubType|permit_sub_type|trade|lat|lon)$/i.test(key);
         });
         if (hasRecordShape) rows.push(node);
 
@@ -1272,28 +1274,28 @@
 
     function inferCategory(row) {
       var text = [
-        firstValue(row, ["type", "permit_type", "trade"]),
-        firstValue(row, ["subtype", "permit_sub_type", "permit_subtype"]),
-        firstValue(row, ["description", "work_desc", "work_description", "scope_of_work"])
+        firstValue(row, ["type", "permitType", "permit_type", "trade"]),
+        firstValue(row, ["subtype", "permitSubType", "permit_sub_type", "permit_subtype"]),
+        firstValue(row, ["description", "workDesc", "work_desc", "work_description", "scope_of_work"])
       ].join(" ").toLowerCase();
 
-      if (/adu|accessory dwelling|second unit|granny/.test(text)) return "ADU";
+      if (/adu|accessory dwelling|accessary dwelling|junior adu|jadu|second unit|granny/.test(text)) return "ADU";
       if (/tenant improvement|commercial|restaurant|office|retail|ti\b|t\.i\./.test(text)) return "Commercial TI";
-      if (/multi|apartment|condo|dwelling units|unit building/.test(text)) return "Multifamily";
+      if (/multi|apartment|condo|duplex|sro|dwelling units|unit building|soft-story|soft story/.test(text)) return "Multifamily";
       if (/solar|photovoltaic|\bpv\b|electrical|panel|service upgrade|meter/.test(text)) return "Solar / Electrical";
-      if (/addition|remodel|alteration|renovation|repair|convert/.test(text)) return "Remodels / Additions";
+      if (/addition|remodel|alteration|renovation|repair|convert|conversion|re-roof|reroof|roof|rebuild|single-family|sfd|foundation|shoring|garage/.test(text)) return "Remodels / Additions";
       return "Other";
     }
 
     function normalizeRow(row, source) {
-      var address = firstValue(row, ["address", "primary_address", "site_address", "location_address", "full_address"]);
-      var zip = firstValue(row, ["zip", "zip_code", "zipcode", "postal_code"]) || zipFromAddress(address);
-      var filed = dateFromValue(firstValue(row, ["filed_at", "filed_date", "apply_date", "application_date", "issue_date"]));
+      var address = firstValue(row, ["address", "primaryAddress", "primary_address", "site_address", "location_address", "full_address"]);
+      var zip = firstValue(row, ["zip", "zipCode", "zip_code", "zipcode", "postal_code"]) || zipFromAddress(address);
+      var filed = dateFromValue(firstValue(row, ["filed_at", "filed_date", "apply_date", "application_date", "issueDate", "issue_date"]));
       var issued = dateFromValue(firstValue(row, ["issued_at", "issued_date", "issueDate", "issue_date"]));
       var statusDate = dateFromValue(firstValue(row, ["status_at", "status_date", "updated_at", "last_updated"]));
       var signalDate = statusDate || filed || issued;
       var value = numberFromValue(firstValue(row, ["value", "valuation", "permit_valuation", "est_valuation"]));
-      var description = firstValue(row, ["description", "work_desc", "work_description", "scope_of_work"]) || "";
+      var description = firstValue(row, ["description", "workDesc", "work_desc", "work_description", "scope_of_work"]) || "";
       var status = firstValue(row, ["status", "current_status", "permit_status"]) || "Status unavailable";
       var category = inferCategory(row);
 
@@ -1301,8 +1303,8 @@
         id: firstValue(row, ["permit", "permit_id", "id", "permitNumber", "permit_nbr", "permit_num", "pcis_permit"]) || source + "-" + Math.random().toString(16).slice(2),
         source: source,
         status: String(status),
-        type: firstValue(row, ["type", "permit_type", "trade"]) || category,
-        subtype: firstValue(row, ["subtype", "permit_sub_type", "permit_subtype"]),
+        type: firstValue(row, ["type", "permitType", "permit_type", "trade"]) || category,
+        subtype: firstValue(row, ["subtype", "permitSubType", "permit_sub_type", "permit_subtype"]),
         description: String(description),
         address: String(address || ""),
         zip: String(zip || ""),
@@ -1414,7 +1416,7 @@
         els.dot.classList.remove("ok");
         els.dot.parentElement.classList.add("demo");
       } else if (apiUsable) {
-        els.status.textContent = "Live public-record signals";
+        els.status.textContent = records.length ? "Live public-record signals" : "Live API connected. No usable permit records returned for this view yet.";
         els.sourceNote.textContent = liveSourceNote || ("Fetched " + apiBaseInUse + "/api/radar and " + apiBaseInUse + "/api/top-permits.");
         els.dot.classList.add("ok");
         els.dot.parentElement.classList.remove("demo");
@@ -1461,7 +1463,8 @@
 
     function renderWatchlist(records) {
       var ranked = records.slice().sort(function (a, b) {
-        return categoryScore(b) - categoryScore(a);
+        var sourceDiff = (b.source === "top-permits" ? 1 : 0) - (a.source === "top-permits" ? 1 : 0);
+        return sourceDiff || categoryScore(b) - categoryScore(a);
       }).slice(0, 8);
       els.watchlist.innerHTML = "";
 
@@ -1530,25 +1533,43 @@
 
     async function loadApiData() {
       var results = await Promise.allSettled([
-        fetchJson("/api/radar"),
-        fetchJson("/api/top-permits")
+        fetchJson(RADAR_API_PATH),
+        fetchJson(TOP_PERMITS_API_PATH)
       ]);
 
-      var records = [];
-      results.forEach(function (result, index) {
-        if (result.status !== "fulfilled") return;
-        var source = index === 0 ? "radar" : "top-permits";
-        collectRows(result.value).forEach(function (row) {
-          records.push(normalizeRow(row, source));
+      var radarRecords = [];
+      var topPermitRecords = [];
+
+      if (results[0].status === "fulfilled") {
+        radarRecords = collectRows(results[0].value).map(function (row) {
+          return normalizeRow(row, "radar");
         });
-      });
+      }
+
+      if (results[1].status === "fulfilled") {
+        topPermitRecords = collectRows(results[1].value).map(function (row) {
+          return normalizeRow(row, "top-permits");
+        });
+      }
+
+      function usable(record) {
+        return Boolean(record && (record.zip || record.value !== null || record.description || record.id));
+      }
+
+      radarRecords = radarRecords.filter(usable);
+      topPermitRecords = topPermitRecords.filter(usable);
+
+      var records = topPermitRecords.length ? topPermitRecords.concat(radarRecords) : radarRecords;
 
       records = dedupe(records).filter(function (record) {
-        return record.category || record.zip || record.value !== null || record.description;
+        return record.category || record.zip || record.value !== null || record.description || record.id;
       });
 
       return {
         records: records,
+        radarCount: radarRecords.length,
+        topPermitsCount: topPermitRecords.length,
+        primarySource: topPermitRecords.length ? "top-permits" : radarRecords.length ? "radar" : "",
         jsonLoaded: results.some(function (result) { return result.status === "fulfilled"; }),
         failed: results.some(function (result) { return result.status === "rejected"; })
       };
@@ -1581,7 +1602,9 @@
         lastApiFailureReason = "";
         liveSourceNote = loaded.failed
           ? "Live JSON loaded from at least one API route. One route failed or returned invalid JSON."
-          : "Fetched " + apiBaseInUse + "/api/radar and " + apiBaseInUse + "/api/top-permits.";
+          : loaded.records.length
+            ? "Mapped " + loaded.records.length + " usable records from " + loaded.primarySource + " first, with radar as a secondary signal where available."
+            : "Fetched live JSON from radar and top-permits, but no usable permit records mapped for this view yet.";
         allRecords = loaded.records;
         render();
       } catch (error) {
