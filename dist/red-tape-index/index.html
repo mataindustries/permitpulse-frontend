@@ -1054,6 +1054,11 @@
     var allRecords = [];
     var usingFallback = false;
     var apiUsable = false;
+    var apiBaseInUse = "";
+    var lastRefreshedAt = null;
+    var lastApiFailureReason = "";
+    var liveSourceNote = "";
+    var PRIMARY_API_BASE = "https://api.getpermitpulse.com";
 
     var demoRecords = [
       {
@@ -1401,16 +1406,16 @@
       els.highValue.textContent = String(summary.highValue);
       els.oldest.textContent = summary.oldest ? formatAge(summary.oldest.ageDays) : "Unknown";
       els.category.textContent = summary.topCategory;
-      els.refreshed.textContent = apiUsable ? new Date().toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" }) : "Demo";
+      els.refreshed.textContent = apiUsable && lastRefreshedAt ? lastRefreshedAt.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" }) : "Demo";
 
       if (usingFallback) {
         els.status.textContent = "API unavailable or missing usable fields. Showing fallback/demo records.";
-        els.sourceNote.textContent = "Fallback/demo data is labeled and should not be used for permit decisions.";
+        els.sourceNote.textContent = lastApiFailureReason || "Fallback/demo data is labeled and should not be used for permit decisions.";
         els.dot.classList.remove("ok");
         els.dot.parentElement.classList.add("demo");
       } else if (apiUsable) {
-        els.status.textContent = "PermitPulse API connected. Showing public-record signals returned by existing routes.";
-        els.sourceNote.textContent = "Fetched /api/radar and /api/top-permits from the browser.";
+        els.status.textContent = "Live public-record signals";
+        els.sourceNote.textContent = liveSourceNote || ("Fetched " + apiBaseInUse + "/api/radar and " + apiBaseInUse + "/api/top-permits.");
         els.dot.classList.add("ok");
         els.dot.parentElement.classList.remove("demo");
       } else {
@@ -1490,10 +1495,37 @@
       renderWatchlist(records);
     }
 
+    function resolveApiBase() {
+      var host = window.location && window.location.hostname ? window.location.hostname : "";
+      var isLocal = !host || host === "localhost" || host === "127.0.0.1" || host === "0.0.0.0" || host.endsWith(".local");
+      return isLocal ? "" : PRIMARY_API_BASE;
+    }
+
+    function apiUrl(path) {
+      var base = resolveApiBase();
+      return base + path;
+    }
+
     async function fetchJson(path) {
-      var response = await fetch(path, { headers: { Accept: "application/json" } });
-      if (!response.ok) throw new Error(path + " returned " + response.status);
-      return response.json();
+      var requestUrl = apiUrl(path);
+      var response = await fetch(requestUrl, { headers: { Accept: "application/json" } });
+      var contentType = response.headers && response.headers.get ? response.headers.get("content-type") || "" : "";
+      var text = await response.text();
+      var trimmed = text.trim();
+
+      if (!response.ok) throw new Error(requestUrl + " returned " + response.status);
+      if (/^<!doctype html/i.test(trimmed) || /^<html[\s>]/i.test(trimmed)) {
+        throw new Error(requestUrl + " returned HTML instead of JSON");
+      }
+      if (contentType && contentType.toLowerCase().indexOf("json") === -1 && /^[\[{]/.test(trimmed) === false) {
+        throw new Error(requestUrl + " did not return JSON");
+      }
+
+      try {
+        return JSON.parse(text);
+      } catch (error) {
+        throw new Error(requestUrl + " returned invalid JSON");
+      }
     }
 
     async function loadApiData() {
@@ -1517,13 +1549,18 @@
 
       return {
         records: records,
+        jsonLoaded: results.some(function (result) { return result.status === "fulfilled"; }),
         failed: results.some(function (result) { return result.status === "rejected"; })
       };
     }
 
-    function useFallback() {
+    function useFallback(reason) {
       usingFallback = true;
       apiUsable = false;
+      apiBaseInUse = "";
+      lastRefreshedAt = null;
+      lastApiFailureReason = reason || "Fallback/demo data is labeled and should not be used for permit decisions.";
+      liveSourceNote = "";
       allRecords = demoRecords.map(function (row) { return normalizeRow(row, "fallback"); });
       track("red_tape_api_fallback", { page_path: "/red-tape-index/" });
       render();
@@ -1533,19 +1570,22 @@
       track("red_tape_index_view", { page_path: "/red-tape-index/" });
       try {
         var loaded = await loadApiData();
-        if (!loaded.records.length) {
-          useFallback();
+        if (!loaded.jsonLoaded) {
+          useFallback("API routing failed or did not return JSON. Showing fallback/demo records.");
           return;
         }
         usingFallback = false;
         apiUsable = true;
+        apiBaseInUse = resolveApiBase() || "relative /api";
+        lastRefreshedAt = new Date();
+        lastApiFailureReason = "";
+        liveSourceNote = loaded.failed
+          ? "Live JSON loaded from at least one API route. One route failed or returned invalid JSON."
+          : "Fetched " + apiBaseInUse + "/api/radar and " + apiBaseInUse + "/api/top-permits.";
         allRecords = loaded.records;
-        if (loaded.failed) {
-          els.sourceNote.textContent = "One API route failed, but usable records loaded from the other existing route.";
-        }
         render();
       } catch (error) {
-        useFallback();
+        useFallback(error && error.message ? error.message + ". Showing fallback/demo records." : "API request failed. Showing fallback/demo records.");
       }
     }
 
