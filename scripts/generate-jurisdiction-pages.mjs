@@ -10,7 +10,7 @@ const DIST_DIR = path.join(ROOT_DIR, 'dist');
 const HUB_DIR = path.join(DIST_DIR, 'california', 'jurisdictions');
 const SITE_URL = 'https://getpermitpulse.com';
 const STRIPE_URL = 'https://buy.stripe.com/9B614ofhJ72H5Ft93Q1wY0l';
-const LASTMOD = '2026-04-18';
+const LASTMOD = '2026-05-09';
 const OG_IMAGE = `${SITE_URL}/img/permitpulse-og-los-angeles-permit-radar.webp`;
 
 const JURISDICTION_SOURCE = new Map(
@@ -1265,6 +1265,7 @@ function renderHead({
     gtag('js', new Date());
     gtag('config', 'G-0S8S6156CV');
   </script>
+  <script defer src="/assets/permitpulse-tracking.js"></script>
   <script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token":"7046e03c84424a49988d1930fda247b6"}'></script>
   ${extraHead}
   <script type="application/ld+json">${JSON.stringify(structuredData)}</script>
