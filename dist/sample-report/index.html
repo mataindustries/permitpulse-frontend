@@ -3,474 +3,622 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Sample Permit Report (Redacted) | PermitPulse</title>
-  <meta name="description" content="Redacted sample of a PermitPulse Permit Review: permit status snapshot, approved scope summary, risk flags, and next steps for one LA address." />
-  <meta property="og:title" content="Sample Permit Report (Redacted) | PermitPulse" />
-  <meta property="og:description" content="See what a decision-ready permit report looks like before you buy." />
+  <title>Sample Permit Review Plus Report | PermitPulse</title>
+  <meta name="description" content="See a redacted PermitPulse sample report, then text or email one LA property address for a first-pass public-record review." />
+  <meta property="og:title" content="Sample Permit Review Plus Report | PermitPulse" />
+  <meta property="og:description" content="Redacted sample report for one LA property: permit, parcel, zoning, planning, and public-record risk signals." />
   <meta property="og:type" content="website" />
-
+  <meta property="og:image" content="https://getpermitpulse.com/assets/images/permitpulse-permit-review-plus-los-angeles-og-image.png" />
+  <link rel="canonical" href="https://getpermitpulse.com/sample-report/" />
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-0S8S6156CV"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag("js", new Date());
+    gtag("config", "G-0S8S6156CV");
+  </script>
+  <script defer src="/assets/permitpulse-tracking.js"></script>
   <style>
-    :root{
-      --bg:#050505;
-      --panel:#0f0f11;
-      --panel2:#0b0b0c;
-      --text:#dedede;
-      --muted:#8a8a8a;
-      --border:#222;
-      --orange:#ff4400;
-      --blue:#2952ff;
+    :root {
+      --bg: #050505;
+      --panel: #0d1016;
+      --panel-2: #111827;
+      --ink: #ededed;
+      --muted: #a5adba;
+      --faint: #687386;
+      --line: rgba(148, 163, 184, 0.24);
+      --line-strong: rgba(56, 189, 248, 0.42);
+      --orange: #ff4400;
+      --orange-soft: #ffb08a;
+      --blue: #2952ff;
+      --blue-soft: #38bdf8;
       --mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-      --sans: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, "Helvetica Neue", Helvetica, sans-serif;
-      --radius:16px;
-    }
-    *{box-sizing:border-box}
-    body{
-      margin:0;
-      font-family:var(--sans);
-      color:var(--text);
-      background:var(--bg);
-    }
-    /* Subtle blueprint grid */
-    body:before{
-      content:"";
-      position:fixed;
-      inset:0;
-      pointer-events:none;
-      opacity:.06;
-      background-image:
-        linear-gradient(to right, rgba(41,82,255,.9) 1px, transparent 1px),
-        linear-gradient(to bottom, rgba(41,82,255,.9) 1px, transparent 1px);
-      background-size:48px 48px;
-      mask-image: radial-gradient(circle at 30% 10%, rgba(0,0,0,1) 0%, rgba(0,0,0,.55) 35%, rgba(0,0,0,0) 72%);
-    }
-    a{color:inherit; text-decoration:none}
-    .wrap{max-width:980px; margin:0 auto; padding:20px 16px 96px;}
-    .topbar{
-      display:flex; align-items:center; justify-content:space-between;
-      gap:12px; padding:10px 0 18px;
-    }
-    .brand{
-      display:flex; align-items:baseline; gap:10px;
-      font-weight:700; letter-spacing:.2px;
-    }
-    .nav{display:flex; gap:14px; flex-wrap:wrap; justify-content:flex-end}
-    .nav a{
-      font-family:var(--mono);
-      font-size:13px;
-      color:var(--muted);
-      padding:8px 10px;
-      border:1px solid transparent;
-      border-radius:12px;
-    }
-    .nav a:hover{border-color:var(--border); color:var(--text)}
-    .pill{
-      display:inline-flex; align-items:center; gap:8px;
-      font-family:var(--mono);
-      font-size:12px; letter-spacing:.6px;
-      text-transform:uppercase;
-      color:var(--muted);
-      border:1px solid var(--border);
-      background:rgba(15,15,17,.6);
-      padding:8px 10px;
-      border-radius:999px;
-    }
-    .pill .dot{width:8px; height:8px; border-radius:50%; background:var(--orange)}
-    h1{
-      margin:14px 0 10px;
-      font-size:40px;
-      line-height:1.06;
-      letter-spacing:-.6px;
-    }
-    .sub{
-      margin:0 0 18px;
-      color:var(--muted);
-      font-size:16px;
-      line-height:1.55;
-      max-width:820px;
-    }
-    .ctaRow{display:flex; gap:12px; flex-wrap:wrap; margin:18px 0 22px;}
-    .btn{
-      display:inline-flex; align-items:center; justify-content:center;
-      padding:14px 16px;
-      border-radius:14px;
-      border:1px solid var(--border);
-      background:var(--panel);
-      color:var(--text);
-      font-weight:700;
-      min-width:220px;
-    }
-    .btnPrimary{
-      background:var(--orange);
-      border-color:transparent;
-      color:#111;
-    }
-    .btnSmall{
-      min-width:auto;
-      font-family:var(--mono);
-      font-size:13px;
-      font-weight:700;
-      color:var(--text);
+      --sans: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
     }
 
-    .grid{
-      display:grid;
-      grid-template-columns: 1.1fr .9fr;
-      gap:14px;
-      align-items:start;
-    }
-    @media (max-width:860px){
-      .grid{grid-template-columns:1fr}
-      h1{font-size:34px}
-      .btn{min-width:1px; flex:1}
+    * { box-sizing: border-box; }
+
+    html { background: var(--bg); scroll-behavior: smooth; }
+
+    body {
+      min-width: 320px;
+      margin: 0;
+      overflow-x: hidden;
+      background:
+        linear-gradient(rgba(41, 82, 255, 0.07) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(41, 82, 255, 0.05) 1px, transparent 1px),
+        radial-gradient(circle at 16% 0%, rgba(41, 82, 255, 0.2), transparent 30rem),
+        radial-gradient(circle at 88% 10%, rgba(255, 68, 0, 0.13), transparent 24rem),
+        #050505;
+      background-size: 42px 42px, 42px 42px, auto, auto, auto;
+      color: var(--ink);
+      font-family: var(--sans);
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
     }
 
-    .card{
-      background:rgba(15,15,17,.82);
-      border:1px solid var(--border);
-      border-radius:var(--radius);
-      padding:16px;
-      box-shadow: 0 0 0 1px rgba(0,0,0,.2) inset;
-    }
-    .cardHeader{
-      display:flex; align-items:flex-start; justify-content:space-between; gap:10px;
-      margin-bottom:10px;
-    }
-    .kicker{
-      font-family:var(--mono);
-      font-size:12px;
-      color:var(--muted);
-      text-transform:uppercase;
-      letter-spacing:.7px;
-    }
-    .title{
-      font-size:18px;
-      font-weight:800;
-      margin:3px 0 0;
-    }
-    .meta{
-      font-family:var(--mono);
-      font-size:12px;
-      color:var(--muted);
-      line-height:1.5;
-    }
-    .hr{height:1px; background:var(--border); margin:14px 0;}
-    ul{margin:10px 0 0 18px; color:var(--text)}
-    li{margin:8px 0; color:var(--text)}
-    .muted{color:var(--muted)}
-    .tag{
-      display:inline-flex;
-      font-family:var(--mono);
-      font-size:12px;
-      padding:6px 9px;
-      border-radius:999px;
-      border:1px solid var(--border);
-      color:var(--muted);
-      background:rgba(11,11,12,.7);
-      margin-right:8px;
-      margin-top:8px;
-    }
-    .risk{
-      border-left:3px solid var(--orange);
-      padding-left:12px;
-      margin:10px 0;
-    }
-    .ok{
-      border-left:3px solid rgba(41,82,255,.9);
-      padding-left:12px;
-      margin:10px 0;
-    }
-    .kv{
-      display:grid;
-      grid-template-columns: 180px 1fr;
-      gap:10px 14px;
-      margin-top:10px;
-    }
-    @media (max-width:520px){
-      .kv{grid-template-columns:1fr}
-    }
-    .k{font-family:var(--mono); color:var(--muted); font-size:12px; text-transform:uppercase; letter-spacing:.6px}
-    .v{font-size:14px; line-height:1.5}
+    a { color: inherit; text-decoration: none; }
 
-    /* Sticky bottom bar */
-    .sticky{
-      position:fixed;
-      left:0; right:0; bottom:0;
-      padding:10px 12px;
-      background:rgba(5,5,5,.86);
-      backdrop-filter: blur(10px);
-      border-top:1px solid var(--border);
+    .wrap {
+      width: min(100%, 1120px);
+      margin: 0 auto;
+      padding: 0 16px;
     }
-    .stickyInner{
-      max-width:980px;
-      margin:0 auto;
-      display:flex;
-      gap:10px;
-      align-items:center;
-      justify-content:space-between;
+
+    .mono {
+      font-family: var(--mono);
+      letter-spacing: 0;
     }
-    .stickyText{
-      display:flex; flex-direction:column; gap:2px;
-      min-width:0;
+
+    .muted { color: var(--muted); }
+
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+      background: rgba(5, 5, 5, 0.86);
+      backdrop-filter: blur(14px);
     }
-    .stickyText b{font-size:13px}
-    .stickyText span{font-family:var(--mono); font-size:12px; color:var(--muted)}
-    .stickyBtns{display:flex; gap:10px; flex-wrap:wrap; justify-content:flex-end}
-    .stickyBtns a{padding:12px 14px; border-radius:14px; border:1px solid var(--border); background:var(--panel); font-weight:800}
-    .stickyBtns a.primary{background:var(--orange); border-color:transparent; color:#111}
+
+    .nav {
+      min-height: 58px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .brand {
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      font-weight: 760;
+      letter-spacing: 0;
+    }
+
+    .brand span { color: var(--orange); }
+
+    .nav a:not(.brand) {
+      flex: 0 0 auto;
+      color: var(--muted);
+      font-family: var(--mono);
+      font-size: 12px;
+    }
+
+    main { padding-bottom: 96px; }
+
+    .hero {
+      padding: 42px 0 28px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+    }
+
+    .hero-grid {
+      display: grid;
+      gap: 22px;
+      align-items: center;
+    }
+
+    .eyebrow {
+      width: fit-content;
+      max-width: 100%;
+      padding: 6px 9px;
+      border: 1px solid rgba(255, 68, 0, 0.64);
+      background: rgba(255, 68, 0, 0.08);
+      color: var(--orange-soft);
+      font-family: var(--mono);
+      font-size: 11px;
+      text-transform: uppercase;
+    }
+
+    h1, h2, h3 {
+      margin: 0;
+      letter-spacing: 0;
+      line-height: 1.03;
+    }
+
+    h1 {
+      margin-top: 14px;
+      max-width: 920px;
+      font-size: clamp(2.35rem, 10vw, 5.85rem);
+      font-weight: 680;
+      text-wrap: balance;
+    }
+
+    h2 {
+      font-size: clamp(1.75rem, 6vw, 3.25rem);
+      font-weight: 650;
+    }
+
+    h3 {
+      font-size: 1.05rem;
+      font-weight: 680;
+      line-height: 1.2;
+    }
+
+    .lead {
+      max-width: 780px;
+      margin: 16px 0 0;
+      color: #cbd5e1;
+      font-size: 1.05rem;
+    }
+
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 18px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 48px;
+      min-width: 190px;
+      padding: 13px 16px;
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 6px;
+      background: rgba(255, 255, 255, 0.025);
+      color: var(--ink);
+      font-weight: 760;
+      line-height: 1.1;
+      text-align: center;
+    }
+
+    .btn-primary {
+      border-color: transparent;
+      background: var(--orange);
+      color: #fff;
+      box-shadow: 0 18px 38px rgba(255, 68, 0, 0.28);
+    }
+
+    .btn-secondary {
+      border-color: rgba(56, 189, 248, 0.38);
+      background: rgba(41, 82, 255, 0.16);
+      color: #dbeafe;
+    }
+
+    .trust {
+      max-width: 740px;
+      margin: 12px 0 0;
+      color: var(--faint);
+      font-family: var(--mono);
+      font-size: 12px;
+    }
+
+    .proof-panel {
+      min-width: 0;
+      border: 1px solid var(--line-strong);
+      border-radius: 8px;
+      background:
+        linear-gradient(135deg, rgba(41, 82, 255, 0.17), rgba(255, 68, 0, 0.06)),
+        rgba(8, 13, 20, 0.94);
+      box-shadow: 0 22px 60px rgba(0, 0, 0, 0.36);
+      overflow: hidden;
+    }
+
+    .proof-panel img {
+      display: block;
+      width: 100%;
+      aspect-ratio: 16 / 10;
+      object-fit: cover;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    }
+
+    .proof-body {
+      padding: 14px;
+      display: grid;
+      gap: 10px;
+    }
+
+    .proof-lines {
+      display: grid;
+      gap: 8px;
+      padding: 12px;
+      border: 1px solid rgba(148, 163, 184, 0.18);
+      border-radius: 6px;
+      background: rgba(0, 0, 0, 0.18);
+    }
+
+    .line {
+      height: 9px;
+      border-radius: 999px;
+      background: linear-gradient(90deg, rgba(203, 213, 225, 0.62), rgba(203, 213, 225, 0.12));
+    }
+
+    .line.short { width: 54%; }
+    .line.med { width: 72%; }
+    .line.redacted { width: 42%; background: rgba(255, 68, 0, 0.5); }
+
+    .section {
+      padding: 36px 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+    }
+
+    .section-head {
+      display: grid;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+
+    .card-grid {
+      display: grid;
+      gap: 10px;
+    }
+
+    .card {
+      min-width: 0;
+      padding: 16px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background:
+        linear-gradient(145deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.01)),
+        rgba(8, 13, 20, 0.92);
+    }
+
+    .sample-card {
+      display: grid;
+      gap: 14px;
+    }
+
+    .report-preview {
+      display: grid;
+      gap: 10px;
+      padding: 14px;
+      border: 1px solid rgba(56, 189, 248, 0.22);
+      border-radius: 8px;
+      background: #070a10;
+    }
+
+    .report-row {
+      display: grid;
+      grid-template-columns: minmax(0, 0.42fr) minmax(0, 1fr);
+      gap: 10px;
+      padding-bottom: 9px;
+      border-bottom: 1px solid rgba(148, 163, 184, 0.12);
+    }
+
+    .report-row:last-child {
+      padding-bottom: 0;
+      border-bottom: 0;
+    }
+
+    .report-key {
+      color: var(--faint);
+      font-family: var(--mono);
+      font-size: 11px;
+      text-transform: uppercase;
+    }
+
+    .report-value {
+      min-width: 0;
+      color: #dbeafe;
+      font-size: 14px;
+      overflow-wrap: anywhere;
+    }
+
+    .check-list {
+      display: grid;
+      gap: 10px;
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+
+    .check-list li {
+      display: grid;
+      grid-template-columns: 18px minmax(0, 1fr);
+      gap: 9px;
+      color: #d5dde8;
+    }
+
+    .check-list li::before {
+      content: "";
+      width: 9px;
+      height: 9px;
+      margin-top: 7px;
+      border-radius: 50%;
+      background: var(--orange);
+      box-shadow: 0 0 14px rgba(255, 68, 0, 0.7);
+    }
+
+    .who-card {
+      min-height: 112px;
+      display: grid;
+      align-content: space-between;
+      gap: 14px;
+    }
+
+    .who-card span {
+      color: var(--blue-soft);
+      font-family: var(--mono);
+      font-size: 11px;
+      text-transform: uppercase;
+    }
+
+    .offer {
+      display: grid;
+      gap: 12px;
+      border-color: rgba(255, 68, 0, 0.42);
+      background:
+        linear-gradient(145deg, rgba(255, 68, 0, 0.13), rgba(41, 82, 255, 0.1)),
+        rgba(8, 13, 20, 0.95);
+    }
+
+    .price {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .price-box {
+      padding: 12px;
+      border: 1px solid rgba(255, 255, 255, 0.13);
+      border-radius: 7px;
+      background: rgba(0, 0, 0, 0.15);
+    }
+
+    .price-box span {
+      display: block;
+      color: var(--faint);
+      font-family: var(--mono);
+      font-size: 11px;
+      text-transform: uppercase;
+    }
+
+    .price-box strong {
+      display: block;
+      margin-top: 4px;
+      font-size: 1.25rem;
+    }
+
+    footer {
+      padding: 24px 0 40px;
+      color: var(--faint);
+      font-family: var(--mono);
+      font-size: 11px;
+    }
+
+    .sticky {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 25;
+      padding: 10px 12px;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      background: rgba(5, 5, 5, 0.88);
+      backdrop-filter: blur(14px);
+    }
+
+    .sticky-inner {
+      width: min(100%, 1120px);
+      margin: 0 auto;
+      display: grid;
+      gap: 8px;
+    }
+
+    .sticky-text {
+      display: none;
+      min-width: 0;
+      color: var(--muted);
+      font-family: var(--mono);
+      font-size: 12px;
+    }
+
+    .sticky-actions {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .sticky .btn {
+      min-width: 0;
+      min-height: 46px;
+      padding: 12px 10px;
+      border-radius: 6px;
+      font-size: 14px;
+    }
+
+    @media (max-width: 560px) {
+      .actions .btn { width: 100%; }
+      .price { grid-template-columns: 1fr; }
+      .nav a:not(.brand):not(.sample-link) { display: none; }
+      .report-row { grid-template-columns: 1fr; }
+    }
+
+    @media (min-width: 760px) {
+      .wrap { padding-left: 24px; padding-right: 24px; }
+      .hero { padding: 78px 0 44px; }
+      .hero-grid { grid-template-columns: minmax(0, 1.08fr) minmax(320px, 0.92fr); gap: 32px; }
+      .lead { font-size: 1.2rem; }
+      .section { padding: 52px 0; }
+      .card-grid.two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .card-grid.five { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+      .sample-card { grid-template-columns: minmax(0, 1fr) minmax(280px, 0.72fr); align-items: start; }
+      .sticky-inner { grid-template-columns: minmax(0, 1fr) auto; align-items: center; }
+      .sticky-text { display: block; }
+      .sticky-actions { display: flex; justify-content: flex-end; }
+    }
   </style>
 </head>
 
 <body>
-  <div class="wrap">
-    <div class="topbar">
-      <div class="brand">
-        <div style="font-size:18px">PermitPulse</div>
-      </div>
-      <div class="nav">
-        <a href="/#offers">Offers</a>
-        <a href="/guides/">Permit Help Guides</a>
-        <a href="/free-tools/">Free tools</a>
-      </div>
+  <header>
+    <div class="wrap nav">
+      <a class="brand" href="/">PermitPulse<span>/</span> Sample Report</a>
+      <a class="sample-link" href="#sample">Sample</a>
     </div>
+  </header>
 
-    <div class="pill"><span class="dot"></span> Sample permit report (redacted)</div>
-    <h1>Sample Permit Report</h1>
-    <p class="sub">
-      This is a redacted example of the current Permit Review scope for one LA address.
-      It covers the current permit timeline and status snapshot, approved scope summary and key constraints,
-      risk flags that can delay submission or close out, and optional public record pulls when portal detail is thin.
-    </p>
-
-    <div class="ctaRow">
-      <a class="btn btnPrimary" href="https://buy.stripe.com/9B614ofhJ72H5Ft93Q1wY0l">Get Permit Review Plus — $149</a>
-      <a class="btn" href="mailto:hello@getpermitpulse.com?subject=Permit%20Review%20Plus%20Question">Ask a Question First</a>
-      <a class="btn btnSmall" href="#sections">Jump to sections</a>
-    </div>
-
-    <div class="grid" id="sections">
-      <!-- LEFT COLUMN -->
-      <div style="display:flex; flex-direction:column; gap:14px;">
-        <div class="card">
-          <div class="cardHeader">
-            <div>
-              <div class="kicker">Review summary</div>
-              <div class="title">Decision snapshot</div>
-            </div>
-            <div class="meta" style="text-align:right">
-              Report ID: PP-SAMPLE-001<br/>
-              Date: 2026-02-16<br/>
-              Coverage: Los Angeles (address-specific)
-            </div>
+  <main>
+    <section class="hero">
+      <div class="wrap hero-grid">
+        <div>
+          <div class="eyebrow">Permit Review Plus / Los Angeles</div>
+          <h1>Before you bid, buy, list, quote, or submit, see what the public record says.</h1>
+          <p class="lead">PermitPulse checks official permit, parcel, zoning, and planning records for one LA property and turns the mess into a clean first-pass snapshot.</p>
+          <div class="actions" aria-label="Send one address">
+            <a class="btn btn-primary" href="sms:+15626762691?body=Hi%20PermitPulse%2C%20please%20check%20this%20LA%20property%20address%3A%20" data-pp-event="sample_report_sms_click" data-pp-location="hero" data-pp-destination="sms">Text One Address</a>
+            <a class="btn btn-secondary" href="mailto:hello@getpermitpulse.com?subject=Permit%20Review%20Plus%20-%20one%20LA%20address&body=Hi%20PermitPulse%2C%0A%0APlease%20check%20this%20LA%20property%20address%3A%0A%0AAddress%3A%20%0AWhat%20I%27m%20trying%20to%20decide%3A%20%0ATimeline%3A%20%0A%0AThanks." data-pp-event="sample_report_email_click" data-pp-location="hero" data-pp-destination="email">Email One Address</a>
           </div>
-          <div class="hr"></div>
-
-          <div class="kv">
-            <div class="k">Address</div>
-            <div class="v"><b>[REDACTED]</b> Los Angeles, CA 900xx</div>
-
-            <div class="k">Request</div>
-            <div class="v">Permit clarity for a single address</div>
-
-            <div class="k">Deliverable</div>
-            <div class="v">One report that supports a decision and next steps</div>
-
-            <div class="k">Bottom line</div>
-            <div class="v">
-              This review confirms the most relevant status signals available from the portal and related sources,
-              summarizes known approved scope signals when available, and highlights risks that commonly trigger delays.
-              When portal detail is thin, it adds optional public record pulls to fill gaps.
-            </div>
-          </div>
-
-          <div style="margin-top:12px">
-            <span class="tag">LA address</span>
-            <span class="tag">Single property</span>
-            <span class="tag">Decision-ready</span>
-          </div>
+          <p class="trust">No spam. No obligation. First-pass public-record review only. Not legal, title, architectural, or permit-expediting advice.</p>
         </div>
 
-        <div class="card">
-          <div class="cardHeader">
-            <div>
-              <div class="kicker">1) Timeline and status</div>
-              <div class="title">Current permit timeline and status snapshot</div>
-            </div>
-            <div class="meta">Format shown, fields redacted</div>
-          </div>
-          <div class="hr"></div>
-
-          <div class="kv">
-            <div class="k">Jurisdiction</div>
-            <div class="v">To be confirmed for the address (City vs County routing)</div>
-
-            <div class="k">Portal signal</div>
-            <div class="v">Records found: Yes/No (redacted)</div>
-
-            <div class="k">Current status</div>
-            <div class="v">Example values: In review, Issued, Finaled, On hold (final depends on record)</div>
-
-            <div class="k">Timeline</div>
-            <div class="v">Key events listed as dated entries when available (application, resubmittals, issuance, finals)</div>
-          </div>
-
-          <div class="ok" style="margin-top:12px">
-            <div class="k">Output</div>
-            <div class="v">
-              A clean snapshot that can be forwarded internally or to the owner without portal screenshots.
+        <aside class="proof-panel" aria-label="Permit Review Plus sample preview">
+          <img src="/assets/images/permit-review-plus-la-property-record-check.png" alt="Permit Review Plus desk with Los Angeles property records and map layers" width="1536" height="864" />
+          <div class="proof-body">
+            <div class="mono muted" style="font-size:11px;text-transform:uppercase;">Redacted sample format</div>
+            <div class="proof-lines" aria-hidden="true">
+              <div class="line redacted"></div>
+              <div class="line"></div>
+              <div class="line med"></div>
+              <div class="line short"></div>
             </div>
           </div>
+        </aside>
+      </div>
+    </section>
+
+    <section class="section" id="sample" aria-labelledby="sample-title">
+      <div class="wrap">
+        <div class="section-head">
+          <div class="eyebrow">Proof</div>
+          <h2 id="sample-title">Sample Report: Address and client details redacted</h2>
+          <p class="muted">The preview below shows the structure of a first-pass Permit Review Plus read. Actual findings depend on what official and public-record sources show for the specific property.</p>
         </div>
 
-        <div class="card">
-          <div class="cardHeader">
-            <div>
-              <div class="kicker">2) Approved scope</div>
-              <div class="title">Approved scope summary and key constraints</div>
+        <article class="card sample-card">
+          <div class="report-preview">
+            <div class="report-row">
+              <div class="report-key">Property</div>
+              <div class="report-value">[REDACTED] Los Angeles, CA 900xx</div>
             </div>
-            <div class="meta">Uses available permit and plan notes</div>
-          </div>
-          <div class="hr"></div>
-
-          <div class="kv">
-            <div class="k">Scope summary</div>
-            <div class="v">Plain-English summary of what was approved or filed (redacted example)</div>
-
-            <div class="k">Key constraints</div>
-            <div class="v">Constraints that affect scheduling, inspections, or close out (redacted example)</div>
-
-            <div class="k">Inspection notes</div>
-            <div class="v">Known inspection or close out requirements when shown in records</div>
-          </div>
-
-          <div class="risk" style="margin-top:12px">
-            <div class="k">Risk flag</div>
-            <div class="v">
-              Scope mismatches between field work and the approved permit are a common source of correction and delay.
+            <div class="report-row">
+              <div class="report-key">Permit record</div>
+              <div class="report-value">Public permit activity appears available. Manual verification recommended before relying on status.</div>
+            </div>
+            <div class="report-row">
+              <div class="report-key">Parcel/APN</div>
+              <div class="report-value">Parcel match checked against address-style and assessor-style evidence where available.</div>
+            </div>
+            <div class="report-row">
+              <div class="report-key">Zoning/planning</div>
+              <div class="report-value">Planning and map-layer signals summarized for obvious constraints or follow-up questions.</div>
+            </div>
+            <div class="report-row">
+              <div class="report-key">Risk flags</div>
+              <div class="report-value">Open items, missing records, scope mismatch signals, or records needing manual confirmation.</div>
             </div>
           </div>
+
+          <div>
+            <h3>What the sample proves</h3>
+            <p class="muted">This is not a generic lead form or automated certainty score. It is a clean, address-specific first pass that organizes public-record signals so you know what to verify next.</p>
+            <div class="actions">
+              <a class="btn btn-primary" href="sms:+15626762691?body=Hi%20PermitPulse%2C%20I%20saw%20the%20sample%20report.%20Please%20check%20this%20LA%20property%20address%3A%20" data-pp-event="sample_report_sms_click" data-pp-location="sample" data-pp-destination="sms">Text One Address</a>
+              <a class="btn btn-secondary" href="mailto:hello@getpermitpulse.com?subject=Sample%20report%20-%20one%20LA%20address&body=Hi%20PermitPulse%2C%0A%0AI%20saw%20the%20sample%20report.%20Please%20check%20this%20LA%20property%20address%3A%0A%0AAddress%3A%20%0AQuestion%3A%20%0A%0AThanks." data-pp-event="sample_report_email_click" data-pp-location="sample" data-pp-destination="email">Email One Address</a>
+            </div>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="checks-title">
+      <div class="wrap">
+        <div class="section-head">
+          <div class="eyebrow">Scope</div>
+          <h2 id="checks-title">What Permit Review Plus Checks</h2>
         </div>
+        <article class="card">
+          <ul class="check-list">
+            <li>Building permit records</li>
+            <li>Parcel/APN confirmation</li>
+            <li>Zoning and planning records</li>
+            <li>LADBS / ZIMAS / Assessor-style evidence where available</li>
+            <li>Obvious red flags, missing records, or items needing manual confirmation</li>
+          </ul>
+        </article>
+      </div>
+    </section>
 
-        <div class="card">
-          <div class="cardHeader">
-            <div>
-              <div class="kicker">3) Risk flags</div>
-              <div class="title">Risk flags that can delay submission or close out</div>
-            </div>
-            <div class="meta">Prioritized by impact</div>
-          </div>
-          <div class="hr"></div>
-
-          <div class="risk">
-            <div class="v"><b>Missing documents</b><br/>
-              If required forms, plans, or calculations are incomplete, first review often returns corrections.
-            </div>
-          </div>
-
-          <div class="risk">
-            <div class="v"><b>Incorrect routing</b><br/>
-              Submitting to the wrong portal or missing a required department step can reset timelines.
-            </div>
-          </div>
-
-          <div class="risk">
-            <div class="v"><b>Close out blockers</b><br/>
-              Open inspections, unpaid fees, or unresolved conditions can prevent final sign off.
-            </div>
-          </div>
-
-          <div class="ok">
-            <div class="v"><b>Output</b><br/>
-              Each risk includes a short mitigation step so the next action is clear.
-            </div>
-          </div>
+    <section class="section" aria-labelledby="helps-title">
+      <div class="wrap">
+        <div class="section-head">
+          <div class="eyebrow">Use cases</div>
+          <h2 id="helps-title">Who This Helps</h2>
+        </div>
+        <div class="card-grid five">
+          <article class="card who-card"><span>01</span><h3>Remodelers quoting a job</h3></article>
+          <article class="card who-card"><span>02</span><h3>ADU builders screening a lead</h3></article>
+          <article class="card who-card"><span>03</span><h3>Permit expeditors doing intake</h3></article>
+          <article class="card who-card"><span>04</span><h3>Agents and investors checking public records</h3></article>
+          <article class="card who-card"><span>05</span><h3>Property owners trying to understand what is already on file</h3></article>
         </div>
       </div>
+    </section>
 
-      <!-- RIGHT COLUMN -->
-      <div style="display:flex; flex-direction:column; gap:14px;">
-        <div class="card">
-          <div class="cardHeader">
-            <div>
-              <div class="kicker">4) Optional pull</div>
-              <div class="title">Optional public record pulls</div>
-            </div>
-            <div class="meta">Used when portal detail is thin</div>
+    <section class="section" aria-labelledby="offer-title">
+      <div class="wrap">
+        <article class="card offer">
+          <div class="section-head" style="margin-bottom:0;">
+            <div class="eyebrow">Offer</div>
+            <h2 id="offer-title">Permit Review Plus — $149</h2>
+            <p class="lead" style="margin-top:0;">Clean first-pass official/public-record review for one LA property, delivered in 24 to 48 business hours.</p>
           </div>
-          <div class="hr"></div>
-          <ul>
-            <li>Assessor and parcel context (APN, basic property signals)</li>
-            <li>Recorded documents when relevant to scope or constraints</li>
-            <li>Cross-checks that help confirm routing or status</li>
-          </ul>
-          <p class="muted" style="margin:12px 0 0; font-size:13px; line-height:1.5">
-            These pulls are used to reduce uncertainty when the primary portal does not show enough detail.
-          </p>
-        </div>
-
-        <div class="card">
-          <div class="cardHeader">
-            <div>
-              <div class="kicker">Inputs</div>
-              <div class="title">What we need from you</div>
-            </div>
-            <div class="meta">Fast intake</div>
+          <div class="price">
+            <div class="price-box"><span>Standard</span><strong>$149</strong></div>
+            <div class="price-box"><span>Turnaround</span><strong>24 to 48 business hours</strong></div>
           </div>
-          <div class="hr"></div>
-          <ul>
-            <li>Project address</li>
-            <li>Scope in 3 to 6 bullets</li>
-            <li>Any known permit numbers or prior references (optional)</li>
-            <li>Target outcome (submit, schedule inspections, close out)</li>
-          </ul>
-        </div>
-
-        <div class="card">
-          <div class="cardHeader">
-            <div>
-              <div class="kicker">Deliverable</div>
-              <div class="title">What you receive</div>
-            </div>
-            <div class="meta">Clean report format</div>
+          <div class="card" style="background:rgba(0,0,0,0.16);">
+            <h3>Express Permit Review Plus</h3>
+            <p class="muted">Rush review may be available in 4 business hours or less when scheduling allows. Higher fee applies.</p>
           </div>
-          <div class="hr"></div>
-          <ul>
-            <li>Current permit timeline and status snapshot</li>
-            <li>Approved scope summary and key constraints</li>
-            <li>Risk flags that can delay submission or close out</li>
-            <li>Optional public record pulls when portal detail is thin</li>
-          </ul>
-
-          <div class="hr"></div>
-          <div class="meta">
-            If you want a Permit Review for your address, purchase and send your intake. We will respond with next steps.
+          <p class="muted">Testing this with a few LA operators this week. Send one address and I’ll tell you if it’s a good fit before you pay.</p>
+          <div class="actions">
+            <a class="btn btn-primary" href="sms:+15626762691?body=Hi%20PermitPulse%2C%20I%20want%20to%20test%20Permit%20Review%20Plus%20with%20this%20LA%20property%20address%3A%20" data-pp-event="sample_report_sms_click" data-pp-location="offer" data-pp-destination="sms">Text One Address</a>
+            <a class="btn btn-secondary" href="mailto:hello@getpermitpulse.com?subject=Permit%20Review%20Plus%20fit%20check&body=Hi%20PermitPulse%2C%0A%0AI%20want%20to%20test%20Permit%20Review%20Plus%20with%20one%20LA%20property.%0A%0AAddress%3A%20%0AUse%20case%3A%20bid%20%2F%20buy%20%2F%20list%20%2F%20quote%20%2F%20submit%0ATiming%3A%20%0A%0APlease%20tell%20me%20if%20it%27s%20a%20good%20fit%20before%20I%20pay." data-pp-event="sample_report_email_click" data-pp-location="offer" data-pp-destination="email">Email One Address</a>
           </div>
-          <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:12px">
-            <a class="btn btnPrimary" style="flex:1" href="https://buy.stripe.com/9B614ofhJ72H5Ft93Q1wY0l">Get Permit Review Plus — $149</a>
-            <a class="btn" style="flex:1" href="mailto:hello@getpermitpulse.com?subject=Permit%20Review%20Plus%20Question">Ask a Question First</a>
-          </div>
-        </div>
-
-        <div class="card" style="background:rgba(11,11,12,.86)">
-          <div class="kicker">Disclosure</div>
-          <p class="muted" style="margin:10px 0 0; line-height:1.55; font-size:13px">
-            This sample is informational and redacted. Final authority is the permitting jurisdiction and assigned plan checker.
-          </p>
-        </div>
+          <p class="trust">First-pass public-record review only. PermitPulse does not guarantee approvals or expedite city processing.</p>
+        </article>
       </div>
-    </div>
-  </div>
+    </section>
+  </main>
 
-  <div class="sticky">
-    <div class="stickyInner">
-      <div class="stickyText">
-        <b>Permit Review for one address</b>
-        <span>Timeline and status, scope constraints, risk flags, optional record pulls</span>
-      </div>
-      <div class="stickyBtns">
-        <a class="primary" href="https://buy.stripe.com/9B614ofhJ72H5Ft93Q1wY0l">Get Permit Review Plus — $149</a>
-        <a href="mailto:hello@getpermitpulse.com?subject=Permit%20Review%20Plus%20Question">Ask a Question First</a>
+  <footer>
+    <div class="wrap">PermitPulse / Los Angeles public-record permit intelligence. Manual verification recommended before decisions.</div>
+  </footer>
+
+  <div class="sticky" aria-label="Send one LA property address">
+    <div class="sticky-inner">
+      <div class="sticky-text">Send one LA address. I’ll tell you if Permit Review Plus is a good fit before you pay.</div>
+      <div class="sticky-actions">
+        <a class="btn btn-primary" href="sms:+15626762691?body=Hi%20PermitPulse%2C%20please%20check%20this%20LA%20property%20address%3A%20" data-pp-event="sample_report_sms_click" data-pp-location="sticky" data-pp-destination="sms">Text One Address</a>
+        <a class="btn btn-secondary" href="mailto:hello@getpermitpulse.com?subject=Permit%20Review%20Plus%20-%20one%20LA%20address&body=Hi%20PermitPulse%2C%0A%0APlease%20check%20this%20LA%20property%20address%3A%0A%0AAddress%3A%20%0AWhat%20I%27m%20trying%20to%20decide%3A%20%0ATimeline%3A%20%0A%0AThanks." data-pp-event="sample_report_email_click" data-pp-location="sticky" data-pp-destination="email">Email One Address</a>
       </div>
     </div>
   </div>
 </body>
-              </html>
+</html>
