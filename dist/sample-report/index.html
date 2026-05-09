@@ -278,45 +278,47 @@
         rgba(8, 13, 20, 0.92);
     }
 
-    .sample-card {
+    .proof-card {
       display: grid;
-      gap: 14px;
+      gap: 0;
+      padding: 0;
+      overflow: hidden;
+      border-color: rgba(56, 189, 248, 0.24);
+      background: rgba(8, 13, 20, 0.94);
     }
 
-    .report-preview {
+    .proof-card img {
+      display: block;
+      width: 100%;
+      height: auto;
+      background: #080c12;
+      border-bottom: 1px solid rgba(148, 163, 184, 0.18);
+    }
+
+    .proof-card-body {
       display: grid;
       gap: 10px;
-      padding: 14px;
-      border: 1px solid rgba(56, 189, 248, 0.22);
-      border-radius: 8px;
-      background: #070a10;
+      padding: 13px;
     }
 
-    .report-row {
-      display: grid;
-      grid-template-columns: minmax(0, 0.42fr) minmax(0, 1fr);
-      gap: 10px;
-      padding-bottom: 9px;
-      border-bottom: 1px solid rgba(148, 163, 184, 0.12);
-    }
-
-    .report-row:last-child {
-      padding-bottom: 0;
-      border-bottom: 0;
-    }
-
-    .report-key {
-      color: var(--faint);
+    .proof-card-label {
+      color: var(--blue-soft);
       font-family: var(--mono);
       font-size: 11px;
       text-transform: uppercase;
     }
 
-    .report-value {
-      min-width: 0;
-      color: #dbeafe;
-      font-size: 14px;
-      overflow-wrap: anywhere;
+    .proof-card p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .snapshot-grid,
+    .proof-grid {
+      display: grid;
+      gap: 10px;
+      margin-top: 16px;
     }
 
     .check-list {
@@ -457,7 +459,8 @@
       .section { padding: 52px 0; }
       .card-grid.two { grid-template-columns: repeat(2, minmax(0, 1fr)); }
       .card-grid.five { grid-template-columns: repeat(5, minmax(0, 1fr)); }
-      .sample-card { grid-template-columns: minmax(0, 1fr) minmax(280px, 0.72fr); align-items: start; }
+      .snapshot-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .proof-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
       .sticky-inner { grid-template-columns: minmax(0, 1fr) auto; align-items: center; }
       .sticky-text { display: block; }
       .sticky-actions { display: flex; justify-content: flex-end; }
@@ -502,47 +505,79 @@
       </div>
     </section>
 
-    <section class="section" id="sample" aria-labelledby="sample-title">
+    <section class="section" id="sample" aria-labelledby="snapshot-title">
       <div class="wrap">
         <div class="section-head">
           <div class="eyebrow">Proof</div>
-          <h2 id="sample-title">Sample Report: Address and client details redacted</h2>
-          <p class="muted">The preview below shows the structure of a first-pass Permit Review Plus read. Actual findings depend on what official and public-record sources show for the specific property.</p>
+          <h2 id="snapshot-title">Start with the Decision Snapshot</h2>
+          <p class="muted">A fast first-pass public-record readout showing the overall status, top risks, checked categories, and next confirmation steps.</p>
         </div>
 
-        <article class="card sample-card">
-          <div class="report-preview">
-            <div class="report-row">
-              <div class="report-key">Property</div>
-              <div class="report-value">[REDACTED] Los Angeles, CA 900xx</div>
+        <div class="snapshot-grid">
+          <article class="card proof-card">
+            <img src="/assets/images/sample-report/snapshot-page-1.webp" alt="Redacted Decision Snapshot page 1 showing status, risk, and checked categories" width="1224" height="1584" loading="lazy" />
+            <div class="proof-card-body">
+              <div class="proof-card-label">Decision Snapshot / page 1</div>
+              <p>Overall readout, status signals, and checked categories for one LA property.</p>
             </div>
-            <div class="report-row">
-              <div class="report-key">Permit record</div>
-              <div class="report-value">Public permit activity appears available. Manual verification recommended before relying on status.</div>
+          </article>
+          <article class="card proof-card">
+            <img src="/assets/images/sample-report/snapshot-page-2.webp" alt="Redacted Decision Snapshot page 2 showing next confirmation steps" width="1224" height="1584" loading="lazy" />
+            <div class="proof-card-body">
+              <div class="proof-card-label">Decision Snapshot / page 2</div>
+              <p>Top risks, source notes, and next confirmation steps before relying on the record.</p>
             </div>
-            <div class="report-row">
-              <div class="report-key">Parcel/APN</div>
-              <div class="report-value">Parcel match checked against address-style and assessor-style evidence where available.</div>
-            </div>
-            <div class="report-row">
-              <div class="report-key">Zoning/planning</div>
-              <div class="report-value">Planning and map-layer signals summarized for obvious constraints or follow-up questions.</div>
-            </div>
-            <div class="report-row">
-              <div class="report-key">Risk flags</div>
-              <div class="report-value">Open items, missing records, scope mismatch signals, or records needing manual confirmation.</div>
-            </div>
-          </div>
+          </article>
+        </div>
 
-          <div>
-            <h3>What the sample proves</h3>
-            <p class="muted">This is not a generic lead form or automated certainty score. It is a clean, address-specific first pass that organizes public-record signals so you know what to verify next.</p>
-            <div class="actions">
-              <a class="btn btn-primary" href="sms:+15626762691?body=Hi%20PermitPulse%2C%20I%20saw%20the%20sample%20report.%20Please%20check%20this%20LA%20property%20address%3A%20" data-pp-event="sample_report_sms_click" data-pp-location="sample" data-pp-destination="sms">Text One Address</a>
-              <a class="btn btn-secondary" href="mailto:hello@getpermitpulse.com?subject=Sample%20report%20-%20one%20LA%20address&body=Hi%20PermitPulse%2C%0A%0AI%20saw%20the%20sample%20report.%20Please%20check%20this%20LA%20property%20address%3A%0A%0AAddress%3A%20%0AQuestion%3A%20%0A%0AThanks." data-pp-event="sample_report_email_click" data-pp-location="sample" data-pp-destination="email">Email One Address</a>
-            </div>
-          </div>
-        </article>
+        <div class="actions">
+          <a class="btn btn-primary" href="sms:+15626762691?body=Hi%20PermitPulse%2C%20I%20saw%20the%20Decision%20Snapshot.%20Please%20check%20this%20LA%20property%20address%3A%20" data-pp-event="sample_report_sms_click" data-pp-location="decision_snapshot" data-pp-destination="sms">Text One Address</a>
+          <a class="btn btn-secondary" href="mailto:hello@getpermitpulse.com?subject=Decision%20Snapshot%20-%20one%20LA%20address&body=Hi%20PermitPulse%2C%0A%0AI%20saw%20the%20Decision%20Snapshot.%20Please%20check%20this%20LA%20property%20address%3A%0A%0AAddress%3A%20%0AQuestion%3A%20%0A%0AThanks." data-pp-event="sample_report_email_click" data-pp-location="decision_snapshot" data-pp-destination="email">Email One Address</a>
+          <a class="btn" href="/assets/docs/PermitPulse-Redacted-Sample-Decision-Snapshot.pdf" target="_blank" rel="noopener" data-pp-event="sample_report_pdf_open" data-pp-location="decision_snapshot" data-pp-destination="decision_snapshot_pdf">Open Decision Snapshot</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="pack-title">
+      <div class="wrap">
+        <div class="section-head">
+          <div class="eyebrow">Proof pack</div>
+          <h2 id="pack-title">See the Permit Review Plus proof pack</h2>
+          <p class="muted">These redacted pages show how PermitPulse turns messy public records into a clean first-pass review with findings, risk notes, source logs, and official evidence.</p>
+        </div>
+
+        <div class="proof-grid">
+          <article class="card proof-card">
+            <img src="/assets/images/sample-report/preview-cover.webp" alt="Redacted Preview Pack cover page" width="1224" height="1584" loading="lazy" />
+            <div class="proof-card-body"><div class="proof-card-label">Cover</div><p>Scope, address redaction, and the report frame.</p></div>
+          </article>
+          <article class="card proof-card">
+            <img src="/assets/images/sample-report/preview-cheat-sheet.webp" alt="Redacted Preview Pack one-page cheat sheet" width="1224" height="1584" loading="lazy" />
+            <div class="proof-card-body"><div class="proof-card-label">One-page cheat sheet</div><p>Fast findings for the decision-maker who needs the short version.</p></div>
+          </article>
+          <article class="card proof-card">
+            <img src="/assets/images/sample-report/preview-executive-summary.webp" alt="Redacted Preview Pack executive summary page" width="1224" height="1584" loading="lazy" />
+            <div class="proof-card-body"><div class="proof-card-label">Executive summary</div><p>Plain-English readout of what appears in public records.</p></div>
+          </article>
+          <article class="card proof-card">
+            <img src="/assets/images/sample-report/preview-permit-history.webp" alt="Redacted Preview Pack permit history page" width="1224" height="1584" loading="lazy" />
+            <div class="proof-card-body"><div class="proof-card-label">Permit history</div><p>Permit record timeline and signals needing manual confirmation.</p></div>
+          </article>
+          <article class="card proof-card">
+            <img src="/assets/images/sample-report/preview-next-steps.webp" alt="Redacted Preview Pack next steps page" width="1224" height="1584" loading="lazy" />
+            <div class="proof-card-body"><div class="proof-card-label">What to do next</div><p>Practical next checks before bidding, buying, listing, quoting, or submitting.</p></div>
+          </article>
+          <article class="card proof-card">
+            <img src="/assets/images/sample-report/preview-official-evidence.webp" alt="Redacted Preview Pack official evidence page" width="1224" height="1584" loading="lazy" />
+            <div class="proof-card-body"><div class="proof-card-label">Official evidence</div><p>Source-log style evidence from official/public records where available.</p></div>
+          </article>
+        </div>
+
+        <div class="actions">
+          <a class="btn btn-primary" href="sms:+15626762691?body=Hi%20PermitPulse%2C%20I%20saw%20the%20Preview%20Pack.%20Please%20check%20this%20LA%20property%20address%3A%20" data-pp-event="sample_report_sms_click" data-pp-location="preview_pack" data-pp-destination="sms">Text One Address</a>
+          <a class="btn btn-secondary" href="mailto:hello@getpermitpulse.com?subject=Preview%20Pack%20-%20one%20LA%20address&body=Hi%20PermitPulse%2C%0A%0AI%20saw%20the%20Preview%20Pack.%20Please%20check%20this%20LA%20property%20address%3A%0A%0AAddress%3A%20%0AQuestion%3A%20%0A%0AThanks." data-pp-event="sample_report_email_click" data-pp-location="preview_pack" data-pp-destination="email">Email One Address</a>
+          <a class="btn" href="/assets/docs/PermitPulse-Redacted-Sample-Preview-Pack.pdf" target="_blank" rel="noopener" data-pp-event="sample_report_pdf_open" data-pp-location="preview_pack" data-pp-destination="preview_pack_pdf">Open Preview Pack</a>
+        </div>
       </div>
     </section>
 
@@ -602,6 +637,21 @@
             <a class="btn btn-secondary" href="mailto:hello@getpermitpulse.com?subject=Permit%20Review%20Plus%20fit%20check&body=Hi%20PermitPulse%2C%0A%0AI%20want%20to%20test%20Permit%20Review%20Plus%20with%20one%20LA%20property.%0A%0AAddress%3A%20%0AUse%20case%3A%20bid%20%2F%20buy%20%2F%20list%20%2F%20quote%20%2F%20submit%0ATiming%3A%20%0A%0APlease%20tell%20me%20if%20it%27s%20a%20good%20fit%20before%20I%20pay." data-pp-event="sample_report_email_click" data-pp-location="offer" data-pp-destination="email">Email One Address</a>
           </div>
           <p class="trust">First-pass public-record review only. PermitPulse does not guarantee approvals or expedite city processing.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="full-report-title">
+      <div class="wrap">
+        <article class="card">
+          <div class="section-head" style="margin-bottom:0;">
+            <div class="eyebrow">Full sample</div>
+            <h2 id="full-report-title">Open the full redacted sample report</h2>
+            <p class="muted">For prospects who want to see the deeper 21-page Permit Review Plus format with official-source evidence and appendix pages.</p>
+          </div>
+          <div class="actions">
+            <a class="btn" href="/assets/docs/PermitPulse-Redacted-Sample-Permit-Review-Plus-Full.pdf" target="_blank" rel="noopener" data-pp-event="sample_report_pdf_open" data-pp-location="full_report" data-pp-destination="full_report_pdf">Open Full Redacted Sample Report</a>
+          </div>
         </article>
       </div>
     </section>
