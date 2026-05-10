@@ -151,6 +151,43 @@ header {
     #0f0f11;
 }
 .hotline h2 { margin-bottom: 10px; }
+.hotline-ladder {
+  display: grid;
+  gap: 12px;
+  margin-top: 20px;
+}
+.hotline-offer {
+  display: grid;
+  gap: 10px;
+  padding: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 12px;
+  background: rgba(5, 5, 6, 0.42);
+}
+.hotline-offer strong {
+  display: block;
+  color: var(--text-main);
+  font-size: 1.05rem;
+}
+.hotline-offer .price {
+  color: #ffb08a;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  text-transform: uppercase;
+}
+.signal-links,
+.safety-copy {
+  margin-top: 16px;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+  font-size: 12px;
+  line-height: 1.6;
+}
+.signal-links a {
+  color: var(--text-main);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
 .express-review {
   margin-top: 18px;
   padding: 20px;

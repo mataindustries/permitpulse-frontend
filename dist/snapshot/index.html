@@ -123,21 +123,45 @@
           <h2>Give us the address and the decision.</h2>
           <p style="margin-top:14px;">The better the context, the better the first-pass screen. Keep it short: buying, listing, bidding, ADU, remodel, unpermitted work, or general research.</p>
           <div class="hotline" style="margin-top:24px;">
-            <h2 style="font-size:clamp(1.5rem,3vw,2rem);">Need the full checked report?</h2>
-            <p>Permit Review Plus is $149 per address.</p>
-            <div class="actions">
-              <a class="btn btn-orange" href="https://buy.stripe.com/9B614ofhJ72H5Ft93Q1wY0l" target="_blank" rel="noopener">Order Permit Review Plus</a>
-              <a class="btn btn-ghost" href="/sample-report/">See Sample Report</a>
-            </div>
-            <div class="express-review">
-              <div class="mono express-kicker">Availability-based rush option</div>
-              <h3>Express Permit Review Plus</h3>
-              <p>Express Permit Review Plus is $300 when available.</p>
-              <p>Target turnaround is 4 business hours or less when scheduling and source access allow.</p>
-              <p class="express-disclaimer">Express availability depends on request time, property complexity, source availability, and public portal access. This is not a legal opinion, architectural opinion, title report, survey, or permit approval guarantee.</p>
-              <div class="actions">
-                <a class="btn btn-ghost" href="sms:+15626762691?body=Hi%20PermitPulse%2C%20I%20want%20to%20request%20Express%20Permit%20Review%20Plus%20for%20this%20address%3A%20" data-pp-event="express_review_click" data-pp-location="snapshot_upsell" data-pp-destination="sms_express_review">Request Express Review</a>
+          <h2 style="font-size:clamp(1.5rem,3vw,2rem);">Need the full checked report?</h2>
+            <p>Choose the level that matches the decision in front of you.</p>
+            <div class="hotline-ladder">
+              <div class="hotline-offer">
+                <div>
+                  <strong>Free Directional Pointer</strong>
+                  <p>I’ll tell you where I would check first.</p>
+                </div>
+                <div class="actions">
+                  <a class="btn btn-orange" href="sms:+15626762691?body=Hi%20PermitPulse%2C%20I%20want%20to%20check%20this%20address%3A%20" data-pp-cta="true" data-pp-location="snapshot_upsell" data-pp-destination="sms">Text an Address</a>
+                </div>
               </div>
+              <div class="hotline-offer">
+                <div>
+                  <strong>Permit Review Plus</strong>
+                  <div class="price">$149</div>
+                  <p>A first-pass official public-record snapshot for one property address.</p>
+                </div>
+                <div class="actions">
+                  <a class="btn btn-orange" href="https://buy.stripe.com/9B614ofhJ72H5Ft93Q1wY0l" target="_blank" rel="noopener" data-pp-location="snapshot_upsell" data-pp-price="149">Order Permit Review Plus</a>
+                  <a class="btn btn-ghost" href="/sample-report/" data-pp-location="snapshot_upsell" data-pp-asset-name="PermitPulse Preview Pack">See Sample Report</a>
+                </div>
+              </div>
+              <div class="hotline-offer">
+                <div>
+                  <strong>Express Permit Review Plus</strong>
+                  <div class="price">$300 when available</div>
+                  <p>Target turnaround is 4 business hours or less when scheduling and source access allow.</p>
+                </div>
+                <div class="actions">
+                  <a class="btn btn-ghost" href="sms:+15626762691?body=Hi%20PermitPulse%2C%20I%20want%20to%20request%20Express%20Permit%20Review%20Plus%20for%20this%20address%3A%20" data-pp-event="express_review_click" data-pp-location="snapshot_upsell" data-pp-destination="sms_express_review" data-pp-price="300">Request Express Review</a>
+                </div>
+              </div>
+            </div>
+            <p class="signal-links">PermitPulse also tracks public-record signals through the <a href="/red-tape-index/">Red Tape Index</a>, <a href="/radar/">Radar</a>, and <a href="/top-permits/">Top Permits</a> pages. See <a href="/who-it-helps/">who it helps</a>.</p>
+            <p class="safety-copy">PermitPulse is a first-pass public-record review. It is not a legal opinion, architectural opinion, title report, survey, code determination, permit expeditor service, or permit approval guarantee.</p>
+            <div class="express-review">
+              <div class="mono express-kicker">Availability note</div>
+              <p class="express-disclaimer">Express availability depends on request time, property complexity, source availability, and public portal access.</p>
             </div>
           </div>
         </div>
@@ -173,11 +197,11 @@
                 <option>Research only</option>
               </select>
             </label>
-            <label class="field"><span>Notes, optional</span><textarea name="notes" placeholder="What did someone claim, what worries you, or what do you need to verify?"></textarea></label>
+            <label class="field"><span>Notes, optional</span><textarea name="notes" aria-label="Notes about the permit claim, concern, or decision to verify"></textarea></label>
             <button id="snapshotLeadBtn" class="btn btn-orange" type="submit">Request Free Snapshot</button>
             <p id="snapshotLeadError" class="mono" style="display:none;color:#ffb08a;font-size:12px;line-height:1.5;">Could not submit. Please try again or text 562-676-2691.</p>
           </form>
-          <p class="mono muted" style="margin-top:14px;font-size:12px;">This is not a legal opinion, architectural opinion, title report, survey, or permit approval guarantee.</p>
+          <p class="mono muted" style="margin-top:14px;font-size:12px;">PermitPulse is a first-pass public-record review. It is not a legal opinion, architectural opinion, title report, survey, code determination, permit expeditor service, or permit approval guarantee.</p>
         </div>
       </div>
     </section>
@@ -187,12 +211,23 @@
         <div class="hotline hotline-grid">
           <div>
             <div class="eyebrow">Permit Problem Hotline</div>
-            <h2>Text one address. We'll point you toward the records worth checking.</h2>
-            <div class="actions">
-              <a class="btn btn-orange" href="sms:+15626762691?body=Hi%20PermitPulse%2C%20I%20want%20to%20check%20this%20address%3A%20">Text an Address</a>
-              <a class="btn btn-ghost" href="https://buy.stripe.com/9B614ofhJ72H5Ft93Q1wY0l" target="_blank" rel="noopener">Order Permit Review Plus</a>
+            <h2>Text one address. Get pointed toward the right public records.</h2>
+            <div class="hotline-ladder">
+              <div class="hotline-offer">
+                <div><strong>Free Directional Pointer</strong><p>I’ll tell you where I would check first.</p></div>
+                <div class="actions"><a class="btn btn-orange" href="sms:+15626762691?body=Hi%20PermitPulse%2C%20I%20want%20to%20check%20this%20address%3A%20" data-pp-cta="true" data-pp-location="snapshot_hotline" data-pp-destination="sms">Text an Address</a></div>
+              </div>
+              <div class="hotline-offer">
+                <div><strong>Permit Review Plus</strong><div class="price">$149</div><p>A first-pass official public-record snapshot for one property address.</p></div>
+                <div class="actions"><a class="btn btn-ghost" href="https://buy.stripe.com/9B614ofhJ72H5Ft93Q1wY0l" target="_blank" rel="noopener" data-pp-location="snapshot_hotline" data-pp-price="149">Order Permit Review Plus</a></div>
+              </div>
+              <div class="hotline-offer">
+                <div><strong>Express Permit Review Plus</strong><div class="price">$300 when available</div><p>Target turnaround is 4 business hours or less when scheduling and source access allow.</p></div>
+                <div class="actions"><a class="btn btn-ghost" href="sms:+15626762691?body=Hi%20PermitPulse%2C%20I%20want%20to%20request%20Express%20Permit%20Review%20Plus%20for%20this%20address%3A%20" data-pp-event="express_review_click" data-pp-location="snapshot_hotline" data-pp-destination="sms_express_review" data-pp-price="300">Request Express Review</a></div>
+              </div>
             </div>
-            <p class="mono muted" style="margin-top:14px;font-size:12px;">Rush situation? <a class="link" href="sms:+15626762691?body=Hi%20PermitPulse%2C%20I%20want%20to%20request%20Express%20Permit%20Review%20Plus%20for%20this%20address%3A%20" data-pp-event="express_review_click" data-pp-location="snapshot_hotline" data-pp-destination="sms_express_review">Request Express Review.</a></p>
+            <p class="signal-links">PermitPulse also tracks public-record signals through the <a href="/red-tape-index/">Red Tape Index</a>, <a href="/radar/">Radar</a>, and <a href="/top-permits/">Top Permits</a> pages. See the <a href="/sample-report/">sample report</a> or <a href="/who-it-helps/">who it helps</a>.</p>
+            <p class="safety-copy">PermitPulse is a first-pass public-record review. It is not a legal opinion, architectural opinion, title report, survey, code determination, permit expeditor service, or permit approval guarantee.</p>
           </div>
           <div class="media-frame hotline-media">
             <img

@@ -37,6 +37,7 @@
   <url><loc>https://getpermitpulse.com/red-tape-index/</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
   <url><loc>https://getpermitpulse.com/top-permits/</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
   <url><loc>https://getpermitpulse.com/california-permit-history/</loc></url>
+  <url><loc>https://getpermitpulse.com/how-permitpulse-works/</loc><changefreq>monthly</changefreq><priority>0.7</priority></url>
 
   <!-- New high-intent service page -->
   <url>
