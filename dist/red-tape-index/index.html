@@ -14,19 +14,19 @@
   
   
   <meta name="twitter:image" content="https://getpermitpulse.com/assets/images/permitpulse-permit-review-plus-los-angeles-og-image.png" />
-  <meta name="twitter:image:alt" content="PermitPulse public permit record review preview" />
-<meta name="twitter:description" content="Track Los Angeles permit friction patterns with public-record signals for stuck projects, high-value activity, and address-level follow-up." />
-<meta name="twitter:title" content="Red Tape Index | Los Angeles Permit Risk Signals" />
+  <meta name="twitter:image:alt" content="PermitPulse public-record permit friction signal preview for Los Angeles address review" />
+<meta name="twitter:description" content="Track local public-record permit friction signals and see why PermitPulse checks one address before costly property decisions." />
+<meta name="twitter:title" content="LA Red Tape Index | PermitPulse" />
 <meta name="twitter:card" content="summary_large_image" />
 <meta property="og:image" content="https://getpermitpulse.com/assets/images/permitpulse-permit-review-plus-los-angeles-og-image.png" />
-  <meta property="og:image:alt" content="PermitPulse public permit record review preview" />
-<meta property="og:description" content="Track Los Angeles permit friction patterns with public-record signals for stuck projects, high-value activity, and address-level follow-up." />
-<meta property="og:title" content="Red Tape Index | Los Angeles Permit Risk Signals" />
+  <meta property="og:image:alt" content="PermitPulse public-record permit friction signal preview for Los Angeles address review" />
+<meta property="og:description" content="Track local public-record permit friction signals and see why PermitPulse checks one address before costly property decisions." />
+<meta property="og:title" content="LA Red Tape Index | PermitPulse" />
 <meta property="og:url" content="https://getpermitpulse.com/red-tape-index/" />
 <meta property="og:type" content="website" />
 <meta name="robots" content="index,follow" />
-<title>Red Tape Index | Los Angeles Permit Risk Signals</title>
-  <meta name="description" content="Track Los Angeles permit friction patterns with public-record signals for stuck projects, high-value activity, and address-level follow-up." />
+<title>LA Red Tape Index | PermitPulse</title>
+  <meta name="description" content="Track local public-record permit friction signals and see why PermitPulse checks one address before costly property decisions." />
   <link rel="canonical" href="https://getpermitpulse.com/red-tape-index/" />
 
   <!-- GA4 -->
@@ -824,11 +824,30 @@
       line-height: 1.6;
     }
 
+    .trust-list {
+      display: grid;
+      gap: 8px;
+      margin-top: 14px;
+      color: #cbd5e1;
+      font-size: 14px;
+    }
+
+    .trust-list li {
+      margin-left: 18px;
+      padding-left: 2px;
+    }
+
     footer {
       padding: 24px 0 38px;
       color: var(--faint);
       font-family: var(--font-mono);
       font-size: 11px;
+    }
+
+    footer a {
+      color: #cbd5e1;
+      text-decoration: underline;
+      text-underline-offset: 3px;
     }
 
     @media (max-width: 520px) {
@@ -881,7 +900,7 @@
   </style>
   <!-- Cloudflare Web Analytics --><script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token":"7046e03c84424a49988d1930fda247b6"}'></script><!-- End Cloudflare Web Analytics -->
 
-  <script type="application/ld+json">{"@context":"https://schema.org","@type":"Dataset","name":"PermitPulse Red Tape Index","url":"https://getpermitpulse.com/red-tape-index/","description":"A public-facing PermitPulse dashboard summarizing permit friction signals from available public permit records.","creator":{"@type":"Organization","name":"PermitPulse","url":"https://getpermitpulse.com/"},"isAccessibleForFree":true}</script>
+  <script type="application/ld+json">{"@context":"https://schema.org","@type":"Dataset","name":"LA Red Tape Index","url":"https://getpermitpulse.com/red-tape-index/","description":"A PermitPulse editorial public-record signal page summarizing local permit friction patterns from available public permit records.","creator":{"@type":"Organization","name":"PermitPulse","url":"https://getpermitpulse.com/"},"isAccessibleForFree":true}</script>
 </head>
 
 <body>
@@ -895,7 +914,8 @@
           <a href="/radar/">Radar</a>
           <a href="/top-permits/">Top permits</a>
           <a href="/red-tape-index/" class="active">Red Tape Index</a>
-          <a href="/free-tools/">Free tools</a>
+          <a href="/resources/">Resources</a>
+          <a href="/sample-report/">Sample</a>
         </nav>
       </div>
     </header>
@@ -906,10 +926,14 @@
           <div class="hero-copy">
             <div class="badge">Beta public-record dashboard</div>
             <h1>LA permit friction appears in patterns.</h1>
-            <p class="lead">Track where projects appear to be moving, stacking up, and carrying higher friction signals based on public permit records.</p>
-            <div class="hero-cta">
-              <a class="btn btn-orange" href="#address-checker">Check if your address is in the red zone</a>
-              <p class="cta-note">Estimated public-record signals only. Manual verification recommended before decisions.</p>
+            <p class="lead">Public records are messy. PermitPulse turns them into a clearer first-pass snapshot. Before you buy, bid, build, list, quote, or promise a timeline, check the address.</p>
+            <div class="hero-cta" data-pp-location="red_tape_hero">
+              <div class="actions">
+                <a class="btn btn-orange" href="/sample-report/" data-pp-cta="true" data-pp-location="red_tape_hero" data-pp-asset-name="PermitPulse Preview Pack">View Sample Report</a>
+                <a class="btn btn-blue" href="sms:+15626762691?body=Hi%20PermitPulse%2C%20I%20saw%20the%20Red%20Tape%20Index.%20Please%20check%20this%20property%20address%3A%20" data-pp-cta="true" data-pp-location="red_tape_hero" data-pp-destination="sms">Send One Address</a>
+                <a class="btn btn-ghost" href="#address-checker" data-pp-cta="true" data-pp-location="red_tape_hero">Check if your address is in the red zone</a>
+              </div>
+              <p class="cta-note">PermitPulse editorial/public-record signals only. Not an official government ranking.</p>
             </div>
             <form class="weekly-form" id="redTapeWeeklyForm" action="https://formspree.io/f/mbdwdklj" method="POST">
               <input type="hidden" name="_subject" value="New PermitPulse Weekly Red Tape Index Signup" />
@@ -924,7 +948,7 @@
               <div class="success span-2" id="weeklySuccess">You are on the weekly Red Tape Index list.</div>
               <p class="form-error span-2" id="weeklyError">Could not submit. Please try again or email hello@getpermitpulse.com.</p>
             </form>
-            <p class="trust-line">Built from public permit data where available. Manual verification recommended before decisions.</p>
+            <p class="trust-line">City portals show records. PermitPulse turns those records into a plain-English risk snapshot. Manual verification recommended before decisions.</p>
           </div>
 
           <aside class="hero-console" aria-label="Red Tape Index signal summary">
@@ -945,6 +969,21 @@
               <div class="console-value">Verify manually</div>
             </div>
           </aside>
+        </div>
+      </section>
+
+      <section class="section" aria-labelledby="helps-title">
+        <div class="wrap">
+          <div class="section-head">
+            <div class="eyebrow">One-address decisions</div>
+            <h2 id="helps-title">See who the Red Tape Index helps</h2>
+            <p class="muted">The public index shows broad friction signals. The useful next step is a private first-pass review of the actual address in front of you.</p>
+          </div>
+          <div class="actions" data-pp-location="who_it_helps_cta">
+            <a class="btn btn-orange" href="/who-it-helps/" data-pp-cta="true" data-pp-location="who_it_helps_cta">See Who It Helps</a>
+            <a class="btn btn-blue" href="/sample-report/" data-pp-cta="true" data-pp-location="who_it_helps_cta" data-pp-asset-name="PermitPulse Preview Pack">View Sample Report</a>
+            <a class="btn btn-ghost" href="/permit-due-diligence-los-angeles/" data-pp-cta="true" data-pp-event="pp_checkout_click" data-pp-location="who_it_helps_cta" data-pp-price="149">Order Permit Review Plus</a>
+          </div>
         </div>
       </section>
 
@@ -1031,7 +1070,7 @@
             <div class="section-head">
               <div class="eyebrow">Address checker</div>
               <h2 id="checker-title">Check if your address is in the red zone</h2>
-              <p class="muted">Send one address and project type. I’ll review the public-record trail and return a first-pass read.</p>
+              <p class="muted">Send one address and project type. PermitPulse will review the public-record trail and return a first-pass read.</p>
             </div>
 
             <form id="redTapeAddressForm" action="https://formspree.io/f/mbdwdklj" method="POST">
@@ -1070,7 +1109,7 @@
 
               <div class="form-actions" style="margin-top:14px;">
                 <button class="btn btn-orange" id="addressSubmitBtn" type="submit">Submit address for review</button>
-                <div class="success" id="addressSuccess">Got it. I’ll review the public-record trail and send back the first-pass read.</div>
+                <div class="success" id="addressSuccess">Got it. PermitPulse will review the public-record trail and send back the first-pass read.</div>
                 <p class="form-error" id="addressError">Could not submit. Please try again or email hello@getpermitpulse.com.</p>
                 <p class="muted mono" style="font-size:11px;">Form handled through the existing PermitPulse Formspree pattern.</p>
               </div>
@@ -1090,7 +1129,10 @@
               <div class="price-box"><span>Turnaround</span><strong>24-48 business hours</strong></div>
             </div>
             <p class="muted">Express option available when schedule allows.</p>
-            <a class="btn btn-orange" href="https://buy.stripe.com/9B614ofhJ72H5Ft93Q1wY0l" target="_blank" rel="noopener" data-pp-event="red_tape_pr_plus_click" data-pp-location="red_tape_index" data-pp-price="149">Start Permit Review Plus</a>
+            <div class="actions">
+              <a class="btn btn-orange" href="https://buy.stripe.com/9B614ofhJ72H5Ft93Q1wY0l" target="_blank" rel="noopener" data-pp-event="red_tape_pr_plus_click" data-pp-location="red_tape_index" data-pp-price="149">Order Permit Review Plus</a>
+              <a class="btn btn-ghost" href="/sample-report/" data-pp-cta="true" data-pp-location="red_tape_index_plus_card" data-pp-asset-name="PermitPulse Preview Pack">View Sample Report</a>
+            </div>
           </aside>
         </div>
       </section>
@@ -1099,14 +1141,30 @@
         <div class="wrap">
           <article class="card disclaimer-card">
             <div class="eyebrow" id="disclaimer-title">Disclaimer</div>
-            <p>This dashboard is a public-record intelligence tool. It is not a legal opinion, architectural opinion, engineering review, title report, survey, or guarantee. Always verify with the relevant agency and licensed professionals before making decisions.</p>
+            <p>The LA Red Tape Index is a PermitPulse editorial/public-record signal page. It is not an official government ranking and does not claim complete coverage of every permit record or jurisdiction.</p>
+            <ul class="trust-list">
+              <li>Not a legal opinion.</li>
+              <li>Not an architectural opinion.</li>
+              <li>Not an engineering review.</li>
+              <li>Not a title report.</li>
+              <li>Not a survey.</li>
+              <li>Not a permit approval guarantee.</li>
+            </ul>
+            <p style="margin-top:14px;">Always verify with the relevant agency and licensed professionals before making property, design, pricing, timing, or construction decisions.</p>
           </article>
         </div>
       </section>
     </main>
 
     <footer>
-      <div class="wrap">© 2026 PermitPulse. Public-record permit intelligence for first-pass review.</div>
+      <div class="wrap">
+        © 2026 PermitPulse. Public-record permit intelligence for first-pass review.
+        <br />
+        <a href="/sample-report/" data-pp-asset-name="PermitPulse Preview Pack" data-pp-location="red_tape_footer">View Sample Report</a> ·
+        <a href="sms:+15626762691?body=Hi%20PermitPulse%2C%20I%20saw%20the%20Red%20Tape%20Index.%20Please%20check%20this%20property%20address%3A%20" data-pp-cta="true" data-pp-location="red_tape_footer" data-pp-destination="sms">Send One Address</a> ·
+        <a href="/permit-due-diligence-los-angeles/" data-pp-cta="true" data-pp-event="pp_checkout_click" data-pp-location="red_tape_footer" data-pp-price="149">Order Permit Review Plus</a> ·
+        <a href="/who-it-helps/" data-pp-cta="true" data-pp-location="red_tape_footer">See Who It Helps</a>
+      </div>
     </footer>
   </div>
 
