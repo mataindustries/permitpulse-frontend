@@ -61,11 +61,12 @@
 }
 
 .pp-blimp--red-tape {
-  --pp-blimp-width: 430px;
+  --pp-blimp-width: clamp(280px, 34vw, 430px);
   position: absolute;
-  top: -34px;
-  right: clamp(4px, 2vw, 24px);
-  opacity: 0.76;
+  z-index: 1;
+  top: clamp(116px, 12vw, 158px);
+  right: clamp(18px, 5vw, 72px);
+  opacity: 0.9;
 }
 
 .pp-blimp-anchor {
@@ -145,7 +146,15 @@
 
 @media (max-width: 759px) {
   .pp-blimp--red-tape {
-    display: none;
+    --pp-blimp-width: clamp(156px, 50vw, 210px);
+    display: block;
+    top: 8px;
+    right: 12px;
+    opacity: 0.68;
+  }
+
+  .pp-blimp--red-tape + .hero-copy {
+    padding-top: 42px;
   }
 }
 
