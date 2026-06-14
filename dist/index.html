@@ -17,11 +17,11 @@
   <meta property="og:url" content="https://getpermitpulse.com/" />
   <meta property="og:title" content="PermitPulse | Stuck Permit, Utility, and Property-Record Support" />
   <meta property="og:description" content="A 48-hour stuck-project packet for messy permit review, utility hookup, correction, and public-record status questions." />
-  <meta property="og:image" content="https://getpermitpulse.com/assets/images/permitpulse-permit-review-plus-los-angeles-og-image.png" />
-  <meta property="og:image:alt" content="PermitPulse Stuck Project Desk banner for permit, utility, and property-record support." />
+  <meta property="og:image" content="https://getpermitpulse.com/assets/images/permitpulse-stuck-permit-utility-property-record-packet.webp" />
+  <meta property="og:image:alt" content="PermitPulse 48-hour stuck permit, utility, and property-record project packet for ADU builders, remodelers, agents, investors, and homeowners" />
   <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:image" content="https://getpermitpulse.com/assets/images/permitpulse-permit-review-plus-los-angeles-og-image.png" />
-  <meta name="twitter:image:alt" content="PermitPulse Stuck Project Desk banner for permit, utility, and property-record support." />
+  <meta name="twitter:image" content="https://getpermitpulse.com/assets/images/permitpulse-stuck-permit-utility-property-record-packet.webp" />
+  <meta name="twitter:image:alt" content="PermitPulse 48-hour stuck permit, utility, and property-record project packet for ADU builders, remodelers, agents, investors, and homeowners" />
 <!-- GA4 -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-0S8S6156CV"></script>
   <script>
@@ -588,6 +588,86 @@
   }
 }
 
+    /* --- VALUE PROP INFOGRAPHIC --- */
+    .packet-visual-section {
+      background:
+        radial-gradient(circle at 70% 18%, rgba(41,82,255,0.14), transparent 34%),
+        radial-gradient(circle at 22% 82%, rgba(255,68,0,0.10), transparent 30%),
+        #050506;
+    }
+
+    .packet-visual-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 0.86fr) minmax(280px, 1fr);
+      gap: 42px;
+      align-items: center;
+    }
+
+    .packet-visual-copy p {
+      max-width: 560px;
+      margin-top: 16px;
+      font-size: 1rem;
+      line-height: 1.7;
+    }
+
+    .packet-visual-copy .btn {
+      margin-top: 24px;
+    }
+
+    .packet-visual-frame {
+      position: relative;
+      margin: 0;
+      padding: 10px;
+      border: 1px solid rgba(115,157,255,0.28);
+      border-radius: 18px;
+      background:
+        linear-gradient(135deg, rgba(41,82,255,0.20), rgba(255,68,0,0.10) 46%, rgba(255,255,255,0.035)),
+        rgba(6,8,14,0.82);
+      box-shadow:
+        0 0 0 1px rgba(255,255,255,0.04) inset,
+        0 0 42px rgba(41,82,255,0.20),
+        0 24px 70px rgba(0,0,0,0.42);
+    }
+
+    .packet-visual-frame::before {
+      content: "";
+      position: absolute;
+      inset: -1px;
+      border-radius: inherit;
+      pointer-events: none;
+      background:
+        linear-gradient(120deg, rgba(255,255,255,0.20), transparent 28% 72%, rgba(41,82,255,0.22));
+      opacity: 0.36;
+      mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+      mask-composite: exclude;
+      padding: 1px;
+    }
+
+    .packet-visual-frame img {
+      display: block;
+      width: 100%;
+      max-width: 560px;
+      height: auto;
+      margin: 0 auto;
+      border-radius: 11px;
+    }
+
+    @media (max-width: 768px) {
+      .packet-visual-grid {
+        grid-template-columns: 1fr;
+        gap: 28px;
+      }
+
+      .packet-visual-copy .btn {
+        width: 100%;
+      }
+
+      .packet-visual-frame {
+        padding: 7px;
+        border-radius: 14px;
+      }
+    }
+
     /* --- THE PAIN (Comparison) --- */
     .vs-card {
       background: var(--card-bg);
@@ -995,6 +1075,38 @@
         <div class="pain-point"><p><span class="check-mark">✓</span> Turn portal noise into a source-backed status packet</p></div>
         <div class="pain-point" style="margin-bottom:0; padding-bottom:0; border-bottom:none;"><p><span class="check-mark">✓</span> Give you cleaner questions for the next call or email</p></div>
       </div>
+    </div>
+  </div>
+</section>
+
+<section class="section packet-visual-section" aria-labelledby="packet-visual-title">
+  <div class="wrap">
+    <div class="packet-visual-grid">
+      <div class="packet-visual-copy">
+        <div class="tools-eyebrow">48-hour project packet</div>
+        <h2 id="packet-visual-title">From stuck project chaos to a clear 48-hour packet.</h2>
+        <p class="muted">
+          PermitPulse organizes messy public records, permit status, correction notes, utility confusion, and open questions into a source-backed project packet you can use for the next client, city, utility, contractor, or owner conversation.
+        </p>
+        <a
+          class="btn btn-orange"
+          href="#intake"
+          onclick="window.gtag && gtag('event','send_stuck_project_click',{location:'packet_visual'});"
+        >
+          Send a stuck project
+        </a>
+      </div>
+
+      <figure class="packet-visual-frame">
+        <img
+          src="/assets/images/permitpulse-stuck-permit-utility-property-record-packet.webp"
+          width="1122"
+          height="1402"
+          loading="lazy"
+          decoding="async"
+          alt="PermitPulse 48-hour stuck permit, utility, and property-record project packet for ADU builders, remodelers, agents, investors, and homeowners"
+        >
+      </figure>
     </div>
   </div>
 </section>
