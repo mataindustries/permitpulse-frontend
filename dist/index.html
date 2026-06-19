@@ -668,6 +668,232 @@
       }
     }
 
+    .sample-packet-proof {
+      background:
+        linear-gradient(rgba(98,132,255,0.06) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(98,132,255,0.05) 1px, transparent 1px),
+        radial-gradient(circle at 78% 18%, rgba(41,82,255,0.16), transparent 34%),
+        radial-gradient(circle at 20% 82%, rgba(255,68,0,0.10), transparent 30%),
+        #050505;
+      background-size: 44px 44px, 44px 44px, auto, auto, auto;
+    }
+
+    .sample-proof-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 0.95fr) minmax(300px, 1.05fr);
+      gap: 42px;
+      align-items: center;
+    }
+
+    .sample-proof-copy p {
+      margin-top: 16px;
+      max-width: 650px;
+      color: #b9c2cf;
+      font-size: 1rem;
+      line-height: 1.7;
+    }
+
+    .sample-proof-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 14px;
+      margin-top: 24px;
+    }
+
+    .sample-proof-note {
+      margin-top: 16px;
+      color: #6f7a8b;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      line-height: 1.6;
+    }
+
+    .sample-report-card {
+      position: relative;
+      padding: 20px;
+      border: 1px solid rgba(115,157,255,0.26);
+      border-radius: 18px;
+      background:
+        linear-gradient(135deg, rgba(41,82,255,0.18), rgba(255,68,0,0.08) 44%, rgba(255,255,255,0.035)),
+        rgba(8,10,16,0.88);
+      box-shadow:
+        0 0 0 1px rgba(255,255,255,0.04) inset,
+        0 28px 80px rgba(0,0,0,0.46);
+      overflow: hidden;
+    }
+
+    .sample-report-card::before {
+      content: "";
+      position: absolute;
+      inset: 12px;
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 12px;
+      pointer-events: none;
+    }
+
+    .sample-report-sheet {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      gap: 16px;
+      min-height: 430px;
+      padding: 24px;
+      border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 12px;
+      background:
+        linear-gradient(rgba(119,183,215,0.055) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(119,183,215,0.045) 1px, transparent 1px),
+        linear-gradient(145deg, #07111f 0%, #0a1728 58%, #06101d 100%);
+      background-size: 26px 26px, 26px 26px, auto;
+    }
+
+    .sample-report-top {
+      display: flex;
+      justify-content: space-between;
+      gap: 18px;
+      align-items: flex-start;
+      padding-bottom: 14px;
+      border-bottom: 1px solid rgba(255,255,255,0.12);
+    }
+
+    .sample-report-title {
+      color: #f5f7fb;
+      font-size: 1.25rem;
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      line-height: 1.1;
+    }
+
+    .sample-report-tag {
+      display: inline-flex;
+      align-items: center;
+      width: fit-content;
+      border: 1px solid rgba(255,176,138,0.52);
+      border-radius: 999px;
+      padding: 6px 8px;
+      color: #ffb08a;
+      background: rgba(255,68,0,0.08);
+      font-family: var(--font-mono);
+      font-size: 10px;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    .sample-report-body {
+      display: grid;
+      grid-template-columns: 0.9fr 1.1fr;
+      gap: 16px;
+      align-items: start;
+    }
+
+    .sample-report-panel {
+      border: 1px solid rgba(255,255,255,0.10);
+      border-radius: 10px;
+      padding: 14px;
+      background: rgba(255,255,255,0.035);
+    }
+
+    .sample-report-panel strong {
+      display: block;
+      margin-bottom: 8px;
+      color: #f0cf83;
+      font-family: var(--font-mono);
+      font-size: 10px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+    }
+
+    .sample-report-panel p,
+    .sample-report-panel li {
+      color: #dbe6f5;
+      font-size: 13px;
+      line-height: 1.45;
+    }
+
+    .sample-report-panel ul {
+      display: grid;
+      gap: 7px;
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+
+    .sample-report-panel li {
+      position: relative;
+      padding-left: 17px;
+    }
+
+    .sample-report-panel li::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 0.58em;
+      width: 6px;
+      height: 6px;
+      border: 1px solid rgba(255,176,138,0.72);
+      transform: rotate(45deg);
+    }
+
+    .sample-report-flow {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr auto 1fr;
+      gap: 8px;
+      align-items: center;
+      color: #dbe6f5;
+      font-family: var(--font-mono);
+      font-size: 10px;
+      text-align: center;
+    }
+
+    .sample-report-flow span:not(.flow-arrow) {
+      border: 1px solid rgba(119,183,215,0.22);
+      border-radius: 8px;
+      padding: 8px 6px;
+      background: rgba(119,183,215,0.07);
+    }
+
+    .flow-arrow {
+      color: #f0cf83;
+    }
+
+    @media (max-width: 768px) {
+      .sample-proof-grid,
+      .sample-report-body {
+        grid-template-columns: 1fr;
+      }
+
+      .sample-proof-grid {
+        gap: 28px;
+      }
+
+      .sample-proof-actions,
+      .sample-proof-actions .btn {
+        width: 100%;
+      }
+
+      .sample-report-card {
+        padding: 10px;
+        border-radius: 14px;
+      }
+
+      .sample-report-sheet {
+        min-height: auto;
+        padding: 18px;
+      }
+
+      .sample-report-top {
+        flex-direction: column;
+      }
+
+      .sample-report-flow {
+        grid-template-columns: 1fr;
+      }
+
+      .sample-report-flow .flow-arrow {
+        transform: rotate(90deg);
+      }
+    }
+
     /* --- THE PAIN (Comparison) --- */
     .vs-card {
       background: var(--card-bg);
@@ -1185,6 +1411,67 @@
           <p><span class="check-mark">✓</span> Escalation-ready summary</p>
         </div>
       </div>
+    </div>
+  </div>
+</section>
+
+<section class="section sample-packet-proof" aria-labelledby="sample-packet-title">
+  <div class="wrap">
+    <div class="sample-proof-grid">
+      <div class="sample-proof-copy">
+        <div class="badge">Sample Deliverable</div>
+        <h2 id="sample-packet-title">See what a 48-Hour Packet looks like</h2>
+        <p>
+          A client-ready sample showing how PermitPulse organizes a stuck permit situation into a clear timeline, bottleneck diagnosis, agency dependency map, and escalation-ready summary.
+        </p>
+        <div class="sample-proof-actions">
+          <a class="btn btn-orange" href="/sample-report/" data-pp-cta="true" data-pp-location="homepage_sample_packet">View Sample Packet</a>
+          <a class="btn btn-ghost" href="#intake" data-pp-cta="true" data-pp-location="homepage_sample_packet_secondary">Request a Packet</a>
+        </div>
+        <p class="sample-proof-note">
+          Fictional sample case for demonstration only. PermitPulse is independent and not affiliated with LADBS or any government agency.
+        </p>
+      </div>
+
+      <a class="sample-report-card" href="/sample-report/" aria-label="View the PermitPulse sample packet">
+        <div class="sample-report-sheet">
+          <div class="sample-report-top">
+            <div>
+              <div class="sample-report-title">48-Hour Permit Triage Packet</div>
+              <p class="muted" style="margin-top:8px; font-size:13px; line-height:1.5;">Chinatown Tenant Improvement - supplemental review delay sample</p>
+            </div>
+            <span class="sample-report-tag">Sample Report</span>
+          </div>
+
+          <div class="sample-report-body">
+            <div class="sample-report-panel">
+              <strong>Inside the sample</strong>
+              <p>A Chinatown tenant-improvement scenario where a supplemental review appears stalled after resubmittal. The packet turns scattered status uncertainty into a clear next-action plan.</p>
+            </div>
+            <div class="sample-report-panel">
+              <strong>Packet signals</strong>
+              <ul>
+                <li>Source-backed project snapshot</li>
+                <li>Observable-fact bottleneck diagnosis</li>
+                <li>Agency / clearance dependency map</li>
+                <li>Questions to ask LADBS or the reviewer</li>
+                <li>Copy-ready escalation summary</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="sample-report-panel">
+            <strong>How the packet organizes the problem</strong>
+            <div class="sample-report-flow" aria-hidden="true">
+              <span>Timeline</span>
+              <span class="flow-arrow">&rarr;</span>
+              <span>Bottleneck</span>
+              <span class="flow-arrow">&rarr;</span>
+              <span>Escalation draft</span>
+            </div>
+          </div>
+        </div>
+      </a>
     </div>
   </div>
 </section>
