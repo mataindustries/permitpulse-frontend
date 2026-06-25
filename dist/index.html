@@ -10,18 +10,18 @@
 <meta name="twitter:title" content="PermitPulse | 48-Hour LADBS Permit Triage Packet" />
 <meta name="robots" content="index,follow" />
 <title>PermitPulse | 48-Hour LADBS Permit Triage Packet</title>
-  <meta name="description" content="PermitPulse helps owners, architects, and small contractors turn confusing LADBS permit status, correction notes, supplemental reviews, and agency-clearance issues into a clean 48-hour action packet." />
+  <meta name="description" content="PermitPulse helps architects, designers, and permit teams turn stalled reviews after resubmittal into a clean, source-backed 48-hour permit triage packet." />
   <meta name="keywords" content="LADBS permit help, stuck LADBS permit, permit correction notes, supplemental review, preliminary plan check prep, agency clearance map, permit status packet" />
   
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://getpermitpulse.com/" />
   <meta property="og:title" content="PermitPulse | 48-Hour LADBS Permit Triage Packet" />
-  <meta property="og:description" content="A 48-hour clarity packet for stuck LADBS permits, corrections, supplemental reviews, preliminary plan check prep, and agency-clearance confusion." />
+  <meta property="og:description" content="A 48-hour permit triage packet for architects, designers, and permit teams dealing with stalled reviews after resubmittal." />
   <meta property="og:image" content="https://getpermitpulse.com/assets/images/permitpulse-stuck-permit-utility-property-record-packet.webp" />
-  <meta property="og:image:alt" content="PermitPulse 48-hour LADBS permit clarity packet for owners, architects, and small contractors" />
+  <meta property="og:image:alt" content="PermitPulse 48-hour permit triage packet for architects and permit teams" />
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:image" content="https://getpermitpulse.com/assets/images/permitpulse-stuck-permit-utility-property-record-packet.webp" />
-  <meta name="twitter:image:alt" content="PermitPulse 48-hour LADBS permit clarity packet for owners, architects, and small contractors" />
+  <meta name="twitter:image:alt" content="PermitPulse 48-hour permit triage packet for architects and permit teams" />
 <!-- GA4 -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-0S8S6156CV"></script>
   <script>
@@ -264,8 +264,19 @@
     }
 
     .hero h1 {
-      max-width: 850px;
+      max-width: 680px;
       text-shadow: 0 2px 26px rgba(0,0,0,0.78);
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.02fr) minmax(310px, 0.78fr);
+      gap: 42px;
+      align-items: center;
+    }
+
+    .hero-copy {
+      min-width: 0;
     }
 
     .parcel-scan-stage {
@@ -298,8 +309,17 @@
       color: #c9c9c9;
       max-width: 640px;
       margin-top: 24px;
-      margin-bottom: 40px;
+      margin-bottom: 28px;
       text-shadow: 0 1px 22px rgba(0,0,0,0.82);
+    }
+
+    .hero-support-line {
+      margin-top: 16px;
+      max-width: 650px;
+      color: #aab4c4;
+      font-size: 14px;
+      line-height: 1.6;
+      text-shadow: 0 1px 18px rgba(0,0,0,0.76);
     }
 
     .hero-value-block {
@@ -345,6 +365,16 @@
       }
       .hero > :not(.parcel-scan-stage) {
         z-index: 3;
+      }
+      .hero-grid {
+        grid-template-columns: 1fr;
+        gap: 26px;
+      }
+      .hero h1 {
+        max-width: 100%;
+      }
+      .hero p.lead {
+        margin-bottom: 24px;
       }
       .parcel-scan-stage {
         --mobile-parcel-x: 56%;
@@ -485,7 +515,7 @@
       .hero-actions {
         max-width: 340px;
         gap: 12px;
-        margin-bottom: 118px;
+        margin-bottom: 0;
       }
       .hero .turnaround-pill {
         margin-top: 0 !important;
@@ -722,6 +752,41 @@
       overflow: hidden;
     }
 
+    .hero-sample-card {
+      display: block;
+      align-self: stretch;
+      padding: 16px;
+      background:
+        linear-gradient(135deg, rgba(41,82,255,0.16), rgba(255,68,0,0.10) 46%, rgba(255,255,255,0.04)),
+        rgba(8,10,16,0.82);
+      backdrop-filter: blur(12px);
+    }
+
+    .hero-sample-card .sample-report-sheet {
+      min-height: 390px;
+    }
+
+    .hero-sample-kicker {
+      color: #ffb08a;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+
+    .hero-sample-cta {
+      display: inline-flex;
+      align-items: center;
+      width: fit-content;
+      margin-top: 4px;
+      color: #fff;
+      font-weight: 700;
+      font-size: 14px;
+      text-decoration: underline;
+      text-decoration-color: rgba(255,176,138,0.72);
+      text-underline-offset: 4px;
+    }
+
     .sample-report-card::before {
       content: "";
       position: absolute;
@@ -874,6 +939,10 @@
       .sample-report-card {
         padding: 10px;
         border-radius: 14px;
+      }
+
+      .hero-sample-card {
+        margin-top: 2px;
       }
 
       .sample-report-sheet {
@@ -1248,59 +1317,117 @@
     </div>
   </div>
 
-  <div class="badge">48-Hour Permit Triage Packet</div>
-  <h1>Stuck LADBS Permit? Get a 48-Hour Clarity Packet.</h1>
+  <div class="hero-grid">
+    <div class="hero-copy">
+      <div class="badge">For architects, designers, and permit teams</div>
+      <h1>Resubmitted and heard nothing? Get permit clarity in 48 hours.</h1>
 
-  <p class="lead">
-    PermitPulse helps owners, architects, and small contractors turn confusing permit status, correction notes, supplemental reviews, and agency-clearance issues into a clean action packet.
-  </p>
+      <p class="lead">
+        PermitPulse reviews public records, permit portal activity, correction notes, and available project history to produce a clean, source-backed triage packet you can use before the next client, contractor, or city follow-up call.
+      </p>
 
-  <div class="hero-actions">
-    <a
-      href="#intake"
-      class="btn btn-orange"
-      onclick="gtag && gtag('event','send_stuck_project_click',{location:'hero_primary'});"
-    >
-      Request a 48-Hour Packet
-    </a>
-    <a class="btn btn-ghost" href="#what-included">See what's included</a>
-  </div>
+      <div class="hero-actions">
+        <a
+          href="/assets/docs/PermitPulse-Redacted-Sample-Permit-Review-Plus-Full.pdf"
+          class="btn btn-orange"
+          target="_blank"
+          rel="noopener"
+          data-pp-cta="true"
+          data-pp-location="homepage_hero_sample_pdf"
+        >
+          View Sample Triage Packet
+        </a>
+        <a
+          href="#intake"
+          class="btn btn-ghost"
+          onclick="gtag && gtag('event','send_stuck_project_click',{location:'hero_secondary'});"
+        >
+          Request a 48-Hour Packet
+        </a>
+      </div>
 
-  <p class="turnaround-pill" style="margin-top:16px;">
-    Independent permit research and organization support - starting at $299.
-  </p>
+      <p class="hero-support-line">
+        Built for stalled reviews, supplemental corrections, unclear permit status, and owner-pressure situations.
+      </p>
 
-  <div class="hero-value-block">
-    <div class="hero-value-points" aria-label="48-Hour Permit Triage Packet deliverables">
-      <div>LADBS status summary</div>
-      <div>Correction-note cleanup</div>
-      <div>Supplemental review timeline</div>
-      <div>Agency clearance map</div>
-      <div>Escalation-ready summary</div>
+      <p class="turnaround-pill" style="margin-top:16px;">
+        Independent permit research and organization support - starting at $249.
+      </p>
+
+      <div class="hero-value-block">
+        <div class="hero-value-points" aria-label="48-Hour Permit Triage Packet deliverables">
+          <div>Portal timeline summary</div>
+          <div>Correction-note context scan</div>
+          <div>Escalation-ready summary</div>
+        </div>
+      </div>
     </div>
+
+    <a
+      class="sample-report-card hero-sample-card"
+      href="/assets/docs/PermitPulse-Redacted-Sample-Permit-Review-Plus-Full.pdf"
+      target="_blank"
+      rel="noopener"
+      aria-label="Open the PermitPulse sample triage packet PDF"
+      data-pp-cta="true"
+      data-pp-location="homepage_hero_sample_card"
+    >
+      <div class="sample-report-sheet">
+        <div class="sample-report-top">
+          <div>
+            <div class="hero-sample-kicker">Sample packet</div>
+            <div class="sample-report-title" style="margin-top:8px;">48-Hour Permit Triage Packet</div>
+            <p class="muted" style="margin-top:8px; font-size:13px; line-height:1.5;">Redacted supplemental review delay example for an architect-led project team.</p>
+          </div>
+          <span class="sample-report-tag">PDF</span>
+        </div>
+
+        <div class="sample-report-body">
+          <div class="sample-report-panel">
+            <strong>What it shows</strong>
+            <p>How scattered permit status, correction history, and silence after resubmittal become a client-ready next-step packet.</p>
+          </div>
+          <div class="sample-report-panel">
+            <strong>Included</strong>
+            <ul>
+              <li>Record trail summary</li>
+              <li>Open questions</li>
+              <li>Likely blockers</li>
+              <li>Follow-up language</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="sample-report-panel">
+          <strong>Open the proof</strong>
+          <span class="hero-sample-cta">View Sample Triage Packet</span>
+        </div>
+      </div>
+    </a>
   </div>
 
 </section>
 
-<section class="section" style="background:#050506;">
+<section class="section" id="architects" style="background:#050506;">
   <div class="wrap">
     <div class="grid grid-2" style="align-items:flex-start;">
       <div>
-        <div class="tools-eyebrow">Paid service desk</div>
-        <h2 style="margin-bottom:14px;">For permit teams who need answers before the next call.</h2>
+        <div class="tools-eyebrow">Architect permit support</div>
+        <h2 style="margin-bottom:14px;">Architects: stop losing billable hours to permit limbo.</h2>
         <p class="muted" style="max-width:760px; line-height:1.6;">
-          Have an LADBS permit, supplemental review, correction cycle, Preliminary Plan Check question, or agency clearance issue that no one can explain cleanly? Send the address, permit number, screenshots, and portal notes. I organize the visible sources, map what appears pending, and give you a clean next-step packet for your owner, client, architect, contractor, or assigned reviewer conversation.
+          When a project goes quiet after resubmittal, your team can burn hours checking portals, rereading correction notes, chasing unclear status updates, and preparing client explanations. PermitPulse turns that messy status hunt into a focused 48-hour packet with the current record trail, open questions, likely next steps, and a clean escalation-ready summary.
         </p>
         <div class="offer-actions" style="margin-top:20px;">
           <a class="btn btn-orange" href="#intake">Request a 48-Hour Packet</a>
-          <a class="btn btn-ghost" href="#pricing">View pricing</a>
+          <a class="btn btn-ghost" href="/assets/docs/PermitPulse-Redacted-Sample-Permit-Review-Plus-Full.pdf" target="_blank" rel="noopener">View sample</a>
         </div>
       </div>
       <div class="vs-card">
-        <div class="pain-point"><p><span class="check-mark">✓</span> Turn portal fragments into a readable status summary</p></div>
-        <div class="pain-point"><p><span class="check-mark">✓</span> Separate visible facts from items that need confirmation</p></div>
-        <div class="pain-point"><p><span class="check-mark">✓</span> Identify likely review, correction, or clearance dependencies</p></div>
-        <div class="pain-point" style="margin-bottom:0; padding-bottom:0; border-bottom:none;"><p><span class="check-mark">✓</span> Prepare cleaner questions before escalating or emailing</p></div>
+        <div class="pain-point"><p><span class="check-mark">✓</span> Supplemental review has gone quiet after resubmittal</p></div>
+        <div class="pain-point"><p><span class="check-mark">✓</span> A client wants an update before you have a clear answer</p></div>
+        <div class="pain-point"><p><span class="check-mark">✓</span> Permit notes, portal status, and project history do not line up</p></div>
+        <div class="pain-point"><p><span class="check-mark">✓</span> A contractor or owner needs a clean next-step summary</p></div>
+        <div class="pain-point" style="margin-bottom:0; padding-bottom:0; border-bottom:none;"><p><span class="check-mark">✓</span> You need to prepare before calling or emailing the city</p></div>
       </div>
     </div>
   </div>
@@ -1311,9 +1438,9 @@
     <div class="packet-visual-grid">
       <div class="packet-visual-copy">
         <div class="tools-eyebrow">48-hour clarity packet</div>
-        <h2 id="packet-visual-title">From permit confusion to a usable action packet.</h2>
+        <h2 id="packet-visual-title">From post-resubmittal silence to a usable action packet.</h2>
         <p class="muted">
-          PermitPulse organizes LADBS permit status, correction notes, supplemental review history, Preliminary Plan Check prep questions, and agency-clearance dependencies into a source-backed packet you can use for the next client, reviewer, contractor, or owner conversation.
+          PermitPulse organizes permit status, correction notes, supplemental review history, project records, and agency-clearance dependencies into a source-backed packet your team can use for the next client, reviewer, contractor, or owner conversation.
         </p>
         <a
           class="btn btn-orange"
@@ -1331,7 +1458,7 @@
           height="1402"
           loading="lazy"
           decoding="async"
-          alt="PermitPulse 48-hour LADBS permit clarity packet for owners, architects, and small contractors"
+          alt="PermitPulse 48-hour permit triage packet for architects and permit teams"
         >
       </figure>
     </div>
@@ -1341,19 +1468,19 @@
 <section class="section" id="what-this-is-for" style="background:#050505;">
   <div class="wrap">
     <div class="tools-eyebrow">Use cases</div>
-    <h2 style="margin-bottom:24px;">Built for messy permit situations like...</h2>
+    <h2 style="margin-bottom:24px;">Built for messy post-resubmittal situations like...</h2>
 
     <div class="vs-card">
       <div class="grid grid-2">
         <div>
-          <div class="pain-point"><p><span class="check-mark">✓</span> Permit or supplemental review feels stuck</p></div>
-          <div class="pain-point"><p><span class="check-mark">✓</span> Unclear if the bottleneck is LADBS, Planning, Fire, Public Works, LADWP, or another agency</p></div>
-          <div class="pain-point" style="margin-bottom:0;"><p><span class="check-mark">✓</span> Correction notes keep causing back-and-forth</p></div>
+          <div class="pain-point"><p><span class="check-mark">✓</span> Supplemental review has gone quiet after resubmittal</p></div>
+          <div class="pain-point"><p><span class="check-mark">✓</span> Unclear if the bottleneck is plan check, Planning, Fire, Public Works, LADWP, or another agency</p></div>
+          <div class="pain-point" style="margin-bottom:0;"><p><span class="check-mark">✓</span> Correction notes, portal status, and project history do not line up</p></div>
         </div>
         <div>
-          <div class="pain-point"><p><span class="check-mark">✓</span> Need to prepare for Preliminary Plan Check or a code question appointment</p></div>
-          <div class="pain-point"><p><span class="check-mark">✓</span> Client wants answers but the portal does not explain what is actually happening</p></div>
-          <div class="pain-point" style="margin-bottom:0; padding-bottom:0; border-bottom:none;"><p><span class="check-mark">✓</span> Need a clean summary before escalating, emailing, or requesting help</p></div>
+          <div class="pain-point"><p><span class="check-mark">✓</span> A contractor or owner needs a clean next-step summary</p></div>
+          <div class="pain-point"><p><span class="check-mark">✓</span> Client wants answers before the city has given a clear answer</p></div>
+          <div class="pain-point" style="margin-bottom:0; padding-bottom:0; border-bottom:none;"><p><span class="check-mark">✓</span> You need to prepare before calling, emailing, or escalating</p></div>
         </div>
       </div>
     </div>
@@ -1420,12 +1547,12 @@
     <div class="sample-proof-grid">
       <div class="sample-proof-copy">
         <div class="badge">Sample Deliverable</div>
-        <h2 id="sample-packet-title">See what a 48-Hour Packet looks like</h2>
+        <h2 id="sample-packet-title">See what a 48-hour packet looks like.</h2>
         <p>
-          A client-ready sample showing how PermitPulse organizes a stuck permit situation into a clear timeline, bottleneck diagnosis, agency dependency map, and escalation-ready summary.
+          This sample shows how PermitPulse turns scattered permit status, correction history, and project uncertainty into a client-ready summary with next steps.
         </p>
         <div class="sample-proof-actions">
-          <a class="btn btn-orange" href="/sample-report/" data-pp-cta="true" data-pp-location="homepage_sample_packet">View Sample Packet</a>
+          <a class="btn btn-orange" href="/assets/docs/PermitPulse-Redacted-Sample-Permit-Review-Plus-Full.pdf" target="_blank" rel="noopener" data-pp-cta="true" data-pp-location="homepage_sample_packet_pdf">Open Sample Report</a>
           <a class="btn btn-ghost" href="#intake" data-pp-cta="true" data-pp-location="homepage_sample_packet_secondary">Request a Packet</a>
         </div>
         <p class="sample-proof-note">
@@ -1433,7 +1560,7 @@
         </p>
       </div>
 
-      <a class="sample-report-card" href="/sample-report/" aria-label="View the PermitPulse sample packet">
+      <a class="sample-report-card" href="/assets/docs/PermitPulse-Redacted-Sample-Permit-Review-Plus-Full.pdf" target="_blank" rel="noopener" aria-label="Open the PermitPulse sample packet PDF">
         <div class="sample-report-sheet">
           <div class="sample-report-top">
             <div>
@@ -1538,45 +1665,27 @@
       </div>
     </div>
 
-    <div class="grid grid-3">
-      <div class="offer-card offer-primary">
+    <div class="offer-card offer-primary">
         <div class="mono blue" style="font-size:12px;letter-spacing:0.08em;text-transform:uppercase;">Main offer</div>
         <h3 style="margin-top:8px;">48-Hour Permit Triage Packet</h3>
-        <div class="offer-price">Starting at $299</div>
+        <div class="offer-price">$249 starting price</div>
         <p class="muted" style="margin-top:12px; max-width:720px;">
-          For one active LADBS project/address with permit status, correction, supplemental review, Preliminary Plan Check, or agency-clearance confusion.
+          For one active project/address with permit status, correction-note, supplemental review, resubmittal, or agency-clearance confusion.
         </p>
         <ul class="muted" style="margin:14px 0 0 20px; line-height:1.8;">
-          <li>Source-backed permit status summary</li>
-          <li>Timeline of submissions, corrections, and follow-ups</li>
-          <li>Likely bottleneck diagnosis</li>
-          <li>Missing-items checklist</li>
-          <li>Agency / clearance dependency map</li>
-          <li>Questions for LADBS or the assigned plan checker</li>
+          <li>Permit and public-record status review</li>
+          <li>Correction-note and resubmittal context scan</li>
+          <li>Portal timeline summary</li>
+          <li>Open questions and likely blockers</li>
           <li>Escalation-ready summary</li>
+          <li>Clean PDF packet delivered in 48 hours</li>
         </ul>
         <div class="offer-actions" style="margin-top:18px;">
-          <a class="btn btn-orange" href="#intake">Request a 48-Hour Packet</a>
+          <a class="btn btn-orange" href="#intake">Request a Packet</a>
         </div>
-      </div>
-
-      <div class="offer-card">
-        <div class="mono muted" style="font-size:12px;letter-spacing:0.08em;text-transform:uppercase;">Lightweight screen</div>
-        <h3 style="margin-top:8px;">Quick Address Screen</h3>
-        <div class="offer-price">$49 pilot</div>
-        <p class="muted" style="margin-top:12px;">
-          Lightweight first-pass screen only. Best before deciding whether a full packet is needed.
+        <p class="mono muted" style="margin-top:18px; font-size:12px; line-height:1.6;">
+          Need a lighter first look or ongoing permit desk support? Ask after your first packet.
         </p>
-      </div>
-
-      <div class="offer-card">
-        <div class="mono muted" style="font-size:12px;letter-spacing:0.08em;text-transform:uppercase;">Recurring support</div>
-        <h3 style="margin-top:8px;">PermitPulse Desk</h3>
-        <div class="offer-price">Custom monthly</div>
-        <p class="muted" style="margin-top:12px;">
-          For owners, architects, small contractors, or expediters with recurring projects that need weekly tracking, summaries, and client update support.
-        </p>
-      </div>
     </div>
   </div>
 </section>
