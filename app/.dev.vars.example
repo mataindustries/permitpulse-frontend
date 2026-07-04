@@ -1,0 +1,2 @@
+APP_ENV=local
+ENABLE_DEV_CASE_API=true

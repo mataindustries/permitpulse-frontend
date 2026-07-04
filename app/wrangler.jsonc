@@ -1,0 +1,38 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "permitpulse-case-workspace",
+  "main": "src/worker/index.ts",
+  "compatibility_date": "2026-07-04",
+  "compatibility_flags": ["nodejs_compat"],
+  "vars": {
+    "APP_ENV": "production",
+    "ENABLE_DEV_CASE_API": "false"
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "migrations_dir": "migrations"
+    }
+  ],
+  "assets": {
+    "binding": "ASSETS",
+    "directory": "./dist",
+    "not_found_handling": "single-page-application",
+    "run_worker_first": ["/api/*"]
+  },
+  "env": {
+    "preview": {
+      "name": "permitpulse-case-workspace-preview",
+      "vars": {
+        "APP_ENV": "preview",
+        "ENABLE_DEV_CASE_API": "false"
+      },
+      "d1_databases": [
+        {
+          "binding": "DB",
+          "migrations_dir": "migrations"
+        }
+      ]
+    }
+  }
+}
