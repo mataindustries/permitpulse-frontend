@@ -9,6 +9,7 @@
   },
   "include": [
     "./**/*.ts",
+    "./**/*.tsx",
     "../src/**/*.ts",
     "../worker-configuration.d.ts"
   ]

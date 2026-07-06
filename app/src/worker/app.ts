@@ -1,8 +1,11 @@
 import { Hono } from "hono";
 import { logDevelopmentError } from "./lib/environment";
 import { errorResponse } from "./lib/responses";
+import { authConfigRoutes } from "./routes/auth-config";
+import { handleAuthRequest } from "./routes/auth";
 import { developmentCaseRoutes } from "./routes/development-cases";
 import { healthRoutes } from "./routes/health";
+import { workspaceRoutes } from "./routes/workspace";
 import type { WorkerEnv } from "./types";
 
 export const app = new Hono<WorkerEnv>();
@@ -21,8 +24,11 @@ app.use("/api/*", async (context, next) => {
   context.header("cache-control", "no-store");
 });
 
+app.on(["GET", "POST"], "/api/auth/*", handleAuthRequest);
+app.route("/api/config/auth", authConfigRoutes);
 app.route("/api/health", healthRoutes);
 app.route("/api/dev/cases", developmentCaseRoutes);
+app.route("/api/workspace", workspaceRoutes);
 
 app.notFound((context) =>
   errorResponse(

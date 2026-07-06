@@ -13,10 +13,10 @@ body {
 
 main {
   box-sizing: border-box;
-  max-width: 44rem;
+  max-width: 36rem;
   min-height: 100vh;
   margin: 0 auto;
-  padding: 6rem 1.5rem;
+  padding: 5rem 1.5rem;
 }
 
 .eyebrow {
@@ -30,13 +30,78 @@ main {
 
 h1 {
   margin: 0;
-  font-size: clamp(2rem, 5vw, 3.5rem);
+  font-size: clamp(2rem, 5vw, 3rem);
   letter-spacing: -0.04em;
 }
 
+h2 {
+  margin: 2.5rem 0 0.75rem;
+  font-size: 1.25rem;
+}
+
 p {
-  max-width: 38rem;
   color: #4c566d;
-  font-size: 1.05rem;
-  line-height: 1.65;
+  line-height: 1.6;
+}
+
+form {
+  display: grid;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+label {
+  display: grid;
+  gap: 0.4rem;
+  font-size: 0.9rem;
+  font-weight: 650;
+}
+
+input {
+  box-sizing: border-box;
+  width: 100%;
+  border: 1px solid #aeb6c5;
+  border-radius: 0.35rem;
+  background: #fff;
+  color: #172033;
+  font: inherit;
+  padding: 0.7rem 0.75rem;
+}
+
+input:focus-visible,
+button:focus-visible {
+  outline: 3px solid #d3a747;
+  outline-offset: 2px;
+}
+
+button {
+  justify-self: start;
+  border: 0;
+  border-radius: 0.35rem;
+  background: #172033;
+  color: #fff;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 700;
+  padding: 0.7rem 1rem;
+}
+
+button:disabled {
+  cursor: wait;
+  opacity: 0.65;
+}
+
+.link-button {
+  margin-top: 1rem;
+  background: transparent;
+  color: #35415a;
+  font-weight: 600;
+  padding: 0;
+  text-decoration: underline;
+}
+
+.error {
+  border-left: 3px solid #a72c2c;
+  color: #7e2020;
+  padding-left: 0.75rem;
 }

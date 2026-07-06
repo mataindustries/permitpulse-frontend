@@ -1,2 +1,6 @@
 APP_ENV=local
+AUTH_ALLOW_SIGNUP=true
+AUTH_ENABLED=true
+BETTER_AUTH_SECRET=replace-with-output-from-openssl-rand-base64-32
+BETTER_AUTH_URL=http://localhost:5173
 ENABLE_DEV_CASE_API=true

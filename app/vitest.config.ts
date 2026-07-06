@@ -19,6 +19,11 @@ export default defineConfig({
         miniflare: {
           bindings: {
             APP_ENV: "local",
+            AUTH_ALLOW_SIGNUP: "true",
+            AUTH_ENABLED: "true",
+            BETTER_AUTH_SECRET:
+              "test-only-auth-secret-not-for-any-deployment-123456",
+            BETTER_AUTH_URL: "http://localhost",
             ENABLE_DEV_CASE_API: "true",
             TEST_MIGRATIONS: migrations,
           },

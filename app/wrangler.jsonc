@@ -8,6 +8,9 @@
 	],
 	"vars": {
 		"APP_ENV": "production",
+		"AUTH_ALLOW_SIGNUP": "false",
+		"AUTH_ENABLED": "false",
+		"BETTER_AUTH_URL": "https://workspace.getpermitpulse.com",
 		"ENABLE_DEV_CASE_API": "false"
 	},
 	"d1_databases": [
@@ -29,6 +32,9 @@
 			"name": "permitpulse-case-workspace-preview",
 			"vars": {
 				"APP_ENV": "preview",
+				"AUTH_ALLOW_SIGNUP": "false",
+				"AUTH_ENABLED": "false",
+				"BETTER_AUTH_URL": "https://workspace-preview.getpermitpulse.com",
 				"ENABLE_DEV_CASE_API": "false"
 			},
 			"d1_databases": [

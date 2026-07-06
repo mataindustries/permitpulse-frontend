@@ -7,12 +7,14 @@
     "build": "vite build",
     "build:preview": "CLOUDFLARE_ENV=preview vite build",
     "check": "npm run typecheck && npm test && npm run build",
+    "auth:schema:verify": "vitest run tests/auth-schema.test.ts",
     "cf-typegen": "wrangler types --env-interface CloudflareBindings",
     "db:migrate:local": "wrangler d1 migrations apply DB --local",
     "db:migrate:preview": "wrangler d1 migrations apply DB --env preview --remote",
     "dev": "vite",
     "preview": "vite preview",
     "test": "vitest run",
+    "test:auth": "vitest run tests/auth.test.tsx tests/auth-schema.test.ts",
     "test:watch": "vitest",
     "typecheck": "tsc --noEmit"
   },
@@ -20,6 +22,7 @@
     "node": ">=22.0.0"
   },
   "dependencies": {
+    "better-auth": "1.6.23",
     "drizzle-orm": "0.45.2",
     "hono": "4.12.27",
     "react": "19.2.7",
