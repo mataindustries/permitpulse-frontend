@@ -33,8 +33,8 @@
 			"vars": {
 				"APP_ENV": "preview",
 				"AUTH_ALLOW_SIGNUP": "false",
-				"AUTH_ENABLED": "false",
-				"BETTER_AUTH_URL": "https://workspace-preview.getpermitpulse.com",
+				"AUTH_ENABLED": "true",
+				"BETTER_AUTH_URL": "https://permitpulse-case-workspace-preview.matasergio741.workers.dev",
 				"ENABLE_DEV_CASE_API": "false"
 			},
 			"d1_databases": [
