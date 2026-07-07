@@ -5,12 +5,12 @@ and D1 database. It does not share deployment configuration with the public
 PermitPulse site in `../dist`, Pages Functions in `../functions`, or the
 existing Worker in `../workers/pp-api`.
 
-The current backend milestone provides local email/password authentication,
-database-backed sessions, sign-out, a protected workspace proof, and
-authenticated case creation/list/detail APIs. It does not provide a React case
-dashboard, case editing, participant assignment, file uploads, evidence
-records, timelines, PDF generation, AI, billing, email delivery, OAuth, or
-production authentication.
+The current local frontend milestone provides email/password authentication,
+database-backed sessions, sign-out, and the first usable authenticated React
+workspace for listing, creating, and reading case details through the protected
+case API. It does not provide case editing, participant assignment, file
+uploads, evidence records, timelines, PDF generation, AI, billing, email
+delivery, OAuth, or production authentication.
 
 ## Requirements and bindings
 
@@ -81,6 +81,73 @@ the server without deleting that directory verifies session persistence.
 
 Do not run `db:migrate:preview`, deploy, or create Cloudflare resources for this
 milestone.
+
+## Workspace UI behavior
+
+The signed-in React application is a small state-based workspace. It does not
+use React Router yet and does not provide browser deep links for individual
+cases. The shell includes:
+
+- PermitPulse Case Workspace identity and a concise operations description.
+- Signed-in user name or email.
+- Sign-out control backed by Better Auth.
+- Primary `New case` action.
+- Case navigation separated from the active content panel.
+- Responsive mobile-first layout suitable for narrow Android viewports.
+
+The authentication lifecycle remains explicit:
+
+- checking authentication configuration
+- checking session
+- authentication disabled
+- signed out
+- signed in
+- session expired
+- sign-out in progress
+
+When any workspace case API call returns `401`, the UI clears the signed-in
+workspace state, returns to the sign-in form, and shows `Your session expired.
+Sign in again.` It does not retry the unauthorized request.
+
+## Create, list, and detail flow
+
+The case workspace uses only the existing protected `/api/v1/cases` routes:
+
+1. `GET /api/v1/cases` loads the visible case list using the server's default
+   bounded pagination.
+2. `POST /api/v1/cases` creates a case with only the permitted fields:
+   `project_name`, `client_name`, `address`, `city`, `jurisdiction`,
+   `permit_number`, and `current_status`.
+3. `GET /api/v1/cases/:caseId` opens a case detail panel.
+
+The create form trims values client-side for usability, keeps the server as the
+source of truth, disables duplicate submission, preserves entered data after
+recoverable server validation failures, refreshes the list after success, and
+opens the newly created case detail. Optional permit numbers are sent as `null`
+when blank. The UI never sends `user_id`, `owner_user_id`,
+`participant_role`, `role`, `created_by`, or arbitrary fields.
+
+Case list rows show project name, client name, city, jurisdiction, optional
+permit number, current status, last updated time, and an `Open details` action.
+The empty state offers a local fictional-case creation path. Pagination controls
+appear only when the current server response makes them useful.
+
+The detail view shows the safe case DTO fields only: project name, status,
+client name, address, city, jurisdiction, optional permit number, created time,
+and updated time. It includes a back-to-list action and a restrained note that
+editing and evidence tools are not available yet.
+
+## Current UI limitations
+
+- Administrator-created cases are unassigned and admin-only under the current
+  backend design.
+- There is no case editing, deletion, status transition workflow, participant
+  assignment, evidence, timeline, upload, PDF, AI, email, billing, OAuth, or
+  admin user management UI.
+- Browser back-button support and deep-link case routing are intentionally out
+  of scope for this milestone.
+- The workspace does not fabricate cases, analytics, authorization filters, or
+  permit outcomes.
 
 ## Later preview admin bootstrap procedure
 
@@ -246,6 +313,29 @@ curl --fail-with-body \
 Administrators are created only through the documented preview bootstrap
 procedure or direct local test fixtures. There is no public signup or request
 body field that can promote a user to admin.
+
+## Manual local workspace test
+
+Use fictional local data only. Do not apply preview migrations, deploy, or
+modify Cloudflare resources for this check.
+
+```bash
+npm run dev
+```
+
+Then open the local URL shown by Vite, usually `http://localhost:5173`:
+
+1. Sign in with an existing fictional local account, or create a local account
+   only when `AUTH_ALLOW_SIGNUP=true` in `.dev.vars`.
+2. Confirm the case list loads or shows the empty state.
+3. Create a fictional case such as `Fictional Oak Street ADU`.
+4. Confirm the success message appears, the list refreshes, and the case detail
+   opens.
+5. Refresh the browser and confirm the valid session still opens the workspace.
+6. Sign out and confirm the protected workspace no longer appears.
+
+Preview deployment, preview D1 migration, preview auth enablement, and preview
+administrator bootstrap remain separate reviewed steps.
 
 ## Checks
 

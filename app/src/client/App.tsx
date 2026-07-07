@@ -1,22 +1,57 @@
 import { type FormEvent, useEffect, useState } from "react";
+import {
+  CaseApiError,
+  createCase,
+  getCase,
+  listCases,
+} from "./api/cases";
 import { authClient } from "./auth-client";
+import { CaseDetail } from "./components/CaseDetail";
+import { CaseList } from "./components/CaseList";
+import { CreateCaseForm } from "./components/CreateCaseForm";
+import { WorkspaceHeader } from "./components/WorkspaceHeader";
+import type {
+  CaseDto,
+  CaseListPagination,
+  CreateCaseInput,
+} from "./types/cases";
 
 interface AuthCapabilities {
   enabled: boolean;
   signup_enabled: boolean;
 }
 
-interface SafeUser {
+export interface SafeUser {
   id: string;
   email: string;
   name: string;
 }
 
-type ViewState =
-  | { status: "loading" }
+export type AuthState =
+  | { status: "checking-config" }
+  | { status: "checking-session"; allowSignup: boolean }
   | { status: "disabled" }
   | { status: "signed-out"; allowSignup: boolean }
-  | { status: "signed-in"; user: SafeUser };
+  | { status: "session-expired"; allowSignup: boolean }
+  | { status: "signed-in"; user: SafeUser }
+  | { status: "signing-out"; user: SafeUser };
+
+type WorkspaceView =
+  | { name: "list" }
+  | { name: "create" }
+  | { name: "detail"; caseId: string };
+
+interface CaseClient {
+  createCase: typeof createCase;
+  getCase: typeof getCase;
+  listCases: typeof listCases;
+}
+
+const defaultCaseClient: CaseClient = {
+  createCase,
+  getCase,
+  listCases,
+};
 
 function getErrorMessage(error: unknown): string {
   if (
@@ -66,8 +101,219 @@ async function loadSession(): Promise<SafeUser | null> {
   };
 }
 
-export function App() {
-  const [view, setView] = useState<ViewState>({ status: "loading" });
+interface WorkspaceProps {
+  client: CaseClient;
+  onSessionExpired: () => void;
+  onSignOut: () => void;
+  signingOut: boolean;
+  user: SafeUser;
+}
+
+function Workspace({
+  client,
+  onSessionExpired,
+  onSignOut,
+  signingOut,
+  user,
+}: WorkspaceProps) {
+  const [view, setView] = useState<WorkspaceView>({ name: "list" });
+  const [cases, setCases] = useState<CaseDto[]>([]);
+  const [pagination, setPagination] = useState<CaseListPagination | null>(
+    null,
+  );
+  const [listLoading, setListLoading] = useState(true);
+  const [listError, setListError] = useState("");
+  const [createError, setCreateError] = useState("");
+  const [createSubmitting, setCreateSubmitting] = useState(false);
+  const [detailCase, setDetailCase] = useState<CaseDto | null>(null);
+  const [detailLoading, setDetailLoading] = useState(false);
+  const [detailError, setDetailError] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
+
+  function handleCaseError(error: unknown, setMessage: (message: string) => void) {
+    if (error instanceof CaseApiError && error.kind === "unauthorized") {
+      onSessionExpired();
+      return;
+    }
+
+    setMessage(getErrorMessage(error));
+  }
+
+  async function loadCaseList(offset = pagination?.offset ?? 0) {
+    setListLoading(true);
+    setListError("");
+
+    try {
+      const response = await client.listCases(
+        offset > 0 ? { offset } : undefined,
+      );
+
+      setCases(response.cases);
+      setPagination(response.pagination);
+    } catch (error) {
+      handleCaseError(error, setListError);
+    } finally {
+      setListLoading(false);
+    }
+  }
+
+  async function loadCaseDetail(caseId: string) {
+    setDetailLoading(true);
+    setDetailError("");
+    setDetailCase(null);
+    setView({ name: "detail", caseId });
+
+    try {
+      setDetailCase(await client.getCase(caseId));
+    } catch (error) {
+      handleCaseError(error, setDetailError);
+    } finally {
+      setDetailLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    void loadCaseList(0);
+    // The initial load should only run when the authenticated workspace mounts.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  async function handleCreateCase(input: CreateCaseInput) {
+    if (createSubmitting) {
+      return;
+    }
+
+    setCreateSubmitting(true);
+    setCreateError("");
+    setSuccessMessage("");
+
+    try {
+      const created = await client.createCase(input);
+
+      setSuccessMessage(`Created case: ${created.project_name}.`);
+      await loadCaseList(0);
+      setDetailCase(created);
+      setDetailError("");
+      setDetailLoading(false);
+      setView({ name: "detail", caseId: created.id });
+    } catch (error) {
+      handleCaseError(error, setCreateError);
+    } finally {
+      setCreateSubmitting(false);
+    }
+  }
+
+  function nextPage() {
+    if (!pagination || cases.length < pagination.limit) {
+      return;
+    }
+
+    void loadCaseList(pagination.offset + pagination.limit);
+  }
+
+  function previousPage() {
+    if (!pagination) {
+      return;
+    }
+
+    void loadCaseList(Math.max(0, pagination.offset - pagination.limit));
+  }
+
+  return (
+    <div className="workspace-shell">
+      <WorkspaceHeader
+        displayName={user.name || user.email}
+        onNewCase={() => {
+          setCreateError("");
+          setSuccessMessage("");
+          setView({ name: "create" });
+        }}
+        onSignOut={onSignOut}
+        signOutDisabled={signingOut}
+        signingOut={signingOut}
+      />
+
+      <div className="workspace-layout">
+        <nav aria-label="Workspace navigation" className="workspace-nav">
+          <button
+            className={view.name === "list" ? "nav-button active" : "nav-button"}
+            type="button"
+            onClick={() => setView({ name: "list" })}
+          >
+            Cases
+          </button>
+          <button
+            className={
+              view.name === "create" ? "nav-button active" : "nav-button"
+            }
+            type="button"
+            onClick={() => {
+              setCreateError("");
+              setSuccessMessage("");
+              setView({ name: "create" });
+            }}
+          >
+            New case
+          </button>
+        </nav>
+
+        <div className="workspace-content">
+          {successMessage && (
+            <p className="success" role="status">
+              {successMessage}
+            </p>
+          )}
+
+          {view.name === "list" && (
+            <CaseList
+              cases={cases}
+              error={listError}
+              loading={listLoading}
+              pagination={pagination}
+              onCreate={() => setView({ name: "create" })}
+              onNextPage={nextPage}
+              onOpenCase={(caseId) => void loadCaseDetail(caseId)}
+              onPreviousPage={previousPage}
+              onRetry={() => void loadCaseList()}
+            />
+          )}
+
+          {view.name === "create" && (
+            <CreateCaseForm
+              error={createError}
+              submitting={createSubmitting}
+              onCancel={() => setView({ name: "list" })}
+              onSubmit={handleCreateCase}
+            />
+          )}
+
+          {view.name === "detail" && (
+            <CaseDetail
+              caseRecord={detailCase}
+              error={detailError}
+              loading={detailLoading}
+              onBack={() => setView({ name: "list" })}
+              onRetry={() => void loadCaseDetail(view.caseId)}
+            />
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+interface AppProps {
+  caseClient?: CaseClient;
+  initialAuthState?: AuthState;
+}
+
+export function App({
+  caseClient = defaultCaseClient,
+  initialAuthState = { status: "checking-config" },
+}: AppProps) {
+  const [authState, setAuthState] = useState<AuthState>({
+    ...initialAuthState,
+  });
   const [allowSignup, setAllowSignup] = useState(false);
   const [mode, setMode] = useState<"sign-in" | "sign-up">("sign-in");
   const [error, setError] = useState("");
@@ -80,12 +326,20 @@ export function App() {
       try {
         const capabilities = await loadCapabilities();
 
-        if (!capabilities.enabled) {
-          if (active) {
-            setView({ status: "disabled" });
-          }
+        if (!active) {
           return;
         }
+
+        if (!capabilities.enabled) {
+          setAuthState({ status: "disabled" });
+          return;
+        }
+
+        setAllowSignup(capabilities.signup_enabled);
+        setAuthState({
+          status: "checking-session",
+          allowSignup: capabilities.signup_enabled,
+        });
 
         const user = await loadSession();
 
@@ -93,8 +347,7 @@ export function App() {
           return;
         }
 
-        setAllowSignup(capabilities.signup_enabled);
-        setView(
+        setAuthState(
           user
             ? { status: "signed-in", user }
             : {
@@ -105,7 +358,7 @@ export function App() {
       } catch (loadError) {
         if (active) {
           setError(getErrorMessage(loadError));
-          setView({ status: "signed-out", allowSignup: false });
+          setAuthState({ status: "signed-out", allowSignup: false });
         }
       }
     }
@@ -143,7 +396,7 @@ export function App() {
         throw new Error("A session could not be established.");
       }
 
-      setView({ status: "signed-in", user });
+      setAuthState({ status: "signed-in", user });
     } catch (submitError) {
       setError(getErrorMessage(submitError));
     } finally {
@@ -152,7 +405,17 @@ export function App() {
   }
 
   async function handleSignOut() {
+    if (
+      authState.status !== "signed-in" &&
+      authState.status !== "signing-out"
+    ) {
+      return;
+    }
+
+    const user = authState.user;
+
     setError("");
+    setAuthState({ status: "signing-out", user });
     setSubmitting(true);
 
     try {
@@ -162,38 +425,82 @@ export function App() {
         throw result.error;
       }
 
-      setView({
+      setAuthState({
         status: "signed-out",
         allowSignup,
       });
     } catch (signOutError) {
       setError(getErrorMessage(signOutError));
+      setAuthState({ status: "signed-in", user });
     } finally {
       setSubmitting(false);
     }
   }
 
-  return (
-    <main>
-      <p className="eyebrow">PermitPulse</p>
-      <h1>Case Workspace</h1>
+  function handleSessionExpired() {
+    setError("");
+    setAuthState({
+      status: "session-expired",
+      allowSignup,
+    });
+    setMode("sign-in");
+  }
 
-      {view.status === "loading" && (
-        <p role="status">Checking your session…</p>
+  const authIsSignedOut =
+    authState.status === "signed-out" ||
+    authState.status === "session-expired";
+  const signedOutAllowsSignup =
+    authIsSignedOut && "allowSignup" in authState
+      ? authState.allowSignup
+      : false;
+
+  return (
+    <main
+      className={
+        authState.status === "signed-in" || authState.status === "signing-out"
+          ? "app-main workspace"
+          : "app-main"
+      }
+    >
+      {(authState.status === "checking-config" ||
+        authState.status === "checking-session") && (
+        <section className="auth-card" aria-labelledby="loading-title">
+          <p className="eyebrow">PermitPulse</p>
+          <h1 id="loading-title">Case Workspace</h1>
+          <p role="status">
+            {authState.status === "checking-config"
+              ? "Checking authentication configuration..."
+              : "Checking your session..."}
+          </p>
+        </section>
       )}
 
-      {view.status === "disabled" && (
-        <section aria-labelledby="auth-disabled-title">
+      {authState.status === "disabled" && (
+        <section className="auth-card" aria-labelledby="auth-disabled-title">
+          <p className="eyebrow">PermitPulse</p>
+          <h1>Case Workspace</h1>
           <h2 id="auth-disabled-title">Authentication unavailable</h2>
           <p>Authentication is not enabled in this environment.</p>
         </section>
       )}
 
-      {view.status === "signed-out" && (
-        <section aria-labelledby="auth-title">
+      {authIsSignedOut && (
+        <section className="auth-card" aria-labelledby="auth-title">
+          <p className="eyebrow">PermitPulse</p>
+          <h1>Case Workspace</h1>
           <h2 id="auth-title">
             {mode === "sign-up" ? "Create a local account" : "Sign in"}
           </h2>
+          <p>
+            Access is limited to authenticated PermitPulse workspace users.
+          </p>
+
+          {authState.status === "session-expired" && (
+            <p className="error" role="alert">
+              Your session expired. Sign in again.
+            </p>
+          )}
+
           <form onSubmit={handleSubmit}>
             {mode === "sign-up" && (
               <label>
@@ -229,14 +536,14 @@ export function App() {
             </label>
             <button disabled={submitting} type="submit">
               {submitting
-                ? "Working…"
+                ? "Working..."
                 : mode === "sign-up"
                   ? "Create account"
                   : "Sign in"}
             </button>
           </form>
 
-          {view.allowSignup && (
+          {signedOutAllowsSignup && (
             <button
               className="link-button"
               disabled={submitting}
@@ -254,25 +561,19 @@ export function App() {
         </section>
       )}
 
-      {view.status === "signed-in" && (
-        <section aria-labelledby="workspace-title">
-          <h2 id="workspace-title">Workspace ready</h2>
-          <p>
-            Signed in as <strong>{view.user.email}</strong>. Case management is
-            intentionally not included in this milestone.
-          </p>
-          <button
-            disabled={submitting}
-            onClick={() => void handleSignOut()}
-            type="button"
-          >
-            {submitting ? "Signing out…" : "Sign out"}
-          </button>
-        </section>
+      {(authState.status === "signed-in" ||
+        authState.status === "signing-out") && (
+        <Workspace
+          client={caseClient}
+          onSessionExpired={handleSessionExpired}
+          onSignOut={() => void handleSignOut()}
+          signingOut={authState.status === "signing-out"}
+          user={authState.user}
+        />
       )}
 
       {error && (
-        <p className="error" role="alert">
+        <p className="error global-error" role="alert">
           {error}
         </p>
       )}
