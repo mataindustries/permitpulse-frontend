@@ -67,10 +67,22 @@ export const authUsers = sqliteTable(
     updatedAt: integer("updated_at", { mode: "timestamp_ms" })
       .default(sql`(cast(unixepoch('subsecond') * 1000 as integer))`)
       .notNull(),
-    role: text("role").default("client").notNull(),
+    role: text("role", { enum: ["client", "admin"] })
+      .default("client")
+      .notNull(),
+    banned: integer("banned", { mode: "boolean" })
+      .default(false)
+      .notNull(),
+    banReason: text("ban_reason"),
+    banExpires: integer("ban_expires", { mode: "timestamp_ms" }),
   },
   (table) => [
-    check("user_role_is_client_check", sql`${table.role} = 'client'`),
+    check(
+      "user_role_reviewed_check",
+      sql`${table.role} IN ('client', 'admin')`,
+    ),
+    index("user_role_idx").on(table.role),
+    index("user_banned_idx").on(table.banned),
   ],
 );
 
@@ -86,6 +98,7 @@ export const authSessions = sqliteTable(
     updatedAt: integer("updated_at", { mode: "timestamp_ms" }).notNull(),
     ipAddress: text("ip_address"),
     userAgent: text("user_agent"),
+    impersonatedBy: text("impersonated_by"),
     userId: text("user_id")
       .notNull()
       .references(() => authUsers.id, { onDelete: "cascade" }),
@@ -93,6 +106,7 @@ export const authSessions = sqliteTable(
   (table) => [
     index("session_user_id_idx").on(table.userId),
     index("session_expires_at_idx").on(table.expiresAt),
+    index("session_impersonated_by_idx").on(table.impersonatedBy),
   ],
 );
 

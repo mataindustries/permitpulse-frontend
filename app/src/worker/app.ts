@@ -3,6 +3,7 @@ import { logDevelopmentError } from "./lib/environment";
 import { errorResponse } from "./lib/responses";
 import { authConfigRoutes } from "./routes/auth-config";
 import { handleAuthRequest } from "./routes/auth";
+import { bootstrapAdminRoutes } from "./routes/bootstrap-admin";
 import { developmentCaseRoutes } from "./routes/development-cases";
 import { healthRoutes } from "./routes/health";
 import { workspaceRoutes } from "./routes/workspace";
@@ -27,6 +28,7 @@ app.use("/api/*", async (context, next) => {
 app.on(["GET", "POST"], "/api/auth/*", handleAuthRequest);
 app.route("/api/config/auth", authConfigRoutes);
 app.route("/api/health", healthRoutes);
+app.route("/api/internal/bootstrap-admin", bootstrapAdminRoutes);
 app.route("/api/dev/cases", developmentCaseRoutes);
 app.route("/api/workspace", workspaceRoutes);
 

@@ -19,10 +19,14 @@ describe("Better Auth migration schema", () => {
          'verification',
          'session_user_id_idx',
          'session_expires_at_idx',
+         'session_impersonated_by_idx',
          'account_user_id_idx',
          'account_provider_account_uidx',
+         'user_banned_idx',
+         'user_role_idx',
          'verification_identifier_idx',
-         'verification_expires_at_idx'
+         'verification_expires_at_idx',
+         'admin_bootstrap_claim'
        )
        ORDER BY type, name`,
     ).all<SchemaObject>();
@@ -32,10 +36,14 @@ describe("Better Auth migration schema", () => {
       "account_provider_account_uidx",
       "account_user_id_idx",
       "session_expires_at_idx",
+      "session_impersonated_by_idx",
       "session_user_id_idx",
+      "user_banned_idx",
+      "user_role_idx",
       "verification_expires_at_idx",
       "verification_identifier_idx",
       "account",
+      "admin_bootstrap_claim",
       "session",
       "user",
       "verification",
@@ -48,7 +56,12 @@ describe("Better Auth migration schema", () => {
       objects.find(({ name }) => name === "account")?.sql ?? "";
 
     expect(userSql).toContain("email TEXT NOT NULL UNIQUE");
-    expect(userSql).toContain("CHECK (role = 'client')");
+    expect(userSql).toContain("role TEXT NOT NULL DEFAULT 'client'");
+    expect(userSql).toContain("role IN ('client', 'admin')");
+    expect(userSql).toContain("banned INTEGER NOT NULL DEFAULT 0");
+    expect(userSql).toContain("ban_reason TEXT");
+    expect(userSql).toContain("ban_expires INTEGER");
+    expect(sessionSql).toContain("impersonated_by TEXT");
     expect(sessionSql).toContain('REFERENCES "user" (id) ON DELETE CASCADE');
     expect(accountSql).toContain('REFERENCES "user" (id) ON DELETE CASCADE');
   });

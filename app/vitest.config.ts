@@ -18,6 +18,7 @@ export default defineConfig({
         },
         miniflare: {
           bindings: {
+            ADMIN_BOOTSTRAP_ENABLED: "false",
             APP_ENV: "local",
             AUTH_ALLOW_SIGNUP: "true",
             AUTH_ENABLED: "true",

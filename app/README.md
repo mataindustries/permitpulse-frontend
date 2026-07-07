@@ -19,10 +19,15 @@ not provide authenticated case CRUD or any production authentication feature.
 - `AUTH_ALLOW_SIGNUP`: `true` only for local signup
 - `BETTER_AUTH_URL`: one explicit same-origin application origin
 - `BETTER_AUTH_SECRET`: a high-entropy secret of at least 32 characters
+- `ADMIN_BOOTSTRAP_ENABLED`: `false` by default; temporary preview-only first
+  admin bootstrap switch
+- `ADMIN_BOOTSTRAP_TOKEN`: preview-only one-time bootstrap credential stored as
+  a Wrangler secret; at least 32 high-entropy bytes
 
-Preview and production configuration keeps `AUTH_ENABLED=false` and
-`AUTH_ALLOW_SIGNUP=false`. Authentication fails closed if it is enabled without
-a valid URL or secret. `.dev.vars` is ignored by Git.
+Production configuration keeps `AUTH_ENABLED=false`. Preview and production
+configuration keep `AUTH_ALLOW_SIGNUP=false`. Admin bootstrap is disabled by
+default and is never available in production. Authentication and bootstrap fail
+closed if enabled without valid secrets. `.dev.vars` is ignored by Git.
 
 ## Install and configure local authentication
 
@@ -72,6 +77,32 @@ the server without deleting that directory verifies session persistence.
 
 Do not run `db:migrate:preview`, deploy, or create Cloudflare resources for this
 milestone.
+
+## Later preview admin bootstrap procedure
+
+Do not perform these remote steps during local implementation or testing. When
+preview auth is intentionally enabled in a later reviewed pass:
+
+1. Generate a bootstrap token with a cryptographically secure tool, for example
+   `openssl rand -base64 32`.
+2. Store it only through Wrangler secret input:
+   `npx wrangler secret put ADMIN_BOOTSTRAP_TOKEN --env preview`.
+3. Set `ADMIN_BOOTSTRAP_ENABLED=true` temporarily for the preview environment.
+4. Apply reviewed migration `0003_auth_roles_admin.sql` to preview D1 through
+   the approved migration process.
+5. Deploy the preview Worker.
+6. Call `POST /api/internal/bootstrap-admin` exactly once with an
+   `Authorization: Bearer <token>` header and JSON body containing only
+   `email`, `name`, and `password`.
+7. Verify the created user can sign in as an admin.
+8. Immediately set `ADMIN_BOOTSTRAP_ENABLED=false`.
+9. Redeploy preview.
+10. Delete the bootstrap secret with Wrangler.
+11. Verify `POST /api/internal/bootstrap-admin` is unavailable afterward.
+
+The endpoint is preview-only, requires a valid Better Auth configuration,
+requires an empty `user` table, creates no session, and returns only `id`,
+`email`, `name`, and `role`. It is not a general signup endpoint.
 
 ## Test the local authentication lifecycle
 

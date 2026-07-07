@@ -2,6 +2,8 @@ export type PublicEnvironment = "local" | "preview" | "production";
 
 export interface Bindings {
   APP_ENV: string;
+  ADMIN_BOOTSTRAP_ENABLED: string;
+  ADMIN_BOOTSTRAP_TOKEN?: string;
   ASSETS: Fetcher;
   AUTH_ALLOW_SIGNUP: string;
   AUTH_ENABLED: string;

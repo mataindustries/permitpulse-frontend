@@ -8,14 +8,22 @@ import type { Bindings } from "../src/worker/types";
 const localOrigin = "http://localhost";
 const previewOrigin = "https://workspace-preview.getpermitpulse.com";
 const testSecret = "test-only-auth-secret-not-for-any-deployment-123456";
+const bootstrapToken =
+  "test-only-bootstrap-token-not-for-deployment-0123456789";
 const fictionalAccount = {
   name: "Avery Example",
   email: "avery@example.test",
   password: "Fictional-passphrase-42",
 };
+const fictionalAdminAccount = {
+  name: "Jordan Admin",
+  email: "jordan.admin@example.test",
+  password: "Admin-fictional-passphrase-42",
+};
 
 function bindings(overrides: Partial<Bindings> = {}): Bindings {
   return {
+    ADMIN_BOOTSTRAP_ENABLED: "false",
     APP_ENV: "local",
     ASSETS: env.ASSETS,
     AUTH_ALLOW_SIGNUP: "true",
@@ -72,11 +80,44 @@ function cookieFrom(response: Response): string {
 
 async function deleteAuthRecords() {
   await env.DB.batch([
+    env.DB.prepare("DELETE FROM admin_bootstrap_claim"),
     env.DB.prepare("DELETE FROM verification"),
     env.DB.prepare("DELETE FROM session"),
     env.DB.prepare("DELETE FROM account"),
     env.DB.prepare('DELETE FROM "user"'),
   ]);
+}
+
+function bootstrapBindings(overrides: Partial<Bindings> = {}) {
+  return bindings({
+    ADMIN_BOOTSTRAP_ENABLED: "true",
+    ADMIN_BOOTSTRAP_TOKEN: bootstrapToken,
+    APP_ENV: "preview",
+    AUTH_ALLOW_SIGNUP: "false",
+    AUTH_ENABLED: "true",
+    BETTER_AUTH_URL: previewOrigin,
+    ENABLE_DEV_CASE_API: "false",
+    ...overrides,
+  });
+}
+
+function bootstrapRequest(
+  body: Record<string, unknown> = fictionalAdminAccount,
+  overrides?: Partial<Bindings>,
+  authorization = `Bearer ${bootstrapToken}`,
+) {
+  return app.request(
+    `${previewOrigin}/api/internal/bootstrap-admin`,
+    {
+      method: "POST",
+      headers: {
+        authorization,
+        "content-type": "application/json",
+      },
+      body: JSON.stringify(body),
+    },
+    bootstrapBindings(overrides),
+  );
 }
 
 beforeEach(async () => {
@@ -131,6 +172,201 @@ describe("authentication configuration", () => {
       'SELECT COUNT(*) AS count FROM "user"',
     ).first<{ count: number }>();
     expect(row?.count).toBe(0);
+  });
+
+  it("keeps normal preview signup blocked even when the signup flag is set", async () => {
+    const response = await app.request(
+      `${previewOrigin}/api/auth/sign-up/email`,
+      {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+          origin: previewOrigin,
+        },
+        body: JSON.stringify(fictionalAccount),
+      },
+      bindings({
+        APP_ENV: "preview",
+        AUTH_ALLOW_SIGNUP: "true",
+        AUTH_ENABLED: "true",
+        BETTER_AUTH_URL: previewOrigin,
+      }),
+    );
+
+    expect(response.status).toBeGreaterThanOrEqual(400);
+
+    const row = await env.DB.prepare(
+      'SELECT COUNT(*) AS count FROM "user"',
+    ).first<{ count: number }>();
+    expect(row?.count).toBe(0);
+  });
+});
+
+describe("preview admin bootstrap", () => {
+  it("is always unavailable in production", async () => {
+    const response = await bootstrapRequest(fictionalAdminAccount, {
+      APP_ENV: "production",
+      ADMIN_BOOTSTRAP_ENABLED: "true",
+      BETTER_AUTH_URL: "https://workspace.getpermitpulse.com",
+    });
+
+    expect(response.status).toBe(404);
+
+    const row = await env.DB.prepare(
+      'SELECT COUNT(*) AS count FROM "user"',
+    ).first<{ count: number }>();
+    expect(row?.count).toBe(0);
+  });
+
+  it("is disabled by default in preview", async () => {
+    const response = await bootstrapRequest(fictionalAdminAccount, {
+      ADMIN_BOOTSTRAP_ENABLED: "false",
+    });
+
+    expect(response.status).toBe(404);
+  });
+
+  it("denies requests with a missing bearer token", async () => {
+    const response = await bootstrapRequest(
+      fictionalAdminAccount,
+      undefined,
+      "",
+    );
+
+    expect(response.status).toBe(401);
+  });
+
+  it("denies requests with an incorrect bearer token", async () => {
+    const response = await bootstrapRequest(
+      fictionalAdminAccount,
+      undefined,
+      "Bearer incorrect-bootstrap-token-not-for-deployment-0123456789",
+    );
+
+    expect(response.status).toBe(401);
+  });
+
+  it("fails closed when the configured token is weak or missing", async () => {
+    const weakResponse = await bootstrapRequest(fictionalAdminAccount, {
+      ADMIN_BOOTSTRAP_TOKEN: "too-short",
+    });
+    const missingResponse = await bootstrapRequest(fictionalAdminAccount, {
+      ADMIN_BOOTSTRAP_TOKEN: undefined,
+    });
+
+    expect(weakResponse.status).toBe(503);
+    expect(missingResponse.status).toBe(503);
+
+    for (const response of [weakResponse, missingResponse]) {
+      const text = await response.text();
+
+      expect(text).not.toContain(bootstrapToken);
+      expect(text).not.toContain(fictionalAdminAccount.password);
+    }
+  });
+
+  it("rejects invalid or role-injecting request bodies", async () => {
+    const invalidResponse = await bootstrapRequest({
+      ...fictionalAdminAccount,
+      email: "not-an-email",
+    });
+    const roleInjectionResponse = await bootstrapRequest({
+      ...fictionalAdminAccount,
+      role: "client",
+    });
+
+    expect(invalidResponse.status).toBe(400);
+    expect(roleInjectionResponse.status).toBe(400);
+
+    const row = await env.DB.prepare(
+      'SELECT COUNT(*) AS count FROM "user"',
+    ).first<{ count: number }>();
+    expect(row?.count).toBe(0);
+  });
+
+  it("creates the first admin with a credential account and no session", async () => {
+    const response = await bootstrapRequest();
+    const body = await response.json<{
+      ok: true;
+      data: {
+        id: string;
+        email: string;
+        name: string;
+        role: string;
+      };
+    }>();
+    const text = JSON.stringify(body);
+
+    expect(response.status).toBe(200);
+    expect(response.headers.get("set-cookie")).toBeNull();
+    expect(body).toEqual({
+      ok: true,
+      data: {
+        id: expect.any(String),
+        email: fictionalAdminAccount.email,
+        name: fictionalAdminAccount.name,
+        role: "admin",
+      },
+    });
+    expect(text).not.toContain(bootstrapToken);
+    expect(text).not.toContain(fictionalAdminAccount.password);
+    expect(text.toLowerCase()).not.toContain("password");
+    expect(text.toLowerCase()).not.toContain("token");
+
+    const user = await env.DB.prepare(
+      'SELECT id, email, role FROM "user" WHERE email = ?',
+    )
+      .bind(fictionalAdminAccount.email)
+      .first<{ id: string; email: string; role: string }>();
+    const account = await env.DB.prepare(
+      "SELECT provider_id, password FROM account WHERE user_id = ?",
+    )
+      .bind(user?.id)
+      .first<{ provider_id: string; password: string }>();
+    const session = await env.DB.prepare(
+      "SELECT COUNT(*) AS count FROM session",
+    ).first<{ count: number }>();
+
+    expect(user).toMatchObject({
+      email: fictionalAdminAccount.email,
+      role: "admin",
+    });
+    expect(account?.provider_id).toBe("credential");
+    expect(account?.password).toBeTruthy();
+    expect(account?.password).not.toBe(fictionalAdminAccount.password);
+    expect(session?.count).toBe(0);
+  });
+
+  it("rejects a second bootstrap attempt", async () => {
+    expect((await bootstrapRequest()).status).toBe(200);
+
+    const response = await bootstrapRequest({
+      name: "Second Admin",
+      email: "second.admin@example.test",
+      password: "Second-admin-fictional-passphrase-42",
+    });
+
+    expect(response.status).toBe(409);
+
+    const row = await env.DB.prepare(
+      'SELECT COUNT(*) AS count FROM "user"',
+    ).first<{ count: number }>();
+    expect(row?.count).toBe(1);
+  });
+
+  it("is blocked by an existing client user", async () => {
+    expect((await signUp()).status).toBe(200);
+
+    const response = await bootstrapRequest();
+
+    expect(response.status).toBe(409);
+
+    const admin = await env.DB.prepare(
+      'SELECT COUNT(*) AS count FROM "user" WHERE role = ?',
+    )
+      .bind("admin")
+      .first<{ count: number }>();
+    expect(admin?.count).toBe(0);
   });
 });
 
@@ -388,6 +624,25 @@ describe("protected workspace", () => {
     });
     expect(JSON.stringify(body)).not.toContain("token");
     expect(JSON.stringify(body)).not.toContain("role");
+  });
+});
+
+describe("Better Auth admin endpoints", () => {
+  it("rejects unauthenticated users", async () => {
+    const response = await request("/api/auth/admin/list-users");
+
+    expect(response.status).toBe(401);
+  });
+
+  it("rejects authenticated client users", async () => {
+    const signupResponse = await signUp();
+    const cookie = cookieFrom(signupResponse);
+
+    const response = await request("/api/auth/admin/list-users", {
+      headers: { cookie },
+    });
+
+    expect(response.status).toBe(403);
   });
 });
 

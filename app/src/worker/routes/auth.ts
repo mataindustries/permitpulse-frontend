@@ -31,7 +31,29 @@ async function omitBodyToken(response: Response): Promise<Response> {
   const body = (await response.json()) as Record<string, unknown>;
   const { token: _token, ...safeBody } = body;
 
+  if (
+    safeBody.user &&
+    typeof safeBody.user === "object" &&
+    !Array.isArray(safeBody.user)
+  ) {
+    safeBody.user = safeUser(safeBody.user as Record<string, unknown>);
+  }
+
   return jsonResponse(response, safeBody);
+}
+
+function safeUser(user: Record<string, unknown>): Record<string, unknown> {
+  const {
+    role: _role,
+    banned: _banned,
+    banReason: _banReason,
+    banExpires: _banExpires,
+    ban_reason: _ban_reason,
+    ban_expires: _ban_expires,
+    ...safe
+  } = user;
+
+  return safe;
 }
 
 async function omitSessionToken(response: Response): Promise<Response> {
@@ -44,6 +66,7 @@ async function omitSessionToken(response: Response): Promise<Response> {
 
   const body = (await response.json()) as {
     session?: Record<string, unknown>;
+    user?: Record<string, unknown>;
   } | null;
 
   if (!body?.session) {
@@ -55,6 +78,12 @@ async function omitSessionToken(response: Response): Promise<Response> {
   return jsonResponse(response, {
     ...body,
     session: safeSession,
+    user:
+      body.user &&
+      typeof body.user === "object" &&
+      !Array.isArray(body.user)
+        ? safeUser(body.user as Record<string, unknown>)
+        : body.user,
   });
 }
 
