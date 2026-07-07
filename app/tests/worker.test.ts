@@ -23,6 +23,7 @@ async function createFictionalCase() {
 }
 
 beforeEach(async () => {
+  await env.DB.prepare("DELETE FROM audit_events").run();
   await env.DB.prepare("DELETE FROM cases").run();
 });
 

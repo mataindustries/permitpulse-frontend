@@ -31,6 +31,8 @@ export const cases = sqliteTable(
     })
       .notNull()
       .default("intake"),
+    version: integer("version").notNull().default(1),
+    lifecycleMutationNonce: text("lifecycle_mutation_nonce"),
     createdAt: text("created_at")
       .notNull()
       .default(sql`(strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))`),
@@ -47,6 +49,14 @@ export const cases = sqliteTable(
       table.city,
       table.jurisdiction,
     ),
+    check("cases_version_positive_check", sql`${table.version} >= 1`),
+    check(
+      "cases_lifecycle_mutation_nonce_length_check",
+      sql`${table.lifecycleMutationNonce} IS NULL OR length(${table.lifecycleMutationNonce}) BETWEEN 1 AND 64`,
+    ),
+    uniqueIndex("cases_lifecycle_mutation_nonce_uidx")
+      .on(table.lifecycleMutationNonce)
+      .where(sql`${table.lifecycleMutationNonce} IS NOT NULL`),
   ],
 );
 
@@ -86,6 +96,67 @@ export const authUsers = sqliteTable(
     index("user_banned_idx").on(table.banned),
   ],
 );
+
+export const auditEventActions = [
+  "case_created",
+  "case_updated",
+  "case_status_changed",
+] as const;
+
+export const auditEvents = sqliteTable(
+  "audit_events",
+  {
+    id: text("id").primaryKey().notNull(),
+    caseId: text("case_id")
+      .notNull()
+      .references(() => cases.id, { onDelete: "restrict" }),
+    actorUserId: text("actor_user_id").references(() => authUsers.id, {
+      onDelete: "set null",
+    }),
+    action: text("action", { enum: auditEventActions }).notNull(),
+    changedFields: text("changed_fields").notNull(),
+    fromStatus: text("from_status", { enum: caseStatuses }),
+    toStatus: text("to_status", { enum: caseStatuses }),
+    requestId: text("request_id").notNull(),
+    createdAt: text("created_at")
+      .notNull()
+      .default(sql`(strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))`),
+  },
+  (table) => [
+    check(
+      "audit_events_action_check",
+      sql`${table.action} IN ('case_created', 'case_updated', 'case_status_changed')`,
+    ),
+    check(
+      "audit_events_changed_fields_json_array_check",
+      sql`json_valid(${table.changedFields}) AND json_type(${table.changedFields}) = 'array'`,
+    ),
+    check(
+      "audit_events_from_status_check",
+      sql`${table.fromStatus} IS NULL OR ${table.fromStatus} IN ('intake', 'researching', 'needs_information', 'ready_for_review')`,
+    ),
+    check(
+      "audit_events_to_status_check",
+      sql`${table.toStatus} IS NULL OR ${table.toStatus} IN ('intake', 'researching', 'needs_information', 'ready_for_review')`,
+    ),
+    check(
+      "audit_events_request_id_length_check",
+      sql`length(trim(${table.requestId})) BETWEEN 1 AND 128`,
+    ),
+    index("audit_events_case_created_at_idx").on(
+      table.caseId,
+      table.createdAt,
+      table.id,
+    ),
+    index("audit_events_actor_created_at_idx").on(
+      table.actorUserId,
+      table.createdAt,
+      table.id,
+    ),
+  ],
+);
+
+export type AuditEventRecord = typeof auditEvents.$inferSelect;
 
 export const participantRoles = ["owner"] as const;
 

@@ -104,12 +104,51 @@ async function postCase(cookie: string, body: Record<string, unknown>) {
   });
 }
 
+async function patchCase(
+  cookie: string,
+  caseId: string,
+  body: Record<string, unknown>,
+) {
+  return request(`/api/v1/cases/${caseId}`, {
+    method: "PATCH",
+    headers: {
+      cookie,
+      "content-type": "application/json",
+      origin: localOrigin,
+    },
+    body: JSON.stringify(body),
+  });
+}
+
+async function updateStatus(
+  cookie: string,
+  caseId: string,
+  body: Record<string, unknown>,
+) {
+  return request(`/api/v1/cases/${caseId}/status`, {
+    method: "POST",
+    headers: {
+      cookie,
+      "content-type": "application/json",
+      origin: localOrigin,
+    },
+    body: JSON.stringify(body),
+  });
+}
+
+async function getActivity(cookie: string, caseId: string, query = "") {
+  return request(`/api/v1/cases/${caseId}/activity${query}`, {
+    headers: { cookie },
+  });
+}
+
 async function createCase(cookie: string, body = fictionalCase) {
   const response = await postCase(cookie, body);
   const payload = await response.json<{
     ok: true;
     data: typeof fictionalCase & {
       id: string;
+      version: number;
       created_at: string;
       updated_at: string;
     };
@@ -120,8 +159,25 @@ async function createCase(cookie: string, body = fictionalCase) {
   return payload.data;
 }
 
+async function auditCount(caseId: string, action?: string) {
+  const row = action
+    ? await env.DB.prepare(
+        "SELECT COUNT(*) AS count FROM audit_events WHERE case_id = ? AND action = ?",
+      )
+        .bind(caseId, action)
+        .first<{ count: number }>()
+    : await env.DB.prepare(
+        "SELECT COUNT(*) AS count FROM audit_events WHERE case_id = ?",
+      )
+        .bind(caseId)
+        .first<{ count: number }>();
+
+  return row?.count ?? 0;
+}
+
 async function cleanDatabase() {
   await env.DB.batch([
+    env.DB.prepare("DELETE FROM audit_events"),
     env.DB.prepare("DELETE FROM case_participants"),
     env.DB.prepare("DELETE FROM cases"),
     env.DB.prepare("DELETE FROM admin_bootstrap_claim"),
@@ -205,6 +261,8 @@ describe("client case creation", () => {
     const record = await createCase(client.cookie);
 
     expect(record).toMatchObject(fictionalCase);
+    expect(record.version).toBe(1);
+    expect(await auditCount(record.id, "case_created")).toBe(1);
 
     const participant = await env.DB.prepare(
       `SELECT participant_role
@@ -409,6 +467,337 @@ describe("admin case visibility", () => {
     expect(adminEndpoint.status).toBe(403);
     expect(roleInjection.status).toBe(400);
     expect(user?.role).toBe("client");
+  });
+});
+
+describe("case metadata editing", () => {
+  it("returns 401 for unauthenticated edits", async () => {
+    const client = await signUp(clientA);
+    const record = await createCase(client.cookie);
+    const response = await request(`/api/v1/cases/${record.id}`, {
+      method: "PATCH",
+      headers: {
+        "content-type": "application/json",
+        origin: localOrigin,
+      },
+      body: JSON.stringify({
+        expected_version: record.version,
+        project_name: "Fictional Updated Project",
+      }),
+    });
+
+    expect(response.status).toBe(401);
+  });
+
+  it("lets an owner client edit their case and records only actual changed fields", async () => {
+    const client = await signUp(clientA);
+    const record = await createCase(client.cookie);
+    const response = await patchCase(client.cookie, record.id, {
+      expected_version: record.version,
+      project_name: "Fictional Updated ADU",
+      city: record.city,
+    });
+    const body = await response.json<{
+      ok: true;
+      data: typeof record;
+    }>();
+
+    expect(response.status).toBe(200);
+    expect(body.data).toMatchObject({
+      id: record.id,
+      project_name: "Fictional Updated ADU",
+      city: record.city,
+      version: record.version + 1,
+    });
+    expect(body.data.updated_at).not.toBe(record.updated_at);
+    expect(await auditCount(record.id, "case_updated")).toBe(1);
+
+    const audit = await env.DB.prepare(
+      "SELECT changed_fields FROM audit_events WHERE case_id = ? AND action = ?",
+    )
+      .bind(record.id, "case_updated")
+      .first<{ changed_fields: string }>();
+
+    expect(JSON.parse(audit?.changed_fields ?? "[]")).toEqual([
+      "project_name",
+    ]);
+  });
+
+  it("returns safe 404 for unrelated clients and allows admins to edit any case", async () => {
+    const owner = await signUp(clientA);
+    const unrelated = await signUp(clientB);
+    const admin = await signUpAdmin();
+    const record = await createCase(owner.cookie);
+    const unrelatedResponse = await patchCase(unrelated.cookie, record.id, {
+      expected_version: record.version,
+      project_name: "Fictional Unauthorized Edit",
+    });
+    const adminResponse = await patchCase(admin.cookie, record.id, {
+      expected_version: record.version,
+      jurisdiction: "Fictional County Building",
+    });
+    const adminBody = await adminResponse.json<{ data: typeof record }>();
+
+    expect(unrelatedResponse.status).toBe(404);
+    expect(adminResponse.status).toBe(200);
+    expect(adminBody.data.jurisdiction).toBe("Fictional County Building");
+    expect(adminBody.data.version).toBe(record.version + 1);
+  });
+
+  it.each([
+    ["unknown fields", { unexpected_field: true }],
+    ["status injection", { current_status: "researching" }],
+    ["version injection", { version: 99 }],
+    ["owner injection", { owner_user_id: "other-user" }],
+    ["role injection", { role: "admin" }],
+  ])("rejects %s through metadata edit", async (_label, injected) => {
+    const client = await signUp(clientA);
+    const record = await createCase(client.cookie);
+    const response = await patchCase(client.cookie, record.id, {
+      expected_version: record.version,
+      project_name: "Fictional Updated ADU",
+      ...injected,
+    });
+
+    expect(response.status).toBe(400);
+    expect(await auditCount(record.id, "case_updated")).toBe(0);
+  });
+
+  it("rejects an empty patch", async () => {
+    const client = await signUp(clientA);
+    const record = await createCase(client.cookie);
+    const response = await patchCase(client.cookie, record.id, {
+      expected_version: record.version,
+    });
+
+    expect(response.status).toBe(400);
+    expect(await auditCount(record.id, "case_updated")).toBe(0);
+  });
+});
+
+describe("case optimistic concurrency", () => {
+  it("rejects stale edits without changing data or creating an audit event", async () => {
+    const client = await signUp(clientA);
+    const record = await createCase(client.cookie);
+    const first = await patchCase(client.cookie, record.id, {
+      expected_version: record.version,
+      project_name: "Fictional First Update",
+    });
+    const stale = await patchCase(client.cookie, record.id, {
+      expected_version: record.version,
+      client_name: "Fictional Stale Client",
+    });
+    const detail = await request(`/api/v1/cases/${record.id}`, {
+      headers: { cookie: client.cookie },
+    });
+    const detailBody = await detail.json<{ data: typeof record }>();
+
+    expect(first.status).toBe(200);
+    expect(stale.status).toBe(409);
+    expect(detailBody.data).toMatchObject({
+      project_name: "Fictional First Update",
+      client_name: record.client_name,
+      version: record.version + 1,
+    });
+    expect(await auditCount(record.id, "case_updated")).toBe(1);
+  });
+
+  it("does not let two same-version metadata mutations both succeed", async () => {
+    const client = await signUp(clientA);
+    const record = await createCase(client.cookie);
+    const [first, second] = await Promise.all([
+      patchCase(client.cookie, record.id, {
+        expected_version: record.version,
+        project_name: "Fictional Concurrent Project",
+      }),
+      patchCase(client.cookie, record.id, {
+        expected_version: record.version,
+        city: "Concurrentville",
+      }),
+    ]);
+    const statuses = [first.status, second.status].sort();
+
+    expect(statuses).toEqual([200, 409]);
+    expect(await auditCount(record.id, "case_updated")).toBe(1);
+  });
+});
+
+describe("case status transitions", () => {
+  it("lets an admin perform a valid transition and records from/to status", async () => {
+    const client = await signUp(clientA);
+    const admin = await signUpAdmin();
+    const record = await createCase(client.cookie);
+    const response = await updateStatus(admin.cookie, record.id, {
+      expected_version: record.version,
+      current_status: "researching",
+    });
+    const body = await response.json<{ data: typeof record }>();
+
+    expect(response.status).toBe(200);
+    expect(body.data.current_status).toBe("researching");
+    expect(body.data.version).toBe(record.version + 1);
+
+    const audit = await env.DB.prepare(
+      `SELECT changed_fields, from_status, to_status
+       FROM audit_events
+       WHERE case_id = ? AND action = ?`,
+    )
+      .bind(record.id, "case_status_changed")
+      .first<{
+        changed_fields: string;
+        from_status: string;
+        to_status: string;
+      }>();
+
+    expect(JSON.parse(audit?.changed_fields ?? "[]")).toEqual([
+      "current_status",
+    ]);
+    expect(audit?.from_status).toBe("intake");
+    expect(audit?.to_status).toBe("researching");
+  });
+
+  it("denies client status transitions while preserving safe unrelated behavior", async () => {
+    const owner = await signUp(clientA);
+    const unrelated = await signUp(clientB);
+    const record = await createCase(owner.cookie);
+    const ownerResponse = await updateStatus(owner.cookie, record.id, {
+      expected_version: record.version,
+      current_status: "researching",
+    });
+    const unrelatedResponse = await updateStatus(unrelated.cookie, record.id, {
+      expected_version: record.version,
+      current_status: "researching",
+    });
+
+    expect(ownerResponse.status).toBe(403);
+    expect(unrelatedResponse.status).toBe(404);
+    expect(await auditCount(record.id, "case_status_changed")).toBe(0);
+  });
+
+  it("rejects invalid, same-status, and stale transitions without extra events", async () => {
+    const client = await signUp(clientA);
+    const admin = await signUpAdmin();
+    const record = await createCase(client.cookie);
+    const invalid = await updateStatus(admin.cookie, record.id, {
+      expected_version: record.version,
+      current_status: "ready_for_review",
+    });
+    const same = await updateStatus(admin.cookie, record.id, {
+      expected_version: record.version,
+      current_status: "intake",
+    });
+    const valid = await updateStatus(admin.cookie, record.id, {
+      expected_version: record.version,
+      current_status: "researching",
+    });
+    const stale = await updateStatus(admin.cookie, record.id, {
+      expected_version: record.version,
+      current_status: "needs_information",
+    });
+
+    expect(invalid.status).toBe(400);
+    expect(same.status).toBe(400);
+    expect(valid.status).toBe(200);
+    expect(stale.status).toBe(409);
+    expect(await auditCount(record.id, "case_status_changed")).toBe(1);
+  });
+});
+
+describe("case activity", () => {
+  it("returns create, update, and status events in deterministic newest-first order", async () => {
+    const client = await signUp(clientA);
+    const admin = await signUpAdmin();
+    const record = await createCase(client.cookie);
+    const edit = await patchCase(client.cookie, record.id, {
+      expected_version: record.version,
+      address: "84 Fictional Oak Street",
+    });
+    const editBody = await edit.json<{ data: typeof record }>();
+
+    await updateStatus(admin.cookie, record.id, {
+      expected_version: editBody.data.version,
+      current_status: "researching",
+    });
+
+    const firstResponse = await getActivity(client.cookie, record.id);
+    const secondResponse = await getActivity(client.cookie, record.id);
+    const firstBody = await firstResponse.json<{
+      data: {
+        activity: Array<{
+          id: string;
+          action: string;
+          changed_fields: string[];
+          from_status: string | null;
+          to_status: string | null;
+          actor?: Record<string, unknown> | null;
+          created_at: string;
+        }>;
+        order: string;
+      };
+    }>();
+    const secondBody = await secondResponse.json<typeof firstBody>();
+    const actions = firstBody.data.activity.map(({ action }) => action);
+
+    expect(firstResponse.status).toBe(200);
+    expect(firstBody.data.order).toBe("created_at_desc");
+    expect(actions).toContain("case_created");
+    expect(actions).toContain("case_updated");
+    expect(actions).toContain("case_status_changed");
+    expect(secondBody.data.activity.map(({ id }) => id)).toEqual(
+      firstBody.data.activity.map(({ id }) => id),
+    );
+
+    for (let index = 1; index < firstBody.data.activity.length; index += 1) {
+      expect(
+        firstBody.data.activity[index - 1]!.created_at >=
+          firstBody.data.activity[index]!.created_at,
+      ).toBe(true);
+    }
+  });
+
+  it("uses bounded pagination for activity", async () => {
+    const client = await signUp(clientA);
+    const record = await createCase(client.cookie);
+    const limited = await getActivity(client.cookie, record.id, "?limit=1");
+    const tooLarge = await getActivity(client.cookie, record.id, "?limit=51");
+    const body = await limited.json<{
+      data: { activity: unknown[]; pagination: { limit: number; offset: number } };
+    }>();
+
+    expect(limited.status).toBe(200);
+    expect(body.data.activity).toHaveLength(1);
+    expect(body.data.pagination).toEqual({ limit: 1, offset: 0 });
+    expect(tooLarge.status).toBe(400);
+  });
+
+  it("allows owner clients and admins to read activity while hiding it from unrelated clients", async () => {
+    const owner = await signUp(clientA);
+    const unrelated = await signUp(clientB);
+    const admin = await signUpAdmin();
+    const record = await createCase(owner.cookie);
+    const ownerResponse = await getActivity(owner.cookie, record.id);
+    const adminResponse = await getActivity(admin.cookie, record.id);
+    const unrelatedResponse = await getActivity(unrelated.cookie, record.id);
+
+    expect(ownerResponse.status).toBe(200);
+    expect(adminResponse.status).toBe(200);
+    expect(unrelatedResponse.status).toBe(404);
+  });
+
+  it("does not expose sensitive fields in activity responses", async () => {
+    const client = await signUp(clientA);
+    const record = await createCase(client.cookie);
+    const response = await getActivity(client.cookie, record.id);
+    const text = await response.text();
+
+    expect(response.status).toBe(200);
+    expect(text.toLowerCase()).not.toContain("token");
+    expect(text.toLowerCase()).not.toContain("password");
+    expect(text.toLowerCase()).not.toContain("cookie");
+    expect(text.toLowerCase()).not.toContain("session");
+    expect(text.toLowerCase()).not.toContain("account");
+    expect(text.toLowerCase()).not.toContain("actor_user_id");
+    expect(text.toLowerCase()).not.toContain("lifecycle_mutation_nonce");
   });
 });
 

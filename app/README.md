@@ -8,9 +8,11 @@ existing Worker in `../workers/pp-api`.
 The current local frontend milestone provides email/password authentication,
 database-backed sessions, sign-out, and the first usable authenticated React
 workspace for listing, creating, and reading case details through the protected
-case API. It does not provide case editing, participant assignment, file
-uploads, evidence records, timelines, PDF generation, AI, billing, email
-delivery, OAuth, or production authentication.
+case API. The backend also supports validated metadata edits, admin-only status
+transitions, optimistic concurrency, and immutable case activity. The React UI
+does not expose lifecycle controls yet and there is still no participant
+assignment, file upload, evidence record, timeline, PDF generation, AI, billing,
+email delivery, OAuth, or production authentication.
 
 ## Requirements and bindings
 
@@ -66,10 +68,11 @@ usable secret.
 
 ## Apply local migrations and run
 
-Migrations `0001_create_cases.sql`, `0002_auth_foundation.sql`, and
-`0003_auth_roles_admin.sql` are immutable. Migration
-`0004_case_participants.sql` adds case ownership without assigning existing
-fictional legacy cases to real users:
+Migrations `0001_create_cases.sql`, `0002_auth_foundation.sql`,
+`0003_auth_roles_admin.sql`, and `0004_case_participants.sql` are immutable.
+Migration `0005_case_lifecycle_audit.sql` adds optimistic case versioning, a
+private mutation nonce, and immutable lifecycle audit events without fabricating
+history for existing local cases:
 
 ```bash
 npm run db:migrate:local
@@ -132,18 +135,21 @@ permit number, current status, last updated time, and an `Open details` action.
 The empty state offers a local fictional-case creation path. Pagination controls
 appear only when the current server response makes them useful.
 
-The detail view shows the safe case DTO fields only: project name, status,
-client name, address, city, jurisdiction, optional permit number, created time,
-and updated time. It includes a back-to-list action and a restrained note that
-editing and evidence tools are not available yet.
+The backend detail DTO includes safe case fields only: project name, status,
+client name, address, city, jurisdiction, optional permit number, version,
+created time, and updated time. The current detail view still presents the
+read-only case summary and a restrained note that browser editing and evidence
+tools are not available yet.
 
 ## Current UI limitations
 
 - Administrator-created cases are unassigned and admin-only under the current
   backend design.
-- There is no case editing, deletion, status transition workflow, participant
-  assignment, evidence, timeline, upload, PDF, AI, email, billing, OAuth, or
-  admin user management UI.
+- There is backend support for case metadata editing, admin-only status
+  transitions, optimistic concurrency, and case activity, but no browser UI for
+  those lifecycle controls yet.
+- There is no deletion, participant assignment, evidence, timeline, upload,
+  PDF, AI, email, billing, OAuth, or admin user management UI.
 - Browser back-button support and deep-link case routing are intentionally out
   of scope for this milestone.
 - The workspace does not fabricate cases, analytics, authorization filters, or
@@ -223,6 +229,9 @@ Better Auth session:
 | `POST` | `/api/v1/cases` | Create one validated case. |
 | `GET` | `/api/v1/cases` | List cases visible to the current actor. |
 | `GET` | `/api/v1/cases/:caseId` | Read one visible case by UUID. |
+| `PATCH` | `/api/v1/cases/:caseId` | Edit validated case metadata with optimistic concurrency. |
+| `POST` | `/api/v1/cases/:caseId/status` | Apply one admin-only status transition. |
+| `GET` | `/api/v1/cases/:caseId/activity` | Read immutable case lifecycle activity. |
 
 Creation accepts only these JSON fields:
 
@@ -240,8 +249,120 @@ Creation accepts only these JSON fields:
 
 Unknown or privilege-bearing fields such as `owner_user_id`, `user_id`,
 `participant_role`, `role`, and `created_by` are rejected. Responses return an
-explicit safe case DTO only: case fields and timestamps, with no session token,
-password data, auth account rows, or participant internals.
+explicit safe case DTO only: case fields, `version`, and timestamps, with no
+session token, password data, auth account rows, participant internals, or
+private mutation nonce.
+
+### Metadata edit contract
+
+`PATCH /api/v1/cases/:caseId` accepts JSON with `expected_version` and at least
+one editable metadata field:
+
+```json
+{
+  "expected_version": 1,
+  "project_name": "Fictional Oak Street ADU Revision",
+  "client_name": "Fictional Client",
+  "address": "42 Oak Street",
+  "city": "Exampleville",
+  "jurisdiction": "Exampleville Building",
+  "permit_number": "EX-2026-002"
+}
+```
+
+Only those fields are accepted. The endpoint rejects `current_status`,
+`version`, ownership/participant fields, role fields, timestamps, internal
+mutation fields, and unknown keys. Supplied fields that equal the current value
+are ignored for audit purposes; if no actual value changes, the request returns
+`400 NO_CHANGES` and creates no audit event.
+
+Successful edits increment `version` by exactly one, update `updated_at`, and
+append one `case_updated` audit event whose `changed_fields` array contains only
+the public fields that actually changed.
+
+### Status transition contract
+
+`POST /api/v1/cases/:caseId/status` accepts:
+
+```json
+{
+  "expected_version": 2,
+  "current_status": "researching"
+}
+```
+
+The explicit state machine is:
+
+| From | Allowed to |
+| --- | --- |
+| `intake` | `researching`, `needs_information` |
+| `researching` | `needs_information`, `ready_for_review` |
+| `needs_information` | `researching`, `ready_for_review` |
+| `ready_for_review` | `researching` |
+
+Only administrators may transition status in this milestone. Clients receive
+`403` for their own cases and safe `404` for unrelated cases. Invalid
+transitions return `400 INVALID_TRANSITION`. A same-status request returns
+`400 SAME_STATUS` and creates no audit event.
+
+Successful transitions increment `version` by exactly one, update `updated_at`,
+and append one `case_status_changed` audit event with `from_status`,
+`to_status`, and `changed_fields: ["current_status"]`.
+
+### Optimistic concurrency
+
+Every metadata edit and status transition must include `expected_version`.
+The mutation succeeds only when it matches the current case `version`.
+Stale versions return:
+
+```json
+{
+  "ok": false,
+  "error": {
+    "code": "STALE_VERSION",
+    "message": "The case version is stale."
+  },
+  "request_id": "..."
+}
+```
+
+Stale mutations return HTTP `409`, change no case data, and create no audit
+event. The repository uses a guarded D1 `UPDATE ... WHERE version = ?
+RETURNING` and a private per-mutation nonce; the audit insert in the same D1
+batch can only select the row updated by that mutation.
+
+### Activity contract
+
+`GET /api/v1/cases/:caseId/activity?limit=20&offset=0` returns immutable audit
+entries ordered deterministically by newest first:
+
+```json
+{
+  "ok": true,
+  "data": {
+    "activity": [
+      {
+        "id": "00000000-0000-4000-8000-000000000000",
+        "action": "case_updated",
+        "changed_fields": ["project_name"],
+        "from_status": null,
+        "to_status": null,
+        "actor": {
+          "id": "fictional-user-id",
+          "name": "Avery Client"
+        },
+        "created_at": "2026-01-01T00:00:00.000Z"
+      }
+    ],
+    "pagination": { "limit": 20, "offset": 0 },
+    "order": "created_at_desc"
+  }
+}
+```
+
+The default limit is `20`, the maximum limit is `50`, and the maximum offset is
+`10000`. Activity responses omit auth account rows, passwords, cookies,
+sessions, tokens, participant rows, and private audit storage internals.
 
 ## Role and ownership behavior
 
@@ -249,19 +370,26 @@ Case access is controlled by server-side capabilities and the
 `case_participants` table:
 
 - Clients may create cases. A client-created case atomically creates an `owner`
-  participant row for that authenticated client.
+  participant row and one `case_created` audit event for that authenticated
+  client.
 - Clients may list and read only cases where they have a participant row.
+- Clients may edit metadata only for cases where they have an `owner`
+  participant row.
+- Clients may read activity only for participating cases.
+- Clients may not transition status in this milestone.
 - Unrelated clients receive `404` for another client's case, matching the
   response for a missing case.
 - Existing unowned legacy cases remain in `cases` but are invisible to clients.
 - Administrators may create, list, and read every case, but still use the same
   strict validation.
-- Administrator-created cases have no client participant by design. They are
+- Administrators may edit metadata, transition status, and read activity for
+  every case.
+- Administrator-created cases atomically create one unassigned case and one
+  `case_created` audit event. They have no client participant by design and are
   visible to administrators only until a later controlled participant-assignment
   milestone.
 
-Editing, deletion, status transitions, and participant assignment are not
-implemented yet.
+Deletion and participant assignment are not implemented yet.
 
 ## Pagination contract
 

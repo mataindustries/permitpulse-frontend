@@ -16,6 +16,7 @@ export interface CaseDto {
   jurisdiction: string;
   permit_number: string | null;
   current_status: CaseStatus;
+  version: number;
   created_at: string;
   updated_at: string;
 }

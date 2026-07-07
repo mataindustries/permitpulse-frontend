@@ -26,6 +26,18 @@ export function mayReadAnyCase(actor: CaseActor): boolean {
   return actor.role === "admin";
 }
 
+export function mayEditAnyCase(actor: CaseActor): boolean {
+  return actor.role === "admin";
+}
+
+export function mayEditParticipatingCase(actor: CaseActor): boolean {
+  return actor.role === "client";
+}
+
+export function mayTransitionCaseStatus(actor: CaseActor): boolean {
+  return actor.role === "admin";
+}
+
 export function createsOwnerParticipant(actor: CaseActor): boolean {
   return actor.role === "client";
 }

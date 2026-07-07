@@ -67,6 +67,7 @@ function cookieFrom(response: Response): string {
 
 async function cleanDatabase() {
   await env.DB.batch([
+    env.DB.prepare("DELETE FROM audit_events"),
     env.DB.prepare("DELETE FROM case_participants"),
     env.DB.prepare("DELETE FROM cases"),
     env.DB.prepare("DELETE FROM admin_bootstrap_claim"),
