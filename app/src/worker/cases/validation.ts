@@ -15,4 +15,12 @@ export const createCaseSchema = z
 
 export const caseIdSchema = z.string().uuid();
 
+export const caseListQuerySchema = z
+  .object({
+    limit: z.coerce.number().int().min(1).max(50).default(20),
+    offset: z.coerce.number().int().min(0).max(10_000).default(0),
+  })
+  .strict();
+
 export type CreateCaseInput = z.infer<typeof createCaseSchema>;
+export type CaseListQuery = z.infer<typeof caseListQuerySchema>;

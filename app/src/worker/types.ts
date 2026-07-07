@@ -17,6 +17,7 @@ export interface AuthenticatedUser {
   id: string;
   email: string;
   name: string | null;
+  role: "client" | "admin";
 }
 
 export interface AuthenticatedSession {

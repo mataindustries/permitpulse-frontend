@@ -3,6 +3,7 @@ import {
   check,
   index,
   integer,
+  primaryKey,
   sqliteTable,
   text,
   uniqueIndex,
@@ -83,6 +84,44 @@ export const authUsers = sqliteTable(
     ),
     index("user_role_idx").on(table.role),
     index("user_banned_idx").on(table.banned),
+  ],
+);
+
+export const participantRoles = ["owner"] as const;
+
+export const caseParticipants = sqliteTable(
+  "case_participants",
+  {
+    caseId: text("case_id")
+      .notNull()
+      .references(() => cases.id, { onDelete: "cascade" }),
+    userId: text("user_id")
+      .notNull()
+      .references(() => authUsers.id, { onDelete: "cascade" }),
+    participantRole: text("participant_role", {
+      enum: participantRoles,
+    }).notNull(),
+    createdAt: text("created_at")
+      .notNull()
+      .default(sql`(strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))`),
+  },
+  (table) => [
+    primaryKey({
+      columns: [table.caseId, table.userId],
+      name: "case_participants_case_user_pk",
+    }),
+    check(
+      "case_participants_role_owner_check",
+      sql`${table.participantRole} = 'owner'`,
+    ),
+    index("case_participants_user_case_idx").on(
+      table.userId,
+      table.caseId,
+    ),
+    index("case_participants_case_role_idx").on(
+      table.caseId,
+      table.participantRole,
+    ),
   ],
 );
 

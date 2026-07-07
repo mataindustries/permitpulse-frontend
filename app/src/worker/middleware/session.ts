@@ -23,10 +23,17 @@ export const sessionMiddleware: MiddlewareHandler<WorkerEnv> = async (
     });
 
     if (result) {
+      const userRole = await context.env.DB.prepare(
+        'SELECT role FROM "user" WHERE id = ?',
+      )
+        .bind(result.user.id)
+        .first<{ role: "client" | "admin" }>();
+
       context.set("authenticatedUser", {
         id: result.user.id,
         email: result.user.email,
         name: result.user.name || null,
+        role: userRole?.role === "admin" ? "admin" : "client",
       });
       context.set("authenticatedSession", {
         id: result.session.id,

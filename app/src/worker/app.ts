@@ -4,6 +4,7 @@ import { errorResponse } from "./lib/responses";
 import { authConfigRoutes } from "./routes/auth-config";
 import { handleAuthRequest } from "./routes/auth";
 import { bootstrapAdminRoutes } from "./routes/bootstrap-admin";
+import { caseRoutes } from "./routes/cases";
 import { developmentCaseRoutes } from "./routes/development-cases";
 import { healthRoutes } from "./routes/health";
 import { workspaceRoutes } from "./routes/workspace";
@@ -30,6 +31,7 @@ app.route("/api/config/auth", authConfigRoutes);
 app.route("/api/health", healthRoutes);
 app.route("/api/internal/bootstrap-admin", bootstrapAdminRoutes);
 app.route("/api/dev/cases", developmentCaseRoutes);
+app.route("/api/v1/cases", caseRoutes);
 app.route("/api/workspace", workspaceRoutes);
 
 app.notFound((context) =>

@@ -5,9 +5,12 @@ and D1 database. It does not share deployment configuration with the public
 PermitPulse site in `../dist`, Pages Functions in `../functions`, or the
 existing Worker in `../workers/pp-api`.
 
-Authentication Foundation A provides local email/password authentication,
-database-backed sessions, sign-out, and an empty protected workspace. It does
-not provide authenticated case CRUD or any production authentication feature.
+The current backend milestone provides local email/password authentication,
+database-backed sessions, sign-out, a protected workspace proof, and
+authenticated case creation/list/detail APIs. It does not provide a React case
+dashboard, case editing, participant assignment, file uploads, evidence
+records, timelines, PDF generation, AI, billing, email delivery, OAuth, or
+production authentication.
 
 ## Requirements and bindings
 
@@ -63,9 +66,10 @@ usable secret.
 
 ## Apply local migrations and run
 
-Migration `0001_create_cases.sql` is immutable and already exists in preview.
-Migration `0002_auth_foundation.sql` is forward-only and must be applied only
-to local D1 during this milestone:
+Migrations `0001_create_cases.sql`, `0002_auth_foundation.sql`, and
+`0003_auth_roles_admin.sql` are immutable. Migration
+`0004_case_participants.sql` adds case ownership without assigning existing
+fictional legacy cases to real users:
 
 ```bash
 npm run db:migrate:local
@@ -141,6 +145,107 @@ the opaque session cookie maps to the D1 `session` record.
 The local-only development case persistence proof remains available under
 `/api/dev/cases` when its existing flags and loopback checks pass. It is not
 connected to authenticated users.
+
+## Authenticated case API
+
+Application case routes live under `/api/v1/cases` and require an authenticated
+Better Auth session:
+
+| Method | Route | Behavior |
+| --- | --- | --- |
+| `POST` | `/api/v1/cases` | Create one validated case. |
+| `GET` | `/api/v1/cases` | List cases visible to the current actor. |
+| `GET` | `/api/v1/cases/:caseId` | Read one visible case by UUID. |
+
+Creation accepts only these JSON fields:
+
+```json
+{
+  "project_name": "Fictional Oak Street ADU",
+  "client_name": "Fictional Client",
+  "address": "42 Oak Street",
+  "city": "Exampleville",
+  "jurisdiction": "Exampleville Building",
+  "permit_number": "EX-2026-001",
+  "current_status": "intake"
+}
+```
+
+Unknown or privilege-bearing fields such as `owner_user_id`, `user_id`,
+`participant_role`, `role`, and `created_by` are rejected. Responses return an
+explicit safe case DTO only: case fields and timestamps, with no session token,
+password data, auth account rows, or participant internals.
+
+## Role and ownership behavior
+
+Case access is controlled by server-side capabilities and the
+`case_participants` table:
+
+- Clients may create cases. A client-created case atomically creates an `owner`
+  participant row for that authenticated client.
+- Clients may list and read only cases where they have a participant row.
+- Unrelated clients receive `404` for another client's case, matching the
+  response for a missing case.
+- Existing unowned legacy cases remain in `cases` but are invisible to clients.
+- Administrators may create, list, and read every case, but still use the same
+  strict validation.
+- Administrator-created cases have no client participant by design. They are
+  visible to administrators only until a later controlled participant-assignment
+  milestone.
+
+Editing, deletion, status transitions, and participant assignment are not
+implemented yet.
+
+## Pagination contract
+
+`GET /api/v1/cases` supports bounded offset pagination:
+
+```text
+GET /api/v1/cases?limit=20&offset=0
+```
+
+The default limit is `20`, the maximum limit is `50`, and the maximum offset is
+`10000`. Results are ordered deterministically by `updated_at DESC, id DESC`.
+The response includes:
+
+```json
+{
+  "ok": true,
+  "data": {
+    "cases": [],
+    "pagination": { "limit": 20, "offset": 0 }
+  }
+}
+```
+
+## Test authenticated case routes locally
+
+Use only fictional `.test` users and a temporary cookie jar. Local signup is
+enabled by `.dev.vars.example`; preview and production signup remain blocked.
+
+```bash
+curl --fail-with-body \
+  -c /tmp/permitpulse-client-a.cookies \
+  -H 'content-type: application/json' \
+  -H 'origin: http://localhost:5173' \
+  --data '{"name":"Avery Client","email":"avery.client@example.test","password":"Fictional-passphrase-42"}' \
+  http://localhost:5173/api/auth/sign-up/email
+
+curl --fail-with-body \
+  -b /tmp/permitpulse-client-a.cookies \
+  -H 'content-type: application/json' \
+  -H 'origin: http://localhost:5173' \
+  --data '{"project_name":"Fictional Oak Street ADU","client_name":"Fictional Client","address":"42 Oak Street","city":"Exampleville","jurisdiction":"Exampleville Building","permit_number":"EX-2026-001","current_status":"intake"}' \
+  http://localhost:5173/api/v1/cases
+
+curl --fail-with-body \
+  -b /tmp/permitpulse-client-a.cookies \
+  'http://localhost:5173/api/v1/cases?limit=20&offset=0'
+```
+
+Administrators are created only through the documented preview bootstrap
+procedure or direct local test fixtures. There is no public signup or request
+body field that can promote a user to admin.
 
 ## Checks
 
