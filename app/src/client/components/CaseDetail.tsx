@@ -23,6 +23,7 @@ import { EvidenceDetail } from "./EvidenceDetail";
 import { EvidenceForm } from "./EvidenceForm";
 import { EvidenceLinkManager } from "./EvidenceLinkManager";
 import { EvidenceList } from "./EvidenceList";
+import { PacketPreview } from "./PacketPreview";
 import { StatusBadge } from "./StatusBadge";
 import { StatusManagement } from "./StatusManagement";
 import { TimelineForm } from "./TimelineForm";
@@ -33,7 +34,12 @@ import {
   safeRecordError,
 } from "./evidenceTimelineUtils";
 
-type DetailSection = "overview" | "evidence" | "timeline" | "activity";
+type DetailSection =
+  | "overview"
+  | "evidence"
+  | "timeline"
+  | "activity"
+  | "packet";
 
 interface CaseDetailProps {
   activityError: string;
@@ -224,6 +230,7 @@ const detailSections = [
   ["evidence", "Evidence"],
   ["timeline", "Permit timeline"],
   ["activity", "Activity"],
+  ["packet", "Packet preview"],
 ] as const satisfies readonly [DetailSection, string][];
 
 export function CaseDetail({
@@ -859,6 +866,15 @@ export function CaseDetail({
               onNextPage={onActivityNextPage}
               onPreviousPage={onActivityPreviousPage}
               onRetry={onActivityRetry}
+            />
+          )}
+
+          {activeSection === "packet" && (
+            <PacketPreview
+              activityResponse={activityResponse}
+              caseRecord={caseRecord}
+              evidence={evidenceItems}
+              timeline={timelineItems}
             />
           )}
         </div>

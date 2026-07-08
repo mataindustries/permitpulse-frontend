@@ -11,9 +11,10 @@ for listing, creating, reading, editing, and reviewing case lifecycle activity
 through the protected case API. Administrators also get role-aware status
 transition controls. The browser workspace now also exposes local-only
 structured evidence, provenance, verification state, canonical timeline
-records, and timeline-to-evidence links through protected APIs. There is still
-no participant assignment, file upload, PDF generation, AI, billing, email
-delivery, OAuth, user-management UI, or production authentication.
+records, timeline-to-evidence links, and a first local-only Packet Builder
+preview through protected APIs. There is still no participant assignment, file
+upload, PDF generation, AI, billing, email delivery, OAuth, user-management UI,
+or production authentication.
 
 ## Requirements and bindings
 
@@ -197,11 +198,11 @@ automatically overwrite or resubmit user input, and it creates no client-side
 audit event. Reload fetches the latest detail DTO and activity; the next
 mutation uses the refreshed `version`.
 
-## Evidence and permit timeline browser workflows
+## Evidence, permit timeline, and packet-preview workflows
 
 The case detail workspace uses lightweight tabs for Overview, Evidence, Permit
-timeline, and Activity. Switching tabs keeps the loaded case in memory and does
-not reload an unbounded case list.
+timeline, Activity, and Packet preview. Switching tabs keeps the loaded case in
+memory and does not reload an unbounded case list.
 
 Evidence tab behavior:
 
@@ -238,6 +239,50 @@ Timeline entries display canonical versus contributed state, contributor,
 occurred date, updated date, details, and supporting evidence. Timeline records
 and immutable case Activity are separate concepts; the UI does not fabricate
 timeline events from lifecycle audit activity.
+
+Packet preview behavior:
+
+1. The Packet preview tab compiles the currently loaded case overview, current
+   status, jurisdiction, permit number, case version, evidence page, permit
+   timeline page, and recent activity page into a structured review draft.
+2. The preview renders Packet header, Project summary, Current permit status,
+   Key evidence, Permit timeline, Recent case activity, Open questions /
+   missing information, Recommended next actions, and Disclaimer / internal
+   review sections.
+3. Evidence is shown only from existing evidence records. Verification labels
+   distinguish `Unverified`, `Verified`, and `Disputed`; unverified and
+   disputed records are not described as confirmed. Source label, safe
+   `http`/`https` URL, and source date are shown when present.
+4. Permit timeline records remain separate from immutable case activity.
+   Timeline entries show canonical versus contributed state and linked
+   evidence references without fabricating permit events.
+5. Placeholder Open questions and Recommended next actions sections clearly
+   state that they are not AI-generated yet.
+6. Stored case, evidence, timeline, and activity strings are rendered as React
+   text, never as HTML.
+
+Copy-to-clipboard behavior:
+
+- `Copy packet text` generates a plain-text draft with a generated timestamp
+  and the note `Draft packet preview - verify before sending.`
+- The copied text contains no HTML and omits auth/session/account/token fields.
+- Clipboard success and failure both produce visible feedback. If browser
+  clipboard access is unavailable or denied, the UI shows a safe fallback
+  message instead of exposing operational detail.
+
+Print-preview behavior:
+
+- `Print preview` calls browser print only. It does not generate, upload, or
+  store a PDF.
+- Print CSS hides navigation and action controls, uses a light background, and
+  preserves readable spacing and section headings for browser printing.
+
+Current Packet Builder v1 limitations:
+
+- No PDF generation yet.
+- No AI-generated questions, summaries, or recommendations yet.
+- No approval workflow yet.
+- No client publication controls yet.
 
 Link and unlink behavior:
 

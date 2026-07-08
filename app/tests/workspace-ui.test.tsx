@@ -24,6 +24,11 @@ import { EvidenceForm } from "../src/client/components/EvidenceForm";
 import { EvidenceLinkManager } from "../src/client/components/EvidenceLinkManager";
 import { EvidenceList } from "../src/client/components/EvidenceList";
 import {
+  compilePacketText,
+  copyPacketText,
+  PacketPreview,
+} from "../src/client/components/PacketPreview";
+import {
   StatusManagement,
   validNextStatuses,
 } from "../src/client/components/StatusManagement";
@@ -1392,5 +1397,216 @@ describe("case workspace components", () => {
     expect(eventMarkup).not.toContain("token");
     expect(errorMarkup).toContain("Activity could not be loaded");
     expect(errorMarkup).toContain("Retry");
+  });
+
+  it("shows the packet preview tab for signed-in case detail users", () => {
+    const markup = renderToStaticMarkup(
+      <CaseDetail
+        {...defaultDetailProps}
+        caseRecord={safeCase}
+      />,
+    );
+
+    expect(markup).toContain("Packet preview");
+    expect(markup).toContain('role="tab"');
+  });
+
+  it("renders packet overview, controls, and print-friendly actions", () => {
+    const markup = renderToStaticMarkup(
+      <PacketPreview
+        activityResponse={defaultDetailProps.activityResponse}
+        caseRecord={safeCase}
+        evidence={[safeEvidence]}
+        timeline={[safeTimeline]}
+      />,
+    );
+
+    expect(markup).toContain("Draft permit packet");
+    expect(markup).toContain("Draft packet preview - verify before sending.");
+    expect(markup).toContain("Fictional Oak Street ADU");
+    expect(markup).toContain("Exampleville Building");
+    expect(markup).toContain("EX-2026-001");
+    expect(markup).toContain("Case version");
+    expect(markup).toContain("Copy packet text");
+    expect(markup).toContain("Print preview");
+  });
+
+  it("renders packet evidence with verification labels and safe source links", () => {
+    const verifiedEvidence = {
+      ...safeEvidence,
+      id: "00000000-0000-4000-8000-000000000102",
+      title: "Verified fictional source",
+      verification_status: "verified" as const,
+    };
+    const disputedEvidence = {
+      ...safeEvidence,
+      id: "00000000-0000-4000-8000-000000000103",
+      title: "Disputed fictional source",
+      source_url: "javascript:alert(1)",
+      source_label: "Unsafe source label",
+      verification_status: "disputed" as const,
+    };
+    const markup = renderToStaticMarkup(
+      <PacketPreview
+        activityResponse={defaultDetailProps.activityResponse}
+        caseRecord={safeCase}
+        evidence={[safeEvidence, verifiedEvidence, disputedEvidence]}
+        timeline={[]}
+      />,
+    ).toLowerCase();
+
+    expect(markup).toContain("unverified");
+    expect(markup).toContain("verified");
+    expect(markup).toContain("disputed");
+    expect(markup).toContain("unverified evidence. do not treat as confirmed.");
+    expect(markup).toContain("disputed evidence. do not treat as confirmed.");
+    expect(markup).toContain('href="https://example.test/notices/plan-check"');
+    expect(markup).toContain("unsafe source label");
+    expect(markup).not.toContain('href="javascript:alert(1)"');
+  });
+
+  it("renders packet timeline separately from case activity with linked evidence references", () => {
+    const markup = renderToStaticMarkup(
+      <PacketPreview
+        activityResponse={{
+          activity: [
+            {
+              id: "activity-1",
+              action: "case_status_changed",
+              changed_fields: ["current_status"],
+              from_status: "intake",
+              to_status: "researching",
+              actor: { id: "user-1", name: "Avery Example" },
+              created_at: "2026-01-22T00:00:00.000Z",
+            },
+          ],
+          pagination: { limit: 10, offset: 0 },
+          order: "created_at_desc",
+        }}
+        caseRecord={safeCase}
+        evidence={[safeEvidence]}
+        timeline={[
+          { ...safeTimeline, is_canonical: true },
+          {
+            ...safeTimeline,
+            id: "00000000-0000-4000-8000-000000000202",
+            title: "<script>timeline</script>",
+            details: "<img src=x onerror=alert(1)>",
+            is_canonical: false,
+            evidence_ids: ["00000000-0000-4000-8000-000000000999"],
+          },
+        ]}
+      />,
+    ).toLowerCase();
+
+    expect(markup).toContain("permit timeline");
+    expect(markup).toContain("recent case activity");
+    expect(markup).toContain("canonical");
+    expect(markup).toContain("contributed");
+    expect(markup).toContain("linked evidence references");
+    expect(markup).toContain("fictional plan check notice");
+    expect(markup).toContain("1 linked evidence reference not loaded");
+    expect(markup).toContain("status changed");
+    expect(markup).toContain("&lt;script&gt;timeline&lt;/script&gt;");
+    expect(markup).toContain("&lt;img src=x onerror=alert(1)&gt;");
+  });
+
+  it("renders packet missing evidence, timeline, and activity states", () => {
+    const markup = renderToStaticMarkup(
+      <PacketPreview
+        activityResponse={{
+          activity: [],
+          pagination: { limit: 10, offset: 0 },
+          order: "created_at_desc",
+        }}
+        caseRecord={safeCase}
+        evidence={[]}
+        timeline={[]}
+      />,
+    );
+
+    expect(markup).toContain("No evidence records are available in this case.");
+    expect(markup).toContain(
+      "No permit timeline records are available in this case.",
+    );
+    expect(markup).toContain(
+      "No recent case activity records are available in this case.",
+    );
+  });
+
+  it("compiles expected plain packet text and never includes auth internals", () => {
+    const text = compilePacketText({
+      activityResponse: {
+        activity: [
+          {
+            id: "activity-1",
+            action: "case_updated",
+            changed_fields: ["project_name", "actor_user_id"],
+            from_status: null,
+            to_status: null,
+            actor: { id: "user-1", name: "Avery Example" },
+            created_at: "2026-01-22T00:00:00.000Z",
+          },
+        ],
+        pagination: { limit: 10, offset: 0 },
+        order: "created_at_desc",
+      },
+      caseRecord: safeCase,
+      evidence: [safeEvidence],
+      generatedAt: new Date("2026-02-03T04:05:06.000Z"),
+      timeline: [safeTimeline],
+    });
+    const lower = text.toLowerCase();
+
+    expect(text).toContain("Generated: 2026-02-03T04:05:06.000Z");
+    expect(text).toContain("Draft packet preview - verify before sending.");
+    expect(text).toContain("Project: Fictional Oak Street ADU");
+    expect(text).toContain("Verification: Unverified - Unverified evidence. Do not treat as confirmed.");
+    expect(text).toContain("Linked evidence: Fictional plan check notice");
+    expect(text).toContain("Recent case activity");
+    expect(text).toContain("This placeholder is not AI-generated yet.");
+    expect(text).not.toContain("<a ");
+    for (const forbidden of [
+      "password",
+      "session",
+      "account",
+      "token",
+      "authorization",
+      "actor_user_id",
+      "request_id",
+    ]) {
+      expect(lower).not.toContain(forbidden);
+    }
+  });
+
+  it("reports copy success and failure through the clipboard helper", async () => {
+    const failureMarkup = renderToStaticMarkup(
+      <PacketPreview
+        activityResponse={defaultDetailProps.activityResponse}
+        caseRecord={safeCase}
+        evidence={[]}
+        initialCopyStatus="error"
+        timeline={[]}
+      />,
+    );
+    const writes: string[] = [];
+    const success = await copyPacketText("Plain packet", {
+      writeText: async (value) => {
+        writes.push(value);
+      },
+    });
+    const failure = await copyPacketText("Plain packet", {
+      writeText: async () => {
+        throw new Error("Clipboard denied");
+      },
+    });
+    const missing = await copyPacketText("Plain packet", undefined);
+
+    expect(success).toBe(true);
+    expect(writes).toEqual(["Plain packet"]);
+    expect(failure).toBe(false);
+    expect(missing).toBe(false);
+    expect(failureMarkup).toContain("Packet text could not be copied.");
+    expect(failureMarkup).not.toContain("Clipboard denied");
   });
 });
