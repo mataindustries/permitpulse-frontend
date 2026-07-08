@@ -3,7 +3,10 @@ import {
   CaseApiError,
   createCase,
   getCase,
+  listCaseActivity,
   listCases,
+  updateCaseMetadata,
+  updateCaseStatus,
 } from "./api/cases";
 import { authClient } from "./auth-client";
 import { CaseDetail } from "./components/CaseDetail";
@@ -12,8 +15,12 @@ import { CreateCaseForm } from "./components/CreateCaseForm";
 import { WorkspaceHeader } from "./components/WorkspaceHeader";
 import type {
   CaseDto,
+  CaseActivityResponse,
   CaseListPagination,
   CreateCaseInput,
+  UpdateCaseMetadataInput,
+  UpdateCaseStatusInput,
+  UserRole,
 } from "./types/cases";
 
 interface AuthCapabilities {
@@ -24,7 +31,8 @@ interface AuthCapabilities {
 export interface SafeUser {
   id: string;
   email: string;
-  name: string;
+  name?: string;
+  role: UserRole;
 }
 
 export type AuthState =
@@ -44,13 +52,19 @@ type WorkspaceView =
 interface CaseClient {
   createCase: typeof createCase;
   getCase: typeof getCase;
+  listCaseActivity: typeof listCaseActivity;
   listCases: typeof listCases;
+  updateCaseMetadata: typeof updateCaseMetadata;
+  updateCaseStatus: typeof updateCaseStatus;
 }
 
 const defaultCaseClient: CaseClient = {
   createCase,
   getCase,
+  listCaseActivity,
   listCases,
+  updateCaseMetadata,
+  updateCaseStatus,
 };
 
 function getErrorMessage(error: unknown): string {
@@ -94,10 +108,55 @@ async function loadSession(): Promise<SafeUser | null> {
     return null;
   }
 
+  return loadWorkspaceIdentity();
+}
+
+async function loadWorkspaceIdentity(): Promise<SafeUser> {
+  const response = await fetch("/api/workspace", {
+    credentials: "same-origin",
+    headers: { accept: "application/json" },
+  });
+
+  if (response.status === 401) {
+    throw new CaseApiError(
+      "unauthorized",
+      "Your session expired. Sign in again.",
+      401,
+      "UNAUTHENTICATED",
+    );
+  }
+
+  if (!response.ok) {
+    throw new Error("Workspace identity could not be loaded.");
+  }
+
+  const body = (await response.json()) as {
+    data?: {
+      user?: {
+        id?: unknown;
+        email?: unknown;
+        name?: unknown;
+        role?: unknown;
+      };
+    };
+  };
+  const user = body.data?.user;
+
+  if (
+    typeof user?.id !== "string" ||
+    typeof user.email !== "string" ||
+    (user.role !== "client" && user.role !== "admin")
+  ) {
+    throw new Error("Workspace identity could not be loaded.");
+  }
+
   return {
-    id: data.user.id,
-    email: data.user.email,
-    name: data.user.name,
+    id: user.id,
+    email: user.email,
+    ...(typeof user.name === "string" && user.name.length > 0
+      ? { name: user.name }
+      : {}),
+    role: user.role,
   };
 }
 
@@ -128,6 +187,10 @@ function Workspace({
   const [detailCase, setDetailCase] = useState<CaseDto | null>(null);
   const [detailLoading, setDetailLoading] = useState(false);
   const [detailError, setDetailError] = useState("");
+  const [activityResponse, setActivityResponse] =
+    useState<CaseActivityResponse | null>(null);
+  const [activityLoading, setActivityLoading] = useState(false);
+  const [activityError, setActivityError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
 
   function handleCaseError(error: unknown, setMessage: (message: string) => void) {
@@ -161,12 +224,63 @@ function Workspace({
     setDetailLoading(true);
     setDetailError("");
     setDetailCase(null);
+    setActivityResponse(null);
+    setActivityError("");
     setView({ name: "detail", caseId });
 
     try {
-      setDetailCase(await client.getCase(caseId));
+      const record = await client.getCase(caseId);
+
+      setDetailCase(record);
+      updateCaseInList(record);
+      void loadActivity(caseId, 0);
     } catch (error) {
       handleCaseError(error, setDetailError);
+    } finally {
+      setDetailLoading(false);
+    }
+  }
+
+  async function loadActivity(caseId: string, offset = 0) {
+    setActivityLoading(true);
+    setActivityError("");
+
+    try {
+      setActivityResponse(
+        await client.listCaseActivity(caseId, { limit: 10, offset }),
+      );
+    } catch (error) {
+      handleCaseError(error, setActivityError);
+    } finally {
+      setActivityLoading(false);
+    }
+  }
+
+  function updateCaseInList(updated: CaseDto) {
+    setCases((current) =>
+      current.map((caseRecord) =>
+        caseRecord.id === updated.id ? updated : caseRecord,
+      ),
+    );
+  }
+
+  async function reloadLatestCase() {
+    if (!detailCase) {
+      return;
+    }
+
+    setDetailLoading(true);
+    setDetailError("");
+
+    try {
+      const latest = await client.getCase(detailCase.id);
+
+      setDetailCase(latest);
+      updateCaseInList(latest);
+      await loadActivity(latest.id, 0);
+    } catch (error) {
+      handleCaseError(error, setDetailError);
+      throw error;
     } finally {
       setDetailLoading(false);
     }
@@ -195,7 +309,10 @@ function Workspace({
       setDetailCase(created);
       setDetailError("");
       setDetailLoading(false);
+      setActivityResponse(null);
+      setActivityError("");
       setView({ name: "detail", caseId: created.id });
+      void loadActivity(created.id, 0);
     } catch (error) {
       handleCaseError(error, setCreateError);
     } finally {
@@ -217,6 +334,32 @@ function Workspace({
     }
 
     void loadCaseList(Math.max(0, pagination.offset - pagination.limit));
+  }
+
+  async function handleMetadataUpdate(input: UpdateCaseMetadataInput) {
+    if (!detailCase) {
+      return;
+    }
+
+    const updated = await client.updateCaseMetadata(detailCase.id, input);
+
+    setDetailCase(updated);
+    updateCaseInList(updated);
+    setSuccessMessage("Case details saved.");
+    await loadActivity(updated.id, 0);
+  }
+
+  async function handleStatusUpdate(input: UpdateCaseStatusInput) {
+    if (!detailCase) {
+      return;
+    }
+
+    const updated = await client.updateCaseStatus(detailCase.id, input);
+
+    setDetailCase(updated);
+    updateCaseInList(updated);
+    setSuccessMessage("Case status updated.");
+    await loadActivity(updated.id, 0);
   }
 
   return (
@@ -289,11 +432,51 @@ function Workspace({
 
           {view.name === "detail" && (
             <CaseDetail
+              activityError={activityError}
+              activityLoading={activityLoading}
+              activityResponse={activityResponse}
               caseRecord={detailCase}
               error={detailError}
               loading={detailLoading}
+              role={user.role}
+              onActivityNextPage={() => {
+                if (!detailCase || !activityResponse) {
+                  return;
+                }
+
+                void loadActivity(
+                  detailCase.id,
+                  activityResponse.pagination.offset +
+                    activityResponse.pagination.limit,
+                );
+              }}
+              onActivityPreviousPage={() => {
+                if (!detailCase || !activityResponse) {
+                  return;
+                }
+
+                void loadActivity(
+                  detailCase.id,
+                  Math.max(
+                    0,
+                    activityResponse.pagination.offset -
+                      activityResponse.pagination.limit,
+                  ),
+                );
+              }}
+              onActivityRetry={() => {
+                if (detailCase) {
+                  void loadActivity(
+                    detailCase.id,
+                    activityResponse?.pagination.offset ?? 0,
+                  );
+                }
+              }}
               onBack={() => setView({ name: "list" })}
+              onMetadataUpdate={handleMetadataUpdate}
+              onReloadLatest={reloadLatestCase}
               onRetry={() => void loadCaseDetail(view.caseId)}
+              onStatusUpdate={handleStatusUpdate}
             />
           )}
         </div>
@@ -321,10 +504,12 @@ export function App({
 
   useEffect(() => {
     let active = true;
+    let loadedAllowSignup = false;
 
     async function initialize() {
       try {
         const capabilities = await loadCapabilities();
+        loadedAllowSignup = capabilities.signup_enabled;
 
         if (!active) {
           return;
@@ -357,8 +542,19 @@ export function App({
         );
       } catch (loadError) {
         if (active) {
-          setError(getErrorMessage(loadError));
-          setAuthState({ status: "signed-out", allowSignup: false });
+          if (
+            loadError instanceof CaseApiError &&
+            loadError.kind === "unauthorized"
+          ) {
+            setAuthState({
+              status: "session-expired",
+              allowSignup: loadedAllowSignup,
+            });
+            setMode("sign-in");
+          } else {
+            setError(getErrorMessage(loadError));
+            setAuthState({ status: "signed-out", allowSignup: false });
+          }
         }
       }
     }
@@ -398,7 +594,14 @@ export function App({
 
       setAuthState({ status: "signed-in", user });
     } catch (submitError) {
-      setError(getErrorMessage(submitError));
+      if (
+        submitError instanceof CaseApiError &&
+        submitError.kind === "unauthorized"
+      ) {
+        handleSessionExpired();
+      } else {
+        setError(getErrorMessage(submitError));
+      }
     } finally {
       setSubmitting(false);
     }

@@ -1,13 +1,18 @@
 import type {
+  CaseActivityResponse,
   CaseDto,
   CaseListResponse,
   CreateCaseInput,
+  UpdateCaseMetadataInput,
+  UpdateCaseStatusInput,
 } from "../types/cases";
 
 export type CaseApiErrorKind =
   | "unauthorized"
+  | "forbidden"
   | "validation"
   | "not-found"
+  | "conflict"
   | "server"
   | "network";
 
@@ -51,12 +56,20 @@ function classifyStatus(status: number): CaseApiErrorKind {
     return "unauthorized";
   }
 
-  if (status === 400 || status === 403 || status === 415) {
-    return "validation";
+  if (status === 403) {
+    return "forbidden";
   }
 
   if (status === 404) {
     return "not-found";
+  }
+
+  if (status === 409) {
+    return "conflict";
+  }
+
+  if (status === 400 || status === 415) {
+    return "validation";
   }
 
   return "server";
@@ -68,8 +81,12 @@ function fallbackMessage(kind: CaseApiErrorKind): string {
       return "Your session expired. Sign in again.";
     case "validation":
       return "The case data could not be accepted. Review the fields and try again.";
+    case "forbidden":
+      return "You do not have permission to perform this case action.";
     case "not-found":
       return "The case was not found or is no longer available.";
+    case "conflict":
+      return "Someone or another request updated this case. Reload the latest version before trying again.";
     case "network":
       return "The network request could not be completed.";
     case "server":
@@ -188,4 +205,83 @@ export async function createCase(input: CreateCaseInput): Promise<CaseDto> {
 
 export async function getCase(caseId: string): Promise<CaseDto> {
   return requestJson<CaseDto>(`/api/v1/cases/${encodeURIComponent(caseId)}`);
+}
+
+export async function updateCaseMetadata(
+  caseId: string,
+  input: UpdateCaseMetadataInput,
+): Promise<CaseDto> {
+  const body: UpdateCaseMetadataInput = {
+    expected_version: input.expected_version,
+  };
+
+  for (const field of [
+    "project_name",
+    "client_name",
+    "address",
+    "city",
+    "jurisdiction",
+  ] as const) {
+    if (input[field] !== undefined) {
+      body[field] = input[field];
+    }
+  }
+
+  if (input.permit_number !== undefined) {
+    body.permit_number = input.permit_number;
+  }
+
+  return requestJson<CaseDto>(`/api/v1/cases/${encodeURIComponent(caseId)}`, {
+    method: "PATCH",
+    headers: {
+      "content-type": "application/json",
+    },
+    body: JSON.stringify(body),
+  });
+}
+
+export async function updateCaseStatus(
+  caseId: string,
+  input: UpdateCaseStatusInput,
+): Promise<CaseDto> {
+  const body: UpdateCaseStatusInput = {
+    expected_version: input.expected_version,
+    current_status: input.current_status,
+  };
+
+  return requestJson<CaseDto>(
+    `/api/v1/cases/${encodeURIComponent(caseId)}/status`,
+    {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+      },
+      body: JSON.stringify(body),
+    },
+  );
+}
+
+export async function listCaseActivity(
+  caseId: string,
+  options: {
+    limit?: number;
+    offset?: number;
+  } = {},
+): Promise<CaseActivityResponse> {
+  const searchParams = new URLSearchParams();
+  const limit =
+    typeof options.limit === "number"
+      ? Math.min(Math.max(Math.trunc(options.limit), 1), 50)
+      : 20;
+  const offset =
+    typeof options.offset === "number"
+      ? Math.min(Math.max(Math.trunc(options.offset), 0), 10_000)
+      : 0;
+
+  searchParams.set("limit", String(limit));
+  searchParams.set("offset", String(offset));
+
+  return requestJson<CaseActivityResponse>(
+    `/api/v1/cases/${encodeURIComponent(caseId)}/activity?${searchParams.toString()}`,
+  );
 }

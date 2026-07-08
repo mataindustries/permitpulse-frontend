@@ -402,20 +402,72 @@ dd {
   gap: 1.2rem;
 }
 
-.case-detail__summary {
+.detail-section {
   display: grid;
-  gap: 0.75rem;
-  justify-items: start;
-  border-bottom: 1px solid #263750;
-  padding-bottom: 1rem;
+  gap: 1rem;
+  border: 1px solid #334764;
+  border-radius: 0.5rem;
+  background: #111c2b;
+  padding: 1rem;
 }
 
-.case-detail__summary p {
+.detail-section p {
+  margin-bottom: 0;
+}
+
+.section-heading,
+.activity-item__header {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: start;
+  justify-content: space-between;
+}
+
+.section-heading .eyebrow,
+.section-heading h3 {
   margin-bottom: 0;
 }
 
 .detail-grid {
   grid-template-columns: 1fr;
+}
+
+.status-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.confirmation-box {
+  background: #17283d;
+}
+
+.activity-list {
+  display: grid;
+  gap: 0.75rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.activity-item {
+  display: grid;
+  gap: 0.45rem;
+  border-left: 3px solid #d8aa4e;
+  border-radius: 0.25rem;
+  background: #0f1b2b;
+  padding: 0.85rem;
+}
+
+.activity-item p {
+  margin-bottom: 0;
+}
+
+.activity-item time {
+  color: #aab7ca;
+  font-size: 0.86rem;
+  font-weight: 700;
 }
 
 .pagination {
@@ -473,6 +525,10 @@ dd {
   .form-grid,
   .detail-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .status-options button {
+    flex: 0 1 auto;
   }
 }
 

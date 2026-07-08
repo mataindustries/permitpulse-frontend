@@ -4,12 +4,24 @@ import {
   CaseApiError,
   createCase,
   getCase,
+  listCaseActivity,
   listCases,
+  updateCaseMetadata,
+  updateCaseStatus,
 } from "../src/client/api/cases";
 import { App, type AuthState } from "../src/client/App";
-import { CaseDetail } from "../src/client/components/CaseDetail";
+import { CaseActivity } from "../src/client/components/CaseActivity";
+import {
+  CaseDetail,
+  ConflictNotice,
+} from "../src/client/components/CaseDetail";
 import { CaseList } from "../src/client/components/CaseList";
 import { CreateCaseForm } from "../src/client/components/CreateCaseForm";
+import { EditCaseForm } from "../src/client/components/EditCaseForm";
+import {
+  StatusManagement,
+  validNextStatuses,
+} from "../src/client/components/StatusManagement";
 import type { CaseDto, CreateCaseInput } from "../src/client/types/cases";
 
 const safeCase: CaseDto = {
@@ -32,7 +44,29 @@ const signedInState: AuthState = {
     id: "fictional-user",
     email: "avery@example.test",
     name: "Avery Example",
+    role: "client",
   },
+};
+
+const defaultDetailProps = {
+  activityError: "",
+  activityLoading: false,
+  activityResponse: {
+    activity: [],
+    pagination: { limit: 10, offset: 0 },
+    order: "created_at_desc" as const,
+  },
+  error: "",
+  loading: false,
+  role: "client" as const,
+  onActivityNextPage: () => undefined,
+  onActivityPreviousPage: () => undefined,
+  onActivityRetry: () => undefined,
+  onBack: () => undefined,
+  onMetadataUpdate: async () => undefined,
+  onReloadLatest: async () => undefined,
+  onRetry: () => undefined,
+  onStatusUpdate: async () => undefined,
 };
 
 function okJson(data: unknown, status = 200): Response {
@@ -100,7 +134,14 @@ describe("workspace authentication UI states", () => {
       <App
         initialAuthState={{
           status: "signing-out",
-          user: signedInState.user,
+          user:
+            signedInState.status === "signed-in"
+              ? signedInState.user
+              : {
+                  id: "fictional-user",
+                  email: "avery@example.test",
+                  role: "client",
+                },
         }}
       />,
     );
@@ -218,6 +259,113 @@ describe("case API client", () => {
     await expect(getCase(safeCase.id)).rejects.toMatchObject({
       kind: "not-found",
       status: 404,
+    });
+  });
+
+  it("submits only permitted metadata update fields with expected_version", async () => {
+    let submittedBody = "";
+    const fetchMock = vi.fn((_path: string, init?: RequestInit) => {
+      submittedBody = String(init?.body ?? "");
+      return Promise.resolve(okJson({ ...safeCase, version: 2 }));
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    await updateCaseMetadata(safeCase.id, {
+      expected_version: 1,
+      project_name: "Fictional Updated ADU",
+      permit_number: null,
+      current_status: "researching",
+      owner_user_id: "not-allowed",
+    } as Parameters<typeof updateCaseMetadata>[1] & Record<string, unknown>);
+
+    expect(fetchMock).toHaveBeenCalledWith(
+      `/api/v1/cases/${safeCase.id}`,
+      expect.objectContaining({ method: "PATCH" }),
+    );
+    expect(JSON.parse(submittedBody)).toEqual({
+      expected_version: 1,
+      project_name: "Fictional Updated ADU",
+      permit_number: null,
+    });
+    expect(submittedBody).not.toContain("current_status");
+    expect(submittedBody).not.toContain("owner_user_id");
+  });
+
+  it("submits status transitions with expected_version and current_status only", async () => {
+    let submittedBody = "";
+    vi.stubGlobal(
+      "fetch",
+      vi.fn((_path: string, init?: RequestInit) => {
+        submittedBody = String(init?.body ?? "");
+        return Promise.resolve(okJson({ ...safeCase, current_status: "researching" }));
+      }),
+    );
+
+    await updateCaseStatus(safeCase.id, {
+      expected_version: 1,
+      current_status: "researching",
+      role: "admin",
+    } as Parameters<typeof updateCaseStatus>[1] & Record<string, unknown>);
+
+    expect(JSON.parse(submittedBody)).toEqual({
+      expected_version: 1,
+      current_status: "researching",
+    });
+    expect(submittedBody).not.toContain("role");
+  });
+
+  it("requests activity with bounded pagination", async () => {
+    const fetchMock = vi.fn(() =>
+      Promise.resolve(
+        okJson({
+          activity: [],
+          pagination: { limit: 50, offset: 10000 },
+          order: "created_at_desc",
+        }),
+      ),
+    );
+    vi.stubGlobal("fetch", fetchMock);
+
+    await listCaseActivity(safeCase.id, { limit: 500, offset: 99999 });
+
+    expect(fetchMock).toHaveBeenCalledWith(
+      `/api/v1/cases/${safeCase.id}/activity?limit=50&offset=10000`,
+      expect.objectContaining({ credentials: "same-origin" }),
+    );
+  });
+
+  it("maps conflict and forbidden responses", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi
+        .fn()
+        .mockResolvedValueOnce(
+          errorJson(409, "STALE_VERSION", "The case version is stale."),
+        )
+        .mockResolvedValueOnce(
+          errorJson(403, "FORBIDDEN", "The request is not allowed."),
+        ),
+    );
+
+    await expect(
+      updateCaseMetadata(safeCase.id, {
+        expected_version: 1,
+        project_name: "Fictional Updated ADU",
+      }),
+    ).rejects.toMatchObject({
+      kind: "conflict",
+      status: 409,
+      code: "STALE_VERSION",
+    });
+    await expect(
+      updateCaseStatus(safeCase.id, {
+        expected_version: 1,
+        current_status: "researching",
+      }),
+    ).rejects.toMatchObject({
+      kind: "forbidden",
+      status: 403,
+      code: "FORBIDDEN",
     });
   });
 });
@@ -339,25 +487,22 @@ describe("case workspace components", () => {
   it("renders safe case detail, 404 state, and back action", () => {
     const detailMarkup = renderToStaticMarkup(
       <CaseDetail
+        {...defaultDetailProps}
         caseRecord={safeCase}
-        error=""
-        loading={false}
-        onBack={() => undefined}
-        onRetry={() => undefined}
       />,
     );
     const notFoundMarkup = renderToStaticMarkup(
       <CaseDetail
+        {...defaultDetailProps}
         caseRecord={null}
         error="The case was not found or is no longer available."
-        loading={false}
-        onBack={() => undefined}
-        onRetry={() => undefined}
       />,
     );
 
     expect(detailMarkup).toContain("Fictional Oak Street ADU");
-    expect(detailMarkup).toContain("Editing and evidence tools are not available");
+    expect(detailMarkup).toContain("Case overview");
+    expect(detailMarkup).toContain("Edit details");
+    expect(detailMarkup).toContain("Immutable case activity");
     expect(detailMarkup).not.toContain("participant");
     expect(notFoundMarkup).toContain("Case unavailable");
     expect(notFoundMarkup).toContain("Back to list");
@@ -366,11 +511,8 @@ describe("case workspace components", () => {
   it("does not render workspace-sensitive internals", () => {
     const markup = renderToStaticMarkup(
       <CaseDetail
+        {...defaultDetailProps}
         caseRecord={safeCase}
-        error=""
-        loading={false}
-        onBack={() => undefined}
-        onRetry={() => undefined}
       />,
     ).toLowerCase();
 
@@ -379,5 +521,170 @@ describe("case workspace components", () => {
     expect(markup).not.toContain("authorization");
     expect(markup).not.toContain("account");
     expect(markup).not.toContain("user_id");
+  });
+
+  it("renders the edit form prepopulated with safe editable fields", () => {
+    const markup = renderToStaticMarkup(
+      <EditCaseForm
+        caseRecord={safeCase}
+        error=""
+        submitting={false}
+        onCancel={() => undefined}
+        onSubmit={async () => undefined}
+      />,
+    );
+
+    expect(markup).toContain('name="project_name"');
+    expect(markup).toContain('value="Fictional Oak Street ADU"');
+    expect(markup).toContain('name="permit_number"');
+    expect(markup).not.toContain("current_status");
+    expect(markup).not.toContain("owner_user_id");
+  });
+
+  it("shows duplicate edit submission and server validation states", () => {
+    const markup = renderToStaticMarkup(
+      <EditCaseForm
+        caseRecord={safeCase}
+        error="The case update is invalid."
+        submitting={true}
+        onCancel={() => undefined}
+        onSubmit={async () => undefined}
+      />,
+    );
+
+    expect(markup).toContain("Saving...");
+    expect(markup).toContain("disabled");
+    expect(markup).toContain("The case update is invalid.");
+  });
+
+  it("renders admin status controls with only valid transitions", () => {
+    const markup = renderToStaticMarkup(
+      <StatusManagement
+        caseRecord={safeCase}
+        error=""
+        submitting={false}
+        onSubmit={async () => undefined}
+      />,
+    );
+
+    expect(validNextStatuses("intake")).toEqual([
+      "researching",
+      "needs_information",
+    ]);
+    expect(markup).toContain("Researching");
+    expect(markup).toContain("Needs information");
+    expect(markup).not.toContain("Ready for review");
+  });
+
+  it("does not render status controls for clients", () => {
+    const markup = renderToStaticMarkup(
+      <CaseDetail
+        {...defaultDetailProps}
+        caseRecord={safeCase}
+        role="client"
+      />,
+    );
+
+    expect(markup).not.toContain("Administrator status controls");
+  });
+
+  it("renders status controls for admins", () => {
+    const markup = renderToStaticMarkup(
+      <CaseDetail
+        {...defaultDetailProps}
+        caseRecord={safeCase}
+        role="admin"
+      />,
+    );
+
+    expect(markup).toContain("Administrator status controls");
+  });
+
+  it("renders the shared stale-version conflict actions", () => {
+    const markup = renderToStaticMarkup(
+      <ConflictNotice
+        onCancel={() => undefined}
+        onReload={async () => undefined}
+      />,
+    );
+
+    expect(markup).toContain(
+      "Someone or another request updated this case. Reload the latest version before trying again.",
+    );
+    expect(markup).toContain("Reload latest case");
+    expect(markup).toContain("Cancel");
+  });
+
+  it("renders activity loading, empty, events, retry, and pagination states safely", () => {
+    const loadingMarkup = renderToStaticMarkup(
+      <CaseActivity
+        error=""
+        loading={true}
+        response={null}
+        onNextPage={() => undefined}
+        onPreviousPage={() => undefined}
+        onRetry={() => undefined}
+      />,
+    );
+    const emptyMarkup = renderToStaticMarkup(
+      <CaseActivity
+        error=""
+        loading={false}
+        response={{
+          activity: [],
+          pagination: { limit: 10, offset: 0 },
+          order: "created_at_desc",
+        }}
+        onNextPage={() => undefined}
+        onPreviousPage={() => undefined}
+        onRetry={() => undefined}
+      />,
+    );
+    const eventMarkup = renderToStaticMarkup(
+      <CaseActivity
+        error=""
+        loading={false}
+        response={{
+          activity: [
+            {
+              id: "activity-1",
+              action: "case_status_changed",
+              changed_fields: ["current_status", "actor_user_id"],
+              from_status: "intake",
+              to_status: "researching",
+              actor: { id: "user-1", name: "Avery Example" },
+              created_at: "2026-01-03T00:00:00.000Z",
+            },
+          ],
+          pagination: { limit: 1, offset: 1 },
+          order: "created_at_desc",
+        }}
+        onNextPage={() => undefined}
+        onPreviousPage={() => undefined}
+        onRetry={() => undefined}
+      />,
+    ).toLowerCase();
+    const errorMarkup = renderToStaticMarkup(
+      <CaseActivity
+        error="The network request could not be completed."
+        loading={false}
+        response={null}
+        onNextPage={() => undefined}
+        onPreviousPage={() => undefined}
+        onRetry={() => undefined}
+      />,
+    );
+
+    expect(loadingMarkup).toContain("Loading case activity");
+    expect(emptyMarkup).toContain("No activity yet");
+    expect(eventMarkup).toContain("status changed");
+    expect(eventMarkup).toContain("avery example");
+    expect(eventMarkup).toContain("intake to researching");
+    expect(eventMarkup).toContain("previous");
+    expect(eventMarkup).not.toContain("actor_user_id");
+    expect(eventMarkup).not.toContain("session");
+    expect(eventMarkup).not.toContain("token");
+    expect(errorMarkup).toContain("Activity could not be loaded");
+    expect(errorMarkup).toContain("Retry");
   });
 });

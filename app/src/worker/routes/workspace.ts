@@ -27,6 +27,7 @@ workspaceRoutes.get("/", (context) => {
         id: user.id,
         email: user.email,
         ...(user.name ? { name: user.name } : {}),
+        role: user.role,
       },
     },
   });

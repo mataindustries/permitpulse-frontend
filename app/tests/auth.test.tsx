@@ -598,7 +598,7 @@ describe("protected workspace", () => {
     });
   });
 
-  it("returns only the safe workspace user DTO when authenticated", async () => {
+  it("returns only the safe client workspace user DTO when authenticated", async () => {
     const signupResponse = await signUp();
     const signupBody = await signupResponse.json<{
       user: { id: string };
@@ -608,7 +608,16 @@ describe("protected workspace", () => {
     const response = await request("/api/workspace", {
       headers: { cookie },
     });
-    const body = await response.json();
+    const body = await response.json<{
+      data: {
+        user: {
+          id: string;
+          email: string;
+          name: string;
+          role: string;
+        };
+      };
+    }>();
 
     expect(response.status).toBe(200);
     expect(body).toEqual({
@@ -619,11 +628,52 @@ describe("protected workspace", () => {
           id: signupBody.user.id,
           email: fictionalAccount.email,
           name: fictionalAccount.name,
+          role: "client",
         },
       },
     });
-    expect(JSON.stringify(body)).not.toContain("token");
-    expect(JSON.stringify(body)).not.toContain("role");
+    const text = JSON.stringify(body).toLowerCase();
+
+    expect(text).not.toContain("token");
+    expect(text).not.toContain("password");
+    expect(text).not.toContain("cookie");
+    expect(text).not.toContain("session");
+    expect(text).not.toContain("account");
+    expect(text).not.toContain("banned");
+  });
+
+  it("returns the safe admin role from the protected workspace identity", async () => {
+    const signupResponse = await signUp(fictionalAdminAccount);
+    const signupBody = await signupResponse.json<{
+      user: { id: string };
+    }>();
+    const cookie = cookieFrom(signupResponse);
+
+    await env.DB.prepare('UPDATE "user" SET role = ? WHERE id = ?')
+      .bind("admin", signupBody.user.id)
+      .run();
+
+    const response = await request("/api/workspace", {
+      headers: { cookie },
+    });
+    const body = await response.json<{
+      data: {
+        user: {
+          id: string;
+          email: string;
+          name: string;
+          role: string;
+        };
+      };
+    }>();
+
+    expect(response.status).toBe(200);
+    expect(body.data.user).toEqual({
+      id: signupBody.user.id,
+      email: fictionalAdminAccount.email,
+      name: fictionalAdminAccount.name,
+      role: "admin",
+    });
   });
 });
 

@@ -6,13 +6,12 @@ PermitPulse site in `../dist`, Pages Functions in `../functions`, or the
 existing Worker in `../workers/pp-api`.
 
 The current local frontend milestone provides email/password authentication,
-database-backed sessions, sign-out, and the first usable authenticated React
-workspace for listing, creating, and reading case details through the protected
-case API. The backend also supports validated metadata edits, admin-only status
-transitions, optimistic concurrency, and immutable case activity. The React UI
-does not expose lifecycle controls yet and there is still no participant
-assignment, file upload, evidence record, timeline, PDF generation, AI, billing,
-email delivery, OAuth, or production authentication.
+database-backed sessions, sign-out, and a usable authenticated React workspace
+for listing, creating, reading, editing, and reviewing case lifecycle activity
+through the protected case API. Administrators also get role-aware status
+transition controls. There is still no participant assignment, file upload,
+evidence record, timeline notes, PDF generation, AI, billing, email delivery,
+OAuth, user-management UI, or production authentication.
 
 ## Requirements and bindings
 
@@ -112,7 +111,14 @@ When any workspace case API call returns `401`, the UI clears the signed-in
 workspace state, returns to the sign-in form, and shows `Your session expired.
 Sign in again.` It does not retry the unauthorized request.
 
-## Create, list, and detail flow
+The browser confirms the Better Auth session first, then fetches
+`GET /api/workspace` for the protected workspace identity. The safe user DTO
+contains only `id`, `email`, optional `name`, and `role` (`client` or `admin`).
+The client uses that server-sourced role for UI controls and does not trust
+local storage, URL parameters, form fields, hardcoded roles, or hidden Better
+Auth user fields.
+
+## Create, list, detail, and edit flow
 
 The case workspace uses only the existing protected `/api/v1/cases` routes:
 
@@ -122,6 +128,11 @@ The case workspace uses only the existing protected `/api/v1/cases` routes:
    `project_name`, `client_name`, `address`, `city`, `jurisdiction`,
    `permit_number`, and `current_status`.
 3. `GET /api/v1/cases/:caseId` opens a case detail panel.
+4. `PATCH /api/v1/cases/:caseId` edits case metadata with
+   `expected_version`.
+5. `POST /api/v1/cases/:caseId/status` changes status for administrators only.
+6. `GET /api/v1/cases/:caseId/activity?limit=10&offset=0` loads immutable
+   activity for the detail screen.
 
 The create form trims values client-side for usability, keeps the server as the
 source of truth, disables duplicate submission, preserves entered data after
@@ -135,19 +146,56 @@ permit number, current status, last updated time, and an `Open details` action.
 The empty state offers a local fictional-case creation path. Pagination controls
 appear only when the current server response makes them useful.
 
-The backend detail DTO includes safe case fields only: project name, status,
-client name, address, city, jurisdiction, optional permit number, version,
-created time, and updated time. The current detail view still presents the
-read-only case summary and a restrained note that browser editing and evidence
-tools are not available yet.
+The detail view is split into Overview, Edit details, administrator-only Status
+management, and Activity sections. The detail DTO includes safe case fields
+only: project name, status, client name, address, city, jurisdiction, optional
+permit number, version, created time, and updated time.
+
+The edit form prepopulates from the latest `CaseDto`, trims entered values,
+requires meaningful required fields, sends only changed editable metadata
+fields, and submits blank permit numbers as `null`. It never sends
+`current_status`, ownership, participant, role, actor, timestamp, or internal
+fields through metadata PATCH. A successful edit updates the detail view,
+replaces the matching in-memory list item without reloading an unbounded list,
+shows a concise success message, reloads activity, and uses the returned
+incremented version for future mutations. Server validation errors leave the
+entered form values in place.
+
+Administrators see only valid next status transitions:
+
+| From | Allowed to |
+| --- | --- |
+| `intake` | `researching`, `needs_information` |
+| `researching` | `needs_information`, `ready_for_review` |
+| `needs_information` | `researching`, `ready_for_review` |
+| `ready_for_review` | `researching` |
+
+Clients do not see disabled or fake administrator controls. This is only a UX
+boundary; the backend remains authoritative and continues to reject client
+status transitions.
+
+Activity is loaded when a detail opens and after successful edits or status
+changes. It is newest-first, bounded by `limit` and `offset`, and displays only
+public action labels, safe actor names when available, event times, changed
+public fields, and status from/to values. The UI includes loading, empty, retry,
+and pagination states and does not fabricate missing audit history.
+
+Metadata edits and status changes use optimistic concurrency. If the server
+returns `409 STALE_VERSION`, the UI shows:
+
+```text
+Someone or another request updated this case. Reload the latest version before trying again.
+```
+
+The conflict state offers `Reload latest case` and `Cancel`. It does not
+automatically overwrite or resubmit user input, and it creates no client-side
+audit event. Reload fetches the latest detail DTO and activity; the next
+mutation uses the refreshed `version`.
 
 ## Current UI limitations
 
 - Administrator-created cases are unassigned and admin-only under the current
   backend design.
-- There is backend support for case metadata editing, admin-only status
-  transitions, optimistic concurrency, and case activity, but no browser UI for
-  those lifecycle controls yet.
 - There is no deletion, participant assignment, evidence, timeline, upload,
   PDF, AI, email, billing, OAuth, or admin user management UI.
 - Browser back-button support and deep-link case routing are intentionally out
@@ -459,8 +507,16 @@ Then open the local URL shown by Vite, usually `http://localhost:5173`:
 3. Create a fictional case such as `Fictional Oak Street ADU`.
 4. Confirm the success message appears, the list refreshes, and the case detail
    opens.
-5. Refresh the browser and confirm the valid session still opens the workspace.
-6. Sign out and confirm the protected workspace no longer appears.
+5. Open Edit details, change one metadata field, save, and confirm the detail,
+   list row, version, and Activity section update.
+6. Clear the optional permit number and confirm it displays as `Not provided`.
+7. With a local admin fixture, confirm Status management shows only valid next
+   statuses and requires confirmation before changing status.
+8. To verify stale-version behavior locally, open the same case in two browser
+   tabs, edit or transition it in the first tab, then submit from the second tab
+   and confirm the conflict message and `Reload latest case` behavior.
+9. Refresh the browser and confirm the valid session still opens the workspace.
+10. Sign out and confirm the protected workspace no longer appears.
 
 Preview deployment, preview D1 migration, preview auth enablement, and preview
 administrator bootstrap remain separate reviewed steps.
