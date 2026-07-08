@@ -1422,7 +1422,7 @@ describe("case workspace components", () => {
     );
 
     expect(markup).toContain("Draft permit packet");
-    expect(markup).toContain("Draft packet preview - verify before sending.");
+    expect(markup).toContain("Draft packet preview — verify before sending");
     expect(markup).toContain("Fictional Oak Street ADU");
     expect(markup).toContain("Exampleville Building");
     expect(markup).toContain("EX-2026-001");
@@ -1559,7 +1559,7 @@ describe("case workspace components", () => {
     const lower = text.toLowerCase();
 
     expect(text).toContain("Generated: 2026-02-03T04:05:06.000Z");
-    expect(text).toContain("Draft packet preview - verify before sending.");
+    expect(text).toContain("Draft packet preview — verify before sending");
     expect(text).toContain("Project: Fictional Oak Street ADU");
     expect(text).toContain("Verification: Unverified - Unverified evidence. Do not treat as confirmed.");
     expect(text).toContain("Linked evidence: Fictional plan check notice");

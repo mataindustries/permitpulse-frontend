@@ -11,10 +11,11 @@ for listing, creating, reading, editing, and reviewing case lifecycle activity
 through the protected case API. Administrators also get role-aware status
 transition controls. The browser workspace now also exposes local-only
 structured evidence, provenance, verification state, canonical timeline
-records, timeline-to-evidence links, and a first local-only Packet Builder
-preview through protected APIs. There is still no participant assignment, file
-upload, PDF generation, AI, billing, email delivery, OAuth, user-management UI,
-or production authentication.
+records, timeline-to-evidence links, a first local-only Packet Builder preview,
+and a shared local-only Packet Renderer foundation through protected APIs.
+There is still no participant assignment, file upload, PDF generation, AI,
+billing, email delivery, OAuth, user-management UI, or production
+authentication.
 
 ## Requirements and bindings
 
@@ -242,9 +243,10 @@ timeline events from lifecycle audit activity.
 
 Packet preview behavior:
 
-1. The Packet preview tab compiles the currently loaded case overview, current
-   status, jurisdiction, permit number, case version, evidence page, permit
-   timeline page, and recent activity page into a structured review draft.
+1. The Packet preview tab builds a shared deterministic `PacketModel` from the
+   currently loaded safe DTOs: case overview, current status, jurisdiction,
+   permit number, case version, evidence page, permit timeline page, and recent
+   activity page.
 2. The preview renders Packet header, Project summary, Current permit status,
    Key evidence, Permit timeline, Recent case activity, Open questions /
    missing information, Recommended next actions, and Disclaimer / internal
@@ -261,10 +263,34 @@ Packet preview behavior:
 6. Stored case, evidence, timeline, and activity strings are rendered as React
    text, never as HTML.
 
+Packet Renderer foundation:
+
+- Shared packet code lives under `src/shared/packet/` so it can later be reused
+  outside the React Packet preview.
+- `buildPacketModel` copies only whitelisted fields from existing safe DTOs. It
+  does not copy raw auth/session/account/token fields, hidden database
+  internals, contributor IDs, or arbitrary extra properties.
+- Evidence, timeline, and recent activity records are sorted deterministically
+  before rendering. Missing evidence, timeline, and activity sections render
+  explicit empty-state text instead of invented records.
+- `renderPacketText` emits clean plain text with generated timestamp, section
+  headings, verification labels, timeline canonical/contributed labels, source
+  label/URL/date when present, placeholders, and the internal-review disclaimer.
+- `renderPacketHtml` emits a deterministic print-friendly HTML document string
+  for future PDF work. It escapes stored text, never renders stored text as raw
+  HTML, uses no script tags, uses no external scripts, and only turns
+  `http`/`https` source URLs into links.
+- Current limitation: there is no PDF generation yet. The future path is to pass
+  the deterministic PacketModel through the safe HTML renderer, then render that
+  HTML in a server-side PDF service after approval, packet-versioning, storage,
+  and authorization are implemented.
+- Current limitation: there is no AI yet. Open questions and recommended next
+  actions remain reviewer-written placeholders.
+
 Copy-to-clipboard behavior:
 
 - `Copy packet text` generates a plain-text draft with a generated timestamp
-  and the note `Draft packet preview - verify before sending.`
+  and the note `Draft packet preview — verify before sending`
 - The copied text contains no HTML and omits auth/session/account/token fields.
 - Clipboard success and failure both produce visible feedback. If browser
   clipboard access is unavailable or denied, the UI shows a safe fallback
