@@ -9,11 +9,11 @@ The current local frontend milestone provides email/password authentication,
 database-backed sessions, sign-out, and a usable authenticated React workspace
 for listing, creating, reading, editing, and reviewing case lifecycle activity
 through the protected case API. Administrators also get role-aware status
-transition controls. The backend now also exposes local-only structured
-evidence, provenance, verification state, canonical timeline records, and
-timeline-to-evidence links through protected APIs. There is still no
-participant assignment, evidence UI, file upload, PDF generation, AI, billing,
-email delivery, OAuth, user-management UI, or production authentication.
+transition controls. The browser workspace now also exposes local-only
+structured evidence, provenance, verification state, canonical timeline
+records, and timeline-to-evidence links through protected APIs. There is still
+no participant assignment, file upload, PDF generation, AI, billing, email
+delivery, OAuth, user-management UI, or production authentication.
 
 ## Requirements and bindings
 
@@ -197,16 +197,84 @@ automatically overwrite or resubmit user input, and it creates no client-side
 audit event. Reload fetches the latest detail DTO and activity; the next
 mutation uses the refreshed `version`.
 
+## Evidence and permit timeline browser workflows
+
+The case detail workspace uses lightweight tabs for Overview, Evidence, Permit
+timeline, and Activity. Switching tabs keeps the loaded case in memory and does
+not reload an unbounded case list.
+
+Evidence tab behavior:
+
+1. `GET /api/v1/cases/:caseId/evidence?limit=10&offset=0` loads a bounded,
+   deterministic evidence page when case detail opens.
+2. `POST /api/v1/cases/:caseId/evidence` adds structured evidence with only
+   `evidence_type`, `title`, `summary`, optional `source_url`, optional
+   `source_label`, and optional `source_date`.
+3. `PATCH /api/v1/cases/:caseId/evidence/:evidenceId` edits only changed
+   permitted fields with `expected_version`.
+4. Admins may also update `verification_status` to `unverified`, `verified`, or
+   `disputed`. Clients do not see verification controls.
+
+Evidence source links render only when the URL is an absolute `http` or
+`https` URL. Malformed URLs and `javascript:`, `data:`, or `file:` values are
+shown as text only. New evidence is displayed as `Unverified`; the UI does not
+claim a source is confirmed unless an administrator marks the evidence verified.
+
+Permit timeline tab behavior:
+
+1. `GET /api/v1/cases/:caseId/timeline?limit=10&offset=0` loads a bounded,
+   deterministic timeline page newest occurred date first.
+2. `POST /api/v1/cases/:caseId/timeline` adds one timeline entry with
+   `occurred_on`, `timeline_type`, `title`, `details`, optional admin-only
+   `is_canonical`, and optional bounded unique `evidence_ids`.
+3. `PATCH /api/v1/cases/:caseId/timeline/:timelineId` edits only timeline
+   fields with `expected_version`; evidence links are never changed through
+   PATCH.
+4. Admins may create or edit canonical entries. Clients can create only
+   non-canonical entries and can edit only their own non-canonical entries when
+   safe DTO ownership proves that relationship.
+
+Timeline entries display canonical versus contributed state, contributor,
+occurred date, updated date, details, and supporting evidence. Timeline records
+and immutable case Activity are separate concepts; the UI does not fabricate
+timeline events from lifecycle audit activity.
+
+Link and unlink behavior:
+
+- Link controls use
+  `POST /api/v1/cases/:caseId/timeline/:timelineId/evidence`.
+- Unlink controls require confirmation and use
+  `DELETE /api/v1/cases/:caseId/timeline/:timelineId/evidence/:evidenceId`.
+- Already-linked evidence is omitted from link choices.
+- Removing a link deletes only the relationship; it does not delete the
+  evidence item or timeline entry.
+- Duplicate-link, authorization, and missing-record errors are displayed as
+  safe server messages.
+
+Evidence and timeline record edits use optimistic concurrency. If the server
+returns `409 STALE_VERSION`, the UI shows:
+
+```text
+Someone or another request updated this record. Reload the latest version before trying again.
+```
+
+The conflict state offers `Reload latest` and `Cancel`. It does not overwrite,
+resubmit, fabricate history, or discard the user's unsaved values until the user
+chooses an action. Reload fetches the latest DTO for that evidence item or
+timeline entry; the next mutation uses the refreshed `version`.
+
 ## Current UI limitations
 
 - Administrator-created cases are unassigned and admin-only under the current
   backend design.
-- There is no deletion, participant assignment, evidence UI, timeline UI,
-  upload, PDF, AI, email, billing, OAuth, or admin user management UI.
+- There is no deletion, participant assignment, file upload/R2, PDF generation,
+  AI, email, billing, OAuth, or admin user management UI.
+- Evidence records are structured metadata only; uploaded files are out of
+  scope.
 - Browser back-button support and deep-link case routing are intentionally out
   of scope for this milestone.
-- The workspace does not fabricate cases, analytics, authorization filters, or
-  permit outcomes.
+- The workspace does not fabricate cases, analytics, authorization filters,
+  evidence provenance, timeline entries, or permit outcomes.
 
 ## Later preview admin bootstrap procedure
 
@@ -447,9 +515,9 @@ Deletion and participant assignment are not implemented yet.
 ## Evidence and permit timeline API
 
 The structured evidence and timeline backend is available under the same
-authenticated `/api/v1/cases/:caseId` route tree. It is backend-only for this
-milestone; there are no visible React controls, uploads, PDF generation, AI, or
-file storage.
+authenticated `/api/v1/cases/:caseId` route tree. The current React workspace
+uses these routes for structured evidence and permit timeline controls. There
+are no uploads, PDF generation, AI, deletion controls, or file storage.
 
 Evidence records live in `evidence_items` and contain only structured metadata:
 `evidence_type`, `title`, `summary`, optional `source_url`, optional
@@ -668,11 +736,26 @@ Then open the local URL shown by Vite, usually `http://localhost:5173`:
 6. Clear the optional permit number and confirm it displays as `Not provided`.
 7. With a local admin fixture, confirm Status management shows only valid next
    statuses and requires confirmation before changing status.
-8. To verify stale-version behavior locally, open the same case in two browser
+8. Open Evidence, add a fictional evidence item, and confirm it appears as
+   `Unverified`.
+9. Edit the evidence item, clear optional source values, and confirm the
+   returned version replaces the old version. With a local admin fixture,
+   confirm verification choices appear and that marking `Disputed` requires
+   confirmation.
+10. Open Permit timeline, add a fictional timeline entry, select supporting
+   evidence, and confirm the linked evidence appears on the entry.
+11. With a local admin fixture, confirm the canonical checkbox is available.
+   With a client account, confirm canonical controls are absent and canonical
+   entries cannot be edited.
+12. Select a timeline entry, link another eligible evidence item, then unlink it
+   and confirm only the relationship is removed.
+13. To verify stale-version behavior locally, open the same case in two browser
    tabs, edit or transition it in the first tab, then submit from the second tab
-   and confirm the conflict message and `Reload latest case` behavior.
-9. Refresh the browser and confirm the valid session still opens the workspace.
-10. Sign out and confirm the protected workspace no longer appears.
+   and confirm the case conflict message and `Reload latest case` behavior. Do
+   the same for one evidence or timeline record and confirm the record conflict
+   message and `Reload latest` behavior.
+14. Refresh the browser and confirm the valid session still opens the workspace.
+15. Sign out and confirm the protected workspace no longer appears.
 
 Preview deployment, preview D1 migration, preview auth enablement, and preview
 administrator bootstrap remain separate reviewed steps.

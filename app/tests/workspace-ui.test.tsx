@@ -14,15 +14,36 @@ import { CaseActivity } from "../src/client/components/CaseActivity";
 import {
   CaseDetail,
   ConflictNotice,
+  RecordConflictNotice,
 } from "../src/client/components/CaseDetail";
 import { CaseList } from "../src/client/components/CaseList";
 import { CreateCaseForm } from "../src/client/components/CreateCaseForm";
 import { EditCaseForm } from "../src/client/components/EditCaseForm";
+import { EvidenceDetail } from "../src/client/components/EvidenceDetail";
+import { EvidenceForm } from "../src/client/components/EvidenceForm";
+import { EvidenceLinkManager } from "../src/client/components/EvidenceLinkManager";
+import { EvidenceList } from "../src/client/components/EvidenceList";
 import {
   StatusManagement,
   validNextStatuses,
 } from "../src/client/components/StatusManagement";
+import { TimelineForm } from "../src/client/components/TimelineForm";
+import { TimelineList } from "../src/client/components/TimelineList";
+import {
+  createEvidence,
+  createTimelineEntry,
+  linkTimelineEvidence,
+  listEvidence,
+  listTimelineEntries,
+  updateEvidence,
+  updateTimelineEntry,
+  unlinkTimelineEvidence,
+} from "../src/client/api/evidence-timeline";
 import type { CaseDto, CreateCaseInput } from "../src/client/types/cases";
+import type {
+  EvidenceItemDto,
+  TimelineEntryDto,
+} from "../src/client/types/evidence-timeline";
 
 const safeCase: CaseDto = {
   id: "00000000-0000-4000-8000-000000000001",
@@ -48,6 +69,35 @@ const signedInState: AuthState = {
   },
 };
 
+const safeEvidence: EvidenceItemDto = {
+  id: "00000000-0000-4000-8000-000000000101",
+  evidence_type: "document",
+  title: "Fictional plan check notice",
+  summary: "Fictional notice from the permit portal.",
+  source_url: "https://example.test/notices/plan-check",
+  source_label: "Example portal",
+  source_date: "2026-01-15",
+  verification_status: "unverified",
+  contributor: { id: "fictional-user", name: "Avery Example" },
+  version: 1,
+  created_at: "2026-01-15T00:00:00.000Z",
+  updated_at: "2026-01-16T00:00:00.000Z",
+};
+
+const safeTimeline: TimelineEntryDto = {
+  id: "00000000-0000-4000-8000-000000000201",
+  occurred_on: "2026-01-20",
+  timeline_type: "submission",
+  title: "Fictional application submitted",
+  details: "The fictional application was submitted for review.",
+  is_canonical: false,
+  contributor: { id: "fictional-user", name: "Avery Example" },
+  evidence_ids: [safeEvidence.id],
+  version: 1,
+  created_at: "2026-01-20T00:00:00.000Z",
+  updated_at: "2026-01-21T00:00:00.000Z",
+};
+
 const defaultDetailProps = {
   activityError: "",
   activityLoading: false,
@@ -56,17 +106,51 @@ const defaultDetailProps = {
     pagination: { limit: 10, offset: 0 },
     order: "created_at_desc" as const,
   },
+  currentUserId: "fictional-user",
   error: "",
+  evidenceError: "",
+  evidenceLoading: false,
+  evidenceResponse: {
+    evidence: [safeEvidence],
+    pagination: { limit: 10, offset: 0 },
+    order: "source_date_desc_created_at_desc_id_desc" as const,
+  },
+  highlightedEvidenceId: null,
   loading: false,
   role: "client" as const,
+  selectedEvidenceId: safeEvidence.id,
+  selectedTimelineId: safeTimeline.id,
+  timelineError: "",
+  timelineLoading: false,
+  timelineResponse: {
+    timeline: [safeTimeline],
+    pagination: { limit: 10, offset: 0 },
+    order: "occurred_on_desc_created_at_desc_id_desc" as const,
+  },
   onActivityNextPage: () => undefined,
   onActivityPreviousPage: () => undefined,
   onActivityRetry: () => undefined,
   onBack: () => undefined,
+  onCreateEvidence: async () => safeEvidence,
+  onCreateTimeline: async () => safeTimeline,
+  onEvidenceNextPage: () => undefined,
+  onEvidencePreviousPage: () => undefined,
+  onEvidenceRetry: () => undefined,
+  onLinkEvidence: async () => safeTimeline,
   onMetadataUpdate: async () => undefined,
+  onReloadEvidence: async () => safeEvidence,
   onReloadLatest: async () => undefined,
+  onReloadTimeline: async () => safeTimeline,
   onRetry: () => undefined,
+  onSelectEvidence: () => undefined,
+  onSelectTimeline: () => undefined,
   onStatusUpdate: async () => undefined,
+  onTimelineNextPage: () => undefined,
+  onTimelinePreviousPage: () => undefined,
+  onTimelineRetry: () => undefined,
+  onUnlinkEvidence: async () => safeTimeline,
+  onUpdateEvidence: async () => safeEvidence,
+  onUpdateTimeline: async () => safeTimeline,
 };
 
 function okJson(data: unknown, status = 200): Response {
@@ -370,6 +454,223 @@ describe("case API client", () => {
   });
 });
 
+describe("evidence and timeline API client", () => {
+  it("creates evidence with permitted fields only", async () => {
+    let submittedBody = "";
+    const fetchMock = vi.fn((_path: string, init?: RequestInit) => {
+      submittedBody = String(init?.body ?? "");
+      return Promise.resolve(okJson(safeEvidence, 201));
+    });
+    vi.stubGlobal("fetch", fetchMock);
+
+    await createEvidence(safeCase.id, {
+      evidence_type: "document",
+      title: "Fictional notice",
+      summary: "Fictional summary",
+      source_url: "https://example.test/notice",
+      source_label: "Example",
+      source_date: "2026-01-15",
+      verification_status: "verified",
+      version: 99,
+      user_id: "not-allowed",
+    } as Parameters<typeof createEvidence>[1] & Record<string, unknown>);
+
+    expect(fetchMock).toHaveBeenCalledWith(
+      `/api/v1/cases/${safeCase.id}/evidence`,
+      expect.objectContaining({ method: "POST" }),
+    );
+    expect(JSON.parse(submittedBody)).toEqual({
+      evidence_type: "document",
+      title: "Fictional notice",
+      summary: "Fictional summary",
+      source_url: "https://example.test/notice",
+      source_label: "Example",
+      source_date: "2026-01-15",
+    });
+    expect(submittedBody).not.toContain("verification_status");
+    expect(submittedBody).not.toContain("user_id");
+  });
+
+  it("patches evidence with expected_version and changed permitted fields only", async () => {
+    let submittedBody = "";
+    vi.stubGlobal(
+      "fetch",
+      vi.fn((_path: string, init?: RequestInit) => {
+        submittedBody = String(init?.body ?? "");
+        return Promise.resolve(okJson({ ...safeEvidence, version: 2 }));
+      }),
+    );
+
+    await updateEvidence(safeCase.id, safeEvidence.id, {
+      expected_version: 1,
+      title: "Updated evidence",
+      source_url: null,
+      owner_user_id: "not-allowed",
+    } as Parameters<typeof updateEvidence>[2] & Record<string, unknown>);
+
+    expect(JSON.parse(submittedBody)).toEqual({
+      expected_version: 1,
+      title: "Updated evidence",
+      source_url: null,
+    });
+    expect(submittedBody).not.toContain("owner_user_id");
+  });
+
+  it("types admin evidence verification updates", async () => {
+    let submittedBody = "";
+    vi.stubGlobal(
+      "fetch",
+      vi.fn((_path: string, init?: RequestInit) => {
+        submittedBody = String(init?.body ?? "");
+        return Promise.resolve(
+          okJson({ ...safeEvidence, verification_status: "verified", version: 2 }),
+        );
+      }),
+    );
+
+    await updateEvidence(safeCase.id, safeEvidence.id, {
+      expected_version: 1,
+      verification_status: "verified",
+    });
+
+    expect(JSON.parse(submittedBody)).toEqual({
+      expected_version: 1,
+      verification_status: "verified",
+    });
+  });
+
+  it("creates timeline entries with permitted unique evidence IDs", async () => {
+    let submittedBody = "";
+    vi.stubGlobal(
+      "fetch",
+      vi.fn((_path: string, init?: RequestInit) => {
+        submittedBody = String(init?.body ?? "");
+        return Promise.resolve(okJson(safeTimeline, 201));
+      }),
+    );
+
+    await createTimelineEntry(safeCase.id, {
+      occurred_on: "2026-01-20",
+      timeline_type: "submission",
+      title: "Fictional submitted",
+      details: "Fictional details",
+      is_canonical: true,
+      evidence_ids: [safeEvidence.id, safeEvidence.id],
+      case_id: "not-allowed",
+    } as Parameters<typeof createTimelineEntry>[1] & Record<string, unknown>);
+
+    expect(JSON.parse(submittedBody)).toEqual({
+      occurred_on: "2026-01-20",
+      timeline_type: "submission",
+      title: "Fictional submitted",
+      details: "Fictional details",
+      is_canonical: true,
+      evidence_ids: [safeEvidence.id],
+    });
+    expect(submittedBody).not.toContain("case_id");
+  });
+
+  it("patches timeline entries without evidence links", async () => {
+    let submittedBody = "";
+    vi.stubGlobal(
+      "fetch",
+      vi.fn((_path: string, init?: RequestInit) => {
+        submittedBody = String(init?.body ?? "");
+        return Promise.resolve(okJson({ ...safeTimeline, version: 2 }));
+      }),
+    );
+
+    await updateTimelineEntry(safeCase.id, safeTimeline.id, {
+      expected_version: 1,
+      title: "Updated timeline",
+      evidence_ids: [safeEvidence.id],
+    } as Parameters<typeof updateTimelineEntry>[2] & Record<string, unknown>);
+
+    expect(JSON.parse(submittedBody)).toEqual({
+      expected_version: 1,
+      title: "Updated timeline",
+    });
+    expect(submittedBody).not.toContain("evidence_ids");
+  });
+
+  it("uses dedicated link and unlink paths", async () => {
+    const fetchMock = vi.fn(() => Promise.resolve(okJson(safeTimeline)));
+    vi.stubGlobal("fetch", fetchMock);
+
+    await linkTimelineEvidence(safeCase.id, safeTimeline.id, safeEvidence.id);
+    await unlinkTimelineEvidence(safeCase.id, safeTimeline.id, safeEvidence.id);
+
+    expect(fetchMock).toHaveBeenNthCalledWith(
+      1,
+      `/api/v1/cases/${safeCase.id}/timeline/${safeTimeline.id}/evidence`,
+      expect.objectContaining({
+        method: "POST",
+        body: JSON.stringify({ evidence_id: safeEvidence.id }),
+      }),
+    );
+    expect(fetchMock).toHaveBeenNthCalledWith(
+      2,
+      `/api/v1/cases/${safeCase.id}/timeline/${safeTimeline.id}/evidence/${safeEvidence.id}`,
+      expect.objectContaining({ method: "DELETE" }),
+    );
+  });
+
+  it("maps evidence/timeline conflict and forbidden responses", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi
+        .fn()
+        .mockResolvedValueOnce(
+          errorJson(409, "STALE_VERSION", "The record version is stale."),
+        )
+        .mockResolvedValueOnce(
+          errorJson(403, "FORBIDDEN", "The request is not allowed."),
+        ),
+    );
+
+    await expect(
+      updateEvidence(safeCase.id, safeEvidence.id, {
+        expected_version: 1,
+        title: "Updated",
+      }),
+    ).rejects.toMatchObject({ kind: "conflict", code: "STALE_VERSION" });
+    await expect(
+      updateTimelineEntry(safeCase.id, safeTimeline.id, {
+        expected_version: 1,
+        title: "Updated",
+      }),
+    ).rejects.toMatchObject({ kind: "forbidden", code: "FORBIDDEN" });
+  });
+
+  it("bounds evidence and timeline pagination requests", async () => {
+    const fetchMock = vi.fn(() =>
+      Promise.resolve(
+        okJson({
+          evidence: [],
+          timeline: [],
+          pagination: { limit: 50, offset: 10000 },
+          order: "source_date_desc_created_at_desc_id_desc",
+        }),
+      ),
+    );
+    vi.stubGlobal("fetch", fetchMock);
+
+    await listEvidence(safeCase.id, { limit: 500, offset: 99999 });
+    await listTimelineEntries(safeCase.id, { limit: 500, offset: 99999 });
+
+    expect(fetchMock).toHaveBeenNthCalledWith(
+      1,
+      `/api/v1/cases/${safeCase.id}/evidence?limit=50&offset=10000`,
+      expect.objectContaining({ credentials: "same-origin" }),
+    );
+    expect(fetchMock).toHaveBeenNthCalledWith(
+      2,
+      `/api/v1/cases/${safeCase.id}/timeline?limit=50&offset=10000`,
+      expect.objectContaining({ credentials: "same-origin" }),
+    );
+  });
+});
+
 describe("case workspace components", () => {
   it("renders list loading and empty states", () => {
     const loadingMarkup = renderToStaticMarkup(
@@ -502,7 +803,8 @@ describe("case workspace components", () => {
     expect(detailMarkup).toContain("Fictional Oak Street ADU");
     expect(detailMarkup).toContain("Case overview");
     expect(detailMarkup).toContain("Edit details");
-    expect(detailMarkup).toContain("Immutable case activity");
+    expect(detailMarkup).toContain("Permit timeline");
+    expect(detailMarkup).toContain("Evidence");
     expect(detailMarkup).not.toContain("participant");
     expect(notFoundMarkup).toContain("Case unavailable");
     expect(notFoundMarkup).toContain("Back to list");
@@ -613,6 +915,374 @@ describe("case workspace components", () => {
     );
     expect(markup).toContain("Reload latest case");
     expect(markup).toContain("Cancel");
+  });
+
+  it("renders the shared record stale-version conflict actions", () => {
+    const markup = renderToStaticMarkup(
+      <RecordConflictNotice
+        onCancel={() => undefined}
+        onReload={async () => undefined}
+      />,
+    );
+
+    expect(markup).toContain(
+      "Someone or another request updated this record. Reload the latest version before trying again.",
+    );
+    expect(markup).toContain("Reload latest");
+    expect(markup).toContain("Cancel");
+  });
+
+  it("renders evidence loading, empty, returned records, safe links, and retry states", () => {
+    const loadingMarkup = renderToStaticMarkup(
+      <EvidenceList
+        error=""
+        highlightedEvidenceId={null}
+        loading={true}
+        response={null}
+        selectedEvidenceId={null}
+        onNextPage={() => undefined}
+        onPreviousPage={() => undefined}
+        onRetry={() => undefined}
+        onSelectEvidence={() => undefined}
+      />,
+    );
+    const emptyMarkup = renderToStaticMarkup(
+      <EvidenceList
+        error=""
+        highlightedEvidenceId={null}
+        loading={false}
+        response={{
+          evidence: [],
+          pagination: { limit: 10, offset: 0 },
+          order: "source_date_desc_created_at_desc_id_desc",
+        }}
+        selectedEvidenceId={null}
+        onNextPage={() => undefined}
+        onPreviousPage={() => undefined}
+        onRetry={() => undefined}
+        onSelectEvidence={() => undefined}
+      />,
+    );
+    const recordMarkup = renderToStaticMarkup(
+      <EvidenceList
+        error=""
+        highlightedEvidenceId={safeEvidence.id}
+        loading={false}
+        response={{
+          evidence: [safeEvidence],
+          pagination: { limit: 1, offset: 1 },
+          order: "source_date_desc_created_at_desc_id_desc",
+        }}
+        selectedEvidenceId={safeEvidence.id}
+        onNextPage={() => undefined}
+        onPreviousPage={() => undefined}
+        onRetry={() => undefined}
+        onSelectEvidence={() => undefined}
+      />,
+    );
+    const invalidUrlMarkup = renderToStaticMarkup(
+      <EvidenceList
+        error=""
+        highlightedEvidenceId={null}
+        loading={false}
+        response={{
+          evidence: [
+            {
+              ...safeEvidence,
+              id: "bad-url",
+              source_url: "javascript:alert(1)",
+              source_label: "Unsafe source",
+            },
+          ],
+          pagination: { limit: 10, offset: 0 },
+          order: "source_date_desc_created_at_desc_id_desc",
+        }}
+        selectedEvidenceId={null}
+        onNextPage={() => undefined}
+        onPreviousPage={() => undefined}
+        onRetry={() => undefined}
+        onSelectEvidence={() => undefined}
+      />,
+    ).toLowerCase();
+    const errorMarkup = renderToStaticMarkup(
+      <EvidenceList
+        error="The evidence request failed."
+        highlightedEvidenceId={null}
+        loading={false}
+        response={null}
+        selectedEvidenceId={null}
+        onNextPage={() => undefined}
+        onPreviousPage={() => undefined}
+        onRetry={() => undefined}
+        onSelectEvidence={() => undefined}
+      />,
+    );
+
+    expect(loadingMarkup).toContain("Loading evidence");
+    expect(emptyMarkup).toContain("No evidence yet");
+    expect(recordMarkup).toContain("Fictional plan check notice");
+    expect(recordMarkup).toContain("Unverified");
+    expect(recordMarkup).toContain('href="https://example.test/notices/plan-check"');
+    expect(recordMarkup).toContain("Previous");
+    expect(invalidUrlMarkup).toContain("unsafe source");
+    expect(invalidUrlMarkup).not.toContain("href=");
+    expect(errorMarkup).toContain("Evidence unavailable");
+    expect(errorMarkup).toContain("Retry");
+  });
+
+  it("renders evidence forms and role-aware verification controls", () => {
+    const createMarkup = renderToStaticMarkup(
+      <EvidenceForm
+        currentUserId="fictional-user"
+        error=""
+        mode="create"
+        role="client"
+        submitting={false}
+        onCancel={() => undefined}
+        onSubmit={async () => undefined}
+      />,
+    );
+    const clientEditMarkup = renderToStaticMarkup(
+      <EvidenceForm
+        currentUserId="fictional-user"
+        error=""
+        evidence={safeEvidence}
+        mode="edit"
+        role="client"
+        submitting={false}
+        onCancel={() => undefined}
+        onSubmit={async () => undefined}
+      />,
+    );
+    const adminEditMarkup = renderToStaticMarkup(
+      <EvidenceForm
+        currentUserId="admin-user"
+        error="The evidence update is invalid."
+        evidence={{ ...safeEvidence, verification_status: "verified" }}
+        mode="edit"
+        role="admin"
+        submitting={true}
+        onCancel={() => undefined}
+        onSubmit={async () => undefined}
+      />,
+    );
+
+    expect(createMarkup).toContain('name="evidence_type"');
+    expect(createMarkup).toContain('name="source_url"');
+    expect(createMarkup).not.toContain("verification_status");
+    expect(clientEditMarkup).toContain('value="Fictional plan check notice"');
+    expect(clientEditMarkup).not.toContain("verification_status");
+    expect(adminEditMarkup).toContain('name="verification_status"');
+    expect(adminEditMarkup).toContain("Verified");
+    expect(adminEditMarkup).toContain("Saving...");
+    expect(adminEditMarkup).toContain("The evidence update is invalid.");
+  });
+
+  it("renders evidence detail safely without internal fields", () => {
+    const markup = renderToStaticMarkup(
+      <EvidenceDetail
+        currentUserId="fictional-user"
+        evidence={{
+          ...safeEvidence,
+          title: "<script>alert(1)</script>",
+          summary: "<img src=x onerror=alert(1)>",
+        }}
+        role="client"
+        onEdit={() => undefined}
+      />,
+    ).toLowerCase();
+
+    expect(markup).toContain("&lt;script&gt;alert(1)&lt;/script&gt;");
+    expect(markup).toContain("&lt;img src=x onerror=alert(1)&gt;");
+    expect(markup).toContain("edit evidence");
+    expect(markup).not.toContain("password");
+    expect(markup).not.toContain("session");
+    expect(markup).not.toContain("request_id");
+  });
+
+  it("renders timeline loading, empty, canonical, linked evidence, pagination, and retry states", () => {
+    const loadingMarkup = renderToStaticMarkup(
+      <TimelineList
+        currentUserId="fictional-user"
+        error=""
+        evidence={[safeEvidence]}
+        loading={true}
+        response={null}
+        role="client"
+        selectedTimelineId={null}
+        onEditTimeline={() => undefined}
+        onNextPage={() => undefined}
+        onOpenEvidence={() => undefined}
+        onPreviousPage={() => undefined}
+        onRetry={() => undefined}
+        onSelectTimeline={() => undefined}
+      />,
+    );
+    const emptyMarkup = renderToStaticMarkup(
+      <TimelineList
+        currentUserId="fictional-user"
+        error=""
+        evidence={[]}
+        loading={false}
+        response={{
+          timeline: [],
+          pagination: { limit: 10, offset: 0 },
+          order: "occurred_on_desc_created_at_desc_id_desc",
+        }}
+        role="client"
+        selectedTimelineId={null}
+        onEditTimeline={() => undefined}
+        onNextPage={() => undefined}
+        onOpenEvidence={() => undefined}
+        onPreviousPage={() => undefined}
+        onRetry={() => undefined}
+        onSelectTimeline={() => undefined}
+      />,
+    );
+    const timelineMarkup = renderToStaticMarkup(
+      <TimelineList
+        currentUserId="fictional-user"
+        error=""
+        evidence={[safeEvidence]}
+        loading={false}
+        response={{
+          timeline: [{ ...safeTimeline, is_canonical: true }],
+          pagination: { limit: 1, offset: 1 },
+          order: "occurred_on_desc_created_at_desc_id_desc",
+        }}
+        role="admin"
+        selectedTimelineId={safeTimeline.id}
+        onEditTimeline={() => undefined}
+        onNextPage={() => undefined}
+        onOpenEvidence={() => undefined}
+        onPreviousPage={() => undefined}
+        onRetry={() => undefined}
+        onSelectTimeline={() => undefined}
+      />,
+    );
+    const clientCanonicalMarkup = renderToStaticMarkup(
+      <TimelineList
+        currentUserId="fictional-user"
+        error=""
+        evidence={[safeEvidence]}
+        loading={false}
+        response={{
+          timeline: [{ ...safeTimeline, is_canonical: true }],
+          pagination: { limit: 10, offset: 0 },
+          order: "occurred_on_desc_created_at_desc_id_desc",
+        }}
+        role="client"
+        selectedTimelineId={safeTimeline.id}
+        onEditTimeline={() => undefined}
+        onNextPage={() => undefined}
+        onOpenEvidence={() => undefined}
+        onPreviousPage={() => undefined}
+        onRetry={() => undefined}
+        onSelectTimeline={() => undefined}
+      />,
+    );
+    const errorMarkup = renderToStaticMarkup(
+      <TimelineList
+        currentUserId="fictional-user"
+        error="The timeline request failed."
+        evidence={[]}
+        loading={false}
+        response={null}
+        role="client"
+        selectedTimelineId={null}
+        onEditTimeline={() => undefined}
+        onNextPage={() => undefined}
+        onOpenEvidence={() => undefined}
+        onPreviousPage={() => undefined}
+        onRetry={() => undefined}
+        onSelectTimeline={() => undefined}
+      />,
+    );
+
+    expect(loadingMarkup).toContain("Loading permit timeline");
+    expect(emptyMarkup).toContain("No timeline entries yet");
+    expect(timelineMarkup).toContain("Canonical");
+    expect(timelineMarkup).toContain("Fictional plan check notice");
+    expect(timelineMarkup).toContain("Edit entry");
+    expect(timelineMarkup).toContain("Previous");
+    expect(clientCanonicalMarkup).not.toContain("Edit entry");
+    expect(errorMarkup).toContain("Permit timeline unavailable");
+    expect(errorMarkup).toContain("Retry");
+  });
+
+  it("renders timeline forms with admin-only canonical controls and evidence choices", () => {
+    const clientCreateMarkup = renderToStaticMarkup(
+      <TimelineForm
+        currentUserId="fictional-user"
+        error=""
+        evidence={[safeEvidence, safeEvidence]}
+        mode="create"
+        role="client"
+        submitting={false}
+        onCancel={() => undefined}
+        onSubmit={async () => undefined}
+      />,
+    );
+    const adminCreateMarkup = renderToStaticMarkup(
+      <TimelineForm
+        currentUserId="admin-user"
+        error=""
+        evidence={[safeEvidence]}
+        mode="create"
+        role="admin"
+        submitting={false}
+        onCancel={() => undefined}
+        onSubmit={async () => undefined}
+      />,
+    );
+    const clientCanonicalEditMarkup = renderToStaticMarkup(
+      <TimelineForm
+        currentUserId="fictional-user"
+        error=""
+        evidence={[safeEvidence]}
+        mode="edit"
+        role="client"
+        submitting={false}
+        timelineEntry={{ ...safeTimeline, is_canonical: true }}
+        onCancel={() => undefined}
+        onSubmit={async () => undefined}
+      />,
+    );
+
+    expect(clientCreateMarkup).toContain('name="occurred_on"');
+    expect(clientCreateMarkup).toContain("Fictional plan check notice");
+    expect(clientCreateMarkup).not.toContain("is_canonical");
+    expect(adminCreateMarkup).toContain('name="is_canonical"');
+    expect(clientCanonicalEditMarkup).toBe("");
+  });
+
+  it("renders link controls with already-linked evidence omitted and safe errors", () => {
+    const unlinkedEvidence = {
+      ...safeEvidence,
+      id: "00000000-0000-4000-8000-000000000102",
+      title: "Fictional separate evidence",
+    };
+    const markup = renderToStaticMarkup(
+      <EvidenceLinkManager
+        currentUserId="fictional-user"
+        error="Duplicate evidence link."
+        evidence={[safeEvidence, unlinkedEvidence]}
+        role="client"
+        submitting={false}
+        timelineEntry={safeTimeline}
+        onLink={async () => undefined}
+        onUnlink={async () => undefined}
+      />,
+    );
+
+    expect(markup).toContain("Fictional plan check notice");
+    expect(markup).toContain("Fictional separate evidence");
+    expect(markup).toContain("Unlink");
+    expect(markup).toContain("Link evidence");
+    expect(markup).toContain("Duplicate evidence link.");
+    expect(markup).not.toContain(
+      `<option value="${safeEvidence.id}">Fictional plan check notice</option>`,
+    );
   });
 
   it("renders activity loading, empty, events, retry, and pagination states safely", () => {

@@ -120,7 +120,7 @@ async function parseError(response: Response): Promise<CaseApiError> {
   return new CaseApiError(kind, message, response.status, code);
 }
 
-async function requestJson<T>(
+export async function requestJson<T>(
   path: string,
   init?: RequestInit,
 ): Promise<T> {

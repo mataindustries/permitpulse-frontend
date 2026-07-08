@@ -8,6 +8,18 @@ import {
   updateCaseMetadata,
   updateCaseStatus,
 } from "./api/cases";
+import {
+  createEvidence,
+  createTimelineEntry,
+  getEvidence,
+  getTimelineEntry,
+  linkTimelineEvidence,
+  listEvidence,
+  listTimelineEntries,
+  unlinkTimelineEvidence,
+  updateEvidence,
+  updateTimelineEntry,
+} from "./api/evidence-timeline";
 import { authClient } from "./auth-client";
 import { CaseDetail } from "./components/CaseDetail";
 import { CaseList } from "./components/CaseList";
@@ -22,6 +34,16 @@ import type {
   UpdateCaseStatusInput,
   UserRole,
 } from "./types/cases";
+import type {
+  CreateEvidenceInput,
+  CreateTimelineInput,
+  EvidenceItemDto,
+  EvidenceListResponse,
+  TimelineEntryDto,
+  TimelineListResponse,
+  UpdateEvidenceInput,
+  UpdateTimelineInput,
+} from "./types/evidence-timeline";
 
 interface AuthCapabilities {
   enabled: boolean;
@@ -50,21 +72,41 @@ type WorkspaceView =
   | { name: "detail"; caseId: string };
 
 interface CaseClient {
+  createEvidence: typeof createEvidence;
   createCase: typeof createCase;
+  createTimelineEntry: typeof createTimelineEntry;
   getCase: typeof getCase;
+  getEvidence: typeof getEvidence;
+  getTimelineEntry: typeof getTimelineEntry;
+  linkTimelineEvidence: typeof linkTimelineEvidence;
+  listEvidence: typeof listEvidence;
   listCaseActivity: typeof listCaseActivity;
   listCases: typeof listCases;
+  listTimelineEntries: typeof listTimelineEntries;
+  unlinkTimelineEvidence: typeof unlinkTimelineEvidence;
+  updateEvidence: typeof updateEvidence;
   updateCaseMetadata: typeof updateCaseMetadata;
   updateCaseStatus: typeof updateCaseStatus;
+  updateTimelineEntry: typeof updateTimelineEntry;
 }
 
 const defaultCaseClient: CaseClient = {
+  createEvidence,
   createCase,
+  createTimelineEntry,
   getCase,
+  getEvidence,
+  getTimelineEntry,
+  linkTimelineEvidence,
+  listEvidence,
   listCaseActivity,
   listCases,
+  listTimelineEntries,
+  unlinkTimelineEvidence,
+  updateEvidence,
   updateCaseMetadata,
   updateCaseStatus,
+  updateTimelineEntry,
 };
 
 function getErrorMessage(error: unknown): string {
@@ -191,6 +233,23 @@ function Workspace({
     useState<CaseActivityResponse | null>(null);
   const [activityLoading, setActivityLoading] = useState(false);
   const [activityError, setActivityError] = useState("");
+  const [evidenceResponse, setEvidenceResponse] =
+    useState<EvidenceListResponse | null>(null);
+  const [evidenceLoading, setEvidenceLoading] = useState(false);
+  const [evidenceError, setEvidenceError] = useState("");
+  const [selectedEvidenceId, setSelectedEvidenceId] = useState<string | null>(
+    null,
+  );
+  const [highlightedEvidenceId, setHighlightedEvidenceId] = useState<
+    string | null
+  >(null);
+  const [timelineResponse, setTimelineResponse] =
+    useState<TimelineListResponse | null>(null);
+  const [timelineLoading, setTimelineLoading] = useState(false);
+  const [timelineError, setTimelineError] = useState("");
+  const [selectedTimelineId, setSelectedTimelineId] = useState<string | null>(
+    null,
+  );
   const [successMessage, setSuccessMessage] = useState("");
 
   function handleCaseError(error: unknown, setMessage: (message: string) => void) {
@@ -226,6 +285,13 @@ function Workspace({
     setDetailCase(null);
     setActivityResponse(null);
     setActivityError("");
+    setEvidenceResponse(null);
+    setEvidenceError("");
+    setSelectedEvidenceId(null);
+    setHighlightedEvidenceId(null);
+    setTimelineResponse(null);
+    setTimelineError("");
+    setSelectedTimelineId(null);
     setView({ name: "detail", caseId });
 
     try {
@@ -234,6 +300,8 @@ function Workspace({
       setDetailCase(record);
       updateCaseInList(record);
       void loadActivity(caseId, 0);
+      void loadEvidenceRecords(caseId, 0);
+      void loadTimelineRecords(caseId, 0);
     } catch (error) {
       handleCaseError(error, setDetailError);
     } finally {
@@ -253,6 +321,49 @@ function Workspace({
       handleCaseError(error, setActivityError);
     } finally {
       setActivityLoading(false);
+    }
+  }
+
+  async function loadEvidenceRecords(caseId: string, offset = 0) {
+    setEvidenceLoading(true);
+    setEvidenceError("");
+
+    try {
+      const response = await client.listEvidence(caseId, { limit: 10, offset });
+
+      setEvidenceResponse(response);
+      setSelectedEvidenceId((current) =>
+        current && response.evidence.some((item) => item.id === current)
+          ? current
+          : response.evidence[0]?.id ?? null,
+      );
+    } catch (error) {
+      handleCaseError(error, setEvidenceError);
+    } finally {
+      setEvidenceLoading(false);
+    }
+  }
+
+  async function loadTimelineRecords(caseId: string, offset = 0) {
+    setTimelineLoading(true);
+    setTimelineError("");
+
+    try {
+      const response = await client.listTimelineEntries(caseId, {
+        limit: 10,
+        offset,
+      });
+
+      setTimelineResponse(response);
+      setSelectedTimelineId((current) =>
+        current && response.timeline.some((item) => item.id === current)
+          ? current
+          : response.timeline[0]?.id ?? null,
+      );
+    } catch (error) {
+      handleCaseError(error, setTimelineError);
+    } finally {
+      setTimelineLoading(false);
     }
   }
 
@@ -311,8 +422,17 @@ function Workspace({
       setDetailLoading(false);
       setActivityResponse(null);
       setActivityError("");
+      setEvidenceResponse(null);
+      setEvidenceError("");
+      setSelectedEvidenceId(null);
+      setHighlightedEvidenceId(null);
+      setTimelineResponse(null);
+      setTimelineError("");
+      setSelectedTimelineId(null);
       setView({ name: "detail", caseId: created.id });
       void loadActivity(created.id, 0);
+      void loadEvidenceRecords(created.id, 0);
+      void loadTimelineRecords(created.id, 0);
     } catch (error) {
       handleCaseError(error, setCreateError);
     } finally {
@@ -341,12 +461,19 @@ function Workspace({
       return;
     }
 
-    const updated = await client.updateCaseMetadata(detailCase.id, input);
+    try {
+      const updated = await client.updateCaseMetadata(detailCase.id, input);
 
-    setDetailCase(updated);
-    updateCaseInList(updated);
-    setSuccessMessage("Case details saved.");
-    await loadActivity(updated.id, 0);
+      setDetailCase(updated);
+      updateCaseInList(updated);
+      setSuccessMessage("Case details saved.");
+      await loadActivity(updated.id, 0);
+    } catch (error) {
+      if (error instanceof CaseApiError && error.kind === "unauthorized") {
+        onSessionExpired();
+      }
+      throw error;
+    }
   }
 
   async function handleStatusUpdate(input: UpdateCaseStatusInput) {
@@ -354,12 +481,240 @@ function Workspace({
       return;
     }
 
-    const updated = await client.updateCaseStatus(detailCase.id, input);
+    try {
+      const updated = await client.updateCaseStatus(detailCase.id, input);
 
-    setDetailCase(updated);
-    updateCaseInList(updated);
-    setSuccessMessage("Case status updated.");
-    await loadActivity(updated.id, 0);
+      setDetailCase(updated);
+      updateCaseInList(updated);
+      setSuccessMessage("Case status updated.");
+      await loadActivity(updated.id, 0);
+    } catch (error) {
+      if (error instanceof CaseApiError && error.kind === "unauthorized") {
+        onSessionExpired();
+      }
+      throw error;
+    }
+  }
+
+  function replaceEvidence(updated: EvidenceItemDto) {
+    setEvidenceResponse((current) => {
+      if (!current) {
+        return current;
+      }
+
+      return {
+        ...current,
+        evidence: current.evidence.map((item) =>
+          item.id === updated.id ? updated : item,
+        ),
+      };
+    });
+  }
+
+  function replaceTimeline(updated: TimelineEntryDto) {
+    setTimelineResponse((current) => {
+      if (!current) {
+        return current;
+      }
+
+      return {
+        ...current,
+        timeline: current.timeline.map((item) =>
+          item.id === updated.id ? updated : item,
+        ),
+      };
+    });
+  }
+
+  async function handleCreateEvidence(
+    input: CreateEvidenceInput,
+  ): Promise<EvidenceItemDto> {
+    if (!detailCase) {
+      throw new Error("No case is open.");
+    }
+
+    try {
+      const created = await client.createEvidence(detailCase.id, input);
+
+      setSuccessMessage("Evidence added.");
+      setSelectedEvidenceId(created.id);
+      setHighlightedEvidenceId(created.id);
+      await loadEvidenceRecords(detailCase.id, 0);
+
+      return created;
+    } catch (error) {
+      if (error instanceof CaseApiError && error.kind === "unauthorized") {
+        onSessionExpired();
+      }
+      throw error;
+    }
+  }
+
+  async function handleUpdateEvidence(
+    evidenceId: string,
+    input: UpdateEvidenceInput,
+  ): Promise<EvidenceItemDto> {
+    if (!detailCase) {
+      throw new Error("No case is open.");
+    }
+
+    try {
+      const updated = await client.updateEvidence(detailCase.id, evidenceId, input);
+
+      replaceEvidence(updated);
+      setSelectedEvidenceId(updated.id);
+      setHighlightedEvidenceId(updated.id);
+      setSuccessMessage("Evidence saved.");
+
+      return updated;
+    } catch (error) {
+      if (error instanceof CaseApiError && error.kind === "unauthorized") {
+        onSessionExpired();
+      }
+      throw error;
+    }
+  }
+
+  async function handleReloadEvidence(evidenceId: string) {
+    if (!detailCase) {
+      throw new Error("No case is open.");
+    }
+
+    try {
+      const latest = await client.getEvidence(detailCase.id, evidenceId);
+
+      replaceEvidence(latest);
+      setSelectedEvidenceId(latest.id);
+      setHighlightedEvidenceId(null);
+
+      return latest;
+    } catch (error) {
+      if (error instanceof CaseApiError && error.kind === "unauthorized") {
+        onSessionExpired();
+      }
+      throw error;
+    }
+  }
+
+  async function handleCreateTimeline(
+    input: CreateTimelineInput,
+  ): Promise<TimelineEntryDto> {
+    if (!detailCase) {
+      throw new Error("No case is open.");
+    }
+
+    try {
+      const created = await client.createTimelineEntry(detailCase.id, input);
+
+      setSuccessMessage("Timeline entry added.");
+      setSelectedTimelineId(created.id);
+      await loadTimelineRecords(detailCase.id, 0);
+
+      return created;
+    } catch (error) {
+      if (error instanceof CaseApiError && error.kind === "unauthorized") {
+        onSessionExpired();
+      }
+      throw error;
+    }
+  }
+
+  async function handleUpdateTimeline(
+    timelineId: string,
+    input: UpdateTimelineInput,
+  ): Promise<TimelineEntryDto> {
+    if (!detailCase) {
+      throw new Error("No case is open.");
+    }
+
+    try {
+      const updated = await client.updateTimelineEntry(
+        detailCase.id,
+        timelineId,
+        input,
+      );
+
+      replaceTimeline(updated);
+      setSelectedTimelineId(updated.id);
+      setSuccessMessage("Timeline entry saved.");
+
+      return updated;
+    } catch (error) {
+      if (error instanceof CaseApiError && error.kind === "unauthorized") {
+        onSessionExpired();
+      }
+      throw error;
+    }
+  }
+
+  async function handleReloadTimeline(timelineId: string) {
+    if (!detailCase) {
+      throw new Error("No case is open.");
+    }
+
+    try {
+      const latest = await client.getTimelineEntry(detailCase.id, timelineId);
+
+      replaceTimeline(latest);
+      setSelectedTimelineId(latest.id);
+
+      return latest;
+    } catch (error) {
+      if (error instanceof CaseApiError && error.kind === "unauthorized") {
+        onSessionExpired();
+      }
+      throw error;
+    }
+  }
+
+  async function handleLinkEvidence(timelineId: string, evidenceId: string) {
+    if (!detailCase) {
+      throw new Error("No case is open.");
+    }
+
+    try {
+      const updated = await client.linkTimelineEvidence(
+        detailCase.id,
+        timelineId,
+        evidenceId,
+      );
+
+      replaceTimeline(updated);
+      setSelectedTimelineId(updated.id);
+      setSuccessMessage("Supporting evidence linked.");
+
+      return updated;
+    } catch (error) {
+      if (error instanceof CaseApiError && error.kind === "unauthorized") {
+        onSessionExpired();
+      }
+      throw error;
+    }
+  }
+
+  async function handleUnlinkEvidence(timelineId: string, evidenceId: string) {
+    if (!detailCase) {
+      throw new Error("No case is open.");
+    }
+
+    try {
+      const updated = await client.unlinkTimelineEvidence(
+        detailCase.id,
+        timelineId,
+        evidenceId,
+      );
+
+      replaceTimeline(updated);
+      setSelectedTimelineId(updated.id);
+      setSuccessMessage("Supporting evidence unlinked.");
+
+      return updated;
+    } catch (error) {
+      if (error instanceof CaseApiError && error.kind === "unauthorized") {
+        onSessionExpired();
+      }
+      throw error;
+    }
   }
 
   return (
@@ -436,9 +791,19 @@ function Workspace({
               activityLoading={activityLoading}
               activityResponse={activityResponse}
               caseRecord={detailCase}
+              currentUserId={user.id}
               error={detailError}
+              evidenceError={evidenceError}
+              evidenceLoading={evidenceLoading}
+              evidenceResponse={evidenceResponse}
+              highlightedEvidenceId={highlightedEvidenceId}
               loading={detailLoading}
               role={user.role}
+              selectedEvidenceId={selectedEvidenceId}
+              selectedTimelineId={selectedTimelineId}
+              timelineError={timelineError}
+              timelineLoading={timelineLoading}
+              timelineResponse={timelineResponse}
               onActivityNextPage={() => {
                 if (!detailCase || !activityResponse) {
                   return;
@@ -473,10 +838,89 @@ function Workspace({
                 }
               }}
               onBack={() => setView({ name: "list" })}
+              onCreateEvidence={handleCreateEvidence}
+              onCreateTimeline={handleCreateTimeline}
+              onEvidenceNextPage={() => {
+                if (!detailCase || !evidenceResponse) {
+                  return;
+                }
+
+                void loadEvidenceRecords(
+                  detailCase.id,
+                  evidenceResponse.pagination.offset +
+                    evidenceResponse.pagination.limit,
+                );
+              }}
+              onEvidencePreviousPage={() => {
+                if (!detailCase || !evidenceResponse) {
+                  return;
+                }
+
+                void loadEvidenceRecords(
+                  detailCase.id,
+                  Math.max(
+                    0,
+                    evidenceResponse.pagination.offset -
+                      evidenceResponse.pagination.limit,
+                  ),
+                );
+              }}
+              onEvidenceRetry={() => {
+                if (detailCase) {
+                  void loadEvidenceRecords(
+                    detailCase.id,
+                    evidenceResponse?.pagination.offset ?? 0,
+                  );
+                }
+              }}
+              onLinkEvidence={handleLinkEvidence}
               onMetadataUpdate={handleMetadataUpdate}
+              onReloadEvidence={handleReloadEvidence}
               onReloadLatest={reloadLatestCase}
+              onReloadTimeline={handleReloadTimeline}
               onRetry={() => void loadCaseDetail(view.caseId)}
+              onSelectEvidence={(evidence) => {
+                setSelectedEvidenceId(evidence.id);
+                setHighlightedEvidenceId(null);
+              }}
+              onSelectTimeline={(timeline) => setSelectedTimelineId(timeline.id)}
               onStatusUpdate={handleStatusUpdate}
+              onTimelineNextPage={() => {
+                if (!detailCase || !timelineResponse) {
+                  return;
+                }
+
+                void loadTimelineRecords(
+                  detailCase.id,
+                  timelineResponse.pagination.offset +
+                    timelineResponse.pagination.limit,
+                );
+              }}
+              onTimelinePreviousPage={() => {
+                if (!detailCase || !timelineResponse) {
+                  return;
+                }
+
+                void loadTimelineRecords(
+                  detailCase.id,
+                  Math.max(
+                    0,
+                    timelineResponse.pagination.offset -
+                      timelineResponse.pagination.limit,
+                  ),
+                );
+              }}
+              onTimelineRetry={() => {
+                if (detailCase) {
+                  void loadTimelineRecords(
+                    detailCase.id,
+                    timelineResponse?.pagination.offset ?? 0,
+                  );
+                }
+              }}
+              onUnlinkEvidence={handleUnlinkEvidence}
+              onUpdateEvidence={handleUpdateEvidence}
+              onUpdateTimeline={handleUpdateTimeline}
             />
           )}
         </div>
