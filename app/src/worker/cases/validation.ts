@@ -42,14 +42,15 @@ export const evidenceTimelinePaginationSchema = z
   .strict();
 
 const expectedVersionSchema = z.number().int().min(1);
-const optionalTrimmedNullable = (maximumLength: number) =>
+const trimmedNullable = (maximumLength: number) =>
   z
     .string()
     .trim()
     .min(1)
     .max(maximumLength)
-    .nullable()
-    .default(null);
+    .nullable();
+const optionalTrimmedNullable = (maximumLength: number) =>
+  trimmedNullable(maximumLength).default(null);
 
 function isIsoDate(value: string): boolean {
   if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) {
@@ -65,7 +66,8 @@ const isoDateSchema = z.string().trim().refine(isIsoDate, {
   message: "Expected a valid ISO date.",
 });
 
-const nullableIsoDateSchema = isoDateSchema.nullable().default(null);
+const nullableIsoDateSchema = isoDateSchema.nullable();
+const optionalNullableIsoDateSchema = nullableIsoDateSchema.default(null);
 
 const nullableHttpUrlSchema = z
   .string()
@@ -80,8 +82,8 @@ const nullableHttpUrlSchema = z
       return false;
     }
   }, "Expected an absolute http or https URL.")
-  .nullable()
-  .default(null);
+  .nullable();
+const optionalNullableHttpUrlSchema = nullableHttpUrlSchema.default(null);
 
 const editableCaseFields = {
   project_name: z.string().trim().min(1).max(120).optional(),
@@ -118,9 +120,9 @@ export const createEvidenceSchema = z
     evidence_type: z.enum(evidenceTypes),
     title: z.string().trim().min(1).max(160),
     summary: z.string().trim().min(1).max(2000),
-    source_url: nullableHttpUrlSchema,
+    source_url: optionalNullableHttpUrlSchema,
     source_label: optionalTrimmedNullable(160),
-    source_date: nullableIsoDateSchema,
+    source_date: optionalNullableIsoDateSchema,
   })
   .strict();
 
@@ -129,7 +131,7 @@ const editableEvidenceFields = {
   title: z.string().trim().min(1).max(160).optional(),
   summary: z.string().trim().min(1).max(2000).optional(),
   source_url: nullableHttpUrlSchema.optional(),
-  source_label: optionalTrimmedNullable(160).optional(),
+  source_label: trimmedNullable(160).optional(),
   source_date: nullableIsoDateSchema.optional(),
   verification_status: z.enum(evidenceVerificationStatuses).optional(),
 };

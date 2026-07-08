@@ -571,10 +571,12 @@ Evidence creation accepts only:
 ```
 
 Evidence updates require `expected_version` and may change `evidence_type`,
-`title`, `summary`, `source_url`, `source_label`, and `source_date`. Admins may
-also set `verification_status`. Successful updates increment `version` once.
-Stale updates return `409 STALE_VERSION`, change no data, and do not retry
-automatically. Empty or no-change updates are rejected safely.
+`title`, `summary`, `source_url`, `source_label`, and `source_date`. Omitted
+fields are preserved. Explicit `null` clears nullable source fields when
+allowed. Admins may also set `verification_status`. Successful updates
+increment `version` once. Stale updates return `409 STALE_VERSION`, change no
+data, and do not retry automatically. Empty or no-change updates are rejected
+safely.
 
 Timeline creation accepts only:
 

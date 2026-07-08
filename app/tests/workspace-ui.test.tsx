@@ -516,6 +516,42 @@ describe("evidence and timeline API client", () => {
     expect(submittedBody).not.toContain("owner_user_id");
   });
 
+  it("omits unchanged evidence sources and sends explicit null source clears", async () => {
+    const submittedBodies: string[] = [];
+    vi.stubGlobal(
+      "fetch",
+      vi.fn((_path: string, init?: RequestInit) => {
+        submittedBodies.push(String(init?.body ?? ""));
+        return Promise.resolve(okJson({ ...safeEvidence, version: 2 }));
+      }),
+    );
+
+    await updateEvidence(safeCase.id, safeEvidence.id, {
+      expected_version: 1,
+      summary: "Updated summary only",
+    });
+    await updateEvidence(safeCase.id, safeEvidence.id, {
+      expected_version: 2,
+      source_url: null,
+      source_label: null,
+      source_date: null,
+    });
+
+    expect(JSON.parse(submittedBodies[0])).toEqual({
+      expected_version: 1,
+      summary: "Updated summary only",
+    });
+    expect(submittedBodies[0]).not.toContain("source_url");
+    expect(submittedBodies[0]).not.toContain("source_label");
+    expect(submittedBodies[0]).not.toContain("source_date");
+    expect(JSON.parse(submittedBodies[1])).toEqual({
+      expected_version: 2,
+      source_url: null,
+      source_label: null,
+      source_date: null,
+    });
+  });
+
   it("types admin evidence verification updates", async () => {
     let submittedBody = "";
     vi.stubGlobal(

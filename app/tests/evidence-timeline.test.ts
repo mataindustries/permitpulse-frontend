@@ -342,6 +342,210 @@ describe("evidence API", () => {
     });
   });
 
+  it("preserves omitted source fields when summary and verification change", async () => {
+    const { admin, caseA } = await setupWorkspace();
+    const record = await createEvidence(admin.cookie, caseA.id);
+    const summaryOnly = await patchJson(
+      admin.cookie,
+      `/api/v1/cases/${caseA.id}/evidence/${record.id}`,
+      {
+        expected_version: 1,
+        summary: "Updated fictional summary only.",
+      },
+    );
+    const summaryOnlyBody = await summaryOnly.json<{
+      data: {
+        source_url: string | null;
+        source_label: string | null;
+        source_date: string | null;
+        summary: string;
+        verification_status: string;
+        version: number;
+      };
+    }>();
+    const verificationOnly = await patchJson(
+      admin.cookie,
+      `/api/v1/cases/${caseA.id}/evidence/${record.id}`,
+      {
+        expected_version: 2,
+        verification_status: "verified",
+      },
+    );
+    const verificationOnlyBody = await verificationOnly.json<typeof summaryOnlyBody>();
+    const summaryAndVerification = await patchJson(
+      admin.cookie,
+      `/api/v1/cases/${caseA.id}/evidence/${record.id}`,
+      {
+        expected_version: 3,
+        summary: "Updated fictional summary and verification.",
+        verification_status: "disputed",
+      },
+    );
+    const summaryAndVerificationBody = await summaryAndVerification.json<
+      typeof summaryOnlyBody
+    >();
+
+    expect(summaryOnly.status).toBe(200);
+    expect(summaryOnlyBody.data).toMatchObject({
+      source_url: evidenceInput.source_url,
+      source_label: evidenceInput.source_label,
+      source_date: evidenceInput.source_date,
+      summary: "Updated fictional summary only.",
+      verification_status: "unverified",
+      version: 2,
+    });
+    expect(verificationOnly.status).toBe(200);
+    expect(verificationOnlyBody.data).toMatchObject({
+      source_url: evidenceInput.source_url,
+      source_label: evidenceInput.source_label,
+      source_date: evidenceInput.source_date,
+      summary: "Updated fictional summary only.",
+      verification_status: "verified",
+      version: 3,
+    });
+    expect(summaryAndVerification.status).toBe(200);
+    expect(summaryAndVerificationBody.data).toMatchObject({
+      source_url: evidenceInput.source_url,
+      source_label: evidenceInput.source_label,
+      source_date: evidenceInput.source_date,
+      summary: "Updated fictional summary and verification.",
+      verification_status: "disputed",
+      version: 4,
+    });
+  });
+
+  it("clears nullable source fields only when explicit null is supplied", async () => {
+    const { admin, caseA } = await setupWorkspace();
+    const record = await createEvidence(admin.cookie, caseA.id);
+    const clearUrl = await patchJson(
+      admin.cookie,
+      `/api/v1/cases/${caseA.id}/evidence/${record.id}`,
+      {
+        expected_version: 1,
+        source_url: null,
+      },
+    );
+    const clearUrlBody = await clearUrl.json<{
+      data: {
+        source_url: string | null;
+        source_label: string | null;
+        source_date: string | null;
+        version: number;
+      };
+    }>();
+    const clearLabel = await patchJson(
+      admin.cookie,
+      `/api/v1/cases/${caseA.id}/evidence/${record.id}`,
+      {
+        expected_version: 2,
+        source_label: null,
+      },
+    );
+    const clearLabelBody = await clearLabel.json<typeof clearUrlBody>();
+    const clearDate = await patchJson(
+      admin.cookie,
+      `/api/v1/cases/${caseA.id}/evidence/${record.id}`,
+      {
+        expected_version: 3,
+        source_date: null,
+      },
+    );
+    const clearDateBody = await clearDate.json<typeof clearUrlBody>();
+
+    expect(clearUrl.status).toBe(200);
+    expect(clearUrlBody.data).toMatchObject({
+      source_url: null,
+      source_label: evidenceInput.source_label,
+      source_date: evidenceInput.source_date,
+      version: 2,
+    });
+    expect(clearLabel.status).toBe(200);
+    expect(clearLabelBody.data).toMatchObject({
+      source_url: null,
+      source_label: null,
+      source_date: evidenceInput.source_date,
+      version: 3,
+    });
+    expect(clearDate.status).toBe(200);
+    expect(clearDateBody.data).toMatchObject({
+      source_url: null,
+      source_label: null,
+      source_date: null,
+      version: 4,
+    });
+  });
+
+  it("keeps no-change, stale-version, and client verification restrictions safe", async () => {
+    const { a, admin, caseA } = await setupWorkspace();
+    const record = await createEvidence(a.cookie, caseA.id);
+    const updated = await patchJson(
+      a.cookie,
+      `/api/v1/cases/${caseA.id}/evidence/${record.id}`,
+      {
+        expected_version: 1,
+        summary: "Updated fictional evidence summary.",
+      },
+    );
+    const updatedBody = await updated.json<{
+      data: {
+        source_url: string | null;
+        source_label: string | null;
+        source_date: string | null;
+        summary: string;
+        version: number;
+      };
+    }>();
+    const stale = await patchJson(
+      a.cookie,
+      `/api/v1/cases/${caseA.id}/evidence/${record.id}`,
+      {
+        expected_version: 1,
+        source_url: null,
+        summary: "Fictional stale source clear.",
+      },
+    );
+    const noChange = await patchJson(
+      a.cookie,
+      `/api/v1/cases/${caseA.id}/evidence/${record.id}`,
+      {
+        expected_version: 2,
+        summary: "Updated fictional evidence summary.",
+      },
+    );
+    const clientVerify = await patchJson(
+      a.cookie,
+      `/api/v1/cases/${caseA.id}/evidence/${record.id}`,
+      {
+        expected_version: 2,
+        verification_status: "verified",
+      },
+    );
+    const afterRejected = await request(
+      `/api/v1/cases/${caseA.id}/evidence/${record.id}`,
+      { headers: { cookie: admin.cookie } },
+    );
+    const afterRejectedBody = await afterRejected.json<typeof updatedBody>();
+
+    expect(updated.status).toBe(200);
+    expect(updatedBody.data).toMatchObject({
+      source_url: evidenceInput.source_url,
+      source_label: evidenceInput.source_label,
+      source_date: evidenceInput.source_date,
+      summary: "Updated fictional evidence summary.",
+      version: 2,
+    });
+    expect(stale.status).toBe(409);
+    expect(noChange.status).toBe(400);
+    expect(clientVerify.status).toBe(403);
+    expect(afterRejectedBody.data).toMatchObject({
+      source_url: evidenceInput.source_url,
+      source_label: evidenceInput.source_label,
+      source_date: evidenceInput.source_date,
+      summary: "Updated fictional evidence summary.",
+      version: 2,
+    });
+  });
+
   it("enforces contributor ownership, stale versions, no-change updates, URLs, and null URLs", async () => {
     const { a, admin, caseA } = await setupWorkspace();
     const own = await createEvidence(a.cookie, caseA.id, {
