@@ -9,9 +9,11 @@ The current local frontend milestone provides email/password authentication,
 database-backed sessions, sign-out, and a usable authenticated React workspace
 for listing, creating, reading, editing, and reviewing case lifecycle activity
 through the protected case API. Administrators also get role-aware status
-transition controls. There is still no participant assignment, file upload,
-evidence record, timeline notes, PDF generation, AI, billing, email delivery,
-OAuth, user-management UI, or production authentication.
+transition controls. The backend now also exposes local-only structured
+evidence, provenance, verification state, canonical timeline records, and
+timeline-to-evidence links through protected APIs. There is still no
+participant assignment, evidence UI, file upload, PDF generation, AI, billing,
+email delivery, OAuth, user-management UI, or production authentication.
 
 ## Requirements and bindings
 
@@ -68,10 +70,13 @@ usable secret.
 ## Apply local migrations and run
 
 Migrations `0001_create_cases.sql`, `0002_auth_foundation.sql`,
-`0003_auth_roles_admin.sql`, and `0004_case_participants.sql` are immutable.
-Migration `0005_case_lifecycle_audit.sql` adds optimistic case versioning, a
-private mutation nonce, and immutable lifecycle audit events without fabricating
-history for existing local cases:
+`0003_auth_roles_admin.sql`, `0004_case_participants.sql`, and
+`0005_case_lifecycle_audit.sql` are immutable. Migration
+`0005_case_lifecycle_audit.sql` adds optimistic case versioning, a private
+mutation nonce, and immutable lifecycle audit events without fabricating history
+for existing local cases. Migration `0006_evidence_timeline.sql` adds
+case-scoped evidence records, permit timeline entries, and explicit evidence
+links for timeline entries:
 
 ```bash
 npm run db:migrate:local
@@ -196,8 +201,8 @@ mutation uses the refreshed `version`.
 
 - Administrator-created cases are unassigned and admin-only under the current
   backend design.
-- There is no deletion, participant assignment, evidence, timeline, upload,
-  PDF, AI, email, billing, OAuth, or admin user management UI.
+- There is no deletion, participant assignment, evidence UI, timeline UI,
+  upload, PDF, AI, email, billing, OAuth, or admin user management UI.
 - Browser back-button support and deep-link case routing are intentionally out
   of scope for this milestone.
 - The workspace does not fabricate cases, analytics, authorization filters, or
@@ -439,6 +444,138 @@ Case access is controlled by server-side capabilities and the
 
 Deletion and participant assignment are not implemented yet.
 
+## Evidence and permit timeline API
+
+The structured evidence and timeline backend is available under the same
+authenticated `/api/v1/cases/:caseId` route tree. It is backend-only for this
+milestone; there are no visible React controls, uploads, PDF generation, AI, or
+file storage.
+
+Evidence records live in `evidence_items` and contain only structured metadata:
+`evidence_type`, `title`, `summary`, optional `source_url`, optional
+`source_label`, optional `source_date`, server-owned `verification_status`,
+server-owned `version`, contributor, and timestamps. The reviewed evidence
+types are `document`, `portal`, `email`, `phone_call`, `meeting`, `inspection`,
+`code_reference`, `photo`, and `other`. Verification status is one of
+`unverified`, `verified`, or `disputed`; creation always starts as
+`unverified`.
+
+Timeline records live in `timeline_entries` and contain `occurred_on`,
+`timeline_type`, `title`, `details`, `is_canonical`, server-owned `version`,
+contributor, timestamps, and linked evidence IDs. The reviewed timeline types
+are `submission`, `resubmission`, `correction`, `reviewer_contact`,
+`applicant_contact`, `inspection`, `approval`, `rejection`, `status_update`,
+`deadline`, and `other`. `occurred_on` is a reviewed ISO date string. Canonical
+entries are admin-controlled.
+
+Evidence may be linked to timeline entries through `timeline_entry_evidence`.
+The link table stores only the timeline entry ID, evidence item ID, and link
+creation time. Duplicate links are rejected. Removing a link deletes only the
+link row; it does not delete either evidence or timeline records. Evidence and
+timeline records are soft-deletable at the schema layer but deletion endpoints
+are intentionally not implemented in this pass. Soft-deleted records are
+excluded from reads and cannot be newly linked.
+
+| Method | Route | Behavior |
+| --- | --- | --- |
+| `POST` | `/api/v1/cases/:caseId/evidence` | Create evidence for a visible case. |
+| `GET` | `/api/v1/cases/:caseId/evidence` | List visible case evidence. |
+| `GET` | `/api/v1/cases/:caseId/evidence/:evidenceId` | Read one evidence item. |
+| `PATCH` | `/api/v1/cases/:caseId/evidence/:evidenceId` | Update evidence with `expected_version`. |
+| `POST` | `/api/v1/cases/:caseId/timeline` | Create a timeline entry and optional evidence links atomically. |
+| `GET` | `/api/v1/cases/:caseId/timeline` | List visible case timeline entries. |
+| `GET` | `/api/v1/cases/:caseId/timeline/:timelineId` | Read one timeline entry. |
+| `PATCH` | `/api/v1/cases/:caseId/timeline/:timelineId` | Update a timeline entry with `expected_version`. |
+| `POST` | `/api/v1/cases/:caseId/timeline/:timelineId/evidence` | Link one evidence item. |
+| `DELETE` | `/api/v1/cases/:caseId/timeline/:timelineId/evidence/:evidenceId` | Remove one link only. |
+
+Evidence creation accepts only:
+
+```json
+{
+  "evidence_type": "document",
+  "title": "Fictional plan check notice",
+  "summary": "Fictional notice from the permit portal.",
+  "source_url": "https://example.test/notices/plan-check",
+  "source_label": "Example portal",
+  "source_date": "2026-01-15"
+}
+```
+
+Evidence updates require `expected_version` and may change `evidence_type`,
+`title`, `summary`, `source_url`, `source_label`, and `source_date`. Admins may
+also set `verification_status`. Successful updates increment `version` once.
+Stale updates return `409 STALE_VERSION`, change no data, and do not retry
+automatically. Empty or no-change updates are rejected safely.
+
+Timeline creation accepts only:
+
+```json
+{
+  "occurred_on": "2026-01-20",
+  "timeline_type": "submission",
+  "title": "Fictional application submitted",
+  "details": "The fictional application was submitted for review.",
+  "is_canonical": false,
+  "evidence_ids": ["00000000-0000-4000-8000-000000000000"]
+}
+```
+
+Clients must omit `is_canonical` or set it to `false`. Admins may create
+canonical or non-canonical entries. `evidence_ids` is optional, bounded, unique,
+and must reference non-deleted evidence in the same case. Creation and link
+insertion happen in one D1 batch after same-case checks; invalid or cross-case
+evidence IDs create no timeline row.
+
+Timeline updates require `expected_version` and may change `occurred_on`,
+`timeline_type`, `title`, and `details`. Admins may also change `is_canonical`.
+Evidence links are changed only through the dedicated link routes, not through
+timeline `PATCH`.
+
+Evidence list ordering is deterministic:
+
+```text
+source_date DESC with null source_date after dated records,
+then created_at DESC,
+then id DESC
+```
+
+Timeline list ordering is deterministic:
+
+```text
+occurred_on DESC,
+then created_at DESC,
+then id DESC
+```
+
+Both lists use bounded pagination with default limit `20`, maximum limit `50`,
+and maximum offset `10000`.
+
+| Capability | Participating client | Admin |
+| --- | --- | --- |
+| Create evidence | Own case | Any case |
+| List/read evidence | Own case | Any case |
+| Update evidence | Own case and personally created evidence only | Any case |
+| Mark evidence verified/disputed | No | Yes |
+| Create timeline entry | Own case, non-canonical only | Any case |
+| List/read timeline | Own case | Any case |
+| Update timeline | Own non-canonical entries personally created | Any case |
+| Create/update canonical timeline | No | Yes |
+| Link evidence to timeline | Own case, personally created evidence, personally created non-canonical timeline entry | Any same-case records |
+
+Unrelated clients receive safe `404` responses that do not confirm another
+case, evidence item, or timeline entry exists. Unauthenticated requests return
+`401`. Request bodies cannot supply user IDs, roles, case IDs, timestamps,
+versions, verification state on create, authorization fields, deleted state, or
+unknown fields.
+
+DTOs return only safe fields. Evidence responses include evidence metadata,
+safe contributor `{ id, name }`, version, and timestamps. Timeline responses
+include timeline metadata, canonical state, safe contributor `{ id, name }`,
+linked evidence IDs, version, and timestamps. Responses never include password
+data, account rows, session data, cookies, tokens, authorization headers,
+request IDs, deleted records, raw database rows, or private mutation data.
+
 ## Pagination contract
 
 `GET /api/v1/cases` supports bounded offset pagination:
@@ -484,6 +621,25 @@ curl --fail-with-body \
 curl --fail-with-body \
   -b /tmp/permitpulse-client-a.cookies \
   'http://localhost:5173/api/v1/cases?limit=20&offset=0'
+```
+
+Local evidence and timeline API calls use the same cookie jar and fictional case
+IDs:
+
+```bash
+curl --fail-with-body \
+  -b /tmp/permitpulse-client-a.cookies \
+  -H 'content-type: application/json' \
+  -H 'origin: http://localhost:5173' \
+  --data '{"evidence_type":"document","title":"Fictional plan check notice","summary":"Fictional notice from the permit portal.","source_url":"https://example.test/notices/plan-check","source_label":"Example portal","source_date":"2026-01-15"}' \
+  http://localhost:5173/api/v1/cases/00000000-0000-4000-8000-000000000000/evidence
+
+curl --fail-with-body \
+  -b /tmp/permitpulse-client-a.cookies \
+  -H 'content-type: application/json' \
+  -H 'origin: http://localhost:5173' \
+  --data '{"occurred_on":"2026-01-20","timeline_type":"submission","title":"Fictional application submitted","details":"The fictional application was submitted for review.","is_canonical":false,"evidence_ids":[]}' \
+  http://localhost:5173/api/v1/cases/00000000-0000-4000-8000-000000000000/timeline
 ```
 
 Administrators are created only through the documented preview bootstrap

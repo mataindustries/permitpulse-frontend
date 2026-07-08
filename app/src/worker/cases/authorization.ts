@@ -41,3 +41,31 @@ export function mayTransitionCaseStatus(actor: CaseActor): boolean {
 export function createsOwnerParticipant(actor: CaseActor): boolean {
   return actor.role === "client";
 }
+
+export function mayManageAnyEvidence(actor: CaseActor): boolean {
+  return actor.role === "admin";
+}
+
+export function mayCreateClientEvidence(actor: CaseActor): boolean {
+  return actor.role === "client";
+}
+
+export function maySetEvidenceVerification(actor: CaseActor): boolean {
+  return actor.role === "admin";
+}
+
+export function mayManageAnyTimeline(actor: CaseActor): boolean {
+  return actor.role === "admin";
+}
+
+export function mayCreateClientTimeline(actor: CaseActor): boolean {
+  return actor.role === "client";
+}
+
+export function mayManageCanonicalTimeline(actor: CaseActor): boolean {
+  return actor.role === "admin";
+}
+
+export function mayLinkAnyEvidenceToTimeline(actor: CaseActor): boolean {
+  return actor.role === "admin";
+}

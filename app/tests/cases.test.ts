@@ -177,6 +177,9 @@ async function auditCount(caseId: string, action?: string) {
 
 async function cleanDatabase() {
   await env.DB.batch([
+    env.DB.prepare("DELETE FROM timeline_entry_evidence"),
+    env.DB.prepare("DELETE FROM timeline_entries"),
+    env.DB.prepare("DELETE FROM evidence_items"),
     env.DB.prepare("DELETE FROM audit_events"),
     env.DB.prepare("DELETE FROM case_participants"),
     env.DB.prepare("DELETE FROM cases"),

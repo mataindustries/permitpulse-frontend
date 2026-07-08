@@ -23,6 +23,9 @@ async function createFictionalCase() {
 }
 
 beforeEach(async () => {
+  await env.DB.prepare("DELETE FROM timeline_entry_evidence").run();
+  await env.DB.prepare("DELETE FROM timeline_entries").run();
+  await env.DB.prepare("DELETE FROM evidence_items").run();
   await env.DB.prepare("DELETE FROM audit_events").run();
   await env.DB.prepare("DELETE FROM cases").run();
 });

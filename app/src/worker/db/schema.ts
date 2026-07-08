@@ -196,6 +196,217 @@ export const caseParticipants = sqliteTable(
   ],
 );
 
+export const evidenceTypes = [
+  "document",
+  "portal",
+  "email",
+  "phone_call",
+  "meeting",
+  "inspection",
+  "code_reference",
+  "photo",
+  "other",
+] as const;
+
+export const evidenceVerificationStatuses = [
+  "unverified",
+  "verified",
+  "disputed",
+] as const;
+
+export const evidenceItems = sqliteTable(
+  "evidence_items",
+  {
+    id: text("id").primaryKey().notNull(),
+    caseId: text("case_id")
+      .notNull()
+      .references(() => cases.id, { onDelete: "restrict" }),
+    createdByUserId: text("created_by_user_id")
+      .notNull()
+      .references(() => authUsers.id, { onDelete: "restrict" }),
+    evidenceType: text("evidence_type", { enum: evidenceTypes }).notNull(),
+    title: text("title").notNull(),
+    summary: text("summary").notNull(),
+    sourceUrl: text("source_url"),
+    sourceLabel: text("source_label"),
+    sourceDate: text("source_date"),
+    verificationStatus: text("verification_status", {
+      enum: evidenceVerificationStatuses,
+    })
+      .notNull()
+      .default("unverified"),
+    version: integer("version").notNull().default(1),
+    createdAt: text("created_at")
+      .notNull()
+      .default(sql`(strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))`),
+    updatedAt: text("updated_at")
+      .notNull()
+      .default(sql`(strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))`),
+    deletedAt: text("deleted_at"),
+  },
+  (table) => [
+    check(
+      "evidence_items_type_check",
+      sql`${table.evidenceType} IN ('document', 'portal', 'email', 'phone_call', 'meeting', 'inspection', 'code_reference', 'photo', 'other')`,
+    ),
+    check(
+      "evidence_items_title_length_check",
+      sql`length(trim(${table.title})) BETWEEN 1 AND 160`,
+    ),
+    check(
+      "evidence_items_summary_length_check",
+      sql`length(trim(${table.summary})) BETWEEN 1 AND 2000`,
+    ),
+    check(
+      "evidence_items_source_url_length_check",
+      sql`${table.sourceUrl} IS NULL OR length(${table.sourceUrl}) BETWEEN 1 AND 2048`,
+    ),
+    check(
+      "evidence_items_source_label_length_check",
+      sql`${table.sourceLabel} IS NULL OR length(trim(${table.sourceLabel})) BETWEEN 1 AND 160`,
+    ),
+    check(
+      "evidence_items_source_date_iso_check",
+      sql`${table.sourceDate} IS NULL OR (length(${table.sourceDate}) = 10 AND ${table.sourceDate} GLOB '[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]')`,
+    ),
+    check(
+      "evidence_items_verification_status_check",
+      sql`${table.verificationStatus} IN ('unverified', 'verified', 'disputed')`,
+    ),
+    check("evidence_items_version_positive_check", sql`${table.version} >= 1`),
+    index("evidence_items_case_list_idx").on(
+      table.caseId,
+      table.deletedAt,
+      table.sourceDate,
+      table.createdAt,
+      table.id,
+    ),
+    index("evidence_items_case_source_date_idx").on(
+      table.caseId,
+      table.sourceDate,
+      table.createdAt,
+      table.id,
+    ),
+    index("evidence_items_created_by_idx").on(
+      table.createdByUserId,
+      table.createdAt,
+      table.id,
+    ),
+  ],
+);
+
+export type EvidenceItemRecord = typeof evidenceItems.$inferSelect;
+
+export const timelineTypes = [
+  "submission",
+  "resubmission",
+  "correction",
+  "reviewer_contact",
+  "applicant_contact",
+  "inspection",
+  "approval",
+  "rejection",
+  "status_update",
+  "deadline",
+  "other",
+] as const;
+
+export const timelineEntries = sqliteTable(
+  "timeline_entries",
+  {
+    id: text("id").primaryKey().notNull(),
+    caseId: text("case_id")
+      .notNull()
+      .references(() => cases.id, { onDelete: "restrict" }),
+    createdByUserId: text("created_by_user_id")
+      .notNull()
+      .references(() => authUsers.id, { onDelete: "restrict" }),
+    occurredOn: text("occurred_on").notNull(),
+    timelineType: text("timeline_type", { enum: timelineTypes }).notNull(),
+    title: text("title").notNull(),
+    details: text("details").notNull(),
+    isCanonical: integer("is_canonical", { mode: "boolean" })
+      .notNull()
+      .default(false),
+    version: integer("version").notNull().default(1),
+    createdAt: text("created_at")
+      .notNull()
+      .default(sql`(strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))`),
+    updatedAt: text("updated_at")
+      .notNull()
+      .default(sql`(strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))`),
+    deletedAt: text("deleted_at"),
+  },
+  (table) => [
+    check(
+      "timeline_entries_occurred_on_iso_check",
+      sql`length(${table.occurredOn}) = 10 AND ${table.occurredOn} GLOB '[0-9][0-9][0-9][0-9]-[0-9][0-9]-[0-9][0-9]'`,
+    ),
+    check(
+      "timeline_entries_type_check",
+      sql`${table.timelineType} IN ('submission', 'resubmission', 'correction', 'reviewer_contact', 'applicant_contact', 'inspection', 'approval', 'rejection', 'status_update', 'deadline', 'other')`,
+    ),
+    check(
+      "timeline_entries_title_length_check",
+      sql`length(trim(${table.title})) BETWEEN 1 AND 160`,
+    ),
+    check(
+      "timeline_entries_details_length_check",
+      sql`length(trim(${table.details})) BETWEEN 1 AND 4000`,
+    ),
+    check(
+      "timeline_entries_canonical_boolean_check",
+      sql`${table.isCanonical} IN (0, 1)`,
+    ),
+    check("timeline_entries_version_positive_check", sql`${table.version} >= 1`),
+    index("timeline_entries_case_list_idx").on(
+      table.caseId,
+      table.deletedAt,
+      table.occurredOn,
+      table.createdAt,
+      table.id,
+    ),
+    index("timeline_entries_case_canonical_idx").on(
+      table.caseId,
+      table.isCanonical,
+      table.occurredOn,
+      table.id,
+    ),
+    index("timeline_entries_created_by_idx").on(
+      table.createdByUserId,
+      table.createdAt,
+      table.id,
+    ),
+  ],
+);
+
+export type TimelineEntryRecord = typeof timelineEntries.$inferSelect;
+
+export const timelineEntryEvidence = sqliteTable(
+  "timeline_entry_evidence",
+  {
+    timelineEntryId: text("timeline_entry_id")
+      .notNull()
+      .references(() => timelineEntries.id, { onDelete: "cascade" }),
+    evidenceItemId: text("evidence_item_id")
+      .notNull()
+      .references(() => evidenceItems.id, { onDelete: "cascade" }),
+    createdAt: text("created_at")
+      .notNull()
+      .default(sql`(strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))`),
+  },
+  (table) => [
+    primaryKey({
+      columns: [table.timelineEntryId, table.evidenceItemId],
+      name: "timeline_entry_evidence_pk",
+    }),
+    index("timeline_entry_evidence_evidence_idx").on(
+      table.evidenceItemId,
+      table.timelineEntryId,
+    ),
+  ],
+);
+
 export const authSessions = sqliteTable(
   "session",
   {
