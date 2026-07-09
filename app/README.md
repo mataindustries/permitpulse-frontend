@@ -17,8 +17,9 @@ foundation through protected APIs. The protected Packet Preview API can also
 generate an on-demand local-only draft PDF from the existing server-side
 `PacketModel`. The app now includes a protected, local-only PermitPulse AI
 Review Assistant v0 draft endpoint backed by the deterministic baseline
-reviewer and evaluation foundation. It does not call a live AI model and does
-not expose production AI UI.
+reviewer and evaluation foundation, plus a case-detail AI review panel that
+calls that endpoint only after a user selects `Generate review draft`. It does
+not call a live AI model and does not expose production AI UI.
 There is still no participant assignment, file upload, stored PDF history, live
 AI integration, billing, email delivery, OAuth, user-management UI, or
 production authentication.
@@ -112,6 +113,36 @@ The v0 endpoint is stateless. It does not write an AI review, prompt, run,
 evaluation, or packet to D1, R2, local disk, or any other storage. It requires
 no AI provider, API key, provider secret, network call, or environment variable.
 There is no production AI UI.
+
+### Local AI Review UI behavior
+
+Authenticated users who can view a case see an `AI review` case-detail tab.
+The tab does not generate anything on load. Selecting `Generate review draft`
+sends one same-origin `POST` to the protected draft endpoint and validates the
+returned data again in the browser with the shared strict response schema.
+`401` responses use the existing session-expired flow; forbidden, missing,
+validation, server, and network failures render concise retry-safe messages
+without logging or displaying response bodies or operational details.
+
+The panel labels the result as a deterministic baseline review, `live_ai=false`,
+`external_calls=false`, draft only, and verify before sending. It renders the
+summary, missing information, recommended next actions, packet-record citation
+references, unsupported claims, confidence notes, overall evaluator score,
+citation validity, pass/fail state, and safety warnings as React text only.
+It does not render raw HTML or Markdown and does not describe the result as
+agency confirmation, legal advice, or an approval prediction.
+
+The persistent safety notice states that the deterministic draft uses only
+packet data already in the workspace, may miss issues, and requires evidence,
+date, status, and jurisdiction verification before sending. Reviews exist only
+in component memory and are discarded when the panel unmounts or the page is
+reloaded; the UI does not save them to D1, R2, local storage, or packet history.
+
+`Copy review text` writes a plain-text review and evaluation summary to the
+browser clipboard. The copy starts with `Draft review — verify before sending`,
+includes `live_ai=false` and `external_calls=false`, and uses citation record
+references rather than HTML. Clipboard success and failure both produce safe
+visible feedback without exposing browser error details.
 
 The future path to live model integration is to send a bounded `PacketModel` to
 an approved provider adapter behind a server-side feature gate, parse the result
@@ -302,11 +333,11 @@ automatically overwrite or resubmit user input, and it creates no client-side
 audit event. Reload fetches the latest detail DTO and activity; the next
 mutation uses the refreshed `version`.
 
-## Evidence, permit timeline, and packet-preview workflows
+## Evidence, permit timeline, packet-preview, and AI-review workflows
 
 The case detail workspace uses lightweight tabs for Overview, Evidence, Permit
-timeline, Activity, and Packet preview. Switching tabs keeps the loaded case in
-memory and does not reload an unbounded case list.
+timeline, Activity, Packet preview, and AI review. Switching tabs keeps the
+loaded case in memory and does not reload an unbounded case list.
 
 Evidence tab behavior:
 
@@ -420,8 +451,9 @@ Packet Renderer foundation:
   load external assets, execute scripts, upload to R2, or store generated PDFs.
 - Current limitation: there are no stored packet versions yet. The JSON, text,
   HTML, and PDF packet routes generate local preview output on demand only.
-- Current limitation: there is no AI yet. Open questions and recommended next
-  actions remain reviewer-written placeholders.
+- Current limitation: Packet preview does not inject AI review output. Its Open
+  questions and Recommended next actions remain reviewer-written placeholders;
+  deterministic review output is displayed separately in the AI review tab.
 - Current limitation: there is no approval workflow yet. Packet output is a
   draft preview and is not a reviewed or published packet.
 
@@ -446,7 +478,8 @@ Current Packet Builder v1 limitations:
 - PDF export is a simple local-only draft generated on demand; PDFs are not
   stored, versioned, emailed, uploaded to R2, or generated through browser
   rendering.
-- No AI-generated questions, summaries, or recommendations yet.
+- No AI-generated packet content yet. The separate AI review panel displays
+  deterministic baseline output only.
 - No approval workflow yet.
 - No client publication controls yet.
 
@@ -479,7 +512,8 @@ timeline entry; the next mutation uses the refreshed `version`.
 - Administrator-created cases are unassigned and admin-only under the current
   backend design.
 - There is no deletion, participant assignment, file upload/R2, stored PDF
-  history, AI, email, billing, OAuth, or admin user management UI.
+  history, live AI, stored AI reviews, email, billing, OAuth, or admin user
+  management UI.
 - Evidence records are structured metadata only; uploaded files are out of
   scope.
 - Browser back-button support and deep-link case routing are intentionally out
@@ -733,7 +767,8 @@ Deletion and participant assignment are not implemented yet.
 The structured evidence and timeline backend is available under the same
 authenticated `/api/v1/cases/:caseId` route tree. The current React workspace
 uses these routes for structured evidence and permit timeline controls. There
-are no uploads, stored PDFs, AI, deletion controls, or file storage.
+are no uploads, stored PDFs, stored AI reviews, deletion controls, or file
+storage.
 
 Evidence records live in `evidence_items` and contain only structured metadata:
 `evidence_type`, `title`, `summary`, optional `source_url`, optional
@@ -1047,13 +1082,18 @@ Then open the local URL shown by Vite, usually `http://localhost:5173`:
 13. Open Packet preview, confirm `Copy packet text` still copies the draft
    packet, `Print preview` still opens browser print, and `Download PDF`
    downloads or opens the protected `/packet.pdf` route for the current case.
-14. To verify stale-version behavior locally, open the same case in two browser
+14. Open AI review and confirm no review is generated until `Generate review
+    draft` is selected. Confirm the deterministic/live-AI/external-call labels,
+    review sections, evaluation score, safety warning, and packet record
+    citations appear. Confirm `Copy review text` reports success or a safe
+    clipboard fallback and that refreshing the page does not restore the draft.
+15. To verify stale-version behavior locally, open the same case in two browser
    tabs, edit or transition it in the first tab, then submit from the second tab
    and confirm the case conflict message and `Reload latest case` behavior. Do
    the same for one evidence or timeline record and confirm the record conflict
    message and `Reload latest` behavior.
-15. Refresh the browser and confirm the valid session still opens the workspace.
-16. Sign out and confirm the protected workspace no longer appears.
+16. Refresh the browser and confirm the valid session still opens the workspace.
+17. Sign out and confirm the protected workspace no longer appears.
 
 Preview deployment, preview D1 migration, preview auth enablement, and preview
 administrator bootstrap remain separate reviewed steps.

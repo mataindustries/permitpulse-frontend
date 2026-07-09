@@ -3,6 +3,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import {
   CaseApiError,
   createCase,
+  generateAiReviewDraft,
   getCase,
   listCaseActivity,
   listCases,
@@ -29,6 +30,12 @@ import {
   PacketPreview,
 } from "../src/client/components/PacketPreview";
 import {
+  AIReviewPanel,
+  compileAiReviewText,
+  copyAiReviewText,
+  safeAiReviewError,
+} from "../src/client/components/AIReviewPanel";
+import {
   StatusManagement,
   validNextStatuses,
 } from "../src/client/components/StatusManagement";
@@ -49,6 +56,7 @@ import type {
   EvidenceItemDto,
   TimelineEntryDto,
 } from "../src/client/types/evidence-timeline";
+import type { PacketReviewDraftResponseData } from "../src/shared/ai-review/types";
 
 const safeCase: CaseDto = {
   id: "00000000-0000-4000-8000-000000000001",
@@ -103,6 +111,48 @@ const safeTimeline: TimelineEntryDto = {
   updated_at: "2026-01-21T00:00:00.000Z",
 };
 
+const safeAiReview: PacketReviewDraftResponseData = {
+  review: {
+    summary: "The packet case is in Intake.",
+    missing_information: ["Permit number is not provided."],
+    recommended_next_actions: ["Review missing fields before relying on the packet."],
+    evidence_citations: [
+      {
+        source_type: "evidence",
+        record_id: safeEvidence.id,
+        note: "This evidence record is included in the packet.",
+      },
+    ],
+    unsupported_claims: ["A fictional unsupported claim for human review."],
+    confidence_notes: ["Treat unverified evidence as needing human review."],
+    model_metadata: {
+      reviewer: "deterministic-baseline",
+      generated_at: "2026-07-09T12:00:00.000Z",
+      local_only: true,
+      version: "2026-07-09",
+    },
+  },
+  evaluation: {
+    score: 96,
+    passed: true,
+    warnings: [],
+    citation_validity: {
+      score: 100,
+      passed: true,
+      invalid_citations: [],
+    },
+    safety: {
+      passed: true,
+      warnings: [],
+    },
+  },
+  metadata: {
+    reviewer: "deterministic-baseline",
+    live_ai: false,
+    external_calls: false,
+  },
+};
+
 const defaultDetailProps = {
   activityError: "",
   activityLoading: false,
@@ -141,6 +191,7 @@ const defaultDetailProps = {
   onEvidenceNextPage: () => undefined,
   onEvidencePreviousPage: () => undefined,
   onEvidenceRetry: () => undefined,
+  onGenerateAiReview: async () => safeAiReview,
   onLinkEvidence: async () => safeTimeline,
   onMetadataUpdate: async () => undefined,
   onReloadEvidence: async () => safeEvidence,
@@ -455,6 +506,73 @@ describe("case API client", () => {
       kind: "forbidden",
       status: 403,
       code: "FORBIDDEN",
+    });
+  });
+
+  it("posts to the protected AI review draft endpoint and validates the response", async () => {
+    const fetchMock = vi.fn(() => Promise.resolve(okJson(safeAiReview)));
+    vi.stubGlobal("fetch", fetchMock);
+
+    await expect(generateAiReviewDraft(safeCase.id)).resolves.toEqual(
+      safeAiReview,
+    );
+    expect(fetchMock).toHaveBeenCalledWith(
+      `/api/v1/cases/${safeCase.id}/ai-review/draft`,
+      expect.objectContaining({
+        method: "POST",
+        credentials: "same-origin",
+        headers: expect.objectContaining({ accept: "application/json" }),
+      }),
+    );
+  });
+
+  it("rejects malformed AI review responses without exposing response data", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(() => Promise.resolve(okJson({ ...safeAiReview, token: "hidden" }))),
+    );
+
+    await expect(generateAiReviewDraft(safeCase.id)).rejects.toMatchObject({
+      kind: "server",
+      code: "INVALID_RESPONSE",
+      message: "The case request could not be completed. Try again.",
+    });
+  });
+
+  it("maps AI review authorization, validation, server, and network failures safely", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi
+        .fn()
+        .mockResolvedValueOnce(
+          errorJson(401, "UNAUTHENTICATED", "Authentication is required."),
+        )
+        .mockResolvedValueOnce(
+          errorJson(403, "FORBIDDEN", "The request is not allowed."),
+        )
+        .mockResolvedValueOnce(
+          errorJson(404, "CASE_NOT_FOUND", "The case was not found."),
+        )
+        .mockResolvedValueOnce(
+          errorJson(400, "INVALID_CASE_ID", "The case ID is invalid."),
+        )
+        .mockResolvedValueOnce(
+          errorJson(500, "INTERNAL_ERROR", "private server detail"),
+        )
+        .mockRejectedValueOnce(new Error("private network detail")),
+    );
+
+    await expect(generateAiReviewDraft(safeCase.id)).rejects.toMatchObject({ kind: "unauthorized" });
+    await expect(generateAiReviewDraft(safeCase.id)).rejects.toMatchObject({ kind: "forbidden" });
+    await expect(generateAiReviewDraft(safeCase.id)).rejects.toMatchObject({ kind: "not-found" });
+    await expect(generateAiReviewDraft(safeCase.id)).rejects.toMatchObject({ kind: "validation" });
+    await expect(generateAiReviewDraft(safeCase.id)).rejects.toMatchObject({
+      kind: "server",
+      message: "The case request could not be completed. Try again.",
+    });
+    await expect(generateAiReviewDraft(safeCase.id)).rejects.toMatchObject({
+      kind: "network",
+      message: "The network request could not be completed.",
     });
   });
 });
@@ -1409,6 +1527,159 @@ describe("case workspace components", () => {
 
     expect(markup).toContain("Packet preview");
     expect(markup).toContain('role="tab"');
+  });
+
+  it("shows the AI review tab for signed-in case detail users", () => {
+    const markup = renderToStaticMarkup(
+      <CaseDetail {...defaultDetailProps} caseRecord={safeCase} />,
+    );
+
+    expect(markup).toContain("AI review");
+    expect(markup).toContain('role="tab"');
+  });
+
+  it("starts the AI review panel without an automatically generated review", () => {
+    const markup = renderToStaticMarkup(
+      <AIReviewPanel onGenerate={async () => safeAiReview} />,
+    );
+
+    expect(markup).toContain("Deterministic baseline review");
+    expect(markup).toContain("Generate review draft");
+    expect(markup).toContain("No review draft has been generated");
+    expect(markup).not.toContain("Generated draft review");
+  });
+
+  it("renders an accessible AI review loading state", () => {
+    const markup = renderToStaticMarkup(
+      <AIReviewPanel
+        initialStatus="loading"
+        onGenerate={async () => safeAiReview}
+      />,
+    );
+
+    expect(markup).toContain('aria-busy="true"');
+    expect(markup).toContain("Generating review...");
+    expect(markup).toContain("Generating a deterministic review");
+    expect(markup).toContain('role="status"');
+  });
+
+  it("renders the complete validated review and evaluation report", () => {
+    const markup = renderToStaticMarkup(
+      <AIReviewPanel
+        initialData={safeAiReview}
+        onGenerate={async () => safeAiReview}
+      />,
+    );
+
+    expect(markup).toContain("The packet case is in Intake.");
+    expect(markup).toContain("Missing information");
+    expect(markup).toContain("Permit number is not provided.");
+    expect(markup).toContain("Recommended next actions");
+    expect(markup).toContain("Review missing fields before relying on the packet.");
+    expect(markup).toContain("Evidence citations");
+    expect(markup).toContain(safeEvidence.id);
+    expect(markup).not.toContain("This evidence record is included in the packet.");
+    expect(markup).toContain("Unsupported claims");
+    expect(markup).toContain("A fictional unsupported claim for human review.");
+    expect(markup).toContain("Confidence notes");
+    expect(markup).toContain("Treat unverified evidence as needing human review.");
+    expect(markup).toContain("96/100");
+    expect(markup).toContain("Citation validity");
+    expect(markup).toContain("Safety warnings");
+    expect(markup).toContain("live_ai=false");
+    expect(markup).toContain("external_calls=false");
+    expect(markup).toContain("Copy review text");
+    expect(markup).toContain("not live AI");
+    expect(markup).toContain("may miss issues");
+    expect(markup).toContain("not legal advice");
+  });
+
+  it("renders XSS-like review values as text and omits private fields", () => {
+    const markup = renderToStaticMarkup(
+      <AIReviewPanel
+        initialData={{
+          ...safeAiReview,
+          review: {
+            ...safeAiReview.review,
+            summary: "<script>alert('review')</script>",
+            missing_information: ["<img src=x onerror=alert(1)>"],
+          },
+        }}
+        onGenerate={async () => safeAiReview}
+      />,
+    ).toLowerCase();
+
+    expect(markup).toContain("&lt;script&gt;alert(&#x27;review&#x27;)&lt;/script&gt;");
+    expect(markup).toContain("&lt;img src=x onerror=alert(1)&gt;");
+    expect(markup).not.toContain("<script>");
+    for (const forbidden of [
+      "password",
+      "account",
+      "cookie",
+      "token",
+      "authorization",
+      "request_id",
+      "created_by_user_id",
+      "deleted_at",
+      "lifecycle_mutation_nonce",
+    ]) {
+      expect(markup).not.toContain(forbidden);
+    }
+  });
+
+  it("renders safe retry errors without operational detail", () => {
+    const notFound = safeAiReviewError(
+      new CaseApiError("not-found", "private missing detail", 404),
+    );
+    const server = safeAiReviewError(
+      new CaseApiError("server", "private stack detail", 500),
+    );
+    const markup = renderToStaticMarkup(
+      <AIReviewPanel
+        initialError={server}
+        initialStatus="error"
+        onGenerate={async () => safeAiReview}
+      />,
+    );
+
+    expect(notFound).toBe("The case was not found or is no longer available.");
+    expect(server).toBe("The review draft could not be generated. Try again.");
+    expect(markup).toContain("Review unavailable");
+    expect(markup).toContain("Retry review draft");
+    expect(markup).not.toContain("private stack detail");
+  });
+
+  it("compiles and copies clean review text with safe feedback", async () => {
+    const text = compileAiReviewText(safeAiReview);
+    const writes: string[] = [];
+    const success = await copyAiReviewText(text, {
+      writeText: async (value) => {
+        writes.push(value);
+      },
+    });
+    const failure = await copyAiReviewText(text, {
+      writeText: async () => {
+        throw new Error("private clipboard detail");
+      },
+    });
+    const failureMarkup = renderToStaticMarkup(
+      <AIReviewPanel
+        initialCopyStatus="error"
+        initialData={safeAiReview}
+        onGenerate={async () => safeAiReview}
+      />,
+    );
+
+    expect(text).toContain("Draft review — verify before sending");
+    expect(text).toContain("live_ai=false");
+    expect(text).toContain("external_calls=false");
+    expect(text).toContain(`evidence: ${safeEvidence.id}`);
+    expect(text).not.toContain("<ul>");
+    expect(success).toBe(true);
+    expect(writes).toEqual([text]);
+    expect(failure).toBe(false);
+    expect(failureMarkup).toContain("Review text could not be copied.");
+    expect(failureMarkup).not.toContain("private clipboard detail");
   });
 
   it("renders packet overview, controls, and print-friendly actions", () => {

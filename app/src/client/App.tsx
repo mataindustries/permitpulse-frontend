@@ -2,6 +2,7 @@ import { type FormEvent, useEffect, useState } from "react";
 import {
   CaseApiError,
   createCase,
+  generateAiReviewDraft,
   getCase,
   listCaseActivity,
   listCases,
@@ -44,6 +45,7 @@ import type {
   UpdateEvidenceInput,
   UpdateTimelineInput,
 } from "./types/evidence-timeline";
+import type { PacketReviewDraftResponseData } from "../shared/ai-review/types";
 
 interface AuthCapabilities {
   enabled: boolean;
@@ -75,6 +77,7 @@ interface CaseClient {
   createEvidence: typeof createEvidence;
   createCase: typeof createCase;
   createTimelineEntry: typeof createTimelineEntry;
+  generateAiReviewDraft: typeof generateAiReviewDraft;
   getCase: typeof getCase;
   getEvidence: typeof getEvidence;
   getTimelineEntry: typeof getTimelineEntry;
@@ -94,6 +97,7 @@ const defaultCaseClient: CaseClient = {
   createEvidence,
   createCase,
   createTimelineEntry,
+  generateAiReviewDraft,
   getCase,
   getEvidence,
   getTimelineEntry,
@@ -496,6 +500,21 @@ function Workspace({
     }
   }
 
+  async function handleGenerateAiReview(): Promise<PacketReviewDraftResponseData> {
+    if (!detailCase) {
+      throw new Error("No case is open.");
+    }
+
+    try {
+      return await client.generateAiReviewDraft(detailCase.id);
+    } catch (error) {
+      if (error instanceof CaseApiError && error.kind === "unauthorized") {
+        onSessionExpired();
+      }
+      throw error;
+    }
+  }
+
   function replaceEvidence(updated: EvidenceItemDto) {
     setEvidenceResponse((current) => {
       if (!current) {
@@ -873,6 +892,7 @@ function Workspace({
                   );
                 }
               }}
+              onGenerateAiReview={handleGenerateAiReview}
               onLinkEvidence={handleLinkEvidence}
               onMetadataUpdate={handleMetadataUpdate}
               onReloadEvidence={handleReloadEvidence}

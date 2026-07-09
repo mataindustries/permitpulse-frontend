@@ -6,6 +6,8 @@ import type {
   UpdateCaseMetadataInput,
   UpdateCaseStatusInput,
 } from "../types/cases";
+import { packetReviewDraftResponseDataSchema } from "../../shared/ai-review/schema";
+import type { PacketReviewDraftResponseData } from "../../shared/ai-review/types";
 
 export type CaseApiErrorKind =
   | "unauthorized"
@@ -284,4 +286,25 @@ export async function listCaseActivity(
   return requestJson<CaseActivityResponse>(
     `/api/v1/cases/${encodeURIComponent(caseId)}/activity?${searchParams.toString()}`,
   );
+}
+
+export async function generateAiReviewDraft(
+  caseId: string,
+): Promise<PacketReviewDraftResponseData> {
+  const data = await requestJson<unknown>(
+    `/api/v1/cases/${encodeURIComponent(caseId)}/ai-review/draft`,
+    { method: "POST" },
+  );
+  const parsed = packetReviewDraftResponseDataSchema.safeParse(data);
+
+  if (!parsed.success) {
+    throw new CaseApiError(
+      "server",
+      fallbackMessage("server"),
+      200,
+      "INVALID_RESPONSE",
+    );
+  }
+
+  return parsed.data;
 }

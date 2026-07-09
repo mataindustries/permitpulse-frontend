@@ -24,6 +24,7 @@ import { EvidenceForm } from "./EvidenceForm";
 import { EvidenceLinkManager } from "./EvidenceLinkManager";
 import { EvidenceList } from "./EvidenceList";
 import { PacketPreview } from "./PacketPreview";
+import { AIReviewPanel } from "./AIReviewPanel";
 import { StatusBadge } from "./StatusBadge";
 import { StatusManagement } from "./StatusManagement";
 import { TimelineForm } from "./TimelineForm";
@@ -33,13 +34,15 @@ import {
   isStaleRecordVersion,
   safeRecordError,
 } from "./evidenceTimelineUtils";
+import type { PacketReviewDraftResponseData } from "../../shared/ai-review/types";
 
 type DetailSection =
   | "overview"
   | "evidence"
   | "timeline"
   | "activity"
-  | "packet";
+  | "packet"
+  | "ai-review";
 
 interface CaseDetailProps {
   activityError: string;
@@ -68,6 +71,7 @@ interface CaseDetailProps {
   onEvidenceNextPage: () => void;
   onEvidencePreviousPage: () => void;
   onEvidenceRetry: () => void;
+  onGenerateAiReview: () => Promise<PacketReviewDraftResponseData>;
   onLinkEvidence: (
     timelineId: string,
     evidenceId: string,
@@ -231,6 +235,7 @@ const detailSections = [
   ["timeline", "Permit timeline"],
   ["activity", "Activity"],
   ["packet", "Packet preview"],
+  ["ai-review", "AI review"],
 ] as const satisfies readonly [DetailSection, string][];
 
 export function CaseDetail({
@@ -260,6 +265,7 @@ export function CaseDetail({
   onEvidenceNextPage,
   onEvidencePreviousPage,
   onEvidenceRetry,
+  onGenerateAiReview,
   onLinkEvidence,
   onMetadataUpdate,
   onReloadEvidence,
@@ -531,11 +537,13 @@ export function CaseDetail({
           <div className="section-tabs" role="tablist" aria-label="Case detail sections">
             {detailSections.map(([section, label]) => (
               <button
+                aria-controls={`case-detail-panel-${section}`}
                 aria-selected={activeSection === section}
                 className={
                   activeSection === section ? "tab-button active" : "tab-button"
                 }
                 key={section}
+                id={`case-detail-tab-${section}`}
                 role="tab"
                 type="button"
                 onClick={() => setActiveSection(section)}
@@ -544,6 +552,12 @@ export function CaseDetail({
               </button>
             ))}
           </div>
+
+          <div
+            aria-labelledby={`case-detail-tab-${activeSection}`}
+            id={`case-detail-panel-${activeSection}`}
+            role="tabpanel"
+          >
 
           {activeSection === "overview" && (
             <>
@@ -877,6 +891,14 @@ export function CaseDetail({
               timeline={timelineItems}
             />
           )}
+
+          {activeSection === "ai-review" && (
+            <AIReviewPanel
+              key={caseRecord.id}
+              onGenerate={onGenerateAiReview}
+            />
+          )}
+          </div>
         </div>
       )}
     </section>
