@@ -296,6 +296,28 @@ async function fetchJsonPacket(cookie: string, caseId: string) {
   return { response, body };
 }
 
+async function fetchPdfPacket(cookie: string, caseId: string) {
+  const response = await request(`/api/v1/cases/${caseId}/packet.pdf`, {
+    headers: { cookie },
+  });
+  const bytes = new Uint8Array(await response.arrayBuffer());
+
+  return { response, bytes };
+}
+
+function expectPdfResponse(response: Response, bytes: Uint8Array) {
+  const disposition = response.headers.get("content-disposition");
+  const filename = disposition?.match(/filename="([^"]+)"/)?.[1];
+
+  expect(response.status).toBe(200);
+  expect(response.headers.get("content-type")).toContain("application/pdf");
+  expect(disposition).toMatch(/^attachment; filename="permitpulse-packet-[a-z0-9-]+\.pdf"$/);
+  expect(filename).toBeTruthy();
+  expect(filename).not.toMatch(/[\\/\r\n]/);
+  expect(bytes.length).toBeGreaterThan(100);
+  expect(new TextDecoder().decode(bytes.slice(0, 5))).toBe("%PDF-");
+}
+
 beforeEach(async () => {
   await cleanDatabase();
 });
@@ -307,9 +329,10 @@ describe("packet preview routes", () => {
       request(`/api/v1/cases/${caseId}/packet`),
       request(`/api/v1/cases/${caseId}/packet.txt`),
       request(`/api/v1/cases/${caseId}/packet.html`),
+      request(`/api/v1/cases/${caseId}/packet.pdf`),
     ]);
 
-    expect(responses.map(({ status }) => status)).toEqual([401, 401, 401]);
+    expect(responses.map(({ status }) => status)).toEqual([401, 401, 401, 401]);
   });
 
   it("allows admins and owner clients to fetch JSON packets", async () => {
@@ -327,6 +350,19 @@ describe("packet preview routes", () => {
       "Fictional Packet Workspace A",
     );
     expect(adminResult.body.data.packet.evidence_summaries).toHaveLength(1);
+  });
+
+  it("allows admins and owner clients to export PDF packets", async () => {
+    const { a, admin, caseA } = await setupWorkspace();
+
+    await createEvidence(a.cookie, caseA.id);
+    await createTimeline(a.cookie, caseA.id);
+
+    const owner = await fetchPdfPacket(a.cookie, caseA.id);
+    const adminResult = await fetchPdfPacket(admin.cookie, caseA.id);
+
+    expectPdfResponse(owner.response, owner.bytes);
+    expectPdfResponse(adminResult.response, adminResult.bytes);
   });
 
   it("returns a safe 404 for unrelated clients", async () => {
@@ -351,6 +387,19 @@ describe("packet preview routes", () => {
       error: { code: "CASE_NOT_FOUND" },
     });
     expect(caseA.id).toBeTruthy();
+  });
+
+  it("returns a safe 404 for unrelated PDF exports", async () => {
+    const { a, caseB } = await setupWorkspace();
+    const response = await request(`/api/v1/cases/${caseB.id}/packet.pdf`, {
+      headers: { cookie: a.cookie },
+    });
+
+    expect(response.status).toBe(404);
+    expect(await response.json()).toMatchObject({
+      ok: false,
+      error: { code: "CASE_NOT_FOUND" },
+    });
   });
 
   it("assembles JSON packet sections from safe case, evidence, timeline, and activity data", async () => {
@@ -494,6 +543,36 @@ describe("packet preview routes", () => {
     }
   });
 
+  it("returns non-empty PDF packets without obvious private field names", async () => {
+    const { a, caseA } = await setupWorkspace();
+
+    await createEvidence(a.cookie, caseA.id, {
+      ...evidenceInput,
+      title: "<b>Unsafe packet evidence</b>",
+      summary: "<img src=x onerror=alert(1)>",
+    });
+    await createTimeline(a.cookie, caseA.id);
+
+    const { response, bytes } = await fetchPdfPacket(a.cookie, caseA.id);
+    const pdfText = new TextDecoder("latin1").decode(bytes).toLowerCase();
+
+    expectPdfResponse(response, bytes);
+    for (const forbidden of [
+      "authorization",
+      "password",
+      "session",
+      "account",
+      "cookie",
+      "token",
+      "request_id",
+      "created_by_user_id",
+      "deleted_at",
+      "lifecycle_mutation_nonce",
+    ]) {
+      expect(pdfText).not.toContain(forbidden);
+    }
+  });
+
   it("uses bounded deterministic source lists for packet assembly", async () => {
     const { a, admin, caseA } = await setupWorkspace();
 
@@ -523,9 +602,41 @@ describe("packet preview routes", () => {
     ]);
   });
 
+  it("uses the same bounded packet assembly limits for PDF export", async () => {
+    const { a, admin, caseA } = await setupWorkspace();
+
+    await env.DB.prepare("DELETE FROM audit_events WHERE case_id = ?")
+      .bind(caseA.id)
+      .run();
+    await insertEvidenceRows(caseA.id, a.userId, 55);
+    await insertTimelineRows(caseA.id, a.userId, 55);
+    await insertActivityRows(caseA.id, a.userId, 30);
+
+    const pdf = await fetchPdfPacket(admin.cookie, caseA.id);
+    const json = await fetchJsonPacket(admin.cookie, caseA.id);
+
+    expectPdfResponse(pdf.response, pdf.bytes);
+    expect(json.body.data.packet.evidence_summaries).toHaveLength(50);
+    expect(json.body.data.packet.timeline_summaries).toHaveLength(50);
+    expect(json.body.data.packet.recent_activity_summaries).toHaveLength(25);
+  });
+
   it("rejects invalid packet case IDs safely", async () => {
     const { a } = await setupWorkspace();
     const response = await request("/api/v1/cases/not-a-uuid/packet", {
+      headers: { cookie: a.cookie },
+    });
+
+    expect(response.status).toBe(400);
+    expect(await response.json()).toMatchObject({
+      ok: false,
+      error: { code: "INVALID_CASE_ID" },
+    });
+  });
+
+  it("rejects invalid packet PDF case IDs safely", async () => {
+    const { a } = await setupWorkspace();
+    const response = await request("/api/v1/cases/not-a-uuid/packet.pdf", {
       headers: { cookie: a.cookie },
     });
 

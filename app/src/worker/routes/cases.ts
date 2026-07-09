@@ -2,6 +2,10 @@ import { Hono, type Context } from "hono";
 import { bodyLimit } from "hono/body-limit";
 import { buildPacketModel } from "../../shared/packet/build-packet-model";
 import { renderPacketHtml } from "../../shared/packet/render-packet-html";
+import {
+  renderPacketPdf,
+  safePacketPdfFilename,
+} from "../../shared/packet/render-packet-pdf";
 import { renderPacketText } from "../../shared/packet/render-packet-text";
 import type { PacketModel } from "../../shared/packet/types";
 import {
@@ -298,6 +302,39 @@ caseRoutes.get("/:caseId/packet.html", async (context) => {
       "content-type": "text/html; charset=utf-8",
     },
   });
+});
+
+caseRoutes.get("/:caseId/packet.pdf", async (context) => {
+  const packetResult = await packetForRequest(context);
+
+  if (!packetResult.ok) {
+    return packetResult.response;
+  }
+
+  try {
+    const pdfBytes = await renderPacketPdf(packetResult.packet);
+    const filename = safePacketPdfFilename(
+      packetResult.packet,
+      packetResult.caseId,
+    );
+
+    const responseBody = new ArrayBuffer(pdfBytes.byteLength);
+    new Uint8Array(responseBody).set(pdfBytes);
+
+    return new Response(responseBody, {
+      headers: {
+        "content-disposition": `attachment; filename="${filename}"`,
+        "content-type": "application/pdf",
+      },
+    });
+  } catch {
+    return errorResponse(
+      context,
+      500,
+      "PACKET_PDF_FAILED",
+      "The packet PDF could not be generated.",
+    );
+  }
 });
 
 caseRoutes.post("/:caseId/evidence", async (context) => {

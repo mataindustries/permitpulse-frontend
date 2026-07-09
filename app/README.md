@@ -13,8 +13,10 @@ transition controls. The browser workspace now also exposes local-only
 structured evidence, provenance, verification state, canonical timeline
 records, timeline-to-evidence links, a first local-only Packet Builder preview,
 server-side Packet Preview endpoints, and a shared local-only Packet Renderer
-foundation through protected APIs.
-There is still no participant assignment, file upload, PDF generation, AI,
+foundation through protected APIs. The protected Packet Preview API can also
+generate an on-demand local-only draft PDF from the existing server-side
+`PacketModel`.
+There is still no participant assignment, file upload, stored PDF history, AI,
 billing, email delivery, OAuth, user-management UI, or production
 authentication.
 
@@ -282,11 +284,18 @@ Server-side Packet Preview API behavior:
    `renderPacketText` with `content-type: text/plain; charset=utf-8`.
 3. `GET /api/v1/cases/:caseId/packet.html` returns the same packet through
    `renderPacketHtml` with `content-type: text/html; charset=utf-8`.
-4. Text and HTML packet responses use `Content-Disposition: inline` with a
+4. `GET /api/v1/cases/:caseId/packet.pdf` returns the same packet as an
+   on-demand PDF generated inside the Worker with `content-type:
+   application/pdf`.
+5. Text and HTML packet responses use `Content-Disposition: inline` with a
    deterministic filename so a browser can preview them directly during local
    development.
-5. The browser Packet preview tab is not required to depend on these endpoints
-   yet; it still preserves the current copy and print-preview behavior.
+6. PDF packet responses use `Content-Disposition: attachment` with a sanitized
+   deterministic filename based on safe case/project data and the case UUID.
+   The PDF is downloaded by the browser and is never stored by the app.
+7. The browser Packet preview tab includes a `Download PDF` action for the
+   protected PDF route and still preserves the current copy and print-preview
+   behavior.
 
 Packet Renderer foundation:
 
@@ -301,16 +310,16 @@ Packet Renderer foundation:
 - `renderPacketText` emits clean plain text with generated timestamp, section
   headings, verification labels, timeline canonical/contributed labels, source
   label/URL/date when present, placeholders, and the internal-review disclaimer.
-- `renderPacketHtml` emits a deterministic print-friendly HTML document string
-  for future PDF work. It escapes stored text, never renders stored text as raw
+- `renderPacketHtml` emits a deterministic print-friendly HTML document string.
+  It escapes stored text, never renders stored text as raw
   HTML, uses no script tags, uses no external scripts, and only turns
   `http`/`https` source URLs into links.
-- Current limitation: there is no PDF generation yet. The future path is to pass
-  the deterministic PacketModel through the safe HTML renderer, then render that
-  HTML in a server-side PDF service after approval, packet-versioning, storage,
-  and authorization are implemented.
+- `renderPacketPdf` emits a simple local-only PDF directly from the
+  `PacketModel` text output using a pure JavaScript PDF writer. It does not run
+  browser automation, call external services, use Cloudflare Browser Rendering,
+  load external assets, execute scripts, upload to R2, or store generated PDFs.
 - Current limitation: there are no stored packet versions yet. The JSON, text,
-  and HTML packet routes generate local preview output on demand only.
+  HTML, and PDF packet routes generate local preview output on demand only.
 - Current limitation: there is no AI yet. Open questions and recommended next
   actions remain reviewer-written placeholders.
 - Current limitation: there is no approval workflow yet. Packet output is a
@@ -334,7 +343,9 @@ Print-preview behavior:
 
 Current Packet Builder v1 limitations:
 
-- No PDF generation yet.
+- PDF export is a simple local-only draft generated on demand; PDFs are not
+  stored, versioned, emailed, uploaded to R2, or generated through browser
+  rendering.
 - No AI-generated questions, summaries, or recommendations yet.
 - No approval workflow yet.
 - No client publication controls yet.
@@ -367,8 +378,8 @@ timeline entry; the next mutation uses the refreshed `version`.
 
 - Administrator-created cases are unassigned and admin-only under the current
   backend design.
-- There is no deletion, participant assignment, file upload/R2, PDF generation,
-  AI, email, billing, OAuth, or admin user management UI.
+- There is no deletion, participant assignment, file upload/R2, stored PDF
+  history, AI, email, billing, OAuth, or admin user management UI.
 - Evidence records are structured metadata only; uploaded files are out of
   scope.
 - Browser back-button support and deep-link case routing are intentionally out
@@ -456,6 +467,7 @@ Better Auth session:
 | `GET` | `/api/v1/cases/:caseId/packet` | Build a server-side JSON packet preview. |
 | `GET` | `/api/v1/cases/:caseId/packet.txt` | Build a server-side plain-text packet preview. |
 | `GET` | `/api/v1/cases/:caseId/packet.html` | Build a server-side safe HTML packet preview. |
+| `GET` | `/api/v1/cases/:caseId/packet.pdf` | Build a local-only draft PDF packet preview. |
 
 Creation accepts only these JSON fields:
 
@@ -620,7 +632,7 @@ Deletion and participant assignment are not implemented yet.
 The structured evidence and timeline backend is available under the same
 authenticated `/api/v1/cases/:caseId` route tree. The current React workspace
 uses these routes for structured evidence and permit timeline controls. There
-are no uploads, PDF generation, AI, deletion controls, or file storage.
+are no uploads, stored PDFs, AI, deletion controls, or file storage.
 
 Evidence records live in `evidence_items` and contain only structured metadata:
 `evidence_type`, `title`, `summary`, optional `source_url`, optional
@@ -758,6 +770,7 @@ Server-side packet preview routes live under the authenticated case route tree:
 | `GET` | `/api/v1/cases/:caseId/packet` | Return `{ ok: true, data: { packet } }` where `packet` is a `PacketModel`. |
 | `GET` | `/api/v1/cases/:caseId/packet.txt` | Return clean plain text from `renderPacketText`. |
 | `GET` | `/api/v1/cases/:caseId/packet.html` | Return safe deterministic HTML from `renderPacketHtml`. |
+| `GET` | `/api/v1/cases/:caseId/packet.pdf` | Return a simple on-demand PDF from `renderPacketPdf`. |
 
 Authorization matches the existing case read behavior. Admins may preview
 packets for any case. Participating clients may preview packets for their own
@@ -780,17 +793,30 @@ ordered by created time descending, then ID descending. The shared packet model
 builder also sorts defensively before rendering, so equal database timestamps
 still produce stable output.
 
-Packet JSON, text, and HTML are built only from whitelisted safe DTO fields:
-case detail, evidence metadata, timeline metadata and evidence links, and
-public activity labels. They do not include auth/session/account rows, cookies,
-tokens, passwords, request IDs, participant rows, deleted records, private
-mutation fields, raw database rows, stored HTML, AI output, or invented claims.
-The HTML renderer escapes stored text, emits no scripts, uses no external
-scripts, and only converts absolute `http`/`https` source URLs into links.
+Packet JSON, text, HTML, and PDF are built only from whitelisted safe DTO
+fields: case detail, evidence metadata, timeline metadata and evidence links,
+and public activity labels. They do not include auth/session/account rows,
+cookies, tokens, passwords, request IDs, participant rows, deleted records,
+private mutation fields, raw database rows, stored HTML, AI output, or invented
+claims. The HTML renderer escapes stored text, emits no scripts, uses no
+external scripts, and only converts absolute `http`/`https` source URLs into
+links. The PDF renderer writes plain text from the shared packet text renderer
+into a PDF document; it does not interpret HTML, execute scripts, or load
+external assets.
+
+PDF responses use:
+
+```text
+Content-Type: application/pdf
+Content-Disposition: attachment; filename="permitpulse-packet-<safe-project>-<case-id>.pdf"
+```
+
+The filename is deterministic, lower-case, and restricted to letters, numbers,
+hyphens, and `.pdf`. PDF output is generated per request and is not saved to
+D1, R2, local disk, email, or any packet history table.
 
 Current Packet Preview API limitations:
 
-- No PDF generation yet.
 - No stored packet versions yet.
 - No AI yet.
 - No approval workflow yet.
@@ -861,6 +887,22 @@ curl --fail-with-body \
   http://localhost:5173/api/v1/cases/00000000-0000-4000-8000-000000000000/timeline
 ```
 
+After creating or opening a fictional case, test the local-only packet PDF
+route with the same authenticated cookie. Replace the UUID with a visible local
+case ID:
+
+```bash
+curl --fail-with-body \
+  -b /tmp/permitpulse-client-a.cookies \
+  -o /tmp/permitpulse-packet.pdf \
+  http://localhost:5173/api/v1/cases/00000000-0000-4000-8000-000000000000/packet.pdf
+
+head -c 5 /tmp/permitpulse-packet.pdf
+```
+
+The header check should print `%PDF-`. This call must not create a stored
+packet row, upload to R2, send email, call AI, or use browser rendering.
+
 Administrators are created only through the documented preview bootstrap
 procedure or direct local test fixtures. There is no public signup or request
 body field that can promote a user to admin.
@@ -900,13 +942,16 @@ Then open the local URL shown by Vite, usually `http://localhost:5173`:
    entries cannot be edited.
 12. Select a timeline entry, link another eligible evidence item, then unlink it
    and confirm only the relationship is removed.
-13. To verify stale-version behavior locally, open the same case in two browser
+13. Open Packet preview, confirm `Copy packet text` still copies the draft
+   packet, `Print preview` still opens browser print, and `Download PDF`
+   downloads or opens the protected `/packet.pdf` route for the current case.
+14. To verify stale-version behavior locally, open the same case in two browser
    tabs, edit or transition it in the first tab, then submit from the second tab
    and confirm the case conflict message and `Reload latest case` behavior. Do
    the same for one evidence or timeline record and confirm the record conflict
    message and `Reload latest` behavior.
-14. Refresh the browser and confirm the valid session still opens the workspace.
-15. Sign out and confirm the protected workspace no longer appears.
+15. Refresh the browser and confirm the valid session still opens the workspace.
+16. Sign out and confirm the protected workspace no longer appears.
 
 Preview deployment, preview D1 migration, preview auth enablement, and preview
 administrator bootstrap remain separate reviewed steps.
@@ -920,6 +965,7 @@ npm run typecheck
 npm test
 npm run build
 npm run build:preview
+git diff --check
 ```
 
 Tests use Cloudflare's Workers Vitest integration and an isolated D1 database.

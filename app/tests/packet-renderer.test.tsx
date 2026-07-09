@@ -2,6 +2,7 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { describe, expect, it } from "vitest";
 import { buildPacketModel } from "../src/shared/packet/build-packet-model";
 import { renderPacketHtml } from "../src/shared/packet/render-packet-html";
+import { safePacketPdfFilename } from "../src/shared/packet/render-packet-pdf";
 import { renderPacketText } from "../src/shared/packet/render-packet-text";
 import type {
   BuildPacketModelInput,
@@ -376,6 +377,25 @@ describe("packet HTML renderer", () => {
   });
 });
 
+describe("packet PDF helpers", () => {
+  it("generates deterministic safe PDF filenames from packet and case data", () => {
+    const model = buildPacketModel(
+      completeInput({
+        caseRecord: {
+          ...caseRecord,
+          project_name: "../Fictional Oak Street ADU <script>",
+        },
+      }),
+    );
+
+    expect(
+      safePacketPdfFilename(model, "00000000-0000-4000-8000-000000000001"),
+    ).toBe(
+      "permitpulse-packet-fictional-oak-street-adu-script-00000000-0000-4000-8000-000000000001.pdf",
+    );
+  });
+});
+
 describe("PacketPreview packet text integration", () => {
   it("uses the shared packet text output for its compile helper", () => {
     const input = completeInput();
@@ -404,5 +424,20 @@ describe("PacketPreview packet text integration", () => {
     expect(markup).toContain("Draft packet preview — verify before sending");
     expect(markup).toContain("Fictional plan check notice");
     expect(markup).not.toContain('href="javascript:alert(1)"');
+  });
+
+  it("renders a protected PDF download action without changing copy or print actions", () => {
+    const markup = renderToStaticMarkup(
+      <PacketPreview
+        activityResponse={previewActivityResponse}
+        caseRecord={previewCaseRecord}
+        evidence={[previewEvidence]}
+        timeline={[previewTimeline]}
+      />,
+    );
+
+    expect(markup).toContain("Copy packet text");
+    expect(markup).toContain("Download PDF");
+    expect(markup).toContain("Print preview");
   });
 });

@@ -66,6 +66,9 @@ export function PacketPreview({
     [activityResponse, caseRecord, evidence, generatedAt, timeline],
   );
   const packetText = useMemo(() => renderPacketText(packetModel), [packetModel]);
+  const packetPdfPath = caseRecord.id
+    ? `/api/v1/cases/${encodeURIComponent(caseRecord.id)}/packet.pdf`
+    : null;
 
   async function handleCopy() {
     setCopyStatus("idle");
@@ -81,6 +84,14 @@ export function PacketPreview({
     }
   }
 
+  function handleDownloadPdf() {
+    if (!packetPdfPath || typeof globalThis.window?.open !== "function") {
+      return;
+    }
+
+    globalThis.window.open(packetPdfPath, "_blank", "noopener,noreferrer");
+  }
+
   return (
     <section className="packet-preview" aria-labelledby="packet-preview-title">
       <div className="packet-toolbar print-hidden">
@@ -91,6 +102,14 @@ export function PacketPreview({
         <div className="packet-actions">
           <button type="button" onClick={() => void handleCopy()}>
             Copy packet text
+          </button>
+          <button
+            className="secondary-button"
+            disabled={!packetPdfPath}
+            type="button"
+            onClick={handleDownloadPdf}
+          >
+            Download PDF
           </button>
           <button className="secondary-button" type="button" onClick={handlePrint}>
             Print preview
