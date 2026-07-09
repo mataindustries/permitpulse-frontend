@@ -55,19 +55,72 @@ export const packetReviewDraftEvaluationReportSchema = z
   })
   .strict();
 
+export const packetReviewProviderNameSchema = z.enum([
+  "deterministic-baseline",
+  "mock-live-provider",
+]);
+
+export const packetReviewProviderRequestSchema = z
+  .object({
+    provider: packetReviewProviderNameSchema.optional(),
+  })
+  .strict();
+
 export const packetReviewDraftResponseDataSchema = z
   .object({
     review: packetReviewDraftSchema,
     evaluation: packetReviewDraftEvaluationReportSchema,
     metadata: z
       .object({
-        reviewer: z.literal("deterministic-baseline"),
+        provider: packetReviewProviderNameSchema,
+        reviewer: packetReviewProviderNameSchema,
         live_ai: z.literal(false),
         external_calls: z.literal(false),
+        evaluation_passed: z.boolean(),
+        safety_blocked: z.boolean(),
+        warnings_count: z.number().int().min(0).max(100),
       })
       .strict(),
   })
-  .strict();
+  .strict()
+  .superRefine((data, context) => {
+    if (data.metadata.provider !== data.metadata.reviewer) {
+      context.addIssue({
+        code: "custom",
+        message: "Provider and reviewer metadata must match.",
+        path: ["metadata", "reviewer"],
+      });
+    }
+
+    if (data.metadata.evaluation_passed !== data.evaluation.passed) {
+      context.addIssue({
+        code: "custom",
+        message: "Evaluation metadata must match the evaluation report.",
+        path: ["metadata", "evaluation_passed"],
+      });
+    }
+
+    if (data.metadata.safety_blocked) {
+      context.addIssue({
+        code: "custom",
+        message: "A blocked review cannot be returned as response data.",
+        path: ["metadata", "safety_blocked"],
+      });
+    }
+
+    const warningCount = new Set([
+      ...data.evaluation.warnings,
+      ...data.evaluation.safety.warnings,
+    ]).size;
+
+    if (data.metadata.warnings_count !== warningCount) {
+      context.addIssue({
+        code: "custom",
+        message: "Warning metadata must match the evaluation report.",
+        path: ["metadata", "warnings_count"],
+      });
+    }
+  });
 
 export function parsePacketReviewDraft(value: unknown): PacketReviewDraft {
   return packetReviewDraftSchema.parse(value);

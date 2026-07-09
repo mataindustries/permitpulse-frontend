@@ -2,6 +2,10 @@ import type { PacketModel } from "../packet/types";
 
 export type PacketReviewCitationSource = "evidence" | "timeline" | "activity";
 
+export type PacketReviewProviderName =
+  | "deterministic-baseline"
+  | "mock-live-provider";
+
 export interface PacketReviewCitation {
   source_type: PacketReviewCitationSource;
   record_id: string;
@@ -68,9 +72,13 @@ export interface PacketReviewDraftResponseData {
   review: PacketReviewDraft;
   evaluation: PacketReviewDraftEvaluationReport;
   metadata: {
-    reviewer: "deterministic-baseline";
+    provider: PacketReviewProviderName;
+    reviewer: PacketReviewProviderName;
     live_ai: false;
     external_calls: false;
+    evaluation_passed: boolean;
+    safety_blocked: boolean;
+    warnings_count: number;
   };
 }
 

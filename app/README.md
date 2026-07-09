@@ -16,30 +16,32 @@ server-side Packet Preview endpoints, and a shared local-only Packet Renderer
 foundation through protected APIs. The protected Packet Preview API can also
 generate an on-demand local-only draft PDF from the existing server-side
 `PacketModel`. The app now includes a protected, local-only PermitPulse AI
-Review Assistant v0 draft endpoint backed by the deterministic baseline
-reviewer and evaluation foundation, plus a case-detail AI review panel that
+Review provider scaffold backed by deterministic baseline and mock-live
+providers, a safe prompt contract, a structured-field safety scanner, and a
+shared provider result gate, plus a case-detail AI review panel that
 calls that endpoint only after a user selects `Generate review draft`. It does
 not call a live AI model and does not expose production AI UI.
 There is still no participant assignment, file upload, stored PDF history, live
 AI integration, billing, email delivery, OAuth, user-management UI, or
 production authentication.
 
-## AI Review Assistant v0 and evaluation foundation
+## AI Review provider scaffold and evaluation foundation
 
 The PermitPulse Packet Review Assistant is not a live-AI feature yet. The
-current foundation lives under `src/shared/ai-review/` so deterministic output
-and future model output can pass the same schema, citation, and safety checks.
-The protected v0 route is:
+current foundation lives under `src/shared/ai-review/` so deterministic output,
+local model-shaped test output, and future reviewed model output can pass the
+same prompt-input and result gates. The protected route is:
 
 ```text
 POST /api/v1/cases/:caseId/ai-review/draft
 ```
 
 For an authorized case, the Worker assembles the same bounded server-side
-`PacketModel` used by the packet routes, creates a fresh deterministic draft,
-validates it against the strict `PacketReviewDraft` schema, rejects citations
-outside that exact packet snapshot, runs the evaluator/safety checker, and
-returns:
+`PacketModel` used by the packet routes. The provider runner scans that packet,
+builds an allowlisted prompt contract, scans the contract again, invokes one
+registered local provider, validates the candidate against the strict
+`PacketReviewDraft` schema, rejects citations outside that exact packet
+snapshot, and requires the evaluator/safety checker to pass before returning:
 
 ```json
 {
@@ -61,13 +63,35 @@ returns:
       }
     },
     "metadata": {
+      "provider": "deterministic-baseline",
       "reviewer": "deterministic-baseline",
       "live_ai": false,
-      "external_calls": false
+      "external_calls": false,
+      "evaluation_passed": true,
+      "safety_blocked": false,
+      "warnings_count": 0
     }
   }
 }
 ```
+
+With no request body, the route always selects `deterministic-baseline`. It
+also accepts either of these strict optional JSON bodies:
+
+```json
+{ "provider": "deterministic-baseline" }
+```
+
+```json
+{ "provider": "mock-live-provider" }
+```
+
+No other provider name or request field is accepted. In particular, callers
+cannot submit freeform prompts, instructions, model names, API credentials, or
+provider configuration. `mock-live-provider` is a deterministic local test
+double for exercising a model-shaped provider boundary; despite its name it
+makes no network call and always reports `live_ai=false` and
+`external_calls=false`.
 
 Authorization exactly matches packet reads: administrators may generate a
 draft for any case, participating clients may generate one for their case,
@@ -94,6 +118,24 @@ The foundation includes:
   or disputed evidence, and avoids echoing arbitrary stored strings that could
   look like approval predictions, legal guarantees, agency outcomes, reviewer
   names, dates, or code sections.
+- A provider abstraction with only two registered implementations:
+  `deterministic-baseline` and `mock-live-provider`. Both are local-only,
+  deterministic, require no secrets or SDK, and make no external calls.
+- An allowlisted prompt contract that copies safe packet fields and explicit
+  evidence/timeline/activity citation IDs. Its rules prohibit invented
+  agencies, reviewer names, code sections, dates, outcomes, approval
+  predictions, legal guarantees, and treating unverified evidence as verified;
+  it requires strict `PacketReviewDraft` JSON.
+- A structured-field scanner that checks packet input before prompt assembly
+  and checks the assembled prompt before provider invocation. It detects
+  password, token, cookie, session, authorization, account, API-key, secret,
+  hash, and request-ID keys (including obvious compound key forms), reports
+  paths and severity, and blocks provider execution. It checks keys rather than
+  arbitrary prose, so normal explanatory text containing those words does not
+  produce a false block.
+- A provider result gate that fails closed unless output passes the strict
+  schema, exact-snapshot citation validation, evaluator score threshold, and
+  safety checks. Failed candidates are not returned and no review is stored.
 - An evaluator that scores schema validity, groundedness, citation validity,
   missing-information coverage, unsupported-claim penalties, safety warnings,
   and pass/fail status.
@@ -109,10 +151,11 @@ count, average score, pass/fail counts, and a per-fixture summary. It requires
 no secrets, makes no external calls, applies no migrations, and does not touch
 Cloudflare resources.
 
-The v0 endpoint is stateless. It does not write an AI review, prompt, run,
+The endpoint is stateless. It does not write an AI review, prompt, run,
 evaluation, or packet to D1, R2, local disk, or any other storage. It requires
-no AI provider, API key, provider secret, network call, or environment variable.
-There is no production AI UI.
+no API key, provider secret, network call, provider SDK, or environment
+variable. No live provider is registered, no live-AI feature flag exists, and
+there is no production AI UI.
 
 ### Local AI Review UI behavior
 
@@ -144,12 +187,14 @@ includes `live_ai=false` and `external_calls=false`, and uses citation record
 references rather than HTML. Clipboard success and failure both produce safe
 visible feedback without exposing browser error details.
 
-The future path to live model integration is to send a bounded `PacketModel` to
-an approved provider adapter behind a server-side feature gate, parse the result
-through the same strict schema, validate snapshot citations, evaluate it against
-fixtures in CI, and keep human review and local safety checks in place before
-any production UI is enabled. Provider selection, secrets, persistence,
-rate/cost controls, and production enablement remain future reviewed work.
+The future path to live model integration is to add one separately reviewed
+server-side adapter behind an explicit disabled-by-default feature gate. It
+would receive only the existing scanned prompt contract, use server-selected
+configuration, and return an untrusted candidate through the same strict
+schema, citation, evaluator, and safety gates. Provider terms, secrets,
+timeouts, rate/cost controls, retention, observability redaction, preview
+validation, and production enablement all remain future reviewed work. No API
+keys or live model calls are part of this scaffold.
 
 ## Requirements and bindings
 

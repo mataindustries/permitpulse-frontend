@@ -147,9 +147,13 @@ const safeAiReview: PacketReviewDraftResponseData = {
     },
   },
   metadata: {
+    provider: "deterministic-baseline",
     reviewer: "deterministic-baseline",
     live_ai: false,
     external_calls: false,
+    evaluation_passed: true,
+    safety_blocked: false,
+    warnings_count: 0,
   },
 };
 

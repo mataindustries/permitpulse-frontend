@@ -1,14 +1,13 @@
 import { Hono, type Context } from "hono";
 import { bodyLimit } from "hono/body-limit";
-import { createBaselinePacketReviewDraft } from "../../shared/ai-review/baseline-reviewer";
 import {
-  evaluatePacketReviewDraftForPacket,
-  invalidPacketReviewCitations,
-} from "../../shared/ai-review/evaluate-review";
-import {
-  parsePacketReviewDraft,
-  parsePacketReviewDraftResponseData,
+  packetReviewProviderRequestSchema,
 } from "../../shared/ai-review/schema";
+import {
+  packetReviewProvider,
+  runPacketReviewProvider,
+} from "../../shared/ai-review/provider";
+import type { PacketReviewProviderName } from "../../shared/ai-review/types";
 import { buildPacketModel } from "../../shared/packet/build-packet-model";
 import { renderPacketHtml } from "../../shared/packet/render-packet-html";
 import {
@@ -353,20 +352,36 @@ caseRoutes.post("/:caseId/ai-review/draft", async (context) => {
     return packetResult.response;
   }
 
+  let providerName: PacketReviewProviderName = "deterministic-baseline";
+
+  if (context.req.raw.body !== null) {
+    const jsonBody = await readJsonBody(context);
+
+    if (!jsonBody.ok) {
+      return jsonBody.response;
+    }
+
+    const parsedBody = packetReviewProviderRequestSchema.safeParse(jsonBody.body);
+
+    if (!parsedBody.success) {
+      return errorResponse(
+        context,
+        400,
+        "INVALID_AI_REVIEW_REQUEST",
+        "The AI review request is invalid.",
+      );
+    }
+
+    providerName = parsedBody.data.provider ?? "deterministic-baseline";
+  }
+
   try {
-    const review = parsePacketReviewDraft(
-      createBaselinePacketReviewDraft(packetResult.packet),
-    );
-    const invalidCitations = invalidPacketReviewCitations(
+    const result = await runPacketReviewProvider(
       packetResult.packet,
-      review,
-    );
-    const evaluation = evaluatePacketReviewDraftForPacket(
-      packetResult.packet,
-      review,
+      packetReviewProvider(providerName),
     );
 
-    if (invalidCitations.length > 0 || evaluation.safety_warnings.length > 0) {
+    if (!result.ok) {
       return errorResponse(
         context,
         500,
@@ -375,32 +390,9 @@ caseRoutes.post("/:caseId/ai-review/draft", async (context) => {
       );
     }
 
-    const data = parsePacketReviewDraftResponseData({
-      review,
-      evaluation: {
-        score: evaluation.total_score,
-        passed: evaluation.passed,
-        warnings: evaluation.safety_warnings,
-        citation_validity: {
-          score: evaluation.citation_validity_score,
-          passed: invalidCitations.length === 0,
-          invalid_citations: invalidCitations,
-        },
-        safety: {
-          passed: evaluation.safety_warnings.length === 0,
-          warnings: evaluation.safety_warnings,
-        },
-      },
-      metadata: {
-        reviewer: "deterministic-baseline",
-        live_ai: false,
-        external_calls: false,
-      },
-    });
-
     return context.json({
       ok: true,
-      data,
+      data: result.data,
     });
   } catch {
     return errorResponse(

@@ -26,9 +26,13 @@ export function compileAiReviewText(data: PacketReviewDraftResponseData): string
   const { evaluation, metadata, review } = data;
   const lines = [
     "Draft review — verify before sending",
+    `Provider: ${metadata.provider}`,
     `Reviewer: ${metadata.reviewer}`,
     `live_ai=${metadata.live_ai}`,
     `external_calls=${metadata.external_calls}`,
+    `evaluation_passed=${metadata.evaluation_passed}`,
+    `safety_blocked=${metadata.safety_blocked}`,
+    `warnings_count=${metadata.warnings_count}`,
   ];
 
   if (review.model_metadata?.generated_at) {
@@ -311,9 +315,11 @@ export function AIReviewPanel({
       </div>
 
       <div className="ai-review-metadata" aria-label="Review feature metadata">
-        <div><span>Reviewer</span><strong>{responseMetadata?.reviewer ?? "deterministic-baseline"}</strong></div>
+        <div><span>Provider</span><strong>{responseMetadata?.provider ?? "deterministic-baseline"}</strong></div>
         <div><span>Live AI</span><strong>Off · live_ai={String(responseMetadata?.live_ai ?? false)}</strong></div>
         <div><span>External calls</span><strong>None · external_calls={String(responseMetadata?.external_calls ?? false)}</strong></div>
+        <div><span>Evaluation</span><strong>{(responseMetadata?.evaluation_passed ?? true) ? "Passed" : "Blocked"}</strong></div>
+        <div><span>Warnings</span><strong>{responseMetadata?.warnings_count ?? 0}</strong></div>
         <div><span>Use</span><strong>Draft only</strong></div>
       </div>
 
