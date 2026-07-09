@@ -128,6 +128,7 @@ function evidenceSummary(
   item: BuildPacketModelInput["evidence"][number],
 ): PacketEvidenceSummary {
   return {
+    id: item.id,
     evidence_type: item.evidence_type,
     evidence_type_label: evidenceTypeLabels[item.evidence_type],
     title: item.title,
@@ -170,6 +171,7 @@ export function buildPacketModel({
         }));
 
       return {
+        id: entry.id,
         occurred_on: entry.occurred_on,
         timeline_type: entry.timeline_type,
         timeline_type_label: timelineTypeLabels[entry.timeline_type],
@@ -208,6 +210,7 @@ export function buildPacketModel({
     recent_activity_summaries: [...(activityResponse?.activity ?? [])]
       .sort(compareActivity)
       .map((entry) => ({
+        id: entry.id,
         action: entry.action,
         action_label: activityActionLabels[entry.action],
         actor_label: entry.actor?.name?.trim() || "System",
@@ -233,4 +236,3 @@ export function buildPacketModel({
     disclaimer: packetDisclaimer,
   };
 }
-

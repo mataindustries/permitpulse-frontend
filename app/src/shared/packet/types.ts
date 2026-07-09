@@ -134,6 +134,7 @@ export interface PacketSourceSummary {
 }
 
 export interface PacketEvidenceSummary {
+  id: string;
   evidence_type: PacketEvidenceType;
   evidence_type_label: string;
   title: string;
@@ -152,6 +153,7 @@ export interface PacketLinkedEvidenceSummary {
 }
 
 export interface PacketTimelineSummary {
+  id: string;
   occurred_on: string;
   timeline_type: PacketTimelineType;
   timeline_type_label: string;
@@ -165,6 +167,7 @@ export interface PacketTimelineSummary {
 }
 
 export interface PacketActivitySummary {
+  id: string;
   action: PacketActivityAction;
   action_label: string;
   actor_label: string;
@@ -194,4 +197,3 @@ export interface PacketModel {
   recommended_next_actions: PacketPlaceholderSection;
   disclaimer: string;
 }
-

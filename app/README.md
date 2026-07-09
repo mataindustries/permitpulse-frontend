@@ -15,10 +15,56 @@ records, timeline-to-evidence links, a first local-only Packet Builder preview,
 server-side Packet Preview endpoints, and a shared local-only Packet Renderer
 foundation through protected APIs. The protected Packet Preview API can also
 generate an on-demand local-only draft PDF from the existing server-side
-`PacketModel`.
-There is still no participant assignment, file upload, stored PDF history, AI,
-billing, email delivery, OAuth, user-management UI, or production
-authentication.
+`PacketModel`. The app now includes a local-only evaluation foundation for a
+future PermitPulse Packet Review Assistant, but it does not call a live AI
+model and does not expose production AI UI.
+There is still no participant assignment, file upload, stored PDF history, live
+AI integration, billing, email delivery, OAuth, user-management UI, or
+production authentication.
+
+## AI Review Assistant evaluation foundation
+
+The PermitPulse Packet Review Assistant is not a live feature yet. The current
+foundation lives under `src/shared/ai-review/` and exists so future model output
+can be evaluated before any provider integration is added.
+
+The foundation includes:
+
+- A strict `PacketReviewDraft` schema for `summary`, `missing_information`,
+  `recommended_next_actions`, `evidence_citations`, `unsupported_claims`,
+  `confidence_notes`, and optional local-only `model_metadata`.
+- Twenty fictional packet review fixtures covering empty or weak evidence,
+  unverified and disputed evidence, verified evidence, missing permit numbers,
+  missing source URLs, stalled reviews, correction cycles, inspection issues,
+  timeline/evidence mismatches, missing timeline/activity records, conflicting
+  evidence, canonical and contributed timeline entries, outdated source dates,
+  jurisdiction mismatch, incomplete addresses, and high-risk unsupported action
+  temptations.
+- A deterministic baseline reviewer that uses only fields already present in a
+  `PacketModel`. It summarizes visible packet counts, identifies obvious
+  missing fields, recommends generic human review steps, cites only existing
+  evidence/timeline/activity IDs, warns about unconfirmed or disputed evidence,
+  and avoids approval predictions, legal guarantees, invented agency outcomes,
+  invented reviewer names, invented dates, and invented code sections.
+- An evaluator that scores schema validity, groundedness, citation validity,
+  missing-information coverage, unsupported-claim penalties, safety warnings,
+  and pass/fail status.
+
+Run the local evaluation harness from `app/`:
+
+```bash
+npm run ai:eval:local
+```
+
+The script runs all fixtures against the deterministic baseline, prints fixture
+count, average score, pass/fail counts, and a per-fixture summary. It requires
+no secrets, makes no external calls, applies no migrations, and does not touch
+Cloudflare resources.
+
+The future path to live model integration is to send a bounded `PacketModel` to
+an approved provider behind a server-side feature gate, parse the result through
+the strict schema, evaluate it against fixtures in CI, and keep human review and
+local safety checks in place before any production UI is enabled.
 
 ## Requirements and bindings
 
