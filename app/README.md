@@ -12,7 +12,8 @@ through the protected case API. Administrators also get role-aware status
 transition controls. The browser workspace now also exposes local-only
 structured evidence, provenance, verification state, canonical timeline
 records, timeline-to-evidence links, a first local-only Packet Builder preview,
-and a shared local-only Packet Renderer foundation through protected APIs.
+server-side Packet Preview endpoints, and a shared local-only Packet Renderer
+foundation through protected APIs.
 There is still no participant assignment, file upload, PDF generation, AI,
 billing, email delivery, OAuth, user-management UI, or production
 authentication.
@@ -263,6 +264,30 @@ Packet preview behavior:
 6. Stored case, evidence, timeline, and activity strings are rendered as React
    text, never as HTML.
 
+Server-side Packet Preview API behavior:
+
+1. `GET /api/v1/cases/:caseId/packet` builds a deterministic server-side
+   `PacketModel` from database-backed safe DTOs and returns:
+
+   ```json
+   {
+     "ok": true,
+     "data": {
+       "packet": {}
+     }
+   }
+   ```
+
+2. `GET /api/v1/cases/:caseId/packet.txt` returns the same packet through
+   `renderPacketText` with `content-type: text/plain; charset=utf-8`.
+3. `GET /api/v1/cases/:caseId/packet.html` returns the same packet through
+   `renderPacketHtml` with `content-type: text/html; charset=utf-8`.
+4. Text and HTML packet responses use `Content-Disposition: inline` with a
+   deterministic filename so a browser can preview them directly during local
+   development.
+5. The browser Packet preview tab is not required to depend on these endpoints
+   yet; it still preserves the current copy and print-preview behavior.
+
 Packet Renderer foundation:
 
 - Shared packet code lives under `src/shared/packet/` so it can later be reused
@@ -284,8 +309,12 @@ Packet Renderer foundation:
   the deterministic PacketModel through the safe HTML renderer, then render that
   HTML in a server-side PDF service after approval, packet-versioning, storage,
   and authorization are implemented.
+- Current limitation: there are no stored packet versions yet. The JSON, text,
+  and HTML packet routes generate local preview output on demand only.
 - Current limitation: there is no AI yet. Open questions and recommended next
   actions remain reviewer-written placeholders.
+- Current limitation: there is no approval workflow yet. Packet output is a
+  draft preview and is not a reviewed or published packet.
 
 Copy-to-clipboard behavior:
 
@@ -424,6 +453,9 @@ Better Auth session:
 | `PATCH` | `/api/v1/cases/:caseId` | Edit validated case metadata with optimistic concurrency. |
 | `POST` | `/api/v1/cases/:caseId/status` | Apply one admin-only status transition. |
 | `GET` | `/api/v1/cases/:caseId/activity` | Read immutable case lifecycle activity. |
+| `GET` | `/api/v1/cases/:caseId/packet` | Build a server-side JSON packet preview. |
+| `GET` | `/api/v1/cases/:caseId/packet.txt` | Build a server-side plain-text packet preview. |
+| `GET` | `/api/v1/cases/:caseId/packet.html` | Build a server-side safe HTML packet preview. |
 
 Creation accepts only these JSON fields:
 
@@ -716,6 +748,52 @@ include timeline metadata, canonical state, safe contributor `{ id, name }`,
 linked evidence IDs, version, and timestamps. Responses never include password
 data, account rows, session data, cookies, tokens, authorization headers,
 request IDs, deleted records, raw database rows, or private mutation data.
+
+## Packet Preview API
+
+Server-side packet preview routes live under the authenticated case route tree:
+
+| Method | Route | Behavior |
+| --- | --- | --- |
+| `GET` | `/api/v1/cases/:caseId/packet` | Return `{ ok: true, data: { packet } }` where `packet` is a `PacketModel`. |
+| `GET` | `/api/v1/cases/:caseId/packet.txt` | Return clean plain text from `renderPacketText`. |
+| `GET` | `/api/v1/cases/:caseId/packet.html` | Return safe deterministic HTML from `renderPacketHtml`. |
+
+Authorization matches the existing case read behavior. Admins may preview
+packets for any case. Participating clients may preview packets for their own
+cases. Unrelated clients receive the same safe `404 CASE_NOT_FOUND` response as
+a missing case, so the API does not confirm another client's case exists.
+Unauthenticated requests return `401 UNAUTHENTICATED`. Invalid case IDs return
+`400 INVALID_CASE_ID`.
+
+Packet assembly is local-only and database-backed. The Worker first loads the
+authorized case detail DTO, then bounded source lists:
+
+- up to 50 non-deleted evidence records
+- up to 50 non-deleted timeline records
+- up to 25 recent activity records
+
+Evidence is ordered by source date descending with undated records last, then
+created time descending, then ID descending. Timeline is ordered by occurred
+date descending, then created time descending, then ID descending. Activity is
+ordered by created time descending, then ID descending. The shared packet model
+builder also sorts defensively before rendering, so equal database timestamps
+still produce stable output.
+
+Packet JSON, text, and HTML are built only from whitelisted safe DTO fields:
+case detail, evidence metadata, timeline metadata and evidence links, and
+public activity labels. They do not include auth/session/account rows, cookies,
+tokens, passwords, request IDs, participant rows, deleted records, private
+mutation fields, raw database rows, stored HTML, AI output, or invented claims.
+The HTML renderer escapes stored text, emits no scripts, uses no external
+scripts, and only converts absolute `http`/`https` source URLs into links.
+
+Current Packet Preview API limitations:
+
+- No PDF generation yet.
+- No stored packet versions yet.
+- No AI yet.
+- No approval workflow yet.
 
 ## Pagination contract
 

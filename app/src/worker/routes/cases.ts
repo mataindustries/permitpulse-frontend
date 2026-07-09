@@ -1,5 +1,9 @@
 import { Hono, type Context } from "hono";
 import { bodyLimit } from "hono/body-limit";
+import { buildPacketModel } from "../../shared/packet/build-packet-model";
+import { renderPacketHtml } from "../../shared/packet/render-packet-html";
+import { renderPacketText } from "../../shared/packet/render-packet-text";
+import type { PacketModel } from "../../shared/packet/types";
 import {
   actorFromUser,
   canCreateCase,
@@ -42,6 +46,9 @@ import { sessionMiddleware } from "../middleware/session";
 import type { WorkerEnv } from "../types";
 
 const maximumRequestBodyBytes = 16 * 1024;
+const packetEvidenceLimit = 50;
+const packetTimelineLimit = 50;
+const packetActivityLimit = 25;
 
 export const caseRoutes = new Hono<WorkerEnv>();
 
@@ -131,6 +138,54 @@ async function requireCaseAccess(context: CaseRouteContext) {
     ok: true as const,
     actor,
     caseId: record.id,
+    caseRecord: record,
+  };
+}
+
+async function buildCasePacket(
+  context: CaseRouteContext,
+  access: Extract<Awaited<ReturnType<typeof requireCaseAccess>>, { ok: true }>,
+): Promise<PacketModel> {
+  const [evidence, timeline, activity] = await Promise.all([
+    listEvidenceForCase(context.env.DB, access.caseId, {
+      limit: packetEvidenceLimit,
+      offset: 0,
+    }),
+    listTimelineForCase(context.env.DB, access.caseId, {
+      limit: packetTimelineLimit,
+      offset: 0,
+    }),
+    listCaseActivity(context.env.DB, access.caseId, {
+      limit: packetActivityLimit,
+      offset: 0,
+    }),
+  ]);
+
+  return buildPacketModel({
+    activityResponse: { activity },
+    caseRecord: access.caseRecord,
+    evidence,
+    generatedAt: new Date(),
+    timeline,
+  });
+}
+
+async function packetForRequest(
+  context: CaseRouteContext,
+): Promise<
+  | { ok: true; packet: PacketModel; caseId: string }
+  | { ok: false; response: Response }
+> {
+  const access = await requireCaseAccess(context);
+
+  if (!access.ok) {
+    return access;
+  }
+
+  return {
+    ok: true,
+    packet: await buildCasePacket(context, access),
+    caseId: access.caseId,
   };
 }
 
@@ -199,6 +254,51 @@ caseRoutes.use(
       ),
   }),
 );
+
+caseRoutes.get("/:caseId/packet", async (context) => {
+  const packetResult = await packetForRequest(context);
+
+  if (!packetResult.ok) {
+    return packetResult.response;
+  }
+
+  return context.json({
+    ok: true,
+    data: {
+      packet: packetResult.packet,
+    },
+  });
+});
+
+caseRoutes.get("/:caseId/packet.txt", async (context) => {
+  const packetResult = await packetForRequest(context);
+
+  if (!packetResult.ok) {
+    return packetResult.response;
+  }
+
+  return new Response(renderPacketText(packetResult.packet), {
+    headers: {
+      "content-disposition": `inline; filename="permitpulse-packet-${packetResult.caseId}.txt"`,
+      "content-type": "text/plain; charset=utf-8",
+    },
+  });
+});
+
+caseRoutes.get("/:caseId/packet.html", async (context) => {
+  const packetResult = await packetForRequest(context);
+
+  if (!packetResult.ok) {
+    return packetResult.response;
+  }
+
+  return new Response(renderPacketHtml(packetResult.packet), {
+    headers: {
+      "content-disposition": `inline; filename="permitpulse-packet-${packetResult.caseId}.html"`,
+      "content-type": "text/html; charset=utf-8",
+    },
+  });
+});
 
 caseRoutes.post("/:caseId/evidence", async (context) => {
   const access = await requireCaseAccess(context);
