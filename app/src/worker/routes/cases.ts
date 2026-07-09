@@ -102,6 +102,63 @@ async function readJsonBody(context: CaseRouteContext): Promise<
   }
 }
 
+async function readAiReviewRequestBody(context: CaseRouteContext): Promise<
+  | { ok: true; body: unknown }
+  | { ok: false; response: Response }
+> {
+  if (context.req.raw.body === null) {
+    return { ok: true, body: {} };
+  }
+
+  let text: string;
+
+  try {
+    text = await context.req.text();
+  } catch {
+    return {
+      ok: false,
+      response: errorResponse(
+        context,
+        400,
+        "INVALID_JSON",
+        "The request body is not valid JSON.",
+      ),
+    };
+  }
+
+  if (text.trim() === "") {
+    return { ok: true, body: {} };
+  }
+
+  const contentType = context.req.header("content-type")?.toLowerCase();
+
+  if (!contentType?.startsWith("application/json")) {
+    return {
+      ok: false,
+      response: errorResponse(
+        context,
+        415,
+        "UNSUPPORTED_MEDIA_TYPE",
+        "The request body must be JSON.",
+      ),
+    };
+  }
+
+  try {
+    return { ok: true, body: JSON.parse(text) as unknown };
+  } catch {
+    return {
+      ok: false,
+      response: errorResponse(
+        context,
+        400,
+        "INVALID_JSON",
+        "The request body is not valid JSON.",
+      ),
+    };
+  }
+}
+
 async function requireCaseAccess(context: CaseRouteContext) {
   const user = context.get("authenticatedUser");
 
@@ -352,28 +409,25 @@ caseRoutes.post("/:caseId/ai-review/draft", async (context) => {
     return packetResult.response;
   }
 
-  let providerName: PacketReviewProviderName = "deterministic-baseline";
+  const jsonBody = await readAiReviewRequestBody(context);
 
-  if (context.req.raw.body !== null) {
-    const jsonBody = await readJsonBody(context);
-
-    if (!jsonBody.ok) {
-      return jsonBody.response;
-    }
-
-    const parsedBody = packetReviewProviderRequestSchema.safeParse(jsonBody.body);
-
-    if (!parsedBody.success) {
-      return errorResponse(
-        context,
-        400,
-        "INVALID_AI_REVIEW_REQUEST",
-        "The AI review request is invalid.",
-      );
-    }
-
-    providerName = parsedBody.data.provider ?? "deterministic-baseline";
+  if (!jsonBody.ok) {
+    return jsonBody.response;
   }
+
+  const parsedBody = packetReviewProviderRequestSchema.safeParse(jsonBody.body);
+
+  if (!parsedBody.success) {
+    return errorResponse(
+      context,
+      400,
+      "INVALID_AI_REVIEW_REQUEST",
+      "The AI review request is invalid.",
+    );
+  }
+
+  const providerName: PacketReviewProviderName =
+    parsedBody.data.provider ?? "deterministic-baseline";
 
   try {
     const result = await runPacketReviewProvider(

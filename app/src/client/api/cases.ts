@@ -291,9 +291,16 @@ export async function listCaseActivity(
 export async function generateAiReviewDraft(
   caseId: string,
 ): Promise<PacketReviewDraftResponseData> {
+  const body = {} satisfies Record<string, never>;
   const data = await requestJson<unknown>(
     `/api/v1/cases/${encodeURIComponent(caseId)}/ai-review/draft`,
-    { method: "POST" },
+    {
+      method: "POST",
+      headers: {
+        "content-type": "application/json",
+      },
+      body: JSON.stringify(body),
+    },
   );
   const parsed = packetReviewDraftResponseDataSchema.safeParse(data);
 

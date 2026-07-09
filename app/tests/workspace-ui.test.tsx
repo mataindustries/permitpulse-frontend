@@ -513,7 +513,7 @@ describe("case API client", () => {
     });
   });
 
-  it("posts to the protected AI review draft endpoint and validates the response", async () => {
+  it("posts a valid empty JSON object for UI review generation and validates the response", async () => {
     const fetchMock = vi.fn(() => Promise.resolve(okJson(safeAiReview)));
     vi.stubGlobal("fetch", fetchMock);
 
@@ -525,7 +525,11 @@ describe("case API client", () => {
       expect.objectContaining({
         method: "POST",
         credentials: "same-origin",
-        headers: expect.objectContaining({ accept: "application/json" }),
+        headers: expect.objectContaining({
+          accept: "application/json",
+          "content-type": "application/json",
+        }),
+        body: "{}",
       }),
     );
   });

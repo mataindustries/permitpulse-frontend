@@ -273,7 +273,7 @@ describe("AI review draft route", () => {
     const evidence = await createEvidence(a.cookie, caseA.id);
     await createTimeline(a.cookie, caseA.id, evidence.id);
 
-    const { response, body } = await draftReview(a.cookie, caseA.id);
+    const { response, body } = await draftReview(a.cookie, caseA.id, {});
 
     expect(response.status).toBe(200);
     expect(packetReviewDraftResponseDataSchema.safeParse(body.data).success).toBe(
@@ -307,9 +307,9 @@ describe("AI review draft route", () => {
     expect(body.data.metadata.reviewer).toBe("deterministic-baseline");
   });
 
-  it("keeps deterministic-baseline as the default and accepts it explicitly", async () => {
+  it("accepts an empty JSON object as the deterministic default", async () => {
     const { a, caseA } = await setupWorkspace();
-    const implicit = await draftReview(a.cookie, caseA.id);
+    const implicit = await draftReview(a.cookie, caseA.id, {});
     const explicit = await draftReview(a.cookie, caseA.id, {
       provider: "deterministic-baseline",
     });
@@ -318,6 +318,16 @@ describe("AI review draft route", () => {
     expect(explicit.response.status).toBe(200);
     expect(implicit.body.data.metadata.provider).toBe("deterministic-baseline");
     expect(explicit.body.data.metadata.provider).toBe("deterministic-baseline");
+  });
+
+  it("treats a truly empty body as the deterministic default", async () => {
+    const { a, caseA } = await setupWorkspace();
+    const { response, body } = await draftReview(a.cookie, caseA.id);
+
+    expect(response.status).toBe(200);
+    expect(body.data.metadata.provider).toBe("deterministic-baseline");
+    expect(body.data.metadata.live_ai).toBe(false);
+    expect(body.data.metadata.external_calls).toBe(false);
   });
 
   it("can use the deterministic local mock provider through the same gate", async () => {
@@ -356,6 +366,45 @@ describe("AI review draft route", () => {
       error: { code: "INVALID_AI_REVIEW_REQUEST" },
     });
     expect(instructions.body).toMatchObject({
+      ok: false,
+      error: { code: "INVALID_AI_REVIEW_REQUEST" },
+    });
+  });
+
+  it("rejects malformed JSON and non-object request bodies safely", async () => {
+    const { a, caseA } = await setupWorkspace();
+    const malformed = await request(
+      `/api/v1/cases/${caseA.id}/ai-review/draft`,
+      {
+        method: "POST",
+        headers: {
+          cookie: a.cookie,
+          "content-type": "application/json",
+          origin: localOrigin,
+        },
+        body: "{",
+      },
+    );
+    const nonObject = await request(
+      `/api/v1/cases/${caseA.id}/ai-review/draft`,
+      {
+        method: "POST",
+        headers: {
+          cookie: a.cookie,
+          "content-type": "application/json",
+          origin: localOrigin,
+        },
+        body: JSON.stringify([]),
+      },
+    );
+
+    expect(malformed.status).toBe(400);
+    expect(await malformed.json()).toMatchObject({
+      ok: false,
+      error: { code: "INVALID_JSON" },
+    });
+    expect(nonObject.status).toBe(400);
+    expect(await nonObject.json()).toMatchObject({
       ok: false,
       error: { code: "INVALID_AI_REVIEW_REQUEST" },
     });

@@ -75,8 +75,15 @@ snapshot, and requires the evaluator/safety checker to pass before returning:
 }
 ```
 
-With no request body, the route always selects `deterministic-baseline`. It
-also accepts either of these strict optional JSON bodies:
+The browser sends an empty JSON object for default generation, and the route
+selects `deterministic-baseline`:
+
+```json
+{}
+```
+
+For compatibility, the route also treats a truly empty request body as `{}`.
+It accepts either of these strict provider-selection JSON bodies:
 
 ```json
 { "provider": "deterministic-baseline" }
@@ -161,8 +168,9 @@ there is no production AI UI.
 
 Authenticated users who can view a case see an `AI review` case-detail tab.
 The tab does not generate anything on load. Selecting `Generate review draft`
-sends one same-origin `POST` to the protected draft endpoint and validates the
-returned data again in the browser with the shared strict response schema.
+sends one same-origin JSON `POST` with body `{}` to the protected draft
+endpoint and validates the returned data again in the browser with the shared
+strict response schema.
 `401` responses use the existing session-expired flow; forbidden, missing,
 validation, server, and network failures render concise retry-safe messages
 without logging or displaying response bodies or operational details.
