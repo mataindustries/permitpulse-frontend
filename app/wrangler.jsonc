@@ -8,6 +8,10 @@
 	],
 	"vars": {
 		"ADMIN_BOOTSTRAP_ENABLED": "false",
+		"AI_REVIEW_EXTERNAL_CALLS_ENABLED": "false",
+		"AI_REVIEW_LIVE_ENABLED": "false",
+		"AI_REVIEW_LOCAL_TEST_ENABLED": "false",
+		"AI_REVIEW_PROVIDER": "deterministic-baseline",
 		"APP_ENV": "production",
 		"AUTH_ALLOW_SIGNUP": "false",
 		"AUTH_ENABLED": "false",
@@ -33,6 +37,10 @@
 			"name": "permitpulse-case-workspace-preview",
 			"vars": {
 				"ADMIN_BOOTSTRAP_ENABLED": "false",
+				"AI_REVIEW_EXTERNAL_CALLS_ENABLED": "false",
+				"AI_REVIEW_LIVE_ENABLED": "false",
+				"AI_REVIEW_LOCAL_TEST_ENABLED": "false",
+				"AI_REVIEW_PROVIDER": "deterministic-baseline",
 				"APP_ENV": "preview",
 				"AUTH_ALLOW_SIGNUP": "false",
 				"AUTH_ENABLED": "true",

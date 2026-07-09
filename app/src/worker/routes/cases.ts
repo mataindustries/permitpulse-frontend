@@ -4,9 +4,10 @@ import {
   packetReviewProviderRequestSchema,
 } from "../../shared/ai-review/schema";
 import {
-  packetReviewProvider,
+  configuredPacketReviewProvider,
   runPacketReviewProvider,
 } from "../../shared/ai-review/provider";
+import { readPacketReviewProviderConfig } from "../../shared/ai-review/config";
 import type { PacketReviewProviderName } from "../../shared/ai-review/types";
 import { buildPacketModel } from "../../shared/packet/build-packet-model";
 import { renderPacketHtml } from "../../shared/packet/render-packet-html";
@@ -428,11 +429,45 @@ caseRoutes.post("/:caseId/ai-review/draft", async (context) => {
 
   const providerName: PacketReviewProviderName =
     parsedBody.data.provider ?? "deterministic-baseline";
+  const configResult = readPacketReviewProviderConfig(context.env);
+
+  if (!configResult.ok) {
+    return errorResponse(
+      context,
+      503,
+      "AI_REVIEW_PROVIDER_CONFIG_INVALID",
+      "The AI review provider configuration is invalid.",
+    );
+  }
+
+  const provider = configuredPacketReviewProvider(
+    providerName,
+    configResult.config,
+  );
+
+  if (!("createDraft" in provider)) {
+    let errorCode = "AI_REVIEW_PROVIDER_UNAVAILABLE";
+
+    if (provider.code === "EXTERNAL_CALLS_DISABLED") {
+      errorCode = "AI_REVIEW_EXTERNAL_CALLS_DISABLED";
+    } else if (provider.code === "LIVE_PROVIDER_DISABLED") {
+      errorCode = "AI_REVIEW_LIVE_PROVIDER_DISABLED";
+    } else if (provider.code === "MISSING_API_KEY") {
+      errorCode = "AI_REVIEW_PROVIDER_KEY_MISSING";
+    }
+
+    return errorResponse(
+      context,
+      503,
+      errorCode,
+      "The requested AI review provider is unavailable.",
+    );
+  }
 
   try {
     const result = await runPacketReviewProvider(
       packetResult.packet,
-      packetReviewProvider(providerName),
+      provider,
     );
 
     if (!result.ok) {

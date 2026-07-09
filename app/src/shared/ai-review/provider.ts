@@ -4,6 +4,14 @@ import {
   invalidPacketReviewCitations,
 } from "./evaluate-review";
 import { mockLivePacketReviewProvider } from "./mock-provider";
+import {
+  createLiveModelPacketReviewProvider,
+  type LiveModelTransport,
+} from "./live-model-provider";
+import {
+  isTestOnlyApiKey,
+  type PacketReviewProviderConfig,
+} from "./config";
 import { buildPacketReviewPromptContract } from "./prompt";
 import { scanPacketReviewSafety } from "./redaction";
 import {
@@ -20,8 +28,8 @@ import type { PacketReviewPromptContract } from "./prompt";
 
 export interface PacketReviewProvider {
   name: PacketReviewProviderName;
-  liveAi: false;
-  externalCalls: false;
+  liveAi: boolean;
+  externalCalls: boolean;
   createDraft(
     packet: PacketModel,
     prompt: PacketReviewPromptContract,
@@ -35,7 +43,11 @@ export interface PacketReviewProviderFailure {
     | "PROMPT_SAFETY_BLOCKED"
     | "INVALID_PROVIDER_OUTPUT"
     | "INVALID_CITATIONS"
-    | "EVALUATION_FAILED";
+    | "EVALUATION_FAILED"
+    | "INVALID_PROVIDER_CONFIG"
+    | "LIVE_PROVIDER_DISABLED"
+    | "EXTERNAL_CALLS_DISABLED"
+    | "MISSING_API_KEY";
   safety_blocked: boolean;
   warnings: string[];
 }
@@ -53,7 +65,7 @@ const deterministicBaselineProvider: PacketReviewProvider = {
   },
 };
 
-const providers: Record<PacketReviewProviderName, PacketReviewProvider> = {
+const localProviders = {
   "deterministic-baseline": deterministicBaselineProvider,
   "mock-live-provider": mockLivePacketReviewProvider,
 };
@@ -61,7 +73,60 @@ const providers: Record<PacketReviewProviderName, PacketReviewProvider> = {
 export function packetReviewProvider(
   name: PacketReviewProviderName,
 ): PacketReviewProvider {
-  return providers[name];
+  if (name === "live-model-provider") {
+    throw new Error("Live provider configuration is required.");
+  }
+
+  return localProviders[name];
+}
+
+export function configuredPacketReviewProvider(
+  name: PacketReviewProviderName,
+  config: PacketReviewProviderConfig,
+  transport?: LiveModelTransport,
+): PacketReviewProvider | PacketReviewProviderFailure {
+  if (name !== "live-model-provider") {
+    return packetReviewProvider(name);
+  }
+
+  if (
+    config.appEnvironment !== "local" ||
+    !config.localTestEnabled ||
+    !config.liveEnabled ||
+    config.provider !== "live-model-provider"
+  ) {
+    return {
+      ok: false,
+      code: "LIVE_PROVIDER_DISABLED",
+      safety_blocked: true,
+      warnings: ["The live model provider is disabled."],
+    };
+  }
+
+  if (!config.externalCallsEnabled) {
+    return {
+      ok: false,
+      code: "EXTERNAL_CALLS_DISABLED",
+      safety_blocked: true,
+      warnings: ["External model calls are disabled."],
+    };
+  }
+
+  if (!config.apiKey || !isTestOnlyApiKey(config.apiKey)) {
+    return {
+      ok: false,
+      code: "MISSING_API_KEY",
+      safety_blocked: true,
+      warnings: ["A test-only local provider key is required."],
+    };
+  }
+
+  return createLiveModelPacketReviewProvider({
+    apiKey: config.apiKey,
+    endpoint: config.modelEndpoint,
+    model: config.modelName,
+    transport,
+  });
 }
 
 export async function runPacketReviewProvider(
@@ -91,9 +156,20 @@ export async function runPacketReviewProvider(
     };
   }
 
-  const parsedDraft = packetReviewDraftSchema.safeParse(
-    await provider.createDraft(packet, prompt),
-  );
+  let candidate: unknown;
+
+  try {
+    candidate = await provider.createDraft(packet, prompt);
+  } catch {
+    return {
+      ok: false,
+      code: "INVALID_PROVIDER_OUTPUT",
+      safety_blocked: true,
+      warnings: ["Provider output could not be parsed safely."],
+    };
+  }
+
+  const parsedDraft = packetReviewDraftSchema.safeParse(candidate);
 
   if (!parsedDraft.success) {
     return {

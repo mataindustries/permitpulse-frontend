@@ -4,7 +4,8 @@ export type PacketReviewCitationSource = "evidence" | "timeline" | "activity";
 
 export type PacketReviewProviderName =
   | "deterministic-baseline"
-  | "mock-live-provider";
+  | "mock-live-provider"
+  | "live-model-provider";
 
 export interface PacketReviewCitation {
   source_type: PacketReviewCitationSource;
@@ -74,8 +75,8 @@ export interface PacketReviewDraftResponseData {
   metadata: {
     provider: PacketReviewProviderName;
     reviewer: PacketReviewProviderName;
-    live_ai: false;
-    external_calls: false;
+    live_ai: boolean;
+    external_calls: boolean;
     evaluation_passed: boolean;
     safety_blocked: boolean;
     warnings_count: number;

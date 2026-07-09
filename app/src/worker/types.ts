@@ -1,6 +1,13 @@
 export type PublicEnvironment = "local" | "preview" | "production";
 
 export interface Bindings {
+  AI_REVIEW_EXTERNAL_CALLS_ENABLED?: string;
+  AI_REVIEW_LIVE_ENABLED?: string;
+  AI_REVIEW_LOCAL_TEST_ENABLED?: string;
+  AI_REVIEW_PROVIDER?: string;
+  AI_REVIEW_API_KEY?: string;
+  AI_REVIEW_MODEL_ENDPOINT?: string;
+  AI_REVIEW_MODEL_NAME?: string;
   APP_ENV: string;
   ADMIN_BOOTSTRAP_ENABLED: string;
   ADMIN_BOOTSTRAP_TOKEN?: string;

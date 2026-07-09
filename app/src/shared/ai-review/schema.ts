@@ -58,6 +58,7 @@ export const packetReviewDraftEvaluationReportSchema = z
 export const packetReviewProviderNameSchema = z.enum([
   "deterministic-baseline",
   "mock-live-provider",
+  "live-model-provider",
 ]);
 
 export const packetReviewProviderRequestSchema = z
@@ -74,8 +75,8 @@ export const packetReviewDraftResponseDataSchema = z
       .object({
         provider: packetReviewProviderNameSchema,
         reviewer: packetReviewProviderNameSchema,
-        live_ai: z.literal(false),
-        external_calls: z.literal(false),
+        live_ai: z.boolean(),
+        external_calls: z.boolean(),
         evaluation_passed: z.boolean(),
         safety_blocked: z.boolean(),
         warnings_count: z.number().int().min(0).max(100),
@@ -89,6 +90,19 @@ export const packetReviewDraftResponseDataSchema = z
         code: "custom",
         message: "Provider and reviewer metadata must match.",
         path: ["metadata", "reviewer"],
+      });
+    }
+
+    const isLiveProvider = data.metadata.provider === "live-model-provider";
+
+    if (
+      data.metadata.live_ai !== isLiveProvider ||
+      data.metadata.external_calls !== isLiveProvider
+    ) {
+      context.addIssue({
+        code: "custom",
+        message: "Live metadata must match the selected provider.",
+        path: ["metadata", "live_ai"],
       });
     }
 

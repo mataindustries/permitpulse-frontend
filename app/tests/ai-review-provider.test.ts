@@ -3,6 +3,7 @@ import { createBaselinePacketReviewDraft } from "../src/shared/ai-review/baselin
 import { packetReviewFixtures } from "../src/shared/ai-review/fixtures";
 import { mockLivePacketReviewProvider } from "../src/shared/ai-review/mock-provider";
 import {
+  configuredPacketReviewProvider,
   packetReviewProvider,
   runPacketReviewProvider,
   type PacketReviewProvider,
@@ -13,6 +14,11 @@ import {
 } from "../src/shared/ai-review/prompt";
 import { scanPacketReviewSafety } from "../src/shared/ai-review/redaction";
 import { packetReviewDraftSchema } from "../src/shared/ai-review/schema";
+import {
+  readPacketReviewProviderConfig,
+  type PacketReviewProviderConfig,
+} from "../src/shared/ai-review/config";
+import type { LiveModelTransport } from "../src/shared/ai-review/live-model-provider";
 
 function fixture(id = "verified-evidence") {
   const item = packetReviewFixtures.find((candidate) => candidate.id === id);
@@ -37,6 +43,22 @@ function objectKeys(value: unknown): string[] {
     key,
     ...objectKeys(child),
   ]);
+}
+
+function enabledLiveConfig(
+  overrides: Partial<PacketReviewProviderConfig> = {},
+): PacketReviewProviderConfig {
+  return {
+    appEnvironment: "local",
+    externalCallsEnabled: true,
+    liveEnabled: true,
+    localTestEnabled: true,
+    provider: "live-model-provider",
+    apiKey: "fake-local-ai-review-key",
+    modelEndpoint: "http://127.0.0.1:8788/v1/packet-review",
+    modelName: "permitpulse-local-test",
+    ...overrides,
+  };
 }
 
 describe("packet review prompt contract", () => {
@@ -216,6 +238,30 @@ describe("local packet review providers and result gate", () => {
     });
   });
 
+  it("fails closed when provider output makes a legal guarantee", async () => {
+    const legalGuaranteeProvider: PacketReviewProvider = {
+      name: "mock-live-provider",
+      liveAi: false,
+      externalCalls: false,
+      createDraft(packet) {
+        return {
+          ...createBaselinePacketReviewDraft(packet),
+          summary: "This packet is guaranteed legally compliant.",
+        };
+      },
+    };
+    const result = await runPacketReviewProvider(
+      fixture().packet,
+      legalGuaranteeProvider,
+    );
+
+    expect(result).toMatchObject({
+      ok: false,
+      code: "EVALUATION_FAILED",
+      safety_blocked: true,
+    });
+  });
+
   it("fails closed on forbidden packet fields before provider execution", async () => {
     const provider = packetReviewProvider("mock-live-provider");
     const createDraft = vi.spyOn(provider, "createDraft");
@@ -231,5 +277,152 @@ describe("local packet review providers and result gate", () => {
     });
     expect(createDraft).not.toHaveBeenCalled();
     createDraft.mockRestore();
+  });
+});
+
+describe("live packet review provider configuration and adapter", () => {
+  it("defaults to deterministic local configuration without requiring a key", () => {
+    expect(readPacketReviewProviderConfig({ APP_ENV: "local" })).toEqual({
+      ok: true,
+      config: expect.objectContaining({
+        provider: "deterministic-baseline",
+        liveEnabled: false,
+        externalCallsEnabled: false,
+        localTestEnabled: false,
+        apiKey: undefined,
+      }),
+    });
+  });
+
+  it("rejects invalid configured provider names", () => {
+    expect(
+      readPacketReviewProviderConfig({
+        AI_REVIEW_PROVIDER: "arbitrary-provider",
+      }),
+    ).toEqual({ ok: false, code: "INVALID_PROVIDER_CONFIG" });
+  });
+
+  it("rejects live use when disabled, external calls are disabled, or the key is missing", () => {
+    expect(
+      configuredPacketReviewProvider(
+        "live-model-provider",
+        enabledLiveConfig({ liveEnabled: false }),
+      ),
+    ).toMatchObject({ ok: false, code: "LIVE_PROVIDER_DISABLED" });
+    expect(
+      configuredPacketReviewProvider(
+        "live-model-provider",
+        enabledLiveConfig({ externalCallsEnabled: false }),
+      ),
+    ).toMatchObject({ ok: false, code: "EXTERNAL_CALLS_DISABLED" });
+    expect(
+      configuredPacketReviewProvider(
+        "live-model-provider",
+        enabledLiveConfig({ apiKey: undefined }),
+      ),
+    ).toMatchObject({ ok: false, code: "MISSING_API_KEY" });
+  });
+
+  it("uses only an injected fake transport and gates valid model-shaped JSON", async () => {
+    const packet = fixture().packet;
+    const draft = createBaselinePacketReviewDraft(packet);
+    const transport = vi.fn<LiveModelTransport>(async ({ request, apiKey }) => {
+      expect(request.input.contract_version).toBe(
+        "permitpulse-packet-review-v1",
+      );
+      expect(apiKey).toBe("fake-local-ai-review-key");
+      return { output: JSON.stringify(draft) };
+    });
+    const provider = configuredPacketReviewProvider(
+      "live-model-provider",
+      enabledLiveConfig(),
+      transport,
+    );
+
+    if (!("createDraft" in provider)) {
+      throw new Error(provider.code);
+    }
+
+    const result = await runPacketReviewProvider(packet, provider);
+
+    expect(result.ok).toBe(true);
+    expect(transport).toHaveBeenCalledTimes(1);
+    if (result.ok) {
+      expect(result.data.metadata).toMatchObject({
+        provider: "live-model-provider",
+        reviewer: "live-model-provider",
+        live_ai: true,
+        external_calls: true,
+      });
+    }
+  });
+
+  it("blocks an unsafe structured prompt before the live transport is called", async () => {
+    const packet = fixture().packet;
+    const transport = vi.fn<LiveModelTransport>();
+    const provider = configuredPacketReviewProvider(
+      "live-model-provider",
+      enabledLiveConfig(),
+      transport,
+    );
+
+    if (!("createDraft" in provider)) {
+      throw new Error(provider.code);
+    }
+
+    const unsafePrompt = Object.assign(buildPacketReviewPromptContract(packet), {
+      nested: { secretAccessKey: "not-allowed" },
+    });
+
+    await expect(provider.createDraft(packet, unsafePrompt)).rejects.toThrow();
+    expect(transport).not.toHaveBeenCalled();
+  });
+
+  it("fails closed on invalid JSON, nonexistent citations, and unsafe claims", async () => {
+    const packet = fixture().packet;
+    const base = createBaselinePacketReviewDraft(packet);
+    const invalidCitation = {
+      ...base,
+      evidence_citations: [
+        ...base.evidence_citations,
+        {
+          source_type: "evidence" as const,
+          record_id: "nonexistent-record",
+          note: "This record does not exist.",
+        },
+      ],
+    };
+    const cases: Array<[unknown, string]> = [
+      [{ output: "{" }, "INVALID_PROVIDER_OUTPUT"],
+      [{ output: invalidCitation }, "INVALID_CITATIONS"],
+      [{ output: { ...base, evidence_citations: [] } }, "EVALUATION_FAILED"],
+      [
+        { output: { ...base, summary: "The permit will be approved." } },
+        "EVALUATION_FAILED",
+      ],
+      [
+        { output: { ...base, summary: "Approval is legally guaranteed." } },
+        "EVALUATION_FAILED",
+      ],
+    ];
+
+    for (const [output, code] of cases) {
+      const transport: LiveModelTransport = async () => output;
+      const provider = configuredPacketReviewProvider(
+        "live-model-provider",
+        enabledLiveConfig(),
+        transport,
+      );
+
+      if (!("createDraft" in provider)) {
+        throw new Error(provider.code);
+      }
+
+      await expect(runPacketReviewProvider(packet, provider)).resolves.toMatchObject({
+        ok: false,
+        code,
+        safety_blocked: true,
+      });
+    }
   });
 });

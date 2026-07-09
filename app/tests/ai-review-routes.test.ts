@@ -27,9 +27,13 @@ const adminUser = {
   password: "Admin-fictional-passphrase-42",
 };
 
-function bindings(): Bindings {
+function bindings(overrides: Partial<Bindings> = {}): Bindings {
   return {
     ADMIN_BOOTSTRAP_ENABLED: "false",
+    AI_REVIEW_EXTERNAL_CALLS_ENABLED: "false",
+    AI_REVIEW_LIVE_ENABLED: "false",
+    AI_REVIEW_LOCAL_TEST_ENABLED: "false",
+    AI_REVIEW_PROVIDER: "deterministic-baseline",
     APP_ENV: "local",
     ASSETS: env.ASSETS,
     AUTH_ALLOW_SIGNUP: "true",
@@ -38,11 +42,16 @@ function bindings(): Bindings {
     BETTER_AUTH_URL: localOrigin,
     DB: env.DB,
     ENABLE_DEV_CASE_API: "true",
+    ...overrides,
   };
 }
 
-function request(path: string, init?: RequestInit) {
-  return app.request(`${localOrigin}${path}`, init, bindings());
+function request(
+  path: string,
+  init?: RequestInit,
+  runtimeBindings = bindings(),
+) {
+  return app.request(`${localOrigin}${path}`, init, runtimeBindings);
 }
 
 async function signUp(account: typeof clientA) {
@@ -167,6 +176,7 @@ async function draftReview(
   cookie: string,
   caseId: string,
   requestBody?: Record<string, unknown>,
+  bindingOverrides: Partial<Bindings> = {},
 ) {
   const response = await request(`/api/v1/cases/${caseId}/ai-review/draft`, {
     method: "POST",
@@ -176,7 +186,7 @@ async function draftReview(
       ...(requestBody ? { "content-type": "application/json" } : {}),
     },
     ...(requestBody ? { body: JSON.stringify(requestBody) } : {}),
-  });
+  }, bindings(bindingOverrides));
   const body = await response.json<{
     ok: true;
     data: PacketReviewDraftResponseData;
@@ -347,6 +357,70 @@ describe("AI review draft route", () => {
     });
     expect(body.data.review.model_metadata?.local_only).toBe(true);
     expect(body.data.evaluation.passed).toBe(true);
+  });
+
+  it("rejects the live model provider while live AI is disabled", async () => {
+    const { a, caseA } = await setupWorkspace();
+    const { response, body } = await draftReview(a.cookie, caseA.id, {
+      provider: "live-model-provider",
+    });
+
+    expect(response.status).toBe(503);
+    expect(body).toMatchObject({
+      ok: false,
+      error: { code: "AI_REVIEW_LIVE_PROVIDER_DISABLED" },
+    });
+  });
+
+  it("rejects the live model provider when external calls are disabled", async () => {
+    const { a, caseA } = await setupWorkspace();
+    const { response, body } = await draftReview(
+      a.cookie,
+      caseA.id,
+      { provider: "live-model-provider" },
+      {
+        AI_REVIEW_LIVE_ENABLED: "true",
+        AI_REVIEW_LOCAL_TEST_ENABLED: "true",
+        AI_REVIEW_PROVIDER: "live-model-provider",
+      },
+    );
+
+    expect(response.status).toBe(503);
+    expect(body).toMatchObject({
+      ok: false,
+      error: { code: "AI_REVIEW_EXTERNAL_CALLS_DISABLED" },
+    });
+  });
+
+  it("rejects the live model provider when its test-only key is missing", async () => {
+    const { a, caseA } = await setupWorkspace();
+    const fetchStub = vi.fn(() => {
+      throw new Error("external calls are not allowed");
+    });
+    vi.stubGlobal("fetch", fetchStub);
+
+    try {
+      const { response, body } = await draftReview(
+        a.cookie,
+        caseA.id,
+        { provider: "live-model-provider" },
+        {
+          AI_REVIEW_EXTERNAL_CALLS_ENABLED: "true",
+          AI_REVIEW_LIVE_ENABLED: "true",
+          AI_REVIEW_LOCAL_TEST_ENABLED: "true",
+          AI_REVIEW_PROVIDER: "live-model-provider",
+        },
+      );
+
+      expect(response.status).toBe(503);
+      expect(body).toMatchObject({
+        ok: false,
+        error: { code: "AI_REVIEW_PROVIDER_KEY_MISSING" },
+      });
+      expect(fetchStub).not.toHaveBeenCalled();
+    } finally {
+      vi.unstubAllGlobals();
+    }
   });
 
   it("rejects unknown providers and arbitrary user instructions", async () => {

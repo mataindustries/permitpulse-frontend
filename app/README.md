@@ -27,10 +27,11 @@ production authentication.
 
 ## AI Review provider scaffold and evaluation foundation
 
-The PermitPulse Packet Review Assistant is not a live-AI feature yet. The
-current foundation lives under `src/shared/ai-review/` so deterministic output,
-local model-shaped test output, and future reviewed model output can pass the
-same prompt-input and result gates. The protected route is:
+The PermitPulse Packet Review Assistant remains disabled for real live-AI use.
+The foundation under `src/shared/ai-review/` now includes deterministic output,
+a local model-shaped test provider, and a Worker-compatible live-provider
+adapter scaffold. Every candidate passes the same prompt-input and result
+gates. The protected route is:
 
 ```text
 POST /api/v1/cases/:caseId/ai-review/draft
@@ -93,12 +94,15 @@ It accepts either of these strict provider-selection JSON bodies:
 { "provider": "mock-live-provider" }
 ```
 
-No other provider name or request field is accepted. In particular, callers
-cannot submit freeform prompts, instructions, model names, API credentials, or
+No other request field is accepted. In particular, callers cannot submit
+freeform prompts, instructions, model names, API credentials, endpoints, or
 provider configuration. `mock-live-provider` is a deterministic local test
 double for exercising a model-shaped provider boundary; despite its name it
 makes no network call and always reports `live_ai=false` and
-`external_calls=false`.
+`external_calls=false`. `live-model-provider` is recognized by the strict
+request schema but is rejected unless the server-side local-only configuration
+described below is fully enabled. With no body or `{}`, the route always keeps
+`deterministic-baseline` as its default.
 
 Authorization exactly matches packet reads: administrators may generate a
 draft for any case, participating clients may generate one for their case,
@@ -125,9 +129,15 @@ The foundation includes:
   or disputed evidence, and avoids echoing arbitrary stored strings that could
   look like approval predictions, legal guarantees, agency outcomes, reviewer
   names, dates, or code sections.
-- A provider abstraction with only two registered implementations:
-  `deterministic-baseline` and `mock-live-provider`. Both are local-only,
-  deterministic, require no secrets or SDK, and make no external calls.
+- A provider abstraction with `deterministic-baseline`,
+  `mock-live-provider`, and a disabled `live-model-provider` adapter.
+  The first two are local-only, deterministic, require no secrets or SDK, and
+  make no external calls.
+- A narrow live adapter boundary that accepts only the scanned prompt contract,
+  prepares a bounded model request, reads at most 64 KiB from a provider
+  response, parses strict model-shaped JSON, replaces untrusted model metadata,
+  and sends the draft through the existing schema, exact-citation, evaluator,
+  and safety gates. It uses no provider SDK or browser automation.
 - An allowlisted prompt contract that copies safe packet fields and explicit
   evidence/timeline/activity citation IDs. Its rules prohibit invented
   agencies, reviewer names, code sections, dates, outcomes, approval
@@ -159,10 +169,57 @@ no secrets, makes no external calls, applies no migrations, and does not touch
 Cloudflare resources.
 
 The endpoint is stateless. It does not write an AI review, prompt, run,
-evaluation, or packet to D1, R2, local disk, or any other storage. It requires
-no API key, provider secret, network call, provider SDK, or environment
-variable. No live provider is registered, no live-AI feature flag exists, and
-there is no production AI UI.
+evaluation, or packet to D1, R2, local disk, or any other storage. Default
+behavior requires no API key, provider secret, network call, provider SDK, or
+AI environment variable. There is no production AI UI.
+
+### Disabled live-provider configuration
+
+Production and preview explicitly keep these non-secret settings disabled:
+
+```dotenv
+AI_REVIEW_PROVIDER=deterministic-baseline
+AI_REVIEW_LIVE_ENABLED=false
+AI_REVIEW_EXTERNAL_CALLS_ENABLED=false
+AI_REVIEW_LOCAL_TEST_ENABLED=false
+```
+
+Missing flags also resolve to disabled. Invalid boolean values or an invalid
+configured provider fail closed. The only network-capable path additionally
+requires all of the following at the same time:
+
+- `APP_ENV=local`
+- `AI_REVIEW_PROVIDER=live-model-provider`
+- all three flags above set to `true`
+- `AI_REVIEW_API_KEY` present only in untracked local configuration and
+  beginning with `fake-` or `test-`
+- an optional `AI_REVIEW_MODEL_ENDPOINT` that resolves to loopback
+  (`localhost`, `127.0.0.1`, or `::1`); the default is a loopback fake-provider
+  endpoint
+
+`AI_REVIEW_MODEL_NAME` is optional and server-selected. None of these variables
+is required for normal tests, builds, the evaluation script, deterministic
+review generation, or mock-provider generation. No API key or usable secret is
+tracked, printed, returned, or copied into a client bundle. The test suite uses
+an injected in-memory transport for adapter coverage and never calls the
+loopback endpoint or an external AI service.
+
+The route fails closed before returning any unsafe candidate when live use is
+disabled, external calls are disabled, the test-only key is absent, provider
+configuration is invalid, the request contains unknown fields or freeform
+instructions, structured redaction blocks the packet/prompt, provider JSON is
+invalid, a citation is not in the exact packet snapshot, approval/legal claims
+trigger safety evaluation, or the evaluator score is below threshold. Provider
+prompts, raw requests, raw responses, keys, auth data, database rows, and
+operational identifiers are never included in successful review metadata.
+
+Future preview enablement requires a separate reviewed milestone: select an
+approved provider and data-processing terms; replace the local fake-key and
+loopback-only restrictions with a reviewed secret/binding design; add timeout,
+rate, concurrency, cost, retention, and redacted observability controls; run a
+fixed-cost preview smoke test with fictional data; confirm citation/evaluator
+failure handling; verify the kill switch; and explicitly change preview flags.
+Until every item is approved, preview and production remain disabled.
 
 ### Local AI Review UI behavior
 
@@ -195,14 +252,11 @@ includes `live_ai=false` and `external_calls=false`, and uses citation record
 references rather than HTML. Clipboard success and failure both produce safe
 visible feedback without exposing browser error details.
 
-The future path to live model integration is to add one separately reviewed
-server-side adapter behind an explicit disabled-by-default feature gate. It
-would receive only the existing scanned prompt contract, use server-selected
-configuration, and return an untrusted candidate through the same strict
-schema, citation, evaluator, and safety gates. Provider terms, secrets,
-timeouts, rate/cost controls, retention, observability redaction, preview
-validation, and production enablement all remain future reviewed work. No API
-keys or live model calls are part of this scaffold.
+The live-model adapter shape now exists behind the explicit local-test-only
+gate. Provider terms, production-capable secret handling, timeouts, rate/cost
+controls, retention, observability redaction, preview validation, and any
+production enablement all remain future reviewed work. No API key is tracked
+and no live model call occurs in normal operation, tests, builds, or evaluation.
 
 ## Requirements and bindings
 
@@ -218,6 +272,12 @@ keys or live model calls are part of this scaffold.
   admin bootstrap switch
 - `ADMIN_BOOTSTRAP_TOKEN`: preview-only one-time bootstrap credential stored as
   a Wrangler secret; at least 32 high-entropy bytes
+- `AI_REVIEW_PROVIDER`: defaults to `deterministic-baseline`; live selection is
+  local-test-only in this milestone
+- `AI_REVIEW_LIVE_ENABLED`, `AI_REVIEW_EXTERNAL_CALLS_ENABLED`, and
+  `AI_REVIEW_LOCAL_TEST_ENABLED`: safe booleans, all disabled by default
+- `AI_REVIEW_API_KEY`: optional untracked local test-only value; never required
+  for normal operation or tests
 
 Production configuration keeps `AUTH_ENABLED=false`. Preview and production
 configuration keep `AUTH_ALLOW_SIGNUP=false`. Admin bootstrap is disabled by
@@ -1007,8 +1067,8 @@ D1, R2, local disk, email, or any packet history table.
 Current Packet Preview API limitations:
 
 - No stored packet versions yet.
-- AI review is deterministic baseline output only; there is no live model or
-  production AI UI.
+- AI review defaults to deterministic baseline output; the live-model adapter
+  remains local-test-only and disabled, with no production AI UI.
 - No approval workflow yet.
 
 ## Pagination contract
