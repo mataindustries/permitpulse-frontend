@@ -49,6 +49,31 @@ export interface PacketReviewEvaluation {
   notes: string[];
 }
 
+export interface PacketReviewDraftEvaluationReport {
+  score: number;
+  passed: boolean;
+  warnings: string[];
+  citation_validity: {
+    score: number;
+    passed: boolean;
+    invalid_citations: string[];
+  };
+  safety: {
+    passed: boolean;
+    warnings: string[];
+  };
+}
+
+export interface PacketReviewDraftResponseData {
+  review: PacketReviewDraft;
+  evaluation: PacketReviewDraftEvaluationReport;
+  metadata: {
+    reviewer: "deterministic-baseline";
+    live_ai: false;
+    external_calls: false;
+  };
+}
+
 export interface PacketReviewRecordIds {
   evidence: Set<string>;
   timeline: Set<string>;

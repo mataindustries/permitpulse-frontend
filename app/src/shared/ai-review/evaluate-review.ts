@@ -95,10 +95,13 @@ function expectedMissingInformation(packet: PacketModel): string[] {
 
   for (const item of packet.evidence_summaries) {
     if (!item.source.url) {
-      missing.push(`source URL for ${item.title}`);
+      missing.push("source URL");
     }
     if (!item.source.date) {
-      missing.push(`source date for ${item.title}`);
+      missing.push("source date");
+    }
+    if (!item.source.label) {
+      missing.push("source label");
     }
   }
 
@@ -115,6 +118,37 @@ function expectedMissingInformation(packet: PacketModel): string[] {
   }
 
   return missing;
+}
+
+export function evaluatePacketReviewDraftForPacket(
+  packet: PacketModel,
+  draftValue: unknown,
+): PacketReviewEvaluation {
+  const expectedCitationIds = [
+    ...packet.evidence_summaries.map((item) => item.id),
+    ...packet.timeline_summaries.map((item) => item.id),
+    ...packet.recent_activity_summaries.map((item) => item.id),
+  ];
+
+  return evaluatePacketReviewDraft(
+    {
+      id: "runtime-packet",
+      name: "Runtime packet review",
+      coverage: ["protected case packet"],
+      packet,
+      expected_missing_information: [],
+      expected_citation_ids: expectedCitationIds,
+      forbidden_claims: [
+        "permit will be approved",
+        "legally compliant",
+        "agency confirmed approval",
+      ],
+      minimum_score: 80,
+      minimum_acceptable_score_notes:
+        "A runtime draft must be schema-valid, grounded, citation-valid, complete about obvious missing fields, and free of unsafe claims.",
+    },
+    draftValue,
+  );
 }
 
 function verificationWarnings(packet: PacketModel, text: string): string[] {

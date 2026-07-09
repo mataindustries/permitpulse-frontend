@@ -32,13 +32,19 @@ function missingInformation(packet: PacketModel): string[] {
 
   for (const evidence of packet.evidence_summaries) {
     if (!evidence.source.url) {
-      missing.push(`Source URL is not provided for evidence "${evidence.title}".`);
+      missing.push(
+        `Source URL is not provided for evidence record ${evidence.id}.`,
+      );
     }
     if (!evidence.source.date) {
-      missing.push(`Source date is not provided for evidence "${evidence.title}".`);
+      missing.push(
+        `Source date is not provided for evidence record ${evidence.id}.`,
+      );
     }
     if (!evidence.source.label) {
-      missing.push(`Source label is not provided for evidence "${evidence.title}".`);
+      missing.push(
+        `Source label is not provided for evidence record ${evidence.id}.`,
+      );
     }
   }
 
@@ -93,8 +99,7 @@ export function createBaselinePacketReviewDraft(
 
   return {
     summary: [
-      `Project "${packet.case_summary.project_name}" is in ${packet.current_status.label}.`,
-      `Jurisdiction is ${packet.jurisdiction}.`,
+      `The packet case is in ${packet.current_status.label}.`,
       `Packet contains ${evidenceCount} evidence record(s), ${timelineCount} timeline record(s), and ${activityCount} recent activity record(s).`,
     ].join(" "),
     missing_information: missingInformation(packet),
@@ -107,17 +112,17 @@ export function createBaselinePacketReviewDraft(
       ...packet.evidence_summaries.map((item) => ({
         source_type: "evidence" as const,
         record_id: item.id,
-        note: `Evidence record "${item.title}" is included in the packet.`,
+        note: "This evidence record is included in the packet.",
       })),
       ...packet.timeline_summaries.map((item) => ({
         source_type: "timeline" as const,
         record_id: item.id,
-        note: `Timeline record "${item.title}" is included in the packet.`,
+        note: "This timeline record is included in the packet.",
       })),
       ...packet.recent_activity_summaries.map((item) => ({
         source_type: "activity" as const,
         record_id: item.id,
-        note: `Activity record "${item.action_label}" is included in the packet.`,
+        note: "This activity record is included in the packet.",
       })),
     ],
     unsupported_claims: [],

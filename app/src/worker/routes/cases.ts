@@ -1,5 +1,14 @@
 import { Hono, type Context } from "hono";
 import { bodyLimit } from "hono/body-limit";
+import { createBaselinePacketReviewDraft } from "../../shared/ai-review/baseline-reviewer";
+import {
+  evaluatePacketReviewDraftForPacket,
+  invalidPacketReviewCitations,
+} from "../../shared/ai-review/evaluate-review";
+import {
+  parsePacketReviewDraft,
+  parsePacketReviewDraftResponseData,
+} from "../../shared/ai-review/schema";
 import { buildPacketModel } from "../../shared/packet/build-packet-model";
 import { renderPacketHtml } from "../../shared/packet/render-packet-html";
 import {
@@ -333,6 +342,72 @@ caseRoutes.get("/:caseId/packet.pdf", async (context) => {
       500,
       "PACKET_PDF_FAILED",
       "The packet PDF could not be generated.",
+    );
+  }
+});
+
+caseRoutes.post("/:caseId/ai-review/draft", async (context) => {
+  const packetResult = await packetForRequest(context);
+
+  if (!packetResult.ok) {
+    return packetResult.response;
+  }
+
+  try {
+    const review = parsePacketReviewDraft(
+      createBaselinePacketReviewDraft(packetResult.packet),
+    );
+    const invalidCitations = invalidPacketReviewCitations(
+      packetResult.packet,
+      review,
+    );
+    const evaluation = evaluatePacketReviewDraftForPacket(
+      packetResult.packet,
+      review,
+    );
+
+    if (invalidCitations.length > 0 || evaluation.safety_warnings.length > 0) {
+      return errorResponse(
+        context,
+        500,
+        "AI_REVIEW_SAFETY_FAILED",
+        "The review draft did not pass local safety validation.",
+      );
+    }
+
+    const data = parsePacketReviewDraftResponseData({
+      review,
+      evaluation: {
+        score: evaluation.total_score,
+        passed: evaluation.passed,
+        warnings: evaluation.safety_warnings,
+        citation_validity: {
+          score: evaluation.citation_validity_score,
+          passed: invalidCitations.length === 0,
+          invalid_citations: invalidCitations,
+        },
+        safety: {
+          passed: evaluation.safety_warnings.length === 0,
+          warnings: evaluation.safety_warnings,
+        },
+      },
+      metadata: {
+        reviewer: "deterministic-baseline",
+        live_ai: false,
+        external_calls: false,
+      },
+    });
+
+    return context.json({
+      ok: true,
+      data,
+    });
+  } catch {
+    return errorResponse(
+      context,
+      500,
+      "AI_REVIEW_VALIDATION_FAILED",
+      "The review draft could not be validated.",
     );
   }
 });

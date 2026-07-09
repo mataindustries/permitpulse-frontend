@@ -1,5 +1,8 @@
 import { z } from "zod";
-import type { PacketReviewDraft } from "./types";
+import type {
+  PacketReviewDraft,
+  PacketReviewDraftResponseData,
+} from "./types";
 
 const nonEmptyReviewText = z.string().trim().min(1).max(2000);
 
@@ -31,6 +34,47 @@ export const packetReviewDraftSchema = z
   })
   .strict();
 
+export const packetReviewDraftEvaluationReportSchema = z
+  .object({
+    score: z.number().min(0).max(100),
+    passed: z.boolean(),
+    warnings: z.array(nonEmptyReviewText).max(100),
+    citation_validity: z
+      .object({
+        score: z.number().min(0).max(100),
+        passed: z.boolean(),
+        invalid_citations: z.array(nonEmptyReviewText).max(100),
+      })
+      .strict(),
+    safety: z
+      .object({
+        passed: z.boolean(),
+        warnings: z.array(nonEmptyReviewText).max(100),
+      })
+      .strict(),
+  })
+  .strict();
+
+export const packetReviewDraftResponseDataSchema = z
+  .object({
+    review: packetReviewDraftSchema,
+    evaluation: packetReviewDraftEvaluationReportSchema,
+    metadata: z
+      .object({
+        reviewer: z.literal("deterministic-baseline"),
+        live_ai: z.literal(false),
+        external_calls: z.literal(false),
+      })
+      .strict(),
+  })
+  .strict();
+
 export function parsePacketReviewDraft(value: unknown): PacketReviewDraft {
   return packetReviewDraftSchema.parse(value);
+}
+
+export function parsePacketReviewDraftResponseData(
+  value: unknown,
+): PacketReviewDraftResponseData {
+  return packetReviewDraftResponseDataSchema.parse(value);
 }

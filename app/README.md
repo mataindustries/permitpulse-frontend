@@ -15,18 +15,64 @@ records, timeline-to-evidence links, a first local-only Packet Builder preview,
 server-side Packet Preview endpoints, and a shared local-only Packet Renderer
 foundation through protected APIs. The protected Packet Preview API can also
 generate an on-demand local-only draft PDF from the existing server-side
-`PacketModel`. The app now includes a local-only evaluation foundation for a
-future PermitPulse Packet Review Assistant, but it does not call a live AI
-model and does not expose production AI UI.
+`PacketModel`. The app now includes a protected, local-only PermitPulse AI
+Review Assistant v0 draft endpoint backed by the deterministic baseline
+reviewer and evaluation foundation. It does not call a live AI model and does
+not expose production AI UI.
 There is still no participant assignment, file upload, stored PDF history, live
 AI integration, billing, email delivery, OAuth, user-management UI, or
 production authentication.
 
-## AI Review Assistant evaluation foundation
+## AI Review Assistant v0 and evaluation foundation
 
-The PermitPulse Packet Review Assistant is not a live feature yet. The current
-foundation lives under `src/shared/ai-review/` and exists so future model output
-can be evaluated before any provider integration is added.
+The PermitPulse Packet Review Assistant is not a live-AI feature yet. The
+current foundation lives under `src/shared/ai-review/` so deterministic output
+and future model output can pass the same schema, citation, and safety checks.
+The protected v0 route is:
+
+```text
+POST /api/v1/cases/:caseId/ai-review/draft
+```
+
+For an authorized case, the Worker assembles the same bounded server-side
+`PacketModel` used by the packet routes, creates a fresh deterministic draft,
+validates it against the strict `PacketReviewDraft` schema, rejects citations
+outside that exact packet snapshot, runs the evaluator/safety checker, and
+returns:
+
+```json
+{
+  "ok": true,
+  "data": {
+    "review": {},
+    "evaluation": {
+      "score": 100,
+      "passed": true,
+      "warnings": [],
+      "citation_validity": {
+        "score": 100,
+        "passed": true,
+        "invalid_citations": []
+      },
+      "safety": {
+        "passed": true,
+        "warnings": []
+      }
+    },
+    "metadata": {
+      "reviewer": "deterministic-baseline",
+      "live_ai": false,
+      "external_calls": false
+    }
+  }
+}
+```
+
+Authorization exactly matches packet reads: administrators may generate a
+draft for any case, participating clients may generate one for their case,
+unrelated clients receive the same safe `404 CASE_NOT_FOUND` as a missing
+case, unauthenticated requests receive `401 UNAUTHENTICATED`, and malformed
+case UUIDs receive `400 INVALID_CASE_ID`.
 
 The foundation includes:
 
@@ -41,11 +87,12 @@ The foundation includes:
   jurisdiction mismatch, incomplete addresses, and high-risk unsupported action
   temptations.
 - A deterministic baseline reviewer that uses only fields already present in a
-  `PacketModel`. It summarizes visible packet counts, identifies obvious
-  missing fields, recommends generic human review steps, cites only existing
-  evidence/timeline/activity IDs, warns about unconfirmed or disputed evidence,
-  and avoids approval predictions, legal guarantees, invented agency outcomes,
-  invented reviewer names, invented dates, and invented code sections.
+  `PacketModel`. It summarizes safe enumerated status and packet counts,
+  identifies obvious missing fields, recommends generic human review steps,
+  cites only existing evidence/timeline/activity IDs, warns about unconfirmed
+  or disputed evidence, and avoids echoing arbitrary stored strings that could
+  look like approval predictions, legal guarantees, agency outcomes, reviewer
+  names, dates, or code sections.
 - An evaluator that scores schema validity, groundedness, citation validity,
   missing-information coverage, unsupported-claim penalties, safety warnings,
   and pass/fail status.
@@ -61,10 +108,17 @@ count, average score, pass/fail counts, and a per-fixture summary. It requires
 no secrets, makes no external calls, applies no migrations, and does not touch
 Cloudflare resources.
 
+The v0 endpoint is stateless. It does not write an AI review, prompt, run,
+evaluation, or packet to D1, R2, local disk, or any other storage. It requires
+no AI provider, API key, provider secret, network call, or environment variable.
+There is no production AI UI.
+
 The future path to live model integration is to send a bounded `PacketModel` to
-an approved provider behind a server-side feature gate, parse the result through
-the strict schema, evaluate it against fixtures in CI, and keep human review and
-local safety checks in place before any production UI is enabled.
+an approved provider adapter behind a server-side feature gate, parse the result
+through the same strict schema, validate snapshot citations, evaluate it against
+fixtures in CI, and keep human review and local safety checks in place before
+any production UI is enabled. Provider selection, secrets, persistence,
+rate/cost controls, and production enablement remain future reviewed work.
 
 ## Requirements and bindings
 
@@ -514,6 +568,7 @@ Better Auth session:
 | `GET` | `/api/v1/cases/:caseId/packet.txt` | Build a server-side plain-text packet preview. |
 | `GET` | `/api/v1/cases/:caseId/packet.html` | Build a server-side safe HTML packet preview. |
 | `GET` | `/api/v1/cases/:caseId/packet.pdf` | Build a local-only draft PDF packet preview. |
+| `POST` | `/api/v1/cases/:caseId/ai-review/draft` | Build and evaluate a deterministic, local-only review draft without storing it. |
 
 Creation accepts only these JSON fields:
 
@@ -864,7 +919,8 @@ D1, R2, local disk, email, or any packet history table.
 Current Packet Preview API limitations:
 
 - No stored packet versions yet.
-- No AI yet.
+- AI review is deterministic baseline output only; there is no live model or
+  production AI UI.
 - No approval workflow yet.
 
 ## Pagination contract
@@ -1011,6 +1067,7 @@ npm run typecheck
 npm test
 npm run build
 npm run build:preview
+npm run ai:eval:local
 git diff --check
 ```
 
