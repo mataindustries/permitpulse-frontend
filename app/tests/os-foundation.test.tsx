@@ -9,6 +9,7 @@ import {
 import { MissionControlHome } from "../src/client/features/mission-control/MissionControlHome";
 import { MobileShell } from "../src/client/os/MobileShell";
 import type { MissionControlItem } from "../src/client/types/mission-control";
+import { evaluateMissionIntelligence } from "../src/shared/mission-intelligence/evaluate";
 
 const mission: MissionControlItem = {
   id: "00000000-0000-4000-8000-000000000001",
@@ -27,16 +28,33 @@ const mission: MissionControlItem = {
   },
   timeline: {
     total: 3,
+    linked: 2,
     latest_occurred_on: "2026-07-07",
   },
-  warnings: {
-    count: 2,
-    labels: ["Case needs information", "2 evidence records incomplete"],
-  },
-  next_action: {
-    label: "Resolve missing information",
-    section: "evidence",
-  },
+  intelligence: evaluateMissionIntelligence({
+    case: {
+      id: "00000000-0000-4000-8000-000000000001",
+      permitNumber: "EX-2026-JADE",
+      currentStatus: "needs_information",
+      updatedAt: "2026-07-08T12:00:00.000Z",
+    },
+    evidence: {
+      total: 4,
+      verified: 2,
+      unverified: 2,
+      disputed: 0,
+      sourceComplete: 2,
+      deliveryReady: 2,
+      records: [],
+    },
+    timeline: {
+      total: 3,
+      linked: 2,
+      canonicalApprovalLinkedToVerifiedEvidence: false,
+      records: [],
+    },
+    evaluatedAt: "2026-07-10T00:00:00.000Z",
+  }),
 };
 
 afterEach(() => {
@@ -53,7 +71,7 @@ describe("Mission Control client and UI", () => {
             data: {
               missions: [mission],
               pagination: { limit: 20, offset: 0 },
-              order: "attention_status_updated_at_asc",
+              order: "mission_intelligence_priority_asc",
             },
           }),
           { headers: { "content-type": "application/json" } },
@@ -94,13 +112,13 @@ describe("Mission Control client and UI", () => {
     expect(markup).toContain('role="progressbar"');
   });
 
-  it("renders AI confidence only when the API supplies it", () => {
+  it("renders the deterministic recommendation without an AI confidence value", () => {
     const markup = renderToStaticMarkup(
       <MissionControlHome
         displayName="Avery Example"
         error=""
         loading={false}
-        missions={[{ ...mission, ai_confidence: 91 }]}
+        missions={[mission]}
         onCreateCase={() => undefined}
         onOpenMission={() => undefined}
         onRetry={() => undefined}
@@ -108,8 +126,8 @@ describe("Mission Control client and UI", () => {
       />,
     );
 
-    expect(markup).toContain("AI confidence");
-    expect(markup).toContain("91%");
+    expect(markup).toContain("Resolve missing information");
+    expect(markup).not.toContain("AI confidence");
   });
 });
 

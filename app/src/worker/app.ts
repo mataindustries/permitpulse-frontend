@@ -8,6 +8,7 @@ import { caseRoutes } from "./routes/cases";
 import { developmentCaseRoutes } from "./routes/development-cases";
 import { healthRoutes } from "./routes/health";
 import { missionControlRoutes } from "./routes/mission-control";
+import { missionIntelligenceRoutes } from "./routes/mission-intelligence";
 import { workspaceRoutes } from "./routes/workspace";
 import type { WorkerEnv } from "./types";
 
@@ -34,6 +35,7 @@ app.route("/api/internal/bootstrap-admin", bootstrapAdminRoutes);
 app.route("/api/dev/cases", developmentCaseRoutes);
 app.route("/api/v1/cases", caseRoutes);
 app.route("/api/v1/mission-control", missionControlRoutes);
+app.route("/api/v1/mission-intelligence", missionIntelligenceRoutes);
 app.route("/api/workspace", workspaceRoutes);
 
 app.notFound((context) =>

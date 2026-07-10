@@ -22,6 +22,7 @@ import {
   updateTimelineEntry,
 } from "./api/evidence-timeline";
 import { listMissionControl } from "./api/mission-control";
+import { getMissionIntelligence } from "./api/mission-intelligence";
 import { authClient } from "./auth-client";
 import {
   CaseDetail,
@@ -54,6 +55,7 @@ import type {
   UpdateTimelineInput,
 } from "./types/evidence-timeline";
 import type { MissionControlItem } from "./types/mission-control";
+import type { MissionIntelligence } from "./types/mission-intelligence";
 import type { PacketReviewDraftResponseData } from "../shared/ai-review/types";
 
 interface AuthCapabilities {
@@ -96,6 +98,7 @@ interface CaseClient {
   createTimelineEntry: typeof createTimelineEntry;
   generateAiReviewDraft: typeof generateAiReviewDraft;
   getCase: typeof getCase;
+  getMissionIntelligence: typeof getMissionIntelligence;
   getEvidence: typeof getEvidence;
   getTimelineEntry: typeof getTimelineEntry;
   linkTimelineEvidence: typeof linkTimelineEvidence;
@@ -117,6 +120,7 @@ const defaultCaseClient: CaseClient = {
   createTimelineEntry,
   generateAiReviewDraft,
   getCase,
+  getMissionIntelligence,
   getEvidence,
   getTimelineEntry,
   linkTimelineEvidence,
@@ -255,6 +259,10 @@ function Workspace({
   const [detailCase, setDetailCase] = useState<CaseDto | null>(null);
   const [detailLoading, setDetailLoading] = useState(false);
   const [detailError, setDetailError] = useState("");
+  const [missionIntelligence, setMissionIntelligence] =
+    useState<MissionIntelligence | null>(null);
+  const [intelligenceLoading, setIntelligenceLoading] = useState(false);
+  const [intelligenceError, setIntelligenceError] = useState("");
   const [activityResponse, setActivityResponse] =
     useState<CaseActivityResponse | null>(null);
   const [activityLoading, setActivityLoading] = useState(false);
@@ -328,6 +336,8 @@ function Workspace({
     setDetailLoading(true);
     setDetailError("");
     setDetailCase(null);
+    setMissionIntelligence(null);
+    setIntelligenceError("");
     setActivityResponse(null);
     setActivityError("");
     setEvidenceResponse(null);
@@ -340,7 +350,10 @@ function Workspace({
     setView({ name: "detail", caseId, initialSection, origin });
 
     try {
-      const record = await client.getCase(caseId);
+      const [record] = await Promise.all([
+        client.getCase(caseId),
+        loadMissionIntelligence(caseId),
+      ]);
 
       setDetailCase(record);
       updateCaseInList(record);
@@ -351,6 +364,22 @@ function Workspace({
       handleCaseError(error, setDetailError);
     } finally {
       setDetailLoading(false);
+    }
+  }
+
+  async function loadMissionIntelligence(caseId: string) {
+    setIntelligenceLoading(true);
+    setIntelligenceError("");
+
+    try {
+      const intelligence = await client.getMissionIntelligence(caseId);
+      setMissionIntelligence(intelligence);
+      return intelligence;
+    } catch (error) {
+      handleCaseError(error, setIntelligenceError);
+      throw error;
+    } finally {
+      setIntelligenceLoading(false);
     }
   }
 
@@ -484,6 +513,7 @@ function Workspace({
       void loadActivity(created.id, 0);
       void loadEvidenceRecords(created.id, 0);
       void loadTimelineRecords(created.id, 0);
+      void loadMissionIntelligence(created.id);
     } catch (error) {
       handleCaseError(error, setCreateError);
     } finally {
@@ -519,6 +549,7 @@ function Workspace({
       updateCaseInList(updated);
       setSuccessMessage("Case details saved.");
       await loadActivity(updated.id, 0);
+      await loadMissionIntelligence(updated.id);
       void loadMissionQueue();
     } catch (error) {
       if (error instanceof CaseApiError && error.kind === "unauthorized") {
@@ -540,6 +571,7 @@ function Workspace({
       updateCaseInList(updated);
       setSuccessMessage("Case status updated.");
       await loadActivity(updated.id, 0);
+      await loadMissionIntelligence(updated.id);
       void loadMissionQueue();
     } catch (error) {
       if (error instanceof CaseApiError && error.kind === "unauthorized") {
@@ -608,6 +640,7 @@ function Workspace({
       setSelectedEvidenceId(created.id);
       setHighlightedEvidenceId(created.id);
       await loadEvidenceRecords(detailCase.id, 0);
+      await loadMissionIntelligence(detailCase.id);
       void loadMissionQueue();
 
       return created;
@@ -634,6 +667,7 @@ function Workspace({
       setSelectedEvidenceId(updated.id);
       setHighlightedEvidenceId(updated.id);
       setSuccessMessage("Evidence saved.");
+      await loadMissionIntelligence(detailCase.id);
       void loadMissionQueue();
 
       return updated;
@@ -679,6 +713,7 @@ function Workspace({
       setSuccessMessage("Timeline entry added.");
       setSelectedTimelineId(created.id);
       await loadTimelineRecords(detailCase.id, 0);
+      await loadMissionIntelligence(detailCase.id);
       void loadMissionQueue();
 
       return created;
@@ -708,6 +743,7 @@ function Workspace({
       replaceTimeline(updated);
       setSelectedTimelineId(updated.id);
       setSuccessMessage("Timeline entry saved.");
+      await loadMissionIntelligence(detailCase.id);
       void loadMissionQueue();
 
       return updated;
@@ -754,6 +790,8 @@ function Workspace({
       replaceTimeline(updated);
       setSelectedTimelineId(updated.id);
       setSuccessMessage("Supporting evidence linked.");
+      await loadMissionIntelligence(detailCase.id);
+      void loadMissionQueue();
 
       return updated;
     } catch (error) {
@@ -779,6 +817,8 @@ function Workspace({
       replaceTimeline(updated);
       setSelectedTimelineId(updated.id);
       setSuccessMessage("Supporting evidence unlinked.");
+      await loadMissionIntelligence(detailCase.id);
+      void loadMissionQueue();
 
       return updated;
     } catch (error) {
@@ -861,7 +901,7 @@ function Workspace({
             onOpenMission={(mission) =>
               void loadCaseDetail(
                 mission.id,
-                mission.next_action.section,
+                mission.intelligence.recommendedAction.targetTab,
                 "mission",
               )
             }
@@ -942,6 +982,9 @@ function Workspace({
             evidenceResponse={evidenceResponse}
             highlightedEvidenceId={highlightedEvidenceId}
             initialSection={view.initialSection}
+            intelligence={missionIntelligence}
+            intelligenceError={intelligenceError}
+            intelligenceLoading={intelligenceLoading}
             loading={detailLoading}
             role={user.role}
             selectedEvidenceId={selectedEvidenceId}

@@ -75,8 +75,11 @@ function MissionCard({
   mission: MissionControlItem;
   onOpen: () => void;
 }) {
-  const warningSummary = mission.warnings.labels[0];
-  const additionalWarnings = Math.max(0, mission.warnings.count - 1);
+  const findingCount =
+    mission.intelligence.blockers.length + mission.intelligence.warnings.length;
+  const warningSummary =
+    mission.intelligence.blockers[0]?.title ?? mission.intelligence.warnings[0]?.title;
+  const additionalWarnings = Math.max(0, findingCount - 1);
 
   return (
     <SurfaceCard
@@ -109,18 +112,18 @@ function MissionCard({
 
       <div className="mission-card__progress-block">
         <div className="mission-card__progress-label">
-          <span>Evidence completeness</span>
-          <strong>{mission.evidence.completeness}%</strong>
+          <span>Mission health</span>
+          <strong>{mission.intelligence.missionHealth.score}%</strong>
         </div>
         <div
-          aria-label={`${mission.evidence.completeness}% evidence complete`}
+          aria-label={`${mission.intelligence.missionHealth.score}% mission health`}
           aria-valuemax={100}
           aria-valuemin={0}
-          aria-valuenow={mission.evidence.completeness}
+          aria-valuenow={mission.intelligence.missionHealth.score}
           className="mission-card__progress"
           role="progressbar"
         >
-          <span style={{ width: `${mission.evidence.completeness}%` }} />
+          <span style={{ width: `${mission.intelligence.missionHealth.score}%` }} />
         </div>
       </div>
 
@@ -134,8 +137,8 @@ function MissionCard({
         <MetricChip
           icon="warning"
           label="Warnings"
-          tone={mission.warnings.count > 0 ? "warning" : "success"}
-          value={mission.warnings.count}
+          tone={findingCount > 0 ? "warning" : "success"}
+          value={findingCount}
         />
         <MetricChip
           icon="timeline"
@@ -143,14 +146,6 @@ function MissionCard({
           tone="neutral"
           value={mission.timeline.total}
         />
-        {typeof mission.ai_confidence === "number" && (
-          <MetricChip
-            icon="ai"
-            label="AI confidence"
-            tone="jade"
-            value={`${mission.ai_confidence}%`}
-          />
-        )}
       </div>
 
       {warningSummary && (
@@ -166,10 +161,10 @@ function MissionCard({
       <div className="mission-card__next-action">
         <div>
           <span>Next action</span>
-          <strong>{mission.next_action.label}</strong>
+          <strong>{mission.intelligence.recommendedAction.title}</strong>
         </div>
         <PrimaryAction
-          aria-label={`${mission.next_action.label} for ${mission.project_name}`}
+          aria-label={`${mission.intelligence.recommendedAction.title} for ${mission.project_name}`}
           icon="arrow-right"
           iconAfter
           onClick={onOpen}
@@ -192,7 +187,8 @@ export function MissionControlHome({
   onViewCases,
 }: MissionControlHomeProps) {
   const attentionCount = missions.filter(
-    (mission) => mission.warnings.count > 0,
+    (mission) =>
+      mission.intelligence.blockers.length + mission.intelligence.warnings.length > 0,
   ).length;
 
   return (

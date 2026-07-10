@@ -163,6 +163,36 @@ interface SkeletonLoaderProps {
   label?: string;
 }
 
+interface ProgressBarProps extends HTMLAttributes<HTMLDivElement> {
+  label: string;
+  tone?: Exclude<StatusTone, "neutral" | "info"> | "jade";
+  value: number;
+}
+
+export function ProgressBar({
+  className,
+  label,
+  tone = "jade",
+  value,
+  ...props
+}: ProgressBarProps) {
+  const boundedValue = Math.max(0, Math.min(100, Math.round(value)));
+
+  return (
+    <div
+      aria-label={label}
+      aria-valuemax={100}
+      aria-valuemin={0}
+      aria-valuenow={boundedValue}
+      className={classes("pp-progress", `pp-progress--${tone}`, className)}
+      role="progressbar"
+      {...props}
+    >
+      <span style={{ width: `${boundedValue}%` }} />
+    </div>
+  );
+}
+
 export function SkeletonLoader({
   cards = 3,
   label = "Loading content",

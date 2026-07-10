@@ -1,15 +1,10 @@
+import type { MissionIntelligence } from "../mission-intelligence/types";
+
 export type MissionControlCaseStatus =
   | "intake"
   | "researching"
   | "needs_information"
   | "ready_for_review";
-
-export type MissionControlSection =
-  | "overview"
-  | "evidence"
-  | "timeline"
-  | "ai-review"
-  | "packet";
 
 export interface MissionControlItem {
   id: string;
@@ -28,18 +23,10 @@ export interface MissionControlItem {
   };
   timeline: {
     total: number;
+    linked: number;
     latest_occurred_on: string | null;
   };
-  warnings: {
-    count: number;
-    labels: string[];
-  };
-  next_action: {
-    label: string;
-    section: MissionControlSection;
-  };
-  /** Present only when a persisted, supported confidence source is available. */
-  ai_confidence?: number;
+  intelligence: MissionIntelligence;
 }
 
 export interface MissionControlListResponse {
@@ -48,5 +35,5 @@ export interface MissionControlListResponse {
     limit: number;
     offset: number;
   };
-  order: "attention_status_updated_at_asc";
+  order: "mission_intelligence_priority_asc";
 }

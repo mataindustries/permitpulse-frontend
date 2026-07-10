@@ -35,6 +35,16 @@ import {
   safeRecordError,
 } from "./evidenceTimelineUtils";
 import type { PacketReviewDraftResponseData } from "../../shared/ai-review/types";
+import type { MissionIntelligence } from "../types/mission-intelligence";
+import { Icon, type IconName } from "../design-system/icons";
+import {
+  MetricChip,
+  PrimaryAction,
+  ProgressBar,
+  SecondaryAction,
+  StatusBadge as OsStatusBadge,
+  SurfaceCard,
+} from "../design-system/primitives";
 
 export type CaseDetailSection =
   | "overview"
@@ -42,7 +52,8 @@ export type CaseDetailSection =
   | "timeline"
   | "activity"
   | "packet"
-  | "ai-review";
+  | "ai-review"
+  | "findings";
 
 interface CaseDetailProps {
   activityError: string;
@@ -58,6 +69,9 @@ interface CaseDetailProps {
   highlightedEvidenceId: string | null;
   initialSection?: CaseDetailSection;
   loading: boolean;
+  intelligence: MissionIntelligence | null;
+  intelligenceError: string;
+  intelligenceLoading: boolean;
   role: UserRole;
   selectedEvidenceId: string | null;
   selectedTimelineId: string | null;
@@ -231,25 +245,21 @@ export function RecordConflictNotice({
   );
 }
 
-const detailSections = [
-  ["overview", "Overview"],
-  ["evidence", "Evidence"],
-  ["timeline", "Permit timeline"],
-  ["activity", "Activity"],
-  ["packet", "Packet preview"],
-  ["ai-review", "AI review"],
-] as const satisfies readonly [CaseDetailSection, string][];
+type CockpitSection = "overview" | "evidence" | "timeline" | "findings" | "packet";
 
-const workspaceCapabilities = [
-  ["Case workspace", "Ready"],
-  ["Evidence", "Ready"],
-  ["Permit timeline", "Ready"],
-  ["Packet preview", "Ready"],
-  ["PDF export", "On demand"],
-  ["AI review draft", "Baseline"],
-  ["live_ai=false", "Off"],
-  ["external_calls=false", "Off"],
-] as const;
+const detailSections = [
+  ["overview", "Overview", "mission"],
+  ["evidence", "Evidence", "evidence"],
+  ["timeline", "Timeline", "timeline"],
+  ["findings", "Findings", "ai"],
+  ["packet", "Packet", "packets"],
+] as const satisfies readonly [CockpitSection, string, IconName][];
+
+function normalizeSection(section: CaseDetailSection): CockpitSection {
+  if (section === "ai-review") return "findings";
+  if (section === "activity") return "timeline";
+  return section;
+}
 
 export function CaseDetail({
   activityError,
@@ -265,6 +275,9 @@ export function CaseDetail({
   highlightedEvidenceId,
   initialSection = "overview",
   loading,
+  intelligence,
+  intelligenceError,
+  intelligenceLoading,
   role,
   selectedEvidenceId,
   selectedTimelineId,
@@ -297,8 +310,11 @@ export function CaseDetail({
   onUpdateEvidence,
   onUpdateTimeline,
 }: CaseDetailProps) {
-  const [activeSection, setActiveSection] = useState<CaseDetailSection>(
-    initialSection,
+  const [activeSection, setActiveSection] = useState<CockpitSection>(
+    normalizeSection(initialSection),
+  );
+  const [timelineView, setTimelineView] = useState<"permit" | "activity">(
+    initialSection === "activity" ? "activity" : "permit",
   );
   const tabRefs = useRef<Array<HTMLButtonElement | null>>([]);
   const [editing, setEditing] = useState(false);
@@ -342,8 +358,15 @@ export function CaseDetail({
   const selectedTimeline =
     timelineItems.find((item) => item.id === selectedTimelineId) ?? null;
 
+  const signalsLoading = intelligenceLoading || !intelligence;
+  const missionHealth = intelligence?.missionHealth.score ?? 0;
+  const packetCompleted = intelligence?.packetReadiness.completed ?? 0;
+  const packetProgress = intelligence?.packetReadiness.score ?? 0;
+  const nextAction = intelligence?.recommendedAction;
+
   useEffect(() => {
-    setActiveSection(initialSection);
+    setActiveSection(normalizeSection(initialSection));
+    setTimelineView(initialSection === "activity" ? "activity" : "permit");
   }, [caseRecord?.id, initialSection]);
 
   async function submitMetadata(input: UpdateCaseMetadataInput) {
@@ -551,22 +574,37 @@ export function CaseDetail({
   }
 
   return (
-    <section aria-labelledby="case-detail-title" className="workspace-panel">
-      <div className="panel-heading case-masthead">
-        <div className="case-masthead__identity">
-          <p className="eyebrow">Permit operations / Case detail</p>
-          <h2 id="case-detail-title">{caseRecord?.project_name ?? "Case details"}</h2>
+    <section aria-labelledby="case-detail-title" className="workspace-panel case-cockpit">
+      <div className="case-cockpit__back-row">
+        <SecondaryAction onClick={onBack}>
+          {backLabel}
+        </SecondaryAction>
+      </div>
+
+      <header className="case-cockpit__hero">
+        <div className="case-cockpit__hero-copy">
+          <p className="eyebrow">Permit operations / Case Cockpit</p>
+          <h1 id="case-detail-title">{caseRecord?.project_name ?? "Case cockpit"}</h1>
           {caseRecord && (
-            <p className="case-masthead__context">
-              {caseRecord.client_name} · {caseRecord.jurisdiction} · Updated {formatDateTime(caseRecord.updated_at)}
-            </p>
+            <>
+              <p className="case-cockpit__address">
+                {caseRecord.address}, {caseRecord.city}
+              </p>
+              <div className="case-cockpit__hero-meta">
+                <StatusBadge status={caseRecord.current_status} />
+                <span>{caseRecord.jurisdiction}</span>
+                <span>{caseRecord.permit_number ?? "Permit number pending"}</span>
+              </div>
+            </>
           )}
         </div>
-        {caseRecord && <StatusBadge status={caseRecord.current_status} />}
-        <button className="secondary-button" type="button" onClick={onBack}>
-          {backLabel}
-        </button>
-      </div>
+        {caseRecord && (
+          <div className="case-cockpit__updated">
+            <span>Last signal</span>
+            <strong>{formatDateTime(caseRecord.updated_at)}</strong>
+          </div>
+        )}
+      </header>
 
       {loading && <p role="status">Loading case details...</p>}
 
@@ -587,21 +625,64 @@ export function CaseDetail({
 
       {!loading && !error && caseRecord && (
         <div className="case-detail">
-          <section
-            aria-label="Workspace capability status"
-            className="capability-strip"
-          >
-            {workspaceCapabilities.map(([label, state]) => (
-              <div className="capability-item" key={label}>
-                <span className="capability-indicator" aria-hidden="true" />
-                <span>{label}</span>
-                <strong>{state}</strong>
+          <div className="case-cockpit__command-grid">
+            <SurfaceCard as="article" className="mission-brief" elevated>
+              <div className="mission-brief__icon" aria-hidden="true">
+                <Icon name="ai" size={20} />
               </div>
-            ))}
-          </section>
+              <div className="mission-brief__copy">
+                <div className="mission-brief__heading">
+                  <div>
+                    <p className="eyebrow">AI Mission Brief</p>
+                    <h2>What matters now</h2>
+                  </div>
+                  <OsStatusBadge tone="info">Deterministic</OsStatusBadge>
+                </div>
+                <p>
+                  {intelligenceError ||
+                    intelligence?.explanation ||
+                    "Evaluating current case evidence and timeline state."}
+                </p>
+                <PrimaryAction
+                  disabled={!nextAction}
+                  icon="arrow-right"
+                  iconAfter
+                  onClick={() => {
+                    if (nextAction) setActiveSection(nextAction.targetTab);
+                  }}
+                >
+                  {nextAction?.title ?? "Evaluating mission"}
+                </PrimaryAction>
+              </div>
+            </SurfaceCard>
 
-          <div className="section-tabs" role="tablist" aria-label="Case detail sections">
-            {detailSections.map(([section, label], index) => (
+            <SurfaceCard as="article" className="mission-health">
+              <div className="mission-health__heading">
+                <div>
+                  <p className="eyebrow">Mission Health</p>
+                  <h2>{signalsLoading ? "—" : `${missionHealth}%`}</h2>
+                </div>
+                <OsStatusBadge
+                  tone={signalsLoading ? "info" : missionHealth >= 80 ? "success" : missionHealth >= 55 ? "warning" : "danger"}
+                >
+                  {signalsLoading ? "Syncing" : missionHealth >= 80 ? "Strong" : missionHealth >= 55 ? "Attention" : "At risk"}
+                </OsStatusBadge>
+              </div>
+              <ProgressBar
+                label={signalsLoading ? "Mission health syncing" : `Mission health ${missionHealth}%`}
+                tone={signalsLoading ? "jade" : missionHealth >= 80 ? "success" : missionHealth >= 55 ? "warning" : "danger"}
+                value={signalsLoading ? 0 : missionHealth}
+              />
+              <div className="mission-health__metrics">
+                <MetricChip icon="evidence" label="evidence" value={`${intelligence?.evidenceHealth.completed ?? 0}/${intelligence?.evidenceHealth.total ?? 2}`} />
+                <MetricChip icon="timeline" label="timeline" value={`${intelligence?.timelineHealth.completed ?? 0}/${intelligence?.timelineHealth.total ?? 2}`} />
+                <MetricChip icon="packets" label="packet" value={`${packetCompleted}/5`} />
+              </div>
+            </SurfaceCard>
+          </div>
+
+          <div className="section-tabs case-cockpit__tabs" role="tablist" aria-label="Case cockpit sections">
+            {detailSections.map(([section, label, icon], index) => (
               <button
                 aria-controls={`case-detail-panel-${section}`}
                 aria-selected={activeSection === section}
@@ -619,6 +700,7 @@ export function CaseDetail({
                 onClick={() => setActiveSection(section)}
                 onKeyDown={(event) => handleTabKeyDown(event, index)}
               >
+                <Icon name={icon} size={17} />
                 {label}
               </button>
             ))}
@@ -632,10 +714,10 @@ export function CaseDetail({
 
           {activeSection === "overview" && (
             <>
-              <section className="detail-section" aria-labelledby="overview-title">
+              <section className="detail-section cockpit-section" aria-labelledby="overview-title">
                 <div className="section-heading">
                   <div>
-                    <p className="eyebrow">Overview</p>
+                    <p className="eyebrow">Mission snapshot</p>
                     <h3 id="overview-title">Case overview</h3>
                   </div>
                   <StatusBadge status={caseRecord.current_status} />
@@ -677,13 +759,13 @@ export function CaseDetail({
               </section>
 
               <section
-                className="detail-section"
+                className="detail-section cockpit-section cockpit-action-card"
                 aria-labelledby="edit-details-title"
               >
                 <div className="section-heading">
                   <div>
-                    <p className="eyebrow">Edit details</p>
-                    <h3 id="edit-details-title">Case metadata</h3>
+                    <p className="eyebrow">Case controls</p>
+                    <h3 id="edit-details-title">Keep the permit summary current</h3>
                   </div>
                   {!editing && (
                     <button
@@ -720,10 +802,7 @@ export function CaseDetail({
                     onSubmit={submitMetadata}
                   />
                 ) : (
-                  <p>
-                    Update project, client, location, jurisdiction, and permit
-                    metadata without changing lifecycle status.
-                  </p>
+                  <p>Update project, client, location, jurisdiction, and permit metadata when the record changes.</p>
                 )}
               </section>
 
@@ -747,11 +826,11 @@ export function CaseDetail({
           )}
 
           {activeSection === "evidence" && (
-            <section className="detail-section" aria-labelledby="evidence-title">
+            <section className="detail-section cockpit-section" aria-labelledby="evidence-title">
               <div className="section-heading">
                 <div>
-                  <p className="eyebrow">Evidence</p>
-                  <h3 id="evidence-title">Structured case evidence</h3>
+                  <p className="eyebrow">Evidence Health</p>
+                  <h3 id="evidence-title">Source readiness</h3>
                 </div>
                 {evidenceFormMode !== "create" && (
                   <button
@@ -765,6 +844,13 @@ export function CaseDetail({
                     Add evidence
                   </button>
                 )}
+              </div>
+
+              <div className="evidence-health" aria-label="Evidence health indicators">
+                <MetricChip icon="check" label="Checks passed" tone="success" value={intelligence?.evidenceHealth.completed ?? 0} />
+                <MetricChip icon="warning" label="Blockers" tone={intelligence?.blockers.length ? "danger" : "neutral"} value={intelligence?.blockers.length ?? 0} />
+                <MetricChip icon="warning" label="Warnings" tone={intelligence?.warnings.length ? "warning" : "neutral"} value={intelligence?.warnings.length ?? 0} />
+                <MetricChip icon="evidence" label="Evidence health" value={`${intelligence?.evidenceHealth.score ?? 0}%`} />
               </div>
 
               {evidenceFormMode === "create" && (
@@ -839,13 +925,13 @@ export function CaseDetail({
           )}
 
           {activeSection === "timeline" && (
-            <section className="detail-section" aria-labelledby="timeline-title">
+            <section className="detail-section cockpit-section" aria-labelledby="timeline-title">
               <div className="section-heading">
                 <div>
-                  <p className="eyebrow">Permit timeline</p>
-                  <h3 id="timeline-title">Structured permit events</h3>
+                  <p className="eyebrow">Timeline</p>
+                  <h3 id="timeline-title">Mission chronology</h3>
                 </div>
-                {timelineFormMode !== "create" && (
+                {timelineView === "permit" && timelineFormMode !== "create" && (
                   <button
                     type="button"
                     onClick={() => {
@@ -859,7 +945,28 @@ export function CaseDetail({
                 )}
               </div>
 
-              {timelineFormMode === "create" && (
+              <div className="cockpit-subtabs" role="tablist" aria-label="Timeline views">
+                <button
+                  aria-selected={timelineView === "permit"}
+                  className={timelineView === "permit" ? "active" : ""}
+                  role="tab"
+                  type="button"
+                  onClick={() => setTimelineView("permit")}
+                >
+                  Permit events
+                </button>
+                <button
+                  aria-selected={timelineView === "activity"}
+                  className={timelineView === "activity" ? "active" : ""}
+                  role="tab"
+                  type="button"
+                  onClick={() => setTimelineView("activity")}
+                >
+                  Case activity
+                </button>
+              </div>
+
+              {timelineView === "permit" && timelineFormMode === "create" && (
                 <TimelineForm
                   currentUserId={currentUserId}
                   error={timelineFormError}
@@ -876,14 +983,14 @@ export function CaseDetail({
                 />
               )}
 
-              {timelineConflictId && (
+              {timelineView === "permit" && timelineConflictId && (
                 <RecordConflictNotice
                   onCancel={() => setTimelineConflictId(null)}
                   onReload={reloadSelectedTimeline}
                 />
               )}
 
-              {selectedTimeline && timelineFormMode === "edit" && (
+              {timelineView === "permit" && selectedTimeline && timelineFormMode === "edit" && (
                 <TimelineForm
                   currentUserId={currentUserId}
                   error={timelineFormError}
@@ -901,7 +1008,7 @@ export function CaseDetail({
                 />
               )}
 
-              <TimelineList
+              {timelineView === "permit" && <TimelineList
                 currentUserId={currentUserId}
                 error={timelineError}
                 evidence={evidenceItems}
@@ -928,9 +1035,9 @@ export function CaseDetail({
                   setTimelineFormError("");
                   setLinkError("");
                 }}
-              />
+              />}
 
-              <EvidenceLinkManager
+              {timelineView === "permit" && <EvidenceLinkManager
                 currentUserId={currentUserId}
                 error={linkError}
                 evidence={evidenceItems}
@@ -939,36 +1046,60 @@ export function CaseDetail({
                 timelineEntry={selectedTimeline}
                 onLink={linkEvidence}
                 onUnlink={unlinkEvidence}
+              />}
+
+              {timelineView === "activity" && (
+                <CaseActivity
+                  error={activityError}
+                  loading={activityLoading}
+                  response={activityResponse}
+                  onNextPage={onActivityNextPage}
+                  onPreviousPage={onActivityPreviousPage}
+                  onRetry={onActivityRetry}
+                />
+              )}
+            </section>
+          )}
+
+          {activeSection === "packet" && (
+            <section className="cockpit-packet" aria-labelledby="packet-progress-title">
+              <SurfaceCard className="packet-progress">
+                <div className="packet-progress__heading">
+                  <div>
+                    <p className="eyebrow">Packet Progress</p>
+                    <h3 id="packet-progress-title">{packetCompleted} of 5 readiness checks complete</h3>
+                  </div>
+                  <strong>{Math.round(packetProgress)}%</strong>
+                </div>
+                <ProgressBar
+                  label={`Packet readiness ${Math.round(packetProgress)}%`}
+                  tone={packetProgress === 100 ? "success" : "warning"}
+                  value={packetProgress}
+                />
+                <p>{intelligence?.packetReadiness.explanation ?? "Evaluating packet readiness."}</p>
+              </SurfaceCard>
+              <PacketPreview
+                activityResponse={activityResponse}
+                caseRecord={caseRecord}
+                evidence={evidenceItems}
+                timeline={timelineItems}
               />
             </section>
           )}
 
-          {activeSection === "activity" && (
-            <CaseActivity
-              error={activityError}
-              loading={activityLoading}
-              response={activityResponse}
-              onNextPage={onActivityNextPage}
-              onPreviousPage={onActivityPreviousPage}
-              onRetry={onActivityRetry}
-            />
-          )}
-
-          {activeSection === "packet" && (
-            <PacketPreview
-              activityResponse={activityResponse}
-              caseRecord={caseRecord}
-              evidence={evidenceItems}
-              timeline={timelineItems}
-            />
-          )}
-
-          {activeSection === "ai-review" && (
-            <AIReviewPanel
-              key={caseRecord.id}
-              onGenerate={onGenerateAiReview}
-              onCompareWithPacket={() => setActiveSection("packet")}
-            />
+          {activeSection === "findings" && (
+            <section className="cockpit-findings" aria-labelledby="findings-title">
+              <div className="cockpit-section-heading">
+                <p className="eyebrow">Findings</p>
+                <h2 id="findings-title">Review signals and grounded next steps</h2>
+                <p>The existing protected review workflow checks the assembled case without changing source records.</p>
+              </div>
+              <AIReviewPanel
+                key={caseRecord.id}
+                onGenerate={onGenerateAiReview}
+                onCompareWithPacket={() => setActiveSection("packet")}
+              />
+            </section>
           )}
           </div>
         </div>

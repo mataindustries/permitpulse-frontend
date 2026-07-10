@@ -241,20 +241,22 @@ describe("protected Mission Control aggregate", () => {
       },
       timeline: {
         total: 1,
+        linked: 0,
         latest_occurred_on: "2026-07-02",
       },
-      warnings: {
-        count: 4,
-        labels: [
-          "Case needs information",
-          "1 unverified evidence record",
-          "1 disputed evidence record",
-          "2 evidence records incomplete",
+      intelligence: {
+        missionState: "Needs Information",
+        recommendedAction: {
+          title: "Resolve missing information",
+          targetTab: "overview",
+          blocking: true,
+        },
+        blockers: [
+          expect.objectContaining({ id: "case-needs-information" }),
+          expect.objectContaining({ id: "disputed-evidence" }),
+          expect.objectContaining({ id: "unready-evidence" }),
+          expect.objectContaining({ id: "unlinked-timeline" }),
         ],
-      },
-      next_action: {
-        label: "Resolve missing information",
-        section: "evidence",
       },
     });
     expect(body.data.missions[0]).not.toHaveProperty("ai_confidence");

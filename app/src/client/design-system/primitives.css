@@ -195,6 +195,34 @@
   width: 100%;
 }
 
+.pp-progress {
+  width: 100%;
+  height: 0.45rem;
+  overflow: hidden;
+  border-radius: var(--pp-radius-round);
+  background: var(--pp-surface-pressed);
+}
+
+.pp-progress > span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--pp-jade-400);
+  transition: width var(--pp-duration-standard) var(--pp-ease-emphasized);
+}
+
+.pp-progress--success > span {
+  background: var(--pp-status-success);
+}
+
+.pp-progress--warning > span {
+  background: var(--pp-status-warning);
+}
+
+.pp-progress--danger > span {
+  background: var(--pp-status-danger);
+}
+
 .pp-skeleton-list {
   display: grid;
   gap: var(--pp-space-3);
@@ -280,7 +308,9 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .pp-skeleton::after {
+  .pp-skeleton::after,
+  .pp-progress > span {
     animation: none;
+    transition: none;
   }
 }

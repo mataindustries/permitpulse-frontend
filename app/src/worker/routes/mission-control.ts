@@ -37,6 +37,7 @@ missionControlRoutes.get("/", async (context) => {
     context.env.DB,
     actorFromUser(user),
     parsedQuery.data,
+    new Date().toISOString(),
   );
 
   return context.json({
@@ -44,7 +45,7 @@ missionControlRoutes.get("/", async (context) => {
     data: {
       missions,
       pagination: parsedQuery.data,
-      order: "attention_status_updated_at_asc",
+      order: "mission_intelligence_priority_asc",
     },
   });
 });

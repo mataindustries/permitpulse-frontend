@@ -4,6 +4,7 @@
 @import "./features/mission-control/mission-control.css";
 @import "./features/navigation/case-destination.css";
 @import "./features/founder/founder.css";
+@import "./features/case-cockpit/case-cockpit.css";
 
 :root {
   color: var(--pp-text-primary);

@@ -57,6 +57,7 @@ import type {
   TimelineEntryDto,
 } from "../src/client/types/evidence-timeline";
 import type { PacketReviewDraftResponseData } from "../src/shared/ai-review/types";
+import { evaluateMissionIntelligence } from "../src/shared/mission-intelligence/evaluate";
 
 const safeCase: CaseDto = {
   id: "00000000-0000-4000-8000-000000000001",
@@ -175,6 +176,32 @@ const defaultDetailProps = {
     order: "source_date_desc_created_at_desc_id_desc" as const,
   },
   highlightedEvidenceId: null,
+  intelligence: evaluateMissionIntelligence({
+    case: {
+      id: safeCase.id,
+      permitNumber: safeCase.permit_number,
+      currentStatus: safeCase.current_status,
+      updatedAt: safeCase.updated_at,
+    },
+    evidence: {
+      total: 1,
+      verified: 0,
+      unverified: 1,
+      disputed: 0,
+      sourceComplete: 1,
+      deliveryReady: 0,
+      records: [],
+    },
+    timeline: {
+      total: 1,
+      linked: 1,
+      canonicalApprovalLinkedToVerifiedEvidence: false,
+      records: [],
+    },
+    evaluatedAt: "2026-07-09T12:00:00.000Z",
+  }),
+  intelligenceError: "",
+  intelligenceLoading: false,
   loading: false,
   role: "client" as const,
   selectedEvidenceId: safeEvidence.id,
@@ -971,14 +998,13 @@ describe("case workspace components", () => {
     expect(detailMarkup).toContain("Fictional Oak Street ADU");
     expect(detailMarkup).toContain("Case overview");
     expect(detailMarkup).toContain("Edit details");
-    expect(detailMarkup).toContain("Permit timeline");
+    expect(detailMarkup).toContain("Timeline");
     expect(detailMarkup).toContain("Evidence");
-    expect(detailMarkup).toContain("Workspace capability status");
-    expect(detailMarkup).toContain("Case workspace");
-    expect(detailMarkup).toContain("PDF export");
-    expect(detailMarkup).toContain("AI review draft");
-    expect(detailMarkup).toContain("live_ai=false");
-    expect(detailMarkup).toContain("external_calls=false");
+    expect(detailMarkup).toContain("Case Cockpit");
+    expect(detailMarkup).toContain("AI Mission Brief");
+    expect(detailMarkup).toContain("Mission Health");
+    expect(detailMarkup).toContain("Findings");
+    expect(detailMarkup).toContain("Packet");
     expect(detailMarkup).toContain('aria-selected="true"');
     expect(detailMarkup).toContain('tabindex="0"');
     expect(detailMarkup).not.toContain("participant");
@@ -1536,24 +1562,43 @@ describe("case workspace components", () => {
     expect(errorMarkup).toContain("Retry");
   });
 
-  it("shows the packet preview tab for signed-in case detail users", () => {
+  it("shows the packet cockpit tab for signed-in case detail users", () => {
     const markup = renderToStaticMarkup(
       <CaseDetail
         {...defaultDetailProps}
         caseRecord={safeCase}
+        initialSection="packet"
       />,
     );
 
-    expect(markup).toContain("Packet preview");
+    expect(markup).toContain("Packet Progress");
+    expect(markup).toContain("4 of 5 readiness checks complete");
+    expect(markup).toContain("Draft permit packet");
     expect(markup).toContain('role="tab"');
   });
 
-  it("shows the AI review tab for signed-in case detail users", () => {
+  it("shows evidence health before the existing evidence workflow", () => {
+    const markup = renderToStaticMarkup(
+      <CaseDetail
+        {...defaultDetailProps}
+        caseRecord={safeCase}
+        initialSection="evidence"
+      />,
+    );
+
+    expect(markup).toContain("Evidence Health");
+    expect(markup).toContain("Source readiness");
+    expect(markup).toContain("Verify evidence");
+    expect(markup).toContain("Blockers");
+    expect(markup).toContain("Fictional plan check notice");
+  });
+
+  it("shows the findings cockpit tab for signed-in case detail users", () => {
     const markup = renderToStaticMarkup(
       <CaseDetail {...defaultDetailProps} caseRecord={safeCase} />,
     );
 
-    expect(markup).toContain("AI review");
+    expect(markup).toContain("Findings");
     expect(markup).toContain('role="tab"');
   });
 
@@ -1567,6 +1612,21 @@ describe("case workspace components", () => {
     );
 
     expect(markup).toContain("Generate review draft");
+    expect(markup).not.toContain("Edit details");
+  });
+
+  it("maps the legacy activity destination into the cockpit timeline", () => {
+    const markup = renderToStaticMarkup(
+      <CaseDetail
+        {...defaultDetailProps}
+        caseRecord={safeCase}
+        initialSection="activity"
+      />,
+    );
+
+    expect(markup).toContain("Mission chronology");
+    expect(markup).toContain("Case activity");
+    expect(markup).toContain("No activity yet");
     expect(markup).not.toContain("Edit details");
   });
 

@@ -1,0 +1,348 @@
+.case-cockpit {
+  display: grid;
+  gap: var(--pp-space-4);
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+  padding: 0;
+}
+
+.case-cockpit__back-row {
+  display: flex;
+}
+
+.case-cockpit__back-row .pp-action {
+  min-height: 2.5rem;
+  border: 0;
+  background: transparent;
+  color: var(--pp-text-secondary);
+  padding-inline: 0;
+}
+
+.case-cockpit__hero {
+  position: relative;
+  display: grid;
+  gap: var(--pp-space-5);
+  overflow: hidden;
+  border: 1px solid var(--pp-border-default);
+  border-radius: var(--pp-radius-xl);
+  background: var(--pp-surface-card);
+  padding: var(--pp-space-6);
+  box-shadow: var(--pp-shadow-md);
+}
+
+.case-cockpit__hero::after {
+  position: absolute;
+  inset: auto auto 0 0;
+  width: 7rem;
+  height: 3px;
+  background: var(--pp-jade-400);
+  content: "";
+}
+
+.case-cockpit__hero h1,
+.case-cockpit__hero p {
+  margin: 0;
+}
+
+.case-cockpit__hero h1 {
+  max-width: 17ch;
+  margin-top: var(--pp-space-2);
+  color: var(--pp-text-primary);
+  font-size: var(--pp-text-2xl);
+  letter-spacing: var(--pp-tracking-tight);
+  line-height: var(--pp-leading-tight);
+}
+
+.case-cockpit__address {
+  margin-top: var(--pp-space-3) !important;
+  color: var(--pp-text-secondary);
+  font-size: var(--pp-text-md);
+}
+
+.case-cockpit__hero-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--pp-space-2);
+  align-items: center;
+  margin-top: var(--pp-space-5);
+}
+
+.case-cockpit__hero-meta > span:not(.status-badge) {
+  min-height: 1.625rem;
+  border: 1px solid var(--pp-border-default);
+  border-radius: var(--pp-radius-round);
+  background: rgba(7, 11, 10, 0.32);
+  color: var(--pp-text-secondary);
+  font-size: var(--pp-text-xs);
+  font-weight: 700;
+  padding: 0.3rem 0.6rem;
+}
+
+.case-cockpit__updated {
+  display: grid;
+  align-content: end;
+  gap: var(--pp-space-1);
+  color: var(--pp-text-tertiary);
+  font-size: var(--pp-text-xs);
+}
+
+.case-cockpit__updated strong {
+  color: var(--pp-text-secondary);
+  font-size: var(--pp-text-sm);
+}
+
+.case-cockpit__command-grid {
+  display: grid;
+  gap: var(--pp-space-3);
+}
+
+.mission-brief,
+.mission-health,
+.packet-progress {
+  padding: var(--pp-space-5);
+}
+
+.mission-brief {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  gap: var(--pp-space-4);
+  border-color: var(--pp-border-accent);
+  background: var(--pp-surface-card);
+}
+
+.mission-brief__icon {
+  display: grid;
+  width: 2.5rem;
+  height: 2.5rem;
+  place-items: center;
+  border: 1px solid var(--pp-border-accent);
+  border-radius: var(--pp-radius-round);
+  background: var(--pp-jade-alpha-14);
+  color: var(--pp-jade-300);
+}
+
+.mission-brief__copy,
+.mission-health {
+  display: grid;
+  gap: var(--pp-space-4);
+}
+
+.mission-brief__copy > p,
+.mission-health p,
+.packet-progress p,
+.cockpit-section-heading p {
+  margin: 0;
+  color: var(--pp-text-secondary);
+  font-size: var(--pp-text-sm);
+  line-height: var(--pp-leading-body);
+}
+
+.mission-brief__heading,
+.mission-health__heading,
+.packet-progress__heading {
+  display: flex;
+  gap: var(--pp-space-3);
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.mission-brief h2,
+.mission-health h2,
+.packet-progress h3,
+.cockpit-section-heading h2 {
+  margin: 0;
+  color: var(--pp-text-primary);
+  letter-spacing: var(--pp-tracking-tight);
+  line-height: var(--pp-leading-tight);
+}
+
+.mission-brief h2 {
+  font-size: var(--pp-text-lg);
+}
+
+.mission-health h2 {
+  margin-top: var(--pp-space-1);
+  font-size: 2rem;
+}
+
+.mission-health__metrics,
+.evidence-health {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--pp-space-4);
+}
+
+.case-cockpit__tabs {
+  position: sticky;
+  top: calc(var(--pp-topbar-height) - 1px);
+  z-index: 5;
+  gap: var(--pp-space-1);
+  scroll-snap-type: x proximity;
+  scrollbar-width: none;
+  border-color: var(--pp-border-default);
+  border-radius: var(--pp-radius-md);
+  background: color-mix(in srgb, var(--pp-surface-base) 94%, transparent);
+  padding: var(--pp-space-1);
+}
+
+.case-cockpit__tabs::-webkit-scrollbar {
+  display: none;
+}
+
+.case-cockpit__tabs .tab-button {
+  display: inline-flex;
+  min-width: 5.5rem;
+  min-height: var(--pp-touch-target);
+  scroll-snap-align: start;
+  align-items: center;
+  justify-content: center;
+  gap: var(--pp-space-2);
+  border-radius: var(--pp-radius-sm);
+  color: var(--pp-text-tertiary);
+  font-size: var(--pp-text-sm);
+}
+
+.case-cockpit__tabs .tab-button.active {
+  border-color: var(--pp-border-default);
+  background: var(--pp-surface-overlay);
+  color: var(--pp-text-primary);
+}
+
+.case-cockpit__tabs .tab-button.active svg {
+  color: var(--pp-jade-300);
+}
+
+.case-cockpit__tabs .tab-button.active::after {
+  right: 1rem;
+  bottom: 0.2rem;
+  left: 1rem;
+  background: var(--pp-jade-400);
+}
+
+.cockpit-section {
+  border-color: var(--pp-border-subtle);
+  border-radius: var(--pp-radius-lg);
+  background: var(--pp-surface-raised);
+  padding: var(--pp-space-5);
+}
+
+.cockpit-action-card {
+  border-style: dashed;
+}
+
+.evidence-health {
+  border: 1px solid var(--pp-border-subtle);
+  border-radius: var(--pp-radius-md);
+  background: var(--pp-surface-base);
+  padding: var(--pp-space-4);
+}
+
+.cockpit-subtabs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--pp-space-1);
+  border: 1px solid var(--pp-border-subtle);
+  border-radius: var(--pp-radius-sm);
+  background: var(--pp-surface-base);
+  padding: var(--pp-space-1);
+}
+
+.cockpit-subtabs button {
+  min-height: var(--pp-touch-target);
+  border-color: transparent;
+  background: transparent;
+  color: var(--pp-text-tertiary);
+  font-size: var(--pp-text-sm);
+}
+
+.cockpit-subtabs button.active {
+  border-color: var(--pp-border-default);
+  background: var(--pp-surface-overlay);
+  color: var(--pp-text-primary);
+}
+
+.case-cockpit .record-list {
+  gap: var(--pp-space-3);
+}
+
+.case-cockpit .record-card,
+.case-cockpit .activity-item {
+  border-color: var(--pp-border-subtle);
+  border-radius: var(--pp-radius-md);
+  background: var(--pp-surface-card);
+  box-shadow: var(--pp-shadow-sm);
+}
+
+.case-cockpit .record-card.active {
+  border-color: var(--pp-border-accent);
+  background: var(--pp-surface-overlay);
+}
+
+.cockpit-packet,
+.cockpit-findings {
+  display: grid;
+  gap: var(--pp-space-4);
+}
+
+.packet-progress {
+  display: grid;
+  gap: var(--pp-space-3);
+}
+
+.packet-progress__heading > strong {
+  color: var(--pp-jade-300);
+  font-size: var(--pp-text-xl);
+}
+
+.cockpit-section-heading {
+  display: grid;
+  gap: var(--pp-space-2);
+  padding: var(--pp-space-2) var(--pp-space-1);
+}
+
+@media (min-width: 680px) {
+  .case-cockpit__hero {
+    grid-template-columns: minmax(0, 1fr) auto;
+    align-items: end;
+    padding: var(--pp-space-8);
+  }
+
+  .case-cockpit__command-grid {
+    grid-template-columns: minmax(0, 1.55fr) minmax(17rem, 0.85fr);
+  }
+
+  .mission-health__metrics,
+  .evidence-health {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+
+  .mission-health__metrics {
+    grid-template-columns: 1fr;
+  }
+
+  .case-cockpit__tabs .tab-button {
+    flex: 1 1 0;
+  }
+}
+
+@media (max-width: 420px) {
+  .mission-brief {
+    grid-template-columns: 1fr;
+  }
+
+  .mission-brief__heading {
+    display: grid;
+  }
+
+  .mission-brief .pp-action {
+    width: 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .case-cockpit__tabs {
+    scroll-behavior: auto;
+  }
+}
