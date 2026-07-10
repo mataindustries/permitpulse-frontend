@@ -57,6 +57,7 @@ import {
 import { errorResponse } from "../lib/responses";
 import { sessionMiddleware } from "../middleware/session";
 import type { WorkerEnv } from "../types";
+import { readDeliveryLifecycle, readGeneratedPacket } from "../delivery/repository";
 
 const maximumRequestBodyBytes = 16 * 1024;
 const packetEvidenceLimit = 50;
@@ -378,9 +379,14 @@ caseRoutes.get("/:caseId/packet.pdf", async (context) => {
   }
 
   try {
-    const pdfBytes = await renderPacketPdf(packetResult.packet);
+    const lifecycle = await readDeliveryLifecycle(context.env.DB, packetResult.caseId, 1);
+    const persistedPacket = lifecycle.active_packet_generation_id
+      ? await readGeneratedPacket(context.env.DB, packetResult.caseId, lifecycle.active_packet_generation_id)
+      : null;
+    const exportPacket = persistedPacket ?? packetResult.packet;
+    const pdfBytes = await renderPacketPdf(exportPacket);
     const filename = safePacketPdfFilename(
-      packetResult.packet,
+      exportPacket,
       packetResult.caseId,
     );
 

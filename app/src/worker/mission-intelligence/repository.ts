@@ -30,7 +30,7 @@ export async function getMissionFactsForActor(
     return null;
   }
 
-  const [evidenceResult, timelineResult] = await Promise.all([
+  const [evidenceResult, timelineResult, deliveryRow] = await Promise.all([
     database
       .prepare(
         `SELECT
@@ -73,6 +73,10 @@ export async function getMissionFactsForActor(
       )
       .bind(caseRecord.id)
       .all<TimelineFactRow>(),
+    database.prepare(
+      `SELECT id, event_type, resulting_state, packet_generation_id
+       FROM delivery_lifecycle_events WHERE case_id = ? ORDER BY sequence DESC LIMIT 1`,
+    ).bind(caseRecord.id).first<{ id: string; event_type: string; resulting_state: NonNullable<MissionFacts["delivery"]>["state"]; packet_generation_id: string | null }>(),
   ]);
 
   const evidenceRecords = evidenceResult.results.map((row) => ({
@@ -122,6 +126,12 @@ export async function getMissionFactsForActor(
           record.linkedEvidenceIds.some((id) => verifiedIds.has(id)),
       ),
       records: timelineRecords,
+    },
+    delivery: {
+      state: deliveryRow?.resulting_state ?? "draft",
+      latestEventId: deliveryRow?.id ?? null,
+      latestEventType: deliveryRow?.event_type ?? null,
+      packetGenerationId: deliveryRow?.packet_generation_id ?? null,
     },
     evaluatedAt,
   };

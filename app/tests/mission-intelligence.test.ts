@@ -12,6 +12,7 @@ type FactsOverrides = {
   case?: Partial<MissionFacts["case"]>;
   evidence?: Partial<MissionFacts["evidence"]>;
   timeline?: Partial<MissionFacts["timeline"]>;
+  delivery?: NonNullable<MissionFacts["delivery"]>;
   evaluatedAt?: string;
 };
 
@@ -117,13 +118,27 @@ describe("deterministic Mission Intelligence rules", () => {
     expect(result.recommendedAction).toMatchObject({ title: "Generate packet", blocking: false });
   });
 
-  it("requires a canonical approval linked to verified evidence for delivery readiness", () => {
+  it("uses persisted lifecycle facts for every delivery-related mission state", () => {
+    const generated = evaluateMissionIntelligence(facts({ delivery: { state: "packet_generated", latestEventId: "event-1", latestEventType: "packet_generated", packetGenerationId: "packet-1" } }));
+    const review = evaluateMissionIntelligence(facts({ delivery: { state: "under_review", latestEventId: "event-2", latestEventType: "review_started", packetGenerationId: "packet-1" } }));
+    const approved = evaluateMissionIntelligence(facts({ delivery: { state: "approved_for_delivery", latestEventId: "event-3", latestEventType: "approved_for_delivery", packetGenerationId: "packet-1" } }));
+    const delivered = evaluateMissionIntelligence(facts({ delivery: { state: "delivered", latestEventId: "event-4", latestEventType: "delivery_recorded", packetGenerationId: "packet-1" } }));
+    const confirmed = evaluateMissionIntelligence(facts({ delivery: { state: "delivery_confirmed", latestEventId: "event-5", latestEventType: "delivery_confirmed", packetGenerationId: "packet-1" } }));
+
+    expect(generated).toMatchObject({ missionState: "Needs Review", recommendedAction: { title: "Mark ready for review" } });
+    expect(review).toMatchObject({ missionState: "Needs Review", recommendedAction: { title: "Complete packet review" } });
+    expect(approved).toMatchObject({ missionState: "Ready To Deliver", recommendedAction: { title: "Record delivery" } });
+    expect(delivered).toMatchObject({ missionState: "Delivered", recommendedAction: { title: "Confirm delivery" } });
+    expect(confirmed).toMatchObject({ missionState: "Delivery Confirmed", recommendedAction: { title: "View delivery record" } });
+  });
+
+  it("does not infer delivery readiness from a canonical permit approval", () => {
     const result = evaluateMissionIntelligence(
       facts({ timeline: { canonicalApprovalLinkedToVerifiedEvidence: true } }),
     );
 
-    expect(result.missionState).toBe("Ready To Deliver");
-    expect(result.recommendedAction).toMatchObject({ title: "Export PDF", targetTab: "packet" });
+    expect(result.missionState).toBe("Ready For Packet");
+    expect(result.recommendedAction).toMatchObject({ title: "Generate packet", targetTab: "packet" });
   });
 
   it("returns mixed findings in stable priority order with one primary action", () => {

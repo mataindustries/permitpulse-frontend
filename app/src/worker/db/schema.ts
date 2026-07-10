@@ -158,6 +158,52 @@ export const auditEvents = sqliteTable(
 
 export type AuditEventRecord = typeof auditEvents.$inferSelect;
 
+export const deliveryStates = ["draft", "packet_generated", "under_review", "changes_required", "approved_for_delivery", "delivered", "delivery_confirmed"] as const;
+export const deliveryEventTypes = ["packet_generated", "review_started", "changes_requested", "approved_for_delivery", "delivery_recorded", "delivery_confirmed"] as const;
+
+export const packetGenerations = sqliteTable(
+  "packet_generations",
+  {
+    id: text("id").primaryKey().notNull(),
+    caseId: text("case_id").notNull().references(() => cases.id, { onDelete: "restrict" }),
+    caseVersion: integer("case_version").notNull(),
+    generatedByUserId: text("generated_by_user_id").notNull().references(() => authUsers.id, { onDelete: "restrict" }),
+    snapshotJson: text("snapshot_json").notNull(),
+    contentSha256: text("content_sha256").notNull(),
+    createdAt: text("created_at").notNull().default(sql`(strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))`),
+  },
+  (table) => [
+    check("packet_generations_case_version_check", sql`${table.caseVersion} >= 1`),
+    check("packet_generations_snapshot_json_check", sql`json_valid(${table.snapshotJson}) AND json_type(${table.snapshotJson}) = 'object'`),
+    check("packet_generations_digest_check", sql`length(${table.contentSha256}) = 64`),
+    index("packet_generations_case_created_idx").on(table.caseId, table.createdAt, table.id),
+  ],
+);
+
+export const deliveryLifecycleEvents = sqliteTable(
+  "delivery_lifecycle_events",
+  {
+    id: text("id").primaryKey().notNull(),
+    caseId: text("case_id").notNull().references(() => cases.id, { onDelete: "restrict" }),
+    eventType: text("event_type", { enum: deliveryEventTypes }).notNull(),
+    actorUserId: text("actor_user_id").references(() => authUsers.id, { onDelete: "set null" }),
+    note: text("note"),
+    packetGenerationId: text("packet_generation_id").references(() => packetGenerations.id, { onDelete: "restrict" }),
+    previousState: text("previous_state", { enum: deliveryStates }).notNull(),
+    resultingState: text("resulting_state", { enum: deliveryStates }).notNull(),
+    sequence: integer("sequence").notNull(),
+    idempotencyKey: text("idempotency_key").notNull(),
+    requestFingerprint: text("request_fingerprint").notNull(),
+    createdAt: text("created_at").notNull().default(sql`(strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))`),
+  },
+  (table) => [
+    uniqueIndex("delivery_events_case_sequence_uidx").on(table.caseId, table.sequence),
+    uniqueIndex("delivery_events_case_idempotency_uidx").on(table.caseId, table.idempotencyKey),
+    index("delivery_events_case_created_idx").on(table.caseId, table.sequence),
+    index("delivery_events_packet_idx").on(table.packetGenerationId, table.sequence),
+  ],
+);
+
 export const participantRoles = ["owner"] as const;
 
 export const caseParticipants = sqliteTable(

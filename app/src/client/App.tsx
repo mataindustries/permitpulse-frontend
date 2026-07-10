@@ -350,13 +350,12 @@ function Workspace({
     setView({ name: "detail", caseId, initialSection, origin });
 
     try {
-      const [record] = await Promise.all([
-        client.getCase(caseId),
-        loadMissionIntelligence(caseId),
-      ]);
+      const record = await client.getCase(caseId);
 
       setDetailCase(record);
       updateCaseInList(record);
+      // Mission Intelligence is supplementary and must not gate the core case.
+      void loadMissionIntelligence(caseId);
       void loadActivity(caseId, 0);
       void loadEvidenceRecords(caseId, 0);
       void loadTimelineRecords(caseId, 0);
@@ -377,7 +376,6 @@ function Workspace({
       return intelligence;
     } catch (error) {
       handleCaseError(error, setIntelligenceError);
-      throw error;
     } finally {
       setIntelligenceLoading(false);
     }
@@ -985,6 +983,11 @@ function Workspace({
             intelligence={missionIntelligence}
             intelligenceError={intelligenceError}
             intelligenceLoading={intelligenceLoading}
+            onDeliveryLifecycleChanged={async () => {
+              if (!detailCase) return;
+              await loadMissionIntelligence(detailCase.id);
+              void loadMissionQueue();
+            }}
             loading={detailLoading}
             role={user.role}
             selectedEvidenceId={selectedEvidenceId}

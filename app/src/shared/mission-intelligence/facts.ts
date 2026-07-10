@@ -54,17 +54,38 @@ export interface MissionFacts {
     canonicalApprovalLinkedToVerifiedEvidence: boolean;
     records: MissionTimelineFact[];
   };
+  delivery?: {
+    state: "draft" | "packet_generated" | "under_review" | "changes_required" | "approved_for_delivery" | "delivered" | "delivery_confirmed";
+    latestEventId: string | null;
+    latestEventType: string | null;
+    packetGenerationId: string | null;
+  };
   evaluatedAt: string;
 }
 
 export function aggregateEvidence(
   facts: MissionFacts,
 ): MissionSupportingEvidence[] {
+  const delivery = facts.delivery ?? {
+    state: "draft" as const,
+    latestEventId: null,
+    latestEventType: null,
+    packetGenerationId: null,
+  };
   const permitDetail = facts.case.permitNumber
     ? `Permit number ${facts.case.permitNumber} is recorded.`
     : "The permit number field is empty.";
 
   return [
+    {
+      id: "delivery:lifecycle",
+      kind: "delivery_event",
+      title: "Delivery lifecycle",
+      detail: delivery.latestEventType
+        ? `Persisted state is ${delivery.state}; latest event is ${delivery.latestEventType}.`
+        : "No packet delivery lifecycle event has been recorded.",
+      recordId: delivery.latestEventId,
+    },
     {
       id: "case:permit-number",
       kind: "case_field",
@@ -109,4 +130,3 @@ export function aggregateEvidence(
     })),
   ];
 }
-

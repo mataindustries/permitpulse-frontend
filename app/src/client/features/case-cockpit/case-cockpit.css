@@ -104,6 +104,29 @@
   padding: var(--pp-space-5);
 }
 
+.delivery-lifecycle-panel {
+  display: grid;
+  gap: var(--pp-space-4);
+  padding: var(--pp-space-5);
+  border: 1px solid var(--pp-border-subtle);
+  border-radius: var(--pp-radius-lg);
+  background: var(--pp-surface-card);
+}
+
+.delivery-lifecycle-panel__heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--pp-space-3);
+}
+
+.delivery-lifecycle-panel h3,
+.delivery-lifecycle-panel p { margin: 0; }
+.delivery-lifecycle-panel p { color: var(--pp-text-secondary); }
+.delivery-lifecycle-panel__warning { padding: var(--pp-space-3); border-left: 3px solid var(--pp-warning); }
+.delivery-lifecycle-panel__action { display: grid; gap: var(--pp-space-3); }
+.delivery-lifecycle-panel__action label { display: grid; gap: var(--pp-space-2); color: var(--pp-text-secondary); }
+
 .mission-brief {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr);

@@ -5,7 +5,9 @@ export type MissionState =
   | "Needs Timeline"
   | "Needs Review"
   | "Ready For Packet"
-  | "Ready To Deliver";
+  | "Ready To Deliver"
+  | "Delivered"
+  | "Delivery Confirmed";
 
 export type MissionHealthStatus = "at_risk" | "attention" | "strong";
 
@@ -21,7 +23,8 @@ export type MissionEvidenceKind =
   | "case_status"
   | "evidence_record"
   | "timeline_record"
-  | "aggregate";
+  | "aggregate"
+  | "delivery_event";
 
 export interface MissionSupportingEvidence {
   id: string;
@@ -90,4 +93,3 @@ export interface MissionIntelligence {
   evidenceHealth: MissionHealthMetric;
   reviewHealth: MissionHealthMetric;
 }
-

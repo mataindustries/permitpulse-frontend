@@ -24,6 +24,7 @@ import { EvidenceForm } from "./EvidenceForm";
 import { EvidenceLinkManager } from "./EvidenceLinkManager";
 import { EvidenceList } from "./EvidenceList";
 import { PacketPreview } from "./PacketPreview";
+import { DeliveryLifecyclePanel } from "./DeliveryLifecyclePanel";
 import { AIReviewPanel } from "./AIReviewPanel";
 import { StatusBadge } from "./StatusBadge";
 import { StatusManagement } from "./StatusManagement";
@@ -88,6 +89,7 @@ interface CaseDetailProps {
   onEvidencePreviousPage: () => void;
   onEvidenceRetry: () => void;
   onGenerateAiReview: () => Promise<PacketReviewDraftResponseData>;
+  onDeliveryLifecycleChanged?: () => Promise<void>;
   onLinkEvidence: (
     timelineId: string,
     evidenceId: string,
@@ -294,6 +296,7 @@ export function CaseDetail({
   onEvidencePreviousPage,
   onEvidenceRetry,
   onGenerateAiReview,
+  onDeliveryLifecycleChanged = async () => {},
   onLinkEvidence,
   onMetadataUpdate,
   onReloadEvidence,
@@ -1078,6 +1081,12 @@ export function CaseDetail({
                 />
                 <p>{intelligence?.packetReadiness.explanation ?? "Evaluating packet readiness."}</p>
               </SurfaceCard>
+              <DeliveryLifecyclePanel
+                caseId={caseRecord.id}
+                caseVersion={caseRecord.version}
+                role={role}
+                onChanged={onDeliveryLifecycleChanged}
+              />
               <PacketPreview
                 activityResponse={activityResponse}
                 caseRecord={caseRecord}

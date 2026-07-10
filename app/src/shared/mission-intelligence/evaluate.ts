@@ -19,19 +19,37 @@ function metric(completed: number, total: number, subject: string): MissionHealt
 }
 
 function readyAction(facts: MissionFacts): { state: MissionState; action: MissionAction } {
-  if (facts.timeline.canonicalApprovalLinkedToVerifiedEvidence) {
+  const delivery = facts.delivery ?? { state: "draft" as const };
+  if (delivery.state === "delivery_confirmed") {
+    return { state: "Delivery Confirmed", action: { id: "view-confirmed-delivery", title: "View delivery record", priority: 130, reason: "A persisted delivery confirmation event completes the lifecycle.", targetTab: "packet", blocking: false, supportingEvidence: ["delivery:lifecycle"] } };
+  }
+  if (delivery.state === "delivered") {
+    return { state: "Delivered", action: { id: "confirm-delivery", title: "Confirm delivery", priority: 120, reason: "Delivery is recorded, but confirmation has not been persisted.", targetTab: "packet", blocking: false, supportingEvidence: ["delivery:lifecycle"] } };
+  }
+  if (delivery.state === "approved_for_delivery") {
     return {
       state: "Ready To Deliver",
       action: {
-        id: "export-pdf",
-        title: "Export PDF",
+        id: "record-delivery",
+        title: "Record delivery",
         priority: 90,
-        reason: "All packet checks pass and a canonical approval event is linked to verified evidence.",
+        reason: "The generated packet has a persisted approval-for-delivery event.",
         targetTab: "packet",
         blocking: false,
-        supportingEvidence: ["case:status", "aggregate:evidence", "aggregate:timeline"],
+        supportingEvidence: ["delivery:lifecycle"],
       },
     };
+  }
+
+  if (delivery.state === "packet_generated" || delivery.state === "under_review" || delivery.state === "changes_required") {
+    const changes = delivery.state === "changes_required";
+    return { state: "Needs Review", action: {
+      id: changes ? "regenerate-packet" : delivery.state === "packet_generated" ? "mark-ready-for-review" : "complete-packet-review",
+      title: changes ? "Generate packet" : delivery.state === "packet_generated" ? "Mark ready for review" : "Complete packet review",
+      priority: 85,
+      reason: changes ? "Persisted review feedback requires a new packet generation." : "A generated packet exists but has not been approved for delivery.",
+      targetTab: "packet", blocking: false, supportingEvidence: ["delivery:lifecycle"],
+    } };
   }
 
   return {
@@ -107,4 +125,3 @@ export function evaluateMissionIntelligence(facts: MissionFacts): MissionIntelli
   assertExplainable(intelligence);
   return intelligence;
 }
-

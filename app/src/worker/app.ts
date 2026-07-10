@@ -10,6 +10,7 @@ import { healthRoutes } from "./routes/health";
 import { missionControlRoutes } from "./routes/mission-control";
 import { missionIntelligenceRoutes } from "./routes/mission-intelligence";
 import { workspaceRoutes } from "./routes/workspace";
+import { deliveryLifecycleRoutes } from "./routes/delivery-lifecycle";
 import type { WorkerEnv } from "./types";
 
 export const app = new Hono<WorkerEnv>();
@@ -34,6 +35,7 @@ app.route("/api/health", healthRoutes);
 app.route("/api/internal/bootstrap-admin", bootstrapAdminRoutes);
 app.route("/api/dev/cases", developmentCaseRoutes);
 app.route("/api/v1/cases", caseRoutes);
+app.route("/api/v1/cases", deliveryLifecycleRoutes);
 app.route("/api/v1/mission-control", missionControlRoutes);
 app.route("/api/v1/mission-intelligence", missionIntelligenceRoutes);
 app.route("/api/workspace", workspaceRoutes);
