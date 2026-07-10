@@ -1,4 +1,4 @@
-import { type KeyboardEvent, useRef, useState } from "react";
+import { type KeyboardEvent, useEffect, useRef, useState } from "react";
 import { CaseApiError } from "../api/cases";
 import type {
   CaseActivityResponse,
@@ -36,7 +36,7 @@ import {
 } from "./evidenceTimelineUtils";
 import type { PacketReviewDraftResponseData } from "../../shared/ai-review/types";
 
-type DetailSection =
+export type CaseDetailSection =
   | "overview"
   | "evidence"
   | "timeline"
@@ -48,6 +48,7 @@ interface CaseDetailProps {
   activityError: string;
   activityLoading: boolean;
   activityResponse: CaseActivityResponse | null;
+  backLabel?: string;
   caseRecord: CaseDto | null;
   currentUserId: string;
   error: string;
@@ -55,6 +56,7 @@ interface CaseDetailProps {
   evidenceLoading: boolean;
   evidenceResponse: EvidenceListResponse | null;
   highlightedEvidenceId: string | null;
+  initialSection?: CaseDetailSection;
   loading: boolean;
   role: UserRole;
   selectedEvidenceId: string | null;
@@ -236,7 +238,7 @@ const detailSections = [
   ["activity", "Activity"],
   ["packet", "Packet preview"],
   ["ai-review", "AI review"],
-] as const satisfies readonly [DetailSection, string][];
+] as const satisfies readonly [CaseDetailSection, string][];
 
 const workspaceCapabilities = [
   ["Case workspace", "Ready"],
@@ -253,6 +255,7 @@ export function CaseDetail({
   activityError,
   activityLoading,
   activityResponse,
+  backLabel = "Back to list",
   caseRecord,
   currentUserId,
   error,
@@ -260,6 +263,7 @@ export function CaseDetail({
   evidenceLoading,
   evidenceResponse,
   highlightedEvidenceId,
+  initialSection = "overview",
   loading,
   role,
   selectedEvidenceId,
@@ -293,7 +297,9 @@ export function CaseDetail({
   onUpdateEvidence,
   onUpdateTimeline,
 }: CaseDetailProps) {
-  const [activeSection, setActiveSection] = useState<DetailSection>("overview");
+  const [activeSection, setActiveSection] = useState<CaseDetailSection>(
+    initialSection,
+  );
   const tabRefs = useRef<Array<HTMLButtonElement | null>>([]);
   const [editing, setEditing] = useState(false);
   const editSubmittingRef = useRef(false);
@@ -335,6 +341,10 @@ export function CaseDetail({
     evidenceItems.find((item) => item.id === selectedEvidenceId) ?? null;
   const selectedTimeline =
     timelineItems.find((item) => item.id === selectedTimelineId) ?? null;
+
+  useEffect(() => {
+    setActiveSection(initialSection);
+  }, [caseRecord?.id, initialSection]);
 
   async function submitMetadata(input: UpdateCaseMetadataInput) {
     if (editSubmittingRef.current) {
@@ -554,7 +564,7 @@ export function CaseDetail({
         </div>
         {caseRecord && <StatusBadge status={caseRecord.current_status} />}
         <button className="secondary-button" type="button" onClick={onBack}>
-          Back to list
+          {backLabel}
         </button>
       </div>
 
@@ -569,7 +579,7 @@ export function CaseDetail({
               Retry
             </button>
             <button className="secondary-button" type="button" onClick={onBack}>
-              Back to list
+              {backLabel}
             </button>
           </div>
         </div>

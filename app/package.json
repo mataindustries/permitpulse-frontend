@@ -6,7 +6,7 @@
   "scripts": {
     "build": "vite build",
     "build:preview": "CLOUDFLARE_ENV=preview vite build",
-    "check": "npm run typecheck && npm test && npm run build",
+    "check": "npm run typecheck && npm test && npm run verify:os && npm run build",
     "auth:schema:verify": "vitest run tests/auth-schema.test.ts",
     "ai:eval:local": "node scripts/ai-eval-local.mjs",
     "cf-typegen": "wrangler types --env-interface CloudflareBindings",
@@ -17,7 +17,8 @@
     "test": "vitest run",
     "test:auth": "vitest run tests/auth.test.tsx tests/auth-schema.test.ts",
     "test:watch": "vitest",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "verify:os": "node scripts/verify-os-foundation.mjs"
   },
   "engines": {
     "node": ">=22.0.0"

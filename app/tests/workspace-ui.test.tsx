@@ -270,7 +270,7 @@ describe("workspace authentication UI states", () => {
 
     expect(markup).toContain("Case Workspace");
     expect(markup).toContain("Signed in as");
-    expect(markup).toContain("Loading cases");
+    expect(markup).toContain("Loading missions");
   });
 
   it("shows a safe sign-out progress state", () => {
@@ -290,8 +290,9 @@ describe("workspace authentication UI states", () => {
       />,
     );
 
-    expect(markup).toContain("Signing out...");
-    expect(markup).toContain("Case list");
+    expect(markup).toContain("Mission Control");
+    expect(markup).toContain("Signed in as");
+    expect(markup).not.toContain("Sign in");
   });
 
   it("returns expired sessions to the sign-in state", () => {
@@ -1554,6 +1555,19 @@ describe("case workspace components", () => {
 
     expect(markup).toContain("AI review");
     expect(markup).toContain('role="tab"');
+  });
+
+  it("can open the existing AI review section from OS navigation", () => {
+    const markup = renderToStaticMarkup(
+      <CaseDetail
+        {...defaultDetailProps}
+        caseRecord={safeCase}
+        initialSection="ai-review"
+      />,
+    );
+
+    expect(markup).toContain("Generate review draft");
+    expect(markup).not.toContain("Edit details");
   });
 
   it("starts the AI review panel without an automatically generated review", () => {

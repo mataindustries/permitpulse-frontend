@@ -1,0 +1,220 @@
+.mission-control {
+  display: grid;
+  gap: var(--pp-space-5);
+}
+
+.mission-control__hero {
+  display: grid;
+  gap: var(--pp-space-2);
+  padding-block: var(--pp-space-2) var(--pp-space-3);
+}
+
+.mission-control__hero h1,
+.mission-control__hero p {
+  margin: 0;
+}
+
+.mission-control__hero h1 {
+  color: var(--pp-text-primary);
+  font-size: var(--pp-text-2xl);
+  letter-spacing: var(--pp-tracking-tight);
+  line-height: var(--pp-leading-tight);
+}
+
+.mission-control__hero > p:last-child {
+  color: var(--pp-text-secondary);
+  font-size: var(--pp-text-sm);
+}
+
+.mission-control__kicker {
+  color: var(--pp-jade-300);
+  font-size: var(--pp-text-xs);
+  font-weight: 780;
+  letter-spacing: var(--pp-tracking-label);
+  text-transform: uppercase;
+}
+
+.mission-control__grid {
+  display: grid;
+  gap: var(--pp-space-3);
+}
+
+.mission-card {
+  position: relative;
+  display: grid;
+  gap: var(--pp-space-4);
+  overflow: hidden;
+  padding: var(--pp-space-4);
+}
+
+.mission-card::before {
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 2px;
+  background: var(--pp-jade-500);
+  content: "";
+}
+
+.mission-card--attention::before {
+  background: var(--pp-status-warning);
+}
+
+.mission-card__header {
+  display: flex;
+  gap: var(--pp-space-3);
+  align-items: flex-start;
+  justify-content: space-between;
+}
+
+.mission-card__header > div {
+  min-width: 0;
+}
+
+.mission-card__header h3,
+.mission-card__header p {
+  margin: 0;
+}
+
+.mission-card__header h3 {
+  margin-top: var(--pp-space-1);
+  color: var(--pp-text-primary);
+  font-size: var(--pp-text-lg);
+  letter-spacing: -0.015em;
+  line-height: 1.25;
+}
+
+.mission-card__location {
+  overflow: hidden;
+  color: var(--pp-text-tertiary);
+  font-size: var(--pp-text-xs);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.mission-card__provenance {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--pp-space-1) var(--pp-space-3);
+  color: var(--pp-text-tertiary);
+  font-size: var(--pp-text-xs);
+}
+
+.mission-card__provenance span + span::before {
+  margin-right: var(--pp-space-3);
+  color: var(--pp-border-strong);
+  content: "·";
+}
+
+.mission-card__progress-block {
+  display: grid;
+  gap: var(--pp-space-2);
+}
+
+.mission-card__progress-label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: var(--pp-text-secondary);
+  font-size: var(--pp-text-xs);
+}
+
+.mission-card__progress-label strong {
+  color: var(--pp-jade-300);
+}
+
+.mission-card__progress {
+  height: 0.25rem;
+  overflow: hidden;
+  border-radius: var(--pp-radius-round);
+  background: var(--pp-surface-overlay);
+}
+
+.mission-card__progress span {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: var(--pp-jade-400);
+  transition: width var(--pp-duration-standard) var(--pp-ease-emphasized);
+}
+
+.mission-card__metrics {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--pp-space-3);
+  border-block: 1px solid var(--pp-border-subtle);
+  padding-block: var(--pp-space-3);
+}
+
+.mission-card__metrics .pp-metric-chip {
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--pp-space-1);
+  align-content: start;
+}
+
+.mission-card__metrics .pp-metric-chip__icon {
+  width: 1.5rem;
+  height: 1.5rem;
+  grid-row: auto;
+}
+
+.mission-card__metrics .pp-metric-chip__label {
+  min-height: 2em;
+}
+
+.mission-card__warning {
+  display: flex;
+  gap: var(--pp-space-2);
+  align-items: flex-start;
+  border: 1px solid rgba(217, 170, 78, 0.2);
+  border-radius: var(--pp-radius-sm);
+  background: var(--pp-status-warning-soft);
+  color: var(--pp-status-warning);
+  padding: var(--pp-space-3);
+  font-size: var(--pp-text-xs);
+}
+
+.mission-card__warning svg {
+  flex: 0 0 auto;
+  margin-top: 1px;
+}
+
+.mission-card__next-action {
+  display: flex;
+  gap: var(--pp-space-3);
+  align-items: center;
+  justify-content: space-between;
+}
+
+.mission-card__next-action > div {
+  display: grid;
+  min-width: 0;
+  gap: 0.15rem;
+}
+
+.mission-card__next-action > div span {
+  color: var(--pp-text-tertiary);
+  font-size: var(--pp-text-xs);
+}
+
+.mission-card__next-action > div strong {
+  color: var(--pp-text-primary);
+  font-size: var(--pp-text-sm);
+  overflow-wrap: anywhere;
+}
+
+.mission-card__next-action .pp-action {
+  min-width: 5.25rem;
+  flex: 0 0 auto;
+}
+
+@media (min-width: 48rem) {
+  .mission-control__grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 68rem) {
+  .mission-control__grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}

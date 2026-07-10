@@ -1,0 +1,44 @@
+.case-destination,
+.founder-view {
+  display: grid;
+  gap: var(--pp-space-5);
+}
+
+.case-destination__list {
+  display: grid;
+  gap: var(--pp-space-3);
+}
+
+.case-destination__card {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: var(--pp-space-3);
+  align-items: start;
+  padding: var(--pp-space-4);
+}
+
+.case-destination__card h3,
+.case-destination__card p {
+  margin: 0;
+}
+
+.case-destination__card h3 {
+  margin-top: var(--pp-space-1);
+  color: var(--pp-text-primary);
+  font-size: var(--pp-text-md);
+}
+
+.case-destination__card p {
+  color: var(--pp-text-tertiary);
+  font-size: var(--pp-text-xs);
+}
+
+.case-destination__card .pp-action {
+  grid-column: 1 / -1;
+}
+
+@media (min-width: 48rem) {
+  .case-destination__list {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
