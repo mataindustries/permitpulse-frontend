@@ -972,6 +972,14 @@ describe("case workspace components", () => {
     expect(detailMarkup).toContain("Edit details");
     expect(detailMarkup).toContain("Permit timeline");
     expect(detailMarkup).toContain("Evidence");
+    expect(detailMarkup).toContain("Workspace capability status");
+    expect(detailMarkup).toContain("Case workspace");
+    expect(detailMarkup).toContain("PDF export");
+    expect(detailMarkup).toContain("AI review draft");
+    expect(detailMarkup).toContain("live_ai=false");
+    expect(detailMarkup).toContain("external_calls=false");
+    expect(detailMarkup).toContain('aria-selected="true"');
+    expect(detailMarkup).toContain('tabindex="0"');
     expect(detailMarkup).not.toContain("participant");
     expect(notFoundMarkup).toContain("Case unavailable");
     expect(notFoundMarkup).toContain("Back to list");
@@ -1187,6 +1195,7 @@ describe("case workspace components", () => {
 
     expect(loadingMarkup).toContain("Loading evidence");
     expect(emptyMarkup).toContain("No evidence yet");
+    expect(emptyMarkup).toContain("tracks source records, provenance, dates");
     expect(recordMarkup).toContain("Fictional plan check notice");
     expect(recordMarkup).toContain("Unverified");
     expect(recordMarkup).toContain('href="https://example.test/notices/plan-check"');
@@ -1368,6 +1377,7 @@ describe("case workspace components", () => {
 
     expect(loadingMarkup).toContain("Loading permit timeline");
     expect(emptyMarkup).toContain("No timeline entries yet");
+    expect(emptyMarkup).toContain("separate from internal case activity");
     expect(timelineMarkup).toContain("Canonical");
     expect(timelineMarkup).toContain("Fictional plan check notice");
     expect(timelineMarkup).toContain("Edit entry");
@@ -1548,12 +1558,26 @@ describe("case workspace components", () => {
 
   it("starts the AI review panel without an automatically generated review", () => {
     const markup = renderToStaticMarkup(
-      <AIReviewPanel onGenerate={async () => safeAiReview} />,
+      <AIReviewPanel
+        onCompareWithPacket={() => undefined}
+        onGenerate={async () => safeAiReview}
+      />,
     );
 
     expect(markup).toContain("Deterministic baseline review");
     expect(markup).toContain("Generate review draft");
     expect(markup).toContain("No review draft has been generated");
+    expect(markup).toContain("Provider status");
+    expect(markup).toContain("Active provider");
+    expect(markup).toContain("Reviewed packet source");
+    expect(markup).toContain("Case / evidence / timeline / activity");
+    expect(markup).toContain("live_ai=false");
+    expect(markup).toContain("external_calls=false");
+    expect(markup).toContain("What the baseline review checks");
+    expect(markup).toContain("Evidence grounding");
+    expect(markup).toContain("Unsupported-claim warnings");
+    expect(markup).toContain("Citation validity");
+    expect(markup).toContain("Compare with Packet preview");
     expect(markup).not.toContain("Generated draft review");
   });
 
@@ -1594,6 +1618,8 @@ describe("case workspace components", () => {
     expect(markup).toContain("96/100");
     expect(markup).toContain("Citation validity");
     expect(markup).toContain("Safety warnings");
+    expect(markup).toContain("Evaluation report");
+    expect(markup).toContain("Provider status");
     expect(markup).toContain("live_ai=false");
     expect(markup).toContain("external_calls=false");
     expect(markup).toContain("Copy review text");
@@ -1708,6 +1734,9 @@ describe("case workspace components", () => {
     expect(markup).toContain("Case version");
     expect(markup).toContain("Copy packet text");
     expect(markup).toContain("Print preview");
+    expect(markup).toContain("Download PDF");
+    expect(markup).toContain("Internal review required");
+    expect(markup).toContain("Packet snapshot counts");
   });
 
   it("renders packet evidence with verification labels and safe source links", () => {

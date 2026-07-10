@@ -87,11 +87,13 @@ export function CaseActivity({
       )}
 
       {!loading && !error && activity.length === 0 && (
-        <div className="state-box">
+        <div className="state-box state-box--empty">
+          <p className="state-box__kicker">Internal audit trail</p>
           <h3>No activity yet</h3>
           <p>
-            No immutable activity entries are available for this case. Cases
-            created before audit history existed may not have prior events.
+            Case changes and lifecycle updates will appear here as immutable
+            operational history. Permit events belong in the separate Permit
+            timeline; older cases may not include earlier audit entries.
           </p>
         </div>
       )}

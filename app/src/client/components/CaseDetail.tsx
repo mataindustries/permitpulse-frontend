@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { type KeyboardEvent, useRef, useState } from "react";
 import { CaseApiError } from "../api/cases";
 import type {
   CaseActivityResponse,
@@ -238,6 +238,17 @@ const detailSections = [
   ["ai-review", "AI review"],
 ] as const satisfies readonly [DetailSection, string][];
 
+const workspaceCapabilities = [
+  ["Case workspace", "Ready"],
+  ["Evidence", "Ready"],
+  ["Permit timeline", "Ready"],
+  ["Packet preview", "Ready"],
+  ["PDF export", "On demand"],
+  ["AI review draft", "Baseline"],
+  ["live_ai=false", "Off"],
+  ["external_calls=false", "Off"],
+] as const;
+
 export function CaseDetail({
   activityError,
   activityLoading,
@@ -283,6 +294,7 @@ export function CaseDetail({
   onUpdateTimeline,
 }: CaseDetailProps) {
   const [activeSection, setActiveSection] = useState<DetailSection>("overview");
+  const tabRefs = useRef<Array<HTMLButtonElement | null>>([]);
   const [editing, setEditing] = useState(false);
   const editSubmittingRef = useRef(false);
   const [editSubmitting, setEditSubmitting] = useState(false);
@@ -501,15 +513,46 @@ export function CaseDetail({
     setTimelineFormError("");
   }
 
+  function handleTabKeyDown(
+    event: KeyboardEvent<HTMLButtonElement>,
+    currentIndex: number,
+  ) {
+    let nextIndex: number | null = null;
+
+    if (event.key === "ArrowRight") {
+      nextIndex = (currentIndex + 1) % detailSections.length;
+    } else if (event.key === "ArrowLeft") {
+      nextIndex =
+        (currentIndex - 1 + detailSections.length) % detailSections.length;
+    } else if (event.key === "Home") {
+      nextIndex = 0;
+    } else if (event.key === "End") {
+      nextIndex = detailSections.length - 1;
+    }
+
+    if (nextIndex === null) {
+      return;
+    }
+
+    event.preventDefault();
+    const nextSection = detailSections[nextIndex][0];
+    setActiveSection(nextSection);
+    tabRefs.current[nextIndex]?.focus();
+  }
+
   return (
     <section aria-labelledby="case-detail-title" className="workspace-panel">
-      <div className="panel-heading">
-        <div>
-          <p className="eyebrow">Case detail</p>
-          <h2 id="case-detail-title">
-            {caseRecord?.project_name ?? "Case details"}
-          </h2>
+      <div className="panel-heading case-masthead">
+        <div className="case-masthead__identity">
+          <p className="eyebrow">Permit operations / Case detail</p>
+          <h2 id="case-detail-title">{caseRecord?.project_name ?? "Case details"}</h2>
+          {caseRecord && (
+            <p className="case-masthead__context">
+              {caseRecord.client_name} · {caseRecord.jurisdiction} · Updated {formatDateTime(caseRecord.updated_at)}
+            </p>
+          )}
         </div>
+        {caseRecord && <StatusBadge status={caseRecord.current_status} />}
         <button className="secondary-button" type="button" onClick={onBack}>
           Back to list
         </button>
@@ -534,8 +577,21 @@ export function CaseDetail({
 
       {!loading && !error && caseRecord && (
         <div className="case-detail">
+          <section
+            aria-label="Workspace capability status"
+            className="capability-strip"
+          >
+            {workspaceCapabilities.map(([label, state]) => (
+              <div className="capability-item" key={label}>
+                <span className="capability-indicator" aria-hidden="true" />
+                <span>{label}</span>
+                <strong>{state}</strong>
+              </div>
+            ))}
+          </section>
+
           <div className="section-tabs" role="tablist" aria-label="Case detail sections">
-            {detailSections.map(([section, label]) => (
+            {detailSections.map(([section, label], index) => (
               <button
                 aria-controls={`case-detail-panel-${section}`}
                 aria-selected={activeSection === section}
@@ -545,8 +601,13 @@ export function CaseDetail({
                 key={section}
                 id={`case-detail-tab-${section}`}
                 role="tab"
+                ref={(node) => {
+                  tabRefs.current[index] = node;
+                }}
+                tabIndex={activeSection === section ? 0 : -1}
                 type="button"
                 onClick={() => setActiveSection(section)}
+                onKeyDown={(event) => handleTabKeyDown(event, index)}
               >
                 {label}
               </button>
@@ -896,6 +957,7 @@ export function CaseDetail({
             <AIReviewPanel
               key={caseRecord.id}
               onGenerate={onGenerateAiReview}
+              onCompareWithPacket={() => setActiveSection("packet")}
             />
           )}
           </div>

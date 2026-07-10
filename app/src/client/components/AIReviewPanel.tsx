@@ -14,6 +14,7 @@ interface AIReviewPanelProps {
   initialData?: PacketReviewDraftResponseData | null;
   initialError?: string;
   initialStatus?: ReviewStatus;
+  onCompareWithPacket?: () => void;
   onGenerate: () => Promise<PacketReviewDraftResponseData>;
 }
 
@@ -138,12 +139,14 @@ function ReviewList({
 function ReviewContent({ review }: { review: PacketReviewDraft }) {
   return (
     <div className="ai-review-sections">
-      <section className="ai-review-card" aria-labelledby="ai-review-summary-title">
+      <section className="ai-review-card ai-review-card--summary" aria-labelledby="ai-review-summary-title">
+        <p className="ai-review-card__index">01 / Review synopsis</p>
         <h4 id="ai-review-summary-title">Summary</h4>
         <p>{review.summary}</p>
       </section>
 
       <section className="ai-review-card" aria-labelledby="ai-review-missing-title">
+        <p className="ai-review-card__index">02 / Completeness</p>
         <h4 id="ai-review-missing-title">Missing information</h4>
         <ReviewList
           empty="No missing-information items were returned. Verify the packet manually."
@@ -152,6 +155,7 @@ function ReviewContent({ review }: { review: PacketReviewDraft }) {
       </section>
 
       <section className="ai-review-card" aria-labelledby="ai-review-actions-title">
+        <p className="ai-review-card__index">03 / Action queue</p>
         <h4 id="ai-review-actions-title">Recommended next actions</h4>
         <ReviewList
           empty="No next actions were returned. Ask a human reviewer what to do next."
@@ -160,6 +164,7 @@ function ReviewContent({ review }: { review: PacketReviewDraft }) {
       </section>
 
       <section className="ai-review-card" aria-labelledby="ai-review-citations-title">
+        <p className="ai-review-card__index">04 / Grounding</p>
         <h4 id="ai-review-citations-title">Evidence citations</h4>
         {review.evidence_citations.length > 0 ? (
           <ul className="ai-review-list ai-review-citations">
@@ -176,7 +181,8 @@ function ReviewContent({ review }: { review: PacketReviewDraft }) {
       </section>
 
       <section className="ai-review-card" aria-labelledby="ai-review-unsupported-title">
-        <h4 id="ai-review-unsupported-title">Unsupported claims</h4>
+        <p className="ai-review-card__index">05 / Safety</p>
+        <h4 id="ai-review-unsupported-title">Unsupported claims / safety warnings</h4>
         <ReviewList
           empty="No unsupported claims were reported by the evaluator. Human verification is still required."
           items={review.unsupported_claims}
@@ -184,6 +190,7 @@ function ReviewContent({ review }: { review: PacketReviewDraft }) {
       </section>
 
       <section className="ai-review-card" aria-labelledby="ai-review-confidence-title">
+        <p className="ai-review-card__index">06 / Confidence</p>
         <h4 id="ai-review-confidence-title">Confidence notes</h4>
         <ReviewList
           empty="No confidence notes were returned. Treat the draft as unverified."
@@ -245,6 +252,7 @@ export function AIReviewPanel({
   initialData = null,
   initialError = "",
   initialStatus = initialData ? "success" : "idle",
+  onCompareWithPacket,
   onGenerate,
 }: AIReviewPanelProps) {
   const [status, setStatus] = useState<ReviewStatus>(initialStatus);
@@ -292,9 +300,12 @@ export function AIReviewPanel({
     >
       <div className="ai-review-header">
         <div>
-          <p className="eyebrow">AI review</p>
+          <p className="eyebrow">Review assistant / Local baseline</p>
           <h3 id="ai-review-panel-title">Deterministic baseline review</h3>
-          <p>Draft only — verify before sending.</p>
+          <p>
+            An evaluated draft grounded in the current packet snapshot. Live AI
+            and external calls remain disabled.
+          </p>
         </div>
         <div className="ai-review-actions">
           <button disabled={status === "loading"} type="button" onClick={() => void generate()}>
@@ -311,17 +322,39 @@ export function AIReviewPanel({
               Copy review text
             </button>
           )}
+          {onCompareWithPacket && (
+            <button
+              className="secondary-button"
+              type="button"
+              onClick={onCompareWithPacket}
+            >
+              Compare with Packet preview
+            </button>
+          )}
         </div>
       </div>
 
-      <div className="ai-review-metadata" aria-label="Review feature metadata">
-        <div><span>Provider</span><strong>{responseMetadata?.provider ?? "deterministic-baseline"}</strong></div>
-        <div><span>Live AI</span><strong>Off · live_ai={String(responseMetadata?.live_ai ?? false)}</strong></div>
-        <div><span>External calls</span><strong>None · external_calls={String(responseMetadata?.external_calls ?? false)}</strong></div>
-        <div><span>Evaluation</span><strong>{(responseMetadata?.evaluation_passed ?? true) ? "Passed" : "Blocked"}</strong></div>
-        <div><span>Warnings</span><strong>{responseMetadata?.warnings_count ?? 0}</strong></div>
-        <div><span>Use</span><strong>Draft only</strong></div>
-      </div>
+      <section className="provider-status" aria-labelledby="provider-status-title">
+        <div className="provider-status__heading">
+          <div>
+            <p className="eyebrow">Runtime controls</p>
+            <h4 id="provider-status-title">Provider status</h4>
+          </div>
+          <span className="review-result review-result--pass">Local only</span>
+        </div>
+        <dl className="ai-review-metadata">
+          <div><dt>Active provider</dt><dd>{responseMetadata?.provider ?? "deterministic-baseline"}</dd></div>
+          <div><dt>Live AI</dt><dd>Off · <code>live_ai={String(responseMetadata?.live_ai ?? false)}</code></dd></div>
+          <div><dt>External calls</dt><dd>Off · <code>external_calls={String(responseMetadata?.external_calls ?? false)}</code></dd></div>
+          <div><dt>Evaluation passed</dt><dd>{responseMetadata ? (responseMetadata.evaluation_passed ? "Yes" : "No — blocked") : "Not run"}</dd></div>
+          <div><dt>Warnings count</dt><dd>{responseMetadata?.warnings_count ?? 0}</dd></div>
+          <div><dt>Reviewed packet source</dt><dd>Case / evidence / timeline / activity</dd></div>
+        </dl>
+        <p className="provider-status__note">
+          The provider boundary is prepared for a future reviewed live-model
+          integration; this workspace is not using one now.
+        </p>
+      </section>
 
       <aside className="ai-review-safety-note" aria-labelledby="ai-review-safety-title">
         <h4 id="ai-review-safety-title">Verify this draft</h4>
@@ -334,9 +367,23 @@ export function AIReviewPanel({
       </aside>
 
       {status === "idle" && !data && (
-        <p className="state-box" role="status">
-          No review draft has been generated. Use the button above when you are ready.
-        </p>
+        <section className="ai-review-preflight state-box" role="status" aria-labelledby="ai-review-preflight-title">
+          <div>
+            <p className="state-box__kicker">Before generation</p>
+            <h4 id="ai-review-preflight-title">What the baseline review checks</h4>
+            <p>
+              No review draft has been generated. Generation runs the local,
+              deterministic baseline against the current packet snapshot.
+            </p>
+          </div>
+          <ul className="review-check-grid">
+            <li><strong>Missing information</strong><span>Incomplete packet fields and gaps</span></li>
+            <li><strong>Evidence grounding</strong><span>Claims tied to loaded records</span></li>
+            <li><strong>Recommended next actions</strong><span>Conservative human-review steps</span></li>
+            <li><strong>Unsupported-claim warnings</strong><span>Risky or ungrounded assertions</span></li>
+            <li><strong>Citation validity</strong><span>References checked against the snapshot</span></li>
+          </ul>
+        </section>
       )}
 
       {status === "loading" && (
@@ -364,7 +411,10 @@ export function AIReviewPanel({
       {data && status !== "loading" && (
         <article className="ai-review-document">
           <header className="ai-review-generated">
-            <h4>Generated draft review</h4>
+            <div>
+              <p className="eyebrow">Evaluated output</p>
+              <h4>Generated draft review</h4>
+            </div>
             {generatedAt ? (
               <p>
                 Generated: <time dateTime={generatedAt}>{formatDateTime(generatedAt)}</time>

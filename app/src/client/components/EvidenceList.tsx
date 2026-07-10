@@ -54,9 +54,14 @@ export function EvidenceList({
 
   if (evidence.length === 0) {
     return (
-      <div className="state-box">
+      <div className="state-box state-box--empty">
+        <p className="state-box__kicker">Source record register</p>
         <h3>No evidence yet</h3>
-        <p>Add structured evidence when a source record is available.</p>
+        <p>
+          Evidence tracks source records, provenance, dates, and verification
+          state. Add the first record when a permit notice, document, email, or
+          field observation is available.
+        </p>
       </div>
     );
   }

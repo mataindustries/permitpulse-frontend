@@ -351,6 +351,57 @@ cases. The shell includes:
 - Case navigation separated from the active content panel.
 - Responsive mobile-first layout suitable for narrow Android viewports.
 
+### Demo-ready permit command center UI
+
+The local workspace presentation is designed for product walkthroughs and
+operational review without changing any API or persistence behavior. Case
+detail now uses a compact case masthead, an operational capability/status
+strip, stronger selected-tab treatment, quieter navy surfaces, consistent
+section borders, and explicit empty states. The capability strip identifies
+the available case workspace, evidence, permit timeline, packet preview,
+on-demand PDF export, and AI review draft functions. It also keeps
+`live_ai=false` and `external_calls=false` visible as runtime safety state, not
+as marketing claims.
+
+Evidence empty states explain the source-record and provenance purpose of the
+register. Permit timeline empty states distinguish external permit events from
+immutable internal case activity. Packet Preview uses deliverable-style section
+numbering, distinct evidence/timeline/activity treatments, packet snapshot
+counts, and a prominent internal-review warning. Stored strings continue to
+render as React text nodes, and unsafe source URL schemes remain non-clickable.
+
+The tabs remain state-based and keyboard accessible. Arrow Left/Right, Home,
+and End move focus and selection across the case-detail tabs. The layout keeps
+touch-sized controls, wrapping actions, contained long identifiers, and
+horizontally scrollable tabs for narrow Android screens. Reduced-motion and
+print styles remain supported.
+
+### AI Review UI and provider status
+
+The AI Review tab opens in a pre-generation state and does not make a request
+until the user selects `Generate review draft`. Before generation, the panel
+explains that the local deterministic baseline will check missing information,
+evidence grounding, conservative next actions, unsupported-claim warnings, and
+citation validity against the current packet snapshot.
+
+The Provider status card shows the active provider, `live_ai`,
+`external_calls`, evaluation pass state, warnings count, and the reviewed packet
+sources (`case / evidence / timeline / activity`). The UI notes that the
+provider boundary is prepared for a future separately reviewed live-model
+provider, but it does not imply that a live model is running. Generated output
+is organized into Summary, Missing information, Recommended next actions,
+Evidence citations, Unsupported claims / safety warnings, Confidence notes,
+and Evaluation report sections. `Compare with Packet preview` switches directly
+to the existing Packet preview tab without adding routes or React Router.
+
+Current AI Review limitations remain explicit:
+
+- Live AI remains disabled (`live_ai=false`).
+- External provider calls remain disabled (`external_calls=false`).
+- AI reviews are held only in component memory and are not stored.
+- Generated drafts require human verification and are not legal advice,
+  approval predictions, or agency confirmation.
+
 The authentication lifecycle remains explicit:
 
 - checking authentication configuration

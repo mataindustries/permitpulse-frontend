@@ -96,8 +96,9 @@ export function PacketPreview({
     <section className="packet-preview" aria-labelledby="packet-preview-title">
       <div className="packet-toolbar print-hidden">
         <div>
-          <p className="eyebrow">Packet preview</p>
+          <p className="eyebrow">Deliverable workspace / Packet preview</p>
           <h3 id="packet-preview-title">Draft permit packet</h3>
+          <p>Review the assembled case record before copying, printing, or exporting.</p>
         </div>
         <div className="packet-actions">
           <button type="button" onClick={() => void handleCopy()}>
@@ -130,9 +131,17 @@ export function PacketPreview({
 
       <article className="packet-document">
         <header className="packet-section packet-section--header">
-          <p className="eyebrow">Packet header</p>
-          <h3>{packetModel.title}</h3>
-          <p>{packetModel.draft_notice}</p>
+          <div className="packet-cover-heading">
+            <div>
+              <p className="eyebrow">PermitPulse / Internal working draft</p>
+              <h3>{packetModel.title}</h3>
+            </div>
+            <span className="packet-draft-badge">Draft</span>
+          </div>
+          <aside className="packet-draft-notice" role="note">
+            <strong>Internal review required</strong>
+            <p>{packetModel.draft_notice}</p>
+          </aside>
           <dl className="detail-grid">
             <div>
               <dt>Project</dt>
@@ -159,9 +168,15 @@ export function PacketPreview({
               <dd>{packetModel.case_summary.version}</dd>
             </div>
           </dl>
+          <div className="packet-snapshot" aria-label="Packet snapshot counts">
+            <span><strong>{packetModel.evidence_summaries.length}</strong> evidence records</span>
+            <span><strong>{packetModel.timeline_summaries.length}</strong> permit events</span>
+            <span><strong>{packetModel.recent_activity_summaries.length}</strong> activity records</span>
+          </div>
         </header>
 
-        <section className="packet-section" aria-labelledby="packet-summary-title">
+        <section className="packet-section packet-section--summary" aria-labelledby="packet-summary-title">
+          <p className="packet-section-label">01 / Case</p>
           <h3 id="packet-summary-title">Project summary</h3>
           <dl className="detail-grid">
             <div>
@@ -183,15 +198,20 @@ export function PacketPreview({
           </dl>
         </section>
 
-        <section className="packet-section" aria-labelledby="packet-status-title">
+        <section className="packet-section packet-section--status" aria-labelledby="packet-status-title">
+          <p className="packet-section-label">02 / Lifecycle</p>
           <h3 id="packet-status-title">Current permit status</h3>
-          <p>{packetModel.current_status.label}</p>
+          <p className="packet-status-value">{packetModel.current_status.label}</p>
         </section>
 
-        <section className="packet-section" aria-labelledby="packet-evidence-title">
+        <section className="packet-section packet-section--evidence" aria-labelledby="packet-evidence-title">
+          <p className="packet-section-label">03 / Source register</p>
           <h3 id="packet-evidence-title">Key evidence</h3>
           {packetModel.evidence_summaries.length === 0 ? (
-            <p>No evidence records are available in this case.</p>
+            <div className="packet-empty">
+              <strong>No evidence records are available in this case.</strong>
+              <p>Add source-backed records with provenance and verification state before treating this packet as complete.</p>
+            </div>
           ) : (
             <ol className="packet-list">
               {packetModel.evidence_summaries.map((item, index) => {
@@ -242,10 +262,14 @@ export function PacketPreview({
           )}
         </section>
 
-        <section className="packet-section" aria-labelledby="packet-timeline-title">
+        <section className="packet-section packet-section--timeline" aria-labelledby="packet-timeline-title">
+          <p className="packet-section-label">04 / Permit record</p>
           <h3 id="packet-timeline-title">Permit timeline</h3>
           {packetModel.timeline_summaries.length === 0 ? (
-            <p>No permit timeline records are available in this case.</p>
+            <div className="packet-empty">
+              <strong>No permit timeline records are available in this case.</strong>
+              <p>Supported permit events belong here; internal workspace changes remain in Recent case activity.</p>
+            </div>
           ) : (
             <ol className="packet-list">
               {packetModel.timeline_summaries.map((entry, index) => {
@@ -302,10 +326,14 @@ export function PacketPreview({
           )}
         </section>
 
-        <section className="packet-section" aria-labelledby="packet-activity-title">
+        <section className="packet-section packet-section--activity" aria-labelledby="packet-activity-title">
+          <p className="packet-section-label">05 / Internal operations</p>
           <h3 id="packet-activity-title">Recent case activity</h3>
           {packetModel.recent_activity_summaries.length === 0 ? (
-            <p>No recent case activity records are available in this case.</p>
+            <div className="packet-empty">
+              <strong>No recent case activity records are available in this case.</strong>
+              <p>Immutable workspace changes will appear here without being presented as permit events.</p>
+            </div>
           ) : (
             <ol className="packet-list">
               {packetModel.recent_activity_summaries.map((entry, index) => {
@@ -338,19 +366,22 @@ export function PacketPreview({
           )}
         </section>
 
-        <section className="packet-section" aria-labelledby="packet-questions-title">
+        <section className="packet-section packet-section--placeholder" aria-labelledby="packet-questions-title">
+          <p className="packet-section-label">06 / Reviewer workspace</p>
           <h3 id="packet-questions-title">Open questions / missing information</h3>
           <p>{packetModel.open_questions.note}</p>
           <p>{packetModel.open_questions.instruction}</p>
         </section>
 
-        <section className="packet-section" aria-labelledby="packet-actions-title">
+        <section className="packet-section packet-section--placeholder" aria-labelledby="packet-actions-title">
+          <p className="packet-section-label">07 / Reviewer workspace</p>
           <h3 id="packet-actions-title">Recommended next actions</h3>
           <p>{packetModel.recommended_next_actions.note}</p>
           <p>{packetModel.recommended_next_actions.instruction}</p>
         </section>
 
-        <section className="packet-section" aria-labelledby="packet-disclaimer-title">
+        <section className="packet-section packet-section--disclaimer" aria-labelledby="packet-disclaimer-title">
+          <p className="packet-section-label">08 / Use note</p>
           <h3 id="packet-disclaimer-title">Disclaimer / internal-review note</h3>
           <p>{packetModel.disclaimer}</p>
         </section>

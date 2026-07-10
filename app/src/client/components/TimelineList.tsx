@@ -64,9 +64,14 @@ export function TimelineList({
 
   if (timeline.length === 0) {
     return (
-      <div className="state-box">
+      <div className="state-box state-box--empty">
+        <p className="state-box__kicker">Permit record</p>
         <h3>No timeline entries yet</h3>
-        <p>Add permit events when they are supported by case records.</p>
+        <p>
+          Add submissions, corrections, reviews, decisions, and inspections
+          when they are supported by case records. This permit timeline stays
+          separate from internal case activity.
+        </p>
       </div>
     );
   }
