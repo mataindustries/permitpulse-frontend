@@ -25,6 +25,25 @@ There is still no participant assignment, file upload, stored PDF history, live
 AI integration, billing, email delivery, OAuth, user-management UI, or
 production authentication.
 
+## Canonical fictional demo case
+
+With local migrations applied and the development server running, seed the
+fictional Arroyo Vista ADU case through the authenticated, loopback-only demo
+endpoint:
+
+```bash
+PERMITPULSE_DEMO_ADMIN_EMAIL='local-admin@example.test' \
+PERMITPULSE_DEMO_ADMIN_PASSWORD='local-admin-password' \
+npm run demo:seed:local
+```
+
+Set `PERMITPULSE_LOCAL_URL` only when the local app is not available at the
+trusted default `http://localhost:5173`. The account must already have the local `admin` role.
+The seed requires `APP_ENV=local` and `ENABLE_DEV_CASE_API=true`, is idempotent,
+does not delete other cases, and leaves `DEMO-LADBS-2026-1842` in
+`packet_generated` for manual review, approval, and PDF-export testing. The
+endpoint is unavailable in preview and production.
+
 ## AI Review provider scaffold and evaluation foundation
 
 The PermitPulse Packet Review Assistant remains disabled for real live-AI use.

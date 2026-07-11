@@ -12,6 +12,7 @@
     "cf-typegen": "wrangler types --env-interface CloudflareBindings",
     "db:migrate:local": "wrangler d1 migrations apply DB --local",
     "db:migrate:preview": "wrangler d1 migrations apply DB --env preview --remote",
+    "demo:seed:local": "node scripts/seed-demo-case.mjs",
     "dev": "vite",
     "preview": "vite preview",
     "sample:packet": "esbuild scripts/generate-sample-packet.ts --bundle --platform=node --format=esm --outfile=/tmp/permitpulse-generate-sample.mjs && node /tmp/permitpulse-generate-sample.mjs",

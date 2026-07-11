@@ -9,8 +9,11 @@ import {
   caseIdSchema,
   createCaseSchema,
 } from "../cases/validation";
+import { actorFromUser } from "../cases/authorization";
+import { seedArroyoVistaDemo } from "../demo/seed-arroyo-vista";
 import { isDevelopmentCaseApiEnabled } from "../lib/environment";
 import { errorResponse } from "../lib/responses";
+import { sessionMiddleware } from "../middleware/session";
 import type { WorkerEnv } from "../types";
 
 const maximumRequestBodyBytes = 16 * 1024;
@@ -51,6 +54,18 @@ developmentCaseRoutes.get("/", async (context) => {
     ok: true,
     data: records,
   });
+});
+
+developmentCaseRoutes.post("/demo/arroyo-vista", sessionMiddleware, async (context) => {
+  const user = context.get("authenticatedUser");
+  if (!user) return errorResponse(context, 401, "UNAUTHENTICATED", "Authentication is required.");
+  if (user.role !== "admin") return errorResponse(context, 403, "FORBIDDEN", "Demo seed access requires an administrator.");
+
+  const result = await seedArroyoVistaDemo({
+    actor: actorFromUser(user),
+    database: context.env.DB,
+  });
+  return context.json({ok:true,data:result}, result.created ? 201 : 200);
 });
 
 developmentCaseRoutes.get("/:id", async (context) => {
