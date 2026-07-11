@@ -1,9 +1,10 @@
-import type { ReviewerAction, ReviewerFinding, ReviewerNote, ReviewerQuestion, ReviewerRevision, ReviewerWorkspace } from "../../shared/reviewer/types";
+import type { ReviewerAction, ReviewerActionKit, ReviewerFinding, ReviewerNote, ReviewerQuestion, ReviewerRevision, ReviewerWorkspace } from "../../shared/reviewer/types";
 import type { Bindings } from "../types";
-import type { ActionInput, FindingInput, NoteInput, QuestionInput } from "./validation";
+import type { ActionInput, ActionKitInput, FindingInput, NoteInput, QuestionInput } from "./validation";
 
-type Kind = "finding" | "question" | "action" | "note";
-type Input = FindingInput | QuestionInput | ActionInput | NoteInput;
+type Kind = "finding" | "question" | "action" | "note" | "action_kit";
+type EditableKind = Exclude<Kind,"action_kit">;
+type Input = FindingInput | QuestionInput | ActionInput | NoteInput | ActionKitInput;
 const config = {
   finding: { table: "reviewer_findings", fields: ["title","finding_type","severity","summary","confidence","recommended_resolution","internal_notes","approved"] },
   question: { table: "reviewer_questions", fields: ["question","why_it_matters","evidence_requested","assigned_reviewer","status","publishable"] },
@@ -27,11 +28,12 @@ async function mapAction(db: Bindings["DB"], row: Record<string, unknown>): Prom
   return { ...bools(row), evidence_ids: await links(db,"reviewer_action_evidence","action_id",String(row.id),"evidence_item_id") } as unknown as ReviewerAction;
 }
 export async function readReviewerWorkspace(db: Bindings["DB"], caseId: string): Promise<ReviewerWorkspace> {
-  const [f,q,a,n,r] = await Promise.all([
+  const [f,q,a,n,k,r] = await Promise.all([
     db.prepare("SELECT * FROM reviewer_findings WHERE case_id = ? ORDER BY updated_at DESC,id DESC").bind(caseId).all<Record<string,unknown>>(),
     db.prepare("SELECT * FROM reviewer_questions WHERE case_id = ? ORDER BY updated_at DESC,id DESC").bind(caseId).all<Record<string,unknown>>(),
     db.prepare("SELECT * FROM reviewer_actions WHERE case_id = ? ORDER BY updated_at DESC,id DESC").bind(caseId).all<Record<string,unknown>>(),
     db.prepare("SELECT * FROM reviewer_notes WHERE case_id = ? ORDER BY updated_at DESC,id DESC").bind(caseId).all<Record<string,unknown>>(),
+    db.prepare("SELECT * FROM reviewer_action_kits WHERE case_id = ?").bind(caseId).first<Record<string,unknown>>(),
     db.prepare(`SELECT r.*,u.name actor_name FROM reviewer_revisions r JOIN "user" u ON u.id=r.actor_user_id WHERE r.case_id=? ORDER BY r.created_at DESC,r.id DESC LIMIT 100`).bind(caseId).all<Record<string,unknown>>(),
   ]);
   return {
@@ -39,8 +41,31 @@ export async function readReviewerWorkspace(db: Bindings["DB"], caseId: string):
     questions: q.results.map((row) => bools(row) as unknown as ReviewerQuestion),
     actions: await Promise.all(a.results.map((row) => mapAction(db,row))),
     notes: n.results.map((row) => bools(row) as unknown as ReviewerNote),
+    action_kit: k ? {
+      ...bools(k),
+      call_checklist:JSON.parse(String(k.call_checklist_json)), requested_confirmations:JSON.parse(String(k.requested_confirmations_json)), documents_ready:JSON.parse(String(k.documents_ready_json)),
+      evidence_ids:await links(db,"reviewer_action_kit_evidence","action_kit_id",String(k.id),"evidence_item_id"), timeline_ids:await links(db,"reviewer_action_kit_timeline","action_kit_id",String(k.id),"timeline_entry_id"),
+    } as unknown as ReviewerActionKit : null,
     revisions: r.results.map((row) => ({ id:String(row.id), case_id:String(row.case_id), actor:{id:String(row.actor_user_id),name:row.actor_name as string|null}, object_type:row.object_type as Kind, object_id:String(row.object_id), previous_value:JSON.parse(String(row.previous_value_json)), new_value:JSON.parse(String(row.new_value_json)), timestamp:String(row.created_at) })) as ReviewerRevision[],
   };
+}
+
+export async function saveReviewerActionKit(db:Bindings["DB"],caseId:string,actorId:string,input:ActionKitInput):Promise<ReviewerMutation>{
+  if (!(await validateReferences(db,caseId,input))) return {outcome:"invalid_reference"};
+  const previous=await db.prepare("SELECT * FROM reviewer_action_kits WHERE case_id=?").bind(caseId).first<Record<string,unknown>>();
+  if (previous && previous.version !== input.version) return {outcome:"conflict"};
+  const id=previous ? String(previous.id) : crypto.randomUUID(); const now=new Date().toISOString();
+  const values=[input.current_position,input.confirmed_record,input.unconfirmed_record,input.primary_blocker,input.why_appropriate,input.evidence_readiness,input.review_readiness,input.email_subject,input.recipient_role,input.message_body,JSON.stringify(input.call_checklist),JSON.stringify(input.requested_confirmations),JSON.stringify(input.documents_ready),input.escalation_trigger,input.follow_up_date??null,input.internal_note,Number(input.approved)];
+  const fields=["current_position","confirmed_record","unconfirmed_record","primary_blocker","why_appropriate","evidence_readiness","review_readiness","email_subject","recipient_role","message_body","call_checklist_json","requested_confirmations_json","documents_ready_json","escalation_trigger","follow_up_date","internal_note","approved"];
+  const writes=previous
+    ? [db.prepare(`UPDATE reviewer_action_kits SET ${fields.map(f=>`${f}=?`).join(",")},version=version+1,updated_at=? WHERE id=? AND version=?`).bind(...values,now,id,input.version)]
+    : [db.prepare(`INSERT INTO reviewer_action_kits(id,case_id,${fields.join(",")},created_at,updated_at) VALUES(?,?,${fields.map(()=>"?").join(",")},?,?)`).bind(id,caseId,...values,now,now)];
+  if(previous){writes.push(db.prepare("DELETE FROM reviewer_action_kit_evidence WHERE action_kit_id=?").bind(id),db.prepare("DELETE FROM reviewer_action_kit_timeline WHERE action_kit_id=?").bind(id));}
+  for(const evidenceId of input.evidence_ids) writes.push(db.prepare("INSERT INTO reviewer_action_kit_evidence(action_kit_id,evidence_item_id) VALUES(?,?)").bind(id,evidenceId));
+  for(const timelineId of input.timeline_ids) writes.push(db.prepare("INSERT INTO reviewer_action_kit_timeline(action_kit_id,timeline_entry_id) VALUES(?,?)").bind(id,timelineId));
+  writes.push(db.prepare("INSERT INTO reviewer_revisions(id,case_id,actor_user_id,object_type,object_id,previous_value_json,new_value_json,created_at) VALUES(?,?,?,?,?,?,?,?)").bind(crypto.randomUUID(),caseId,actorId,"action_kit",id,JSON.stringify(previous),JSON.stringify(input),now));
+  const result=await db.batch(writes); if(previous&&!result[0].meta.changes)return {outcome:"conflict"};
+  return {outcome:"success",workspace:await readReviewerWorkspace(db,caseId)};
 }
 
 async function validateReferences(db: Bindings["DB"], caseId: string, input: Input): Promise<boolean> {
@@ -52,7 +77,7 @@ async function validateReferences(db: Bindings["DB"], caseId: string, input: Inp
 }
 
 export type ReviewerMutation = {outcome:"success";workspace:ReviewerWorkspace}|{outcome:"conflict"|"invalid_reference"|"not_found"};
-export async function saveReviewerObject(db: Bindings["DB"], caseId: string, actorId: string, kind: Kind, input: Input, objectId?: string): Promise<ReviewerMutation> {
+export async function saveReviewerObject(db: Bindings["DB"], caseId: string, actorId: string, kind: EditableKind, input: Exclude<Input,ActionKitInput>, objectId?: string): Promise<ReviewerMutation> {
   if (!(await validateReferences(db,caseId,input))) return {outcome:"invalid_reference"};
   const id = objectId ?? crypto.randomUUID(); const now = new Date().toISOString(); const c = config[kind];
   const previous = objectId ? await db.prepare(`SELECT * FROM ${c.table} WHERE id=? AND case_id=?`).bind(id,caseId).first<Record<string,unknown>>() : null;

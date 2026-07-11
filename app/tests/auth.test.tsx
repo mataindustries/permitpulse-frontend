@@ -3,9 +3,11 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { beforeEach, describe, expect, it } from "vitest";
 import { App } from "../src/client/App";
 import { app } from "../src/worker/app";
+import { getAuthRuntimeConfig } from "../src/worker/auth/config";
 import type { Bindings } from "../src/worker/types";
 
 const localOrigin = "http://localhost";
+const codespacesOrigin = "https://74.app.github.dev";
 const previewOrigin = "https://workspace-preview.getpermitpulse.com";
 const testSecret = "test-only-auth-secret-not-for-any-deployment-123456";
 const bootstrapToken =
@@ -125,6 +127,64 @@ beforeEach(async () => {
 });
 
 describe("authentication configuration", () => {
+  it("trusts localhost and the bounded Codespaces preview pattern locally", () => {
+    expect(getAuthRuntimeConfig(bindings()).trustedOrigins).toEqual([
+      localOrigin,
+      "https://*.app.github.dev",
+    ]);
+  });
+
+  it("keeps production trusted origins explicit", () => {
+    const productionOrigin = "https://workspace.getpermitpulse.com";
+
+    expect(
+      getAuthRuntimeConfig(
+        bindings({
+          APP_ENV: "production",
+          BETTER_AUTH_URL: productionOrigin,
+        }),
+      ).trustedOrigins,
+    ).toEqual([productionOrigin]);
+  });
+
+  it("accepts localhost locally", async () => {
+    expect((await signUp()).status).toBe(200);
+  });
+
+  it("accepts a Codespaces forwarded preview origin locally", async () => {
+    const response = await app.request(
+      `${codespacesOrigin}/api/auth/sign-up/email`,
+      {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+          origin: codespacesOrigin,
+        },
+        body: JSON.stringify(fictionalAccount),
+      },
+      bindings(),
+    );
+
+    expect(response.status).toBe(200);
+  });
+
+  it("rejects an unrelated origin locally", async () => {
+    const response = await app.request(
+      `${localOrigin}/api/auth/sign-up/email`,
+      {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+          origin: "https://unrelated.example.test",
+        },
+        body: JSON.stringify(fictionalAccount),
+      },
+      bindings(),
+    );
+
+    expect(response.status).toBe(403);
+  });
+
   it("fails closed when authentication is disabled", async () => {
     const response = await signUp(fictionalAccount, {
       AUTH_ENABLED: "false",

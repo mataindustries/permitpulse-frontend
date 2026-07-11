@@ -4,8 +4,8 @@ import { getCaseForActor } from "../cases/repository";
 import { actorFromUser } from "../cases/authorization";
 import { errorResponse } from "../lib/responses";
 import { sessionMiddleware } from "../middleware/session";
-import { readReviewerWorkspace, saveReviewerObject } from "../reviewer/repository";
-import { actionInputSchema, findingInputSchema, noteInputSchema, questionInputSchema } from "../reviewer/validation";
+import { readReviewerWorkspace, saveReviewerActionKit, saveReviewerObject } from "../reviewer/repository";
+import { actionInputSchema, actionKitInputSchema, findingInputSchema, noteInputSchema, questionInputSchema } from "../reviewer/validation";
 import type { WorkerEnv } from "../types";
 
 export const reviewerRoutes = new Hono<WorkerEnv>();
@@ -25,6 +25,15 @@ async function access(context: Parameters<typeof errorResponse>[0]) {
 reviewerRoutes.get("/:caseId/reviewer", async (context) => {
   const allowed = await access(context); if ("response" in allowed) return allowed.response;
   return context.json({ ok: true, data: { workspace: await readReviewerWorkspace(context.env.DB,allowed.record.id) } });
+});
+reviewerRoutes.put("/:caseId/reviewer/action-kit",async(context)=>{
+  const allowed=await access(context); if("response" in allowed)return allowed.response;
+  let body:unknown;try{body=await context.req.json();}catch{return errorResponse(context,400,"INVALID_JSON","The request body is not valid JSON.");}
+  const parsed=actionKitInputSchema.safeParse(body);if(!parsed.success)return errorResponse(context,422,"VALIDATION_ERROR","Action Kit fields are incomplete or invalid.",parsed.error.flatten());
+  const result=await saveReviewerActionKit(context.env.DB,allowed.record.id,allowed.user.id,parsed.data);
+  if(result.outcome==="conflict")return errorResponse(context,409,"STALE_VERSION","This Action Kit changed. Reload before saving.");
+  if(result.outcome==="invalid_reference")return errorResponse(context,422,"INVALID_REFERENCE","Evidence and timeline references must belong to this case.");
+  return result.outcome==="success"?context.json({ok:true,data:{workspace:result.workspace}}):errorResponse(context,500,"INTERNAL_ERROR","The Action Kit could not be saved.");
 });
 
 for (const definition of [

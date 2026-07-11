@@ -53,6 +53,10 @@ function truncationWarning(
 ): PacketPresentationWarning {
   return { id, text, information_class: "warning" };
 }
+const internalActionResidue=/\b(regenerate (?:the )?packet|rerun (?:the )?quality gate|quality[- ]gate implementation|verify evidence metadata|update packet snapshot|mutation success|toast message)\b/i;
+function isClientAction(value:string):boolean{return !internalActionResidue.test(value);}
+const mutationResidue=/^(edited|updated|saved|success|mutation successful)$/i;
+function isCleanClientContent(value:string):boolean{return !mutationResidue.test(value.trim())&&!/\b(toast message|mutation success)\b/i.test(value);}
 
 export async function buildCurrentPacketPresentation({
   caseRecord,
@@ -82,9 +86,10 @@ export async function buildCurrentPacketPresentation({
     caseRecord,
     documentStatus,
     editorialContent: {
-      findings: reviewer.findings.filter((item) => item.approved).map((item) => ({ id:item.id, text:item.summary, title:item.title, severity:item.severity, finding_type:item.finding_type, confidence:item.confidence, recommended_resolution:item.recommended_resolution, supporting_source_ids:item.evidence_ids, grounded:item.evidence_ids.length > 0, reviewer_approved:true })),
-      openQuestions: reviewer.questions.filter((item) => item.publishable && item.status !== "closed").map((item) => ({ id:item.id, text:item.question, reviewer_approved:true })),
-      recommendedNextActions: reviewer.actions.filter((item) => item.approved).map((item) => ({ id:item.id, text:item.description, supporting_source_ids:item.evidence_ids, reviewer_approved:true })),
+      findings: reviewer.findings.filter((item) => item.approved&&isCleanClientContent(item.summary)).map((item) => ({ id:item.id, text:item.summary, title:item.title, severity:item.severity, finding_type:item.finding_type, confidence:item.confidence, recommended_resolution:item.recommended_resolution, supporting_source_ids:[...item.evidence_ids,...item.timeline_ids], grounded:item.evidence_ids.length > 0, reviewer_approved:true })),
+      openQuestions: reviewer.questions.filter((item) => item.publishable && item.status !== "closed"&&isCleanClientContent(item.question)).map((item) => ({ id:item.id, text:item.question, reviewer_approved:true })),
+      recommendedNextActions: reviewer.actions.filter((item) => item.approved && isClientAction(item.description)&&isCleanClientContent(item.description)).map((item) => ({ id:item.id, text:item.description, supporting_source_ids:item.evidence_ids, reviewer_approved:true })),
+      actionKit: reviewer.action_kit && [reviewer.action_kit.current_position,reviewer.action_kit.message_body,...reviewer.action_kit.requested_confirmations].every(isCleanClientContent) ? { ...reviewer.action_kit } : undefined,
     },
     evidence: evidenceRows.slice(0, packetEvidenceLimit),
     generatedAt,

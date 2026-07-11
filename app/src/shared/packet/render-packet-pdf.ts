@@ -497,7 +497,7 @@ function drawExecutiveDashboard(state: PdfState): void {
     color: colors.white,
   });
   state.y -= 20;
-  state.y = drawWrappedAt(state, state.model.executive_summary.text, {
+  state.y = drawWrappedAt(state, state.model.action_kit?.current_position ?? state.model.executive_summary.text, {
     x: marginX,
     y: state.y,
     width: contentWidth,
@@ -1010,7 +1010,7 @@ function drawCaseOverview(state: PdfState): void {
 }
 
 function drawCurrentStatus(state: PdfState): void {
-  drawSectionHeading(state, "current_status");
+  drawSectionHeading(state, "case_overview");
   drawSectionIntro(
     state,
     "Recorded case status at the time this packet edition was generated.",
@@ -1916,6 +1916,17 @@ function drawDisclaimer(state: PdfState): void {
   });
 }
 
+function drawActionKit(state:PdfState):void {
+  drawSectionHeading(state,"agency_follow_up_kit"); const kit=state.model.action_kit;
+  if(!kit){drawParagraph(state,"No reviewer-approved Agency Follow-Up Kit is included.");return;}
+  for(const value of [`Subject: ${kit.email_subject}`,`Recipient / agency role: ${kit.recipient_role}`,kit.message_body,`Supported by ${kit.citation_references.join(", ")}`,"Requested confirmations",...kit.requested_confirmations.map(x=>`- ${x}`),"Call checklist",...kit.call_checklist.map(x=>`- ${x}`),"Documents to have ready",...kit.documents_ready.map(x=>`- ${x}`),`Trigger for escalation: ${kit.escalation_trigger}`,...(kit.follow_up_date?[`Follow-up / review date: ${kit.follow_up_date}`]:[])]) drawParagraph(state,value);
+}
+
+function drawEvidenceMatrix(state:PdfState):void {
+  drawSectionHeading(state,"evidence_matrix");
+  for(const item of state.model.evidence_summaries) drawParagraph(state,`${item.reference} | ${item.title} | ${item.evidence_type_label} | ${item.source.date_label} | ${item.verification_label} | ${item.source.label??"Source label pending"}`);
+}
+
 function drawFooters(state: PdfState): void {
   const pages = state.document.getPages();
 
@@ -2000,34 +2011,22 @@ export async function renderPacketPdf(model: PacketModel): Promise<Uint8Array> {
   drawExecutiveDashboard(state);
 
   addPage(state);
-  drawCaseOverview(state);
-  drawCurrentStatus(state);
+  drawEditorialSection(state,"recommended_next_actions",model.recommended_next_actions.items,model.recommended_next_actions.empty_message);
+  drawActionKit(state);
 
   addPage(state);
-  drawEvidence(state);
+  drawCaseOverview(state);
+  drawEditorialSection(state,"findings",model.findings.items,model.findings.empty_message);
+  drawEditorialSection(state,"open_questions",model.open_questions.items,model.open_questions.empty_message);
+
+  addPage(state);
+  drawEvidenceMatrix(state);
 
   addPage(state);
   drawTimeline(state);
 
   addPage(state);
-  drawEditorialSection(
-    state,
-    "findings",
-    model.findings.items,
-    model.findings.empty_message,
-  );
-  drawEditorialSection(
-    state,
-    "open_questions",
-    model.open_questions.items,
-    model.open_questions.empty_message,
-  );
-  drawEditorialSection(
-    state,
-    "recommended_next_actions",
-    model.recommended_next_actions.items,
-    model.recommended_next_actions.empty_message,
-  );
+  drawEvidence(state);
 
   addPage(state);
   drawSources(state);

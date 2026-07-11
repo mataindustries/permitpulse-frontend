@@ -2,6 +2,7 @@ import { getPublicEnvironment } from "../lib/environment";
 import type { Bindings } from "../types";
 
 const minimumSecretBytes = 32;
+const codespacesPreviewOrigin = "https://*.app.github.dev";
 
 export class AuthConfigurationError extends Error {
   constructor() {
@@ -15,7 +16,7 @@ export interface AuthRuntimeConfig {
   baseURL: string;
   secret: string;
   secureCookies: boolean;
-  trustedOrigins: [string];
+  trustedOrigins: string[];
 }
 
 export function isAuthEnabled(bindings: Bindings): boolean {
@@ -80,6 +81,9 @@ export function getAuthRuntimeConfig(
     baseURL: baseURL.origin,
     secret: bindings.BETTER_AUTH_SECRET,
     secureCookies: environment !== "local",
-    trustedOrigins: [baseURL.origin],
+    trustedOrigins:
+      environment === "local"
+        ? [baseURL.origin, codespacesPreviewOrigin]
+        : [baseURL.origin],
   };
 }

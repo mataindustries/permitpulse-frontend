@@ -66,6 +66,7 @@ function section(
 
 function renderDashboard(model: PacketModel): string {
   const dashboard = packetDashboard(model);
+  const kit=model.action_kit;
   const blockers = dashboard.blockers.length > 0
     ? `<ol class="pp-dashboard-blockers">${dashboard.blockers
         .slice(0, 3)
@@ -91,7 +92,8 @@ function renderDashboard(model: PacketModel): string {
       </div>
       <span class="pp-status-badge pp-status-badge--${model.document_status}">${escapeHtml(model.document_status_label)}</span>
     </div>
-    <p class="pp-dashboard-summary">${escapeHtml(model.executive_summary.text)}</p>
+    <p class="pp-dashboard-summary">${escapeHtml(kit?.current_position??model.executive_summary.text)}</p>
+    ${kit?`<dl class="pp-decision-lines"><div><dt>Record confirms</dt><dd>${escapeHtml(kit.confirmed_record)}</dd></div><div><dt>Record does not confirm</dt><dd>${escapeHtml(kit.unconfirmed_record)}</dd></div><div><dt>Primary blocker</dt><dd>${escapeHtml(kit.primary_blocker)}</dd></div><div><dt>Why this move</dt><dd>${escapeHtml(kit.why_appropriate)}</dd></div><div><dt>Evidence readiness</dt><dd>${escapeHtml(kit.evidence_readiness)}</dd></div><div><dt>Review readiness</dt><dd>${escapeHtml(kit.review_readiness)}</dd></div></dl>`:""}
     ${(model.executive_summary.key_risks.length || model.executive_summary.key_strengths.length) ? `<div class="pp-dashboard-grid">
       ${model.executive_summary.key_risks.length ? `<section class="pp-dashboard-panel"><p class="pp-panel-label">Key Risks</p><ul>${model.executive_summary.key_risks.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul></section>` : ""}
       ${model.executive_summary.key_strengths.length ? `<section class="pp-dashboard-panel"><p class="pp-panel-label">Key Strengths</p><ul>${model.executive_summary.key_strengths.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul></section>` : ""}
@@ -187,7 +189,7 @@ function renderEvidence(model: PacketModel): string {
       return `<li class="pp-evidence-card">
         <div class="pp-evidence-card-header">
           <div>
-            <p>Evidence ${String(index + 1).padStart(2, "0")} · ${escapeHtml(item.evidence_type_label)}</p>
+            <p>${item.reference} · ${escapeHtml(item.evidence_type_label)}</p>
             <h3>${escapeHtml(item.title)}</h3>
           </div>
           <span class="pp-verification-badge pp-verification-badge--${item.verification_status}">${escapeHtml(item.verification_label)}</span>
@@ -220,7 +222,7 @@ function renderTimeline(model: PacketModel): string {
       const reviewLabel = packetTimelineReviewLabel(entry);
 
       return `<li class="pp-timeline-event">
-        <div class="pp-timeline-rail"><span>${String(index + 1).padStart(2, "0")}</span></div>
+        <div class="pp-timeline-rail"><span>${entry.reference}</span></div>
         <div class="pp-timeline-date"><time datetime="${escapeHtml(entry.occurred_on)}">${escapeHtml(entry.occurred_on_label)}</time><span>${escapeHtml(entry.timeline_type_label)}</span></div>
         <article>
           <div class="pp-timeline-heading">
@@ -250,8 +252,9 @@ function renderEditorial(
       const supportIds = "supporting_source_ids" in item
         ? item.supporting_source_ids
         : [];
-      const support = supportIds.length > 0
-        ? `<span>${supportIds.length} linked source${supportIds.length === 1 ? "" : "s"}</span>`
+      const references = "citation_references" in item ? item.citation_references : [];
+      const support = references.length > 0
+        ? `<span>Supported by ${escapeHtml(references.join(", "))}</span>`
         : "";
 
       return `<li>
@@ -260,6 +263,16 @@ function renderEditorial(
       </li>`;
     })
     .join("")}</ol>`;
+}
+
+function renderEvidenceMatrix(model:PacketModel):string {
+  return `<div class="pp-source-table pp-evidence-matrix" role="table"><div class="pp-source-table-head" role="row"><span>Reference / evidence</span><span>Source / provenance</span><span>Review</span></div>${model.evidence_summaries.map(item=>`<div class="pp-source-row" role="row"><div><span>${item.reference}</span><strong>${escapeHtml(item.title)}</strong><small>${escapeHtml(item.evidence_type_label)} · ${escapeHtml(item.source.date_label)}</small></div><div>${escapeHtml(item.source.label??"Source label pending")}<br>${escapeHtml(item.source.url??"Digital provenance not recorded")}</div><div><span class="pp-source-pill">${escapeHtml(item.verification_label)}</span><small>${escapeHtml(item.summary)}</small></div></div>`).join("")}</div>`;
+}
+
+function renderActionKit(model:PacketModel):string {
+  const kit=model.action_kit;if(!kit)return `<p class="pp-editorial-empty"><strong>Not approved</strong><span>No reviewer-approved Agency Follow-Up Kit is included.</span></p>`;
+  const list=(title:string,items:string[])=>`<section class="pp-dashboard-panel"><p class="pp-panel-label">${escapeHtml(title)}</p><ul>${items.map(x=>`<li>${escapeHtml(x)}</li>`).join("")}</ul></section>`;
+  return `<div class="pp-action-kit"><dl class="pp-case-grid"><div><dt>Subject</dt><dd>${escapeHtml(kit.email_subject)}</dd></div><div><dt>Recipient / role</dt><dd>${escapeHtml(kit.recipient_role)}</dd></div></dl><div class="pp-message-body">${escapeHtml(kit.message_body).replaceAll("\n","<br>")}</div><p class="pp-citations">Supported by ${escapeHtml(kit.citation_references.join(", "))}</p><div class="pp-dashboard-grid">${list("Requested confirmations",kit.requested_confirmations)}${list("Call checklist",kit.call_checklist)}${list("Documents to have ready",kit.documents_ready)}<section class="pp-dashboard-panel"><p class="pp-panel-label">Trigger for escalation</p><p>${escapeHtml(kit.escalation_trigger)}</p>${kit.follow_up_date?`<strong>Review date: ${escapeHtml(kit.follow_up_date)}</strong>`:""}</section></div></div>`;
 }
 
 function renderSources(model: PacketModel): string {
@@ -331,6 +344,10 @@ export function renderPacketHtml(model: PacketModel): string {
     .pp-status-badge { border: 0; background: var(--jade-dark); color: #fff; }
     .pp-status-badge--delivered { background: var(--navy); }
     .pp-dashboard-summary { max-width: 740px; margin: 13px 0 0; color: #39443e; font-family: Georgia, "Times New Roman", serif; font-size: 15px; line-height: 1.55; }
+    .pp-decision-lines { display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px 18px;margin:12px 0 0;border-top:1px solid var(--rule);padding-top:9px; }
+    .pp-decision-lines div { display:grid;grid-template-columns:105px minmax(0,1fr);gap:7px; }
+    .pp-decision-lines dt { color:var(--jade);font-size:7px;font-weight:900;text-transform:uppercase; }
+    .pp-decision-lines dd { margin:0;font-size:8px; }
     .pp-dashboard-metrics { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin-top: 20px; }
     .pp-metric-card { position: relative; min-height: 92px; overflow: hidden; border: 1px solid var(--rule); background: #fff; padding: 14px 15px; }
     .pp-metric-card::before { position: absolute; inset: 0 auto 0 0; width: 4px; background: var(--jade); content: ""; }
@@ -444,6 +461,8 @@ export function renderPacketHtml(model: PacketModel): string {
     .pp-source-row > div:nth-child(2) { color: var(--muted); font-size: 8px; }
     .pp-section--disclaimer { background: var(--soft); }
     .pp-disclaimer { margin: 0; color: var(--muted); font-size: 10px; }
+    .pp-message-body { margin-top: 16px; border-left: 4px solid var(--jade); background: #fff; padding: 16px; white-space: normal; }
+    .pp-citations { color: var(--jade-dark); font-size: 9px; font-weight: 800; }
     .pp-footer { display: flex; justify-content: space-between; gap: 20px; border-top: 5px solid var(--navy); color: var(--muted); font-size: 8px; padding: 16px 48px 20px; }
     @page { size: Letter; margin: .45in; }
     @media print {
@@ -460,6 +479,7 @@ export function renderPacketHtml(model: PacketModel): string {
       .pp-packet { width: 100%; margin: 0; }
       .pp-brand, .pp-cover-intro, .pp-dashboard, .pp-section, .pp-footer { padding-left: 22px; padding-right: 22px; }
       .pp-cover-intro, .pp-dashboard-grid { grid-template-columns: 1fr; }
+      .pp-decision-lines { grid-template-columns:1fr; }
       .pp-cover-identity { border-top: 1px solid rgba(255,255,255,.16); border-left: 0; padding-top: 16px; padding-left: 0; }
       .pp-dashboard-metrics { grid-template-columns: 1fr; }
       .pp-evidence-snapshot { grid-template-columns: 1fr; }
@@ -502,13 +522,14 @@ export function renderPacketHtml(model: PacketModel): string {
       </div>
       ${renderDashboard(model)}
     </header>
-    ${section("case_overview", renderCaseOverview(model), { intro: "Core project identity and jurisdiction information carried forward from the case record." })}
-    ${section("current_status", `<div class="pp-status-callout"><strong>${escapeHtml(model.current_status.label)}</strong><div><p class="pp-panel-label">Recorded permit status</p><p>Case record updated ${escapeHtml(model.case_summary.updated_at_label)}.</p></div></div>`)}
-    ${section("evidence_register", renderEvidence(model), { intro: "Source records are organized as review cards. Verification labels describe the recorded review state; they do not expand the underlying evidence." })}
-    ${section("permit_timeline", renderTimeline(model), { intro: "Chronological permit history, earliest to latest. Each event retains its recorded type, source classification, evidence linkage, and review status." })}
+    ${section("recommended_next_actions", renderEditorial(model.recommended_next_actions, "Action"), { intro: "Reviewer-approved client actions only. PermitPulse system operations are excluded." })}
+    ${section("agency_follow_up_kit", renderActionKit(model))}
+    ${section("case_overview", renderCaseOverview(model), { intro: `Current Status: ${model.current_status.label}. Core project identity and jurisdiction information carried forward from the case record.` })}
     ${section("findings", renderEditorial(model.findings, "Finding"), { intro: "Reviewer-authored conclusions included in this packet edition. No finding is generated by the presentation layer." })}
     ${section("open_questions", renderEditorial(model.open_questions, "Question"), { intro: "Unresolved items that remain explicitly open in the reviewed packet record." })}
-    ${section("recommended_next_actions", renderEditorial(model.recommended_next_actions, "Action"), { intro: "Recorded follow-up actions, presented in client-ready order without adding new recommendations." })}
+    ${section("evidence_matrix",renderEvidenceMatrix(model),{intro:"Compact index of every evidence record; full source notes and review detail remain in the register."})}
+    ${section("permit_timeline", renderTimeline(model), { intro: "Chronological permit history, earliest to latest. Each event retains its recorded type, source classification, evidence linkage, and review status." })}
+    ${section("evidence_register", renderEvidence(model), { intro: "Detailed evidence register preserving summaries, provenance, source notes, and reviewer status." })}
     ${section("supporting_sources", renderSources(model), { intro: "Compact source log for the evidence cited throughout the packet." })}
     ${section("disclaimer", `<p class="pp-disclaimer">${escapeHtml(model.disclaimer)}</p>`, { className: "pp-section--disclaimer" })}
     <footer class="pp-footer"><span>PermitPulse · Permit intelligence</span><span>${escapeHtml(dashboard.integrity)} · deterministic render</span></footer>

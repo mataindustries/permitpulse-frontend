@@ -1,5 +1,5 @@
 import type { CreateCaseInput, CreateEvidenceInput, CreateTimelineInput } from "../../worker/cases/validation";
-import type { ActionInput, FindingInput, NoteInput, QuestionInput } from "../../worker/reviewer/validation";
+import type { ActionInput, ActionKitInput, FindingInput, NoteInput, QuestionInput } from "../../worker/reviewer/validation";
 
 export const arroyoVistaDemoPermitNumber = "DEMO-LADBS-2026-1842";
 
@@ -71,3 +71,21 @@ export const arroyoVistaDemoNotes: readonly (NoteInput & {key:string})[] = [
   { key:"tone", commentary:"Internal only: use neutral routing language and do not characterize the fictional agency as delayed until assignment is confirmed.", publishable:false },
   { key:"provenance", commentary:"Internal only: reviewer email headers are incomplete; rely on the receipt for upload confirmation and treat the email only as a routing clue.", publishable:false },
 ] as const;
+
+export const arroyoVistaDemoActionKit = {
+  current_position:"The fictional revised package is documented as received, but current reviewer or discipline routing is not confirmed.",
+  confirmed_record:"The record confirms the cycle-one corrections, revised structural response, energy package, and resubmittal receipt.",
+  unconfirmed_record:"The record does not confirm the assigned reviewer, active discipline queue, acceptance of every response, or whether another intake item remains open.",
+  primary_blocker:"Reviewer or discipline ownership after intake remains unconfirmed.",
+  why_appropriate:"A narrow routing inquiry uses the documented receipt trail and can identify an outstanding response without creating a duplicate submission.",
+  evidence_readiness:"Ready for follow-up: receipt and response documents are indexed; the energy package remains labeled unverified.",
+  review_readiness:"Ready for targeted agency confirmation; not ready to represent routing or full discipline acceptance as confirmed.",
+  email_subject:"DEMO — Routing confirmation request for DEMO-LADBS-2026-1842",
+  recipient_role:"Fictional LADBS intake coordinator or assigned plan-check role",
+  message_body:"Hello — this is a fictional demo follow-up regarding DEMO-LADBS-2026-1842. The record shows a revised package receipt dated May 18, 2026. Please confirm the current reviewer or discipline routing and whether any fee, form, clearance, or correction response remains outstanding. Thank you.",
+  requested_confirmations:["Current assigned reviewer or responsible agency role","Current discipline queue and routing date","Whether any fee, form, clearance, or correction response remains outstanding","Current review window or next expected milestone"],
+  call_checklist:["State that this is a status and routing confirmation, not a duplicate submission","Provide the fictional permit identifier and May 18 receipt date","Record the responder's role and the date of the response","Ask for written confirmation when available"],
+  documents_ready:["DEMO resubmittal confirmation receipt","DEMO cycle-one correction notice","DEMO structural response letter","DEMO energy compliance package"],
+  escalation_trigger:"Escalate to the fictional plan-check supervisor role only if routing remains unconfirmed after the follow-up review date or the agency identifies conflicting ownership.",
+  follow_up_date:"2026-06-09", evidence_ids:[], timeline_ids:[], internal_note:"Internal only: do not characterize the fictional agency as delayed or imply that the submission was lost.", approved:true,
+} satisfies ActionKitInput;

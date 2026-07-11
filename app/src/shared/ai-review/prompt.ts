@@ -83,6 +83,7 @@ export function buildPacketReviewPromptContract(
       permit_number: packet.permit_number,
       evidence_summaries: packet.evidence_summaries.map((item) => ({
         id: item.id,
+        reference:item.reference,
         evidence_type: item.evidence_type,
         evidence_type_label: item.evidence_type_label,
         title: item.title,
@@ -105,6 +106,7 @@ export function buildPacketReviewPromptContract(
       })),
       timeline_summaries: packet.timeline_summaries.map((item) => ({
         id: item.id,
+        reference:item.reference,
         occurred_on: item.occurred_on,
         occurred_on_label: item.occurred_on_label,
         timeline_type: item.timeline_type,

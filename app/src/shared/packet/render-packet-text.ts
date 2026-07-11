@@ -37,6 +37,8 @@ export function renderPacketText(model: PacketModel): string {
 
   addSection(lines, "Executive Dashboard", [
     `Executive Summary: ${plainText(model.executive_summary.text)}`,
+    `Current position: ${plainText(model.action_kit?.current_position??model.executive_summary.text)}`,
+    ...(model.action_kit?[`What the record confirms: ${plainText(model.action_kit.confirmed_record)}`,`What the record does not confirm: ${plainText(model.action_kit.unconfirmed_record)}`,`Primary blocker: ${plainText(model.action_kit.primary_blocker)}`,`Why this move is appropriate: ${plainText(model.action_kit.why_appropriate)}`,`Evidence readiness: ${plainText(model.action_kit.evidence_readiness)}`,`Review readiness: ${plainText(model.action_kit.review_readiness)}`]:[]),
     ...model.executive_summary.key_risks.map((item) => `Key Risk: ${plainText(item)}`),
     ...model.executive_summary.key_strengths.map((item) => `Key Strength: ${plainText(item)}`),
     `Permit status: ${plainText(dashboard.permit_status)}`,
@@ -63,6 +65,12 @@ export function renderPacketText(model: PacketModel): string {
     `Packet integrity / version: ${dashboard.integrity} · deterministic render`,
   ]);
 
+  addSection(lines,"Recommended Next Actions",numberedItems(model.recommended_next_actions.items.map(item=>`${item.text}${item.citation_references.length?` (Supported by ${item.citation_references.join(", ")})`:""}`),model.recommended_next_actions.empty_message));
+  if(model.action_kit){const kit=model.action_kit;addSection(lines,"Agency Follow-Up Kit",[
+    `Subject: ${plainText(kit.email_subject)}`,`Recipient / agency role: ${plainText(kit.recipient_role)}`,"Message:",plainText(kit.message_body),`Supported by: ${kit.citation_references.join(", ")}`,
+    "Requested confirmations:",...kit.requested_confirmations.map((x,i)=>`  ${i+1}. ${plainText(x)}`),"Call checklist:",...kit.call_checklist.map((x,i)=>`  ${i+1}. ${plainText(x)}`),"Documents to have ready:",...kit.documents_ready.map((x,i)=>`  ${i+1}. ${plainText(x)}`),`Trigger for escalation: ${plainText(kit.escalation_trigger)}`,...(kit.follow_up_date?[`Follow-up / review date: ${kit.follow_up_date}`]:[]),
+  ]);}
+
   addSection(
     lines,
     packetSectionTitle("case_overview"),
@@ -72,10 +80,12 @@ export function renderPacketText(model: PacketModel): string {
     ),
   );
 
-  addSection(lines, packetSectionTitle("current_status"), [
+  addSection(lines, "Current Status", [
     `Recorded case status: ${plainText(model.current_status.label)}`,
     `Case record updated: ${model.case_summary.updated_at_label}`,
   ]);
+
+  addSection(lines,"Evidence Matrix",model.evidence_summaries.map(item=>`${item.reference} | ${plainText(item.title)} | ${item.evidence_type_label} | ${item.source.date_label} | ${item.verification_label} | ${plainText(item.source.label??"Source label pending")} | ${plainText(item.summary)}`));
 
   addSection(
     lines,
@@ -85,7 +95,7 @@ export function renderPacketText(model: PacketModel): string {
           const missing = packetEvidenceMissingDetails(item);
 
           return [
-            `${index + 1}. ${plainText(item.title)}`,
+            `${item.reference}. ${plainText(item.title)}`,
             `   Type: ${item.evidence_type_label}`,
             `   Classification: ${item.verification_label}`,
             `   Summary: ${plainText(item.summary)}`,
@@ -124,7 +134,7 @@ export function renderPacketText(model: PacketModel): string {
             : "No supporting evidence linked; evidence linkage has not been recorded";
 
           return [
-            `${index + 1}. ${entry.occurred_on_label} — ${plainText(entry.title)}`,
+            `${entry.reference}. ${entry.occurred_on_label} — ${plainText(entry.title)}`,
             `   Event type: ${entry.timeline_type_label}`,
             `   Record classification: ${entry.source_label}`,
             `   Review status: ${packetTimelineReviewLabel(entry)}`,
@@ -141,7 +151,7 @@ export function renderPacketText(model: PacketModel): string {
     lines,
     packetSectionTitle("findings"),
     numberedItems(
-      model.findings.items.map((item) => item.text),
+      model.findings.items.map((item) => `${item.text}${item.citation_references.length?` (Supported by ${item.citation_references.join(", ")})`:""}`),
       model.findings.empty_message,
     ),
   );
@@ -152,15 +162,6 @@ export function renderPacketText(model: PacketModel): string {
     numberedItems(
       model.open_questions.items.map((item) => item.text),
       model.open_questions.empty_message,
-    ),
-  );
-
-  addSection(
-    lines,
-    packetSectionTitle("recommended_next_actions"),
-    numberedItems(
-      model.recommended_next_actions.items.map((item) => item.text),
-      model.recommended_next_actions.empty_message,
     ),
   );
 

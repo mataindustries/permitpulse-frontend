@@ -7,8 +7,9 @@ import {
 
 const sectionTitles: Record<PacketSectionId, string> = {
   executive_summary: "Executive Summary",
+  agency_follow_up_kit: "Agency Follow-Up Kit",
+  evidence_matrix: "Evidence Matrix",
   case_overview: "Case Overview",
-  current_status: "Current Status",
   evidence_register: "Evidence Register",
   permit_timeline: "Permit Timeline",
   findings: "Findings",

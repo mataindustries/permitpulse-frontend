@@ -1246,7 +1246,16 @@ dd {
   inset: 0 0 auto;
   z-index: 1;
   height: 0.38rem;
-  background: linear-gradient(90deg, var(--packet-orange) 0 30%, var(--packet-jade) 30% 100%);
+  background: var(--packet-jade);
+  content: "";
+}
+
+.packet-cover::after {
+  position: absolute;
+  inset: 0 70% auto 0;
+  z-index: 2;
+  height: 0.38rem;
+  background: var(--packet-orange);
   content: "";
 }
 

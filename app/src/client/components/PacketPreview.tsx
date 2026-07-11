@@ -335,7 +335,8 @@ export function PacketPreview({
                 {packetModel.document_status_label}
               </span>
             </div>
-            <p className="packet-executive-summary">{packetModel.executive_summary.text}</p>
+            <p className="packet-executive-summary">{packetModel.action_kit?.current_position ?? packetModel.executive_summary.text}</p>
+            {packetModel.action_kit&&<dl className="packet-client-meta"><div><dt>Record confirms</dt><dd>{packetModel.action_kit.confirmed_record}</dd></div><div><dt>Record does not confirm</dt><dd>{packetModel.action_kit.unconfirmed_record}</dd></div><div><dt>Primary blocker</dt><dd>{packetModel.action_kit.primary_blocker}</dd></div><div><dt>Why this move</dt><dd>{packetModel.action_kit.why_appropriate}</dd></div><div><dt>Evidence readiness</dt><dd>{packetModel.action_kit.evidence_readiness}</dd></div><div><dt>Review readiness</dt><dd>{packetModel.action_kit.review_readiness}</dd></div></dl>}
 
             <div className="packet-dashboard-metrics">
               <div className="packet-dashboard-metric">
@@ -422,12 +423,17 @@ export function PacketPreview({
           </dl>
         </PacketSection>
 
-        <PacketSection id="current_status">
+        <section className="packet-section" aria-label="Current Status">
           <p className="packet-section-intro">Recorded case status at the time this packet edition was generated.</p>
           <div className="packet-current-status">
             <strong>{packetModel.current_status.label}</strong>
             <span>Case record updated {packetModel.case_summary.updated_at_label}</span>
           </div>
+        </section>
+
+        <PacketSection id="evidence_matrix">
+          <p className="packet-section-intro">Compact evidence index. Detailed summaries and provenance remain in the register.</p>
+          <div className="reviewer-table">{packetModel.evidence_summaries.map(item=><article key={item.id}><strong>{item.reference} · {item.title}</strong><span>{item.evidence_type_label} · {item.source.date_label} · {item.verification_label}</span><p>{item.summary}</p></article>)}</div>
         </PacketSection>
 
         <PacketSection id="evidence_register">
@@ -513,6 +519,10 @@ export function PacketPreview({
         <PacketSection id="recommended_next_actions">
           <p className="packet-section-intro">Recorded follow-up actions, presented in client-ready order without adding new recommendations.</p>
           <EditorialItems itemLabel="Action" items={packetModel.recommended_next_actions.items} emptyMessage={packetModel.recommended_next_actions.empty_message} />
+        </PacketSection>
+
+        <PacketSection id="agency_follow_up_kit">
+          {packetModel.action_kit ? <div className="reviewer-block"><h3>{packetModel.action_kit.email_subject}</h3><p><strong>Recipient / agency role:</strong> {packetModel.action_kit.recipient_role}</p><p>{packetModel.action_kit.message_body}</p><small>Supported by {packetModel.action_kit.citation_references.join(", ")}</small><h4>Requested confirmations</h4><ul>{packetModel.action_kit.requested_confirmations.map(item=><li key={item}>{item}</li>)}</ul><h4>Call checklist</h4><ul>{packetModel.action_kit.call_checklist.map(item=><li key={item}>{item}</li>)}</ul><h4>Documents to have ready</h4><ul>{packetModel.action_kit.documents_ready.map(item=><li key={item}>{item}</li>)}</ul><p><strong>Trigger for escalation:</strong> {packetModel.action_kit.escalation_trigger}</p>{packetModel.action_kit.follow_up_date&&<p><strong>Review date:</strong> {packetModel.action_kit.follow_up_date}</p>}</div> : <p className="packet-empty packet-empty--client">No reviewer-approved Agency Follow-Up Kit is included.</p>}
         </PacketSection>
 
         <PacketSection id="supporting_sources">

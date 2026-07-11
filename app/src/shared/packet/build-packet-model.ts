@@ -145,6 +145,7 @@ function compareActivity(
 
 function evidenceSummary(
   item: BuildPacketModelInput["evidence"][number],
+  reference: string,
 ): PacketEvidenceSummary {
   let sourceUrl: string | null = null;
 
@@ -164,6 +165,7 @@ function evidenceSummary(
 
   return {
     id: item.id,
+    reference,
     evidence_type: item.evidence_type,
     evidence_type_label: evidenceTypeLabels[item.evidence_type],
     title: item.title,
@@ -266,14 +268,14 @@ export function buildPacketModel({
 }: BuildPacketModelInput): PacketModel {
   const generated = formatPacketDateTime(generatedAt);
   const sortedEvidence = [...evidence].sort(compareEvidence);
-  const evidenceSummaries = sortedEvidence.map(evidenceSummary);
+  const evidenceSummaries = sortedEvidence.map((item,index)=>evidenceSummary(item,`E${String(index+1).padStart(2,"0")}`));
   const evidenceById = new Map(
     evidenceSummaries.map((item) => [item.id, item]),
   );
 
   const timelineSummaries: PacketTimelineSummary[] = [...timeline]
     .sort(compareTimeline)
-    .map((entry) => {
+    .map((entry,index) => {
       const linkedEvidence = entry.evidence_ids
         .map((id) => evidenceById.get(id))
         .filter((item): item is PacketEvidenceSummary => Boolean(item))
@@ -295,6 +297,7 @@ export function buildPacketModel({
 
       return {
         id: entry.id,
+        reference: `T${String(index+1).padStart(2,"0")}`,
         occurred_on: entry.occurred_on,
         occurred_on_label: formatPacketDateOnly(entry.occurred_on),
         timeline_type: entry.timeline_type,
@@ -327,8 +330,10 @@ export function buildPacketModel({
         grounded: item.grounded,
         reviewer_approved: item.reviewer_approved,
         information_class: "warning",
+        citation_references: [],
       };
       finding.information_class = findingClass(finding);
+      finding.citation_references = item.supporting_source_ids.map((id)=>evidenceById.get(id)?.reference ?? timelineSummaries.find(t=>t.id===id)?.reference).filter((value):value is string=>Boolean(value));
       return finding;
     },
   );
@@ -348,7 +353,15 @@ export function buildPacketModel({
     supporting_source_ids: [...item.supporting_source_ids],
     reviewer_approved: item.reviewer_approved,
     information_class: item.reviewer_approved ? "approved_next_action" : "warning",
+    citation_references: item.supporting_source_ids.map((id)=>evidenceById.get(id)?.reference).filter((value):value is string=>Boolean(value)),
   }));
+  const kit = editorialContent?.actionKit;
+  const actionKit = kit?.approved ? {
+    current_position:kit.current_position, confirmed_record:kit.confirmed_record, unconfirmed_record:kit.unconfirmed_record, primary_blocker:kit.primary_blocker,
+    why_appropriate:kit.why_appropriate, evidence_readiness:kit.evidence_readiness, review_readiness:kit.review_readiness, email_subject:kit.email_subject,
+    recipient_role:kit.recipient_role, message_body:kit.message_body, call_checklist:[...kit.call_checklist], requested_confirmations:[...kit.requested_confirmations], documents_ready:[...kit.documents_ready], escalation_trigger:kit.escalation_trigger, follow_up_date:kit.follow_up_date,
+    citation_references:[...kit.evidence_ids.map(id=>evidenceById.get(id)?.reference).filter((v):v is string=>Boolean(v)),...kit.timeline_ids.map(id=>timelineSummaries.find(t=>t.id===id)?.reference).filter((v):v is string=>Boolean(v))],
+  } : null;
   const evidenceCount = evidenceSummaries.length;
   const timelineCount = timelineSummaries.length;
 
@@ -432,6 +445,7 @@ export function buildPacketModel({
       items: nextActions,
       empty_message: "No reviewer-approved next actions are recorded.",
     },
+    action_kit: actionKit,
     supporting_sources: evidenceSummaries.map((item) => ({
       id: item.id,
       title: item.title,

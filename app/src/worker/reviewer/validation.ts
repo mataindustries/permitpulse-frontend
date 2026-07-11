@@ -25,8 +25,17 @@ export const actionInputSchema = z.object({
 export const noteInputSchema = z.object({
   commentary: z.string().trim().min(1).max(8000), publishable: z.boolean().default(false), version: version.optional(),
 });
+const lines = z.array(z.string().trim().min(1).max(500)).max(20).default([]);
+export const actionKitInputSchema = z.object({
+  current_position:z.string().trim().min(1).max(2000), confirmed_record:z.string().trim().min(1).max(4000), unconfirmed_record:z.string().trim().min(1).max(4000),
+  primary_blocker:z.string().trim().min(1).max(2000), why_appropriate:z.string().trim().min(1).max(2000), evidence_readiness:z.string().trim().min(1).max(1000), review_readiness:z.string().trim().min(1).max(1000),
+  email_subject:z.string().trim().min(1).max(300), recipient_role:z.string().trim().min(1).max(300), message_body:z.string().trim().min(1).max(5000),
+  call_checklist:lines, requested_confirmations:lines, documents_ready:lines, escalation_trigger:z.string().trim().min(1).max(2000), follow_up_date:optionalDate,
+  evidence_ids:ids, timeline_ids:ids, internal_note:z.string().max(8000).default(""), approved:z.boolean().default(false), version:version.optional(),
+});
 
 export type FindingInput = z.infer<typeof findingInputSchema>;
 export type QuestionInput = z.infer<typeof questionInputSchema>;
 export type ActionInput = z.infer<typeof actionInputSchema>;
 export type NoteInput = z.infer<typeof noteInputSchema>;
+export type ActionKitInput = z.infer<typeof actionKitInputSchema>;

@@ -10,13 +10,14 @@ export const packetTitle = "Permit Review Packet";
 
 export const packetSectionOrder = [
   "executive_summary",
+  "recommended_next_actions",
+  "agency_follow_up_kit",
   "case_overview",
-  "current_status",
-  "evidence_register",
-  "permit_timeline",
   "findings",
   "open_questions",
-  "recommended_next_actions",
+  "evidence_matrix",
+  "permit_timeline",
+  "evidence_register",
   "supporting_sources",
   "disclaimer",
 ] as const;
@@ -162,6 +163,7 @@ export interface PacketEditorialContentInput {
   openQuestions?: readonly PacketQuestionInput[];
   recommendedNextActions?: readonly PacketActionInput[];
   unsupportedClaims?: readonly string[];
+  actionKit?: PacketActionKitInput;
 }
 
 export interface BuildPacketModelInput {
@@ -208,6 +210,7 @@ export interface PacketSourceSummary {
 
 export interface PacketEvidenceSummary {
   id: string;
+  reference: string;
   evidence_type: PacketEvidenceType;
   evidence_type_label: string;
   title: string;
@@ -234,6 +237,7 @@ export interface PacketLinkedEvidenceSummary {
 
 export interface PacketTimelineSummary {
   id: string;
+  reference: string;
   occurred_on: string;
   occurred_on_label: string;
   timeline_type: PacketTimelineType;
@@ -283,6 +287,7 @@ export interface PacketExecutiveSummary {
 
 export interface PacketFinding extends PacketFindingInput {
   information_class: "reviewer_approved_finding" | "warning";
+  citation_references: string[];
 }
 
 export interface PacketOpenQuestion extends PacketQuestionInput {
@@ -291,7 +296,17 @@ export interface PacketOpenQuestion extends PacketQuestionInput {
 
 export interface PacketRecommendedAction extends PacketActionInput {
   information_class: "approved_next_action" | "warning";
+  citation_references: string[];
 }
+
+export interface PacketActionKitInput {
+  current_position:string; confirmed_record:string; unconfirmed_record:string; primary_blocker:string;
+  why_appropriate:string; evidence_readiness:string; review_readiness:string; email_subject:string;
+  recipient_role:string; message_body:string; call_checklist:string[]; requested_confirmations:string[];
+  documents_ready:string[]; escalation_trigger:string; follow_up_date:string|null;
+  evidence_ids:string[]; timeline_ids:string[]; approved:boolean;
+}
+export interface PacketActionKit extends Omit<PacketActionKitInput,"evidence_ids"|"timeline_ids"|"approved"> { citation_references:string[]; }
 
 export interface PacketEditorialSection<T> {
   items: T[];
@@ -347,6 +362,7 @@ export interface PacketPresentationModel {
   findings: PacketEditorialSection<PacketFinding>;
   open_questions: PacketEditorialSection<PacketOpenQuestion>;
   recommended_next_actions: PacketEditorialSection<PacketRecommendedAction>;
+  action_kit: PacketActionKit | null;
   supporting_sources: PacketSupportingSource[];
   missing_information: PacketMissingInformation[];
   warnings: PacketPresentationWarning[];

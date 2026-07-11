@@ -1,5 +1,6 @@
 import {
   arroyoVistaDemoActions,
+  arroyoVistaDemoActionKit,
   arroyoVistaDemoCase,
   arroyoVistaDemoEvidence,
   arroyoVistaDemoFindings,
@@ -21,7 +22,7 @@ import {
 } from "../cases/repository";
 import { readDeliveryLifecycle, recordDeliveryTransition } from "../delivery/repository";
 import { buildCurrentPacketPresentation } from "../packet/service";
-import { readReviewerWorkspace, saveReviewerObject } from "../reviewer/repository";
+import { readReviewerWorkspace, saveReviewerActionKit, saveReviewerObject } from "../reviewer/repository";
 import type { Bindings } from "../types";
 
 export interface DemoSeedResult {
@@ -121,6 +122,10 @@ export async function seedArroyoVistaDemo(input: {
     if (workspace.notes.some((item) => item.commentary === fixture.commentary)) continue;
     const result = requireSuccess(await saveReviewerObject(database, caseId, actor.id, "note", fixture), fixture.commentary);
     workspace = result.workspace;
+  }
+  if(!workspace.action_kit){
+    const result=requireSuccess(await saveReviewerActionKit(database,caseId,actor.id,{...arroyoVistaDemoActionKit,evidence_ids:["receipt","reviewer-email","corrections","structural","energy"].map(key=>evidenceByKey.get(key)!),timeline_ids:["uploaded","intake","waiting"].map(key=>timelineByKey.get(key)!)}),"Action Kit");
+    workspace=result.workspace;
   }
 
   let lifecycle = await readDeliveryLifecycle(database, caseId);

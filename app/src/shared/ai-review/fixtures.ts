@@ -20,6 +20,7 @@ function evidence(
 ): FixtureEvidence {
   const base: FixtureEvidence = {
     id: `${fixtureId}-evidence-${index}`,
+    reference:`E${String(index).padStart(2,"0")}`,
     evidence_type: "document",
     evidence_type_label: "Document",
     title: `Fictional ${fixtureId} evidence ${index}`,
@@ -55,6 +56,7 @@ function timeline(
 ): FixtureTimeline {
   return {
     id: `${fixtureId}-timeline-${index}`,
+    reference:`T${String(index).padStart(2,"0")}`,
     occurred_on: "2026-05-12",
     occurred_on_label: "May 12, 2026",
     timeline_type: "status_update",
@@ -153,6 +155,7 @@ function packet(
       items: [],
       empty_message: "No reviewer-approved next actions are recorded.",
     },
+    action_kit:null,
     supporting_sources: [],
     missing_information: [],
     warnings: [],
