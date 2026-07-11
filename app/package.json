@@ -14,6 +14,7 @@
     "db:migrate:preview": "wrangler d1 migrations apply DB --env preview --remote",
     "dev": "vite",
     "preview": "vite preview",
+    "sample:packet": "esbuild scripts/generate-sample-packet.ts --bundle --platform=node --format=esm --outfile=/tmp/permitpulse-generate-sample.mjs && node /tmp/permitpulse-generate-sample.mjs",
     "test": "vitest run",
     "test:auth": "vitest run tests/auth.test.tsx tests/auth-schema.test.ts",
     "test:watch": "vitest",

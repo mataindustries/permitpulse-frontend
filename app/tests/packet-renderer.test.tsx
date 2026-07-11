@@ -1,8 +1,16 @@
 import { renderToStaticMarkup } from "react-dom/server";
-import { PDFDocument, StandardFonts } from "pdf-lib";
+import {
+  decodePDFRawStream,
+  PDFArray,
+  PDFDocument,
+  PDFRawStream,
+  StandardFonts,
+  type PDFPage,
+} from "pdf-lib";
 import { describe, expect, it } from "vitest";
 import { buildPacketModel } from "../src/shared/packet/build-packet-model";
 import { renderPacketHtml } from "../src/shared/packet/render-packet-html";
+import { packetDashboard } from "../src/shared/packet/presentation-summary";
 import {
   renderPacketPdf,
   safePacketPdfFilename,
@@ -115,6 +123,21 @@ function completeInput(
   };
 }
 
+function decodedPageOperators(page: PDFPage): string {
+  const contents = page.node.Contents();
+  const resolved = page.node.context.lookup(contents);
+  const entries = resolved instanceof PDFArray ? resolved.asArray() : [contents];
+
+  return entries.map((entry) => {
+    const stream = page.node.context.lookup(entry) as PDFRawStream;
+    return new TextDecoder().decode(decodePDFRawStream(stream).decode());
+  }).join("\n");
+}
+
+function pdfHex(value: string): string {
+  return Buffer.from(value, "latin1").toString("hex").toUpperCase();
+}
+
 describe("packet model builder", () => {
   it("generates a deterministic model from complete safe DTO data", () => {
     const model = buildPacketModel(completeInput());
@@ -215,6 +238,28 @@ describe("packet model builder", () => {
     ]);
   });
 
+  it("derives the executive dashboard from existing packet facts only", () => {
+    const model = buildPacketModel(completeInput());
+    const dashboard = packetDashboard(model);
+
+    expect(dashboard).toMatchObject({
+      permit_status: "Researching",
+      mission_health: { score: 67, label: "Needs attention" },
+      readiness: { score: 80 },
+      reviewer_status: "Review pending",
+    });
+    expect(dashboard.blockers).toContainEqual(
+      expect.objectContaining({ id: "evidence-readiness" }),
+    );
+    expect(dashboard.evidence).toMatchObject({
+      total: 1,
+      verified: 0,
+      unverified: 1,
+      disputed: 0,
+      linked_timeline: 1,
+    });
+  });
+
   it("sorts evidence, timeline, and activity deterministically", () => {
     const model = buildPacketModel(
       completeInput({
@@ -267,6 +312,11 @@ describe("packet text renderer", () => {
     }
 
     expect(text).toContain("Prepared for client review");
+    expect(text).toContain("Executive Dashboard");
+    expect(text).toContain("Overall Mission Health");
+    expect(text).toContain("Readiness score: 80%");
+    expect(text).toContain("Packet Metadata");
+    expect(text).toContain("Packet integrity / version");
     expect(text).toContain("Generated: February 3, 2026 at 4:05 AM");
     expect(text).not.toContain("2026-02-03T04:05:06.000Z");
     expect(text).toContain("Classification: Unverified");
@@ -393,6 +443,14 @@ describe("packet HTML renderer", () => {
     }
     expect(html).toContain("--jade: #1c744d");
     expect(html).toContain("--paper: #fbfaf7");
+    expect(html).toContain("Executive Dashboard");
+    expect(html).toContain("Overall Mission Health");
+    expect(html).toContain("Packet integrity / version");
+    expect(html).toContain("pp-evidence-card");
+    expect(html).toContain("Reviewer note");
+    expect(html).toContain("Review status");
+    expect(html).toContain("break-after: page");
+    expect(html).toContain("break-inside: avoid");
     expect(html).not.toContain("Internal working draft");
   });
 });
@@ -430,8 +488,25 @@ describe("packet PDF helpers", () => {
     const pdf = await PDFDocument.load(bytes);
 
     expect(pdf.getPageCount()).toBeGreaterThan(2);
+    expect(pdf.getPages().every((page) => {
+      const { width, height } = page.getSize();
+      return width === 612 && height === 792;
+    })).toBe(true);
     expect(pdf.getTitle()).toContain("Permit Review Packet");
     expect(pdf.getAuthor()).toBe("PermitPulse");
+    const firstPage = decodedPageOperators(pdf.getPage(0));
+    for (const label of [
+      "Executive Dashboard",
+      "PERMIT STATUS",
+      "OVERALL MISSION HEALTH",
+      "READINESS SCORE",
+      "PRIMARY BLOCKERS",
+      "RECOMMENDED NEXT ACTION",
+      "EVIDENCE SUMMARY",
+      "PACKET INTEGRITY / VERSION",
+    ]) {
+      expect(firstPage).toContain(pdfHex(label));
+    }
     expect(new TextDecoder("latin1").decode(bytes)).not.toContain(
       "2026-02-03T04:05:06.000Z",
     );
@@ -482,6 +557,10 @@ describe("PacketPreview packet text integration", () => {
     );
 
     expect(markup).toContain("Prepared for client review");
+    expect(markup).toContain("Executive Dashboard");
+    expect(markup).toContain("Overall Mission Health");
+    expect(markup).toContain("Packet integrity / version");
+    expect(markup).toContain("Reviewer note");
     expect(markup).toContain("Fictional plan check notice");
     expect(markup).not.toContain('href="javascript:alert(1)"');
     expect(markup).not.toContain("javascript:alert(1)");
