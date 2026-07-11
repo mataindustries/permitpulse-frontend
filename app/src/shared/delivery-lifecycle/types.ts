@@ -1,3 +1,5 @@
+import type { DeliveryQualityEvaluation } from "../packet/quality-gate";
+
 export const deliveryStates = [
   "draft",
   "packet_generated",
@@ -49,4 +51,5 @@ export interface DeliveryLifecycle {
   next_events: DeliveryEventType[];
   active_packet_generation_id: string | null;
   live_preview_differs: boolean;
+  quality?: DeliveryQualityEvaluation;
 }

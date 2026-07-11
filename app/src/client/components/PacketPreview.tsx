@@ -1,13 +1,16 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
 import type { CaseActivityResponse, CaseDto } from "../types/cases";
 import type { EvidenceItemDto, TimelineEntryDto } from "../types/evidence-timeline";
+import { getPacketPresentation } from "../api/packet";
+import type { PacketPresentationResponse } from "../api/packet";
 import { buildPacketModel } from "../../shared/packet/build-packet-model";
-import { renderPacketText } from "../../shared/packet/render-packet-text";
 import {
-  formatDateOnly,
-  formatDateTime,
-  safeExternalHref,
-} from "./evidenceTimelineUtils";
+  packetSectionNumber,
+  packetSectionTitle,
+} from "../../shared/packet/presentation";
+import { renderPacketText } from "../../shared/packet/render-packet-text";
+import type { PacketSectionId } from "../../shared/packet/types";
+import { safeExternalHref } from "./evidenceTimelineUtils";
 
 interface PacketPreviewProps {
   activityResponse: CaseActivityResponse | null;
@@ -43,6 +46,45 @@ export async function copyPacketText(
   }
 }
 
+function PacketSection({
+  children,
+  id,
+}: {
+  children: ReactNode;
+  id: PacketSectionId;
+}) {
+  const headingId = `packet-${id}-title`;
+
+  return (
+    <section
+      className={`packet-section packet-section--${id.replaceAll("_", "-")}`}
+      aria-labelledby={headingId}
+    >
+      <div className="packet-section-heading">
+        <span>{packetSectionNumber(id)}</span>
+        <h3 id={headingId}>{packetSectionTitle(id)}</h3>
+      </div>
+      {children}
+    </section>
+  );
+}
+
+function EditorialItems({
+  emptyMessage,
+  items,
+}: {
+  emptyMessage: string;
+  items: readonly { id: string; text: string }[];
+}) {
+  return items.length > 0 ? (
+    <ol className="packet-editorial-list">
+      {items.map((item) => <li key={item.id}>{item.text}</li>)}
+    </ol>
+  ) : (
+    <p className="packet-empty packet-empty--client">{emptyMessage}</p>
+  );
+}
+
 export function PacketPreview({
   activityResponse,
   caseRecord,
@@ -54,7 +96,10 @@ export function PacketPreview({
   const [copyStatus, setCopyStatus] = useState<"idle" | "success" | "error">(
     initialCopyStatus,
   );
-  const packetModel = useMemo(
+  const [serverPresentation, setServerPresentation] =
+    useState<PacketPresentationResponse | null>(null);
+  const [presentationError, setPresentationError] = useState("");
+  const livePacketModel = useMemo(
     () =>
       buildPacketModel({
         activityResponse,
@@ -65,10 +110,43 @@ export function PacketPreview({
       }),
     [activityResponse, caseRecord, evidence, generatedAt, timeline],
   );
+  const packetModel = serverPresentation?.packet ?? livePacketModel;
   const packetText = useMemo(() => renderPacketText(packetModel), [packetModel]);
   const packetPdfPath = caseRecord.id
     ? `/api/v1/cases/${encodeURIComponent(caseRecord.id)}/packet.pdf`
     : null;
+  const exportSupported = Boolean(
+    packetPdfPath && (serverPresentation?.export_supported ?? false),
+  );
+
+  useEffect(() => {
+    let active = true;
+
+    async function loadPresentation() {
+      try {
+        const response = await getPacketPresentation(caseRecord.id);
+        if (active) {
+          setServerPresentation(response);
+          setPresentationError("");
+        }
+      } catch {
+        if (active) {
+          setPresentationError(
+            "The persisted packet status could not be loaded. A live draft preview is shown.",
+          );
+        }
+      }
+    }
+
+    void loadPresentation();
+    const refresh = () => void loadPresentation();
+    globalThis.window?.addEventListener("permitpulse:packet-changed", refresh);
+
+    return () => {
+      active = false;
+      globalThis.window?.removeEventListener("permitpulse:packet-changed", refresh);
+    };
+  }, [caseRecord.id, caseRecord.version]);
 
   async function handleCopy() {
     setCopyStatus("idle");
@@ -85,20 +163,32 @@ export function PacketPreview({
   }
 
   function handleDownloadPdf() {
-    if (!packetPdfPath || typeof globalThis.window?.open !== "function") {
+    if (!exportSupported || !packetPdfPath || typeof globalThis.window?.open !== "function") {
       return;
     }
 
     globalThis.window.open(packetPdfPath, "_blank", "noopener,noreferrer");
   }
 
+  const quality = serverPresentation?.quality;
+  const qualityTone = quality?.blockers.length
+    ? "blocked"
+    : quality?.warnings.length
+      ? "warning"
+      : "ready";
+  const qualityLabel = quality?.blockers.length
+    ? `${quality.blockers.length} approval blocker${quality.blockers.length === 1 ? "" : "s"}`
+    : quality?.warnings.length
+      ? `${quality.warnings.length} quality warning${quality.warnings.length === 1 ? "" : "s"}`
+      : "Quality checks passed";
+
   return (
     <section className="packet-preview" aria-labelledby="packet-preview-title">
       <div className="packet-toolbar print-hidden">
         <div>
           <p className="eyebrow">Deliverable workspace / Packet preview</p>
-          <h3 id="packet-preview-title">Draft permit packet</h3>
-          <p>Review the assembled case record before copying, printing, or exporting.</p>
+          <h3 id="packet-preview-title">Client packet</h3>
+          <p>The preview and PDF use the same persisted presentation model.</p>
         </div>
         <div className="packet-actions">
           <button type="button" onClick={() => void handleCopy()}>
@@ -106,7 +196,7 @@ export function PacketPreview({
           </button>
           <button
             className="secondary-button"
-            disabled={!packetPdfPath}
+            disabled={!exportSupported}
             type="button"
             onClick={handleDownloadPdf}
           >
@@ -120,271 +210,211 @@ export function PacketPreview({
 
       {copyStatus === "success" && (
         <p className="success packet-feedback" role="status">
-          Packet text copied. Verify before sending.
+          Packet text copied.
         </p>
       )}
       {copyStatus === "error" && (
         <p className="error packet-feedback" role="alert">
-          Packet text could not be copied. Use browser selection or print preview.
+          Packet text could not be copied. Use browser selection or the PDF export.
         </p>
       )}
+      {presentationError && (
+        <p className="error packet-feedback" role="alert">{presentationError}</p>
+      )}
 
-      <article className="packet-document">
-        <header className="packet-section packet-section--header">
-          <div className="packet-cover-heading">
+      {quality && (
+        <section
+          className={`packet-quality-summary packet-quality-summary--${qualityTone}`}
+          aria-labelledby="packet-quality-title"
+        >
+          <div className="packet-quality-summary__heading">
             <div>
-              <p className="eyebrow">PermitPulse / Internal working draft</p>
-              <h3>{packetModel.title}</h3>
+              <p className="eyebrow">Delivery quality</p>
+              <h3 id="packet-quality-title">{qualityLabel}</h3>
             </div>
-            <span className="packet-draft-badge">Draft</span>
+            <span>{quality.stale_snapshot ? "Regeneration required" : "Snapshot evaluated"}</span>
           </div>
-          <aside className="packet-draft-notice" role="note">
-            <strong>Internal review required</strong>
-            <p>{packetModel.draft_notice}</p>
-          </aside>
-          <dl className="detail-grid">
-            <div>
-              <dt>Project</dt>
-              <dd>{packetModel.case_summary.project_name}</dd>
+          {quality.blockers.length > 0 && (
+            <ol className="packet-quality-list packet-quality-list--blockers">
+              {quality.blockers.map((issue) => (
+                <li key={issue.id}>
+                  <strong>{issue.title}</strong>
+                  <p>{issue.reason}</p>
+                  <span>{issue.recommended_resolution}</span>
+                </li>
+              ))}
+            </ol>
+          )}
+          {quality.warnings.length > 0 && (
+            <details>
+              <summary>Review {quality.warnings.length} non-blocking warning{quality.warnings.length === 1 ? "" : "s"}</summary>
+              <ol className="packet-quality-list">
+                {quality.warnings.map((issue) => (
+                  <li key={issue.id}>
+                    <strong>{issue.title}</strong>
+                    <p>{issue.reason}</p>
+                  </li>
+                ))}
+              </ol>
+            </details>
+          )}
+        </section>
+      )}
+
+      <article className="packet-document packet-document--client">
+        <header className="packet-cover">
+          <div className="packet-brand-header">
+            <strong>PERMITPULSE</strong>
+            <span>Permit intelligence</span>
+          </div>
+          <div className="packet-cover-body">
+            <h2>{packetModel.title}</h2>
+            <p className="packet-cover-project">{packetModel.case_summary.project_name}</p>
+            <div className="packet-cover-meta">
+              <span className={`packet-status-badge packet-status-badge--${packetModel.document_status}`}>
+                {packetModel.document_status_label}
+              </span>
+              <span>Generated {packetModel.generated_at_label}</span>
+              <span>Packet version {packetModel.packet_version}</span>
             </div>
-            <div>
-              <dt>Generated</dt>
-              <dd>
-                <time dateTime={packetModel.generated_at}>
-                  {formatDateTime(packetModel.generated_at)}
-                </time>
-              </dd>
-            </div>
-            <div>
-              <dt>Jurisdiction</dt>
-              <dd>{packetModel.jurisdiction}</dd>
-            </div>
-            <div>
-              <dt>Permit number</dt>
-              <dd>{packetModel.permit_number ?? "Not provided"}</dd>
-            </div>
-            <div>
-              <dt>Case version</dt>
-              <dd>{packetModel.case_summary.version}</dd>
-            </div>
-          </dl>
-          <div className="packet-snapshot" aria-label="Packet snapshot counts">
-            <span><strong>{packetModel.evidence_summaries.length}</strong> evidence records</span>
-            <span><strong>{packetModel.timeline_summaries.length}</strong> permit events</span>
-            <span><strong>{packetModel.recent_activity_summaries.length}</strong> activity records</span>
+            <p className="packet-cover-note">{packetModel.draft_notice}</p>
           </div>
         </header>
 
-        <section className="packet-section packet-section--summary" aria-labelledby="packet-summary-title">
-          <p className="packet-section-label">01 / Case</p>
-          <h3 id="packet-summary-title">Project summary</h3>
-          <dl className="detail-grid">
-            <div>
-              <dt>Client</dt>
-              <dd>{packetModel.case_summary.client_name}</dd>
-            </div>
-            <div>
-              <dt>Address</dt>
-              <dd>{packetModel.case_summary.address}</dd>
-            </div>
-            <div>
-              <dt>City</dt>
-              <dd>{packetModel.case_summary.city}</dd>
-            </div>
-            <div>
-              <dt>Updated</dt>
-              <dd>{formatDateTime(packetModel.case_summary.updated_at)}</dd>
-            </div>
+        <PacketSection id="executive_summary">
+          <p className="packet-executive-summary">{packetModel.executive_summary.text}</p>
+          {packetModel.warnings.length > 0 && (
+            <ul className="packet-client-warnings">
+              {packetModel.warnings.map((item) => <li key={item.id}>{item.text}</li>)}
+            </ul>
+          )}
+        </PacketSection>
+
+        <PacketSection id="case_overview">
+          <dl className="packet-client-meta">
+            {packetModel.case_overview.map((item) => (
+              <div key={item.id}>
+                <dt>{item.label}</dt>
+                <dd>{item.value}</dd>
+              </div>
+            ))}
           </dl>
-        </section>
+        </PacketSection>
 
-        <section className="packet-section packet-section--status" aria-labelledby="packet-status-title">
-          <p className="packet-section-label">02 / Lifecycle</p>
-          <h3 id="packet-status-title">Current permit status</h3>
-          <p className="packet-status-value">{packetModel.current_status.label}</p>
-        </section>
+        <PacketSection id="current_status">
+          <p className="packet-current-status">{packetModel.current_status.label}</p>
+          <p className="packet-client-note">Case record updated {packetModel.case_summary.updated_at_label}</p>
+        </PacketSection>
 
-        <section className="packet-section packet-section--evidence" aria-labelledby="packet-evidence-title">
-          <p className="packet-section-label">03 / Source register</p>
-          <h3 id="packet-evidence-title">Key evidence</h3>
+        <PacketSection id="evidence_register">
           {packetModel.evidence_summaries.length === 0 ? (
-            <div className="packet-empty">
-              <strong>No evidence records are available in this case.</strong>
-              <p>Add source-backed records with provenance and verification state before treating this packet as complete.</p>
-            </div>
+            <p className="packet-empty packet-empty--client">No evidence records are included in this packet.</p>
           ) : (
-            <ol className="packet-list">
-              {packetModel.evidence_summaries.map((item, index) => {
+            <ol className="packet-client-records">
+              {packetModel.evidence_summaries.map((item) => {
                 const href = safeExternalHref(item.source.url);
 
                 return (
-                  <li key={`${item.created_at}-${item.title}-${index}`}>
-                    <div className="packet-item-heading">
-                      <strong>{item.title}</strong>
-                      <span
-                        className={`verification-badge verification-badge--${item.verification_status}`}
-                      >
+                  <li key={item.id}>
+                    <div className="packet-client-record-heading">
+                      <div>
+                        <p>{item.evidence_type_label}</p>
+                        <h4>{item.title}</h4>
+                      </div>
+                      <span className={`verification-badge verification-badge--${item.verification_status}`}>
                         {item.verification_label}
                       </span>
                     </div>
                     <p>{item.summary}</p>
-                    <dl className="record-meta">
-                      <div>
-                        <dt>Type</dt>
-                        <dd>{item.evidence_type_label}</dd>
-                      </div>
-                      <div>
-                        <dt>Source label</dt>
-                        <dd>{item.source.label ?? "Not provided"}</dd>
-                      </div>
-                      <div>
-                        <dt>Source URL</dt>
-                        <dd>
-                          {href ? (
-                            <a href={href} rel="noreferrer noopener" target="_blank">
-                              {href}
-                            </a>
-                          ) : (
-                            item.source.url ?? "Not provided"
-                          )}
-                        </dd>
-                      </div>
-                      <div>
-                        <dt>Source date</dt>
-                        <dd>{formatDateOnly(item.source.date)}</dd>
+                    <dl className="packet-client-record-meta">
+                      <div><dt>Source</dt><dd>{item.source.label ?? "Source label not provided"}</dd></div>
+                      <div><dt>Source date</dt><dd>{item.source.date_label}</dd></div>
+                      <div className="packet-client-record-meta--wide">
+                        <dt>Provenance</dt>
+                        <dd>{href ? <a href={href} rel="noreferrer noopener" target="_blank">{href}</a> : item.source.url ?? "Not provided"}</dd>
                       </div>
                     </dl>
-                    <p className="field-note">{item.verification_note}</p>
+                    <p className="packet-client-note">{item.verification_note}</p>
                   </li>
                 );
               })}
             </ol>
           )}
-        </section>
+        </PacketSection>
 
-        <section className="packet-section packet-section--timeline" aria-labelledby="packet-timeline-title">
-          <p className="packet-section-label">04 / Permit record</p>
-          <h3 id="packet-timeline-title">Permit timeline</h3>
+        <PacketSection id="permit_timeline">
           {packetModel.timeline_summaries.length === 0 ? (
-            <div className="packet-empty">
-              <strong>No permit timeline records are available in this case.</strong>
-              <p>Supported permit events belong here; internal workspace changes remain in Recent case activity.</p>
-            </div>
+            <p className="packet-empty packet-empty--client">No permit timeline events are included in this packet.</p>
           ) : (
-            <ol className="packet-list">
-              {packetModel.timeline_summaries.map((entry, index) => {
-                return (
-                  <li key={`${entry.occurred_on}-${entry.title}-${index}`}>
-                    <div className="packet-item-heading">
-                      <strong>{entry.title}</strong>
-                      <span
-                        className={
-                          entry.source_label === "Canonical"
-                            ? "record-pill record-pill--canonical"
-                            : "record-pill"
-                        }
-                      >
-                        {entry.source_label}
-                      </span>
+            <ol className="packet-client-timeline">
+              {packetModel.timeline_summaries.map((entry) => (
+                <li key={entry.id}>
+                  <time>{entry.occurred_on_label}</time>
+                  <div>
+                    <div className="packet-client-record-heading">
+                      <div>
+                        <p>{entry.timeline_type_label}</p>
+                        <h4>{entry.title}</h4>
+                      </div>
+                      <span className="record-pill">{entry.source_label}</span>
                     </div>
-                    <p>
-                      <time dateTime={entry.occurred_on}>
-                        {formatDateOnly(entry.occurred_on)}
-                      </time>{" "}
-                      · {entry.timeline_type_label}
-                    </p>
                     <p>{entry.details}</p>
-                    <div className="linked-evidence">
-                      <h4>Linked evidence references</h4>
-                      {entry.linked_evidence.length === 0 &&
-                      entry.missing_evidence_reference_count === 0 ? (
-                        <p className="field-note">No supporting evidence linked.</p>
-                      ) : (
-                        <ul className="packet-reference-list">
-                          {entry.linked_evidence.map((item, itemIndex) => (
-                            <li key={`${item.title}-${itemIndex}`}>
-                              {item.title} ({item.verification_label})
-                            </li>
-                          ))}
-                          {entry.missing_evidence_reference_count > 0 && (
-                            <li>
-                              {entry.missing_evidence_reference_count} linked
-                              evidence reference
-                              {entry.missing_evidence_reference_count === 1
-                                ? ""
-                                : "s"}{" "}
-                              not loaded.
-                            </li>
-                          )}
-                        </ul>
-                      )}
-                    </div>
-                  </li>
-                );
-              })}
-            </ol>
-          )}
-        </section>
-
-        <section className="packet-section packet-section--activity" aria-labelledby="packet-activity-title">
-          <p className="packet-section-label">05 / Internal operations</p>
-          <h3 id="packet-activity-title">Recent case activity</h3>
-          {packetModel.recent_activity_summaries.length === 0 ? (
-            <div className="packet-empty">
-              <strong>No recent case activity records are available in this case.</strong>
-              <p>Immutable workspace changes will appear here without being presented as permit events.</p>
-            </div>
-          ) : (
-            <ol className="packet-list">
-              {packetModel.recent_activity_summaries.map((entry, index) => {
-                return (
-                  <li key={`${entry.created_at}-${entry.action}-${index}`}>
-                    <div className="packet-item-heading">
-                      <strong>{entry.action_label}</strong>
-                      <time dateTime={entry.created_at}>
-                        {formatDateTime(entry.created_at)}
-                      </time>
-                    </div>
-                    <p>Actor: {entry.actor_label}</p>
-                    {entry.changed_field_labels.length > 0 && (
-                      <p>
-                        Changed fields: {entry.changed_field_labels.join(", ")}
-                      </p>
+                    <h5>Supporting evidence</h5>
+                    {entry.linked_evidence.length > 0 ? (
+                      <ul>
+                        {entry.linked_evidence.map((item) => (
+                          <li key={item.source_id}>{item.title} ({item.verification_label})</li>
+                        ))}
+                      </ul>
+                    ) : (
+                      <p className="packet-client-note">No supporting evidence linked.</p>
                     )}
-                    {entry.action === "case_status_changed" &&
-                      entry.from_status_label &&
-                      entry.to_status_label && (
-                        <p>
-                          Status: {entry.from_status_label} to{" "}
-                          {entry.to_status_label}
-                        </p>
-                      )}
+                  </div>
+                </li>
+              ))}
+            </ol>
+          )}
+        </PacketSection>
+
+        <PacketSection id="findings">
+          <EditorialItems items={packetModel.findings.items} emptyMessage={packetModel.findings.empty_message} />
+        </PacketSection>
+
+        <PacketSection id="open_questions">
+          <EditorialItems items={packetModel.open_questions.items} emptyMessage={packetModel.open_questions.empty_message} />
+        </PacketSection>
+
+        <PacketSection id="recommended_next_actions">
+          <EditorialItems items={packetModel.recommended_next_actions.items} emptyMessage={packetModel.recommended_next_actions.empty_message} />
+        </PacketSection>
+
+        <PacketSection id="supporting_sources">
+          {packetModel.supporting_sources.length > 0 ? (
+            <ol className="packet-source-list">
+              {packetModel.supporting_sources.map((source) => {
+                const href = safeExternalHref(source.url);
+                return (
+                  <li key={source.id}>
+                    <h4>{source.title}</h4>
+                    <p>{source.label} · {source.date_label} · {source.verification_label}</p>
+                    <p>{href ? <a href={href} rel="noreferrer noopener" target="_blank">{href}</a> : "URL not provided"}</p>
                   </li>
                 );
               })}
             </ol>
+          ) : (
+            <p className="packet-empty packet-empty--client">No supporting sources are included in this packet.</p>
           )}
-        </section>
+        </PacketSection>
 
-        <section className="packet-section packet-section--placeholder" aria-labelledby="packet-questions-title">
-          <p className="packet-section-label">06 / Reviewer workspace</p>
-          <h3 id="packet-questions-title">Open questions / missing information</h3>
-          <p>{packetModel.open_questions.note}</p>
-          <p>{packetModel.open_questions.instruction}</p>
-        </section>
+        <PacketSection id="disclaimer">
+          <p className="packet-disclaimer-text">{packetModel.disclaimer}</p>
+        </PacketSection>
 
-        <section className="packet-section packet-section--placeholder" aria-labelledby="packet-actions-title">
-          <p className="packet-section-label">07 / Reviewer workspace</p>
-          <h3 id="packet-actions-title">Recommended next actions</h3>
-          <p>{packetModel.recommended_next_actions.note}</p>
-          <p>{packetModel.recommended_next_actions.instruction}</p>
-        </section>
-
-        <section className="packet-section packet-section--disclaimer" aria-labelledby="packet-disclaimer-title">
-          <p className="packet-section-label">08 / Use note</p>
-          <h3 id="packet-disclaimer-title">Disclaimer / internal-review note</h3>
-          <p>{packetModel.disclaimer}</p>
-        </section>
+        <footer className="packet-client-footer">
+          <span>PermitPulse · Permit intelligence</span>
+          <span>Packet version {packetModel.packet_version}</span>
+        </footer>
       </article>
     </section>
   );

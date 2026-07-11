@@ -1,0 +1,158 @@
+import { buildPacketModel } from "../../shared/packet/build-packet-model";
+import {
+  evaluatePacketQuality,
+  type DeliveryQualityEvaluation,
+} from "../../shared/packet/quality-gate";
+import {
+  packetDocumentStatusForDeliveryState,
+  withPacketDocumentStatus,
+} from "../../shared/packet/presentation";
+import type {
+  PacketDocumentStatus,
+  PacketModel,
+  PacketPresentationWarning,
+} from "../../shared/packet/types";
+import type { DeliveryLifecycle } from "../../shared/delivery-lifecycle/types";
+import {
+  listCaseActivity,
+  listEvidenceForCase,
+  listTimelineForCase,
+  type CaseResponse,
+} from "../cases/repository";
+import {
+  packetComparableDigest,
+  readDeliveryLifecycle,
+  readGeneratedPacketSnapshot,
+} from "../delivery/repository";
+import type { Bindings } from "../types";
+
+export const packetEvidenceLimit = 50;
+export const packetTimelineLimit = 50;
+export const packetActivityLimit = 25;
+
+interface BuildCurrentPacketInput {
+  caseRecord: CaseResponse;
+  database: Bindings["DB"];
+  documentStatus?: PacketDocumentStatus;
+  generatedAt: Date | string;
+}
+
+export interface PacketDeliveryContext {
+  export_supported: boolean;
+  lifecycle: DeliveryLifecycle;
+  live_packet: PacketModel;
+  packet: PacketModel;
+  persisted_snapshot: boolean;
+  quality: DeliveryQualityEvaluation;
+}
+
+function truncationWarning(
+  id: string,
+  text: string,
+): PacketPresentationWarning {
+  return { id, text, information_class: "warning" };
+}
+
+export async function buildCurrentPacketPresentation({
+  caseRecord,
+  database,
+  documentStatus = "draft",
+  generatedAt,
+}: BuildCurrentPacketInput): Promise<PacketModel> {
+  const [evidenceRows, timelineRows, activityRows] = await Promise.all([
+    listEvidenceForCase(database, caseRecord.id, {
+      limit: packetEvidenceLimit + 1,
+      offset: 0,
+    }),
+    listTimelineForCase(database, caseRecord.id, {
+      limit: packetTimelineLimit + 1,
+      offset: 0,
+    }),
+    listCaseActivity(database, caseRecord.id, {
+      limit: packetActivityLimit,
+      offset: 0,
+    }),
+  ]);
+  const evidenceTruncated = evidenceRows.length > packetEvidenceLimit;
+  const timelineTruncated = timelineRows.length > packetTimelineLimit;
+  const model = buildPacketModel({
+    activityResponse: { activity: activityRows.slice(0, packetActivityLimit) },
+    caseRecord,
+    documentStatus,
+    evidence: evidenceRows.slice(0, packetEvidenceLimit),
+    generatedAt,
+    timeline: timelineRows.slice(0, packetTimelineLimit),
+  });
+
+  if (evidenceTruncated) {
+    model.warnings.push(
+      truncationWarning(
+        "evidence-register-truncated",
+        `The Evidence Register shows the ${packetEvidenceLimit} most recent records. Additional case evidence is not included in this packet snapshot.`,
+      ),
+    );
+  }
+
+  if (timelineTruncated) {
+    model.warnings.push(
+      truncationWarning(
+        "permit-timeline-truncated",
+        `The Permit Timeline shows the ${packetTimelineLimit} most recent events. Additional case events are not included in this packet snapshot.`,
+      ),
+    );
+  }
+
+  return model;
+}
+
+export async function readPacketDeliveryContext(input: {
+  caseRecord: CaseResponse;
+  database: Bindings["DB"];
+  evaluatedAt: Date | string;
+}): Promise<PacketDeliveryContext> {
+  const { caseRecord, database, evaluatedAt } = input;
+  const [lifecycle, livePacket] = await Promise.all([
+    readDeliveryLifecycle(database, caseRecord.id),
+    buildCurrentPacketPresentation({
+      caseRecord,
+      database,
+      generatedAt: evaluatedAt,
+    }),
+  ]);
+  const snapshotResult = lifecycle.active_packet_generation_id
+    ? await readGeneratedPacketSnapshot(
+        database,
+        caseRecord.id,
+        lifecycle.active_packet_generation_id,
+      )
+    : { exists: false as const, packet: null };
+  const staleSnapshot = Boolean(
+    snapshotResult.packet &&
+      (await packetComparableDigest(snapshotResult.packet)) !==
+        (await packetComparableDigest(livePacket)),
+  );
+  const status = packetDocumentStatusForDeliveryState(lifecycle.current_state);
+  const presentationPacket = withPacketDocumentStatus(
+    snapshotResult.packet ?? livePacket,
+    status,
+  );
+  const quality = evaluatePacketQuality({
+    evaluatedAt,
+    lifecycleState: lifecycle.current_state,
+    snapshot: snapshotResult.packet,
+    snapshotPresent: snapshotResult.exists,
+    staleSnapshot,
+  });
+
+  lifecycle.live_preview_differs = staleSnapshot;
+  lifecycle.quality = quality;
+
+  return {
+    export_supported: !snapshotResult.exists || Boolean(snapshotResult.packet),
+    lifecycle,
+    live_packet: livePacket,
+    packet: presentationPacket,
+    persisted_snapshot: Boolean(snapshotResult.packet),
+    quality,
+  };
+}

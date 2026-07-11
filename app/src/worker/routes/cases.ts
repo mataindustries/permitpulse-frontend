@@ -9,7 +9,6 @@ import {
 } from "../../shared/ai-review/provider";
 import { readPacketReviewProviderConfig } from "../../shared/ai-review/config";
 import type { PacketReviewProviderName } from "../../shared/ai-review/types";
-import { buildPacketModel } from "../../shared/packet/build-packet-model";
 import { renderPacketHtml } from "../../shared/packet/render-packet-html";
 import {
   renderPacketPdf,
@@ -57,12 +56,12 @@ import {
 import { errorResponse } from "../lib/responses";
 import { sessionMiddleware } from "../middleware/session";
 import type { WorkerEnv } from "../types";
-import { readDeliveryLifecycle, readGeneratedPacket } from "../delivery/repository";
+import {
+  buildCurrentPacketPresentation,
+  readPacketDeliveryContext,
+} from "../packet/service";
 
 const maximumRequestBodyBytes = 16 * 1024;
-const packetEvidenceLimit = 50;
-const packetTimelineLimit = 50;
-const packetActivityLimit = 25;
 
 export const caseRoutes = new Hono<WorkerEnv>();
 
@@ -217,27 +216,10 @@ async function buildCasePacket(
   context: CaseRouteContext,
   access: Extract<Awaited<ReturnType<typeof requireCaseAccess>>, { ok: true }>,
 ): Promise<PacketModel> {
-  const [evidence, timeline, activity] = await Promise.all([
-    listEvidenceForCase(context.env.DB, access.caseId, {
-      limit: packetEvidenceLimit,
-      offset: 0,
-    }),
-    listTimelineForCase(context.env.DB, access.caseId, {
-      limit: packetTimelineLimit,
-      offset: 0,
-    }),
-    listCaseActivity(context.env.DB, access.caseId, {
-      limit: packetActivityLimit,
-      offset: 0,
-    }),
-  ]);
-
-  return buildPacketModel({
-    activityResponse: { activity },
+  return buildCurrentPacketPresentation({
     caseRecord: access.caseRecord,
-    evidence,
+    database: context.env.DB,
     generatedAt: new Date(),
-    timeline,
   });
 }
 
@@ -257,6 +239,33 @@ async function packetForRequest(
     ok: true,
     packet: await buildCasePacket(context, access),
     caseId: access.caseId,
+  };
+}
+
+async function packetDeliveryForRequest(
+  context: CaseRouteContext,
+): Promise<
+  | {
+      ok: true;
+      caseId: string;
+      packetContext: Awaited<ReturnType<typeof readPacketDeliveryContext>>;
+    }
+  | { ok: false; response: Response }
+> {
+  const access = await requireCaseAccess(context);
+
+  if (!access.ok) {
+    return access;
+  }
+
+  return {
+    ok: true,
+    caseId: access.caseId,
+    packetContext: await readPacketDeliveryContext({
+      caseRecord: access.caseRecord,
+      database: context.env.DB,
+      evaluatedAt: new Date(),
+    }),
   };
 }
 
@@ -327,7 +336,7 @@ caseRoutes.use(
 );
 
 caseRoutes.get("/:caseId/packet", async (context) => {
-  const packetResult = await packetForRequest(context);
+  const packetResult = await packetDeliveryForRequest(context);
 
   if (!packetResult.ok) {
     return packetResult.response;
@@ -336,54 +345,85 @@ caseRoutes.get("/:caseId/packet", async (context) => {
   return context.json({
     ok: true,
     data: {
-      packet: packetResult.packet,
+      packet: packetResult.packetContext.packet,
+      quality: packetResult.packetContext.quality,
+      lifecycle: packetResult.packetContext.lifecycle,
+      export_supported: packetResult.packetContext.export_supported,
+      persisted_snapshot: packetResult.packetContext.persisted_snapshot,
     },
   });
 });
 
 caseRoutes.get("/:caseId/packet.txt", async (context) => {
-  const packetResult = await packetForRequest(context);
+  const packetResult = await packetDeliveryForRequest(context);
 
   if (!packetResult.ok) {
     return packetResult.response;
   }
 
-  return new Response(renderPacketText(packetResult.packet), {
+  if (!packetResult.packetContext.export_supported) {
+    return errorResponse(
+      context,
+      409,
+      "PACKET_REGENERATION_REQUIRED",
+      "The persisted packet uses an outdated presentation model. Regenerate the packet before export.",
+    );
+  }
+
+  const filename = safePacketPdfFilename(packetResult.packetContext.packet)
+    .replace(/\.pdf$/, ".txt");
+  return new Response(renderPacketText(packetResult.packetContext.packet), {
     headers: {
-      "content-disposition": `inline; filename="permitpulse-packet-${packetResult.caseId}.txt"`,
+      "content-disposition": `inline; filename="${filename}"`,
       "content-type": "text/plain; charset=utf-8",
     },
   });
 });
 
 caseRoutes.get("/:caseId/packet.html", async (context) => {
-  const packetResult = await packetForRequest(context);
+  const packetResult = await packetDeliveryForRequest(context);
 
   if (!packetResult.ok) {
     return packetResult.response;
   }
 
-  return new Response(renderPacketHtml(packetResult.packet), {
+  if (!packetResult.packetContext.export_supported) {
+    return errorResponse(
+      context,
+      409,
+      "PACKET_REGENERATION_REQUIRED",
+      "The persisted packet uses an outdated presentation model. Regenerate the packet before export.",
+    );
+  }
+
+  const filename = safePacketPdfFilename(packetResult.packetContext.packet)
+    .replace(/\.pdf$/, ".html");
+  return new Response(renderPacketHtml(packetResult.packetContext.packet), {
     headers: {
-      "content-disposition": `inline; filename="permitpulse-packet-${packetResult.caseId}.html"`,
+      "content-disposition": `inline; filename="${filename}"`,
       "content-type": "text/html; charset=utf-8",
     },
   });
 });
 
 caseRoutes.get("/:caseId/packet.pdf", async (context) => {
-  const packetResult = await packetForRequest(context);
+  const packetResult = await packetDeliveryForRequest(context);
 
   if (!packetResult.ok) {
     return packetResult.response;
   }
 
+  if (!packetResult.packetContext.export_supported) {
+    return errorResponse(
+      context,
+      409,
+      "PACKET_REGENERATION_REQUIRED",
+      "The persisted packet uses an outdated presentation model. Regenerate the packet before export.",
+    );
+  }
+
   try {
-    const lifecycle = await readDeliveryLifecycle(context.env.DB, packetResult.caseId, 1);
-    const persistedPacket = lifecycle.active_packet_generation_id
-      ? await readGeneratedPacket(context.env.DB, packetResult.caseId, lifecycle.active_packet_generation_id)
-      : null;
-    const exportPacket = persistedPacket ?? packetResult.packet;
+    const exportPacket = packetResult.packetContext.packet;
     const pdfBytes = await renderPacketPdf(exportPacket);
     const filename = safePacketPdfFilename(
       exportPacket,

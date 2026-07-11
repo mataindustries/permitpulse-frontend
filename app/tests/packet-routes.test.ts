@@ -1,4 +1,5 @@
 import { env } from "cloudflare:workers";
+import { PDFDocument } from "pdf-lib";
 import { beforeEach, describe, expect, it } from "vitest";
 import { app } from "../src/worker/app";
 import type { PacketModel } from "../src/shared/packet/types";
@@ -173,6 +174,8 @@ async function setupWorkspace() {
 
 async function cleanDatabase() {
   await env.DB.batch([
+    env.DB.prepare("DELETE FROM delivery_lifecycle_events"),
+    env.DB.prepare("DELETE FROM packet_generations"),
     env.DB.prepare("DELETE FROM timeline_entry_evidence"),
     env.DB.prepare("DELETE FROM timeline_entries"),
     env.DB.prepare("DELETE FROM evidence_items"),
@@ -311,7 +314,7 @@ function expectPdfResponse(response: Response, bytes: Uint8Array) {
 
   expect(response.status).toBe(200);
   expect(response.headers.get("content-type")).toContain("application/pdf");
-  expect(disposition).toMatch(/^attachment; filename="permitpulse-packet-[a-z0-9-]+\.pdf"$/);
+  expect(disposition).toMatch(/^attachment; filename="permitpulse-[a-z0-9-]+-packet-v\d+\.pdf"$/);
   expect(filename).toBeTruthy();
   expect(filename).not.toMatch(/[\\/\r\n]/);
   expect(bytes.length).toBeGreaterThan(100);
@@ -444,10 +447,10 @@ describe("packet preview routes", () => {
       keptTimeline.title,
     ]);
     expect(body.data.packet.timeline_summaries[0].linked_evidence).toEqual([
-      {
+      expect.objectContaining({
         title: "<script>alert('packet')</script>",
         verification_label: "Unverified",
-      },
+      }),
     ]);
     expect(body.data.packet.recent_activity_summaries.length).toBeGreaterThan(0);
     for (const forbidden of [
@@ -488,18 +491,23 @@ describe("packet preview routes", () => {
     );
     expect(response.headers.get("content-disposition")).toContain("inline");
     for (const section of [
-      "Packet header",
-      "Project summary",
-      "Current permit status",
-      "Key evidence",
-      "Permit timeline",
-      "Recent case activity",
-      "Disclaimer / internal-review note",
+      "Executive Summary",
+      "Case Overview",
+      "Current Status",
+      "Evidence Register",
+      "Permit Timeline",
+      "Findings",
+      "Open Questions",
+      "Recommended Next Actions",
+      "Supporting Sources",
+      "Disclaimer",
     ]) {
       expect(text).toContain(section);
     }
     expect(text).not.toMatch(/<[^>]+>/);
     expect(text).toContain("&lt;b&gt;Unsafe packet evidence&lt;/b&gt;");
+    expect(text).not.toMatch(/2026-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/);
+    expect(text).not.toContain("This placeholder is not AI-generated yet");
   });
 
   it("returns escaped script-free HTML packets", async () => {
@@ -532,15 +540,54 @@ describe("packet preview routes", () => {
     expect(html).not.toMatch(/<script/i);
     expect(html).not.toMatch(/\son[a-z]+\s*=/i);
     for (const section of [
-      "Project summary",
-      "Current permit status",
-      "Key evidence",
-      "Permit timeline",
-      "Recent case activity",
-      "Disclaimer / internal-review note",
+      "Executive Summary",
+      "Case Overview",
+      "Current Status",
+      "Evidence Register",
+      "Permit Timeline",
+      "Findings",
+      "Open Questions",
+      "Recommended Next Actions",
+      "Supporting Sources",
+      "Disclaimer",
     ]) {
-      expect(html).toContain(section);
+    expect(html).toContain(section);
     }
+  });
+
+  it("exports the same persisted presentation model shown by packet preview", async () => {
+    const { a, admin, caseA } = await setupWorkspace();
+    await createEvidence(a.cookie, caseA.id);
+    await createTimeline(a.cookie, caseA.id);
+    const generated = await postJson(
+      admin.cookie,
+      `/api/v1/cases/${caseA.id}/delivery-lifecycle/transitions`,
+      { event_type: "packet_generated", idempotency_key: "packet-parity" },
+    );
+    expect(generated.status).toBe(201);
+
+    const preview = await fetchJsonPacket(a.cookie, caseA.id);
+    const pdf = await fetchPdfPacket(a.cookie, caseA.id);
+    const document = await PDFDocument.load(pdf.bytes);
+    const snapshot = await env.DB.prepare(
+      "SELECT snapshot_json FROM packet_generations WHERE case_id = ? ORDER BY created_at DESC LIMIT 1",
+    ).bind(caseA.id).first<{ snapshot_json: string }>();
+
+    expectPdfResponse(pdf.response, pdf.bytes);
+    expect(snapshot).toBeTruthy();
+    expect(preview.body.data.packet).toMatchObject(JSON.parse(snapshot!.snapshot_json));
+    expect(document.getTitle()).toBe(
+      `${preview.body.data.packet.title} - ${preview.body.data.packet.case_summary.project_name}`,
+    );
+    expect(
+      Math.abs(
+        (document.getCreationDate()?.getTime() ?? 0) -
+          new Date(preview.body.data.packet.generated_at).getTime(),
+      ),
+    ).toBeLessThan(1000);
+    const rawPdf = new TextDecoder("latin1").decode(pdf.bytes);
+    expect(rawPdf).not.toContain(preview.body.data.packet.case_summary.updated_at);
+    expect(rawPdf).not.toContain("This placeholder is not AI-generated yet");
   });
 
   it("returns non-empty PDF packets without obvious private field names", async () => {
@@ -600,6 +647,12 @@ describe("packet preview routes", () => {
       "Bulk timeline 53",
       "Bulk timeline 52",
     ]);
+    expect(packet.warnings.map((item) => item.id)).toEqual(
+      expect.arrayContaining([
+        "evidence-register-truncated",
+        "permit-timeline-truncated",
+      ]),
+    );
   });
 
   it("uses the same bounded packet assembly limits for PDF export", async () => {

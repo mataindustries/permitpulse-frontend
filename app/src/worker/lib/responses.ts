@@ -7,6 +7,7 @@ export interface ApiErrorBody {
   error: {
     code: string;
     message: string;
+    details?: unknown;
   };
   request_id: string;
 }
@@ -16,6 +17,7 @@ export function errorResponse(
   status: ContentfulStatusCode,
   code: string,
   message: string,
+  details?: unknown,
 ) {
   return context.json<ApiErrorBody>(
     {
@@ -23,6 +25,7 @@ export function errorResponse(
       error: {
         code,
         message,
+        ...(details === undefined ? {} : { details }),
       },
       request_id: context.get("requestId"),
     },

@@ -1573,7 +1573,7 @@ describe("case workspace components", () => {
 
     expect(markup).toContain("Packet Progress");
     expect(markup).toContain("4 of 5 readiness checks complete");
-    expect(markup).toContain("Draft permit packet");
+    expect(markup).toContain("Client packet");
     expect(markup).toContain('role="tab"');
   });
 
@@ -1800,17 +1800,18 @@ describe("case workspace components", () => {
       />,
     );
 
-    expect(markup).toContain("Draft permit packet");
-    expect(markup).toContain("Draft packet preview — verify before sending");
+    expect(markup).toContain("Client packet");
+    expect(markup).toContain("Prepared for client review");
     expect(markup).toContain("Fictional Oak Street ADU");
     expect(markup).toContain("Exampleville Building");
     expect(markup).toContain("EX-2026-001");
-    expect(markup).toContain("Case version");
+    expect(markup).toContain("Packet version");
     expect(markup).toContain("Copy packet text");
     expect(markup).toContain("Print preview");
     expect(markup).toContain("Download PDF");
-    expect(markup).toContain("Internal review required");
-    expect(markup).toContain("Packet snapshot counts");
+    expect(markup).toContain("Executive Summary");
+    expect(markup).toContain("Supporting Sources");
+    expect(markup).not.toContain("Internal review required");
   });
 
   it("renders packet evidence with verification labels and safe source links", () => {
@@ -1840,14 +1841,14 @@ describe("case workspace components", () => {
     expect(markup).toContain("unverified");
     expect(markup).toContain("verified");
     expect(markup).toContain("disputed");
-    expect(markup).toContain("unverified evidence. do not treat as confirmed.");
-    expect(markup).toContain("disputed evidence. do not treat as confirmed.");
+    expect(markup).toContain("this evidence has not been verified and is not presented as confirmed.");
+    expect(markup).toContain("this information is disputed and is not presented as confirmed.");
     expect(markup).toContain('href="https://example.test/notices/plan-check"');
     expect(markup).toContain("unsafe source label");
     expect(markup).not.toContain('href="javascript:alert(1)"');
   });
 
-  it("renders packet timeline separately from case activity with linked evidence references", () => {
+  it("renders the client timeline with source references and omits internal activity", () => {
     const markup = renderToStaticMarkup(
       <PacketPreview
         activityResponse={{
@@ -1882,18 +1883,18 @@ describe("case workspace components", () => {
     ).toLowerCase();
 
     expect(markup).toContain("permit timeline");
-    expect(markup).toContain("recent case activity");
+    expect(markup).not.toContain("recent case activity");
     expect(markup).toContain("canonical");
     expect(markup).toContain("contributed");
-    expect(markup).toContain("linked evidence references");
+    expect(markup).toContain("supporting evidence");
     expect(markup).toContain("fictional plan check notice");
-    expect(markup).toContain("1 linked evidence reference not loaded");
-    expect(markup).toContain("status changed");
+    expect(markup).toContain("no supporting evidence linked");
+    expect(markup).not.toContain("status changed");
     expect(markup).toContain("&lt;script&gt;timeline&lt;/script&gt;");
     expect(markup).toContain("&lt;img src=x onerror=alert(1)&gt;");
   });
 
-  it("renders packet missing evidence, timeline, and activity states", () => {
+  it("renders professional empty client-facing packet states", () => {
     const markup = renderToStaticMarkup(
       <PacketPreview
         activityResponse={{
@@ -1907,13 +1908,12 @@ describe("case workspace components", () => {
       />,
     );
 
-    expect(markup).toContain("No evidence records are available in this case.");
+    expect(markup).toContain("No evidence records are included in this packet.");
     expect(markup).toContain(
-      "No permit timeline records are available in this case.",
+      "No permit timeline events are included in this packet.",
     );
-    expect(markup).toContain(
-      "No recent case activity records are available in this case.",
-    );
+    expect(markup).toContain("No reviewer-approved findings are included in this packet.");
+    expect(markup).not.toContain("Recent case activity");
   });
 
   it("compiles expected plain packet text and never includes auth internals", () => {
@@ -1940,13 +1940,14 @@ describe("case workspace components", () => {
     });
     const lower = text.toLowerCase();
 
-    expect(text).toContain("Generated: 2026-02-03T04:05:06.000Z");
-    expect(text).toContain("Draft packet preview — verify before sending");
+    expect(text).toContain("Generated: February 3, 2026 at 4:05 AM");
+    expect(text).not.toContain("2026-02-03T04:05:06.000Z");
+    expect(text).toContain("Prepared for client review");
     expect(text).toContain("Project: Fictional Oak Street ADU");
-    expect(text).toContain("Verification: Unverified - Unverified evidence. Do not treat as confirmed.");
-    expect(text).toContain("Linked evidence: Fictional plan check notice");
-    expect(text).toContain("Recent case activity");
-    expect(text).toContain("This placeholder is not AI-generated yet.");
+    expect(text).toContain("Classification: Unverified");
+    expect(text).toContain("Supporting evidence: Fictional plan check notice");
+    expect(text).not.toContain("Recent case activity");
+    expect(text).not.toContain("This placeholder is not AI-generated yet.");
     expect(text).not.toContain("<a ");
     for (const forbidden of [
       "password",

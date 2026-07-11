@@ -1,4 +1,5 @@
 import type { PacketModel } from "../../shared/packet/types";
+import { isPacketPresentationModel } from "../../shared/packet/presentation";
 import { nextDeliveryEvents, resultingDeliveryState } from "../../shared/delivery-lifecycle/state-machine";
 import type { DeliveryEvent, DeliveryEventType, DeliveryLifecycle, DeliveryState } from "../../shared/delivery-lifecycle/types";
 import type { CaseActor } from "../cases/authorization";
@@ -75,7 +76,39 @@ export async function sha256(value: string): Promise<string> {
 }
 
 export async function packetComparableDigest(packet: PacketModel): Promise<string> {
-  return sha256(JSON.stringify({ ...packet, generated_at: null }));
+  return sha256(JSON.stringify({
+    ...packet,
+    document_status: null,
+    document_status_label: null,
+    draft_notice: null,
+    generated_at: null,
+    generated_at_label: null,
+    recent_activity_summaries: null,
+  }));
+}
+
+export async function deliveryTransitionReplayStatus(input: {
+  caseId: string;
+  database: Bindings["DB"];
+  eventType: DeliveryEventType;
+  idempotencyKey: string;
+  note: string | null;
+}): Promise<"none" | "matching" | "conflict"> {
+  const fingerprint = await sha256(JSON.stringify({
+    eventType: input.eventType,
+    note: input.note,
+  }));
+  const row = await input.database.prepare(
+    "SELECT request_fingerprint FROM delivery_lifecycle_events WHERE case_id = ? AND idempotency_key = ? LIMIT 1",
+  ).bind(input.caseId, input.idempotencyKey).first<{
+    request_fingerprint: string;
+  }>();
+
+  if (!row) {
+    return "none";
+  }
+
+  return row.request_fingerprint === fingerprint ? "matching" : "conflict";
 }
 
 export type RecordDeliveryOutcome =
@@ -142,8 +175,30 @@ export async function recordDeliveryTransition(input: {
 export async function readGeneratedPacket(
   database: Bindings["DB"], caseId: string, generationId: string,
 ): Promise<PacketModel | null> {
+  return (await readGeneratedPacketSnapshot(database, caseId, generationId)).packet;
+}
+
+export async function readGeneratedPacketSnapshot(
+  database: Bindings["DB"],
+  caseId: string,
+  generationId: string,
+): Promise<{ exists: boolean; packet: PacketModel | null }> {
   const row = await database.prepare(
     "SELECT snapshot_json FROM packet_generations WHERE id = ? AND case_id = ? LIMIT 1",
   ).bind(generationId, caseId).first<{ snapshot_json: string }>();
-  return row ? JSON.parse(row.snapshot_json) as PacketModel : null;
+
+  if (!row) {
+    return { exists: false, packet: null };
+  }
+
+  try {
+    const value: unknown = JSON.parse(row.snapshot_json);
+
+    return {
+      exists: true,
+      packet: isPacketPresentationModel(value) ? value : null,
+    };
+  } catch {
+    return { exists: true, packet: null };
+  }
 }

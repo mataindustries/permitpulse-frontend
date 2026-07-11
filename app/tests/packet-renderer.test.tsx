@@ -1,8 +1,13 @@
 import { renderToStaticMarkup } from "react-dom/server";
+import { PDFDocument, StandardFonts } from "pdf-lib";
 import { describe, expect, it } from "vitest";
 import { buildPacketModel } from "../src/shared/packet/build-packet-model";
 import { renderPacketHtml } from "../src/shared/packet/render-packet-html";
-import { safePacketPdfFilename } from "../src/shared/packet/render-packet-pdf";
+import {
+  renderPacketPdf,
+  safePacketPdfFilename,
+  wrapPacketPdfText,
+} from "../src/shared/packet/render-packet-pdf";
 import { renderPacketText } from "../src/shared/packet/render-packet-text";
 import type {
   BuildPacketModelInput,
@@ -115,9 +120,11 @@ describe("packet model builder", () => {
     const model = buildPacketModel(completeInput());
 
     expect(model).toMatchObject({
-      title: "PermitPulse packet preview",
+      presentation_version: 2,
+      title: "Permit Review Packet",
       generated_at: "2026-02-03T04:05:06.000Z",
-      draft_notice: "Draft packet preview — verify before sending",
+      generated_at_label: "February 3, 2026 at 4:05 AM",
+      document_status_label: "DRAFT",
       jurisdiction: "Exampleville Building",
       permit_number: "EX-2026-001",
       current_status: { value: "researching", label: "Researching" },
@@ -146,14 +153,12 @@ describe("packet model builder", () => {
     expect(model.timeline_summaries).toEqual([]);
     expect(model.recent_activity_summaries).toEqual([]);
     expect(renderPacketText(model)).toContain(
-      "No evidence records are available in this case.",
+      "No evidence records are included in this packet.",
     );
     expect(renderPacketText(model)).toContain(
-      "No permit timeline records are available in this case.",
+      "No permit timeline events are included in this packet.",
     );
-    expect(renderPacketText(model)).toContain(
-      "No recent case activity records are available in this case.",
-    );
+    expect(renderPacketText(model)).not.toContain("Recent case activity");
   });
 
   it("labels unverified, verified, and disputed evidence", () => {
@@ -183,9 +188,9 @@ describe("packet model builder", () => {
       "Unverified",
     ]);
     expect(model.evidence_summaries.map((item) => item.verification_note)).toEqual([
-      "Disputed evidence. Do not treat as confirmed.",
-      "Marked verified.",
-      "Unverified evidence. Do not treat as confirmed.",
+      "This information is disputed and is not presented as confirmed.",
+      "Reviewer verification is recorded for this evidence.",
+      "This evidence has not been verified and is not presented as confirmed.",
     ]);
   });
 
@@ -247,24 +252,28 @@ describe("packet text renderer", () => {
     const text = renderPacketText(buildPacketModel(completeInput()));
 
     for (const section of [
-      "Packet header",
-      "Project summary",
-      "Current permit status",
-      "Key evidence",
+      "Executive Summary",
+      "Case Overview",
+      "Current Status",
+      "Evidence Register",
       "Permit timeline",
-      "Recent case activity",
-      "Open questions / missing information",
-      "Recommended next actions",
-      "Disclaimer / internal-review note",
+      "Findings",
+      "Open Questions",
+      "Recommended Next Actions",
+      "Supporting Sources",
+      "Disclaimer",
     ]) {
-      expect(text).toContain(section);
+      expect(text.toLowerCase()).toContain(section.toLowerCase());
     }
 
-    expect(text).toContain("Draft packet preview — verify before sending");
-    expect(text).toContain("Generated: 2026-02-03T04:05:06.000Z");
-    expect(text).toContain("Verification: Unverified");
-    expect(text).toContain("Entry source: Canonical");
-    expect(text).toContain("Source URL: https://example.test/notices/plan-check");
+    expect(text).toContain("Prepared for client review");
+    expect(text).toContain("Generated: February 3, 2026 at 4:05 AM");
+    expect(text).not.toContain("2026-02-03T04:05:06.000Z");
+    expect(text).toContain("Classification: Unverified");
+    expect(text).toContain("Record classification: Canonical");
+    expect(text).toContain("Provenance: https://example.test/notices/plan-check");
+    expect(text).not.toContain("This placeholder is not AI-generated yet");
+    expect(text).not.toContain("Recent case activity");
   });
 
   it("contains no HTML tags even when stored text looks like markup", () => {
@@ -368,12 +377,23 @@ describe("packet HTML renderer", () => {
 
     expect(html).toContain("<!doctype html>");
     expect(html).toContain("<article class=\"pp-packet\">");
-    expect(html).toContain("Project summary");
-    expect(html).toContain("Current permit status");
-    expect(html).toContain("Key evidence");
-    expect(html).toContain("Permit timeline");
-    expect(html).toContain("Recent case activity");
-    expect(html).toContain("Disclaimer / internal-review note");
+    for (const section of [
+      "Executive Summary",
+      "Case Overview",
+      "Current Status",
+      "Evidence Register",
+      "Permit Timeline",
+      "Findings",
+      "Open Questions",
+      "Recommended Next Actions",
+      "Supporting Sources",
+      "Disclaimer",
+    ]) {
+      expect(html).toContain(section);
+    }
+    expect(html).toContain("--jade: #1c744d");
+    expect(html).toContain("--paper: #fbfaf7");
+    expect(html).not.toContain("Internal working draft");
   });
 });
 
@@ -390,9 +410,49 @@ describe("packet PDF helpers", () => {
 
     expect(
       safePacketPdfFilename(model, "00000000-0000-4000-8000-000000000001"),
-    ).toBe(
-      "permitpulse-packet-fictional-oak-street-adu-script-00000000-0000-4000-8000-000000000001.pdf",
+    ).toBe("permitpulse-fictional-oak-street-adu-script-packet-v3.pdf");
+  });
+
+  it("wraps long content and produces a branded multi-page Letter PDF", async () => {
+    const longSummary = "Long source-backed evidence content ".repeat(80);
+    const model = buildPacketModel(
+      completeInput({
+        evidence: Array.from({ length: 12 }, (_, index) => ({
+          ...evidenceBase,
+          id: `evidence-${index}`,
+          title: `Long evidence record ${index + 1}`,
+          summary: longSummary,
+          source_date: `2026-01-${String(index + 1).padStart(2, "0")}`,
+        })),
+      }),
     );
+    const bytes = await renderPacketPdf(model);
+    const pdf = await PDFDocument.load(bytes);
+
+    expect(pdf.getPageCount()).toBeGreaterThan(2);
+    expect(pdf.getTitle()).toContain("Permit Review Packet");
+    expect(pdf.getAuthor()).toBe("PermitPulse");
+    expect(new TextDecoder("latin1").decode(bytes)).not.toContain(
+      "2026-02-03T04:05:06.000Z",
+    );
+  });
+
+  it("breaks uninterrupted words without exceeding the requested width", async () => {
+    const document = await PDFDocument.create();
+    const font = await document.embedFont(StandardFonts.Helvetica);
+    const width = 120;
+    const lines = wrapPacketPdfText("A".repeat(500), font, 10, width);
+
+    expect(lines.length).toBeGreaterThan(1);
+    expect(lines.every((line) => font.widthOfTextAtSize(line, 10) <= width)).toBe(true);
+  });
+
+  it("produces deterministic bytes for the same persisted presentation", async () => {
+    const packet = buildPacketModel(completeInput());
+    const first = await renderPacketPdf(packet);
+    const second = await renderPacketPdf(packet);
+
+    expect(first).toEqual(second);
   });
 });
 
@@ -421,9 +481,10 @@ describe("PacketPreview packet text integration", () => {
       />,
     );
 
-    expect(markup).toContain("Draft packet preview — verify before sending");
+    expect(markup).toContain("Prepared for client review");
     expect(markup).toContain("Fictional plan check notice");
     expect(markup).not.toContain('href="javascript:alert(1)"');
+    expect(markup).not.toContain("javascript:alert(1)");
   });
 
   it("renders a protected PDF download action without changing copy or print actions", () => {

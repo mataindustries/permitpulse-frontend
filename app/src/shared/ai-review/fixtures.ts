@@ -1,4 +1,8 @@
-import type { PacketModel } from "../packet/types";
+import {
+  packetDisclaimer,
+  packetSectionOrder,
+  type PacketModel,
+} from "../packet/types";
 import type { PacketReviewFixture } from "./types";
 
 type FixtureEvidence = PacketModel["evidence_summaries"][number];
@@ -10,9 +14,11 @@ const generatedAt = "2026-06-01T12:00:00.000Z";
 function evidence(
   fixtureId: string,
   index: number,
-  overrides: Partial<FixtureEvidence> = {},
+  overrides: Omit<Partial<FixtureEvidence>, "source"> & {
+    source?: Partial<FixtureEvidence["source"]>;
+  } = {},
 ): FixtureEvidence {
-  return {
+  const base: FixtureEvidence = {
     id: `${fixtureId}-evidence-${index}`,
     evidence_type: "document",
     evidence_type_label: "Document",
@@ -22,13 +28,23 @@ function evidence(
       label: `Fictional source ${index}`,
       url: `https://example.test/${fixtureId}/evidence-${index}`,
       date: "2026-05-10",
+      date_label: "May 10, 2026",
+      complete: true,
     },
     verification_status: "unverified",
     verification_label: "Unverified",
-    verification_note: "Unverified evidence. Do not treat as confirmed.",
+    verification_note: "This evidence has not been verified and is not presented as confirmed.",
+    information_class: "unverified_evidence",
     created_at: "2026-05-10T10:00:00.000Z",
+    created_at_label: "May 10, 2026 at 10:00 AM",
     updated_at: "2026-05-10T10:00:00.000Z",
+    updated_at_label: "May 10, 2026 at 10:00 AM",
+  };
+
+  return {
+    ...base,
     ...overrides,
+    source: { ...base.source, ...overrides.source },
   };
 }
 
@@ -40,6 +56,7 @@ function timeline(
   return {
     id: `${fixtureId}-timeline-${index}`,
     occurred_on: "2026-05-12",
+    occurred_on_label: "May 12, 2026",
     timeline_type: "status_update",
     timeline_type_label: "Status update",
     title: `Fictional ${fixtureId} timeline ${index}`,
@@ -47,8 +64,11 @@ function timeline(
     source_label: "Canonical",
     linked_evidence: [],
     missing_evidence_reference_count: 0,
+    information_class: "unverified_evidence",
     created_at: "2026-05-12T10:00:00.000Z",
+    created_at_label: "May 12, 2026 at 10:00 AM",
     updated_at: "2026-05-12T10:00:00.000Z",
+    updated_at_label: "May 12, 2026 at 10:00 AM",
     ...overrides,
   };
 }
@@ -65,8 +85,10 @@ function activity(
     actor_label: "Fictional Reviewer",
     changed_field_labels: ["Project name"],
     created_at: "2026-05-13T10:00:00.000Z",
+    created_at_label: "May 13, 2026 at 10:00 AM",
     from_status_label: null,
     to_status_label: null,
+    client_visible: false,
     ...overrides,
   };
 }
@@ -76,37 +98,64 @@ function packet(
   overrides: Partial<PacketModel> = {},
 ): PacketModel {
   return {
-    title: "PermitPulse packet preview",
+    presentation_version: 2,
+    section_order: [...packetSectionOrder],
+    title: "Permit Review Packet",
+    packet_version: 2,
     generated_at: generatedAt,
-    draft_notice: "Draft packet preview - verify before sending",
+    generated_at_label: "June 1, 2026 at 12:00 PM",
+    document_status: "draft",
+    document_status_label: "DRAFT",
+    is_internal_draft: false,
+    draft_notice: "Prepared for client review. Confirm source records and jurisdiction requirements before delivery.",
+    executive_summary: {
+      text: `This packet assembles records for Fictional ${fixtureId} project.`,
+      information_class: "client_provided_information",
+      supporting_source_ids: [`${fixtureId}-evidence-1`, `${fixtureId}-timeline-1`],
+    },
     case_summary: {
       project_name: `Fictional ${fixtureId} project`,
       client_name: `Fictional ${fixtureId} client`,
       address: "100 Fictional Permit Avenue",
       city: "Exampleville",
       created_at: "2026-05-01T10:00:00.000Z",
+      created_at_label: "May 1, 2026 at 10:00 AM",
       updated_at: "2026-05-13T10:00:00.000Z",
+      updated_at_label: "May 13, 2026 at 10:00 AM",
       version: 2,
+      information_class: "client_provided_information",
     },
+    case_overview: [
+      { id: "project-name", label: "Project", value: `Fictional ${fixtureId} project`, information_class: "client_provided_information" },
+      { id: "address", label: "Address", value: "100 Fictional Permit Avenue, Exampleville", information_class: "client_provided_information" },
+    ],
     current_status: {
       value: "researching",
       label: "Researching",
+      information_class: "client_provided_information",
     },
     jurisdiction: "Exampleville Building Division",
     permit_number: `FP-${fixtureId.toUpperCase()}-001`,
     evidence_summaries: [evidence(fixtureId, 1)],
     timeline_summaries: [timeline(fixtureId, 1)],
     recent_activity_summaries: [activity(fixtureId, 1)],
+    findings: {
+      items: [],
+      empty_message: "No reviewer-approved findings are included in this packet.",
+    },
     open_questions: {
-      note: "This placeholder is not AI-generated yet.",
-      instruction: "Add reviewer-verified open questions manually before sending.",
+      items: [],
+      empty_message: "No reviewer-approved open questions are recorded.",
     },
     recommended_next_actions: {
-      note: "This placeholder is not AI-generated yet.",
-      instruction: "Add reviewer-approved next actions manually before sending.",
+      items: [],
+      empty_message: "No reviewer-approved next actions are recorded.",
     },
-    disclaimer:
-      "Internal review draft only. Verify all source records, statuses, dates, and jurisdiction requirements before sending or relying on this packet.",
+    supporting_sources: [],
+    missing_information: [],
+    warnings: [],
+    unsupported_claims: [],
+    disclaimer: packetDisclaimer,
     ...overrides,
   };
 }
@@ -198,7 +247,7 @@ const missingSourceUrlPacket = packet("missing-source-url", {
 });
 
 const stalledReviewPacket = packet("stalled-review", {
-  current_status: { value: "needs_information", label: "Needs information" },
+  current_status: { value: "needs_information", label: "Needs information", information_class: "client_provided_information" },
   timeline_summaries: [
     timeline("stalled-review", 1, {
       occurred_on: "2026-03-01",
@@ -210,7 +259,7 @@ const stalledReviewPacket = packet("stalled-review", {
 });
 
 const correctionCyclePacket = packet("correction-cycle", {
-  current_status: { value: "needs_information", label: "Needs information" },
+  current_status: { value: "needs_information", label: "Needs information", information_class: "client_provided_information" },
   timeline_summaries: [
     timeline("correction-cycle", 1, {
       occurred_on: "2026-04-01",
@@ -348,7 +397,7 @@ const incompleteAddressPacket = packet("incomplete-address", {
 });
 
 const highRiskPacket = packet("high-risk-unsupported-next-action", {
-  current_status: { value: "ready_for_review", label: "Ready for review" },
+  current_status: { value: "ready_for_review", label: "Ready for review", information_class: "client_provided_information" },
   evidence_summaries: [
     evidence("high-risk-unsupported-next-action", 1, {
       title: "Sparse final-review note",

@@ -1,12 +1,39 @@
-export const packetDraftNotice =
-  "Draft packet preview — verify before sending";
+export const packetPresentationVersion = 2 as const;
 
-export const packetPlaceholderNote = "This placeholder is not AI-generated yet.";
+export const packetDraftNotice =
+  "Prepared for client review. Confirm source records and jurisdiction requirements before delivery.";
 
 export const packetDisclaimer =
-  "Internal review draft only. Verify all source records, statuses, dates, and jurisdiction requirements before sending or relying on this packet.";
+  "This PermitPulse packet summarizes the records available at the time shown. It is not a permit, legal opinion, guarantee of approval, or substitute for confirmation with the applicable jurisdiction. Source records, dates, and requirements should be independently verified before reliance.";
 
-export const packetTitle = "PermitPulse packet preview";
+export const packetTitle = "Permit Review Packet";
+
+export const packetSectionOrder = [
+  "executive_summary",
+  "case_overview",
+  "current_status",
+  "evidence_register",
+  "permit_timeline",
+  "findings",
+  "open_questions",
+  "recommended_next_actions",
+  "supporting_sources",
+  "disclaimer",
+] as const;
+
+export type PacketSectionId = (typeof packetSectionOrder)[number];
+
+export type PacketInformationClass =
+  | "confirmed_fact"
+  | "client_provided_information"
+  | "unverified_evidence"
+  | "disputed_information"
+  | "missing_information"
+  | "warning"
+  | "reviewer_approved_finding"
+  | "approved_next_action";
+
+export type PacketDocumentStatus = "draft" | "approved" | "delivered";
 
 export type PacketCaseStatus =
   | "intake"
@@ -104,12 +131,47 @@ export interface PacketActivityResponseDto {
   activity: PacketActivityDto[];
 }
 
+export interface PacketFindingInput {
+  id: string;
+  text: string;
+  supporting_source_ids: string[];
+  grounded: boolean;
+  reviewer_approved: boolean;
+}
+
+export interface PacketQuestionInput {
+  id: string;
+  text: string;
+  reviewer_approved: boolean;
+}
+
+export interface PacketActionInput {
+  id: string;
+  text: string;
+  supporting_source_ids: string[];
+  reviewer_approved: boolean;
+}
+
+export interface PacketEditorialContentInput {
+  findings?: readonly PacketFindingInput[];
+  openQuestions?: readonly PacketQuestionInput[];
+  recommendedNextActions?: readonly PacketActionInput[];
+  unsupportedClaims?: readonly string[];
+}
+
 export interface BuildPacketModelInput {
   activityResponse: PacketActivityResponseDto | null;
   caseRecord: PacketCaseDto;
+  documentStatus?: PacketDocumentStatus;
+  editorialContent?: PacketEditorialContentInput;
   evidence: readonly PacketEvidenceDto[];
   generatedAt: Date | string;
   timeline: readonly PacketTimelineDto[];
+}
+
+export interface PacketDateValue {
+  raw: string | null;
+  label: string;
 }
 
 export interface PacketCaseSummary {
@@ -118,19 +180,25 @@ export interface PacketCaseSummary {
   address: string;
   city: string;
   created_at: string;
+  created_at_label: string;
   updated_at: string;
+  updated_at_label: string;
   version: number;
+  information_class: "client_provided_information";
 }
 
 export interface PacketStatusSummary {
   value: PacketCaseStatus;
   label: string;
+  information_class: "client_provided_information";
 }
 
 export interface PacketSourceSummary {
   label: string | null;
   url: string | null;
   date: string | null;
+  date_label: string;
+  complete: boolean;
 }
 
 export interface PacketEvidenceSummary {
@@ -143,11 +211,18 @@ export interface PacketEvidenceSummary {
   verification_status: PacketVerificationStatus;
   verification_label: string;
   verification_note: string;
+  information_class:
+    | "confirmed_fact"
+    | "unverified_evidence"
+    | "disputed_information";
   created_at: string;
+  created_at_label: string;
   updated_at: string;
+  updated_at_label: string;
 }
 
 export interface PacketLinkedEvidenceSummary {
+  source_id: string;
   title: string;
   verification_label: string;
 }
@@ -155,6 +230,7 @@ export interface PacketLinkedEvidenceSummary {
 export interface PacketTimelineSummary {
   id: string;
   occurred_on: string;
+  occurred_on_label: string;
   timeline_type: PacketTimelineType;
   timeline_type_label: string;
   title: string;
@@ -162,8 +238,11 @@ export interface PacketTimelineSummary {
   source_label: "Canonical" | "Contributed";
   linked_evidence: PacketLinkedEvidenceSummary[];
   missing_evidence_reference_count: number;
+  information_class: "confirmed_fact" | "unverified_evidence";
   created_at: string;
+  created_at_label: string;
   updated_at: string;
+  updated_at_label: string;
 }
 
 export interface PacketActivitySummary {
@@ -173,27 +252,99 @@ export interface PacketActivitySummary {
   actor_label: string;
   changed_field_labels: string[];
   created_at: string;
+  created_at_label: string;
   from_status_label: string | null;
   to_status_label: string | null;
+  client_visible: false;
 }
 
-export interface PacketPlaceholderSection {
-  note: string;
-  instruction: string;
+export interface PacketFact {
+  id: string;
+  label: string;
+  value: string;
+  information_class:
+    | "client_provided_information"
+    | "confirmed_fact"
+    | "missing_information";
 }
 
-export interface PacketModel {
+export interface PacketExecutiveSummary {
+  text: string;
+  information_class: "client_provided_information";
+  supporting_source_ids: string[];
+}
+
+export interface PacketFinding extends PacketFindingInput {
+  information_class: "reviewer_approved_finding" | "warning";
+}
+
+export interface PacketOpenQuestion extends PacketQuestionInput {
+  information_class: "missing_information";
+}
+
+export interface PacketRecommendedAction extends PacketActionInput {
+  information_class: "approved_next_action" | "warning";
+}
+
+export interface PacketEditorialSection<T> {
+  items: T[];
+  empty_message: string;
+}
+
+export interface PacketSupportingSource {
+  id: string;
   title: string;
+  label: string;
+  url: string | null;
+  date_label: string;
+  verification_label: string;
+  information_class:
+    | "confirmed_fact"
+    | "unverified_evidence"
+    | "disputed_information";
+}
+
+export interface PacketMissingInformation {
+  id: string;
+  title: string;
+  reason: string;
+  information_class: "missing_information";
+}
+
+export interface PacketPresentationWarning {
+  id: string;
+  text: string;
+  information_class: "warning";
+}
+
+export interface PacketPresentationModel {
+  presentation_version: typeof packetPresentationVersion;
+  section_order: PacketSectionId[];
+  title: string;
+  packet_version: number;
   generated_at: string;
+  generated_at_label: string;
+  document_status: PacketDocumentStatus;
+  document_status_label: "DRAFT" | "APPROVED" | "DELIVERED";
+  is_internal_draft: false;
   draft_notice: string;
+  executive_summary: PacketExecutiveSummary;
   case_summary: PacketCaseSummary;
+  case_overview: PacketFact[];
   current_status: PacketStatusSummary;
   jurisdiction: string;
   permit_number: string | null;
   evidence_summaries: PacketEvidenceSummary[];
   timeline_summaries: PacketTimelineSummary[];
   recent_activity_summaries: PacketActivitySummary[];
-  open_questions: PacketPlaceholderSection;
-  recommended_next_actions: PacketPlaceholderSection;
+  findings: PacketEditorialSection<PacketFinding>;
+  open_questions: PacketEditorialSection<PacketOpenQuestion>;
+  recommended_next_actions: PacketEditorialSection<PacketRecommendedAction>;
+  supporting_sources: PacketSupportingSource[];
+  missing_information: PacketMissingInformation[];
+  warnings: PacketPresentationWarning[];
+  unsupported_claims: string[];
   disclaimer: string;
 }
+
+export type PacketModel = PacketPresentationModel;

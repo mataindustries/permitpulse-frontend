@@ -1,4 +1,8 @@
-import type { PacketModel } from "./types";
+import {
+  packetSectionNumber,
+  packetSectionTitle,
+} from "./presentation";
+import type { PacketModel, PacketSectionId } from "./types";
 
 function escapeHtml(value: string): string {
   return value
@@ -8,10 +12,6 @@ function escapeHtml(value: string): string {
     .replaceAll('"', "&quot;")
     .replaceAll("'", "&#39;")
     .replaceAll("=", "&#61;");
-}
-
-function formatDateOnly(value: string | null): string {
-  return value ? escapeHtml(value) : "Not provided";
 }
 
 function safeHref(value: string | null): string | null {
@@ -30,68 +30,58 @@ function safeHref(value: string | null): string | null {
   }
 }
 
-function definition(label: string, value: string): string {
-  return `<div><dt>${escapeHtml(label)}</dt><dd>${value}</dd></div>`;
-}
-
-function htmlDateTime(value: string): string {
-  const date = new Date(value);
-  const label = Number.isNaN(date.getTime()) ? "Unknown" : date.toISOString();
-
-  return `<time datetime="${escapeHtml(value)}">${escapeHtml(label)}</time>`;
-}
-
-function linkedEvidenceList(
-  linkedEvidence: PacketModel["timeline_summaries"][number]["linked_evidence"],
-  missingCount: number,
+function section(
+  id: PacketSectionId,
+  body: string,
+  className = "",
 ): string {
-  if (linkedEvidence.length === 0 && missingCount === 0) {
-    return `<p class="pp-packet-note">No supporting evidence linked.</p>`;
-  }
+  const title = packetSectionTitle(id);
 
-  const loaded = linkedEvidence
+  return `<section class="pp-packet-section ${className}" aria-labelledby="pp-packet-${id}-title">
+    <div class="pp-packet-section-heading">
+      <span>${packetSectionNumber(id)}</span>
+      <h2 id="pp-packet-${id}-title">${escapeHtml(title)}</h2>
+    </div>
+    ${body}
+  </section>`;
+}
+
+function renderCaseOverview(model: PacketModel): string {
+  return `<dl class="pp-packet-meta">${model.case_overview
     .map(
-      (item) =>
-        `<li>${escapeHtml(item.title)} (${escapeHtml(item.verification_label)})</li>`,
+      (item) => `<div>
+        <dt>${escapeHtml(item.label)}</dt>
+        <dd>${escapeHtml(item.value)}</dd>
+      </div>`,
     )
-    .join("");
-  const missing =
-    missingCount > 0
-      ? `<li>${missingCount} linked evidence reference${
-          missingCount === 1 ? "" : "s"
-        } not loaded.</li>`
-      : "";
-
-  return `<ul class="pp-packet-reference-list">${loaded}${missing}</ul>`;
+    .join("")}</dl>`;
 }
 
 function renderEvidence(model: PacketModel): string {
   if (model.evidence_summaries.length === 0) {
-    return `<p>No evidence records are available in this case.</p>`;
+    return `<p class="pp-packet-empty">No evidence records are included in this packet.</p>`;
   }
 
   return `<ol class="pp-packet-list">${model.evidence_summaries
     .map((item) => {
       const href = safeHref(item.source.url);
-      const urlValue = item.source.url
-        ? href
-          ? `<a href="${escapeHtml(href)}" rel="noreferrer noopener">${escapeHtml(href)}</a>`
-          : escapeHtml(item.source.url)
-        : "Not provided";
+      const sourceUrl = href
+        ? `<a href="${escapeHtml(href)}" rel="noreferrer noopener">${escapeHtml(href)}</a>`
+        : escapeHtml(item.source.url ?? "Not provided");
 
-      return `<li>
-        <div class="pp-packet-item-heading">
-          <strong>${escapeHtml(item.title)}</strong>
-          <span class="pp-packet-badge pp-packet-badge--${escapeHtml(item.verification_status)}">${escapeHtml(
-            item.verification_label,
-          )}</span>
+      return `<li class="pp-packet-record">
+        <div class="pp-packet-record-heading">
+          <div>
+            <p class="pp-packet-record-kicker">${escapeHtml(item.evidence_type_label)}</p>
+            <h3>${escapeHtml(item.title)}</h3>
+          </div>
+          <span class="pp-packet-evidence-badge pp-packet-evidence-badge--${escapeHtml(item.verification_status)}">${escapeHtml(item.verification_label)}</span>
         </div>
         <p>${escapeHtml(item.summary)}</p>
-        <dl class="pp-packet-meta">
-          ${definition("Type", escapeHtml(item.evidence_type_label))}
-          ${definition("Source label", escapeHtml(item.source.label ?? "Not provided"))}
-          ${definition("Source URL", urlValue)}
-          ${definition("Source date", formatDateOnly(item.source.date))}
+        <dl class="pp-packet-record-meta">
+          <div><dt>Source</dt><dd>${escapeHtml(item.source.label ?? "Source label not provided")}</dd></div>
+          <div><dt>Source date</dt><dd>${escapeHtml(item.source.date_label)}</dd></div>
+          <div class="pp-packet-record-meta-wide"><dt>Provenance</dt><dd>${sourceUrl}</dd></div>
         </dl>
         <p class="pp-packet-note">${escapeHtml(item.verification_note)}</p>
       </li>`;
@@ -101,154 +91,167 @@ function renderEvidence(model: PacketModel): string {
 
 function renderTimeline(model: PacketModel): string {
   if (model.timeline_summaries.length === 0) {
-    return `<p>No permit timeline records are available in this case.</p>`;
+    return `<p class="pp-packet-empty">No permit timeline events are included in this packet.</p>`;
   }
 
-  return `<ol class="pp-packet-list">${model.timeline_summaries
-    .map(
-      (entry) => `<li>
-        <div class="pp-packet-item-heading">
-          <strong>${escapeHtml(entry.title)}</strong>
-          <span class="pp-packet-pill">${escapeHtml(entry.source_label)}</span>
+  return `<ol class="pp-packet-timeline">${model.timeline_summaries
+    .map((entry) => {
+      const linked = entry.linked_evidence.length > 0
+        ? `<ul>${entry.linked_evidence
+            .map(
+              (item) =>
+                `<li>${escapeHtml(item.title)} <span>(${escapeHtml(item.verification_label)})</span></li>`,
+            )
+            .join("")}</ul>`
+        : `<p class="pp-packet-note">No supporting evidence linked.</p>`;
+
+      return `<li>
+        <div class="pp-packet-timeline-date">${escapeHtml(entry.occurred_on_label)}</div>
+        <div class="pp-packet-timeline-content">
+          <div class="pp-packet-record-heading">
+            <div>
+              <p class="pp-packet-record-kicker">${escapeHtml(entry.timeline_type_label)}</p>
+              <h3>${escapeHtml(entry.title)}</h3>
+            </div>
+            <span class="pp-packet-source-pill">${escapeHtml(entry.source_label)}</span>
+          </div>
+          <p>${escapeHtml(entry.details)}</p>
+          <h4>Supporting evidence</h4>
+          ${linked}
         </div>
-        <p><time datetime="${escapeHtml(entry.occurred_on)}">${escapeHtml(
-          entry.occurred_on,
-        )}</time> · ${escapeHtml(entry.timeline_type_label)}</p>
-        <p>${escapeHtml(entry.details)}</p>
-        <section class="pp-packet-linked-evidence" aria-label="Linked evidence references">
-          <h4>Linked evidence references</h4>
-          ${linkedEvidenceList(
-            entry.linked_evidence,
-            entry.missing_evidence_reference_count,
-          )}
-        </section>
-      </li>`,
-    )
+      </li>`;
+    })
     .join("")}</ol>`;
 }
 
-function renderActivity(model: PacketModel): string {
-  if (model.recent_activity_summaries.length === 0) {
-    return `<p>No recent case activity records are available in this case.</p>`;
+function renderEditorial(
+  items: readonly { text: string }[],
+  emptyMessage: string,
+): string {
+  return items.length > 0
+    ? `<ol class="pp-packet-editorial-list">${items
+        .map((item) => `<li>${escapeHtml(item.text)}</li>`)
+        .join("")}</ol>`
+    : `<p class="pp-packet-empty">${escapeHtml(emptyMessage)}</p>`;
+}
+
+function renderSources(model: PacketModel): string {
+  if (model.supporting_sources.length === 0) {
+    return `<p class="pp-packet-empty">No supporting sources are included in this packet.</p>`;
   }
 
-  return `<ol class="pp-packet-list">${model.recent_activity_summaries
-    .map((entry) => {
-      const fields =
-        entry.changed_field_labels.length > 0
-          ? `<p>Changed fields: ${escapeHtml(entry.changed_field_labels.join(", "))}</p>`
-          : "";
-      const status =
-        entry.action === "case_status_changed" &&
-        entry.from_status_label &&
-        entry.to_status_label
-          ? `<p>Status: ${escapeHtml(entry.from_status_label)} to ${escapeHtml(
-              entry.to_status_label,
-            )}</p>`
-          : "";
+  return `<ol class="pp-packet-sources">${model.supporting_sources
+    .map((source) => {
+      const href = safeHref(source.url);
+      const provenance = href
+        ? `<a href="${escapeHtml(href)}" rel="noreferrer noopener">${escapeHtml(href)}</a>`
+        : "URL not provided";
 
       return `<li>
-        <div class="pp-packet-item-heading">
-          <strong>${escapeHtml(entry.action_label)}</strong>
-          ${htmlDateTime(entry.created_at)}
-        </div>
-        <p>Actor: ${escapeHtml(entry.actor_label)}</p>
-        ${fields}
-        ${status}
+        <h3>${escapeHtml(source.title)}</h3>
+        <p>${escapeHtml(source.label)} · ${escapeHtml(source.date_label)} · ${escapeHtml(source.verification_label)}</p>
+        <p>${provenance}</p>
       </li>`;
     })
     .join("")}</ol>`;
 }
 
 export function renderPacketHtml(model: PacketModel): string {
+  const presentationWarnings = model.warnings.length > 0
+    ? `<ul class="pp-packet-warnings">${model.warnings
+        .map((item) => `<li>${escapeHtml(item.text)}</li>`)
+        .join("")}</ul>`
+    : "";
+
   return `<!doctype html>
 <html lang="en">
 <head>
   <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>${escapeHtml(model.title)}</title>
   <style>
-    :root { color-scheme: light; }
-    body { color: #17202a; font-family: Arial, sans-serif; line-height: 1.45; margin: 0; }
-    .pp-packet { margin: 0 auto; max-width: 880px; padding: 32px; }
-    .pp-packet-section { border-top: 1px solid #d8dee7; padding: 20px 0; page-break-inside: avoid; }
-    .pp-packet-header { border-top: 0; }
-    .pp-packet-meta { display: grid; gap: 12px; grid-template-columns: repeat(2, minmax(0, 1fr)); }
-    .pp-packet-meta dt { color: #506070; font-size: 12px; font-weight: 700; text-transform: uppercase; }
-    .pp-packet-meta dd { margin: 2px 0 0; }
-    .pp-packet-list { margin: 0; padding-left: 22px; }
-    .pp-packet-list > li { margin-bottom: 18px; }
-    .pp-packet-item-heading { align-items: center; display: flex; gap: 10px; justify-content: space-between; }
-    .pp-packet-badge, .pp-packet-pill { border: 1px solid #bac6d5; border-radius: 999px; font-size: 12px; padding: 2px 8px; }
-    .pp-packet-note { color: #516170; }
-    @media print {
-      .pp-packet { max-width: none; padding: 0.45in; }
-      a { color: inherit; text-decoration: none; }
-    }
+    :root { color-scheme: light; --jade: #1c744d; --jade-dark: #144d36; --ink: #232a27; --muted: #65706a; --rule: #d9ded9; --paper: #fbfaf7; --soft: #f1f4f0; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: #e8ebe8; color: var(--ink); font-family: Inter, "Helvetica Neue", Arial, sans-serif; font-size: 15px; line-height: 1.55; }
+    a { color: var(--jade-dark); overflow-wrap: anywhere; }
+    .pp-packet { width: min(100% - 32px, 850px); margin: 32px auto; background: var(--paper); box-shadow: 0 20px 55px rgba(27, 39, 32, .14); }
+    .pp-packet-brand { display: flex; align-items: center; justify-content: space-between; gap: 24px; border-bottom: 3px solid var(--jade); padding: 28px 48px 20px; }
+    .pp-packet-wordmark { color: var(--jade-dark); font-size: 18px; font-weight: 850; letter-spacing: .12em; }
+    .pp-packet-brand-note { color: var(--muted); font-size: 11px; font-weight: 750; letter-spacing: .1em; text-transform: uppercase; }
+    .pp-packet-cover { padding: 54px 48px 44px; }
+    .pp-packet-cover h1 { max-width: 620px; margin: 0; color: #1e2522; font-family: Georgia, "Times New Roman", serif; font-size: clamp(36px, 7vw, 58px); font-weight: 600; letter-spacing: -.035em; line-height: 1.04; }
+    .pp-packet-cover-project { margin: 22px 0 0; color: var(--jade-dark); font-size: 20px; font-weight: 750; }
+    .pp-packet-status-line { display: flex; flex-wrap: wrap; gap: 12px 24px; align-items: center; margin-top: 28px; color: var(--muted); font-size: 13px; }
+    .pp-packet-status-badge, .pp-packet-evidence-badge, .pp-packet-source-pill { display: inline-flex; align-items: center; border: 1px solid #68736d; border-radius: 999px; background: #fff; color: #303a35; font-size: 11px; font-weight: 800; letter-spacing: .08em; padding: 5px 10px; text-transform: uppercase; }
+    .pp-packet-status-badge { border: 2px solid var(--jade-dark); color: var(--jade-dark); }
+    .pp-packet-cover-note { max-width: 670px; margin: 22px 0 0; border-left: 3px solid var(--jade); color: var(--muted); padding-left: 14px; }
+    .pp-packet-section { border-top: 1px solid var(--rule); padding: 38px 48px 44px; }
+    .pp-packet-section-heading { display: grid; grid-template-columns: 34px minmax(0, 1fr); gap: 10px; align-items: baseline; margin-bottom: 24px; }
+    .pp-packet-section-heading span { color: var(--jade); font-size: 11px; font-weight: 850; letter-spacing: .1em; }
+    .pp-packet-section-heading h2 { margin: 0; color: #242c28; font-family: Georgia, "Times New Roman", serif; font-size: 26px; font-weight: 600; }
+    .pp-packet-summary { color: #333d38; font-size: 17px; }
+    .pp-packet-warnings { margin: 18px 0 0; border-left: 3px solid #68736d; background: var(--soft); color: var(--muted); padding: 12px 14px 12px 30px; font-size: 12px; }
+    .pp-packet-meta, .pp-packet-record-meta { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px 24px; margin: 0; }
+    .pp-packet-meta > div { border-top: 1px solid var(--rule); padding-top: 10px; }
+    dt { color: var(--muted); font-size: 10px; font-weight: 850; letter-spacing: .09em; text-transform: uppercase; }
+    dd { margin: 3px 0 0; font-weight: 650; overflow-wrap: anywhere; }
+    .pp-packet-status-value { display: inline-flex; border-left: 4px solid var(--jade); background: var(--soft); color: var(--jade-dark); font-size: 19px; font-weight: 800; padding: 12px 16px; }
+    .pp-packet-list, .pp-packet-editorial-list, .pp-packet-sources { display: grid; gap: 18px; margin: 0; padding: 0; list-style: none; }
+    .pp-packet-record { border: 1px solid var(--rule); background: #fff; padding: 20px; }
+    .pp-packet-record-heading { display: flex; gap: 18px; align-items: flex-start; justify-content: space-between; }
+    .pp-packet-record h3, .pp-packet-timeline h3, .pp-packet-sources h3 { margin: 0; font-size: 16px; line-height: 1.3; }
+    .pp-packet-record-kicker { margin: 0 0 4px; color: var(--jade); font-size: 10px; font-weight: 850; letter-spacing: .09em; text-transform: uppercase; }
+    .pp-packet-record-meta { margin-top: 14px; border-top: 1px solid var(--rule); padding-top: 12px; }
+    .pp-packet-record-meta-wide { grid-column: 1 / -1; }
+    .pp-packet-note, .pp-packet-empty { color: var(--muted); }
+    .pp-packet-note { margin-bottom: 0; font-size: 12px; }
+    .pp-packet-empty { border: 1px solid var(--rule); background: var(--soft); padding: 16px; }
+    .pp-packet-timeline { display: grid; gap: 0; margin: 0; padding: 0; list-style: none; }
+    .pp-packet-timeline > li { display: grid; grid-template-columns: 132px minmax(0, 1fr); gap: 22px; border-top: 1px solid var(--rule); padding: 20px 0; }
+    .pp-packet-timeline-date { color: var(--jade-dark); font-size: 13px; font-weight: 800; }
+    .pp-packet-timeline-content h4 { margin: 16px 0 4px; color: var(--muted); font-size: 10px; letter-spacing: .08em; text-transform: uppercase; }
+    .pp-packet-timeline-content ul { margin: 0; padding-left: 18px; }
+    .pp-packet-editorial-list { counter-reset: editorial; }
+    .pp-packet-editorial-list li { position: relative; border-left: 2px solid var(--jade); background: var(--soft); padding: 14px 16px; }
+    .pp-packet-sources li { border-bottom: 1px solid var(--rule); padding-bottom: 16px; }
+    .pp-packet-sources p { margin: 5px 0 0; color: var(--muted); font-size: 12px; overflow-wrap: anywhere; }
+    .pp-packet-disclaimer { background: #f0f2ef; }
+    .pp-packet-footer { display: flex; justify-content: space-between; gap: 20px; border-top: 3px solid var(--jade); color: var(--muted); font-size: 10px; padding: 18px 48px 24px; }
+    @page { size: Letter; margin: .55in; }
+    @media print { body { background: #fff; } .pp-packet { width: auto; margin: 0; box-shadow: none; } .pp-packet-section, .pp-packet-record, .pp-packet-timeline > li { break-inside: avoid; } a { color: inherit; text-decoration: none; } }
+    @media (max-width: 620px) { .pp-packet { width: 100%; margin: 0; } .pp-packet-brand, .pp-packet-cover, .pp-packet-section, .pp-packet-footer { padding-left: 24px; padding-right: 24px; } .pp-packet-meta, .pp-packet-record-meta { grid-template-columns: 1fr; } .pp-packet-record-meta-wide { grid-column: auto; } .pp-packet-timeline > li { grid-template-columns: 1fr; gap: 8px; } }
   </style>
 </head>
 <body>
   <article class="pp-packet">
-    <header class="pp-packet-section pp-packet-header">
-      <p class="pp-packet-eyebrow">Packet header</p>
-      <h1>${escapeHtml(model.title)}</h1>
-      <p>${escapeHtml(model.draft_notice)}</p>
-      <dl class="pp-packet-meta">
-        ${definition("Project", escapeHtml(model.case_summary.project_name))}
-        ${definition("Generated", htmlDateTime(model.generated_at))}
-        ${definition("Jurisdiction", escapeHtml(model.jurisdiction))}
-        ${definition("Permit number", escapeHtml(model.permit_number ?? "Not provided"))}
-        ${definition("Case version", String(model.case_summary.version))}
-      </dl>
+    <header>
+      <div class="pp-packet-brand">
+        <div class="pp-packet-wordmark">PERMITPULSE</div>
+        <div class="pp-packet-brand-note">Permit intelligence</div>
+      </div>
+      <div class="pp-packet-cover">
+        <h1>${escapeHtml(model.title)}</h1>
+        <p class="pp-packet-cover-project">${escapeHtml(model.case_summary.project_name)}</p>
+        <div class="pp-packet-status-line">
+          <span class="pp-packet-status-badge">${escapeHtml(model.document_status_label)}</span>
+          <span>Generated ${escapeHtml(model.generated_at_label)}</span>
+          <span>Packet version ${model.packet_version}</span>
+        </div>
+        <p class="pp-packet-cover-note">${escapeHtml(model.draft_notice)}</p>
+      </div>
     </header>
-
-    <section class="pp-packet-section" aria-labelledby="pp-packet-summary-title">
-      <h2 id="pp-packet-summary-title">Project summary</h2>
-      <dl class="pp-packet-meta">
-        ${definition("Client", escapeHtml(model.case_summary.client_name))}
-        ${definition("Address", escapeHtml(model.case_summary.address))}
-        ${definition("City", escapeHtml(model.case_summary.city))}
-        ${definition("Updated", htmlDateTime(model.case_summary.updated_at))}
-      </dl>
-    </section>
-
-    <section class="pp-packet-section" aria-labelledby="pp-packet-status-title">
-      <h2 id="pp-packet-status-title">Current permit status</h2>
-      <p>${escapeHtml(model.current_status.label)}</p>
-    </section>
-
-    <section class="pp-packet-section" aria-labelledby="pp-packet-evidence-title">
-      <h2 id="pp-packet-evidence-title">Key evidence</h2>
-      ${renderEvidence(model)}
-    </section>
-
-    <section class="pp-packet-section" aria-labelledby="pp-packet-timeline-title">
-      <h2 id="pp-packet-timeline-title">Permit timeline</h2>
-      ${renderTimeline(model)}
-    </section>
-
-    <section class="pp-packet-section" aria-labelledby="pp-packet-activity-title">
-      <h2 id="pp-packet-activity-title">Recent case activity</h2>
-      ${renderActivity(model)}
-    </section>
-
-    <section class="pp-packet-section" aria-labelledby="pp-packet-questions-title">
-      <h2 id="pp-packet-questions-title">Open questions / missing information</h2>
-      <p>${escapeHtml(model.open_questions.note)}</p>
-      <p>${escapeHtml(model.open_questions.instruction)}</p>
-    </section>
-
-    <section class="pp-packet-section" aria-labelledby="pp-packet-actions-title">
-      <h2 id="pp-packet-actions-title">Recommended next actions</h2>
-      <p>${escapeHtml(model.recommended_next_actions.note)}</p>
-      <p>${escapeHtml(model.recommended_next_actions.instruction)}</p>
-    </section>
-
-    <section class="pp-packet-section" aria-labelledby="pp-packet-disclaimer-title">
-      <h2 id="pp-packet-disclaimer-title">Disclaimer / internal-review note</h2>
-      <p>${escapeHtml(model.disclaimer)}</p>
-    </section>
+    ${section("executive_summary", `<p class="pp-packet-summary">${escapeHtml(model.executive_summary.text)}</p>${presentationWarnings}`)}
+    ${section("case_overview", renderCaseOverview(model))}
+    ${section("current_status", `<p class="pp-packet-status-value">${escapeHtml(model.current_status.label)}</p><p class="pp-packet-note">Case record updated ${escapeHtml(model.case_summary.updated_at_label)}</p>`)}
+    ${section("evidence_register", renderEvidence(model))}
+    ${section("permit_timeline", renderTimeline(model))}
+    ${section("findings", renderEditorial(model.findings.items, model.findings.empty_message))}
+    ${section("open_questions", renderEditorial(model.open_questions.items, model.open_questions.empty_message))}
+    ${section("recommended_next_actions", renderEditorial(model.recommended_next_actions.items, model.recommended_next_actions.empty_message))}
+    ${section("supporting_sources", renderSources(model))}
+    ${section("disclaimer", `<p>${escapeHtml(model.disclaimer)}</p>`, "pp-packet-disclaimer")}
+    <footer class="pp-packet-footer"><span>PermitPulse · Permit intelligence</span><span>Packet version ${model.packet_version}</span></footer>
   </article>
 </body>
 </html>`;
 }
-

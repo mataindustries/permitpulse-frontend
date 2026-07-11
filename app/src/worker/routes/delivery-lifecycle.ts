@@ -1,14 +1,21 @@
 import { Hono, type Context } from "hono";
 import { bodyLimit } from "hono/body-limit";
 import { z } from "zod";
-import { buildPacketModel } from "../../shared/packet/build-packet-model";
 import { deliveryEventTypes } from "../../shared/delivery-lifecycle/types";
+import { qualityBlockingSummary } from "../../shared/packet/quality-gate";
 import { actorFromUser, mayTransitionCaseStatus } from "../cases/authorization";
-import { getCaseForActor, listCaseActivity, listEvidenceForCase, listTimelineForCase } from "../cases/repository";
+import { getCaseForActor } from "../cases/repository";
 import { caseIdSchema } from "../cases/validation";
-import { packetComparableDigest, readDeliveryLifecycle, readGeneratedPacket, recordDeliveryTransition } from "../delivery/repository";
+import {
+  deliveryTransitionReplayStatus,
+  recordDeliveryTransition,
+} from "../delivery/repository";
 import { errorResponse } from "../lib/responses";
 import { sessionMiddleware } from "../middleware/session";
+import {
+  buildCurrentPacketPresentation,
+  readPacketDeliveryContext,
+} from "../packet/service";
 import type { WorkerEnv } from "../types";
 
 export const deliveryLifecycleRoutes = new Hono<WorkerEnv>();
@@ -36,27 +43,15 @@ deliveryLifecycleRoutes.use("*", bodyLimit({
   onError: (context) => errorResponse(context, 413, "REQUEST_TOO_LARGE", "The request body is too large."),
 }));
 
-async function livePacket(context: RouteContext, record: Awaited<ReturnType<typeof getCaseForActor>> & {}) {
-  const [evidence, timeline, activity] = await Promise.all([
-    listEvidenceForCase(context.env.DB, record.id, { limit: 50, offset: 0 }),
-    listTimelineForCase(context.env.DB, record.id, { limit: 50, offset: 0 }),
-    listCaseActivity(context.env.DB, record.id, { limit: 25, offset: 0 }),
-  ]);
-  return buildPacketModel({ caseRecord: record, evidence, timeline, activityResponse: { activity }, generatedAt: new Date() });
-}
-
 deliveryLifecycleRoutes.get("/:caseId/delivery-lifecycle", async (context) => {
   const allowed = await access(context);
   if (!allowed.ok) return allowed.response;
-  const lifecycle = await readDeliveryLifecycle(context.env.DB, allowed.record.id);
-  if (lifecycle.active_packet_generation_id) {
-    const [persisted, current] = await Promise.all([
-      readGeneratedPacket(context.env.DB, allowed.record.id, lifecycle.active_packet_generation_id),
-      livePacket(context, allowed.record),
-    ]);
-    lifecycle.live_preview_differs = Boolean(persisted && await packetComparableDigest(persisted) !== await packetComparableDigest(current));
-  }
-  return context.json({ ok: true, data: { lifecycle } });
+  const packetContext = await readPacketDeliveryContext({
+    caseRecord: allowed.record,
+    database: context.env.DB,
+    evaluatedAt: new Date(),
+  });
+  return context.json({ ok: true, data: { lifecycle: packetContext.lifecycle } });
 });
 
 deliveryLifecycleRoutes.post("/:caseId/delivery-lifecycle/transitions", async (context) => {
@@ -71,18 +66,72 @@ deliveryLifecycleRoutes.post("/:caseId/delivery-lifecycle/transitions", async (c
   const parsed = transitionSchema.safeParse(body);
   if (!parsed.success) return errorResponse(context, 400, "INVALID_TRANSITION_INPUT", "The lifecycle transition input is invalid.");
 
+  const note = parsed.data.note ?? null;
+  const replayStatus = await deliveryTransitionReplayStatus({
+    caseId: allowed.record.id,
+    database: context.env.DB,
+    eventType: parsed.data.event_type,
+    idempotencyKey: parsed.data.idempotency_key,
+    note,
+  });
+  if (replayStatus === "none" && (
+    parsed.data.event_type === "approved_for_delivery" ||
+    parsed.data.event_type === "delivery_recorded"
+  )) {
+    const packetContext = await readPacketDeliveryContext({
+      caseRecord: allowed.record,
+      database: context.env.DB,
+      evaluatedAt: new Date(),
+    });
+    const isApplicableApproval =
+      parsed.data.event_type === "approved_for_delivery" &&
+      packetContext.lifecycle.current_state === "under_review";
+    const isApplicableDelivery =
+      parsed.data.event_type === "delivery_recorded" &&
+      packetContext.lifecycle.current_state === "approved_for_delivery";
+    const blocked =
+      (isApplicableApproval && !packetContext.quality.eligible_for_approval) ||
+      (isApplicableDelivery && !packetContext.quality.eligible_for_delivery);
+
+    if (blocked) {
+      const action = isApplicableApproval ? "approval" : "delivery";
+      const summary = qualityBlockingSummary(packetContext.quality);
+
+      return errorResponse(
+        context,
+        409,
+        "PACKET_QUALITY_BLOCKED",
+        `Packet ${action} is blocked by: ${summary}.`,
+        {
+          blocking_checks: packetContext.quality.blockers,
+          recommended_resolution: packetContext.quality.recommended_resolution,
+          stale_snapshot: packetContext.quality.stale_snapshot,
+        },
+      );
+    }
+  }
+
   let packet;
   if (parsed.data.event_type === "packet_generated") {
-    packet = await livePacket(context, allowed.record);
+    packet = await buildCurrentPacketPresentation({
+      caseRecord: allowed.record,
+      database: context.env.DB,
+      generatedAt: new Date(),
+    });
   }
   const outcome = await recordDeliveryTransition({
     actor: allowed.actor, caseId: allowed.record.id, caseVersion: allowed.record.version,
     database: context.env.DB, eventType: parsed.data.event_type,
-    idempotencyKey: parsed.data.idempotency_key, note: parsed.data.note ?? null, packet,
+    idempotencyKey: parsed.data.idempotency_key, note, packet,
   });
   if (outcome.kind === "invalid_transition") return errorResponse(context, 409, "INVALID_DELIVERY_TRANSITION", "That delivery lifecycle transition is not permitted from the current state.");
   if (outcome.kind === "idempotency_conflict") return errorResponse(context, 409, "IDEMPOTENCY_KEY_REUSED", "The idempotency key was already used for a different request.");
   if (outcome.kind === "concurrent_transition") return errorResponse(context, 409, "DELIVERY_STATE_CHANGED", "The delivery lifecycle changed. Reload and try again.");
   if (!("lifecycle" in outcome)) return errorResponse(context, 500, "DELIVERY_TRANSITION_FAILED", "The delivery lifecycle could not be updated.");
-  return context.json({ ok: true, data: { lifecycle: outcome.lifecycle, retry: outcome.kind === "retry" } }, outcome.kind === "created" ? 201 : 200);
+  const packetContext = await readPacketDeliveryContext({
+    caseRecord: allowed.record,
+    database: context.env.DB,
+    evaluatedAt: new Date(),
+  });
+  return context.json({ ok: true, data: { lifecycle: packetContext.lifecycle, retry: outcome.kind === "retry" } }, outcome.kind === "created" ? 201 : 200);
 });
