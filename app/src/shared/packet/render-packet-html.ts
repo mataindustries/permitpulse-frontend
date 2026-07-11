@@ -92,6 +92,10 @@ function renderDashboard(model: PacketModel): string {
       <span class="pp-status-badge pp-status-badge--${model.document_status}">${escapeHtml(model.document_status_label)}</span>
     </div>
     <p class="pp-dashboard-summary">${escapeHtml(model.executive_summary.text)}</p>
+    ${(model.executive_summary.key_risks.length || model.executive_summary.key_strengths.length) ? `<div class="pp-dashboard-grid">
+      ${model.executive_summary.key_risks.length ? `<section class="pp-dashboard-panel"><p class="pp-panel-label">Key Risks</p><ul>${model.executive_summary.key_risks.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul></section>` : ""}
+      ${model.executive_summary.key_strengths.length ? `<section class="pp-dashboard-panel"><p class="pp-panel-label">Key Strengths</p><ul>${model.executive_summary.key_strengths.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul></section>` : ""}
+    </div>` : ""}
     <div class="pp-dashboard-metrics">
       <div class="pp-metric-card">
         <span>Permit status</span>

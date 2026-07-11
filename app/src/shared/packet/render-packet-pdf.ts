@@ -506,6 +506,12 @@ function drawExecutiveDashboard(state: PdfState): void {
     lineHeight: 12.5,
     color: colors.ink,
   }) - 9;
+  for (const item of state.model.executive_summary.key_risks) {
+    state.y = drawWrappedAt(state, `Key Risk: ${item}`, { x: marginX, y: state.y, width: contentWidth, font: state.boldFont, size: 8, lineHeight: 10, color: colors.ink }) - 3;
+  }
+  for (const item of state.model.executive_summary.key_strengths) {
+    state.y = drawWrappedAt(state, `Key Strength: ${item}`, { x: marginX, y: state.y, width: contentWidth, font: state.boldFont, size: 8, lineHeight: 10, color: colors.jadeDark }) - 3;
+  }
 
   const metricGap = 8;
   const metricWidth = (contentWidth - metricGap * 2) / 3;

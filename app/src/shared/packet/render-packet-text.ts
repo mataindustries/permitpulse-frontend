@@ -37,6 +37,8 @@ export function renderPacketText(model: PacketModel): string {
 
   addSection(lines, "Executive Dashboard", [
     `Executive Summary: ${plainText(model.executive_summary.text)}`,
+    ...model.executive_summary.key_risks.map((item) => `Key Risk: ${plainText(item)}`),
+    ...model.executive_summary.key_strengths.map((item) => `Key Strength: ${plainText(item)}`),
     `Permit status: ${plainText(dashboard.permit_status)}`,
     `Overall Mission Health: ${dashboard.mission_health.label} (${dashboard.mission_health.score}%)`,
     `Readiness score: ${dashboard.readiness.score}%`,

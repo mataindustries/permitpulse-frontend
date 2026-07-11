@@ -26,6 +26,7 @@ import { EvidenceList } from "./EvidenceList";
 import { PacketPreview } from "./PacketPreview";
 import { DeliveryLifecyclePanel } from "./DeliveryLifecyclePanel";
 import { AIReviewPanel } from "./AIReviewPanel";
+import { ReviewerWorkspacePanel } from "./ReviewerWorkspacePanel";
 import { StatusBadge } from "./StatusBadge";
 import { StatusManagement } from "./StatusManagement";
 import { TimelineForm } from "./TimelineForm";
@@ -54,6 +55,7 @@ export type CaseDetailSection =
   | "activity"
   | "packet"
   | "ai-review"
+  | "reviewer"
   | "findings";
 
 interface CaseDetailProps {
@@ -247,13 +249,14 @@ export function RecordConflictNotice({
   );
 }
 
-type CockpitSection = "overview" | "evidence" | "timeline" | "findings" | "packet";
+type CockpitSection = "overview" | "evidence" | "timeline" | "findings" | "reviewer" | "packet";
 
 const detailSections = [
   ["overview", "Overview", "mission"],
   ["evidence", "Evidence", "evidence"],
   ["timeline", "Timeline", "timeline"],
   ["findings", "Findings", "ai"],
+  ["reviewer", "Reviewer", "evidence"],
   ["packet", "Packet", "packets"],
 ] as const satisfies readonly [CockpitSection, string, IconName][];
 
@@ -361,11 +364,14 @@ export function CaseDetail({
   const selectedTimeline =
     timelineItems.find((item) => item.id === selectedTimelineId) ?? null;
 
-  const signalsLoading = intelligenceLoading || !intelligence;
-  const missionHealth = intelligence?.missionHealth.score ?? 0;
-  const packetCompleted = intelligence?.packetReadiness.completed ?? 0;
-  const packetProgress = intelligence?.packetReadiness.score ?? 0;
-  const nextAction = intelligence?.recommendedAction;
+  // Never render a previous evaluation while a mutation-triggered refresh is
+  // running. Evidence remains usable even if the supplementary refresh fails.
+  const currentIntelligence = intelligenceLoading ? null : intelligence;
+  const signalsLoading = intelligenceLoading || !currentIntelligence;
+  const missionHealth = currentIntelligence?.missionHealth.score ?? 0;
+  const packetCompleted = currentIntelligence?.packetReadiness.completed ?? 0;
+  const packetProgress = currentIntelligence?.packetReadiness.score ?? 0;
+  const nextAction = currentIntelligence?.recommendedAction;
 
   useEffect(() => {
     setActiveSection(normalizeSection(initialSection));
@@ -643,7 +649,7 @@ export function CaseDetail({
                 </div>
                 <p>
                   {intelligenceError ||
-                    intelligence?.explanation ||
+                    currentIntelligence?.explanation ||
                     "Evaluating current case evidence and timeline state."}
                 </p>
                 <PrimaryAction
@@ -677,8 +683,8 @@ export function CaseDetail({
                 value={signalsLoading ? 0 : missionHealth}
               />
               <div className="mission-health__metrics">
-                <MetricChip icon="evidence" label="evidence" value={`${intelligence?.evidenceHealth.completed ?? 0}/${intelligence?.evidenceHealth.total ?? 2}`} />
-                <MetricChip icon="timeline" label="timeline" value={`${intelligence?.timelineHealth.completed ?? 0}/${intelligence?.timelineHealth.total ?? 2}`} />
+                <MetricChip icon="evidence" label="evidence" value={`${currentIntelligence?.evidenceHealth.completed ?? 0}/${currentIntelligence?.evidenceHealth.total ?? 2}`} />
+                <MetricChip icon="timeline" label="timeline" value={`${currentIntelligence?.timelineHealth.completed ?? 0}/${currentIntelligence?.timelineHealth.total ?? 2}`} />
                 <MetricChip icon="packets" label="packet" value={`${packetCompleted}/5`} />
               </div>
             </SurfaceCard>
@@ -850,10 +856,10 @@ export function CaseDetail({
               </div>
 
               <div className="evidence-health" aria-label="Evidence health indicators">
-                <MetricChip icon="check" label="Checks passed" tone="success" value={intelligence?.evidenceHealth.completed ?? 0} />
-                <MetricChip icon="warning" label="Blockers" tone={intelligence?.blockers.length ? "danger" : "neutral"} value={intelligence?.blockers.length ?? 0} />
-                <MetricChip icon="warning" label="Warnings" tone={intelligence?.warnings.length ? "warning" : "neutral"} value={intelligence?.warnings.length ?? 0} />
-                <MetricChip icon="evidence" label="Evidence health" value={`${intelligence?.evidenceHealth.score ?? 0}%`} />
+                <MetricChip icon="check" label="Checks passed" tone="success" value={currentIntelligence?.evidenceHealth.completed ?? 0} />
+                <MetricChip icon="warning" label="Blockers" tone={currentIntelligence?.blockers.length ? "danger" : "neutral"} value={currentIntelligence?.blockers.length ?? 0} />
+                <MetricChip icon="warning" label="Warnings" tone={currentIntelligence?.warnings.length ? "warning" : "neutral"} value={currentIntelligence?.warnings.length ?? 0} />
+                <MetricChip icon="evidence" label="Evidence health" value={`${currentIntelligence?.evidenceHealth.score ?? 0}%`} />
               </div>
 
               {evidenceFormMode === "create" && (
@@ -1079,7 +1085,7 @@ export function CaseDetail({
                   tone={packetProgress === 100 ? "success" : "warning"}
                   value={packetProgress}
                 />
-                <p>{intelligence?.packetReadiness.explanation ?? "Evaluating packet readiness."}</p>
+                <p>{currentIntelligence?.packetReadiness.explanation ?? "Evaluating packet readiness."}</p>
               </SurfaceCard>
               <DeliveryLifecyclePanel
                 caseId={caseRecord.id}
@@ -1110,6 +1116,11 @@ export function CaseDetail({
               />
             </section>
           )}
+          {activeSection === "reviewer" && (role === "admin" ? (
+            <ReviewerWorkspacePanel caseId={caseRecord.id} evidence={evidenceItems} timeline={timelineItems} />
+          ) : (
+            <section className="cockpit-section"><p>Reviewer workspace access is limited to permit analysts.</p></section>
+          ))}
           </div>
         </div>
       )}

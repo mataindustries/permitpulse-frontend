@@ -1,4 +1,4 @@
-import { type FormEvent, useEffect, useState } from "react";
+import { type FormEvent, useEffect, useRef, useState } from "react";
 import {
   CaseApiError,
   createCase,
@@ -263,6 +263,7 @@ function Workspace({
     useState<MissionIntelligence | null>(null);
   const [intelligenceLoading, setIntelligenceLoading] = useState(false);
   const [intelligenceError, setIntelligenceError] = useState("");
+  const intelligenceRequestRef = useRef(0);
   const [activityResponse, setActivityResponse] =
     useState<CaseActivityResponse | null>(null);
   const [activityLoading, setActivityLoading] = useState(false);
@@ -336,6 +337,7 @@ function Workspace({
     setDetailLoading(true);
     setDetailError("");
     setDetailCase(null);
+    intelligenceRequestRef.current += 1;
     setMissionIntelligence(null);
     setIntelligenceError("");
     setActivityResponse(null);
@@ -366,19 +368,38 @@ function Workspace({
     }
   }
 
-  async function loadMissionIntelligence(caseId: string) {
+  async function loadMissionIntelligence(
+    caseId: string,
+    options: { invalidate?: boolean } = {},
+  ) {
+    const requestId = ++intelligenceRequestRef.current;
+    if (options.invalidate) {
+      setMissionIntelligence(null);
+    }
     setIntelligenceLoading(true);
     setIntelligenceError("");
 
     try {
       const intelligence = await client.getMissionIntelligence(caseId);
+      if (requestId !== intelligenceRequestRef.current) return;
       setMissionIntelligence(intelligence);
       return intelligence;
     } catch (error) {
-      handleCaseError(error, setIntelligenceError);
+      if (requestId === intelligenceRequestRef.current) {
+        handleCaseError(error, setIntelligenceError);
+      }
     } finally {
-      setIntelligenceLoading(false);
+      if (requestId === intelligenceRequestRef.current) {
+        setIntelligenceLoading(false);
+      }
     }
+  }
+
+  async function refreshCaseReadiness(caseId: string, invalidate = false) {
+    await Promise.all([
+      loadMissionIntelligence(caseId, { invalidate }),
+      loadMissionQueue(),
+    ]);
   }
 
   async function loadActivity(caseId: string, offset = 0) {
@@ -638,8 +659,7 @@ function Workspace({
       setSelectedEvidenceId(created.id);
       setHighlightedEvidenceId(created.id);
       await loadEvidenceRecords(detailCase.id, 0);
-      await loadMissionIntelligence(detailCase.id);
-      void loadMissionQueue();
+      await refreshCaseReadiness(detailCase.id, true);
 
       return created;
     } catch (error) {
@@ -665,8 +685,7 @@ function Workspace({
       setSelectedEvidenceId(updated.id);
       setHighlightedEvidenceId(updated.id);
       setSuccessMessage("Evidence saved.");
-      await loadMissionIntelligence(detailCase.id);
-      void loadMissionQueue();
+      await refreshCaseReadiness(detailCase.id, true);
 
       return updated;
     } catch (error) {
@@ -985,8 +1004,7 @@ function Workspace({
             intelligenceLoading={intelligenceLoading}
             onDeliveryLifecycleChanged={async () => {
               if (!detailCase) return;
-              await loadMissionIntelligence(detailCase.id);
-              void loadMissionQueue();
+              await refreshCaseReadiness(detailCase.id, true);
             }}
             loading={detailLoading}
             role={user.role}

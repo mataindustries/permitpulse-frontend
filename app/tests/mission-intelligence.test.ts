@@ -52,6 +52,14 @@ function facts(overrides: FactsOverrides = {}): MissionFacts {
 }
 
 describe("deterministic Mission Intelligence rules", () => {
+  it("clears the verification recommendation when evidence becomes verified and source-complete", () => {
+    const result = evaluateMissionIntelligence(facts());
+
+    expect(result.recommendedAction.id).not.toBe("verify-evidence");
+    expect(result.blockers.map((blocker) => blocker.id)).not.toContain("unready-evidence");
+    expect(result.evidenceHealth).toMatchObject({ score: 100, completed: 2 });
+  });
+
   it("evaluates an empty case without fabricating readiness", () => {
     const result = evaluateMissionIntelligence(
       facts({
@@ -278,5 +286,58 @@ describe("protected Mission Intelligence endpoint", () => {
       ok: false,
       error: { code: "CASE_NOT_FOUND" },
     });
+  });
+
+  it("reflects an evidence verification mutation without a page reload", async () => {
+    const cookie = await signUp(clientA);
+    await env.DB.prepare('UPDATE "user" SET role = ? WHERE email = ?')
+      .bind("admin", clientA.email)
+      .run();
+    const caseId = await createCase(cookie, "Verification refresh mission");
+    const createdResponse = await request(`/api/v1/cases/${caseId}/evidence`, {
+      method: "POST",
+      headers: { cookie, "content-type": "application/json", origin: localOrigin },
+      body: JSON.stringify({
+        evidence_type: "portal",
+        title: "Fictional verified permit source",
+        summary: "A source-complete record used to verify refresh behavior.",
+        source_url: "https://example.test/permit-source",
+        source_label: "Example permit portal",
+        source_date: "2026-07-11",
+      }),
+    });
+    const created = await createdResponse.json<{ data: { id: string; version: number } }>();
+    expect(createdResponse.status).toBe(201);
+
+    const before = await request(`/api/v1/mission-intelligence/${caseId}`, {
+      headers: { cookie },
+    });
+    await expect(before.json()).resolves.toMatchObject({
+      data: { intelligence: { recommendedAction: { id: "verify-evidence" } } },
+    });
+
+    const verifiedResponse = await request(
+      `/api/v1/cases/${caseId}/evidence/${created.data.id}`,
+      {
+        method: "PATCH",
+        headers: { cookie, "content-type": "application/json", origin: localOrigin },
+        body: JSON.stringify({
+          expected_version: created.data.version,
+          verification_status: "verified",
+        }),
+      },
+    );
+    expect(verifiedResponse.status).toBe(200);
+
+    const after = await request(`/api/v1/mission-intelligence/${caseId}`, {
+      headers: { cookie },
+    });
+    const afterBody = await after.json<{
+      data: { intelligence: { recommendedAction: { id: string }; blockers: Array<{ id: string }> } };
+    }>();
+    expect(afterBody.data.intelligence.recommendedAction.id).not.toBe("verify-evidence");
+    expect(afterBody.data.intelligence.blockers.map((item) => item.id)).not.toContain(
+      "unready-evidence",
+    );
   });
 });

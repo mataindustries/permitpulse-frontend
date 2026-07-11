@@ -134,6 +134,11 @@ export interface PacketActivityResponseDto {
 export interface PacketFindingInput {
   id: string;
   text: string;
+  title?: string;
+  severity?: "critical" | "high" | "medium" | "low";
+  finding_type?: "risk" | "strength";
+  confidence?: "high" | "medium" | "low";
+  recommended_resolution?: string;
   supporting_source_ids: string[];
   grounded: boolean;
   reviewer_approved: boolean;
@@ -272,6 +277,8 @@ export interface PacketExecutiveSummary {
   text: string;
   information_class: "client_provided_information";
   supporting_source_ids: string[];
+  key_risks: string[];
+  key_strengths: string[];
 }
 
 export interface PacketFinding extends PacketFindingInput {

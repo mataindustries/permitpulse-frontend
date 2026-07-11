@@ -25,6 +25,7 @@ import {
   readGeneratedPacketSnapshot,
 } from "../delivery/repository";
 import type { Bindings } from "../types";
+import { readReviewerWorkspace } from "../reviewer/repository";
 
 export const packetEvidenceLimit = 50;
 export const packetTimelineLimit = 50;
@@ -59,7 +60,7 @@ export async function buildCurrentPacketPresentation({
   documentStatus = "draft",
   generatedAt,
 }: BuildCurrentPacketInput): Promise<PacketModel> {
-  const [evidenceRows, timelineRows, activityRows] = await Promise.all([
+  const [evidenceRows, timelineRows, activityRows, reviewer] = await Promise.all([
     listEvidenceForCase(database, caseRecord.id, {
       limit: packetEvidenceLimit + 1,
       offset: 0,
@@ -72,6 +73,7 @@ export async function buildCurrentPacketPresentation({
       limit: packetActivityLimit,
       offset: 0,
     }),
+    readReviewerWorkspace(database, caseRecord.id),
   ]);
   const evidenceTruncated = evidenceRows.length > packetEvidenceLimit;
   const timelineTruncated = timelineRows.length > packetTimelineLimit;
@@ -79,6 +81,11 @@ export async function buildCurrentPacketPresentation({
     activityResponse: { activity: activityRows.slice(0, packetActivityLimit) },
     caseRecord,
     documentStatus,
+    editorialContent: {
+      findings: reviewer.findings.filter((item) => item.approved).map((item) => ({ id:item.id, text:item.summary, title:item.title, severity:item.severity, finding_type:item.finding_type, confidence:item.confidence, recommended_resolution:item.recommended_resolution, supporting_source_ids:item.evidence_ids, grounded:item.evidence_ids.length > 0, reviewer_approved:true })),
+      openQuestions: reviewer.questions.filter((item) => item.publishable && item.status !== "closed").map((item) => ({ id:item.id, text:item.question, reviewer_approved:true })),
+      recommendedNextActions: reviewer.actions.filter((item) => item.approved).map((item) => ({ id:item.id, text:item.description, supporting_source_ids:item.evidence_ids, reviewer_approved:true })),
+    },
     evidence: evidenceRows.slice(0, packetEvidenceLimit),
     generatedAt,
     timeline: timelineRows.slice(0, packetTimelineLimit),

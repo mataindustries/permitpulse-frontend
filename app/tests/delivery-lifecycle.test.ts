@@ -196,6 +196,50 @@ describe("delivery lifecycle", () => {
     expect(body.data.lifecycle.quality.stale_snapshot).toBe(false);
   });
 
+  it("regenerates an outdated presentation and returns a current preview and quality gate", async () => {
+    const { cookie, caseId } = await setup();
+    await transition(cookie, caseId, "packet_generated", "legacy-draft");
+    await env.DB.prepare(
+      "UPDATE packet_generations SET snapshot_json = json_set(snapshot_json, '$.presentation_version', 1) WHERE case_id = ?",
+    ).bind(caseId).run();
+
+    const staleResponse = await request(`/api/v1/cases/${caseId}/packet`, {
+      headers: { cookie },
+    });
+    const stale = await staleResponse.json<{
+      data: { quality: { blockers: Array<{ id: string }> }; persisted_snapshot: boolean };
+    }>();
+    expect(stale.data.persisted_snapshot).toBe(false);
+    expect(stale.data.quality.blockers.map((item) => item.id)).toContain(
+      "presentation-version-current",
+    );
+
+    const regeneratedResponse = await transition(
+      cookie,
+      caseId,
+      "packet_generated",
+      "replace-legacy-presentation",
+    );
+    expect(regeneratedResponse.status).toBe(201);
+
+    const refreshedResponse = await request(`/api/v1/cases/${caseId}/packet`, {
+      headers: { cookie },
+    });
+    const refreshed = await refreshedResponse.json<{
+      data: {
+        packet: { presentation_version: number };
+        quality: { blockers: Array<{ id: string }>; stale_snapshot: boolean };
+        persisted_snapshot: boolean;
+      };
+    }>();
+    expect(refreshed.data.persisted_snapshot).toBe(true);
+    expect(refreshed.data.packet.presentation_version).toBe(2);
+    expect(refreshed.data.quality.stale_snapshot).toBe(false);
+    expect(refreshed.data.quality.blockers.map((item) => item.id)).not.toContain(
+      "presentation-version-current",
+    );
+  });
+
   it("keeps inaccessible cases hidden and records immutable actor audit facts", async () => {
     const owner = await setup();
     const otherSignup = await post("", "/api/auth/sign-up/email", { ...account, email: "other.delivery@example.test" });

@@ -112,6 +112,8 @@ function packet(
       text: `This packet assembles records for Fictional ${fixtureId} project.`,
       information_class: "client_provided_information",
       supporting_source_ids: [`${fixtureId}-evidence-1`, `${fixtureId}-timeline-1`],
+      key_risks: [],
+      key_strengths: [],
     },
     case_summary: {
       project_name: `Fictional ${fixtureId} project`,

@@ -27,6 +27,16 @@ const consequential = new Set<DeliveryEventType>([
   "delivery_confirmed",
 ]);
 
+export function packetNeedsRegeneration(lifecycle: DeliveryLifecycle): boolean {
+  return Boolean(
+    lifecycle.quality?.stale_snapshot ||
+    lifecycle.live_preview_differs ||
+    lifecycle.quality?.blockers.some(
+      (issue) => issue.id === "presentation-version-current",
+    ),
+  );
+}
+
 function preferredEvent(lifecycle: DeliveryLifecycle): DeliveryEventType | "" {
   return lifecycle.next_events.find((event) => event !== "packet_generated")
     ?? lifecycle.next_events[0]
@@ -89,9 +99,8 @@ export function DeliveryLifecyclePanel({ caseId, caseVersion, role, onChanged }:
 
   const latest = lifecycle?.latest_event;
   const quality = lifecycle?.quality;
-  const snapshotDiffers = Boolean(
-    quality?.stale_snapshot ||
-    lifecycle?.live_preview_differs ||
+  const packetIsStale = Boolean(
+    (lifecycle && packetNeedsRegeneration(lifecycle)) ||
     (latest?.case_version && latest.case_version !== caseVersion),
   );
   const selectedBlocked = Boolean(
@@ -99,7 +108,7 @@ export function DeliveryLifecyclePanel({ caseId, caseVersion, role, onChanged }:
     (selected === "delivery_recorded" && !quality?.eligible_for_delivery),
   );
   const canRegenerate = Boolean(
-    snapshotDiffers && lifecycle?.next_events.includes("packet_generated"),
+    packetIsStale && lifecycle?.next_events.includes("packet_generated"),
   );
 
   return (
@@ -144,12 +153,11 @@ export function DeliveryLifecyclePanel({ caseId, caseVersion, role, onChanged }:
         </div>
       )}
 
-      {snapshotDiffers && (
+      {packetIsStale && (
         <div className="delivery-lifecycle-panel__warning" role="note">
           <p>The persisted packet snapshot is stale. Approval and delivery remain blocked until a new snapshot is generated.</p>
           {role === "admin" && canRegenerate && (
             <button
-              className="secondary-button"
               disabled={submitting}
               type="button"
               onClick={() => void submit("packet_generated")}

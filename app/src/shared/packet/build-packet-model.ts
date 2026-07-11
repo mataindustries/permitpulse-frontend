@@ -318,6 +318,11 @@ export function buildPacketModel({
       const finding: PacketFinding = {
         id: item.id,
         text: item.text.trim(),
+        title: item.title,
+        severity: item.severity,
+        finding_type: item.finding_type,
+        confidence: item.confidence,
+        recommended_resolution: item.recommended_resolution,
         supporting_source_ids: [...item.supporting_source_ids],
         grounded: item.grounded,
         reviewer_approved: item.reviewer_approved,
@@ -359,12 +364,14 @@ export function buildPacketModel({
     is_internal_draft: false,
     draft_notice: packetStatusNotice(documentStatus),
     executive_summary: {
-      text: `This packet assembles ${evidenceCount} evidence record${evidenceCount === 1 ? "" : "s"} and ${timelineCount} permit timeline event${timelineCount === 1 ? "" : "s"} for ${caseRecord.project_name}. The recorded case status is ${caseStatusLabels[caseRecord.current_status]}.`,
+      text: findings.filter((item) => item.reviewer_approved).map((item) => item.text).join(" ") || `This packet assembles ${evidenceCount} evidence record${evidenceCount === 1 ? "" : "s"} and ${timelineCount} permit timeline event${timelineCount === 1 ? "" : "s"} for ${caseRecord.project_name}. The recorded case status is ${caseStatusLabels[caseRecord.current_status]}.`,
       information_class: "client_provided_information",
       supporting_source_ids: [
         ...evidenceSummaries.map((item) => item.id),
         ...timelineSummaries.map((item) => item.id),
       ],
+      key_risks: findings.filter((item) => item.reviewer_approved && item.finding_type === "risk").map((item) => item.title ?? item.text),
+      key_strengths: findings.filter((item) => item.reviewer_approved && item.finding_type === "strength").map((item) => item.title ?? item.text),
     },
     case_summary: {
       project_name: caseRecord.project_name,

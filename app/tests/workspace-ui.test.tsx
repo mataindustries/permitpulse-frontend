@@ -24,6 +24,7 @@ import { EvidenceDetail } from "../src/client/components/EvidenceDetail";
 import { EvidenceForm } from "../src/client/components/EvidenceForm";
 import { EvidenceLinkManager } from "../src/client/components/EvidenceLinkManager";
 import { EvidenceList } from "../src/client/components/EvidenceList";
+import { packetNeedsRegeneration } from "../src/client/components/DeliveryLifecyclePanel";
 import {
   compilePacketText,
   copyPacketText,
@@ -1591,6 +1592,68 @@ describe("case workspace components", () => {
     expect(markup).toContain("Verify evidence");
     expect(markup).toContain("Blockers");
     expect(markup).toContain("Fictional plan check notice");
+  });
+
+  it("does not show a stale verification recommendation while intelligence refreshes", () => {
+    const markup = renderToStaticMarkup(
+      <CaseDetail
+        {...defaultDetailProps}
+        caseRecord={safeCase}
+        evidenceResponse={{
+          ...defaultDetailProps.evidenceResponse,
+          evidence: [{ ...safeEvidence, verification_status: "verified" }],
+        }}
+        intelligenceLoading
+      />,
+    );
+
+    expect(markup).not.toContain("Verify evidence");
+    expect(markup).toContain("Evaluating mission");
+  });
+
+  it("keeps the Case Cockpit usable when optional intelligence is unavailable", () => {
+    const markup = renderToStaticMarkup(
+      <CaseDetail
+        {...defaultDetailProps}
+        caseRecord={safeCase}
+        intelligence={null}
+        intelligenceError="Mission Intelligence could not be refreshed."
+      />,
+    );
+
+    expect(markup).toContain("Fictional Oak Street ADU");
+    expect(markup).toContain("Mission Intelligence could not be refreshed.");
+    expect(markup).toContain("Edit details");
+    expect(markup).toContain("Evidence");
+  });
+
+  it("treats an outdated packet presentation as requiring regeneration", () => {
+    expect(packetNeedsRegeneration({
+      case_id: safeCase.id,
+      current_state: "packet_generated",
+      events: [],
+      latest_event: null,
+      next_events: ["review_started", "packet_generated"],
+      active_packet_generation_id: "packet-1",
+      live_preview_differs: false,
+      quality: {
+        eligible_for_approval: false,
+        eligible_for_delivery: false,
+        blockers: [{
+          id: "presentation-version-current",
+          title: "Packet presentation is outdated",
+          reason: "The persisted snapshot uses an old presentation version.",
+          source: "Persisted packet snapshot schema",
+          recommended_resolution: "Regenerate the packet.",
+          target_cockpit_tab: "packet",
+        }],
+        warnings: [],
+        passed_checks: [],
+        stale_snapshot: false,
+        evaluated_at: "2026-07-11T00:00:00.000Z",
+        recommended_resolution: "Regenerate the packet.",
+      },
+    })).toBe(true);
   });
 
   it("shows the findings cockpit tab for signed-in case detail users", () => {
