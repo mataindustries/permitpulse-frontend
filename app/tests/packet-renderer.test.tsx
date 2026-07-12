@@ -13,6 +13,7 @@ import { renderPacketHtml } from "../src/shared/packet/render-packet-html";
 import { packetDashboard } from "../src/shared/packet/presentation-summary";
 import {
   renderPacketPdf,
+  packetSectionHeadingMetrics,
   safePacketPdfFilename,
   wrapPacketPdfText,
 } from "../src/shared/packet/render-packet-pdf";
@@ -139,6 +140,52 @@ function pdfHex(value: string): string {
 }
 
 describe("packet model builder", () => {
+  it("keeps source-detail readiness wording and evidence counts identical across UI, HTML, text, and PDF", async () => {
+    const evidence = Array.from({ length: 9 }, (_, index) => ({
+      ...evidenceBase,
+      id: `evidence-${index + 1}`,
+      verification_status: "verified" as const,
+      source_label: index < 6 ? "Example portal" : null,
+      source_url: index < 6 ? `https://example.test/evidence/${index + 1}` : null,
+      source_date: index < 6 ? "2026-01-15" : null,
+    }));
+    const model = buildPacketModel(completeInput({ evidence }));
+    const dashboard = packetDashboard(model);
+    const html = renderPacketHtml(model);
+    const packetText = renderPacketText(model);
+    const ui = renderToStaticMarkup(
+      <PacketPreview
+        activityResponse={previewActivityResponse}
+        caseRecord={previewCaseRecord}
+        evidence={evidence.map((item) => ({ ...item, contributor: null, version: 1 }))}
+        timeline={[previewTimeline]}
+      />,
+    );
+    const pdf = await PDFDocument.load(await renderPacketPdf(model));
+    const pdfOperators = decodedPageOperators(pdf.getPage(0));
+
+    expect(dashboard).toMatchObject({
+      permit_status: "Source details incomplete",
+      blockers: [{ title: "3 verified evidence records need source details" }],
+      recommended_action: { title: "Complete source details" },
+      evidence: { total: 9, verified: 9, unverified: 0, provenance_issues: 3 },
+    });
+    for (const output of [ui, html, packetText]) {
+      expect(output).toContain("Complete source details");
+      expect(output).toContain("3 verified evidence records need source details");
+      expect(output).not.toContain("Verify evidence");
+    }
+    expect(pdfOperators).toContain(pdfHex("Complete source details"));
+    expect(pdfOperators).toContain(pdfHex("3 verified evidence records need source details"));
+    expect(pdfOperators).not.toContain(pdfHex("Verify evidence"));
+    expect(model.readiness?.counts.evidence).toMatchObject({
+      total: dashboard.evidence.total,
+      verified: dashboard.evidence.verified,
+      unverified: dashboard.evidence.unverified,
+      provenanceIssues: dashboard.evidence.provenance_issues,
+    });
+  });
+
   it("generates a deterministic model from complete safe DTO data", () => {
     const model = buildPacketModel(completeInput());
 
@@ -243,13 +290,13 @@ describe("packet model builder", () => {
     const dashboard = packetDashboard(model);
 
     expect(dashboard).toMatchObject({
-      permit_status: "Researching",
+      permit_status: "Needs Verification",
       mission_health: { score: 67, label: "Needs attention" },
       readiness: { score: 80 },
-      reviewer_status: "Review pending",
+      reviewer_status: "Blocked — 1 readiness condition",
     });
     expect(dashboard.blockers).toContainEqual(
-      expect.objectContaining({ id: "evidence-readiness" }),
+      expect.objectContaining({ id: "unready-evidence" }),
     );
     expect(dashboard.evidence).toMatchObject({
       total: 1,
@@ -257,7 +304,62 @@ describe("packet model builder", () => {
       unverified: 1,
       disputed: 0,
       linked_timeline: 1,
+      provenance_issues: 0,
     });
+    expect(dashboard.factors).toHaveLength(6);
+    expect(dashboard.factors.find((factor) => factor.id === "evidence-ready")).toMatchObject({ passed: false, blocking: true });
+    expect(model.readiness?.counts.evidence).toMatchObject({
+      total: dashboard.evidence.total,
+      verified: dashboard.evidence.verified,
+      unverified: dashboard.evidence.unverified,
+      disputed: dashboard.evidence.disputed,
+      provenanceIssues: dashboard.evidence.provenance_issues,
+    });
+  });
+
+  it("builds the follow-up kit and dependency map only from approved grounded findings", () => {
+    const model = buildPacketModel(completeInput({
+      editorialContent: {
+        findings: [{
+          id: "finding-1",
+          text: "Structural review routing is not confirmed in the cited notice.",
+          title: "Structural routing",
+          severity: "high",
+          finding_type: "risk",
+          confidence: "high",
+          recommended_resolution: "Ask the agency to confirm the structural review queue.",
+          supporting_source_ids: [evidenceBase.id],
+          grounded: true,
+          reviewer_approved: true,
+        }],
+      },
+    }));
+
+    expect(model.action_kit).toMatchObject({
+      primary_blocker: "Structural routing",
+      documents_ready: ["Fictional plan check notice"],
+      citation_references: ["E01"],
+    });
+    expect(model.agency_dependencies).toEqual([expect.objectContaining({
+      discipline: "Structural routing",
+      blocking_issue: "Structural review routing is not confirmed in the cited notice.",
+      recommended_next_step: "Ask the agency to confirm the structural review queue.",
+      citation_references: ["E01"],
+    })]);
+    expect(renderPacketHtml(model)).toContain("Agency dependency map");
+    expect(renderPacketText(model)).toContain("Next contact recommendation");
+  });
+
+  it("consolidates demo labeling into one professional disclosure", () => {
+    const model = buildPacketModel(completeInput({
+      caseRecord: { ...caseRecord, project_name: "DEMO — Arroyo Vista", permit_number: "DEMO-123" },
+      evidence: [{ ...evidenceBase, title: "DEMO — Portal record", source_url: "https://records.example/demo" }],
+    }));
+
+    expect(model.demonstration_notice).toBe("FICTIONAL DEMONSTRATION DATA — FOR ILLUSTRATION PURPOSES ONLY");
+    expect(model.case_summary.project_name).toBe("Arroyo Vista");
+    expect(model.evidence_summaries[0]?.title).toBe("Portal record");
+    expect(renderPacketText(model).match(/FICTIONAL DEMONSTRATION DATA/g)).toHaveLength(1);
   });
 
   it("sorts evidence, timeline, and activity deterministically", () => {
@@ -456,6 +558,18 @@ describe("packet HTML renderer", () => {
 });
 
 describe("packet PDF helpers", () => {
+  it("reserves explicit eyebrow spacing for one-line and wrapped section titles", async () => {
+    const document = await PDFDocument.create();
+    const serif = await document.embedFont(StandardFonts.TimesRomanBold);
+    const oneLine = packetSectionHeadingMetrics("Evidence Register", serif);
+    const wrapped = packetSectionHeadingMetrics("Recommended Next Actions for Agency Follow-Up", serif, 140);
+
+    expect(oneLine).toMatchObject({ eyebrowHeight: 9, eyebrowTitleSpacing: 6, titleLines: 1, titleHeight: 21 });
+    expect(wrapped.titleLines).toBeGreaterThan(1);
+    expect(wrapped.titleHeight).toBe(wrapped.titleLines * 21);
+    expect(wrapped.totalHeight - wrapped.titleHeight).toBe(oneLine.totalHeight - oneLine.titleHeight);
+  });
+
   it("generates deterministic safe PDF filenames from packet and case data", () => {
     const model = buildPacketModel(
       completeInput({
@@ -497,7 +611,7 @@ describe("packet PDF helpers", () => {
     const firstPage = decodedPageOperators(pdf.getPage(0));
     for (const label of [
       "Executive Dashboard",
-      "PERMIT STATUS",
+      "READINESS STATE",
       "OVERALL MISSION HEALTH",
       "READINESS SCORE",
       "PRIMARY BLOCKERS",

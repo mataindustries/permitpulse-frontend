@@ -1,4 +1,4 @@
-import type { MissionFacts } from "../../shared/mission-intelligence/facts";
+import { buildMissionFacts, isCompleteEvidenceSource, type MissionFacts } from "../../shared/mission-intelligence/facts";
 import { getCaseForActor } from "../cases/repository";
 import type { CaseActor } from "../cases/authorization";
 import type { Bindings } from "../types";
@@ -7,7 +7,9 @@ interface EvidenceFactRow {
   id: string;
   title: string;
   verification_status: MissionFacts["evidence"]["records"][number]["verificationStatus"];
-  source_complete: number;
+  source_url: string | null;
+  source_label: string | null;
+  source_date: string | null;
 }
 
 interface TimelineFactRow {
@@ -37,15 +39,9 @@ export async function getMissionFactsForActor(
           id,
           title,
           verification_status,
-          CASE
-            WHEN source_url IS NOT NULL
-              AND length(trim(source_url)) > 0
-              AND source_label IS NOT NULL
-              AND length(trim(source_label)) > 0
-              AND source_date IS NOT NULL
-              AND length(trim(source_date)) > 0
-            THEN 1 ELSE 0
-          END AS source_complete
+          source_url,
+          source_label,
+          source_date
         FROM evidence_items
         WHERE case_id = ? AND deleted_at IS NULL
         ORDER BY created_at ASC, id ASC`,
@@ -83,13 +79,8 @@ export async function getMissionFactsForActor(
     id: row.id,
     title: row.title,
     verificationStatus: row.verification_status,
-    sourceComplete: row.source_complete === 1,
+    sourceComplete: isCompleteEvidenceSource({ label: row.source_label, url: row.source_url, date: row.source_date }),
   }));
-  const verifiedIds = new Set(
-    evidenceRecords
-      .filter((record) => record.verificationStatus === "verified" && record.sourceComplete)
-      .map((record) => record.id),
-  );
   const timelineRecords = timelineResult.results.map((row) => ({
     id: row.id,
     title: row.title,
@@ -98,35 +89,15 @@ export async function getMissionFactsForActor(
     linkedEvidenceIds: row.linked_evidence_ids?.split(",").filter(Boolean) ?? [],
   }));
 
-  return {
+  return buildMissionFacts({
     case: {
       id: caseRecord.id,
       permitNumber: caseRecord.permit_number,
       currentStatus: caseRecord.current_status,
       updatedAt: caseRecord.updated_at,
     },
-    evidence: {
-      total: evidenceRecords.length,
-      verified: evidenceRecords.filter((record) => record.verificationStatus === "verified").length,
-      unverified: evidenceRecords.filter((record) => record.verificationStatus === "unverified").length,
-      disputed: evidenceRecords.filter((record) => record.verificationStatus === "disputed").length,
-      sourceComplete: evidenceRecords.filter((record) => record.sourceComplete).length,
-      deliveryReady: evidenceRecords.filter(
-        (record) => record.verificationStatus === "verified" && record.sourceComplete,
-      ).length,
-      records: evidenceRecords,
-    },
-    timeline: {
-      total: timelineRecords.length,
-      linked: timelineRecords.filter((record) => record.linkedEvidenceIds.length > 0).length,
-      canonicalApprovalLinkedToVerifiedEvidence: timelineRecords.some(
-        (record) =>
-          record.isCanonical &&
-          record.timelineType === "approval" &&
-          record.linkedEvidenceIds.some((id) => verifiedIds.has(id)),
-      ),
-      records: timelineRecords,
-    },
+    evidence: evidenceRecords,
+    timeline: timelineRecords,
     delivery: {
       state: deliveryRow?.resulting_state ?? "draft",
       latestEventId: deliveryRow?.id ?? null,
@@ -134,5 +105,5 @@ export async function getMissionFactsForActor(
       packetGenerationId: deliveryRow?.packet_generation_id ?? null,
     },
     evaluatedAt,
-  };
+  });
 }

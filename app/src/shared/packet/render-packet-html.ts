@@ -100,9 +100,9 @@ function renderDashboard(model: PacketModel): string {
     </div>` : ""}
     <div class="pp-dashboard-metrics">
       <div class="pp-metric-card">
-        <span>Permit status</span>
+        <span>Readiness state</span>
         <strong>${escapeHtml(dashboard.permit_status)}</strong>
-        <small>Recorded case status</small>
+        <small>Derived from all readiness factors</small>
       </div>
       <div class="pp-metric-card pp-metric-card--${dashboard.mission_health.tone}">
         <span>Overall Mission Health</span>
@@ -115,6 +115,10 @@ function renderDashboard(model: PacketModel): string {
         <small>${escapeHtml(dashboard.readiness.explanation)}</small>
       </div>
     </div>
+    <section class="pp-readiness-factors" aria-label="Readiness calculation">
+      <div><p class="pp-panel-label">How readiness is calculated</p><span>${dashboard.readiness.completed} of ${dashboard.readiness.total} packet factors pass</span></div>
+      <ul>${dashboard.factors.map((factor) => `<li class="${factor.passed ? "is-passed" : "is-pending"}"><span>${factor.passed ? "Pass" : "Open"}</span><strong>${escapeHtml(factor.label)}</strong><small>${escapeHtml(factor.detail)}</small></li>`).join("")}</ul>
+    </section>
     <div class="pp-dashboard-grid">
       <section class="pp-dashboard-panel" aria-labelledby="pp-primary-blockers-title">
         <p class="pp-panel-label" id="pp-primary-blockers-title">Primary blockers</p>
@@ -135,6 +139,7 @@ function renderDashboard(model: PacketModel): string {
         <div><dt>Verified</dt><dd>${dashboard.evidence.verified}</dd></div>
         <div><dt>Unverified</dt><dd>${dashboard.evidence.unverified}</dd></div>
         <div><dt>Disputed</dt><dd>${dashboard.evidence.disputed}</dd></div>
+        <div><dt>Provenance issues</dt><dd>${dashboard.evidence.provenance_issues}</dd></div>
       </dl>
     </section>
     ${warnings}
@@ -270,9 +275,15 @@ function renderEvidenceMatrix(model:PacketModel):string {
 }
 
 function renderActionKit(model:PacketModel):string {
-  const kit=model.action_kit;if(!kit)return `<p class="pp-editorial-empty"><strong>Not approved</strong><span>No reviewer-approved Agency Follow-Up Kit is included.</span></p>`;
+  const kit=model.action_kit;if(!kit)return `<p class="pp-editorial-empty"><strong>Not available</strong><span>No reviewer-approved findings support an Agency Follow-Up Kit for this edition.</span></p>`;
   const list=(title:string,items:string[])=>`<section class="pp-dashboard-panel"><p class="pp-panel-label">${escapeHtml(title)}</p><ul>${items.map(x=>`<li>${escapeHtml(x)}</li>`).join("")}</ul></section>`;
-  return `<div class="pp-action-kit"><dl class="pp-case-grid"><div><dt>Subject</dt><dd>${escapeHtml(kit.email_subject)}</dd></div><div><dt>Recipient / role</dt><dd>${escapeHtml(kit.recipient_role)}</dd></div></dl><div class="pp-message-body">${escapeHtml(kit.message_body).replaceAll("\n","<br>")}</div><p class="pp-citations">Supported by ${escapeHtml(kit.citation_references.join(", "))}</p><div class="pp-dashboard-grid">${list("Requested confirmations",kit.requested_confirmations)}${list("Call checklist",kit.call_checklist)}${list("Documents to have ready",kit.documents_ready)}<section class="pp-dashboard-panel"><p class="pp-panel-label">Trigger for escalation</p><p>${escapeHtml(kit.escalation_trigger)}</p>${kit.follow_up_date?`<strong>Review date: ${escapeHtml(kit.follow_up_date)}</strong>`:""}</section></div></div>`;
+  return `<div class="pp-action-kit"><p class="pp-panel-label">Concise follow-up email</p><dl class="pp-case-grid"><div><dt>Subject</dt><dd>${escapeHtml(kit.email_subject)}</dd></div><div><dt>Recipient / role</dt><dd>${escapeHtml(kit.recipient_role)}</dd></div></dl><div class="pp-message-body">${escapeHtml(kit.message_body).replaceAll("\n","<br>")}</div><p class="pp-citations">Supported by ${escapeHtml(kit.citation_references.join(", "))}</p><div class="pp-dashboard-grid">${list("Requested confirmations",kit.requested_confirmations)}${list("Call script",kit.call_checklist)}${list("Documents to have ready",kit.documents_ready.length ? kit.documents_ready : ["Use only the cited packet sources listed above."])}<section class="pp-dashboard-panel"><p class="pp-panel-label">Escalation summary</p><p>${escapeHtml(kit.escalation_trigger)}</p><p class="pp-panel-label">Next contact recommendation</p><p>${escapeHtml(kit.recipient_role)}</p>${kit.follow_up_date?`<strong>Review date: ${escapeHtml(kit.follow_up_date)}</strong>`:""}</section></div></div>`;
+}
+
+function renderDependencies(model: PacketModel): string {
+  const dependencies = model.agency_dependencies ?? [];
+  if (!dependencies.length) return "";
+  return `<div class="pp-dependency-map"><p class="pp-panel-label">Agency dependency map</p>${dependencies.map((item) => `<article><div><span>Discipline</span><strong>${escapeHtml(item.discipline)}</strong></div><i>→</i><div><span>Blocking issue</span><strong>${escapeHtml(item.blocking_issue)}</strong></div><i>→</i><div><span>Dependent review</span><strong>${escapeHtml(item.dependent_review)}</strong></div><i>→</i><div><span>Recommended next step</span><strong>${escapeHtml(item.recommended_next_step)}</strong><small>${escapeHtml(item.citation_references.join(", "))}</small></div></article>`).join("")}</div>`;
 }
 
 function renderSources(model: PacketModel): string {
@@ -349,6 +360,13 @@ export function renderPacketHtml(model: PacketModel): string {
     .pp-decision-lines dt { color:var(--jade);font-size:7px;font-weight:900;text-transform:uppercase; }
     .pp-decision-lines dd { margin:0;font-size:8px; }
     .pp-dashboard-metrics { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin-top: 20px; }
+    .pp-demo-banner { background: var(--jade-dark); color: #fff; padding: 8px 24px; text-align: center; font-size: 8px; font-weight: 900; letter-spacing: .13em; }
+    .pp-readiness-factors { margin-top: 10px; border: 1px solid var(--rule); background: #fff; padding: 12px 15px; }
+    .pp-readiness-factors > div { display:flex;justify-content:space-between;gap:15px;color:var(--muted);font-size:8px; }
+    .pp-readiness-factors ul { display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:7px;margin:8px 0 0;padding:0;list-style:none; }
+    .pp-readiness-factors li { display:grid;grid-template-columns:auto 1fr;gap:2px 6px;background:var(--soft);padding:7px;break-inside:avoid; }
+    .pp-readiness-factors li > span { grid-row:1/3;color:var(--warning);font-size:7px;font-weight:900;text-transform:uppercase; }
+    .pp-readiness-factors li.is-passed > span { color:var(--jade); }.pp-readiness-factors li small{grid-column:2;color:var(--muted);font-size:7px;}
     .pp-metric-card { position: relative; min-height: 92px; overflow: hidden; border: 1px solid var(--rule); background: #fff; padding: 14px 15px; }
     .pp-metric-card::before { position: absolute; inset: 0 auto 0 0; width: 4px; background: var(--jade); content: ""; }
     .pp-metric-card--attention::before { background: var(--warning); }
@@ -462,6 +480,9 @@ export function renderPacketHtml(model: PacketModel): string {
     .pp-section--disclaimer { background: var(--soft); }
     .pp-disclaimer { margin: 0; color: var(--muted); font-size: 10px; }
     .pp-message-body { margin-top: 16px; border-left: 4px solid var(--jade); background: #fff; padding: 16px; white-space: normal; }
+    .pp-dependency-map { display:grid;gap:8px;margin-top:20px;border-top:1px solid var(--rule);padding-top:14px; }
+    .pp-dependency-map article { display:grid;grid-template-columns:repeat(4,minmax(0,1fr) auto);align-items:center;border:1px solid var(--rule);padding:8px;break-inside:avoid; }
+    .pp-dependency-map article div { display:grid;gap:3px;padding:5px; }.pp-dependency-map article div span{color:var(--muted);font-size:7px;font-weight:900;text-transform:uppercase}.pp-dependency-map article i{color:var(--jade);font-style:normal}.pp-dependency-map article small{color:var(--muted);font-size:7px}
     .pp-citations { color: var(--jade-dark); font-size: 9px; font-weight: 800; }
     .pp-footer { display: flex; justify-content: space-between; gap: 20px; border-top: 5px solid var(--navy); color: var(--muted); font-size: 8px; padding: 16px 48px 20px; }
     @page { size: Letter; margin: .45in; }
@@ -482,6 +503,8 @@ export function renderPacketHtml(model: PacketModel): string {
       .pp-decision-lines { grid-template-columns:1fr; }
       .pp-cover-identity { border-top: 1px solid rgba(255,255,255,.16); border-left: 0; padding-top: 16px; padding-left: 0; }
       .pp-dashboard-metrics { grid-template-columns: 1fr; }
+      .pp-readiness-factors ul, .pp-dependency-map article { grid-template-columns: 1fr; }
+      .pp-dependency-map article i { justify-self: center; transform: rotate(90deg); }
       .pp-evidence-snapshot { grid-template-columns: 1fr; }
       .pp-packet-metadata { grid-template-columns: repeat(2, minmax(0, 1fr)); }
       .pp-packet-metadata > div:nth-child(2) { border-right: 0; }
@@ -501,6 +524,7 @@ export function renderPacketHtml(model: PacketModel): string {
 </head>
 <body>
   <article class="pp-packet">
+    ${model.demonstration_notice ? `<div class="pp-demo-banner">${escapeHtml(model.demonstration_notice)}</div>` : ""}
     <header class="pp-cover">
       <div class="pp-brand">
         <div class="pp-wordmark">PERMITPULSE <span>Permit intelligence</span></div>
@@ -524,8 +548,8 @@ export function renderPacketHtml(model: PacketModel): string {
     </header>
     ${section("recommended_next_actions", renderEditorial(model.recommended_next_actions, "Action"), { intro: "Reviewer-approved client actions only. PermitPulse system operations are excluded." })}
     ${section("agency_follow_up_kit", renderActionKit(model))}
-    ${section("case_overview", renderCaseOverview(model), { intro: `Current Status: ${model.current_status.label}. Core project identity and jurisdiction information carried forward from the case record.` })}
-    ${section("findings", renderEditorial(model.findings, "Finding"), { intro: "Reviewer-authored conclusions included in this packet edition. No finding is generated by the presentation layer." })}
+    ${section("case_overview", renderCaseOverview(model), { intro: `Current Status (recorded workflow): ${model.current_status.label}. Authoritative readiness state: ${dashboard.permit_status}. Core project identity and jurisdiction information carried forward from the case record.` })}
+    ${section("findings", renderEditorial(model.findings, "Finding") + renderDependencies(model), { intro: "Reviewer-authored conclusions included in this packet edition. No finding is generated by the presentation layer." })}
     ${section("open_questions", renderEditorial(model.open_questions, "Question"), { intro: "Unresolved items that remain explicitly open in the reviewed packet record." })}
     ${section("evidence_matrix",renderEvidenceMatrix(model),{intro:"Compact index of every evidence record; full source notes and review detail remain in the register."})}
     ${section("permit_timeline", renderTimeline(model), { intro: "Chronological permit history, earliest to latest. Each event retains its recorded type, source classification, evidence linkage, and review status." })}

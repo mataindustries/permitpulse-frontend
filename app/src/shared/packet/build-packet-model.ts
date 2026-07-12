@@ -18,12 +18,13 @@ import {
   type PacketMissingInformation,
   type PacketModel,
   type PacketOpenQuestion,
-  type PacketPresentationWarning,
   type PacketRecommendedAction,
   type PacketTimelineSummary,
   type PacketTimelineType,
   type PacketVerificationStatus,
 } from "./types";
+import { evaluateMissionIntelligence } from "../mission-intelligence/evaluate";
+import { buildMissionFacts, isCompleteEvidenceSource } from "../mission-intelligence/facts";
 
 const caseStatusLabels: Record<PacketCaseStatus, string> = {
   intake: "Intake",
@@ -79,6 +80,23 @@ const activityFieldLabels: Record<string, string> = {
   permit_number: "Permit number",
   current_status: "Current status",
 };
+
+const demonstrationNotice =
+  "FICTIONAL DEMONSTRATION DATA — FOR ILLUSTRATION PURPOSES ONLY";
+
+function cleanDemonstrationLabel(value: string): string {
+  return value.replace(/^DEMO\s*[—–-]\s*/i, "").trim();
+}
+
+function isDemonstrationInput(input: BuildPacketModelInput): boolean {
+  return Boolean(
+    /^DEMO\b/i.test(input.caseRecord.project_name) ||
+      /^DEMO\b/i.test(input.caseRecord.permit_number ?? "") ||
+      input.evidence.some((item) =>
+        /^DEMO\b/i.test(item.title) || /\.example(?:\/|$)/i.test(item.source_url ?? ""),
+      ),
+  );
+}
 
 function verificationNote(status: PacketVerificationStatus): string {
   if (status === "verified") {
@@ -159,19 +177,17 @@ function evidenceSummary(
       sourceUrl = null;
     }
   }
-  const sourceComplete = Boolean(
-    item.source_label?.trim() && sourceUrl && item.source_date,
-  );
+  const sourceComplete = isCompleteEvidenceSource({ label: item.source_label, url: sourceUrl, date: item.source_date });
 
   return {
     id: item.id,
     reference,
     evidence_type: item.evidence_type,
     evidence_type_label: evidenceTypeLabels[item.evidence_type],
-    title: item.title,
+    title: cleanDemonstrationLabel(item.title),
     summary: item.summary,
     source: {
-      label: item.source_label,
+      label: item.source_label ? cleanDemonstrationLabel(item.source_label) : null,
       url: sourceUrl,
       date: item.source_date,
       date_label: formatPacketDateOnly(item.source_date),
@@ -225,32 +241,6 @@ function missingInformation(input: {
   return missing;
 }
 
-function presentationWarnings(
-  evidence: PacketEvidenceSummary[],
-): PacketPresentationWarning[] {
-  const warnings: PacketPresentationWarning[] = [];
-  const unverified = evidence.filter((item) => item.verification_status === "unverified");
-  const disputed = evidence.filter((item) => item.verification_status === "disputed");
-
-  if (unverified.length > 0) {
-    warnings.push({
-      id: "unverified-evidence",
-      text: `${unverified.length} evidence record${unverified.length === 1 ? " is" : "s are"} labeled unverified.`,
-      information_class: "warning",
-    });
-  }
-
-  if (disputed.length > 0) {
-    warnings.push({
-      id: "disputed-evidence",
-      text: `${disputed.length} evidence record${disputed.length === 1 ? " is" : "s are"} labeled disputed.`,
-      information_class: "warning",
-    });
-  }
-
-  return warnings;
-}
-
 function findingClass(item: PacketFinding): PacketFinding["information_class"] {
   return item.grounded && item.reviewer_approved
     ? "reviewer_approved_finding"
@@ -267,6 +257,7 @@ export function buildPacketModel({
   timeline,
 }: BuildPacketModelInput): PacketModel {
   const generated = formatPacketDateTime(generatedAt);
+  const isDemonstration = isDemonstrationInput({ activityResponse, caseRecord, documentStatus, editorialContent, evidence, generatedAt, timeline });
   const sortedEvidence = [...evidence].sort(compareEvidence);
   const evidenceSummaries = sortedEvidence.map((item,index)=>evidenceSummary(item,`E${String(index+1).padStart(2,"0")}`));
   const evidenceById = new Map(
@@ -302,7 +293,7 @@ export function buildPacketModel({
         occurred_on_label: formatPacketDateOnly(entry.occurred_on),
         timeline_type: entry.timeline_type,
         timeline_type_label: timelineTypeLabels[entry.timeline_type],
-        title: entry.title,
+        title: cleanDemonstrationLabel(entry.title),
         details: entry.details,
         source_label: entry.is_canonical ? "Canonical" : "Contributed",
         linked_evidence: linkedEvidence,
@@ -355,13 +346,87 @@ export function buildPacketModel({
     information_class: item.reviewer_approved ? "approved_next_action" : "warning",
     citation_references: item.supporting_source_ids.map((id)=>evidenceById.get(id)?.reference).filter((value):value is string=>Boolean(value)),
   }));
+  const readiness = evaluateMissionIntelligence(buildMissionFacts({
+    case: {
+      id: `packet:${caseRecord.version}`,
+      permitNumber: caseRecord.permit_number,
+      currentStatus: caseRecord.current_status,
+      updatedAt: caseRecord.updated_at,
+    },
+    evidence: evidenceSummaries.map((item) => ({
+      id: item.id,
+      title: item.title,
+      verificationStatus: item.verification_status,
+      sourceComplete: item.source.complete,
+    })),
+    timeline: timeline.map((entry) => ({
+      id: entry.id,
+      title: cleanDemonstrationLabel(entry.title),
+      timelineType: entry.timeline_type,
+      isCanonical: entry.is_canonical,
+      linkedEvidenceIds: [...entry.evidence_ids],
+    })),
+    evaluatedAt: generated.raw,
+  }));
   const kit = editorialContent?.actionKit;
-  const actionKit = kit?.approved ? {
+  const manualActionKit = kit?.approved ? {
     current_position:kit.current_position, confirmed_record:kit.confirmed_record, unconfirmed_record:kit.unconfirmed_record, primary_blocker:kit.primary_blocker,
     why_appropriate:kit.why_appropriate, evidence_readiness:kit.evidence_readiness, review_readiness:kit.review_readiness, email_subject:kit.email_subject,
     recipient_role:kit.recipient_role, message_body:kit.message_body, call_checklist:[...kit.call_checklist], requested_confirmations:[...kit.requested_confirmations], documents_ready:[...kit.documents_ready], escalation_trigger:kit.escalation_trigger, follow_up_date:kit.follow_up_date,
     citation_references:[...kit.evidence_ids.map(id=>evidenceById.get(id)?.reference).filter((v):v is string=>Boolean(v)),...kit.timeline_ids.map(id=>timelineSummaries.find(t=>t.id===id)?.reference).filter((v):v is string=>Boolean(v))],
   } : null;
+  const eligibleApprovedFindings = findings.filter(
+    (item) => item.reviewer_approved && item.grounded && item.citation_references.length > 0,
+  );
+  const primaryApprovedFinding = eligibleApprovedFindings.find((item) => item.finding_type === "risk") ?? eligibleApprovedFindings[0];
+  const approvedAction = nextActions.find(
+    (item) => item.reviewer_approved && item.citation_references.length > 0,
+  );
+  const citedEvidenceTitles = primaryApprovedFinding
+    ? primaryApprovedFinding.supporting_source_ids
+      .map((id) => evidenceById.get(id)?.title)
+      .filter((value): value is string => Boolean(value))
+    : [];
+  const derivedNextStep = primaryApprovedFinding?.recommended_resolution ?? approvedAction?.text;
+  const actionKit = manualActionKit ?? (primaryApprovedFinding && derivedNextStep ? {
+    current_position: primaryApprovedFinding.text,
+    confirmed_record: primaryApprovedFinding.text,
+    unconfirmed_record: "Any agency determination beyond the cited record remains unconfirmed.",
+    primary_blocker: primaryApprovedFinding.title ?? primaryApprovedFinding.text,
+    why_appropriate: derivedNextStep,
+    evidence_readiness: readiness.evidenceHealth.explanation,
+    review_readiness: readiness.packetReadiness.explanation,
+    email_subject: `Permit record follow-up${caseRecord.permit_number ? ` — ${caseRecord.permit_number}` : ""}`,
+    recipient_role: `Agency review contact for ${caseRecord.jurisdiction}`,
+    message_body: `We are following up on ${caseRecord.project_name}. The reviewer-approved record states: ${primaryApprovedFinding.text} Please confirm the current agency position and the next step supported by the cited record: ${derivedNextStep}`,
+    call_checklist: [
+      `Identify the case${caseRecord.permit_number ? ` by permit number ${caseRecord.permit_number}` : " by project and address"}.`,
+      `Reference the approved finding: ${primaryApprovedFinding.text}`,
+      `Request confirmation of the documented next step: ${derivedNextStep}`,
+    ],
+    requested_confirmations: [
+      `Confirm the agency's current position on: ${primaryApprovedFinding.title ?? primaryApprovedFinding.text}`,
+      `Confirm whether the documented next step remains: ${derivedNextStep}`,
+    ],
+    documents_ready: citedEvidenceTitles,
+    escalation_trigger: `Escalate only if the agency response leaves the approved finding unresolved: ${primaryApprovedFinding.text}`,
+    follow_up_date: null,
+    citation_references: primaryApprovedFinding.citation_references,
+  } : null);
+  const agencyDependencies = findings
+    .filter((item) => item.reviewer_approved && item.grounded && item.finding_type === "risk" && item.citation_references.length > 0)
+    .flatMap((item) => {
+      const nextStep = item.recommended_resolution ?? approvedAction?.text;
+      if (!nextStep) return [];
+      return [{
+        id: `dependency:${item.id}`,
+        discipline: item.title ?? "Agency review",
+        blocking_issue: item.text,
+        dependent_review: "Agency confirmation of the cited record",
+        recommended_next_step: nextStep,
+        citation_references: item.citation_references,
+      }];
+    });
   const evidenceCount = evidenceSummaries.length;
   const timelineCount = timelineSummaries.length;
 
@@ -377,7 +442,7 @@ export function buildPacketModel({
     is_internal_draft: false,
     draft_notice: packetStatusNotice(documentStatus),
     executive_summary: {
-      text: findings.filter((item) => item.reviewer_approved).map((item) => item.text).join(" ") || `This packet assembles ${evidenceCount} evidence record${evidenceCount === 1 ? "" : "s"} and ${timelineCount} permit timeline event${timelineCount === 1 ? "" : "s"} for ${caseRecord.project_name}. The recorded case status is ${caseStatusLabels[caseRecord.current_status]}.`,
+      text: findings.filter((item) => item.reviewer_approved).map((item) => item.text).join(" ") || `This packet assembles ${evidenceCount} evidence record${evidenceCount === 1 ? "" : "s"} and ${timelineCount} permit timeline event${timelineCount === 1 ? "" : "s"} for ${cleanDemonstrationLabel(caseRecord.project_name)}. The recorded case status is ${caseStatusLabels[caseRecord.current_status]}.`,
       information_class: "client_provided_information",
       supporting_source_ids: [
         ...evidenceSummaries.map((item) => item.id),
@@ -387,7 +452,7 @@ export function buildPacketModel({
       key_strengths: findings.filter((item) => item.reviewer_approved && item.finding_type === "strength").map((item) => item.title ?? item.text),
     },
     case_summary: {
-      project_name: caseRecord.project_name,
+      project_name: cleanDemonstrationLabel(caseRecord.project_name),
       client_name: caseRecord.client_name,
       address: caseRecord.address,
       city: caseRecord.city,
@@ -399,7 +464,7 @@ export function buildPacketModel({
       information_class: "client_provided_information",
     },
     case_overview: [
-      { id: "project-name", label: "Project", value: caseRecord.project_name, information_class: "client_provided_information" },
+      { id: "project-name", label: "Project", value: cleanDemonstrationLabel(caseRecord.project_name), information_class: "client_provided_information" },
       { id: "client-name", label: "Client", value: caseRecord.client_name, information_class: "client_provided_information" },
       { id: "address", label: "Address", value: [caseRecord.address, caseRecord.city].filter(Boolean).join(", "), information_class: "client_provided_information" },
       { id: "jurisdiction", label: "Jurisdiction", value: caseRecord.jurisdiction, information_class: "client_provided_information" },
@@ -446,6 +511,9 @@ export function buildPacketModel({
       empty_message: "No reviewer-approved next actions are recorded.",
     },
     action_kit: actionKit,
+    agency_dependencies: agencyDependencies,
+    readiness,
+    demonstration_notice: isDemonstration ? demonstrationNotice : null,
     supporting_sources: evidenceSummaries.map((item) => ({
       id: item.id,
       title: item.title,
@@ -460,7 +528,9 @@ export function buildPacketModel({
       evidence: evidenceSummaries,
       timeline: timelineSummaries,
     }),
-    warnings: presentationWarnings(evidenceSummaries),
+    warnings: [
+      ...readiness.warnings.map((warning) => ({ id: warning.id, text: warning.reason, information_class: "warning" as const })),
+    ],
     unsupported_claims: [...(editorialContent?.unsupportedClaims ?? [])].map((item) => item.trim()).filter(Boolean),
     disclaimer: packetDisclaimer,
   };

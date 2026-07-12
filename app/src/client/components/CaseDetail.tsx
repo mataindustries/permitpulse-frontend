@@ -687,6 +687,16 @@ export function CaseDetail({
                 <MetricChip icon="timeline" label="timeline" value={`${currentIntelligence?.timelineHealth.completed ?? 0}/${currentIntelligence?.timelineHealth.total ?? 2}`} />
                 <MetricChip icon="packets" label="packet" value={`${packetCompleted}/5`} />
               </div>
+              {currentIntelligence && (
+                <ul className="readiness-factor-list" aria-label="Mission health calculation">
+                  {currentIntelligence.readinessFactors.map((factor) => (
+                    <li className={factor.passed ? "is-passed" : "is-pending"} key={factor.id}>
+                      <span aria-hidden="true">{factor.passed ? "✓" : "—"}</span>
+                      <div><strong>{factor.label}</strong><small>{factor.detail}</small></div>
+                    </li>
+                  ))}
+                </ul>
+              )}
             </SurfaceCard>
           </div>
 
@@ -729,7 +739,11 @@ export function CaseDetail({
                     <p className="eyebrow">Mission snapshot</p>
                     <h3 id="overview-title">Case overview</h3>
                   </div>
-                  <StatusBadge status={caseRecord.current_status} />
+                  {currentIntelligence ? (
+                    <OsStatusBadge tone={currentIntelligence.counts.blockers > 0 ? "warning" : "success"}>
+                      {currentIntelligence.missionState}
+                    </OsStatusBadge>
+                  ) : <StatusBadge status={caseRecord.current_status} />}
                 </div>
                 <dl className="detail-grid">
                   <div>
@@ -857,9 +871,10 @@ export function CaseDetail({
 
               <div className="evidence-health" aria-label="Evidence health indicators">
                 <MetricChip icon="check" label="Checks passed" tone="success" value={currentIntelligence?.evidenceHealth.completed ?? 0} />
-                <MetricChip icon="warning" label="Blockers" tone={currentIntelligence?.blockers.length ? "danger" : "neutral"} value={currentIntelligence?.blockers.length ?? 0} />
-                <MetricChip icon="warning" label="Warnings" tone={currentIntelligence?.warnings.length ? "warning" : "neutral"} value={currentIntelligence?.warnings.length ?? 0} />
+                <MetricChip icon="warning" label="Blockers" tone={currentIntelligence?.counts.blockers ? "danger" : "neutral"} value={currentIntelligence?.counts.blockers ?? 0} />
+                <MetricChip icon="warning" label="Warnings" tone={currentIntelligence?.counts.warnings ? "warning" : "neutral"} value={currentIntelligence?.counts.warnings ?? 0} />
                 <MetricChip icon="evidence" label="Evidence health" value={`${currentIntelligence?.evidenceHealth.score ?? 0}%`} />
+                <MetricChip icon="warning" label="Provenance issues" tone={currentIntelligence?.counts.evidence.provenanceIssues ? "warning" : "success"} value={currentIntelligence?.counts.evidence.provenanceIssues ?? 0} />
               </div>
 
               {evidenceFormMode === "create" && (
@@ -1086,6 +1101,16 @@ export function CaseDetail({
                   value={packetProgress}
                 />
                 <p>{currentIntelligence?.packetReadiness.explanation ?? "Evaluating packet readiness."}</p>
+                {currentIntelligence && (
+                  <ul className="readiness-factor-list readiness-factor-list--packet" aria-label="Packet readiness calculation">
+                    {currentIntelligence.readinessFactors.slice(0, 5).map((factor) => (
+                      <li className={factor.passed ? "is-passed" : "is-pending"} key={factor.id}>
+                        <span aria-hidden="true">{factor.passed ? "✓" : "—"}</span>
+                        <div><strong>{factor.label}</strong><small>{factor.detail}</small></div>
+                      </li>
+                    ))}
+                  </ul>
+                )}
               </SurfaceCard>
               <DeliveryLifecyclePanel
                 caseId={caseRecord.id}

@@ -3,6 +3,9 @@ import type {
   PacketModel,
   PacketTimelineSummary,
 } from "./types";
+import { evaluateMissionIntelligence } from "../mission-intelligence/evaluate";
+import { buildMissionFacts } from "../mission-intelligence/facts";
+import type { MissionHealthMetric, MissionIntelligence, MissionReadinessFactor } from "../mission-intelligence/types";
 
 export const packetRendererVersion = 3 as const;
 
@@ -37,6 +40,7 @@ export interface PacketDashboardEvidenceSummary {
   total: number;
   unverified: number;
   verified: number;
+  provenance_issues: number;
 }
 
 export interface PacketDashboard {
@@ -49,54 +53,58 @@ export interface PacketDashboard {
   readiness: PacketDashboardMetric;
   recommended_action: PacketDashboardAction;
   reviewer_status: string;
+  factors: MissionReadinessFactor[];
+  warning_count: number;
 }
 
-function metric(
-  completed: number,
-  total: number,
-  subject: string,
-): PacketDashboardMetric {
-  const score = total === 0 ? 0 : Math.round((completed / total) * 100);
-  const tone: PacketDashboardTone = score >= 80
-    ? "strong"
-    : score >= 50
-      ? "attention"
-      : "at_risk";
-
+function metric(value: MissionHealthMetric): PacketDashboardMetric {
+  const tone = value.status;
   return {
-    completed,
-    explanation: `${completed} of ${total} deterministic ${subject} checks pass.`,
+    completed: value.completed,
+    explanation: value.explanation,
     label: tone === "strong"
       ? "Strong"
       : tone === "attention"
         ? "Needs attention"
         : "At risk",
-    score,
+    score: value.score,
     tone,
-    total,
+    total: value.total,
   };
 }
 
-function evidenceCounts(model: PacketModel): PacketDashboardEvidenceSummary {
-  const verified = model.evidence_summaries.filter(
-    (item) => item.verification_status === "verified",
-  ).length;
-  const unverified = model.evidence_summaries.filter(
-    (item) => item.verification_status === "unverified",
-  ).length;
-  const disputed = model.evidence_summaries.filter(
-    (item) => item.verification_status === "disputed",
-  ).length;
-  const sourceComplete = model.evidence_summaries.filter(
-    (item) => item.source.complete,
-  ).length;
-  const linkedTimeline = model.timeline_summaries.filter(
-    (item) =>
-      item.linked_evidence.length > 0 &&
-      item.missing_evidence_reference_count === 0,
-  ).length;
-  const total = model.evidence_summaries.length;
-  const timelineTotal = model.timeline_summaries.length;
+function readinessForPacket(model: PacketModel): MissionIntelligence {
+  if (model.readiness) return model.readiness;
+
+  return evaluateMissionIntelligence(buildMissionFacts({
+    case: {
+      id: `packet:${model.packet_version}`,
+      permitNumber: model.permit_number,
+      currentStatus: model.current_status.value,
+      updatedAt: model.case_summary.updated_at,
+    },
+    evidence: model.evidence_summaries.map((item) => ({
+      id: item.id,
+      title: item.title,
+      verificationStatus: item.verification_status,
+      sourceComplete: item.source.complete,
+    })),
+    timeline: model.timeline_summaries.map((item) => ({
+      id: item.id,
+      title: item.title,
+      timelineType: item.timeline_type,
+      isCanonical: item.source_label === "Canonical",
+      linkedEvidenceIds: item.linked_evidence.map((evidence) => evidence.source_id),
+    })),
+    evaluatedAt: model.generated_at,
+  }));
+}
+
+function evidenceSummary(readiness: MissionIntelligence): PacketDashboardEvidenceSummary {
+  const counts = readiness.counts;
+  const { total, verified, unverified, disputed, sourceComplete, provenanceIssues } = counts.evidence;
+  const timelineTotal = counts.timeline.total;
+  const linkedTimeline = counts.timeline.linked;
   const evidenceText = total === 0
     ? "No evidence records are included in this packet edition."
     : `${total} evidence record${total === 1 ? "" : "s"}: ${verified} verified, ${unverified} unverified, and ${disputed} disputed. ${sourceComplete} ${sourceComplete === 1 ? "record has" : "records have"} complete provenance.`;
@@ -113,95 +121,26 @@ function evidenceCounts(model: PacketModel): PacketDashboardEvidenceSummary {
     total,
     unverified,
     verified,
+    provenance_issues: provenanceIssues,
   };
-}
-
-function dashboardBlockers(
-  model: PacketModel,
-  evidence: PacketDashboardEvidenceSummary,
-): PacketDashboardBlocker[] {
-  const blockers: PacketDashboardBlocker[] = [];
-
-  if (!model.permit_number?.trim()) {
-    blockers.push({
-      id: "permit-number",
-      title: "Permit identifier is missing",
-      resolution: "Record the jurisdiction permit number before relying on the packet for file identification.",
-    });
-  }
-
-  if (model.current_status.value === "needs_information") {
-    blockers.push({
-      id: "case-needs-information",
-      title: "Outstanding case information",
-      resolution: "Resolve the information need recorded in the current case status.",
-    });
-  }
-
-  if (evidence.total === 0) {
-    blockers.push({
-      id: "evidence-empty",
-      title: "No supporting evidence",
-      resolution: "Add the first source record before presenting a permit history.",
-    });
-  } else if (evidence.disputed > 0) {
-    blockers.push({
-      id: "evidence-disputed",
-      title: `${evidence.disputed} disputed evidence record${evidence.disputed === 1 ? "" : "s"}`,
-      resolution: "Resolve or replace disputed sources before relying on them.",
-    });
-  }
-
-  const deliveryReadyEvidence = model.evidence_summaries.filter(
-    (item) => item.verification_status === "verified" && item.source.complete,
-  ).length;
-
-  if (evidence.total > 0 && deliveryReadyEvidence < evidence.total) {
-    const count = evidence.total - deliveryReadyEvidence;
-    blockers.push({
-      id: "evidence-readiness",
-      title: `${count} evidence record${count === 1 ? " needs" : "s need"} verification or provenance`,
-      resolution: "Verify each source and complete its source label, date, and digital provenance.",
-    });
-  }
-
-  if (evidence.timeline_total === 0) {
-    blockers.push({
-      id: "timeline-empty",
-      title: "Permit history is not assembled",
-      resolution: "Add the first dated permit event and connect it to its source.",
-    });
-  } else if (evidence.linked_timeline < evidence.timeline_total) {
-    const count = evidence.timeline_total - evidence.linked_timeline;
-    blockers.push({
-      id: "timeline-linkage",
-      title: `${count} permit event${count === 1 ? " lacks" : "s lack"} evidence linkage`,
-      resolution: "Connect each event to the evidence record that supports it.",
-    });
-  }
-
-  return blockers;
 }
 
 function recommendedAction(
   model: PacketModel,
   blockers: PacketDashboardBlocker[],
+  readiness: MissionIntelligence,
 ): PacketDashboardAction {
+  if (blockers[0]) {
+    return {
+      title: readiness.recommendedAction.title,
+      detail: readiness.recommendedAction.reason,
+    };
+  }
   const recordedAction = model.recommended_next_actions.items[0];
-
   if (recordedAction) {
     return {
       title: recordedAction.text,
-      detail: recordedAction.reviewer_approved
-        ? "Reviewer-approved action recorded in this packet."
-        : "Recorded action remains subject to reviewer approval.",
-    };
-  }
-
-  if (blockers[0]) {
-    return {
-      title: blockers[0].resolution,
-      detail: `Addresses the highest-priority packet condition: ${blockers[0].title}.`,
+      detail: "Reviewer-approved action recorded in this packet.",
     };
   }
 
@@ -233,56 +172,36 @@ function recommendedAction(
 }
 
 export function packetDashboard(model: PacketModel): PacketDashboard {
-  const evidence = evidenceCounts(model);
-  const deliveryReadyEvidence = model.evidence_summaries.length > 0 &&
-    model.evidence_summaries.every(
-      (item) => item.verification_status === "verified" && item.source.complete,
-    );
-  const timelineLinked = model.timeline_summaries.length > 0 &&
-    model.timeline_summaries.every(
-      (item) =>
-        item.linked_evidence.length > 0 &&
-        item.missing_evidence_reference_count === 0,
-    );
-  const checks = [
-    Boolean(model.permit_number?.trim()),
-    model.evidence_summaries.length > 0,
-    deliveryReadyEvidence,
-    model.timeline_summaries.length > 0,
-    timelineLinked,
-    model.current_status.value === "ready_for_review",
-  ];
-  const packetChecks = checks.slice(0, 5);
-  const blockers = dashboardBlockers(model, evidence);
+  const readiness = readinessForPacket(model);
+  const evidence = evidenceSummary(readiness);
+  const blockers = readiness.blockers.map((blocker) => ({
+    id: blocker.id,
+    title: blocker.title,
+    resolution: blocker.recommendedResolution,
+  }));
   const lifecycleStatus = model.document_status === "approved"
     ? "Approved for delivery"
     : model.document_status === "delivered"
       ? "Delivered"
       : "Draft packet";
-  const reviewerStatus = model.document_status === "approved" || model.document_status === "delivered"
+  const reviewerStatus = blockers.length > 0
+    ? `Blocked — ${blockers.length} readiness condition${blockers.length === 1 ? "" : "s"}`
+    : model.document_status === "approved" || model.document_status === "delivered"
     ? "Reviewer approved"
-    : model.current_status.value === "ready_for_review"
-      ? "Ready for review"
-      : "Review pending";
+    : readiness.missionState;
 
   return {
     blockers,
     evidence,
     integrity: `Presentation v${model.presentation_version} · renderer v${packetRendererVersion} · case snapshot v${model.packet_version}`,
     lifecycle_status: lifecycleStatus,
-    mission_health: metric(
-      checks.filter(Boolean).length,
-      checks.length,
-      "mission",
-    ),
-    permit_status: model.current_status.label,
-    readiness: metric(
-      packetChecks.filter(Boolean).length,
-      packetChecks.length,
-      "packet-readiness",
-    ),
-    recommended_action: recommendedAction(model, blockers),
+    mission_health: metric(readiness.missionHealth),
+    permit_status: readiness.missionState,
+    readiness: metric(readiness.packetReadiness),
+    recommended_action: recommendedAction(model, blockers, readiness),
     reviewer_status: reviewerStatus,
+    factors: readiness.readinessFactors,
+    warning_count: readiness.counts.warnings,
   };
 }
 

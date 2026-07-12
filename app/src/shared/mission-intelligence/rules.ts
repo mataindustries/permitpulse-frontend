@@ -144,11 +144,17 @@ export const missionRules: readonly MissionRule[] = [
   {
     id: "unready-evidence",
     priority: 40,
-    evaluate: (facts) =>
-      facts.evidence.total === 0 || facts.evidence.deliveryReady === facts.evidence.total
-        ? null
-        : {
-            state: "Needs Verification",
+    evaluate: (facts) => {
+      if (facts.evidence.total === 0 || facts.evidence.deliveryReady === facts.evidence.total) {
+        return null;
+      }
+
+      const evidenceNeedsVerification = facts.evidence.verified < facts.evidence.total;
+      const provenanceIssues = facts.evidence.total - facts.evidence.sourceComplete;
+
+      return evidenceNeedsVerification
+        ? {
+            state: "Needs Verification" as const,
             blocker: {
               id: "unready-evidence",
               title: "Evidence needs verification",
@@ -166,7 +172,28 @@ export const missionRules: readonly MissionRule[] = [
               true,
               ["aggregate:evidence"],
             ),
-          },
+          }
+        : {
+            state: "Source details incomplete" as const,
+            blocker: {
+              id: "unready-evidence",
+              title: `${provenanceIssues} verified evidence record${provenanceIssues === 1 ? " needs" : "s need"} source details`,
+              severity: "high" as const,
+              reason: `${provenanceIssues} verified evidence record${provenanceIssues === 1 ? " is" : "s are"} missing required source metadata.`,
+              recommendedResolution: "Complete the source label, URL, and source date for each affected record.",
+              supportingEvidence: ["aggregate:evidence"],
+            },
+            action: action(
+              "complete-source-details",
+              "Complete source details",
+              40,
+              "All evidence is verified, but every record must also have complete source metadata before packet delivery.",
+              "evidence",
+              true,
+              ["aggregate:evidence"],
+            ),
+          };
+    },
   },
   {
     id: "missing-timeline",
@@ -275,4 +302,3 @@ export function completedChecks(facts: MissionFacts): MissionCompletedCheck[] {
 
   return checks.filter((check): check is MissionCompletedCheck => check !== null);
 }
-

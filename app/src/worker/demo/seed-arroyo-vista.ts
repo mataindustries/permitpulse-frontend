@@ -69,10 +69,19 @@ export async function seedArroyoVistaDemo(input: {
       record = await createEvidenceForActor(database, caseId, actor, fixture);
       evidence.push(record);
     }
-    if (fixture.verification_status === "verified" && record.verification_status !== "verified") {
+    const fixturePatch = {
+      evidence_type: fixture.evidence_type,
+      title: fixture.title,
+      summary: fixture.summary,
+      source_url: fixture.source_url,
+      source_label: fixture.source_label,
+      source_date: fixture.source_date,
+      verification_status: fixture.verification_status,
+    };
+    if (Object.entries(fixturePatch).some(([field, value]) => record![field as keyof typeof record] !== value)) {
       const updated = requireSuccess(await updateEvidenceForActor(database, caseId, actor, record, {
         expected_version:record.version,
-        verification_status:"verified",
+        ...fixturePatch,
       }), fixture.title);
       record = updated.record;
       evidence = evidence.map((item) => item.id === record!.id ? record! : item);

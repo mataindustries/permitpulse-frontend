@@ -1,13 +1,21 @@
 import { env } from "cloudflare:workers";
-import { PDFDocument } from "pdf-lib";
+import { decodePDFRawStream, PDFArray, PDFDocument, PDFRawStream } from "pdf-lib";
 import { beforeEach, describe, expect, it } from "vitest";
 import { app } from "../src/worker/app";
 import type { Bindings } from "../src/worker/types";
+import { arroyoVistaDemoEvidence } from "../src/shared/demo/arroyo-vista-demo";
 
 const origin="http://localhost";
 const secret="demo-seed-test-secret-123456789012345678901234";
 const bindings=():Bindings=>({ADMIN_BOOTSTRAP_ENABLED:"false",APP_ENV:"local",ASSETS:env.ASSETS,AUTH_ALLOW_SIGNUP:"true",AUTH_ENABLED:"true",BETTER_AUTH_SECRET:secret,BETTER_AUTH_URL:origin,DB:env.DB,ENABLE_DEV_CASE_API:"true"});
 const request=(path:string,init?:RequestInit)=>app.request(`${origin}${path}`,init,bindings());
+const pdfHex=(value:string)=>Buffer.from(value,"latin1").toString("hex").toUpperCase();
+const pdfOperators=(document:PDFDocument)=>document.getPages().map((page)=>{
+  const contents=page.node.Contents();
+  const resolved=page.node.context.lookup(contents);
+  const entries=resolved instanceof PDFArray?resolved.asArray():[contents];
+  return entries.map((entry)=>new TextDecoder().decode(decodePDFRawStream(page.node.context.lookup(entry) as PDFRawStream).decode())).join("\n");
+}).join("\n");
 const post=(cookie:string,path:string,body?:unknown)=>request(path,{method:"POST",headers:{cookie,origin,...(body === undefined ? {} : {"content-type":"application/json"})},body:body === undefined ? undefined : JSON.stringify(body)});
 
 async function account(role:"admin"|"client") {
@@ -42,10 +50,17 @@ describe("canonical rich demo case",()=>{
     expect(counts).toEqual({cases:1,evidence:9,timeline:8,links:16,lifecycle:1});
 
     const packetResponse=await request(`/api/v1/cases/${seeded.data.case_id}/packet`,{headers:{cookie:admin.cookie}});
-    const packetBody=await packetResponse.json<{data:{packet:unknown;quality:{blockers:unknown[];stale_snapshot:boolean};persisted_snapshot:boolean}}>();
+    const packetBody=await packetResponse.json<{data:{packet:{evidence_summaries:Array<{title:string;summary:string;verification_status:string;source:{label:string|null;url:string|null;complete:boolean}}>};quality:{blockers:unknown[];stale_snapshot:boolean};persisted_snapshot:boolean}}>();
     const serialized=JSON.stringify(packetBody.data.packet);
     expect(packetBody.data.persisted_snapshot).toBe(true);
     expect(packetBody.data.quality).toMatchObject({blockers:[],stale_snapshot:false});
+    expect(packetBody.data.packet.evidence_summaries).toHaveLength(9);
+    expect(packetBody.data.packet.evidence_summaries.every((item)=>item.verification_status==="verified"&&item.source.complete)).toBe(true);
+    expect(packetBody.data.packet.evidence_summaries.find((item)=>item.title==="Client status inquiry")?.source).toMatchObject({label:"Client-provided email summary",complete:true});
+    expect(packetBody.data.packet.evidence_summaries.find((item)=>item.title==="Reviewer routing email note")?.source).toMatchObject({label:"LADBS Demo routing email record",complete:true});
+    const portalSummary=arroyoVistaDemoEvidence.find((item)=>item.key==="portal")!.summary;
+    expect(packetBody.data.packet.evidence_summaries.find((item)=>item.title==="Permit portal status capture")?.summary).toBe(portalSummary);
+    expect(serialized.match(new RegExp(portalSummary.replace(/[.*+?^${}()|[\]\\]/g,"\\$&"),"g"))).toHaveLength(1);
     expect(serialized).toContain("Receipt does not establish reviewer assignment");
     expect(serialized).not.toContain("Internal only:");
 
@@ -54,6 +69,11 @@ describe("canonical rich demo case",()=>{
       expect(exported.status).toBe(200);
       const text=await exported.text();
       expect(text).toContain("Receipt does not establish reviewer assignment");
+      expect(text).toContain("Client-provided email summary");
+      expect(text).toContain("LADBS Demo routing email record");
+      expect(text).not.toContain(`${portalSummary} ${portalSummary}`);
+      expect(text).not.toContain("Source label pending");
+      expect(text).not.toContain("Digital provenance not recorded");
       expect(text).not.toContain("Internal only:");
       expect(text).not.toMatch(/2026-\d\d-\d\dT/);
       expect(text).not.toMatch(/[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}/i);
@@ -62,6 +82,10 @@ describe("canonical rich demo case",()=>{
     expect(pdf.status).toBe(200);
     const document=await PDFDocument.load(await pdf.arrayBuffer());
     expect(document.getPageCount()).toBeGreaterThan(3);
+    const operators=pdfOperators(document);
+    expect(operators).toContain(pdfHex("Client-provided email summary"));
+    expect(operators).toContain(pdfHex("LADBS Demo routing email record"));
+    expect(operators).not.toContain(pdfHex("Source label pending"));
   });
 
   it("keeps authorization intact and detects then clears a stale generated packet",async()=>{
@@ -75,7 +99,9 @@ describe("canonical rich demo case",()=>{
     const edited=await request(`/api/v1/cases/${caseId}/evidence/${item.id}`,{method:"PATCH",headers:{cookie:admin.cookie,origin,"content-type":"application/json"},body:JSON.stringify({expected_version:item.version,summary:`${item.summary} Fictional QA edit.`})});
     expect(edited.status).toBe(200);
     let packet=await request(`/api/v1/cases/${caseId}/packet`,{headers:{cookie:admin.cookie}});
-    expect((await packet.json<{data:{quality:{stale_snapshot:boolean;blockers:Array<{id:string}>}}}>()).data.quality).toMatchObject({stale_snapshot:true,blockers:[{id:"snapshot-current"}]});
+    const staleQuality=(await packet.json<{data:{quality:{stale_snapshot:boolean;blockers:Array<{id:string}>}}}>()).data.quality;
+    expect(staleQuality.stale_snapshot).toBe(true);
+    expect(staleQuality.blockers.map((item)=>item.id)).toEqual(expect.arrayContaining(["snapshot-current"]));
     const regenerated=await post(admin.cookie,`/api/v1/cases/${caseId}/delivery-lifecycle/transitions`,{event_type:"packet_generated",idempotency_key:"demo-test-regenerate",note:"Regenerate after fictional QA edit."});
     expect(regenerated.status).toBe(201);
     packet=await request(`/api/v1/cases/${caseId}/packet`,{headers:{cookie:admin.cookie}});

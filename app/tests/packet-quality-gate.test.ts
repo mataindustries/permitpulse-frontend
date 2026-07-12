@@ -126,21 +126,23 @@ describe("deterministic packet delivery-quality gate", () => {
     expect(result.blockers.map((item) => item.id)).toContain("evidence-source-ready");
   });
 
-  it("allows source-complete unverified evidence with a warning", () => {
+  it("blocks source-complete unverified evidence while retaining the verification advisory", () => {
     const result = evaluate(model({
       evidence: [{ ...verifiedEvidence, verification_status: "unverified" }],
     }));
 
-    expect(result.blockers.map((item) => item.id)).not.toContain("evidence-source-ready");
+    expect(result.blockers.map((item) => item.id)).toContain("evidence-source-ready");
     expect(result.warnings.map((item) => item.id)).toContain("evidence-verification-depth");
   });
 
-  it("keeps clearly labeled disputed evidence as a warning", () => {
+  it("keeps disputed evidence disclosed and blocks readiness", () => {
     const result = evaluate(model({
       evidence: [{ ...verifiedEvidence, verification_status: "disputed" }],
     }));
 
-    expect(result.blockers).toEqual([]);
+    expect(result.blockers.map((item) => item.id)).toEqual(
+      expect.arrayContaining(["readiness-disputed-evidence", "evidence-source-ready"]),
+    );
     expect(result.warnings.map((item) => item.id)).toContain(
       "disputed-evidence-disclosed",
     );

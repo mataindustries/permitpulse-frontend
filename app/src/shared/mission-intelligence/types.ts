@@ -2,6 +2,7 @@ export type MissionState =
   | "Needs Information"
   | "Needs Evidence"
   | "Needs Verification"
+  | "Source details incomplete"
   | "Needs Timeline"
   | "Needs Review"
   | "Ready For Packet"
@@ -77,6 +78,37 @@ export interface MissionHealthMetric {
   explanation: string;
 }
 
+export type MissionReadinessCategory = "identity" | "evidence" | "timeline" | "review";
+
+export interface MissionReadinessFactor {
+  id: string;
+  label: string;
+  category: MissionReadinessCategory;
+  passed: boolean;
+  blocking: boolean;
+  detail: string;
+  supportingEvidence: string[];
+}
+
+export interface MissionReadinessCounts {
+  blockers: number;
+  warnings: number;
+  evidence: {
+    total: number;
+    verified: number;
+    unverified: number;
+    disputed: number;
+    provenanceIssues: number;
+    sourceComplete: number;
+    deliveryReady: number;
+  };
+  timeline: {
+    total: number;
+    linked: number;
+    unlinked: number;
+  };
+}
+
 export interface MissionIntelligence {
   missionHealth: MissionHealthMetric;
   missionState: MissionState;
@@ -92,4 +124,6 @@ export interface MissionIntelligence {
   timelineHealth: MissionHealthMetric;
   evidenceHealth: MissionHealthMetric;
   reviewHealth: MissionHealthMetric;
+  readinessFactors: MissionReadinessFactor[];
+  counts: MissionReadinessCounts;
 }

@@ -125,6 +125,7 @@ export async function listMissionControlForActor(
           SUM(CASE
             WHEN source_url IS NOT NULL
               AND length(trim(source_url)) > 0
+              AND (lower(trim(source_url)) LIKE 'http://%' OR lower(trim(source_url)) LIKE 'https://%')
               AND source_label IS NOT NULL
               AND length(trim(source_label)) > 0
               AND source_date IS NOT NULL
@@ -135,6 +136,7 @@ export async function listMissionControlForActor(
             WHEN verification_status = 'verified'
               AND source_url IS NOT NULL
               AND length(trim(source_url)) > 0
+              AND (lower(trim(source_url)) LIKE 'http://%' OR lower(trim(source_url)) LIKE 'https://%')
               AND source_label IS NOT NULL
               AND length(trim(source_label)) > 0
               AND source_date IS NOT NULL
@@ -172,6 +174,7 @@ export async function listMissionControlForActor(
                   AND evidence_items.verification_status = 'verified'
                   AND evidence_items.source_url IS NOT NULL
                   AND length(trim(evidence_items.source_url)) > 0
+                  AND (lower(trim(evidence_items.source_url)) LIKE 'http://%' OR lower(trim(evidence_items.source_url)) LIKE 'https://%')
                   AND evidence_items.source_label IS NOT NULL
                   AND length(trim(evidence_items.source_label)) > 0
                   AND evidence_items.source_date IS NOT NULL

@@ -10,7 +10,7 @@ import {
   type StatusTone,
 } from "../../design-system/primitives";
 import { Icon } from "../../design-system/icons";
-import { caseStatusLabels, type CaseStatus } from "../../types/cases";
+import type { CaseStatus } from "../../types/cases";
 import type { MissionControlItem } from "../../types/mission-control";
 
 interface MissionControlHomeProps {
@@ -25,10 +25,7 @@ interface MissionControlHomeProps {
 }
 
 const statusTones: Record<CaseStatus, StatusTone> = {
-  intake: "neutral",
-  researching: "info",
-  needs_information: "warning",
-  ready_for_review: "success",
+  intake: "neutral", researching: "info", needs_information: "warning", ready_for_review: "success",
 };
 
 function firstName(displayName: string): string {
@@ -76,7 +73,7 @@ function MissionCard({
   onOpen: () => void;
 }) {
   const findingCount =
-    mission.intelligence.blockers.length + mission.intelligence.warnings.length;
+    mission.intelligence.counts.blockers + mission.intelligence.counts.warnings;
   const warningSummary =
     mission.intelligence.blockers[0]?.title ?? mission.intelligence.warnings[0]?.title;
   const additionalWarnings = Math.max(0, findingCount - 1);
@@ -99,8 +96,8 @@ function MissionCard({
           </p>
           <h3 id={`mission-${mission.id}`}>{mission.project_name}</h3>
         </div>
-        <StatusBadge tone={statusTones[mission.current_status]}>
-          {caseStatusLabels[mission.current_status]}
+        <StatusBadge tone={mission.intelligence.counts.blockers > 0 ? "warning" : statusTones[mission.current_status]}>
+          {mission.intelligence.missionState}
         </StatusBadge>
       </div>
 
@@ -132,7 +129,7 @@ function MissionCard({
           icon="evidence"
           label="Evidence ready"
           tone="jade"
-          value={`${mission.evidence.ready}/${mission.evidence.total}`}
+          value={`${mission.intelligence.counts.evidence.deliveryReady}/${mission.intelligence.counts.evidence.total}`}
         />
         <MetricChip
           icon="warning"
@@ -144,7 +141,7 @@ function MissionCard({
           icon="timeline"
           label="Timeline events"
           tone="neutral"
-          value={mission.timeline.total}
+          value={mission.intelligence.counts.timeline.total}
         />
       </div>
 
@@ -188,7 +185,7 @@ export function MissionControlHome({
 }: MissionControlHomeProps) {
   const attentionCount = missions.filter(
     (mission) =>
-      mission.intelligence.blockers.length + mission.intelligence.warnings.length > 0,
+      mission.intelligence.counts.blockers + mission.intelligence.counts.warnings > 0,
   ).length;
 
   return (

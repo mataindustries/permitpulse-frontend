@@ -78,6 +78,7 @@ export async function sha256(value: string): Promise<string> {
 export async function packetComparableDigest(packet: PacketModel): Promise<string> {
   return sha256(JSON.stringify({
     ...packet,
+    readiness: packet.readiness ? { ...packet.readiness, lastEvaluated: null } : null,
     document_status: null,
     document_status_label: null,
     draft_notice: null,

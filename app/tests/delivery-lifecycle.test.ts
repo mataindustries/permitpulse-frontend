@@ -30,8 +30,14 @@ async function setup(options: { qualityReady?: boolean } = {}) {
       source_label: "Example permit portal",
       source_date: "2026-07-10",
     });
-    const evidence = await evidenceResponse.json<{ data: { id: string } }>();
+    const evidence = await evidenceResponse.json<{ data: { id: string; version: number } }>();
     expect(evidenceResponse.status).toBe(201);
+    const verifiedResponse = await request(`/api/v1/cases/${body.data.id}/evidence/${evidence.data.id}`, {
+      method: "PATCH",
+      headers: { cookie, "content-type": "application/json", origin },
+      body: JSON.stringify({ expected_version: evidence.data.version, verification_status: "verified" }),
+    });
+    expect(verifiedResponse.status).toBe(200);
     const timelineResponse = await post(cookie, `/api/v1/cases/${body.data.id}/timeline`, {
       occurred_on: "2026-07-10",
       timeline_type: "status_update",
@@ -123,7 +129,7 @@ describe("delivery lifecycle", () => {
 
     expect(response.status).toBe(409);
     expect(body.error.code).toBe("PACKET_QUALITY_BLOCKED");
-    expect(body.error.message).toContain("evidence-exists: Evidence register is empty");
+    expect(body.error.message).toContain("evidence-exists: No supporting evidence");
     expect(body.error.details.blocking_checks.map((item) => item.id)).toEqual(
       expect.arrayContaining(["evidence-exists", "timeline-exists"]),
     );

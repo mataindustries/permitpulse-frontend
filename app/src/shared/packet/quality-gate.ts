@@ -1,4 +1,5 @@
 import { formatPacketDateTime, packetVisibleText } from "./presentation";
+import { packetDashboard } from "./presentation-summary";
 import {
   packetPresentationVersion,
   type PacketPresentationModel,
@@ -237,22 +238,22 @@ const qualityRules: readonly PacketQualityRule[] = [
     id: "evidence-source-ready",
     evaluate: ({ snapshot }) => {
       const ready = snapshot.evidence_summaries.filter(
-        (item) => item.verification_status === "verified" || item.source.complete,
+        (item) => item.verification_status === "verified" && item.source.complete,
       );
 
-      return ready.length > 0
+      return ready.length === snapshot.evidence_summaries.length && ready.length > 0
         ? passed(
             "evidence-source-ready",
-            "Source-ready evidence exists",
-            `${ready.length} evidence record${ready.length === 1 ? " is" : "s are"} verified or source-complete.`,
+            "All evidence is source-ready",
+            `${ready.length} evidence record${ready.length === 1 ? " is" : "s are"} verified and source-complete.`,
             "Evidence register: verification and provenance metadata",
           )
         : blocker(
             "evidence-source-ready",
-            "No evidence is verified or source-complete",
-            "At least one evidence record must be verified or include a source label, URL, and date.",
-            "Evidence register: no verified or source-complete record",
-            "Verify an evidence record or complete its source label, URL, and date, then regenerate the packet.",
+            "Evidence is not source-ready",
+            "Every evidence record must be verified and include a source label, URL, and date.",
+            `Evidence register: ${ready.length} of ${snapshot.evidence_summaries.length} records are verified and source-complete`,
+            "Resolve the evidence readiness blocker, then regenerate the packet.",
             "evidence",
           );
     },
@@ -691,9 +692,28 @@ export function evaluatePacketQuality({
     sourceIds,
   };
   const results = qualityRules.map((rule) => rule.evaluate(context));
-  const blockers = results
+  const readinessQualityIds: Record<string, string> = {
+    "missing-permit-number": "permit-number-present",
+    "missing-evidence": "evidence-exists",
+    "unready-evidence": "evidence-source-ready",
+    "missing-timeline": "timeline-exists",
+    "unlinked-timeline": "timeline-supported",
+  };
+  const readinessBlockers: PacketQualityIssue[] = packetDashboard(snapshot).blockers.map((issue) => ({
+    id: readinessQualityIds[issue.id] ?? `readiness-${issue.id}`,
+    title: issue.title,
+    reason: "The authoritative readiness model identifies this as an unresolved blocking condition.",
+    source: "Packet readiness snapshot",
+    recommended_resolution: issue.resolution,
+    target_cockpit_tab: "packet",
+  }));
+  const qualityBlockers = results
     .filter((result) => result.outcome === "blocker")
     .map((result) => result.issue as PacketQualityIssue);
+  const blockers = [
+    ...readinessBlockers,
+    ...qualityBlockers.filter((issue) => !readinessBlockers.some((readiness) => readiness.id === issue.id)),
+  ];
   const warnings = results
     .filter((result) => result.outcome === "warning")
     .map((result) => result.issue as PacketQualityIssue);

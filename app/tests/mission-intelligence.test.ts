@@ -52,12 +52,39 @@ function facts(overrides: FactsOverrides = {}): MissionFacts {
 }
 
 describe("deterministic Mission Intelligence rules", () => {
+  it("directs verified evidence with provenance gaps to complete source details", () => {
+    const result = evaluateMissionIntelligence(facts({
+      evidence: { total: 9, verified: 9, unverified: 0, disputed: 0, sourceComplete: 6, deliveryReady: 6 },
+    }));
+
+    expect(result).toMatchObject({
+      missionState: "Source details incomplete",
+      recommendedAction: { id: "complete-source-details", title: "Complete source details" },
+      counts: { evidence: { total: 9, verified: 9, unverified: 0, provenanceIssues: 3, sourceComplete: 6, deliveryReady: 6 } },
+    });
+    expect(result.blockers[0]?.title).toBe("3 verified evidence records need source details");
+    expect(JSON.stringify(result)).not.toContain("Verify evidence");
+  });
+
+  it("continues to direct genuinely unverified evidence to verification", () => {
+    const result = evaluateMissionIntelligence(facts({
+      evidence: { total: 9, verified: 8, unverified: 1, disputed: 0, sourceComplete: 9, deliveryReady: 8 },
+    }));
+
+    expect(result).toMatchObject({
+      missionState: "Needs Verification",
+      recommendedAction: { id: "verify-evidence", title: "Verify evidence" },
+    });
+  });
+
   it("clears the verification recommendation when evidence becomes verified and source-complete", () => {
     const result = evaluateMissionIntelligence(facts());
 
     expect(result.recommendedAction.id).not.toBe("verify-evidence");
     expect(result.blockers.map((blocker) => blocker.id)).not.toContain("unready-evidence");
     expect(result.evidenceHealth).toMatchObject({ score: 100, completed: 2 });
+    expect(result.counts.evidence).toMatchObject({ total: 1, verified: 1, unverified: 0, disputed: 0, provenanceIssues: 0, deliveryReady: 1 });
+    expect(result.readinessFactors.filter((factor) => factor.passed)).toHaveLength(6);
   });
 
   it("evaluates an empty case without fabricating readiness", () => {
@@ -75,6 +102,8 @@ describe("deterministic Mission Intelligence rules", () => {
     expect(result.blockers.map((blocker) => blocker.id)).toEqual(
       expect.arrayContaining(["missing-permit-number", "missing-evidence", "missing-timeline"]),
     );
+    expect(result.counts).toMatchObject({ blockers: 3, warnings: 1, evidence: { total: 0, provenanceIssues: 0 }, timeline: { total: 0, linked: 0, unlinked: 0 } });
+    expect(result.readinessFactors.map((factor) => factor.passed)).toEqual([false, false, false, false, false, false]);
   });
 
   it("prioritizes a missing permit number and cites the checked field", () => {

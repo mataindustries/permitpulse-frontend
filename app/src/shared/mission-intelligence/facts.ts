@@ -63,6 +63,65 @@ export interface MissionFacts {
   evaluatedAt: string;
 }
 
+export interface MissionFactsRecordInput {
+  case: MissionFacts["case"];
+  evidence: MissionEvidenceFact[];
+  timeline: MissionTimelineFact[];
+  delivery?: MissionFacts["delivery"];
+  evaluatedAt: string;
+}
+
+export function isCompleteEvidenceSource(input: {
+  label: string | null;
+  url: string | null;
+  date: string | null;
+}): boolean {
+  if (!input.label?.trim() || !input.date?.trim() || !input.url?.trim()) return false;
+  try {
+    const url = new URL(input.url);
+    return url.protocol === "http:" || url.protocol === "https:";
+  } catch {
+    return false;
+  }
+}
+
+export function buildMissionFacts(input: MissionFactsRecordInput): MissionFacts {
+  const evidenceIds = new Set(input.evidence.map((record) => record.id));
+  const deliveryReadyIds = new Set(
+    input.evidence
+      .filter((record) => record.verificationStatus === "verified" && record.sourceComplete)
+      .map((record) => record.id),
+  );
+  const timeline = input.timeline.map((record) => ({
+    ...record,
+    linkedEvidenceIds: record.linkedEvidenceIds.filter((id) => evidenceIds.has(id)),
+  }));
+
+  return {
+    case: input.case,
+    evidence: {
+      total: input.evidence.length,
+      verified: input.evidence.filter((record) => record.verificationStatus === "verified").length,
+      unverified: input.evidence.filter((record) => record.verificationStatus === "unverified").length,
+      disputed: input.evidence.filter((record) => record.verificationStatus === "disputed").length,
+      sourceComplete: input.evidence.filter((record) => record.sourceComplete).length,
+      deliveryReady: deliveryReadyIds.size,
+      records: input.evidence,
+    },
+    timeline: {
+      total: timeline.length,
+      linked: timeline.filter((record) => record.linkedEvidenceIds.length > 0).length,
+      canonicalApprovalLinkedToVerifiedEvidence: timeline.some(
+        (record) => record.isCanonical && record.timelineType === "approval" &&
+          record.linkedEvidenceIds.some((id) => deliveryReadyIds.has(id)),
+      ),
+      records: timeline,
+    },
+    delivery: input.delivery,
+    evaluatedAt: input.evaluatedAt,
+  };
+}
+
 export function aggregateEvidence(
   facts: MissionFacts,
 ): MissionSupportingEvidence[] {

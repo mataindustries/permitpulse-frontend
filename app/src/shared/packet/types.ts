@@ -308,6 +308,15 @@ export interface PacketActionKitInput {
 }
 export interface PacketActionKit extends Omit<PacketActionKitInput,"evidence_ids"|"timeline_ids"|"approved"> { citation_references:string[]; }
 
+export interface PacketAgencyDependency {
+  id: string;
+  discipline: string;
+  blocking_issue: string;
+  dependent_review: string;
+  recommended_next_step: string;
+  citation_references: string[];
+}
+
 export interface PacketEditorialSection<T> {
   items: T[];
   empty_message: string;
@@ -363,6 +372,9 @@ export interface PacketPresentationModel {
   open_questions: PacketEditorialSection<PacketOpenQuestion>;
   recommended_next_actions: PacketEditorialSection<PacketRecommendedAction>;
   action_kit: PacketActionKit | null;
+  agency_dependencies?: PacketAgencyDependency[];
+  readiness?: MissionIntelligence;
+  demonstration_notice?: string | null;
   supporting_sources: PacketSupportingSource[];
   missing_information: PacketMissingInformation[];
   warnings: PacketPresentationWarning[];
@@ -371,3 +383,4 @@ export interface PacketPresentationModel {
 }
 
 export type PacketModel = PacketPresentationModel;
+import type { MissionIntelligence } from "../mission-intelligence/types";

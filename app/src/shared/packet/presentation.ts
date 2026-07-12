@@ -117,6 +117,8 @@ export function withPacketDocumentStatus(
 ): PacketPresentationModel {
   return {
     ...model,
+    agency_dependencies: model.agency_dependencies ?? [],
+    demonstration_notice: model.demonstration_notice ?? null,
     document_status: status,
     document_status_label: packetStatusLabel(status),
     draft_notice: packetStatusNotice(status),
@@ -146,6 +148,7 @@ export function isPacketPresentationModel(
 
 export function packetVisibleText(model: PacketPresentationModel): string[] {
   return [
+    model.demonstration_notice ?? "",
     model.title,
     model.generated_at_label,
     model.document_status_label,
@@ -176,6 +179,7 @@ export function packetVisibleText(model: PacketPresentationModel): string[] {
       ]),
     ]),
     ...model.findings.items.map((item) => item.text),
+    ...(model.agency_dependencies ?? []).flatMap((item) => [item.discipline, item.blocking_issue, item.dependent_review, item.recommended_next_step]),
     model.findings.empty_message,
     ...model.open_questions.items.map((item) => item.text),
     model.open_questions.empty_message,

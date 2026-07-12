@@ -28,6 +28,7 @@ export function renderPacketText(model: PacketModel): string {
   const dashboard = packetDashboard(model);
   const lines = [
     "PERMITPULSE",
+    ...(model.demonstration_notice ? [model.demonstration_notice] : []),
     plainText(model.title),
     `Status: ${model.document_status_label}`,
     `Generated: ${model.generated_at_label}`,
@@ -41,9 +42,11 @@ export function renderPacketText(model: PacketModel): string {
     ...(model.action_kit?[`What the record confirms: ${plainText(model.action_kit.confirmed_record)}`,`What the record does not confirm: ${plainText(model.action_kit.unconfirmed_record)}`,`Primary blocker: ${plainText(model.action_kit.primary_blocker)}`,`Why this move is appropriate: ${plainText(model.action_kit.why_appropriate)}`,`Evidence readiness: ${plainText(model.action_kit.evidence_readiness)}`,`Review readiness: ${plainText(model.action_kit.review_readiness)}`]:[]),
     ...model.executive_summary.key_risks.map((item) => `Key Risk: ${plainText(item)}`),
     ...model.executive_summary.key_strengths.map((item) => `Key Strength: ${plainText(item)}`),
-    `Permit status: ${plainText(dashboard.permit_status)}`,
+    `Authoritative readiness state: ${plainText(dashboard.permit_status)}`,
     `Overall Mission Health: ${dashboard.mission_health.label} (${dashboard.mission_health.score}%)`,
     `Readiness score: ${dashboard.readiness.score}%`,
+    "Readiness factors:",
+    ...dashboard.factors.map((factor) => `  [${factor.passed ? "PASS" : "OPEN"}] ${plainText(factor.label)} — ${plainText(factor.detail)}`),
     "Primary blockers:",
     ...(dashboard.blockers.length > 0
       ? dashboard.blockers.map(
@@ -54,6 +57,7 @@ export function renderPacketText(model: PacketModel): string {
     `Recommended next action: ${plainText(dashboard.recommended_action.title)}`,
     `Action context: ${plainText(dashboard.recommended_action.detail)}`,
     `Evidence summary: ${plainText(dashboard.evidence.text)}`,
+    `Evidence counts: verified ${dashboard.evidence.verified}; unverified ${dashboard.evidence.unverified}; disputed ${dashboard.evidence.disputed}; provenance issues ${dashboard.evidence.provenance_issues}`,
     ...model.warnings.map((item) => `Packet note: ${plainText(item.text)}`),
   ]);
 
@@ -68,8 +72,8 @@ export function renderPacketText(model: PacketModel): string {
   addSection(lines,"Recommended Next Actions",numberedItems(model.recommended_next_actions.items.map(item=>`${item.text}${item.citation_references.length?` (Supported by ${item.citation_references.join(", ")})`:""}`),model.recommended_next_actions.empty_message));
   if(model.action_kit){const kit=model.action_kit;addSection(lines,"Agency Follow-Up Kit",[
     `Subject: ${plainText(kit.email_subject)}`,`Recipient / agency role: ${plainText(kit.recipient_role)}`,"Message:",plainText(kit.message_body),`Supported by: ${kit.citation_references.join(", ")}`,
-    "Requested confirmations:",...kit.requested_confirmations.map((x,i)=>`  ${i+1}. ${plainText(x)}`),"Call checklist:",...kit.call_checklist.map((x,i)=>`  ${i+1}. ${plainText(x)}`),"Documents to have ready:",...kit.documents_ready.map((x,i)=>`  ${i+1}. ${plainText(x)}`),`Trigger for escalation: ${plainText(kit.escalation_trigger)}`,...(kit.follow_up_date?[`Follow-up / review date: ${kit.follow_up_date}`]:[]),
-  ]);}
+    "Requested confirmations:",...kit.requested_confirmations.map((x,i)=>`  ${i+1}. ${plainText(x)}`),"Call script:",...kit.call_checklist.map((x,i)=>`  ${i+1}. ${plainText(x)}`),"Documents to have ready:",...(kit.documents_ready.length ? kit.documents_ready.map((x,i)=>`  ${i+1}. ${plainText(x)}`) : ["  Use only the cited packet sources listed above."]),`Escalation summary: ${plainText(kit.escalation_trigger)}`,`Next contact recommendation: ${plainText(kit.recipient_role)}`,...(kit.follow_up_date?[`Follow-up / review date: ${kit.follow_up_date}`]:[]),
+  ]);} else { addSection(lines, "Agency Follow-Up Kit", ["No reviewer-approved findings support an Agency Follow-Up Kit for this edition."]); }
 
   addSection(
     lines,
@@ -81,7 +85,8 @@ export function renderPacketText(model: PacketModel): string {
   );
 
   addSection(lines, "Current Status", [
-    `Recorded case status: ${plainText(model.current_status.label)}`,
+    `Recorded workflow status: ${plainText(model.current_status.label)}`,
+    `Authoritative readiness state: ${plainText(dashboard.permit_status)}`,
     `Case record updated: ${model.case_summary.updated_at_label}`,
   ]);
 
@@ -150,10 +155,16 @@ export function renderPacketText(model: PacketModel): string {
   addSection(
     lines,
     packetSectionTitle("findings"),
-    numberedItems(
+    [...numberedItems(
       model.findings.items.map((item) => `${item.text}${item.citation_references.length?` (Supported by ${item.citation_references.join(", ")})`:""}`),
       model.findings.empty_message,
-    ),
+    ), ...(model.agency_dependencies ?? []).flatMap((item, index) => [
+      `Agency dependency ${index + 1}:`,
+      `  Discipline: ${plainText(item.discipline)}`,
+      `  ↓ Blocking issue: ${plainText(item.blocking_issue)}`,
+      `  ↓ Dependent review: ${plainText(item.dependent_review)}`,
+      `  ↓ Recommended next step: ${plainText(item.recommended_next_step)} (Supported by ${item.citation_references.join(", ")})`,
+    ])],
   );
 
   addSection(

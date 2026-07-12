@@ -519,9 +519,9 @@ function drawExecutiveDashboard(state: PdfState): void {
     x: marginX,
     y: state.y,
     width: metricWidth,
-    label: "Permit status",
+    label: "Readiness state",
     value: dashboard.permit_status,
-    detail: "Recorded case status",
+    detail: "Derived from all readiness factors",
   });
   drawDashboardMetric(state, {
     x: marginX + metricWidth + metricGap,
@@ -670,11 +670,12 @@ function drawExecutiveDashboard(state: PdfState): void {
     color: colors.muted,
   });
   const countStart = marginX + 385;
-  const countWidth = (contentWidth - 397) / 3;
+  const countWidth = (contentWidth - 397) / 4;
   ([
     ["Verified", dashboard.evidence.verified],
     ["Unverified", dashboard.evidence.unverified],
     ["Disputed", dashboard.evidence.disputed],
+    ["Provenance", dashboard.evidence.provenance_issues],
   ] as const).forEach(([label, count], index) => {
     const x = countStart + countWidth * index;
     state.page.drawText(label.toUpperCase(), {
@@ -824,8 +825,28 @@ function drawExecutiveDashboard(state: PdfState): void {
   }
 }
 
+export function packetSectionHeadingMetrics(
+  title: string,
+  font: PDFFont,
+  width = contentWidth - 34,
+): { eyebrowHeight: number; eyebrowTitleSpacing: number; titleHeight: number; titleLines: number; totalHeight: number } {
+  const titleLines = wrapPacketPdfText(title, font, 17, width).length;
+  const eyebrowHeight = 9;
+  const eyebrowTitleSpacing = 6;
+  const titleHeight = titleLines * 21;
+  return {
+    eyebrowHeight,
+    eyebrowTitleSpacing,
+    titleHeight,
+    titleLines,
+    totalHeight: 8 + 12 + eyebrowHeight + eyebrowTitleSpacing + titleHeight + 9,
+  };
+}
+
 function drawSectionHeading(state: PdfState, sectionId: PacketSectionId): void {
-  ensureSpace(state, 64);
+  const title = packetSectionTitle(sectionId);
+  const heading = packetSectionHeadingMetrics(title, state.serifBoldFont);
+  ensureSpace(state, heading.totalHeight);
   state.y -= 8;
   drawLine(state, packetSectionNumber(sectionId), {
     color: colors.orange,
@@ -840,7 +861,8 @@ function drawSectionHeading(state: PdfState, sectionId: PacketSectionId): void {
     lineHeight: 9,
     indent: 34,
   });
-  drawParagraph(state, packetSectionTitle(sectionId), {
+  state.y -= heading.eyebrowTitleSpacing;
+  drawParagraph(state, title, {
     color: colors.navy,
     font: state.serifBoldFont,
     size: 17,
@@ -1918,8 +1940,49 @@ function drawDisclaimer(state: PdfState): void {
 
 function drawActionKit(state:PdfState):void {
   drawSectionHeading(state,"agency_follow_up_kit"); const kit=state.model.action_kit;
-  if(!kit){drawParagraph(state,"No reviewer-approved Agency Follow-Up Kit is included.");return;}
-  for(const value of [`Subject: ${kit.email_subject}`,`Recipient / agency role: ${kit.recipient_role}`,kit.message_body,`Supported by ${kit.citation_references.join(", ")}`,"Requested confirmations",...kit.requested_confirmations.map(x=>`- ${x}`),"Call checklist",...kit.call_checklist.map(x=>`- ${x}`),"Documents to have ready",...kit.documents_ready.map(x=>`- ${x}`),`Trigger for escalation: ${kit.escalation_trigger}`,...(kit.follow_up_date?[`Follow-up / review date: ${kit.follow_up_date}`]:[])]) drawParagraph(state,value);
+  if(!kit){drawParagraph(state,"No reviewer-approved findings support an Agency Follow-Up Kit for this edition.");return;}
+  for(const value of ["CONCISE FOLLOW-UP EMAIL",`Subject: ${kit.email_subject}`,`Recipient / agency role: ${kit.recipient_role}`,kit.message_body,`Supported by ${kit.citation_references.join(", ")}`,"REQUESTED CONFIRMATIONS",...kit.requested_confirmations.map(x=>`- ${x}`),"CALL SCRIPT",...kit.call_checklist.map(x=>`- ${x}`),"DOCUMENTS TO HAVE READY",...(kit.documents_ready.length ? kit.documents_ready.map(x=>`- ${x}`) : ["- Use only the cited packet sources listed above."]),`ESCALATION SUMMARY: ${kit.escalation_trigger}`,`NEXT CONTACT RECOMMENDATION: ${kit.recipient_role}`,...(kit.follow_up_date?[`Follow-up / review date: ${kit.follow_up_date}`]:[])]) drawParagraph(state,value);
+}
+
+function drawReadinessFactors(state: PdfState): void {
+  const dashboard = packetDashboard(state.model);
+  ensureSpace(state, 90);
+  drawParagraph(state, "HOW READINESS IS CALCULATED", { font: state.boldFont, color: colors.jade, size: 7, lineHeight: 12 });
+  drawParagraph(state, `${dashboard.readiness.completed} of ${dashboard.readiness.total} packet factors pass.`, { color: colors.muted, size: 8, lineHeight: 12 });
+  dashboard.factors.forEach((factor) => {
+    drawParagraph(state, `${factor.passed ? "PASS" : "OPEN"} / ${factor.label} / ${factor.detail}`, {
+      indent: 8,
+      width: contentWidth - 8,
+      font: factor.passed ? state.bodyFont : state.boldFont,
+      color: factor.passed ? colors.jadeDark : colors.warning,
+      size: 7.5,
+      lineHeight: 10,
+    });
+    state.y -= 2;
+  });
+  state.y -= 8;
+}
+
+function drawAgencyDependencies(state: PdfState): void {
+  const dependencies = state.model.agency_dependencies ?? [];
+  if (!dependencies.length) return;
+  ensureSpace(state, 50);
+  drawParagraph(state, "AGENCY DEPENDENCY MAP", { font: state.boldFont, color: colors.jade, size: 7, lineHeight: 13 });
+  dependencies.forEach((item) => {
+    ensureSpace(state, 76);
+    drawParagraph(state, `DISCIPLINE / ${item.discipline}`, { font: state.boldFont, size: 8, lineHeight: 11 });
+    drawParagraph(state, `  DOWN  Blocking issue / ${item.blocking_issue}`, { indent: 8, width: contentWidth - 8, size: 7.5, lineHeight: 10 });
+    drawParagraph(state, `  DOWN  Dependent review / ${item.dependent_review}`, { indent: 8, width: contentWidth - 8, size: 7.5, lineHeight: 10 });
+    drawParagraph(state, `  DOWN  Recommended next step / ${item.recommended_next_step} / ${item.citation_references.join(", ")}`, { indent: 8, width: contentWidth - 8, font: state.boldFont, color: colors.jadeDark, size: 7.5, lineHeight: 10 });
+    state.y -= 8;
+  });
+}
+
+function drawDemonstrationBanner(state: PdfState): void {
+  if (!state.model.demonstration_notice) return;
+  state.page.drawRectangle({ x: marginX, y: state.y - 20, width: contentWidth, height: 20, color: colors.jadeDark });
+  state.page.drawText(safePdfText(state.model.demonstration_notice, state.boldFont), { x: marginX + 12, y: state.y - 13, font: state.boldFont, size: 6.8, color: colors.white });
+  state.y -= 34;
 }
 
 function drawEvidenceMatrix(state:PdfState):void {
@@ -2008,15 +2071,18 @@ export async function renderPacketPdf(model: PacketModel): Promise<Uint8Array> {
   document.setModificationDate(date);
 
   drawPageChrome(state);
+  drawDemonstrationBanner(state);
   drawExecutiveDashboard(state);
 
   addPage(state);
+  drawReadinessFactors(state);
   drawEditorialSection(state,"recommended_next_actions",model.recommended_next_actions.items,model.recommended_next_actions.empty_message);
   drawActionKit(state);
 
   addPage(state);
   drawCaseOverview(state);
   drawEditorialSection(state,"findings",model.findings.items,model.findings.empty_message);
+  drawAgencyDependencies(state);
   drawEditorialSection(state,"open_questions",model.open_questions.items,model.open_questions.empty_message);
 
   addPage(state);
