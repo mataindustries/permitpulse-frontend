@@ -130,7 +130,7 @@
   display: grid;
   width: min(100%, var(--pp-shell-max));
   min-height: var(--pp-bottom-nav-height);
-  grid-template-columns: repeat(5, minmax(0, 1fr));
+  grid-template-columns: repeat(6, minmax(0, 1fr));
   margin: 0 auto;
   padding-inline: max(var(--pp-space-1), env(safe-area-inset-left, 0px)) max(var(--pp-space-1), env(safe-area-inset-right, 0px));
 }

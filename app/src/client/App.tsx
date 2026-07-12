@@ -32,6 +32,7 @@ import { CaseList } from "./components/CaseList";
 import { CreateCaseForm } from "./components/CreateCaseForm";
 import { FounderView } from "./features/founder/FounderView";
 import { MissionControlHome } from "./features/mission-control/MissionControlHome";
+import { EvidenceInbox } from "./features/evidence-inbox/EvidenceInbox";
 import { CaseDestinationView } from "./features/navigation/CaseDestinationView";
 import { MobileShell } from "./os/MobileShell";
 import type { OsDestination } from "./os/navigation";
@@ -81,6 +82,7 @@ export type AuthState =
 
 type WorkspaceView =
   | { name: "mission" }
+  | { name: "inbox" }
   | { name: "list" }
   | { name: "create" }
   | {
@@ -850,6 +852,8 @@ function Workspace({
   const activeDestination: OsDestination =
     view.name === "mission"
       ? "mission"
+      : view.name === "inbox"
+        ? "inbox"
       : view.name === "destination"
         ? view.destination
         : view.name === "founder"
@@ -860,6 +864,8 @@ function Workspace({
   const shellTitle =
     activeDestination === "mission"
       ? "Mission Control"
+      : activeDestination === "inbox"
+        ? "Evidence Inbox"
       : activeDestination === "cases"
         ? "Cases"
         : activeDestination === "ai"
@@ -880,6 +886,9 @@ function Workspace({
     switch (destination) {
       case "mission":
         setView({ name: "mission" });
+        return;
+      case "inbox":
+        setView({ name: "inbox" });
         return;
       case "cases":
         setView({ name: "list" });
@@ -925,6 +934,10 @@ function Workspace({
             onRetry={() => void loadMissionQueue()}
             onViewCases={() => setView({ name: "list" })}
           />
+        )}
+
+        {view.name === "inbox" && (
+          <EvidenceInbox cases={cases} onSessionExpired={onSessionExpired} />
         )}
 
         {view.name === "list" && (
@@ -1050,6 +1063,8 @@ function Workspace({
               setView(
                 view.origin === "mission"
                   ? { name: "mission" }
+                  : view.origin === "inbox"
+                    ? { name: "inbox" }
                   : view.origin === "cases"
                     ? { name: "list" }
                     : { name: "destination", destination: view.origin },

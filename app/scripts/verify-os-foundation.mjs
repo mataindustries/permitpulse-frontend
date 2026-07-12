@@ -33,7 +33,7 @@ const required = [
   ["bottom safe area", sources.shell, "env(safe-area-inset-bottom"],
   ["left safe area", sources.shell, "env(safe-area-inset-left"],
   ["right safe area", sources.shell, "env(safe-area-inset-right"],
-  ["five bottom destinations", sources.shell, "grid-template-columns: repeat(5"],
+  ["six bottom destinations", sources.shell, "grid-template-columns: repeat(6"],
   ["44px touch target", sources.tokens, "--pp-touch-target: 2.75rem"],
   ["mobile-first expansion", sources.shell, "@media (min-width: 48rem)"],
   ["responsive mission grid", sources.mission, "@media (min-width: 48rem)"],

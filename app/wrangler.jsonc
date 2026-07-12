@@ -24,6 +24,12 @@
 			"migrations_dir": "migrations"
 		}
 	],
+	"r2_buckets": [
+		{
+			"binding": "EVIDENCE_FILES",
+			"bucket_name": "permitpulse-evidence-files"
+		}
+	],
 	"assets": {
 		"binding": "ASSETS",
 		"directory": "./dist",
@@ -53,6 +59,12 @@
 					"migrations_dir": "migrations",
 					"database_name": "permitpulse-case-workspace-preview",
 					"database_id": "b03ec361-95ea-440d-b187-9daf1faedf19"
+				}
+			],
+			"r2_buckets": [
+				{
+					"binding": "EVIDENCE_FILES",
+					"bucket_name": "permitpulse-evidence-files-preview"
 				}
 			]
 		}

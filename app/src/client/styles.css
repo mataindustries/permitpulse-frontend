@@ -5,6 +5,7 @@
 @import "./features/navigation/case-destination.css";
 @import "./features/founder/founder.css";
 @import "./features/case-cockpit/case-cockpit.css";
+@import "./features/evidence-inbox/evidence-inbox.css";
 
 :root {
   color: var(--pp-text-primary);

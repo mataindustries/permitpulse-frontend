@@ -132,7 +132,7 @@ describe("Mission Control client and UI", () => {
 });
 
 describe("PermitPulse OS primitives and shell", () => {
-  it("renders the five thumb-friendly destinations without a menu or sidebar", () => {
+  it("renders the six thumb-friendly destinations without a menu or sidebar", () => {
     const markup = renderToStaticMarkup(
       <MobileShell
         activeDestination="mission"
@@ -144,7 +144,7 @@ describe("PermitPulse OS primitives and shell", () => {
       </MobileShell>,
     );
 
-    for (const label of ["Mission", "Cases", "AI", "Packets", "Founder"]) {
+    for (const label of ["Mission", "Inbox", "Cases", "AI", "Packets", "Founder"]) {
       expect(markup).toContain(`aria-label="${label}"`);
     }
     expect(markup).toContain('aria-current="page"');

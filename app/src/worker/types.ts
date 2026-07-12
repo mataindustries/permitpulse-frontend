@@ -17,6 +17,7 @@ export interface Bindings {
   BETTER_AUTH_SECRET?: string;
   BETTER_AUTH_URL: string;
   DB: D1Database;
+  EVIDENCE_FILES?: R2Bucket;
   ENABLE_DEV_CASE_API: string;
 }
 

@@ -343,6 +343,86 @@ export const evidenceItems = sqliteTable(
 
 export type EvidenceItemRecord = typeof evidenceItems.$inferSelect;
 
+export const evidenceDraftCategories = [
+  "portal_screenshot",
+  "correction_notice",
+  "resubmittal_receipt",
+  "structural_response",
+  "energy_documents",
+  "email",
+  "permit_application",
+  "plan_sheets",
+  "other",
+] as const;
+
+export const evidenceDraftQueueStates = [
+  "waiting",
+  "processing",
+  "ready_for_review",
+  "needs_attention",
+] as const;
+
+export const evidenceDraftExtractionStatuses = [
+  "pending",
+  "placeholder_complete",
+  "placeholder_limited",
+] as const;
+
+export const evidenceDrafts = sqliteTable(
+  "evidence_drafts",
+  {
+    id: text("id").primaryKey().notNull(),
+    ownerUserId: text("owner_user_id")
+      .notNull()
+      .references(() => authUsers.id, { onDelete: "cascade" }),
+    filename: text("filename").notNull(),
+    storageKey: text("storage_key").notNull().unique(),
+    fileSize: integer("file_size").notNull(),
+    mediaType: text("media_type").notNull(),
+    detectedType: text("detected_type").notNull(),
+    category: text("category", { enum: evidenceDraftCategories }).notNull(),
+    classificationReasons: text("classification_reasons").notNull(),
+    extractionStatus: text("extraction_status", {
+      enum: evidenceDraftExtractionStatuses,
+    })
+      .notNull()
+      .default("pending"),
+    queueState: text("queue_state", { enum: evidenceDraftQueueStates })
+      .notNull()
+      .default("waiting"),
+    permitNumber: text("permit_number"),
+    jurisdiction: text("jurisdiction"),
+    address: text("address"),
+    documentDate: text("document_date"),
+    reviewer: text("reviewer"),
+    discipline: text("discipline"),
+    evidenceConfidence: integer("evidence_confidence").notNull().default(0),
+    detectedIssues: text("detected_issues").notNull().default("[]"),
+    reviewedAt: text("reviewed_at"),
+    movedToEvidenceId: text("moved_to_evidence_id").references(
+      () => evidenceItems.id,
+      { onDelete: "set null" },
+    ),
+    createdAt: text("created_at")
+      .notNull()
+      .default(sql`(strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))`),
+    updatedAt: text("updated_at")
+      .notNull()
+      .default(sql`(strftime('%Y-%m-%dT%H:%M:%fZ', 'now'))`),
+  },
+  (table) => [
+    index("evidence_drafts_owner_queue_created_idx").on(
+      table.ownerUserId,
+      table.queueState,
+      table.createdAt,
+      table.id,
+    ),
+    index("evidence_drafts_moved_evidence_idx").on(table.movedToEvidenceId),
+  ],
+);
+
+export type EvidenceDraftRecord = typeof evidenceDrafts.$inferSelect;
+
 export const timelineTypes = [
   "submission",
   "resubmission",
