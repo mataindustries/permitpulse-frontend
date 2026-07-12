@@ -160,14 +160,14 @@ export const missionRules: readonly MissionRule[] = [
               title: "Evidence needs verification",
               severity: "high",
               reason: `${facts.evidence.total - facts.evidence.deliveryReady} evidence record${facts.evidence.total - facts.evidence.deliveryReady === 1 ? " is" : "s are"} unverified or missing source metadata.`,
-              recommendedResolution: "Verify each source and complete its label, URL, and source date.",
+              recommendedResolution: "Review each source and complete its label, direct record URL, and source date.",
               supportingEvidence: ["aggregate:evidence"],
             },
             action: action(
               "verify-evidence",
-              "Verify evidence",
+              "Complete evidence review",
               40,
-              "All evidence must be verified and source-complete before packet delivery.",
+              "Every evidence record needs a completed review and source details before packet delivery.",
               "evidence",
               true,
               ["aggregate:evidence"],
@@ -287,7 +287,7 @@ export function completedChecks(facts: MissionFacts): MissionCompletedCheck[] {
       ? { id: "evidence-present", title: "Evidence present", reason: `${facts.evidence.total} evidence record${facts.evidence.total === 1 ? " is" : "s are"} attached.`, supportingEvidence: ["aggregate:evidence"] }
       : null,
     facts.evidence.total > 0 && facts.evidence.deliveryReady === facts.evidence.total
-      ? { id: "evidence-ready", title: "Evidence verified", reason: "Every evidence record is verified and has complete source metadata.", supportingEvidence: ["aggregate:evidence"] }
+      ? { id: "evidence-ready", title: "Evidence review complete", reason: "Every evidence record is reviewed and has complete source details.", supportingEvidence: ["aggregate:evidence"] }
       : null,
     facts.timeline.total > 0
       ? { id: "timeline-present", title: "Timeline present", reason: `${facts.timeline.total} permit event${facts.timeline.total === 1 ? " is" : "s are"} recorded.`, supportingEvidence: ["aggregate:timeline"] }

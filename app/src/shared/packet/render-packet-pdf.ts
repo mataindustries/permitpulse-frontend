@@ -258,11 +258,17 @@ function drawParagraph(
 ): void {
   const font = options.font ?? state.bodyFont;
   const size = options.size ?? bodySize;
+  const lineHeight = options.lineHeight ?? bodyLineHeight;
   const indent = options.indent ?? 0;
   const width = options.width ?? contentWidth - indent;
   const lines = wrapPacketPdfText(value, font, size, width);
 
-  for (const line of lines) {
+  for (let index = 0; index < lines.length; index += 1) {
+    const remainingLines = lines.length - index;
+    if (remainingLines === 2) {
+      ensureSpace(state, lineHeight * 2);
+    }
+    const line = lines[index];
     drawLine(state, line, { ...options, font, size, indent });
   }
 }
@@ -327,7 +333,7 @@ function drawDashboardMetric(
   },
 ): void {
   const height = 64;
-  const dark = input.label === "Readiness score";
+  const dark = input.label === "Packet readiness";
   const accent = input.tone ? toneColor(input.tone) : dark ? colors.orange : colors.jade;
 
   state.page.drawRectangle({
@@ -358,13 +364,13 @@ function drawDashboardMetric(
     y: input.y - 33,
     width: input.width - 22,
     font: state.boldFont,
-    size: 13,
-    lineHeight: 14,
+    size: 10.5,
+    lineHeight: 11.5,
     color: dark ? colors.white : colors.ink,
   });
   drawWrappedAt(state, input.detail, {
     x: input.x + 11,
-    y: input.y - 51,
+    y: input.y - 54,
     width: input.width - 22,
     font: state.bodyFont,
     size: 6.2,
@@ -519,15 +525,15 @@ function drawExecutiveDashboard(state: PdfState): void {
     x: marginX,
     y: state.y,
     width: metricWidth,
-    label: "Readiness state",
+    label: "Investigation state",
     value: dashboard.permit_status,
-    detail: "Derived from all readiness factors",
+    detail: "Not a jurisdiction disposition",
   });
   drawDashboardMetric(state, {
     x: marginX + metricWidth + metricGap,
     y: state.y,
     width: metricWidth,
-    label: "Overall Mission Health",
+    label: "Investigation health",
     value: dashboard.mission_health.label,
     detail: `${dashboard.mission_health.score}% / ${dashboard.mission_health.completed} of ${dashboard.mission_health.total} checks`,
     tone: dashboard.mission_health.tone,
@@ -536,9 +542,9 @@ function drawExecutiveDashboard(state: PdfState): void {
     x: marginX + (metricWidth + metricGap) * 2,
     y: state.y,
     width: metricWidth,
-    label: "Readiness score",
-    value: `${dashboard.readiness.score}%`,
-    detail: `${dashboard.readiness.completed} of ${dashboard.readiness.total} packet checks`,
+    label: "Packet readiness",
+    value: `${dashboard.readiness.completed} / ${dashboard.readiness.total}`,
+    detail: "Delivery checks complete",
   });
   state.y -= 73;
 
@@ -555,7 +561,7 @@ function drawExecutiveDashboard(state: PdfState): void {
     borderColor: colors.rule,
     borderWidth: 0.7,
   });
-  state.page.drawText("PRIMARY BLOCKERS", {
+  state.page.drawText("PACKET-READINESS CONDITIONS", {
     x: marginX + 12,
     y: state.y - 15,
     font: state.boldFont,
@@ -563,14 +569,14 @@ function drawExecutiveDashboard(state: PdfState): void {
     color: colors.jade,
   });
   if (dashboard.blockers.length === 0) {
-    state.page.drawText("No primary blockers identified.", {
+    state.page.drawText("No packet-readiness conditions remain.", {
       x: marginX + 12,
       y: state.y - 35,
       font: state.boldFont,
       size: 9,
       color: colors.jadeDark,
     });
-    drawWrappedAt(state, "The current packet record contains no deterministic blocking condition.", {
+    drawWrappedAt(state, "Ready for delivery review; jurisdiction resolution is not established.", {
       x: marginX + 12,
       y: state.y - 49,
       width: blockerWidth - 24,
@@ -846,7 +852,7 @@ export function packetSectionHeadingMetrics(
 function drawSectionHeading(state: PdfState, sectionId: PacketSectionId): void {
   const title = packetSectionTitle(sectionId);
   const heading = packetSectionHeadingMetrics(title, state.serifBoldFont);
-  ensureSpace(state, heading.totalHeight);
+  ensureSpace(state, heading.totalHeight + 32);
   state.y -= 8;
   drawLine(state, packetSectionNumber(sectionId), {
     color: colors.orange,
@@ -1029,31 +1035,28 @@ function drawCaseOverview(state: PdfState): void {
     state.y -= rowHeight;
   }
   state.y -= 5;
+  drawCurrentStatus(state);
 }
 
 function drawCurrentStatus(state: PdfState): void {
-  drawSectionHeading(state, "case_overview");
-  drawSectionIntro(
-    state,
-    "Recorded case status at the time this packet edition was generated.",
-  );
-  ensureSpace(state, 55);
+  const dashboard = packetDashboard(state.model);
+  ensureSpace(state, 78);
   state.page.drawRectangle({
     x: marginX,
-    y: state.y - 33,
+    y: state.y - 62,
     width: contentWidth,
-    height: 42,
+    height: 70,
     color: colors.soft,
   });
   state.page.drawRectangle({
     x: marginX,
-    y: state.y - 33,
+    y: state.y - 62,
     width: 4,
-    height: 42,
+    height: 70,
     color: colors.jade,
   });
   state.page.drawText(
-    safePdfText(state.model.current_status.label, state.boldFont),
+    safePdfText(`Case workflow status: ${state.model.current_status.label}`, state.boldFont),
     {
       x: marginX + 16,
       y: state.y - 9,
@@ -1064,7 +1067,7 @@ function drawCurrentStatus(state: PdfState): void {
   );
   state.page.drawText(
     safePdfText(
-      `Case record updated ${state.model.case_summary.updated_at_label}`,
+      `Investigation state: ${dashboard.permit_status} / Packet readiness: ${dashboard.readiness.completed} of ${dashboard.readiness.total} checks complete`,
       state.bodyFont,
     ),
     {
@@ -1075,7 +1078,27 @@ function drawCurrentStatus(state: PdfState): void {
       color: colors.muted,
     },
   );
-  state.y -= 52;
+  state.page.drawText(
+    "Jurisdiction resolution is not established by packet readiness.",
+    {
+      x: marginX + 16,
+      y: state.y - 40,
+      font: state.boldFont,
+      size: 7.5,
+      color: colors.warning,
+    },
+  );
+  state.page.drawText(
+    safePdfText(`Case record updated ${state.model.case_summary.updated_at_label}`, state.bodyFont),
+    {
+      x: marginX + 16,
+      y: state.y - 53,
+      font: state.bodyFont,
+      size: 6.8,
+      color: colors.muted,
+    },
+  );
+  state.y -= 78;
 }
 
 function evidenceBadgeColors(item: PacketEvidenceSummary): {
@@ -1112,6 +1135,7 @@ function evidenceCardMeasurement(
   const missing = packetEvidenceMissingDetails(item);
   const metadataValues = [
     item.source.label?.trim() || null,
+    item.contributor_label ?? "Contributor not recorded",
     item.source.date ? item.source.date_label : null,
     item.source.url,
   ].filter((value): value is string => Boolean(value));
@@ -1169,6 +1193,7 @@ function drawEvidenceCard(
     drawParagraph(state, item.summary, { size: 8.8, lineHeight: 12 });
     state.y -= 6;
     if (item.source.label?.trim()) drawLabelValue(state, "Source", item.source.label);
+    drawLabelValue(state, "Contributor", item.contributor_label ?? "Contributor not recorded");
     if (item.source.date) drawLabelValue(state, "Source date", item.source.date_label);
     if (item.source.url) drawLabelValue(state, "Provenance", item.source.url);
     if (measurement.missing.length > 0) {
@@ -1284,6 +1309,7 @@ function drawEvidenceCard(
 
   const metadata = [
     item.source.label?.trim() ? ["Source", item.source.label] : null,
+    ["Contributor", item.contributor_label ?? "Contributor not recorded"],
     item.source.date ? ["Source date", item.source.date_label] : null,
     item.source.url ? ["Provenance", item.source.url] : null,
   ].filter((entry): entry is [string, string] => Boolean(entry));
@@ -1823,7 +1849,7 @@ function drawSources(state: PdfState): void {
     const date = source.date_label === "Not provided"
       ? "Source date pending"
       : source.date_label;
-    const sourceDetail = `${label} / ${date}`;
+    const sourceDetail = `${label} / ${date} / ${source.contributor_label ?? "Contributor not recorded"}`;
     const provenance = source.url ?? "Digital provenance not recorded";
     const titleLines = wrapPacketPdfText(
       `${String(index + 1).padStart(2, "0")}  ${source.title}`,
@@ -1938,17 +1964,83 @@ function drawDisclaimer(state: PdfState): void {
   });
 }
 
-function drawActionKit(state:PdfState):void {
-  drawSectionHeading(state,"agency_follow_up_kit"); const kit=state.model.action_kit;
-  if(!kit){drawParagraph(state,"No reviewer-approved findings support an Agency Follow-Up Kit for this edition.");return;}
-  for(const value of ["CONCISE FOLLOW-UP EMAIL",`Subject: ${kit.email_subject}`,`Recipient / agency role: ${kit.recipient_role}`,kit.message_body,`Supported by ${kit.citation_references.join(", ")}`,"REQUESTED CONFIRMATIONS",...kit.requested_confirmations.map(x=>`- ${x}`),"CALL SCRIPT",...kit.call_checklist.map(x=>`- ${x}`),"DOCUMENTS TO HAVE READY",...(kit.documents_ready.length ? kit.documents_ready.map(x=>`- ${x}`) : ["- Use only the cited packet sources listed above."]),`ESCALATION SUMMARY: ${kit.escalation_trigger}`,`NEXT CONTACT RECOMMENDATION: ${kit.recipient_role}`,...(kit.follow_up_date?[`Follow-up / review date: ${kit.follow_up_date}`]:[])]) drawParagraph(state,value);
+function drawActionKitGroup(
+  state: PdfState,
+  title: string,
+  items: string[],
+): void {
+  const firstItem = items[0] ?? "";
+  const reserve = 16 + Math.min(
+    38,
+    wrappedHeight(firstItem, state.bodyFont, 8.5, contentWidth - 12, 11),
+  );
+  ensureSpace(state, reserve);
+  drawParagraph(state, title.toUpperCase(), {
+    color: colors.jade,
+    font: state.boldFont,
+    size: 7,
+    lineHeight: 12,
+  });
+  items.forEach((item) => {
+    drawParagraph(state, item, {
+      indent: 10,
+      width: contentWidth - 10,
+      size: 8.5,
+      lineHeight: 11,
+    });
+    state.y -= 3;
+  });
+  state.y -= 8;
+}
+
+function drawActionKit(state: PdfState): void {
+  drawSectionHeading(state, "agency_follow_up_kit");
+  const kit = state.model.action_kit;
+  if (!kit) {
+    drawParagraph(
+      state,
+      "No reviewer-approved findings support an Agency Follow-Up Kit for this edition.",
+    );
+    return;
+  }
+  drawActionKitGroup(state, "Agency follow-up email", [
+    `Subject: ${kit.email_subject}`,
+    `Recommended contact: ${kit.recipient_role}`,
+    kit.message_body,
+    `Supported by ${kit.citation_references.join(", ")}`,
+  ]);
+  drawActionKitGroup(
+    state,
+    "Requested confirmations",
+    kit.requested_confirmations.map((item, index) => `${index + 1}. ${item}`),
+  );
+  drawActionKitGroup(
+    state,
+    "Call script",
+    kit.call_checklist.map((item, index) => `${index + 1}. ${item}`),
+  );
+  drawActionKitGroup(
+    state,
+    "Documents to have ready",
+    (kit.documents_ready.length > 0
+      ? kit.documents_ready
+      : ["Use only the cited packet sources listed above."]
+    ).map((item) => `- ${item}`),
+  );
+  drawActionKitGroup(state, "Escalation summary", [kit.escalation_trigger]);
+  drawActionKitGroup(state, "Recommended next contact", [
+    kit.recipient_role,
+    ...(kit.follow_up_date
+      ? [`Follow-up review date: ${kit.follow_up_date}`]
+      : []),
+  ]);
 }
 
 function drawReadinessFactors(state: PdfState): void {
   const dashboard = packetDashboard(state.model);
   ensureSpace(state, 90);
-  drawParagraph(state, "HOW READINESS IS CALCULATED", { font: state.boldFont, color: colors.jade, size: 7, lineHeight: 12 });
-  drawParagraph(state, `${dashboard.readiness.completed} of ${dashboard.readiness.total} packet factors pass.`, { color: colors.muted, size: 8, lineHeight: 12 });
+  drawParagraph(state, "PACKET READINESS CHECKS", { font: state.boldFont, color: colors.jade, size: 7, lineHeight: 12 });
+  drawParagraph(state, `${dashboard.readiness.completed} of ${dashboard.readiness.total} delivery checks are complete. Packet readiness does not indicate permit approval or jurisdiction resolution.`, { color: colors.muted, size: 8, lineHeight: 12 });
   dashboard.factors.forEach((factor) => {
     drawParagraph(state, `${factor.passed ? "PASS" : "OPEN"} / ${factor.label} / ${factor.detail}`, {
       indent: 8,
@@ -1987,7 +2079,21 @@ function drawDemonstrationBanner(state: PdfState): void {
 
 function drawEvidenceMatrix(state:PdfState):void {
   drawSectionHeading(state,"evidence_matrix");
-  for(const item of state.model.evidence_summaries) drawParagraph(state,`${item.reference} | ${item.title} | ${item.evidence_type_label} | ${item.source.date_label} | ${item.verification_label} | ${item.source.label??"Source label pending"}`);
+  drawSectionIntro(state, "Compact evidence index showing review state, source date, and accountable contributor.");
+  for(const item of state.model.evidence_summaries) {
+    ensureSpace(state, 36);
+    drawParagraph(state, `${item.reference} / ${item.title}`, {
+      font: state.boldFont,
+      size: 9,
+      lineHeight: 12,
+    });
+    drawParagraph(state, `${item.evidence_type_label} / ${item.source.date_label} / ${item.verification_label} / ${item.contributor_label ?? "Contributor not recorded"}`, {
+      color: colors.muted,
+      size: 7.2,
+      lineHeight: 10,
+    });
+    state.y -= 7;
+  }
 }
 
 function drawFooters(state: PdfState): void {
@@ -2000,7 +2106,7 @@ function drawFooters(state: PdfState): void {
       thickness: 0.6,
       color: colors.rule,
     });
-    page.drawText("PermitPulse / Verify source records before reliance", {
+    page.drawText("PermitPulse / Confirm source records before reliance", {
       x: marginX,
       y: 27,
       font: state.bodyFont,

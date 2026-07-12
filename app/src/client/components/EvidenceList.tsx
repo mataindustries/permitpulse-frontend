@@ -121,7 +121,7 @@ export function EvidenceList({
               </dl>
               {item.verification_status === "unverified" && (
                 <p className="field-note">
-                  Unverified evidence is not confirmed by PermitPulse.
+                  Source review is pending. Complete provenance before relying on this record.
                 </p>
               )}
               <button

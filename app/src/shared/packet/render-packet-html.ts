@@ -77,7 +77,7 @@ function renderDashboard(model: PacketModel): string {
           </li>`,
         )
         .join("")}</ol>${dashboard.blockers.length > 3 ? `<p class="pp-dashboard-more">${dashboard.blockers.length - 3} additional condition${dashboard.blockers.length - 3 === 1 ? "" : "s"} documented in the packet.</p>` : ""}`
-    : `<p class="pp-dashboard-clear"><strong>No primary blockers identified.</strong><span>The current packet record contains no deterministic blocking condition.</span></p>`;
+    : `<p class="pp-dashboard-clear"><strong>No packet-readiness conditions remain.</strong><span>The record is complete enough for delivery review. Open findings do not indicate jurisdiction resolution.</span></p>`;
   const warnings = model.warnings.length > 0
     ? `<ul class="pp-dashboard-notes">${model.warnings
         .map((item) => `<li>${escapeHtml(item.text)}</li>`)
@@ -93,35 +93,35 @@ function renderDashboard(model: PacketModel): string {
       <span class="pp-status-badge pp-status-badge--${model.document_status}">${escapeHtml(model.document_status_label)}</span>
     </div>
     <p class="pp-dashboard-summary">${escapeHtml(kit?.current_position??model.executive_summary.text)}</p>
-    ${kit?`<dl class="pp-decision-lines"><div><dt>Record confirms</dt><dd>${escapeHtml(kit.confirmed_record)}</dd></div><div><dt>Record does not confirm</dt><dd>${escapeHtml(kit.unconfirmed_record)}</dd></div><div><dt>Primary blocker</dt><dd>${escapeHtml(kit.primary_blocker)}</dd></div><div><dt>Why this move</dt><dd>${escapeHtml(kit.why_appropriate)}</dd></div><div><dt>Evidence readiness</dt><dd>${escapeHtml(kit.evidence_readiness)}</dd></div><div><dt>Review readiness</dt><dd>${escapeHtml(kit.review_readiness)}</dd></div></dl>`:""}
+    ${kit?`<dl class="pp-decision-lines"><div><dt>Record confirms</dt><dd>${escapeHtml(kit.confirmed_record)}</dd></div><div><dt>Record does not confirm</dt><dd>${escapeHtml(kit.unconfirmed_record)}</dd></div><div><dt>Primary unresolved issue</dt><dd>${escapeHtml(kit.primary_blocker)}</dd></div><div><dt>Why this next step</dt><dd>${escapeHtml(kit.why_appropriate)}</dd></div><div><dt>Packet evidence readiness</dt><dd>${escapeHtml(kit.evidence_readiness)}</dd></div><div><dt>Jurisdiction position</dt><dd>${escapeHtml(kit.review_readiness)}</dd></div></dl>`:""}
     ${(model.executive_summary.key_risks.length || model.executive_summary.key_strengths.length) ? `<div class="pp-dashboard-grid">
       ${model.executive_summary.key_risks.length ? `<section class="pp-dashboard-panel"><p class="pp-panel-label">Key Risks</p><ul>${model.executive_summary.key_risks.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul></section>` : ""}
       ${model.executive_summary.key_strengths.length ? `<section class="pp-dashboard-panel"><p class="pp-panel-label">Key Strengths</p><ul>${model.executive_summary.key_strengths.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul></section>` : ""}
     </div>` : ""}
     <div class="pp-dashboard-metrics">
       <div class="pp-metric-card">
-        <span>Readiness state</span>
+        <span>Investigation state</span>
         <strong>${escapeHtml(dashboard.permit_status)}</strong>
-        <small>Derived from all readiness factors</small>
+        <small>Current record condition; not a jurisdiction disposition</small>
       </div>
       <div class="pp-metric-card pp-metric-card--${dashboard.mission_health.tone}">
-        <span>Overall Mission Health</span>
+        <span>Investigation health</span>
         <strong>${escapeHtml(dashboard.mission_health.label)}</strong>
         <small>${dashboard.mission_health.score}% · ${escapeHtml(dashboard.mission_health.explanation)}</small>
       </div>
       <div class="pp-metric-card pp-metric-card--score">
-        <span>Readiness score</span>
-        <strong>${dashboard.readiness.score}%</strong>
+        <span>Packet readiness</span>
+        <strong>${dashboard.readiness.completed}/${dashboard.readiness.total}</strong>
         <small>${escapeHtml(dashboard.readiness.explanation)}</small>
       </div>
     </div>
     <section class="pp-readiness-factors" aria-label="Readiness calculation">
-      <div><p class="pp-panel-label">How readiness is calculated</p><span>${dashboard.readiness.completed} of ${dashboard.readiness.total} packet factors pass</span></div>
+      <div><p class="pp-panel-label">Packet readiness checks</p><span>${dashboard.readiness.completed} of ${dashboard.readiness.total} complete</span></div>
       <ul>${dashboard.factors.map((factor) => `<li class="${factor.passed ? "is-passed" : "is-pending"}"><span>${factor.passed ? "Pass" : "Open"}</span><strong>${escapeHtml(factor.label)}</strong><small>${escapeHtml(factor.detail)}</small></li>`).join("")}</ul>
     </section>
     <div class="pp-dashboard-grid">
       <section class="pp-dashboard-panel" aria-labelledby="pp-primary-blockers-title">
-        <p class="pp-panel-label" id="pp-primary-blockers-title">Primary blockers</p>
+        <p class="pp-panel-label" id="pp-primary-blockers-title">Packet-readiness conditions</p>
         ${blockers}
       </section>
       <section class="pp-dashboard-panel pp-dashboard-panel--action" aria-labelledby="pp-recommended-action-title">
@@ -180,6 +180,7 @@ function renderEvidence(model: PacketModel): string {
         item.source.label?.trim()
           ? `<div><dt>Source</dt><dd>${escapeHtml(item.source.label)}</dd></div>`
           : "",
+        `<div><dt>Contributor</dt><dd>${escapeHtml(item.contributor_label ?? "Contributor not recorded")}</dd></div>`,
         item.source.date
           ? `<div><dt>Source date</dt><dd>${escapeHtml(item.source.date_label)}</dd></div>`
           : "",
@@ -277,7 +278,7 @@ function renderEvidenceMatrix(model:PacketModel):string {
 function renderActionKit(model:PacketModel):string {
   const kit=model.action_kit;if(!kit)return `<p class="pp-editorial-empty"><strong>Not available</strong><span>No reviewer-approved findings support an Agency Follow-Up Kit for this edition.</span></p>`;
   const list=(title:string,items:string[])=>`<section class="pp-dashboard-panel"><p class="pp-panel-label">${escapeHtml(title)}</p><ul>${items.map(x=>`<li>${escapeHtml(x)}</li>`).join("")}</ul></section>`;
-  return `<div class="pp-action-kit"><p class="pp-panel-label">Concise follow-up email</p><dl class="pp-case-grid"><div><dt>Subject</dt><dd>${escapeHtml(kit.email_subject)}</dd></div><div><dt>Recipient / role</dt><dd>${escapeHtml(kit.recipient_role)}</dd></div></dl><div class="pp-message-body">${escapeHtml(kit.message_body).replaceAll("\n","<br>")}</div><p class="pp-citations">Supported by ${escapeHtml(kit.citation_references.join(", "))}</p><div class="pp-dashboard-grid">${list("Requested confirmations",kit.requested_confirmations)}${list("Call script",kit.call_checklist)}${list("Documents to have ready",kit.documents_ready.length ? kit.documents_ready : ["Use only the cited packet sources listed above."])}<section class="pp-dashboard-panel"><p class="pp-panel-label">Escalation summary</p><p>${escapeHtml(kit.escalation_trigger)}</p><p class="pp-panel-label">Next contact recommendation</p><p>${escapeHtml(kit.recipient_role)}</p>${kit.follow_up_date?`<strong>Review date: ${escapeHtml(kit.follow_up_date)}</strong>`:""}</section></div></div>`;
+  return `<div class="pp-action-kit"><p class="pp-panel-label">Agency follow-up email</p><dl class="pp-case-grid"><div><dt>Subject</dt><dd>${escapeHtml(kit.email_subject)}</dd></div><div><dt>Recommended contact</dt><dd>${escapeHtml(kit.recipient_role)}</dd></div></dl><div class="pp-message-body">${escapeHtml(kit.message_body).replaceAll("\n","<br>")}</div><p class="pp-citations">Supported by ${escapeHtml(kit.citation_references.join(", "))}</p><div class="pp-dashboard-grid">${list("Requested confirmations",kit.requested_confirmations)}${list("Call script",kit.call_checklist)}${list("Documents to have ready",kit.documents_ready.length ? kit.documents_ready : ["Use only the cited packet sources listed above."])}<section class="pp-dashboard-panel"><p class="pp-panel-label">Escalation summary</p><p>${escapeHtml(kit.escalation_trigger)}</p><p class="pp-panel-label">Recommended next contact</p><p>${escapeHtml(kit.recipient_role)}</p>${kit.follow_up_date?`<strong>Review date: ${escapeHtml(kit.follow_up_date)}</strong>`:""}</section></div></div>`;
 }
 
 function renderDependencies(model: PacketModel): string {
@@ -307,7 +308,7 @@ function renderSources(model: PacketModel): string {
           : source.date_label;
 
         return `<div class="pp-source-row" role="row">
-          <div role="cell"><span>${String(index + 1).padStart(2, "0")}</span><strong>${escapeHtml(source.title)}</strong><small>${escapeHtml(label)} · ${escapeHtml(date)}</small></div>
+          <div role="cell"><span>${String(index + 1).padStart(2, "0")}</span><strong>${escapeHtml(source.title)}</strong><small>${escapeHtml(label)} · ${escapeHtml(date)} · ${escapeHtml(source.contributor_label ?? "Contributor not recorded")}</small></div>
           <div role="cell">${provenance}</div>
           <div role="cell"><span class="pp-source-pill">${escapeHtml(source.verification_label)}</span></div>
         </div>`;
@@ -330,6 +331,8 @@ export function renderPacketHtml(model: PacketModel): string {
     * { box-sizing: border-box; }
     html { background: #dde3df; }
     body { margin: 0; color: var(--ink); background: #dde3df; font-family: Inter, "Helvetica Neue", Arial, sans-serif; font-size: 14px; line-height: 1.52; }
+    p, li, dd { orphans: 3; widows: 3; }
+    h1, h2, h3, h4 { break-after: avoid; page-break-after: avoid; }
     a { color: var(--jade-dark); overflow-wrap: anywhere; }
     .pp-packet { width: min(100% - 32px, 880px); margin: 32px auto; background: var(--paper); box-shadow: 0 24px 70px rgba(11, 29, 44, .18); }
     .pp-cover { position: relative; overflow: hidden; background: var(--paper); }
@@ -493,7 +496,7 @@ export function renderPacketHtml(model: PacketModel): string {
       .pp-cover { break-after: page; page-break-after: always; }
       .pp-section--evidence-register, .pp-section--permit-timeline, .pp-section--findings { break-before: page; page-break-before: always; }
       .pp-section-heading, h2, h3 { break-after: avoid; page-break-after: avoid; }
-      .pp-evidence-card, .pp-timeline-event, .pp-editorial-list li, .pp-source-row, .pp-status-callout { break-inside: avoid; page-break-inside: avoid; }
+      .pp-evidence-card, .pp-timeline-event, .pp-editorial-list li, .pp-source-row, .pp-status-callout, .pp-action-kit > *, .pp-dashboard-panel { break-inside: avoid; page-break-inside: avoid; }
       a { color: inherit; text-decoration: none; }
     }
     @media (max-width: 680px) {
@@ -548,7 +551,7 @@ export function renderPacketHtml(model: PacketModel): string {
     </header>
     ${section("recommended_next_actions", renderEditorial(model.recommended_next_actions, "Action"), { intro: "Reviewer-approved client actions only. PermitPulse system operations are excluded." })}
     ${section("agency_follow_up_kit", renderActionKit(model))}
-    ${section("case_overview", renderCaseOverview(model), { intro: `Current Status (recorded workflow): ${model.current_status.label}. Authoritative readiness state: ${dashboard.permit_status}. Core project identity and jurisdiction information carried forward from the case record.` })}
+    ${section("case_overview", renderCaseOverview(model), { intro: `Current Status (case workflow): ${model.current_status.label}. Investigation state: ${dashboard.permit_status}. Packet readiness is ${dashboard.readiness.completed} of ${dashboard.readiness.total} checks complete; jurisdiction resolution is not established by this packet.` })}
     ${section("findings", renderEditorial(model.findings, "Finding") + renderDependencies(model), { intro: "Reviewer-authored conclusions included in this packet edition. No finding is generated by the presentation layer." })}
     ${section("open_questions", renderEditorial(model.open_questions, "Question"), { intro: "Unresolved items that remain explicitly open in the reviewed packet record." })}
     ${section("evidence_matrix",renderEvidenceMatrix(model),{intro:"Compact index of every evidence record; full source notes and review detail remain in the register."})}

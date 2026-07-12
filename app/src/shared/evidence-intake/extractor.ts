@@ -87,7 +87,7 @@ export class PlaceholderEvidenceExtractor implements EvidenceExtractor {
       ...(!jurisdiction ? ["Jurisdiction needs review."] : []),
       ...(!address ? ["Project address needs review."] : []),
       ...(limited
-        ? [`${classification.detectedType} parsing is placeholder-only.`]
+        ? [`${classification.detectedType} content parsing requires manual review.`]
         : []),
     ];
 

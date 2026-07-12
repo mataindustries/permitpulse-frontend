@@ -10,7 +10,7 @@ import {
   type StatusTone,
 } from "../../design-system/primitives";
 import { Icon } from "../../design-system/icons";
-import type { CaseStatus } from "../../types/cases";
+import { caseStatusLabels, type CaseStatus } from "../../types/cases";
 import type { MissionControlItem } from "../../types/mission-control";
 
 interface MissionControlHomeProps {
@@ -104,23 +104,24 @@ function MissionCard({
       <div className="mission-card__provenance">
         <span>{mission.jurisdiction}</span>
         <span>{mission.permit_number ?? "Permit number pending"}</span>
+        <span>Case workflow: {caseStatusLabels[mission.current_status]}</span>
         <span>{formatUpdated(mission.updated_at)}</span>
       </div>
 
       <div className="mission-card__progress-block">
         <div className="mission-card__progress-label">
-          <span>Mission health</span>
-          <strong>{mission.intelligence.missionHealth.score}%</strong>
+          <span>Packet readiness</span>
+          <strong>{mission.intelligence.packetReadiness.completed}/{mission.intelligence.packetReadiness.total} checks</strong>
         </div>
         <div
-          aria-label={`${mission.intelligence.missionHealth.score}% mission health`}
+          aria-label={`${mission.intelligence.packetReadiness.score}% packet readiness`}
           aria-valuemax={100}
           aria-valuemin={0}
-          aria-valuenow={mission.intelligence.missionHealth.score}
+          aria-valuenow={mission.intelligence.packetReadiness.score}
           className="mission-card__progress"
           role="progressbar"
         >
-          <span style={{ width: `${mission.intelligence.missionHealth.score}%` }} />
+          <span style={{ width: `${mission.intelligence.packetReadiness.score}%` }} />
         </div>
       </div>
 
@@ -133,15 +134,15 @@ function MissionCard({
         />
         <MetricChip
           icon="warning"
-          label="Warnings"
+          label="Open conditions"
           tone={findingCount > 0 ? "warning" : "success"}
           value={findingCount}
         />
         <MetricChip
           icon="timeline"
-          label="Timeline events"
+          label="Investigation health"
           tone="neutral"
-          value={mission.intelligence.counts.timeline.total}
+          value={`${mission.intelligence.missionHealth.completed}/${mission.intelligence.missionHealth.total}`}
         />
       </div>
 
@@ -199,7 +200,7 @@ export function MissionControlHome({
             : missions.length === 0
               ? "Your visible case queue is clear."
               : attentionCount === 0
-                ? `${missions.length} visible case${missions.length === 1 ? "" : "s"}; no warning categories detected.`
+                ? `${missions.length} visible case${missions.length === 1 ? "" : "s"}; no packet-readiness conditions are open.`
                 : `${attentionCount} of ${missions.length} visible case${missions.length === 1 ? "" : "s"} need attention.`}
         </p>
       </header>
@@ -210,7 +211,7 @@ export function MissionControlHome({
             Refresh
           </SecondaryAction>
         }
-        description="Prioritized from current case, evidence, and timeline state."
+        description="Packet readiness measures deliverability. Case workflow and jurisdiction outcomes remain separate."
         eyebrow="Attention queue"
         title="What deserves attention now"
       />

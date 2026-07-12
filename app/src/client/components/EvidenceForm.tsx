@@ -121,6 +121,17 @@ export function EvidenceForm({
     }
 
     if (
+      canVerify &&
+      trimmed.verification_status === "verified" &&
+      (!trimmed.source_url || !trimmed.source_label || !trimmed.source_date)
+    ) {
+      setClientError(
+        "Complete the source label, source date, and direct record URL before marking this evidence reviewed.",
+      );
+      return;
+    }
+
+    if (
       mode === "edit" &&
       canVerify &&
       evidence &&
@@ -230,17 +241,17 @@ export function EvidenceForm({
           />
         </label>
         <label>
-          Source URL <span className="field-note">optional</span>
+          Source URL <span className="field-note">required for reviewed evidence</span>
           <input
             inputMode="url"
             name="source_url"
-            placeholder="https://example.test/source"
+            placeholder="Paste the direct record URL"
             value={values.source_url}
             onChange={(event) => updateValue("source_url", event.target.value)}
           />
         </label>
         <label>
-          Source label <span className="field-note">optional</span>
+          Source label <span className="field-note">required for reviewed evidence</span>
           <input
             name="source_label"
             value={values.source_label}
@@ -248,7 +259,7 @@ export function EvidenceForm({
           />
         </label>
         <label>
-          Source date <span className="field-note">optional</span>
+          Source date <span className="field-note">required for reviewed evidence</span>
           <input
             name="source_date"
             type="date"

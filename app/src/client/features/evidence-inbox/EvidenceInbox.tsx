@@ -82,9 +82,9 @@ function displayValue(value: string | null): string {
 function extractionLabel(draft: EvidenceDraftDto): string {
   if (draft.extraction_status === "pending") return "Pending";
   if (draft.extraction_status === "placeholder_limited") {
-    return "Limited placeholder";
+    return "Metadata review limited";
   }
-  return "Placeholder complete";
+  return "Metadata prepared";
 }
 
 export function EvidenceInbox({ cases, onSessionExpired }: EvidenceInboxProps) {

@@ -66,14 +66,14 @@ describe("deterministic Mission Intelligence rules", () => {
     expect(JSON.stringify(result)).not.toContain("Verify evidence");
   });
 
-  it("continues to direct genuinely unverified evidence to verification", () => {
+  it("directs genuinely unreviewed evidence to complete evidence review", () => {
     const result = evaluateMissionIntelligence(facts({
       evidence: { total: 9, verified: 8, unverified: 1, disputed: 0, sourceComplete: 9, deliveryReady: 8 },
     }));
 
     expect(result).toMatchObject({
       missionState: "Needs Verification",
-      recommendedAction: { id: "verify-evidence", title: "Verify evidence" },
+      recommendedAction: { id: "verify-evidence", title: "Complete evidence review" },
     });
   });
 

@@ -105,8 +105,9 @@ describe("Mission Control client and UI", () => {
 
     expect(markup).toContain("What deserves attention now");
     expect(markup).toContain("Fictional Jade ADU");
-    expect(markup).toContain("50%");
+    expect(markup).toContain("60% packet readiness");
     expect(markup).toContain("2/4");
+    expect(markup).toContain("3/6");
     expect(markup).toContain("Resolve missing information");
     expect(markup).not.toContain("AI confidence");
     expect(markup).toContain('role="progressbar"');

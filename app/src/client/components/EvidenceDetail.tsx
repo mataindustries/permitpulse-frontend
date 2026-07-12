@@ -77,7 +77,7 @@ export function EvidenceDetail({
       <p>{evidence.summary}</p>
       {evidence.verification_status === "unverified" && (
         <p className="field-note">
-          This evidence has not been marked verified.
+          Source review is pending. Complete provenance before relying on this record.
         </p>
       )}
       {canEdit && (

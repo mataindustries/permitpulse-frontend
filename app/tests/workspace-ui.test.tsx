@@ -1002,8 +1002,8 @@ describe("case workspace components", () => {
     expect(detailMarkup).toContain("Timeline");
     expect(detailMarkup).toContain("Evidence");
     expect(detailMarkup).toContain("Case Cockpit");
-    expect(detailMarkup).toContain("AI Mission Brief");
-    expect(detailMarkup).toContain("Mission Health");
+    expect(detailMarkup).toContain("Case brief");
+    expect(detailMarkup).toContain("Investigation health");
     expect(detailMarkup).toContain("Findings");
     expect(detailMarkup).toContain("Packet");
     expect(detailMarkup).toContain('aria-selected="true"');
@@ -1572,8 +1572,8 @@ describe("case workspace components", () => {
       />,
     );
 
-    expect(markup).toContain("Packet Progress");
-    expect(markup).toContain("4 of 5 readiness checks complete");
+    expect(markup).toContain("Packet readiness");
+    expect(markup).toContain("4 of 5 delivery checks complete");
     expect(markup).toContain("Client packet");
     expect(markup).toContain('role="tab"');
   });
@@ -1587,10 +1587,10 @@ describe("case workspace components", () => {
       />,
     );
 
-    expect(markup).toContain("Evidence Health");
+    expect(markup).toContain("Evidence quality");
     expect(markup).toContain("Source readiness");
-    expect(markup).toContain("Verify evidence");
-    expect(markup).toContain("Blockers");
+    expect(markup).toContain("Complete evidence review");
+    expect(markup).toContain("Open conditions");
     expect(markup).toContain("Fictional plan check notice");
   });
 
@@ -1607,8 +1607,8 @@ describe("case workspace components", () => {
       />,
     );
 
-    expect(markup).not.toContain("Verify evidence");
-    expect(markup).toContain("Evaluating mission");
+    expect(markup).not.toContain("Complete evidence review");
+    expect(markup).toContain("Evaluating case");
   });
 
   it("keeps the Case Cockpit usable when optional intelligence is unavailable", () => {
@@ -1904,7 +1904,7 @@ describe("case workspace components", () => {
     expect(markup).toContain("unverified");
     expect(markup).toContain("verified");
     expect(markup).toContain("disputed");
-    expect(markup).toContain("this evidence has not been verified and is not presented as confirmed.");
+    expect(markup).toContain("source review is pending; this record is not presented as confirmed.");
     expect(markup).toContain("this information is disputed and is not presented as confirmed.");
     expect(markup).toContain('href="https://example.test/notices/plan-check"');
     expect(markup).toContain("unsafe source label");

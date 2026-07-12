@@ -107,10 +107,10 @@ function evidenceSummary(readiness: MissionIntelligence): PacketDashboardEvidenc
   const linkedTimeline = counts.timeline.linked;
   const evidenceText = total === 0
     ? "No evidence records are included in this packet edition."
-    : `${total} evidence record${total === 1 ? "" : "s"}: ${verified} verified, ${unverified} unverified, and ${disputed} disputed. ${sourceComplete} ${sourceComplete === 1 ? "record has" : "records have"} complete provenance.`;
+    : `${sourceComplete} of ${total} evidence record${total === 1 ? " has" : "s have"} complete source details; ${verified} reviewed, ${unverified} awaiting review, ${disputed} disputed.`;
   const timelineText = timelineTotal === 0
     ? " No permit events are available for source linkage."
-    : ` ${linkedTimeline} of ${timelineTotal} permit event${timelineTotal === 1 ? "" : "s"} ${timelineTotal === 1 ? "is" : "are"} linked to available evidence.`;
+    : ` ${linkedTimeline} of ${timelineTotal} permit event${timelineTotal === 1 ? " is" : "s are"} source-linked.`;
 
   return {
     disputed,
@@ -174,7 +174,9 @@ function recommendedAction(
 export function packetDashboard(model: PacketModel): PacketDashboard {
   const readiness = readinessForPacket(model);
   const evidence = evidenceSummary(readiness);
-  const blockers = readiness.blockers.map((blocker) => ({
+  const blockers = readiness.blockers
+    .filter((blocker) => blocker.id !== "case-needs-information")
+    .map((blocker) => ({
     id: blocker.id,
     title: blocker.title,
     resolution: blocker.recommendedResolution,
@@ -185,10 +187,14 @@ export function packetDashboard(model: PacketModel): PacketDashboard {
       ? "Delivered"
       : "Draft packet";
   const reviewerStatus = blockers.length > 0
-    ? `Blocked — ${blockers.length} readiness condition${blockers.length === 1 ? "" : "s"}`
+    ? `Packet review blocked — ${blockers.length} open condition${blockers.length === 1 ? "" : "s"}`
     : model.document_status === "approved" || model.document_status === "delivered"
-    ? "Reviewer approved"
-    : readiness.missionState;
+    ? model.executive_summary.key_risks.length > 0
+      ? "Reviewer approved; jurisdiction risks remain open"
+      : "Reviewer approved"
+    : model.executive_summary.key_risks.length > 0
+      ? "Packet ready; jurisdiction risks remain open"
+      : "Packet review ready";
 
   return {
     blockers,
@@ -200,7 +206,7 @@ export function packetDashboard(model: PacketModel): PacketDashboard {
     readiness: metric(readiness.packetReadiness),
     recommended_action: recommendedAction(model, blockers, readiness),
     reviewer_status: reviewerStatus,
-    factors: readiness.readinessFactors,
+    factors: readiness.readinessFactors.filter((factor) => factor.blocking),
     warning_count: readiness.counts.warnings,
   };
 }

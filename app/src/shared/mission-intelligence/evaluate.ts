@@ -10,12 +10,13 @@ import type {
 
 function metric(completed: number, total: number, subject: string): MissionHealthMetric {
   const score = total === 0 ? 0 : Math.round((completed / total) * 100);
+  const readableSubject = subject.replaceAll("-", " ");
   return {
     score,
     status: score >= 80 ? "strong" : score >= 50 ? "attention" : "at_risk",
     completed,
     total,
-    explanation: `${completed} of ${total} deterministic ${subject} checks pass.`,
+    explanation: `${completed} of ${total} ${readableSubject} checks are complete.`,
   };
 }
 
@@ -128,7 +129,7 @@ export function evaluateMissionIntelligence(facts: MissionFacts): MissionIntelli
     },
     {
       id: "evidence-ready",
-      label: "Evidence verified with provenance",
+      label: "Evidence reviewed with provenance",
       category: "evidence",
       passed: facts.evidence.total > 0 && facts.evidence.deliveryReady === facts.evidence.total,
       blocking: true,

@@ -73,7 +73,7 @@ export function compileAiReviewText(data: PacketReviewDraftResponseData): string
   lines.push(
     "",
     "This deterministic draft only uses packet data already in the workspace and may miss issues.",
-    "Verify evidence, dates, status, and jurisdiction requirements before sending.",
+    "Confirm source records, dates, case workflow, and jurisdiction requirements before sending.",
   );
 
   return lines.join("\n");
@@ -360,7 +360,7 @@ export function AIReviewPanel({
         <h4 id="ai-review-safety-title">Verify this draft</h4>
         <p>
           This is a deterministic draft review, not live AI. It only uses packet
-          data already in the workspace and may miss issues. Verify evidence,
+          data already in the workspace and may miss issues. Confirm source records,
           dates, status, and jurisdiction requirements before sending. It is not
           legal advice and does not predict permit approval.
         </p>

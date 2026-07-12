@@ -82,16 +82,19 @@ const activityFieldLabels: Record<string, string> = {
 };
 
 const demonstrationNotice =
-  "FICTIONAL DEMONSTRATION DATA — FOR ILLUSTRATION PURPOSES ONLY";
+  "Fictional case disclosure — all names, records, dates, and agency activity in this packet are illustrative.";
 
 function cleanDemonstrationLabel(value: string): string {
-  return value.replace(/^DEMO\s*[—–-]\s*/i, "").trim();
+  return value
+    .replace(/^DEMO\s*[—–-]\s*/i, "")
+    .replace(/\s*[—–-]\s*(?:Fictional\s+)?Demo(?:\s+Record)?$/i, "")
+    .trim();
 }
 
 function isDemonstrationInput(input: BuildPacketModelInput): boolean {
   return Boolean(
-    /^DEMO\b/i.test(input.caseRecord.project_name) ||
-      /^DEMO\b/i.test(input.caseRecord.permit_number ?? "") ||
+    /\b(?:DEMO|FICTIONAL)\b/i.test(input.caseRecord.project_name) ||
+      /\b(?:DEMO|FICTIONAL)\b/i.test(input.caseRecord.permit_number ?? "") ||
       input.evidence.some((item) =>
         /^DEMO\b/i.test(item.title) || /\.example(?:\/|$)/i.test(item.source_url ?? ""),
       ),
@@ -100,14 +103,14 @@ function isDemonstrationInput(input: BuildPacketModelInput): boolean {
 
 function verificationNote(status: PacketVerificationStatus): string {
   if (status === "verified") {
-    return "Reviewer verification is recorded for this evidence.";
+    return "Source review is recorded; the evidence supports only the statement summarized above.";
   }
 
   if (status === "disputed") {
     return "This information is disputed and is not presented as confirmed.";
   }
 
-  return "This evidence has not been verified and is not presented as confirmed.";
+  return "Source review is pending; this record is not presented as confirmed.";
 }
 
 function evidenceInformationClass(
@@ -196,6 +199,7 @@ function evidenceSummary(
     verification_status: item.verification_status,
     verification_label: verificationStatusLabels[item.verification_status],
     verification_note: verificationNote(item.verification_status),
+    contributor_label: item.contributor?.name?.trim() || "Contributor not recorded",
     information_class: evidenceInformationClass(item.verification_status),
     created_at: item.created_at,
     created_at_label: formatPacketDateTime(item.created_at).label,
@@ -390,26 +394,30 @@ export function buildPacketModel({
   const derivedNextStep = primaryApprovedFinding?.recommended_resolution ?? approvedAction?.text;
   const actionKit = manualActionKit ?? (primaryApprovedFinding && derivedNextStep ? {
     current_position: primaryApprovedFinding.text,
-    confirmed_record: primaryApprovedFinding.text,
-    unconfirmed_record: "Any agency determination beyond the cited record remains unconfirmed.",
+    confirmed_record: citedEvidenceTitles.length > 0
+      ? `The cited record includes ${citedEvidenceTitles.join(", ")}.`
+      : "The cited record supports the finding stated above.",
+    unconfirmed_record: "The current jurisdiction disposition and any agency action beyond the cited record remain unconfirmed.",
     primary_blocker: primaryApprovedFinding.title ?? primaryApprovedFinding.text,
     why_appropriate: derivedNextStep,
     evidence_readiness: readiness.evidenceHealth.explanation,
     review_readiness: readiness.packetReadiness.explanation,
     email_subject: `Permit record follow-up${caseRecord.permit_number ? ` — ${caseRecord.permit_number}` : ""}`,
     recipient_role: `Agency review contact for ${caseRecord.jurisdiction}`,
-    message_body: `We are following up on ${caseRecord.project_name}. The reviewer-approved record states: ${primaryApprovedFinding.text} Please confirm the current agency position and the next step supported by the cited record: ${derivedNextStep}`,
+    message_body: `Hello, I am following up on ${cleanDemonstrationLabel(caseRecord.project_name)}${caseRecord.permit_number ? ` (${caseRecord.permit_number})` : ""}. Our record indicates ${primaryApprovedFinding.text.charAt(0).toLowerCase()}${primaryApprovedFinding.text.slice(1)} Please confirm the current jurisdiction position, the responsible review contact, and whether the following next step remains appropriate: ${derivedNextStep} Thank you.`,
     call_checklist: [
       `Identify the case${caseRecord.permit_number ? ` by permit number ${caseRecord.permit_number}` : " by project and address"}.`,
-      `Reference the approved finding: ${primaryApprovedFinding.text}`,
-      `Request confirmation of the documented next step: ${derivedNextStep}`,
+      `State the documented position without characterizing it as a final agency determination: ${primaryApprovedFinding.text}`,
+      `Confirm the responsible reviewer or discipline and ask whether this next step remains current: ${derivedNextStep}`,
+      "Record the contact's name or role, response date, and any stated deadline.",
     ],
     requested_confirmations: [
-      `Confirm the agency's current position on: ${primaryApprovedFinding.title ?? primaryApprovedFinding.text}`,
-      `Confirm whether the documented next step remains: ${derivedNextStep}`,
+      `Current jurisdiction position regarding ${primaryApprovedFinding.title ?? primaryApprovedFinding.text}`,
+      "Responsible reviewer or discipline queue and latest routing date",
+      `Whether the documented next step remains current: ${derivedNextStep}`,
     ],
     documents_ready: citedEvidenceTitles,
-    escalation_trigger: `Escalate only if the agency response leaves the approved finding unresolved: ${primaryApprovedFinding.text}`,
+    escalation_trigger: `Escalate to the appropriate supervisory review role only if the responsible contact remains unidentified or the jurisdiction provides conflicting direction after the documented follow-up.`,
     follow_up_date: null,
     citation_references: primaryApprovedFinding.citation_references,
   } : null);
@@ -442,7 +450,7 @@ export function buildPacketModel({
     is_internal_draft: false,
     draft_notice: packetStatusNotice(documentStatus),
     executive_summary: {
-      text: findings.filter((item) => item.reviewer_approved).map((item) => item.text).join(" ") || `This packet assembles ${evidenceCount} evidence record${evidenceCount === 1 ? "" : "s"} and ${timelineCount} permit timeline event${timelineCount === 1 ? "" : "s"} for ${cleanDemonstrationLabel(caseRecord.project_name)}. The recorded case status is ${caseStatusLabels[caseRecord.current_status]}.`,
+      text: findings.filter((item) => item.reviewer_approved).map((item) => item.text).join(" ") || `This packet assembles ${evidenceCount} evidence record${evidenceCount === 1 ? "" : "s"} and ${timelineCount} permit timeline event${timelineCount === 1 ? "" : "s"} for ${cleanDemonstrationLabel(caseRecord.project_name)}. The recorded workflow status is ${caseStatusLabels[caseRecord.current_status]}; packet readiness does not establish jurisdiction resolution.`,
       information_class: "client_provided_information",
       supporting_source_ids: [
         ...evidenceSummaries.map((item) => item.id),
@@ -521,6 +529,7 @@ export function buildPacketModel({
       url: item.source.url,
       date_label: item.source.date_label,
       verification_label: item.verification_label,
+      contributor_label: item.contributor_label,
       information_class: item.information_class,
     })),
     missing_information: missingInformation({

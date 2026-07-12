@@ -3,7 +3,7 @@ import { decodePDFRawStream, PDFArray, PDFDocument, PDFRawStream } from "pdf-lib
 import { beforeEach, describe, expect, it } from "vitest";
 import { app } from "../src/worker/app";
 import type { Bindings } from "../src/worker/types";
-import { arroyoVistaDemoEvidence } from "../src/shared/demo/arroyo-vista-demo";
+import { arroyoVistaDemoEvidence, arroyoVistaDemoPermitNumber } from "../src/shared/demo/arroyo-vista-demo";
 
 const origin="http://localhost";
 const secret="demo-seed-test-secret-123456789012345678901234";
@@ -42,22 +42,23 @@ describe("canonical rich demo case",()=>{
     expect(second.status).toBe(200);
     expect((await second.json<{data:typeof seeded.data}>()).data).toMatchObject({...seeded.data,created:false});
     const counts=await env.DB.prepare(`SELECT
-      (SELECT count(*) FROM cases WHERE permit_number='DEMO-LADBS-2026-1842') cases,
+      (SELECT count(*) FROM cases WHERE permit_number=?) cases,
       (SELECT count(*) FROM evidence_items WHERE case_id=?) evidence,
       (SELECT count(*) FROM timeline_entries WHERE case_id=?) timeline,
       (SELECT count(*) FROM timeline_entry_evidence te JOIN timeline_entries t ON t.id=te.timeline_entry_id WHERE t.case_id=?) links,
-      (SELECT count(*) FROM delivery_lifecycle_events WHERE case_id=?) lifecycle`).bind(seeded.data.case_id,seeded.data.case_id,seeded.data.case_id,seeded.data.case_id).first<{cases:number;evidence:number;timeline:number;links:number;lifecycle:number}>();
+      (SELECT count(*) FROM delivery_lifecycle_events WHERE case_id=?) lifecycle`).bind(arroyoVistaDemoPermitNumber,seeded.data.case_id,seeded.data.case_id,seeded.data.case_id,seeded.data.case_id).first<{cases:number;evidence:number;timeline:number;links:number;lifecycle:number}>();
     expect(counts).toEqual({cases:1,evidence:9,timeline:8,links:16,lifecycle:1});
 
     const packetResponse=await request(`/api/v1/cases/${seeded.data.case_id}/packet`,{headers:{cookie:admin.cookie}});
-    const packetBody=await packetResponse.json<{data:{packet:{evidence_summaries:Array<{title:string;summary:string;verification_status:string;source:{label:string|null;url:string|null;complete:boolean}}>};quality:{blockers:unknown[];stale_snapshot:boolean};persisted_snapshot:boolean}}>();
+    const packetBody=await packetResponse.json<{data:{packet:{evidence_summaries:Array<{title:string;summary:string;verification_status:string;contributor_label?:string;source:{label:string|null;url:string|null;complete:boolean}}>};quality:{blockers:unknown[];stale_snapshot:boolean};persisted_snapshot:boolean}}>();
     const serialized=JSON.stringify(packetBody.data.packet);
     expect(packetBody.data.persisted_snapshot).toBe(true);
     expect(packetBody.data.quality).toMatchObject({blockers:[],stale_snapshot:false});
     expect(packetBody.data.packet.evidence_summaries).toHaveLength(9);
     expect(packetBody.data.packet.evidence_summaries.every((item)=>item.verification_status==="verified"&&item.source.complete)).toBe(true);
-    expect(packetBody.data.packet.evidence_summaries.find((item)=>item.title==="Client status inquiry")?.source).toMatchObject({label:"Client-provided email summary",complete:true});
-    expect(packetBody.data.packet.evidence_summaries.find((item)=>item.title==="Reviewer routing email note")?.source).toMatchObject({label:"LADBS Demo routing email record",complete:true});
+    expect(packetBody.data.packet.evidence_summaries.every((item)=>item.contributor_label&&item.contributor_label!=="Contributor not recorded")).toBe(true);
+    expect(packetBody.data.packet.evidence_summaries.find((item)=>item.title==="Client status inquiry")?.source).toMatchObject({label:"Client email record",complete:true});
+    expect(packetBody.data.packet.evidence_summaries.find((item)=>item.title==="Reviewer routing email note")?.source).toMatchObject({label:"Agency routing email record",complete:true});
     const portalSummary=arroyoVistaDemoEvidence.find((item)=>item.key==="portal")!.summary;
     expect(packetBody.data.packet.evidence_summaries.find((item)=>item.title==="Permit portal status capture")?.summary).toBe(portalSummary);
     expect(serialized.match(new RegExp(portalSummary.replace(/[.*+?^${}()|[\]\\]/g,"\\$&"),"g"))).toHaveLength(1);
@@ -69,8 +70,8 @@ describe("canonical rich demo case",()=>{
       expect(exported.status).toBe(200);
       const text=await exported.text();
       expect(text).toContain("Receipt does not establish reviewer assignment");
-      expect(text).toContain("Client-provided email summary");
-      expect(text).toContain("LADBS Demo routing email record");
+      expect(text).toContain("Client email record");
+      expect(text).toContain("Agency routing email record");
       expect(text).not.toContain(`${portalSummary} ${portalSummary}`);
       expect(text).not.toContain("Source label pending");
       expect(text).not.toContain("Digital provenance not recorded");
@@ -83,8 +84,8 @@ describe("canonical rich demo case",()=>{
     const document=await PDFDocument.load(await pdf.arrayBuffer());
     expect(document.getPageCount()).toBeGreaterThan(3);
     const operators=pdfOperators(document);
-    expect(operators).toContain(pdfHex("Client-provided email summary"));
-    expect(operators).toContain(pdfHex("LADBS Demo routing email record"));
+    expect(operators).toContain(pdfHex("Client email record"));
+    expect(operators).toContain(pdfHex("Agency routing email record"));
     expect(operators).not.toContain(pdfHex("Source label pending"));
   });
 

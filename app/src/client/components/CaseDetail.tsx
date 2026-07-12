@@ -371,6 +371,9 @@ export function CaseDetail({
   const missionHealth = currentIntelligence?.missionHealth.score ?? 0;
   const packetCompleted = currentIntelligence?.packetReadiness.completed ?? 0;
   const packetProgress = currentIntelligence?.packetReadiness.score ?? 0;
+  const evidenceConditionCount = currentIntelligence?.blockers.filter((item) =>
+    ["missing-evidence", "disputed-evidence", "unready-evidence"].includes(item.id)
+  ).length ?? 0;
   const nextAction = currentIntelligence?.recommendedAction;
 
   useEffect(() => {
@@ -642,7 +645,7 @@ export function CaseDetail({
               <div className="mission-brief__copy">
                 <div className="mission-brief__heading">
                   <div>
-                    <p className="eyebrow">AI Mission Brief</p>
+                    <p className="eyebrow">Case brief</p>
                     <h2>What matters now</h2>
                   </div>
                   <OsStatusBadge tone="info">Deterministic</OsStatusBadge>
@@ -660,7 +663,7 @@ export function CaseDetail({
                     if (nextAction) setActiveSection(nextAction.targetTab);
                   }}
                 >
-                  {nextAction?.title ?? "Evaluating mission"}
+                  {nextAction?.title ?? "Evaluating case"}
                 </PrimaryAction>
               </div>
             </SurfaceCard>
@@ -668,7 +671,7 @@ export function CaseDetail({
             <SurfaceCard as="article" className="mission-health">
               <div className="mission-health__heading">
                 <div>
-                  <p className="eyebrow">Mission Health</p>
+                  <p className="eyebrow">Investigation health</p>
                   <h2>{signalsLoading ? "—" : `${missionHealth}%`}</h2>
                 </div>
                 <OsStatusBadge
@@ -678,7 +681,7 @@ export function CaseDetail({
                 </OsStatusBadge>
               </div>
               <ProgressBar
-                label={signalsLoading ? "Mission health syncing" : `Mission health ${missionHealth}%`}
+                label={signalsLoading ? "Investigation health syncing" : `Investigation health ${missionHealth}%`}
                 tone={signalsLoading ? "jade" : missionHealth >= 80 ? "success" : missionHealth >= 55 ? "warning" : "danger"}
                 value={signalsLoading ? 0 : missionHealth}
               />
@@ -852,7 +855,7 @@ export function CaseDetail({
             <section className="detail-section cockpit-section" aria-labelledby="evidence-title">
               <div className="section-heading">
                 <div>
-                  <p className="eyebrow">Evidence Health</p>
+                  <p className="eyebrow">Evidence quality</p>
                   <h3 id="evidence-title">Source readiness</h3>
                 </div>
                 {evidenceFormMode !== "create" && (
@@ -870,10 +873,9 @@ export function CaseDetail({
               </div>
 
               <div className="evidence-health" aria-label="Evidence health indicators">
-                <MetricChip icon="check" label="Checks passed" tone="success" value={currentIntelligence?.evidenceHealth.completed ?? 0} />
-                <MetricChip icon="warning" label="Blockers" tone={currentIntelligence?.counts.blockers ? "danger" : "neutral"} value={currentIntelligence?.counts.blockers ?? 0} />
-                <MetricChip icon="warning" label="Warnings" tone={currentIntelligence?.counts.warnings ? "warning" : "neutral"} value={currentIntelligence?.counts.warnings ?? 0} />
-                <MetricChip icon="evidence" label="Evidence health" value={`${currentIntelligence?.evidenceHealth.score ?? 0}%`} />
+                <MetricChip icon="check" label="Review checks" tone="success" value={`${currentIntelligence?.evidenceHealth.completed ?? 0}/${currentIntelligence?.evidenceHealth.total ?? 2}`} />
+                <MetricChip icon="warning" label="Open conditions" tone={evidenceConditionCount ? "danger" : "success"} value={evidenceConditionCount} />
+                <MetricChip icon="evidence" label="Records ready" value={`${currentIntelligence?.counts.evidence.deliveryReady ?? 0}/${currentIntelligence?.counts.evidence.total ?? 0}`} />
                 <MetricChip icon="warning" label="Provenance issues" tone={currentIntelligence?.counts.evidence.provenanceIssues ? "warning" : "success"} value={currentIntelligence?.counts.evidence.provenanceIssues ?? 0} />
               </div>
 
@@ -1090,17 +1092,17 @@ export function CaseDetail({
               <SurfaceCard className="packet-progress">
                 <div className="packet-progress__heading">
                   <div>
-                    <p className="eyebrow">Packet Progress</p>
-                    <h3 id="packet-progress-title">{packetCompleted} of 5 readiness checks complete</h3>
+                    <p className="eyebrow">Packet readiness</p>
+                    <h3 id="packet-progress-title">{packetCompleted === 5 ? "Packet ready for delivery review" : `${packetCompleted} of 5 delivery checks complete`}</h3>
                   </div>
-                  <strong>{Math.round(packetProgress)}%</strong>
+                  <strong>{packetCompleted}/5</strong>
                 </div>
                 <ProgressBar
                   label={`Packet readiness ${Math.round(packetProgress)}%`}
                   tone={packetProgress === 100 ? "success" : "warning"}
                   value={packetProgress}
                 />
-                <p>{currentIntelligence?.packetReadiness.explanation ?? "Evaluating packet readiness."}</p>
+                <p>{currentIntelligence?.packetReadiness.explanation ?? "Evaluating packet readiness."} Packet readiness does not indicate permit approval or jurisdiction resolution.</p>
                 {currentIntelligence && (
                   <ul className="readiness-factor-list readiness-factor-list--packet" aria-label="Packet readiness calculation">
                     {currentIntelligence.readinessFactors.slice(0, 5).map((factor) => (

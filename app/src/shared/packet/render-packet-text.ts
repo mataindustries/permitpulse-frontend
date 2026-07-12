@@ -39,21 +39,21 @@ export function renderPacketText(model: PacketModel): string {
   addSection(lines, "Executive Dashboard", [
     `Executive Summary: ${plainText(model.executive_summary.text)}`,
     `Current position: ${plainText(model.action_kit?.current_position??model.executive_summary.text)}`,
-    ...(model.action_kit?[`What the record confirms: ${plainText(model.action_kit.confirmed_record)}`,`What the record does not confirm: ${plainText(model.action_kit.unconfirmed_record)}`,`Primary blocker: ${plainText(model.action_kit.primary_blocker)}`,`Why this move is appropriate: ${plainText(model.action_kit.why_appropriate)}`,`Evidence readiness: ${plainText(model.action_kit.evidence_readiness)}`,`Review readiness: ${plainText(model.action_kit.review_readiness)}`]:[]),
+    ...(model.action_kit?[`What the record confirms: ${plainText(model.action_kit.confirmed_record)}`,`What the record does not confirm: ${plainText(model.action_kit.unconfirmed_record)}`,`Primary unresolved issue: ${plainText(model.action_kit.primary_blocker)}`,`Why this next step is appropriate: ${plainText(model.action_kit.why_appropriate)}`,`Packet evidence readiness: ${plainText(model.action_kit.evidence_readiness)}`,`Jurisdiction position: ${plainText(model.action_kit.review_readiness)}`]:[]),
     ...model.executive_summary.key_risks.map((item) => `Key Risk: ${plainText(item)}`),
     ...model.executive_summary.key_strengths.map((item) => `Key Strength: ${plainText(item)}`),
-    `Authoritative readiness state: ${plainText(dashboard.permit_status)}`,
-    `Overall Mission Health: ${dashboard.mission_health.label} (${dashboard.mission_health.score}%)`,
-    `Readiness score: ${dashboard.readiness.score}%`,
-    "Readiness factors:",
+    `Investigation state: ${plainText(dashboard.permit_status)} (not a jurisdiction disposition)`,
+    `Investigation health: ${dashboard.mission_health.label} (${dashboard.mission_health.completed} of ${dashboard.mission_health.total} checks complete)`,
+    `Packet readiness: ${dashboard.readiness.completed} of ${dashboard.readiness.total} checks complete`,
+    "Packet readiness checks:",
     ...dashboard.factors.map((factor) => `  [${factor.passed ? "PASS" : "OPEN"}] ${plainText(factor.label)} — ${plainText(factor.detail)}`),
-    "Primary blockers:",
+    "Packet-readiness conditions:",
     ...(dashboard.blockers.length > 0
       ? dashboard.blockers.map(
           (item, index) =>
             `  ${index + 1}. ${plainText(item.title)} — ${plainText(item.resolution)}`,
         )
-      : ["  No primary blockers identified in the current packet record."]),
+      : ["  No packet-readiness conditions remain. Open findings do not indicate jurisdiction resolution."]),
     `Recommended next action: ${plainText(dashboard.recommended_action.title)}`,
     `Action context: ${plainText(dashboard.recommended_action.detail)}`,
     `Evidence summary: ${plainText(dashboard.evidence.text)}`,
@@ -71,8 +71,8 @@ export function renderPacketText(model: PacketModel): string {
 
   addSection(lines,"Recommended Next Actions",numberedItems(model.recommended_next_actions.items.map(item=>`${item.text}${item.citation_references.length?` (Supported by ${item.citation_references.join(", ")})`:""}`),model.recommended_next_actions.empty_message));
   if(model.action_kit){const kit=model.action_kit;addSection(lines,"Agency Follow-Up Kit",[
-    `Subject: ${plainText(kit.email_subject)}`,`Recipient / agency role: ${plainText(kit.recipient_role)}`,"Message:",plainText(kit.message_body),`Supported by: ${kit.citation_references.join(", ")}`,
-    "Requested confirmations:",...kit.requested_confirmations.map((x,i)=>`  ${i+1}. ${plainText(x)}`),"Call script:",...kit.call_checklist.map((x,i)=>`  ${i+1}. ${plainText(x)}`),"Documents to have ready:",...(kit.documents_ready.length ? kit.documents_ready.map((x,i)=>`  ${i+1}. ${plainText(x)}`) : ["  Use only the cited packet sources listed above."]),`Escalation summary: ${plainText(kit.escalation_trigger)}`,`Next contact recommendation: ${plainText(kit.recipient_role)}`,...(kit.follow_up_date?[`Follow-up / review date: ${kit.follow_up_date}`]:[]),
+    `Subject: ${plainText(kit.email_subject)}`,`Recommended contact: ${plainText(kit.recipient_role)}`,"Message:",plainText(kit.message_body),`Supported by: ${kit.citation_references.join(", ")}`,
+    "Requested confirmations:",...kit.requested_confirmations.map((x,i)=>`  ${i+1}. ${plainText(x)}`),"Call script:",...kit.call_checklist.map((x,i)=>`  ${i+1}. ${plainText(x)}`),"Documents to have ready:",...(kit.documents_ready.length ? kit.documents_ready.map((x,i)=>`  ${i+1}. ${plainText(x)}`) : ["  Use only the cited packet sources listed above."]),`Escalation summary: ${plainText(kit.escalation_trigger)}`,`Recommended next contact: ${plainText(kit.recipient_role)}`,...(kit.follow_up_date?[`Follow-up / review date: ${kit.follow_up_date}`]:[]),
   ]);} else { addSection(lines, "Agency Follow-Up Kit", ["No reviewer-approved findings support an Agency Follow-Up Kit for this edition."]); }
 
   addSection(
@@ -84,13 +84,15 @@ export function renderPacketText(model: PacketModel): string {
     ),
   );
 
-  addSection(lines, "Current Status", [
-    `Recorded workflow status: ${plainText(model.current_status.label)}`,
-    `Authoritative readiness state: ${plainText(dashboard.permit_status)}`,
+  addSection(lines, "Current Status — Case Workflow and Packet Readiness", [
+    `Case workflow status: ${plainText(model.current_status.label)}`,
+    `Investigation state: ${plainText(dashboard.permit_status)}`,
+    `Packet readiness: ${dashboard.readiness.completed} of ${dashboard.readiness.total} checks complete`,
+    "Jurisdiction resolution: Not established by packet readiness.",
     `Case record updated: ${model.case_summary.updated_at_label}`,
   ]);
 
-  addSection(lines,"Evidence Matrix",model.evidence_summaries.map(item=>`${item.reference} | ${plainText(item.title)} | ${item.evidence_type_label} | ${item.source.date_label} | ${item.verification_label} | ${plainText(item.source.label??"Source label pending")} | ${plainText(item.summary)}`));
+  addSection(lines,"Evidence Matrix",model.evidence_summaries.map(item=>`${item.reference} | ${plainText(item.title)} | ${item.evidence_type_label} | ${item.source.date_label} | ${item.verification_label} | ${plainText(item.source.label??"Source label pending")} | Contributor: ${plainText(item.contributor_label ?? "Contributor not recorded")} | ${plainText(item.summary)}`));
 
   addSection(
     lines,
@@ -110,6 +112,7 @@ export function renderPacketText(model: PacketModel): string {
             ...(item.source.date
               ? [`   Source date: ${item.source.date_label}`]
               : []),
+            `   Contributor: ${plainText(item.contributor_label ?? "Contributor not recorded")}`,
             ...(item.source.url
               ? [`   Provenance: ${plainText(item.source.url)}`]
               : []),
@@ -185,6 +188,7 @@ export function renderPacketText(model: PacketModel): string {
           `   Source: ${plainText(source.label)}`,
           `   Date: ${source.date_label}`,
           `   Verification: ${source.verification_label}`,
+          `   Contributor: ${plainText(source.contributor_label ?? "Contributor not recorded")}`,
           `   Provenance: ${plainText(source.url ?? "Digital provenance not recorded")}`,
         ])
       : ["Source log is empty. No supporting sources are included in this packet edition."],

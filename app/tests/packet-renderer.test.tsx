@@ -259,8 +259,8 @@ describe("packet model builder", () => {
     ]);
     expect(model.evidence_summaries.map((item) => item.verification_note)).toEqual([
       "This information is disputed and is not presented as confirmed.",
-      "Reviewer verification is recorded for this evidence.",
-      "This evidence has not been verified and is not presented as confirmed.",
+      "Source review is recorded; the evidence supports only the statement summarized above.",
+      "Source review is pending; this record is not presented as confirmed.",
     ]);
   });
 
@@ -293,7 +293,7 @@ describe("packet model builder", () => {
       permit_status: "Needs Verification",
       mission_health: { score: 67, label: "Needs attention" },
       readiness: { score: 80 },
-      reviewer_status: "Blocked — 1 readiness condition",
+      reviewer_status: "Packet review blocked — 1 open condition",
     });
     expect(dashboard.blockers).toContainEqual(
       expect.objectContaining({ id: "unready-evidence" }),
@@ -306,7 +306,7 @@ describe("packet model builder", () => {
       linked_timeline: 1,
       provenance_issues: 0,
     });
-    expect(dashboard.factors).toHaveLength(6);
+    expect(dashboard.factors).toHaveLength(5);
     expect(dashboard.factors.find((factor) => factor.id === "evidence-ready")).toMatchObject({ passed: false, blocking: true });
     expect(model.readiness?.counts.evidence).toMatchObject({
       total: dashboard.evidence.total,
@@ -315,6 +315,34 @@ describe("packet model builder", () => {
       disputed: dashboard.evidence.disputed,
       provenanceIssues: dashboard.evidence.provenance_issues,
     });
+  });
+
+  it("keeps packet readiness separate from unresolved jurisdiction risks", () => {
+    const model = buildPacketModel(completeInput({
+      caseRecord: { ...caseRecord, current_status: "ready_for_review" },
+      evidence: [{ ...evidenceBase, verification_status: "verified" }],
+      editorialContent: {
+        findings: [{
+          id: "risk-1",
+          text: "Reviewer assignment remains unconfirmed.",
+          title: "Reviewer assignment",
+          finding_type: "risk",
+          supporting_source_ids: [evidenceBase.id],
+          grounded: true,
+          reviewer_approved: true,
+        }],
+      },
+    }));
+    const dashboard = packetDashboard(model);
+    const text = renderPacketText(model);
+
+    expect(dashboard.readiness).toMatchObject({ score: 100, completed: 5, total: 5 });
+    expect(dashboard.blockers).toEqual([]);
+    expect(dashboard.reviewer_status).toBe("Packet ready; jurisdiction risks remain open");
+    expect(model.executive_summary.key_risks).toEqual(["Reviewer assignment"]);
+    expect(text).toContain("No packet-readiness conditions remain");
+    expect(text).toContain("Jurisdiction resolution: Not established by packet readiness.");
+    expect(text).not.toContain("No primary blockers");
   });
 
   it("builds the follow-up kit and dependency map only from approved grounded findings", () => {
@@ -347,7 +375,7 @@ describe("packet model builder", () => {
       citation_references: ["E01"],
     })]);
     expect(renderPacketHtml(model)).toContain("Agency dependency map");
-    expect(renderPacketText(model)).toContain("Next contact recommendation");
+    expect(renderPacketText(model)).toContain("Recommended next contact");
   });
 
   it("consolidates demo labeling into one professional disclosure", () => {
@@ -356,10 +384,10 @@ describe("packet model builder", () => {
       evidence: [{ ...evidenceBase, title: "DEMO — Portal record", source_url: "https://records.example/demo" }],
     }));
 
-    expect(model.demonstration_notice).toBe("FICTIONAL DEMONSTRATION DATA — FOR ILLUSTRATION PURPOSES ONLY");
+    expect(model.demonstration_notice).toBe("Fictional case disclosure — all names, records, dates, and agency activity in this packet are illustrative.");
     expect(model.case_summary.project_name).toBe("Arroyo Vista");
     expect(model.evidence_summaries[0]?.title).toBe("Portal record");
-    expect(renderPacketText(model).match(/FICTIONAL DEMONSTRATION DATA/g)).toHaveLength(1);
+    expect(renderPacketText(model).match(/Fictional case disclosure/g)).toHaveLength(1);
   });
 
   it("sorts evidence, timeline, and activity deterministically", () => {
@@ -415,8 +443,8 @@ describe("packet text renderer", () => {
 
     expect(text).toContain("Prepared for client review");
     expect(text).toContain("Executive Dashboard");
-    expect(text).toContain("Overall Mission Health");
-    expect(text).toContain("Readiness score: 80%");
+    expect(text).toContain("Investigation health");
+    expect(text).toContain("Packet readiness: 4 of 5 checks complete");
     expect(text).toContain("Packet Metadata");
     expect(text).toContain("Packet integrity / version");
     expect(text).toContain("Generated: February 3, 2026 at 4:05 AM");
@@ -546,7 +574,7 @@ describe("packet HTML renderer", () => {
     expect(html).toContain("--jade: #1c744d");
     expect(html).toContain("--paper: #fbfaf7");
     expect(html).toContain("Executive Dashboard");
-    expect(html).toContain("Overall Mission Health");
+    expect(html).toContain("Investigation health");
     expect(html).toContain("Packet integrity / version");
     expect(html).toContain("pp-evidence-card");
     expect(html).toContain("Reviewer note");
@@ -611,10 +639,10 @@ describe("packet PDF helpers", () => {
     const firstPage = decodedPageOperators(pdf.getPage(0));
     for (const label of [
       "Executive Dashboard",
-      "READINESS STATE",
-      "OVERALL MISSION HEALTH",
-      "READINESS SCORE",
-      "PRIMARY BLOCKERS",
+      "INVESTIGATION STATE",
+      "INVESTIGATION HEALTH",
+      "PACKET READINESS",
+      "PACKET-READINESS CONDITIONS",
       "RECOMMENDED NEXT ACTION",
       "EVIDENCE SUMMARY",
       "PACKET INTEGRITY / VERSION",
@@ -672,7 +700,7 @@ describe("PacketPreview packet text integration", () => {
 
     expect(markup).toContain("Prepared for client review");
     expect(markup).toContain("Executive Dashboard");
-    expect(markup).toContain("Overall Mission Health");
+    expect(markup).toContain("Investigation health");
     expect(markup).toContain("Packet integrity / version");
     expect(markup).toContain("Reviewer note");
     expect(markup).toContain("Fictional plan check notice");

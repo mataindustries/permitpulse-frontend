@@ -98,6 +98,10 @@ export interface PacketEvidenceDto {
   source_label: string | null;
   source_date: string | null;
   verification_status: PacketVerificationStatus;
+  contributor?: {
+    id: string;
+    name: string | null;
+  } | null;
   created_at: string;
   updated_at: string;
 }
@@ -219,6 +223,7 @@ export interface PacketEvidenceSummary {
   verification_status: PacketVerificationStatus;
   verification_label: string;
   verification_note: string;
+  contributor_label?: string;
   information_class:
     | "confirmed_fact"
     | "unverified_evidence"
@@ -329,6 +334,7 @@ export interface PacketSupportingSource {
   url: string | null;
   date_label: string;
   verification_label: string;
+  contributor_label?: string;
   information_class:
     | "confirmed_fact"
     | "unverified_evidence"

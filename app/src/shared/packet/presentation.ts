@@ -80,14 +80,14 @@ export function packetStatusLabel(
 
 export function packetStatusNotice(status: PacketDocumentStatus): string {
   if (status === "approved") {
-    return "Approved for delivery following reviewer quality checks.";
+    return "Packet ready for delivery following reviewer quality checks. This does not indicate permit approval or jurisdiction resolution.";
   }
 
   if (status === "delivered") {
-    return "Delivery of this packet has been recorded.";
+    return "Packet delivery is recorded. Jurisdiction disposition must be confirmed separately.";
   }
 
-  return "Prepared for client review. Confirm source records and jurisdiction requirements before delivery.";
+  return "Prepared for client review. Confirm source records and jurisdiction requirements before delivery; packet readiness does not establish permit resolution.";
 }
 
 export function packetDocumentStatusForDeliveryState(
@@ -191,6 +191,7 @@ export function packetVisibleText(model: PacketPresentationModel): string[] {
       item.url ?? "",
       item.date_label,
       item.verification_label,
+      item.contributor_label ?? "",
     ]),
     model.disclaimer,
   ];
