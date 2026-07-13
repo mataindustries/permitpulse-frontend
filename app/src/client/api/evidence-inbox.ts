@@ -11,6 +11,10 @@ interface UploadEnvelope {
   error?: { code?: unknown; message?: unknown };
 }
 
+export function evidenceDraftFileUrl(draftId: string): string {
+  return `/api/v1/evidence-inbox/${encodeURIComponent(draftId)}/file`;
+}
+
 export function listEvidenceInbox(): Promise<EvidenceInboxResponse> {
   return requestJson<EvidenceInboxResponse>("/api/v1/evidence-inbox");
 }
@@ -30,12 +34,14 @@ export function runEvidenceInboxBulkAction(input: {
 export function uploadEvidenceFile(
   file: File,
   onProgress: (progress: number) => void,
+  idempotencyKey: string,
 ): Promise<EvidenceDraftDto> {
   return new Promise((resolve, reject) => {
     const request = new XMLHttpRequest();
     request.open("POST", "/api/v1/evidence-inbox/upload");
     request.responseType = "json";
     request.setRequestHeader("accept", "application/json");
+    request.setRequestHeader("idempotency-key", idempotencyKey);
     request.upload.addEventListener("progress", (event) => {
       if (event.lengthComputable && event.total > 0) {
         onProgress(Math.min(99, Math.round((event.loaded / event.total) * 100)));
@@ -86,8 +92,6 @@ export function uploadEvidenceFile(
     });
     const data = new FormData();
     data.append("file", file);
-    data.append("last_modified", String(file.lastModified));
     request.send(data);
   });
 }
-

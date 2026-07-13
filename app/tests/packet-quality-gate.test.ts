@@ -205,6 +205,85 @@ describe("deterministic packet delivery-quality gate", () => {
     expect(result.blockers.map((item) => item.id)).toContain("customer-facing-language");
   });
 
+  it("scans all client-visible Action Kit fields for internal language", () => {
+    const snapshot = model({
+      editorialContent: {
+        actionKit: {
+          current_position: "The current record remains unresolved.",
+          confirmed_record: "The portal confirms receipt.",
+          unconfirmed_record: "The reviewer assignment is not confirmed.",
+          primary_blocker: "Reviewer assignment",
+          why_appropriate: "A direct status request is appropriate.",
+          evidence_readiness: "The cited record is source-ready.",
+          review_readiness: "The agency response remains unresolved.",
+          email_subject: "Internal working draft — follow-up",
+          recipient_role: "Agency review contact",
+          message_body: "Please confirm the current reviewer assignment.",
+          call_checklist: ["Identify the permit record."],
+          requested_confirmations: ["Current reviewer assignment"],
+          documents_ready: ["Portal record"],
+          escalation_trigger: "Escalate after conflicting agency direction.",
+          follow_up_date: null,
+          evidence_ids: [verifiedEvidence.id],
+          timeline_ids: [],
+          approved: true,
+        },
+      },
+    });
+    const result = evaluate(snapshot);
+
+    expect(result.blockers.map((item) => item.id)).toContain(
+      "customer-facing-language",
+    );
+  });
+
+  it("allows absolute managed provenance URLs containing an API route", () => {
+    const snapshot = model({
+      evidence: [{
+        ...verifiedEvidence,
+        source_url:
+          "https://workspace.permitpulse.example/api/v1/evidence-inbox/drafts/draft-1/file",
+      }],
+    });
+    const result = evaluate(snapshot);
+
+    expect(result.blockers.map((item) => item.id)).not.toContain(
+      "customer-facing-language",
+    );
+  });
+
+  it("blocks an approved Action Kit that has no valid packet citation", () => {
+    const snapshot = model({
+      editorialContent: {
+        actionKit: {
+          current_position: "The current record remains unresolved.",
+          confirmed_record: "The portal confirms receipt.",
+          unconfirmed_record: "The reviewer assignment is not confirmed.",
+          primary_blocker: "Reviewer assignment",
+          why_appropriate: "A direct status request is appropriate.",
+          evidence_readiness: "The record has complete provenance.",
+          review_readiness: "The agency response remains unresolved.",
+          email_subject: "Permit status follow-up",
+          recipient_role: "Agency review contact",
+          message_body: "Please confirm the current reviewer assignment.",
+          call_checklist: ["Identify the permit record."],
+          requested_confirmations: ["Current reviewer assignment"],
+          documents_ready: ["Portal record"],
+          escalation_trigger: "Escalate after conflicting agency direction.",
+          follow_up_date: null,
+          evidence_ids: [],
+          timeline_ids: [],
+          approved: true,
+        },
+      },
+    });
+    const result = evaluate(snapshot);
+
+    expect(result.blockers.map((item) => item.id)).toContain(
+      "action-kit-grounded",
+    );
+  });
+
   it("blocks an internal-draft marker", () => {
     const snapshot = {
       ...model(),
@@ -292,17 +371,18 @@ describe("deterministic packet delivery-quality gate", () => {
     );
   });
 
-  it("warns when the persisted source lists were truncated", () => {
+  it("blocks approval when the persisted source lists were truncated", () => {
     const snapshot = model();
     snapshot.warnings.push({
       id: "evidence-register-truncated",
-      text: "The Evidence Register shows the 50 most recent records.",
+      text: "Supporting Evidence shows the 50 most recent records.",
       information_class: "warning",
     });
     const result = evaluate(snapshot);
 
-    expect(result.warnings).toContainEqual(
+    expect(result.blockers).toContainEqual(
       expect.objectContaining({ id: "packet-source-scope-complete" }),
     );
+    expect(result.eligible_for_approval).toBe(false);
   });
 });

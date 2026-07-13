@@ -26,7 +26,6 @@ import { EvidenceLinkManager } from "../src/client/components/EvidenceLinkManage
 import { EvidenceList } from "../src/client/components/EvidenceList";
 import { packetNeedsRegeneration } from "../src/client/components/DeliveryLifecyclePanel";
 import {
-  compilePacketText,
   copyPacketText,
   PacketPreview,
 } from "../src/client/components/PacketPreview";
@@ -1853,186 +1852,60 @@ describe("case workspace components", () => {
     expect(failureMarkup).not.toContain("private clipboard detail");
   });
 
-  it("renders packet overview, controls, and print-friendly actions", () => {
+  it("renders an authoritative packet loading boundary before any deliverable actions", () => {
     const markup = renderToStaticMarkup(
-      <PacketPreview
-        activityResponse={defaultDetailProps.activityResponse}
-        caseRecord={safeCase}
-        evidence={[safeEvidence]}
-        timeline={[safeTimeline]}
-      />,
+      <PacketPreview caseRecord={safeCase} />,
     );
 
     expect(markup).toContain("Client packet");
-    expect(markup).toContain("Prepared for client review");
-    expect(markup).toContain("Fictional Oak Street ADU");
-    expect(markup).toContain("Exampleville Building");
-    expect(markup).toContain("EX-2026-001");
-    expect(markup).toContain("Packet version");
-    expect(markup).toContain("Copy packet text");
-    expect(markup).toContain("Print preview");
-    expect(markup).toContain("Download PDF");
-    expect(markup).toContain("Executive Summary");
-    expect(markup).toContain("Supporting Sources");
-    expect(markup).not.toContain("Internal review required");
+    expect(markup).toContain("Loading the authoritative packet");
+    expect(markup).not.toContain("Prepared for client review");
+    expect(markup).not.toContain("Copy packet text");
+    expect(markup).not.toContain("Open print preview");
+    expect(markup).not.toContain("Download PDF");
   });
 
-  it("renders packet evidence with verification labels and safe source links", () => {
-    const verifiedEvidence = {
-      ...safeEvidence,
-      id: "00000000-0000-4000-8000-000000000102",
-      title: "Verified fictional source",
-      verification_status: "verified" as const,
-    };
-    const disputedEvidence = {
-      ...safeEvidence,
-      id: "00000000-0000-4000-8000-000000000103",
-      title: "Disputed fictional source",
-      source_url: "javascript:alert(1)",
-      source_label: "Unsafe source label",
-      verification_status: "disputed" as const,
-    };
+  it("does not render local case content as a packet while the server model loads", () => {
     const markup = renderToStaticMarkup(
       <PacketPreview
-        activityResponse={defaultDetailProps.activityResponse}
-        caseRecord={safeCase}
-        evidence={[safeEvidence, verifiedEvidence, disputedEvidence]}
-        timeline={[]}
-      />,
-    ).toLowerCase();
-
-    expect(markup).toContain("unverified");
-    expect(markup).toContain("verified");
-    expect(markup).toContain("disputed");
-    expect(markup).toContain("source review is pending; this record is not presented as confirmed.");
-    expect(markup).toContain("this information is disputed and is not presented as confirmed.");
-    expect(markup).toContain('href="https://example.test/notices/plan-check"');
-    expect(markup).toContain("unsafe source label");
-    expect(markup).not.toContain('href="javascript:alert(1)"');
-  });
-
-  it("renders the client timeline with source references and omits internal activity", () => {
-    const markup = renderToStaticMarkup(
-      <PacketPreview
-        activityResponse={{
-          activity: [
-            {
-              id: "activity-1",
-              action: "case_status_changed",
-              changed_fields: ["current_status"],
-              from_status: "intake",
-              to_status: "researching",
-              actor: { id: "user-1", name: "Avery Example" },
-              created_at: "2026-01-22T00:00:00.000Z",
-            },
-          ],
-          pagination: { limit: 10, offset: 0 },
-          order: "created_at_desc",
+        caseRecord={{
+          ...safeCase,
+          project_name: "<script>untrusted local project</script>",
         }}
-        caseRecord={safeCase}
-        evidence={[safeEvidence]}
-        timeline={[
-          { ...safeTimeline, is_canonical: true },
-          {
-            ...safeTimeline,
-            id: "00000000-0000-4000-8000-000000000202",
-            title: "<script>timeline</script>",
-            details: "<img src=x onerror=alert(1)>",
-            is_canonical: false,
-            evidence_ids: ["00000000-0000-4000-8000-000000000999"],
-          },
-        ]}
       />,
     ).toLowerCase();
 
-    expect(markup).toContain("permit timeline");
+    expect(markup).toContain("loading the authoritative packet");
+    expect(markup).not.toContain("untrusted local project");
+    expect(markup).not.toContain("packet-canonical-document");
+  });
+
+  it("does not render a local timeline or activity as a partial packet", () => {
+    const markup = renderToStaticMarkup(
+      <PacketPreview caseRecord={safeCase} />,
+    ).toLowerCase();
+
+    expect(markup).not.toContain("permit timeline");
     expect(markup).not.toContain("recent case activity");
-    expect(markup).toContain("canonical");
-    expect(markup).toContain("contributed");
-    expect(markup).toContain("supporting evidence");
-    expect(markup).toContain("fictional plan check notice");
-    expect(markup).toContain("no supporting evidence linked");
-    expect(markup).not.toContain("status changed");
-    expect(markup).toContain("&lt;script&gt;timeline&lt;/script&gt;");
-    expect(markup).toContain("&lt;img src=x onerror=alert(1)&gt;");
+    expect(markup).not.toContain("fictional plan check notice");
   });
 
-  it("renders professional empty client-facing packet states", () => {
+  it("does not fabricate empty packet sections before the authoritative response", () => {
     const markup = renderToStaticMarkup(
-      <PacketPreview
-        activityResponse={{
-          activity: [],
-          pagination: { limit: 10, offset: 0 },
-          order: "created_at_desc",
-        }}
-        caseRecord={safeCase}
-        evidence={[]}
-        timeline={[]}
-      />,
+      <PacketPreview caseRecord={safeCase} />,
     );
 
-    expect(markup).toContain("No evidence records are included in this packet.");
-    expect(markup).toContain(
-      "No permit timeline events are included in this packet.",
-    );
-    expect(markup).toContain("No reviewer-approved findings are included in this packet.");
+    expect(markup).not.toContain("No evidence records are included in this packet.");
+    expect(markup).not.toContain("No permit timeline events are included in this packet.");
+    expect(markup).not.toContain("No reviewer-approved findings are included in this packet.");
     expect(markup).not.toContain("Recent case activity");
-  });
-
-  it("compiles expected plain packet text and never includes auth internals", () => {
-    const text = compilePacketText({
-      activityResponse: {
-        activity: [
-          {
-            id: "activity-1",
-            action: "case_updated",
-            changed_fields: ["project_name", "actor_user_id"],
-            from_status: null,
-            to_status: null,
-            actor: { id: "user-1", name: "Avery Example" },
-            created_at: "2026-01-22T00:00:00.000Z",
-          },
-        ],
-        pagination: { limit: 10, offset: 0 },
-        order: "created_at_desc",
-      },
-      caseRecord: safeCase,
-      evidence: [safeEvidence],
-      generatedAt: new Date("2026-02-03T04:05:06.000Z"),
-      timeline: [safeTimeline],
-    });
-    const lower = text.toLowerCase();
-
-    expect(text).toContain("Generated: February 3, 2026 at 4:05 AM");
-    expect(text).not.toContain("2026-02-03T04:05:06.000Z");
-    expect(text).toContain("Prepared for client review");
-    expect(text).toContain("Project: Fictional Oak Street ADU");
-    expect(text).toContain("Classification: Unverified");
-    expect(text).toContain("Supporting evidence: Fictional plan check notice");
-    expect(text).not.toContain("Recent case activity");
-    expect(text).not.toContain("This placeholder is not AI-generated yet.");
-    expect(text).not.toContain("<a ");
-    for (const forbidden of [
-      "password",
-      "session",
-      "account",
-      "token",
-      "authorization",
-      "actor_user_id",
-      "request_id",
-    ]) {
-      expect(lower).not.toContain(forbidden);
-    }
   });
 
   it("reports copy success and failure through the clipboard helper", async () => {
     const failureMarkup = renderToStaticMarkup(
       <PacketPreview
-        activityResponse={defaultDetailProps.activityResponse}
         caseRecord={safeCase}
-        evidence={[]}
         initialCopyStatus="error"
-        timeline={[]}
       />,
     );
     const writes: string[] = [];

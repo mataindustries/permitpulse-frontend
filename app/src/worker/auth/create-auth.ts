@@ -3,24 +3,50 @@ import { betterAuth } from "better-auth/minimal";
 import { admin as adminPlugin } from "better-auth/plugins";
 import { createAccessControl } from "better-auth/plugins/access";
 import {
-  adminAc,
   defaultStatements,
 } from "better-auth/plugins/admin/access";
 import { drizzle } from "drizzle-orm/d1";
 import { authSchema } from "../db/schema";
 import type { Bindings } from "../types";
-import { getAuthRuntimeConfig } from "./config";
+import {
+  getAuthRuntimeConfig,
+  isTrustedApplicationOrigin,
+} from "./config";
 
 const adminAccessControl = createAccessControl(defaultStatements);
-const adminRole = adminAccessControl.newRole(adminAc.statements);
+const adminRole = adminAccessControl.newRole({
+  // User deletion remains disabled until D1/R2 evidence cleanup can be
+  // coordinated without orphaning uploaded objects. Credential resets and
+  // general user-record updates remain disabled until support actions have
+  // immutable actor audit.
+  user: [
+    "create",
+    "list",
+    "set-role",
+    "ban",
+    "get",
+  ],
+  session: ["list", "revoke", "delete"],
+});
 const clientRole = adminAccessControl.newRole({
   user: [],
   session: [],
 });
 
-export function createAuth(bindings: Bindings) {
+export function createAuth(bindings: Bindings, requestUrl?: string) {
   const config = getAuthRuntimeConfig(bindings);
   const database = drizzle(bindings.DB, { schema: authSchema });
+  const trustedOrigins = [...config.trustedOrigins];
+
+  if (requestUrl) {
+    const requestOrigin = new URL(requestUrl).origin;
+    if (
+      !trustedOrigins.includes(requestOrigin) &&
+      isTrustedApplicationOrigin(bindings, requestOrigin, requestUrl)
+    ) {
+      trustedOrigins.push(requestOrigin);
+    }
+  }
 
   return betterAuth({
     appName: "PermitPulse Case Workspace",
@@ -31,7 +57,7 @@ export function createAuth(bindings: Bindings) {
       schema: authSchema,
     }),
     secret: config.secret,
-    trustedOrigins: config.trustedOrigins,
+    trustedOrigins,
     emailAndPassword: {
       enabled: true,
       disableSignUp: !config.allowSignup,

@@ -491,21 +491,25 @@ describe("packet preview routes", () => {
     );
     expect(response.headers.get("content-disposition")).toContain("inline");
     for (const section of [
+      "Cover",
       "Executive Summary",
-      "Case Overview",
-      "Current Status",
-      "Evidence Register",
-      "Permit Timeline",
+      "Case Snapshot",
       "Findings",
+      "Agency Dependency Map",
       "Open Questions",
       "Recommended Next Actions",
+      "Agency Follow-Up Kit",
+      "Timeline",
+      "Supporting Evidence",
       "Supporting Sources",
-      "Disclaimer",
+      "Methodology / Readiness",
+      "Fictional Demonstration Disclosure",
     ]) {
       expect(text).toContain(section);
     }
-    expect(text).not.toMatch(/<[^>]+>/);
-    expect(text).toContain("&lt;b&gt;Unsafe packet evidence&lt;/b&gt;");
+    expect(text).toContain("<b>Unsafe packet evidence</b>");
+    expect(text).toContain("<img src=x onerror=alert(1)>");
+    expect(text).not.toContain("&lt;b&gt;Unsafe packet evidence&lt;/b&gt;");
     expect(text).not.toMatch(/2026-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}/);
     expect(text).not.toContain("This placeholder is not AI-generated yet");
   });
@@ -535,21 +539,24 @@ describe("packet preview routes", () => {
       "text/html; charset=utf-8",
     );
     expect(response.headers.get("content-disposition")).toContain("inline");
-    expect(html).toContain("&lt;script&gt;alert(&#39;packet&#39;)&lt;/script&gt;");
-    expect(html).toContain("&lt;img src&#61;x onerror&#61;alert(1)&gt;");
+    expect(html).toContain("&lt;script&gt;alert(&#x27;packet&#x27;)&lt;/script&gt;");
+    expect(html).toContain("&lt;img src=x onerror=alert(1)&gt;");
     expect(html).not.toMatch(/<script/i);
-    expect(html).not.toMatch(/\son[a-z]+\s*=/i);
+    expect(html).not.toMatch(/<[a-z][^>]*\son[a-z]+\s*=/i);
     for (const section of [
+      "Cover",
       "Executive Summary",
-      "Case Overview",
-      "Current Status",
-      "Evidence Register",
-      "Permit Timeline",
+      "Case Snapshot",
       "Findings",
+      "Agency Dependency Map",
       "Open Questions",
       "Recommended Next Actions",
+      "Agency Follow-Up Kit",
+      "Timeline",
+      "Supporting Evidence",
       "Supporting Sources",
-      "Disclaimer",
+      "Methodology / Readiness",
+      "Fictional Demonstration Disclosure",
     ]) {
     expect(html).toContain(section);
     }
@@ -653,6 +660,11 @@ describe("packet preview routes", () => {
         "permit-timeline-truncated",
       ]),
     );
+    const warningText = packet.warnings.map((item) => item.text).join(" ");
+    expect(warningText).toContain("Supporting Evidence shows the 50 most recent records");
+    expect(warningText).toContain("Timeline shows the 50 most recent events");
+    expect(warningText).not.toContain("Evidence Register");
+    expect(warningText).not.toContain("Permit Timeline");
   });
 
   it("uses the same bounded packet assembly limits for PDF export", async () => {

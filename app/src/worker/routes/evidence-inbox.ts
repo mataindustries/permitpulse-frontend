@@ -3,26 +3,31 @@ import { bodyLimit } from "hono/body-limit";
 import { z } from "zod";
 import {
   deterministicEvidenceClassifier,
-  evidenceFileExtension,
-  isAcceptedEvidenceFile,
 } from "../../shared/evidence-intake/classifier";
 import { placeholderEvidenceExtractor } from "../../shared/evidence-intake/extractor";
+import { validateEvidenceFile } from "../../shared/evidence-intake/file-validation";
 import type { EvidenceFileMetadata } from "../../shared/evidence-intake/types";
 import { actorFromUser } from "../cases/authorization";
 import { getCaseForActor } from "../cases/repository";
 import {
+  evidenceContentDisposition,
   evidenceStorageKey,
+  evidenceStorageKeyPrefix,
   R2EvidenceFileStore,
 } from "../evidence-intake/file-store";
 import {
+  claimEvidenceDrafts,
   createEvidenceDraft,
   deleteEvidenceDrafts,
-  getEvidenceDraftStorageRecord,
+  getEvidenceDraftFileRecord,
+  getEvidenceDraftUploadRecord,
   getOwnedDraftStorageRecords,
   listEvidenceDrafts,
   markEvidenceDraftsReviewed,
   moveDraftsToEvidence,
+  releaseEvidenceDraftClaims,
 } from "../evidence-intake/repository";
+import { validateEvidenceFileStructure } from "../evidence-intake/structural-validation";
 import { errorResponse } from "../lib/responses";
 import { sessionMiddleware } from "../middleware/session";
 import type { WorkerEnv } from "../types";
@@ -30,6 +35,7 @@ import type { WorkerEnv } from "../types";
 const maximumEvidenceFileBytes = 20 * 1024 * 1024;
 const maximumUploadBodyBytes = maximumEvidenceFileBytes + 64 * 1024;
 const uuidSchema = z.uuid();
+const idempotencyKeySchema = z.string().trim().min(1).max(128);
 const bulkActionSchema = z
   .object({
     action: z.enum(["delete", "mark_reviewed", "move_to_evidence"]),
@@ -46,17 +52,47 @@ const bulkActionSchema = z
     }
   });
 
-const fallbackMediaTypes: Record<string, string> = {
-  pdf: "application/pdf",
-  jpg: "image/jpeg",
-  jpeg: "image/jpeg",
-  png: "image/png",
-  heic: "image/heic",
-  txt: "text/plain",
-  eml: "message/rfc822",
-};
-
 export const evidenceInboxRoutes = new Hono<WorkerEnv>();
+
+function hexDigest(value: ArrayBuffer): string {
+  return [...new Uint8Array(value)]
+    .map((byte) => byte.toString(16).padStart(2, "0"))
+    .join("");
+}
+
+async function deterministicDraftId(
+  ownerUserId: string,
+  idempotencyKey: string,
+): Promise<string> {
+  const digest = new Uint8Array(
+    await crypto.subtle.digest(
+      "SHA-256",
+      new TextEncoder().encode(`${ownerUserId}\u0000${idempotencyKey}`),
+    ),
+  ).slice(0, 16);
+  digest[6] = (digest[6] & 0x0f) | 0x50;
+  digest[8] = (digest[8] & 0x3f) | 0x80;
+  const value = [...digest]
+    .map((byte) => byte.toString(16).padStart(2, "0"))
+    .join("");
+  return `${value.slice(0, 8)}-${value.slice(8, 12)}-${value.slice(12, 16)}-${value.slice(16, 20)}-${value.slice(20)}`;
+}
+
+async function deleteWithRetry(
+  fileStore: R2EvidenceFileStore,
+  storageKey: string,
+): Promise<void> {
+  let lastError: unknown;
+  for (let attempt = 0; attempt < 3; attempt += 1) {
+    try {
+      await fileStore.delete([storageKey]);
+      return;
+    } catch (error) {
+      lastError = error;
+    }
+  }
+  throw new Error("Evidence file cleanup failed.", { cause: lastError });
+}
 
 evidenceInboxRoutes.use("*", sessionMiddleware);
 
@@ -137,13 +173,7 @@ evidenceInboxRoutes.post(
         "Choose an evidence file to upload.",
       );
     }
-    if (
-      file.name.length === 0 ||
-      file.name.length > 255 ||
-      file.size === 0 ||
-      file.size > maximumEvidenceFileBytes ||
-      !isAcceptedEvidenceFile(file.name)
-    ) {
+    if (file.size === 0) {
       return errorResponse(
         context,
         400,
@@ -151,33 +181,123 @@ evidenceInboxRoutes.post(
         "Use a non-empty PDF, JPG, PNG, HEIC, TXT, or EML file up to 20 MB.",
       );
     }
+    if (file.size > maximumEvidenceFileBytes) {
+      return errorResponse(
+        context,
+        413,
+        "EVIDENCE_FILE_TOO_LARGE",
+        "Evidence files must be 20 MB or smaller.",
+      );
+    }
 
-    const rawLastModified = formData.get("last_modified");
-    const parsedLastModified =
-      typeof rawLastModified === "string" ? Number(rawLastModified) : NaN;
-    const extension = evidenceFileExtension(file.name);
+    const idempotencyHeader = context.req.header("idempotency-key");
+    const parsedIdempotencyKey = idempotencyHeader === undefined
+      ? { success: true as const, data: null }
+      : idempotencyKeySchema.safeParse(idempotencyHeader);
+    if (!parsedIdempotencyKey.success) {
+      return errorResponse(
+        context,
+        400,
+        "INVALID_IDEMPOTENCY_KEY",
+        "The idempotency key is invalid.",
+      );
+    }
+
+    const fileBuffer = await file.arrayBuffer();
+    const fileBytes = new Uint8Array(fileBuffer);
+    const validation = validateEvidenceFile({
+      bytes: fileBytes,
+      declaredMediaType: file.type,
+      filename: file.name,
+    });
+    if (!validation.ok) {
+      return errorResponse(
+        context,
+        400,
+        validation.reason === "invalid_media_type"
+          ? "EVIDENCE_MEDIA_TYPE_MISMATCH"
+          : "INVALID_EVIDENCE_FILE",
+        validation.reason === "invalid_media_type"
+          ? "The evidence filename and media type do not match."
+          : "The evidence file name or contents are invalid.",
+      );
+    }
+    if (!(await validateEvidenceFileStructure({ bytes: fileBytes, filename: file.name }))) {
+      return errorResponse(
+        context,
+        400,
+        "INVALID_EVIDENCE_FILE",
+        "The evidence file name or contents are invalid.",
+      );
+    }
+
+    const contentDigest = await crypto.subtle.digest("SHA-256", fileBuffer);
+    const contentSha256 = hexDigest(contentDigest);
     const metadata: EvidenceFileMetadata = {
       filename: file.name,
-      mediaType: file.type || fallbackMediaTypes[extension] || "application/octet-stream",
+      mediaType: validation.mediaType,
       size: file.size,
-      lastModified:
-        Number.isFinite(parsedLastModified) && parsedLastModified > 0
-          ? parsedLastModified
-          : null,
+      lastModified: null,
     };
     const classification = deterministicEvidenceClassifier.classify(metadata);
     const extraction = placeholderEvidenceExtractor.extract(
       metadata,
       classification,
     );
-    const id = crypto.randomUUID();
-    const storageKey = evidenceStorageKey(user.id, id, file.name);
+    const idempotencyKey = parsedIdempotencyKey.data;
+    const id = idempotencyKey
+      ? await deterministicDraftId(user.id, idempotencyKey)
+      : crypto.randomUUID();
+    const storageKeyPrefix = idempotencyKey
+      ? evidenceStorageKeyPrefix(user.id, id, contentSha256)
+      : null;
+    const storageKey = evidenceStorageKey(
+      user.id,
+      id,
+      file.name,
+      idempotencyKey ? contentSha256 : undefined,
+      idempotencyKey ? crypto.randomUUID() : undefined,
+    );
     const fileStore = new R2EvidenceFileStore(context.env.EVIDENCE_FILES);
+    const existing = await getEvidenceDraftUploadRecord(context.env.DB, user.id, id);
+    if (existing) {
+      if (
+        idempotencyKey &&
+        storageKeyPrefix &&
+        existing.storageKey.startsWith(storageKeyPrefix) &&
+        existing.draft.filename === metadata.filename &&
+        existing.draft.file_size === metadata.size &&
+        existing.draft.media_type === metadata.mediaType
+      ) {
+        const persistedObject = await fileStore.get(existing.storageKey);
+        if (
+          !persistedObject ||
+          persistedObject.size !== metadata.size ||
+          persistedObject.customMetadata?.contentSha256 !== contentSha256
+        ) {
+          return errorResponse(
+            context,
+            409,
+            "EVIDENCE_UPLOAD_INCOMPLETE",
+            "The existing evidence draft does not have a matching stored file.",
+          );
+        }
+        return context.json({ ok: true, data: existing.draft }, 200);
+      }
+      return errorResponse(
+        context,
+        409,
+        "IDEMPOTENCY_KEY_REUSED",
+        "The idempotency key was already used for another upload.",
+      );
+    }
 
     try {
-      await fileStore.put(storageKey, file.stream(), {
+      await fileStore.put(storageKey, fileBuffer, {
+        contentSha256,
         contentType: metadata.mediaType,
         filename: metadata.filename,
+        sha256: contentDigest,
       });
       const draft = await createEvidenceDraft(context.env.DB, {
         id,
@@ -189,7 +309,46 @@ evidenceInboxRoutes.post(
       });
       return context.json({ ok: true, data: draft }, 201);
     } catch (error) {
-      await fileStore.delete([storageKey]).catch(() => undefined);
+      const persisted = await getEvidenceDraftUploadRecord(
+        context.env.DB,
+        user.id,
+        id,
+      ).catch(() => null);
+      if (
+        idempotencyKey &&
+        storageKeyPrefix &&
+        persisted?.storageKey.startsWith(storageKeyPrefix) &&
+        persisted.draft.filename === metadata.filename &&
+        persisted.draft.file_size === metadata.size &&
+        persisted.draft.media_type === metadata.mediaType
+      ) {
+        if (persisted.storageKey !== storageKey) {
+          await deleteWithRetry(fileStore, storageKey);
+        }
+        const persistedObject = await fileStore.get(persisted.storageKey);
+        if (
+          !persistedObject ||
+          persistedObject.size !== metadata.size ||
+          persistedObject.customMetadata?.contentSha256 !== contentSha256
+        ) {
+          return errorResponse(
+            context,
+            409,
+            "EVIDENCE_UPLOAD_INCOMPLETE",
+            "The existing evidence draft does not have a matching stored file.",
+          );
+        }
+        return context.json({ ok: true, data: persisted.draft }, 200);
+      }
+      await deleteWithRetry(fileStore, storageKey);
+      if (idempotencyKey && persisted) {
+        return errorResponse(
+          context,
+          409,
+          "IDEMPOTENCY_KEY_REUSED",
+          "The idempotency key was already used for another upload.",
+        );
+      }
       throw error;
     }
   },
@@ -217,9 +376,9 @@ evidenceInboxRoutes.get("/:draftId/file", async (context) => {
   if (!parsedId.success) {
     return errorResponse(context, 400, "INVALID_DRAFT_ID", "The draft ID is invalid.");
   }
-  const draft = await getEvidenceDraftStorageRecord(
+  const draft = await getEvidenceDraftFileRecord(
     context.env.DB,
-    user.id,
+    actorFromUser(user),
     parsedId.data,
   );
   if (!draft) {
@@ -231,10 +390,9 @@ evidenceInboxRoutes.get("/:draftId/file", async (context) => {
   if (!object) {
     return errorResponse(context, 404, "FILE_NOT_FOUND", "The evidence file was not found.");
   }
-  const safeFilename = draft.filename.replace(/["\r\n]/g, "_");
   return new Response(object.body, {
     headers: {
-      "content-disposition": `attachment; filename="${safeFilename}"`,
+      "content-disposition": evidenceContentDisposition(draft.filename),
       "content-length": String(object.size),
       "content-type": draft.mediaType,
       "x-content-type-options": "nosniff",
@@ -277,12 +435,37 @@ evidenceInboxRoutes.patch("/bulk", async (context) => {
         "Evidence file storage is not configured.",
       );
     }
-    await deleteEvidenceDrafts(context.env.DB, user.id, draftIds);
-    await new R2EvidenceFileStore(context.env.EVIDENCE_FILES).delete(
-      drafts.map((draft) => draft.storageKey),
+    const claimTimestamp = await claimEvidenceDrafts(
+      context.env.DB,
+      user.id,
+      drafts,
+    );
+    if (!claimTimestamp) {
+      return errorResponse(context, 409, "DRAFT_STATE_CHANGED", "One or more evidence drafts changed. Reload and try again.");
+    }
+    const fileStore = new R2EvidenceFileStore(context.env.EVIDENCE_FILES);
+    try {
+      await fileStore.delete(drafts.map((draft) => draft.storageKey));
+    } catch (error) {
+      await releaseEvidenceDraftClaims(
+        context.env.DB,
+        user.id,
+        drafts,
+        claimTimestamp,
+      );
+      throw error;
+    }
+    await deleteEvidenceDrafts(
+      context.env.DB,
+      user.id,
+      draftIds,
+      claimTimestamp,
     );
   } else if (parsed.data.action === "mark_reviewed") {
-    await markEvidenceDraftsReviewed(context.env.DB, user.id, draftIds);
+    const reviewed = await markEvidenceDraftsReviewed(context.env.DB, user.id, draftIds);
+    if (reviewed !== draftIds.length) {
+      return errorResponse(context, 409, "DRAFT_STATE_CHANGED", "One or more evidence drafts changed. Reload and try again.");
+    }
   } else {
     const actor = actorFromUser(user);
     const caseRecord = await getCaseForActor(
@@ -293,11 +476,31 @@ evidenceInboxRoutes.patch("/bulk", async (context) => {
     if (!caseRecord) {
       return errorResponse(context, 404, "CASE_NOT_FOUND", "The destination case was not found.");
     }
-    await moveDraftsToEvidence(context.env.DB, {
-      ownerUserId: user.id,
-      caseId: caseRecord.id,
+    const claimTimestamp = await claimEvidenceDrafts(
+      context.env.DB,
+      user.id,
       drafts,
-    });
+    );
+    if (!claimTimestamp) {
+      return errorResponse(context, 409, "DRAFT_STATE_CHANGED", "One or more evidence drafts changed. Reload and try again.");
+    }
+    try {
+      await moveDraftsToEvidence(context.env.DB, {
+        ownerUserId: user.id,
+        caseId: caseRecord.id,
+        claimTimestamp,
+        drafts,
+        sourceOrigin: new URL(context.env.BETTER_AUTH_URL).origin,
+      });
+    } catch (error) {
+      await releaseEvidenceDraftClaims(
+        context.env.DB,
+        user.id,
+        drafts,
+        claimTimestamp,
+      );
+      throw error;
+    }
   }
 
   return context.json({

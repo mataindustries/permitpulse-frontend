@@ -1,5 +1,6 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { getDeliveryLifecycle, transitionDeliveryLifecycle } from "../api/delivery-lifecycle";
+import { CaseApiError } from "../api/cases";
 import type { UserRole } from "../types/cases";
 import type { DeliveryEventType, DeliveryLifecycle, DeliveryState } from "../types/delivery-lifecycle";
 import { formatDateTime } from "./evidenceTimelineUtils";
@@ -37,6 +38,12 @@ export function packetNeedsRegeneration(lifecycle: DeliveryLifecycle): boolean {
   );
 }
 
+export function shouldRetainDeliveryTransitionKey(cause: unknown): boolean {
+  return cause instanceof CaseApiError && (
+    cause.kind === "network" || cause.kind === "server"
+  );
+}
+
 function preferredEvent(lifecycle: DeliveryLifecycle): DeliveryEventType | "" {
   return lifecycle.next_events.find((event) => event !== "packet_generated")
     ?? lifecycle.next_events[0]
@@ -54,9 +61,16 @@ export function DeliveryLifecyclePanel({ caseId, caseVersion, role, onChanged }:
   const [note, setNote] = useState("");
   const [error, setError] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const pendingTransition = useRef<{
+    caseId: string;
+    eventType: DeliveryEventType;
+    idempotencyKey: string;
+    note: string | null;
+  } | null>(null);
 
   useEffect(() => {
     let active = true;
+    pendingTransition.current = null;
     setError("");
     void getDeliveryLifecycle(caseId).then((value) => {
       if (active) {
@@ -77,20 +91,40 @@ export function DeliveryLifecyclePanel({ caseId, caseVersion, role, onChanged }:
       !globalThis.confirm(`${eventLabels[eventType]}? This creates an immutable audit event.`)
     ) return;
 
+    const submittedNote = note.trim() || null;
+    const pending = pendingTransition.current;
+    const idempotencyKey =
+      pending?.caseId === caseId &&
+      pending.eventType === eventType &&
+      pending.note === submittedNote
+        ? pending.idempotencyKey
+        : crypto.randomUUID();
+    pendingTransition.current = {
+      caseId,
+      eventType,
+      idempotencyKey,
+      note: submittedNote,
+    };
+
     setSubmitting(true);
     setError("");
     try {
       const value = await transitionDeliveryLifecycle(
         caseId,
         eventType,
-        note.trim() || null,
+        submittedNote,
+        idempotencyKey,
       );
+      pendingTransition.current = null;
       setLifecycle(value);
       setSelected(preferredEvent(value));
       setNote("");
       globalThis.window?.dispatchEvent(new Event("permitpulse:packet-changed"));
       await onChanged();
     } catch (cause) {
+      if (!shouldRetainDeliveryTransitionKey(cause)) {
+        pendingTransition.current = null;
+      }
       setError(cause instanceof Error ? cause.message : "The lifecycle could not be updated.");
     } finally {
       setSubmitting(false);

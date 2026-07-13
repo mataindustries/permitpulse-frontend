@@ -92,13 +92,46 @@ function cleanDemonstrationLabel(value: string): string {
 }
 
 function isDemonstrationInput(input: BuildPacketModelInput): boolean {
-  return Boolean(
-    /\b(?:DEMO|FICTIONAL)\b/i.test(input.caseRecord.project_name) ||
-      /\b(?:DEMO|FICTIONAL)\b/i.test(input.caseRecord.permit_number ?? "") ||
-      input.evidence.some((item) =>
-        /^DEMO\b/i.test(item.title) || /\.example(?:\/|$)/i.test(item.source_url ?? ""),
-      ),
-  );
+  const projectHasExplicitMarker =
+    /^(?:DEMO\s*[—–-]|Fictional(?:\s|$))/i.test(
+      input.caseRecord.project_name.trim(),
+    );
+  const permitHasCanonicalFictionalMarker =
+    /(?:^|[-_/\s])FICTIONAL(?:[-_/\s]|$)/i.test(
+      input.caseRecord.permit_number?.trim() ?? "",
+    );
+  const permitHasDemoMarker =
+    /(?:^|[-_/\s])DEMO(?:[-_/\s]|$)/i.test(
+      input.caseRecord.permit_number?.trim() ?? "",
+    );
+  const sourceHasExplicitMarker = input.evidence.some((item) => {
+    if (/^DEMO(?:\s|[—–-])/i.test(item.title.trim())) {
+      return true;
+    }
+
+    if (!item.source_url) return false;
+    try {
+      const url = new URL(item.source_url);
+      const hostname = url.hostname.toLowerCase();
+      return (
+        hostname === "example" ||
+        hostname.endsWith(".example") ||
+        hostname === "example.test" ||
+        hostname.endsWith(".example.test") ||
+        /(?:^|\/)records\/fictional(?:\/|$)/i.test(url.pathname)
+      );
+    } catch {
+      return false;
+    }
+  });
+
+  if (permitHasCanonicalFictionalMarker) return true;
+
+  return [
+    projectHasExplicitMarker,
+    permitHasDemoMarker,
+    sourceHasExplicitMarker,
+  ].filter(Boolean).length >= 2;
 }
 
 function verificationNote(status: PacketVerificationStatus): string {
@@ -167,6 +200,7 @@ function compareActivity(
 function evidenceSummary(
   item: BuildPacketModelInput["evidence"][number],
   reference: string,
+  displayLabel: (value: string) => string,
 ): PacketEvidenceSummary {
   let sourceUrl: string | null = null;
 
@@ -187,10 +221,10 @@ function evidenceSummary(
     reference,
     evidence_type: item.evidence_type,
     evidence_type_label: evidenceTypeLabels[item.evidence_type],
-    title: cleanDemonstrationLabel(item.title),
+    title: displayLabel(item.title),
     summary: item.summary,
     source: {
-      label: item.source_label ? cleanDemonstrationLabel(item.source_label) : null,
+      label: item.source_label ? displayLabel(item.source_label) : null,
       url: sourceUrl,
       date: item.source_date,
       date_label: formatPacketDateOnly(item.source_date),
@@ -227,7 +261,7 @@ function missingInformation(input: {
   if (input.evidence.length === 0) {
     missing.push({
       id: "evidence-register",
-      title: "Evidence register is empty",
+      title: "Supporting Evidence is empty",
       reason: "No evidence records are available for this packet.",
       information_class: "missing_information",
     });
@@ -236,8 +270,8 @@ function missingInformation(input: {
   if (input.timeline.length === 0) {
     missing.push({
       id: "permit-timeline",
-      title: "Permit timeline is empty",
-      reason: "No permit timeline events are available for this packet.",
+      title: "Timeline is empty",
+      reason: "No timeline events are available for this packet.",
       information_class: "missing_information",
     });
   }
@@ -262,8 +296,11 @@ export function buildPacketModel({
 }: BuildPacketModelInput): PacketModel {
   const generated = formatPacketDateTime(generatedAt);
   const isDemonstration = isDemonstrationInput({ activityResponse, caseRecord, documentStatus, editorialContent, evidence, generatedAt, timeline });
+  const displayLabel = isDemonstration
+    ? cleanDemonstrationLabel
+    : (value: string) => value;
   const sortedEvidence = [...evidence].sort(compareEvidence);
-  const evidenceSummaries = sortedEvidence.map((item,index)=>evidenceSummary(item,`E${String(index+1).padStart(2,"0")}`));
+  const evidenceSummaries = sortedEvidence.map((item,index)=>evidenceSummary(item,`E${String(index+1).padStart(2,"0")}`,displayLabel));
   const evidenceById = new Map(
     evidenceSummaries.map((item) => [item.id, item]),
   );
@@ -297,7 +334,7 @@ export function buildPacketModel({
         occurred_on_label: formatPacketDateOnly(entry.occurred_on),
         timeline_type: entry.timeline_type,
         timeline_type_label: timelineTypeLabels[entry.timeline_type],
-        title: cleanDemonstrationLabel(entry.title),
+        title: displayLabel(entry.title),
         details: entry.details,
         source_label: entry.is_canonical ? "Canonical" : "Contributed",
         linked_evidence: linkedEvidence,
@@ -365,7 +402,7 @@ export function buildPacketModel({
     })),
     timeline: timeline.map((entry) => ({
       id: entry.id,
-      title: cleanDemonstrationLabel(entry.title),
+      title: displayLabel(entry.title),
       timelineType: entry.timeline_type,
       isCanonical: entry.is_canonical,
       linkedEvidenceIds: [...entry.evidence_ids],
@@ -404,7 +441,7 @@ export function buildPacketModel({
     review_readiness: readiness.packetReadiness.explanation,
     email_subject: `Permit record follow-up${caseRecord.permit_number ? ` — ${caseRecord.permit_number}` : ""}`,
     recipient_role: `Agency review contact for ${caseRecord.jurisdiction}`,
-    message_body: `Hello, I am following up on ${cleanDemonstrationLabel(caseRecord.project_name)}${caseRecord.permit_number ? ` (${caseRecord.permit_number})` : ""}. Our record indicates ${primaryApprovedFinding.text.charAt(0).toLowerCase()}${primaryApprovedFinding.text.slice(1)} Please confirm the current jurisdiction position, the responsible review contact, and whether the following next step remains appropriate: ${derivedNextStep} Thank you.`,
+    message_body: `Hello, I am following up on ${displayLabel(caseRecord.project_name)}${caseRecord.permit_number ? ` (${caseRecord.permit_number})` : ""}. Our record indicates ${primaryApprovedFinding.text.charAt(0).toLowerCase()}${primaryApprovedFinding.text.slice(1)} Please confirm the current jurisdiction position, the responsible review contact, and whether the following next step remains appropriate: ${derivedNextStep} Thank you.`,
     call_checklist: [
       `Identify the case${caseRecord.permit_number ? ` by permit number ${caseRecord.permit_number}` : " by project and address"}.`,
       `State the documented position without characterizing it as a final agency determination: ${primaryApprovedFinding.text}`,
@@ -450,7 +487,7 @@ export function buildPacketModel({
     is_internal_draft: false,
     draft_notice: packetStatusNotice(documentStatus),
     executive_summary: {
-      text: findings.filter((item) => item.reviewer_approved).map((item) => item.text).join(" ") || `This packet assembles ${evidenceCount} evidence record${evidenceCount === 1 ? "" : "s"} and ${timelineCount} permit timeline event${timelineCount === 1 ? "" : "s"} for ${cleanDemonstrationLabel(caseRecord.project_name)}. The recorded workflow status is ${caseStatusLabels[caseRecord.current_status]}; packet readiness does not establish jurisdiction resolution.`,
+      text: findings.filter((item) => item.reviewer_approved).map((item) => item.text).join(" ") || `This packet assembles ${evidenceCount} evidence record${evidenceCount === 1 ? "" : "s"} and ${timelineCount} timeline event${timelineCount === 1 ? "" : "s"} for ${displayLabel(caseRecord.project_name)}. The recorded workflow status is ${caseStatusLabels[caseRecord.current_status]}; packet readiness does not establish jurisdiction resolution.`,
       information_class: "client_provided_information",
       supporting_source_ids: [
         ...evidenceSummaries.map((item) => item.id),
@@ -460,7 +497,7 @@ export function buildPacketModel({
       key_strengths: findings.filter((item) => item.reviewer_approved && item.finding_type === "strength").map((item) => item.title ?? item.text),
     },
     case_summary: {
-      project_name: cleanDemonstrationLabel(caseRecord.project_name),
+      project_name: displayLabel(caseRecord.project_name),
       client_name: caseRecord.client_name,
       address: caseRecord.address,
       city: caseRecord.city,
@@ -472,7 +509,7 @@ export function buildPacketModel({
       information_class: "client_provided_information",
     },
     case_overview: [
-      { id: "project-name", label: "Project", value: cleanDemonstrationLabel(caseRecord.project_name), information_class: "client_provided_information" },
+      { id: "project-name", label: "Project", value: displayLabel(caseRecord.project_name), information_class: "client_provided_information" },
       { id: "client-name", label: "Client", value: caseRecord.client_name, information_class: "client_provided_information" },
       { id: "address", label: "Address", value: [caseRecord.address, caseRecord.city].filter(Boolean).join(", "), information_class: "client_provided_information" },
       { id: "jurisdiction", label: "Jurisdiction", value: caseRecord.jurisdiction, information_class: "client_provided_information" },

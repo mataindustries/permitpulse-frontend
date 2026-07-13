@@ -1,10 +1,13 @@
-import type { Bindings } from "../types";
-
 export interface EvidenceFileStore {
   put(
     key: string,
     body: ReadableStream | ArrayBuffer,
-    metadata: { contentType: string; filename: string },
+    metadata: {
+      contentSha256: string;
+      contentType: string;
+      filename: string;
+      sha256: ArrayBuffer;
+    },
   ): Promise<void>;
   get(key: string): Promise<R2ObjectBody | null>;
   delete(keys: string[]): Promise<void>;
@@ -16,11 +19,20 @@ export class R2EvidenceFileStore implements EvidenceFileStore {
   async put(
     key: string,
     body: ReadableStream | ArrayBuffer,
-    metadata: { contentType: string; filename: string },
+    metadata: {
+      contentSha256: string;
+      contentType: string;
+      filename: string;
+      sha256: ArrayBuffer;
+    },
   ): Promise<void> {
     await this.bucket.put(key, body, {
       httpMetadata: { contentType: metadata.contentType },
-      customMetadata: { filename: metadata.filename },
+      customMetadata: {
+        contentSha256: metadata.contentSha256,
+        filename: metadata.filename,
+      },
+      sha256: metadata.sha256,
     });
   }
 
@@ -39,6 +51,8 @@ export function evidenceStorageKey(
   ownerUserId: string,
   draftId: string,
   filename: string,
+  contentFingerprint?: string,
+  attemptId?: string,
 ): string {
   const safeFilename = filename
     .normalize("NFKD")
@@ -46,5 +60,45 @@ export function evidenceStorageKey(
     .replace(/^-+|-+$/g, "")
     .slice(-120) || "evidence-file";
 
-  return `${ownerUserId}/${draftId}/${safeFilename}`;
+  const fingerprintPrefix = contentFingerprint
+    ? `${contentFingerprint.slice(0, 64)}-${attemptId ? `${attemptId}-` : ""}`
+    : "";
+
+  return `${ownerUserId}/${draftId}/${fingerprintPrefix}${safeFilename}`;
+}
+
+export function evidenceStorageKeyPrefix(
+  ownerUserId: string,
+  draftId: string,
+  contentFingerprint: string,
+): string {
+  return `${ownerUserId}/${draftId}/${contentFingerprint.slice(0, 64)}-`;
+}
+
+function asciiFilenameFallback(filename: string): string {
+  const fallback = filename
+    .normalize("NFKD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-zA-Z0-9._ -]+/g, "-")
+    .replace(/\s+/g, " ")
+    .replace(/-+/g, "-")
+    .trim()
+    .slice(-120);
+
+  return fallback || "evidence-file";
+}
+
+function utf8HeaderValue(value: string): string {
+  return [...new TextEncoder().encode(value)]
+    .map((byte) => {
+      const character = String.fromCharCode(byte);
+      return /[a-zA-Z0-9._-]/.test(character)
+        ? character
+        : `%${byte.toString(16).toUpperCase().padStart(2, "0")}`;
+    })
+    .join("");
+}
+
+export function evidenceContentDisposition(filename: string): string {
+  return `attachment; filename="${asciiFilenameFallback(filename)}"; filename*=UTF-8''${utf8HeaderValue(filename)}`;
 }

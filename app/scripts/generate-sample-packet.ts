@@ -4,6 +4,7 @@ import { buildPacketModel } from "../src/shared/packet/build-packet-model";
 import { renderPacketHtml } from "../src/shared/packet/render-packet-html";
 import { renderPacketPdf } from "../src/shared/packet/render-packet-pdf";
 import type { BuildPacketModelInput } from "../src/shared/packet/types";
+import { samplePacketOutputPaths } from "./sample-packet-paths";
 
 const portalEvidenceId = "00000000-0000-4000-8000-000000000611";
 const correctionEvidenceId = "00000000-0000-4000-8000-000000000612";
@@ -161,8 +162,7 @@ const input: BuildPacketModelInput = {
   ],
 };
 
-const pdfPath = process.argv[2] ?? "/tmp/permitpulse-professional-packet-sample.pdf";
-const htmlPath = pdfPath.replace(/\.pdf$/i, ".html");
+const { htmlPath, pdfPath } = samplePacketOutputPaths(process.argv[2]);
 const model = buildPacketModel(input);
 const pdfBytes = await renderPacketPdf(model);
 
@@ -173,3 +173,7 @@ await writeFile(htmlPath, renderPacketHtml(model), "utf8");
 console.log(`Generated ${pdfPath}`);
 console.log(`Generated ${htmlPath}`);
 
+// React's server renderer retains a MessagePort in Node 24 after static markup
+// generation. This command is a one-shot artifact generator, so terminate only
+// after every write has completed instead of leaving release automation open.
+process.exit(0);

@@ -2,7 +2,6 @@ import { getPublicEnvironment } from "../lib/environment";
 import type { Bindings } from "../types";
 
 const minimumSecretBytes = 32;
-const codespacesPreviewOrigin = "https://*.app.github.dev";
 
 export class AuthConfigurationError extends Error {
   constructor() {
@@ -66,6 +65,53 @@ function parseBaseURL(bindings: Bindings): URL {
   return parsed;
 }
 
+function isCodespacesPreviewOrigin(value: URL): boolean {
+  return (
+    value.protocol === "https:" &&
+    value.username === "" &&
+    value.password === "" &&
+    value.port === "" &&
+    value.hostname.endsWith(".app.github.dev") &&
+    value.hostname.length > ".app.github.dev".length &&
+    value.pathname === "/" &&
+    value.search === "" &&
+    value.hash === ""
+  );
+}
+
+export function isTrustedApplicationOrigin(
+  bindings: Bindings,
+  origin: string,
+  requestUrl?: string,
+): boolean {
+  const configured = parseBaseURL(bindings).origin;
+
+  let candidate: URL;
+  try {
+    candidate = new URL(origin);
+  } catch {
+    return false;
+  }
+
+  if (candidate.origin === configured && candidate.href === `${configured}/`) {
+    return true;
+  }
+
+  if (
+    getPublicEnvironment(bindings.APP_ENV) !== "local" ||
+    !isCodespacesPreviewOrigin(candidate) ||
+    !requestUrl
+  ) {
+    return false;
+  }
+
+  try {
+    return candidate.origin === new URL(requestUrl).origin;
+  } catch {
+    return false;
+  }
+}
+
 export function getAuthRuntimeConfig(
   bindings: Bindings,
 ): AuthRuntimeConfig {
@@ -81,9 +127,6 @@ export function getAuthRuntimeConfig(
     baseURL: baseURL.origin,
     secret: bindings.BETTER_AUTH_SECRET,
     secureCookies: environment !== "local",
-    trustedOrigins:
-      environment === "local"
-        ? [baseURL.origin, codespacesPreviewOrigin]
-        : [baseURL.origin],
+    trustedOrigins: [baseURL.origin],
   };
 }

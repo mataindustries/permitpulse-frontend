@@ -6,6 +6,7 @@ import {
   useState,
 } from "react";
 import {
+  evidenceDraftFileUrl,
   listEvidenceInbox,
   runEvidenceInboxBulkAction,
   uploadEvidenceFile,
@@ -28,12 +29,66 @@ interface EvidenceInboxProps {
   onSessionExpired: () => void;
 }
 
-interface PendingUpload {
+export interface PendingUpload {
+  file: File;
   id: string;
   filename: string;
   progress: number;
   state: "waiting" | "processing" | "failed";
   error?: string;
+}
+
+type EvidenceUploader = typeof uploadEvidenceFile;
+
+export function createPendingUpload(
+  file: File,
+  id = crypto.randomUUID(),
+): PendingUpload {
+  return {
+    file,
+    id,
+    filename: file.name,
+    progress: 0,
+    state: "waiting",
+  };
+}
+
+export function submitPendingUpload(
+  upload: PendingUpload,
+  onProgress: (progress: number) => void,
+  uploader: EvidenceUploader = uploadEvidenceFile,
+): Promise<EvidenceDraftDto> {
+  return uploader(upload.file, onProgress, upload.id);
+}
+
+export function EvidenceUploadList({
+  onRetry,
+  uploads,
+}: {
+  onRetry: (upload: PendingUpload) => void;
+  uploads: PendingUpload[];
+}) {
+  if (uploads.length === 0) return null;
+
+  return (
+    <section className="evidence-upload-list" aria-label="Uploads in progress">
+      {uploads.map((upload) => (
+        <div className="evidence-upload" key={upload.id}>
+          <div>
+            <strong>{upload.filename}</strong>
+            <span>{upload.state === "failed" ? upload.error : stateLabels[upload.state]}</span>
+          </div>
+          <progress max={100} value={upload.progress}>{upload.progress}%</progress>
+          <span>{upload.progress}%</span>
+          {upload.state === "failed" && (
+            <button type="button" className="secondary-button" onClick={() => onRetry(upload)}>
+              Retry
+            </button>
+          )}
+        </div>
+      ))}
+    </section>
+  );
 }
 
 const emptyCounts: EvidenceInboxResponse["counts"] = {
@@ -136,6 +191,47 @@ export function EvidenceInbox({ cases, onSessionExpired }: EvidenceInboxProps) {
     );
   }
 
+  async function processUpload(upload: PendingUpload): Promise<boolean> {
+    updateUpload(upload.id, {
+      error: undefined,
+      progress: 0,
+      state: "processing",
+    });
+    try {
+      const draft = await submitPendingUpload(
+        upload,
+        (progress) => updateUpload(upload.id, { progress }),
+      );
+      if (!draft.moved_to_evidence_id) {
+        setResponse((current) => {
+          const existing = current.drafts.some((item) => item.id === draft.id);
+          return existing
+            ? current
+            : {
+                drafts: [draft, ...current.drafts],
+                counts: {
+                  ...current.counts,
+                  [draft.queue_state]: current.counts[draft.queue_state] + 1,
+                },
+              };
+        });
+      }
+      setUploads((current) => current.filter((item) => item.id !== upload.id));
+      return true;
+    } catch (caught) {
+      if (caught instanceof CaseApiError && caught.kind === "unauthorized") {
+        onSessionExpired();
+        return false;
+      }
+      updateUpload(upload.id, {
+        state: "failed",
+        error:
+          caught instanceof Error ? caught.message : "Upload failed. Try again.",
+      });
+      return false;
+    }
+  }
+
   async function addFiles(files: File[]) {
     const accepted = files.filter((file) => isAcceptedEvidenceFile(file.name));
     const rejectedCount = files.length - accepted.length;
@@ -147,52 +243,25 @@ export function EvidenceInbox({ cases, onSessionExpired }: EvidenceInboxProps) {
       setError("");
     }
     setMessage("");
-    const queued = accepted.map((file) => ({
-      file,
-      upload: {
-        id: crypto.randomUUID(),
-        filename: file.name,
-        progress: 0,
-        state: "waiting" as const,
-      },
-    }));
-    setUploads((current) => [...current, ...queued.map((item) => item.upload)]);
+    const queued = accepted.map((file) => createPendingUpload(file));
+    setUploads((current) => [...current, ...queued]);
 
     const results = await Promise.all(
-      queued.map(async ({ file, upload }) => {
-        updateUpload(upload.id, { state: "processing" });
-        try {
-          const draft = await uploadEvidenceFile(file, (progress) =>
-            updateUpload(upload.id, { progress }),
-          );
-          setResponse((current) => ({
-            drafts: [draft, ...current.drafts],
-            counts: {
-              ...current.counts,
-              [draft.queue_state]: current.counts[draft.queue_state] + 1,
-            },
-          }));
-          setUploads((current) => current.filter((item) => item.id !== upload.id));
-          return true;
-        } catch (caught) {
-          if (caught instanceof CaseApiError && caught.kind === "unauthorized") {
-            onSessionExpired();
-            return false;
-          }
-          updateUpload(upload.id, {
-            state: "failed",
-            error:
-              caught instanceof Error ? caught.message : "Upload failed. Try again.",
-          });
-          return false;
-        }
-      }),
+      queued.map((upload) => processUpload(upload)),
     );
     const importedCount = results.filter(Boolean).length;
     if (importedCount > 0) {
       setMessage(
         `${importedCount} evidence draft${importedCount === 1 ? "" : "s"} imported.`,
       );
+    }
+  }
+
+  async function retryUpload(upload: PendingUpload) {
+    setError("");
+    setMessage("");
+    if (await processUpload(upload)) {
+      setMessage("Evidence draft imported.");
     }
   }
 
@@ -309,20 +378,7 @@ export function EvidenceInbox({ cases, onSessionExpired }: EvidenceInboxProps) {
         />
       </div>
 
-      {uploads.length > 0 && (
-        <section className="evidence-upload-list" aria-label="Uploads in progress">
-          {uploads.map((upload) => (
-            <div className="evidence-upload" key={upload.id}>
-              <div>
-                <strong>{upload.filename}</strong>
-                <span>{upload.state === "failed" ? upload.error : stateLabels[upload.state]}</span>
-              </div>
-              <progress max={100} value={upload.progress}>{upload.progress}%</progress>
-              <span>{upload.progress}%</span>
-            </div>
-          ))}
-        </section>
-      )}
+      <EvidenceUploadList uploads={uploads} onRetry={(upload) => void retryUpload(upload)} />
 
       {error && <p className="error" role="alert">{error}</p>}
       {message && <p className="success" role="status">{message}</p>}
@@ -381,6 +437,14 @@ export function EvidenceInbox({ cases, onSessionExpired }: EvidenceInboxProps) {
                 <span>{categoryLabels[draft.category]}</span>
                 <span>{extractionLabel(draft)}</span>
                 {draft.reviewed_at && <span className="evidence-reviewed"><Icon name="check" size={14} /> Reviewed</span>}
+                <a
+                  className="secondary-button"
+                  href={evidenceDraftFileUrl(draft.id)}
+                  rel="noreferrer noopener"
+                  target="_blank"
+                >
+                  Open file
+                </a>
               </div>
               <dl className="evidence-draft__fields">
                 <div><dt>Permit Number</dt><dd>{displayValue(draft.permit_number)}</dd></div>

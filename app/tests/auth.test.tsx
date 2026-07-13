@@ -127,10 +127,9 @@ beforeEach(async () => {
 });
 
 describe("authentication configuration", () => {
-  it("trusts localhost and the bounded Codespaces preview pattern locally", () => {
+  it("keeps the configured local origin explicit", () => {
     expect(getAuthRuntimeConfig(bindings()).trustedOrigins).toEqual([
       localOrigin,
-      "https://*.app.github.dev",
     ]);
   });
 
@@ -166,6 +165,23 @@ describe("authentication configuration", () => {
     );
 
     expect(response.status).toBe(200);
+  });
+
+  it("rejects a different same-site Codespaces origin", async () => {
+    const response = await app.request(
+      `${codespacesOrigin}/api/auth/sign-up/email`,
+      {
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+          origin: "https://attacker-workspace.app.github.dev",
+        },
+        body: JSON.stringify(fictionalAccount),
+      },
+      bindings(),
+    );
+
+    expect(response.status).toBe(403);
   });
 
   it("rejects an unrelated origin locally", async () => {
@@ -753,6 +769,108 @@ describe("Better Auth admin endpoints", () => {
     });
 
     expect(response.status).toBe(403);
+  });
+
+  it("does not permit user deletion while R2 evidence cleanup is not transactional", async () => {
+    const targetResponse = await signUp();
+    const target = await targetResponse.json<{ user: { id: string } }>();
+    const adminResponse = await signUp(fictionalAdminAccount);
+    const admin = await adminResponse.json<{ user: { id: string } }>();
+    const adminCookie = cookieFrom(adminResponse);
+
+    await env.DB.prepare('UPDATE "user" SET role = ? WHERE id = ?')
+      .bind("admin", admin.user.id)
+      .run();
+
+    const response = await request("/api/auth/admin/remove-user", {
+      method: "POST",
+      headers: {
+        cookie: adminCookie,
+        "content-type": "application/json",
+        origin: localOrigin,
+      },
+      body: JSON.stringify({ userId: target.user.id }),
+    });
+    const persisted = await env.DB.prepare(
+      'SELECT id FROM "user" WHERE id = ?',
+    )
+      .bind(target.user.id)
+      .first<{ id: string }>();
+
+    expect(response.status).toBe(403);
+    expect(persisted?.id).toBe(target.user.id);
+  });
+
+  it("does not permit impersonation without impersonation-aware audit attribution", async () => {
+    const targetResponse = await signUp();
+    const target = await targetResponse.json<{ user: { id: string } }>();
+    const adminResponse = await signUp(fictionalAdminAccount);
+    const admin = await adminResponse.json<{ user: { id: string } }>();
+    const adminCookie = cookieFrom(adminResponse);
+
+    await env.DB.prepare('UPDATE "user" SET role = ? WHERE id = ?')
+      .bind("admin", admin.user.id)
+      .run();
+
+    const response = await request("/api/auth/admin/impersonate-user", {
+      method: "POST",
+      headers: {
+        cookie: adminCookie,
+        "content-type": "application/json",
+        origin: localOrigin,
+      },
+      body: JSON.stringify({ userId: target.user.id }),
+    });
+    const impersonatedSessions = await env.DB.prepare(
+      "SELECT id FROM session WHERE impersonated_by = ?",
+    )
+      .bind(admin.user.id)
+      .all<{ id: string }>();
+
+    expect(response.status).toBe(403);
+    expect(impersonatedSessions.results).toHaveLength(0);
+  });
+
+  it("does not let an administrator reset a client password without audited support attribution", async () => {
+    const targetResponse = await signUp();
+    const target = await targetResponse.json<{ user: { id: string } }>();
+    const adminResponse = await signUp(fictionalAdminAccount);
+    const admin = await adminResponse.json<{ user: { id: string } }>();
+    const adminCookie = cookieFrom(adminResponse);
+    const replacementPassword = "Admin-chosen-fictional-passphrase-84";
+
+    await env.DB.prepare('UPDATE "user" SET role = ? WHERE id = ?')
+      .bind("admin", admin.user.id)
+      .run();
+
+    const response = await request("/api/auth/admin/set-user-password", {
+      method: "POST",
+      headers: {
+        cookie: adminCookie,
+        "content-type": "application/json",
+        origin: localOrigin,
+      },
+      body: JSON.stringify({
+        newPassword: replacementPassword,
+        userId: target.user.id,
+      }),
+    });
+
+    await env.DB.prepare("DELETE FROM session WHERE user_id = ?")
+      .bind(target.user.id)
+      .run();
+    const originalCredential = await jsonRequest("/api/auth/sign-in/email", {
+      email: fictionalAccount.email,
+      password: fictionalAccount.password,
+    });
+    const replacementCredential = await jsonRequest("/api/auth/sign-in/email", {
+      email: fictionalAccount.email,
+      password: replacementPassword,
+    });
+
+    expect(response.status).toBe(403);
+    expect(originalCredential.status).toBe(200);
+    expect(replacementCredential.status).toBeGreaterThanOrEqual(400);
   });
 });
 

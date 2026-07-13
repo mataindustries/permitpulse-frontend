@@ -6,6 +6,15 @@
 	"compatibility_flags": [
 		"nodejs_compat"
 	],
+	"observability": {
+		"enabled": true,
+		"head_sampling_rate": 1
+	},
+	"secrets": {
+		"required": [
+			"BETTER_AUTH_SECRET"
+		]
+	},
 	"vars": {
 		"ADMIN_BOOTSTRAP_ENABLED": "false",
 		"AI_REVIEW_EXTERNAL_CALLS_ENABLED": "false",
@@ -41,6 +50,11 @@
 	"env": {
 		"preview": {
 			"name": "permitpulse-case-workspace-preview",
+			"secrets": {
+				"required": [
+					"BETTER_AUTH_SECRET"
+				]
+			},
 			"vars": {
 				"ADMIN_BOOTSTRAP_ENABLED": "false",
 				"AI_REVIEW_EXTERNAL_CALLS_ENABLED": "false",

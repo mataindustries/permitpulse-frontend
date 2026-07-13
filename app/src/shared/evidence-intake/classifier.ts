@@ -4,6 +4,15 @@ import type {
   EvidenceDraftCategory,
   EvidenceFileMetadata,
 } from "./types";
+import {
+  evidenceFileExtension,
+} from "./file-validation";
+
+export {
+  acceptedEvidenceExtensions,
+  evidenceFileExtension,
+  isAcceptedEvidenceFile,
+} from "./file-validation";
 
 const categoryRules: ReadonlyArray<{
   category: EvidenceDraftCategory;
@@ -48,19 +57,6 @@ const detectedTypes: Record<string, string> = {
   txt: "Text document",
   eml: "Email message",
 };
-
-export const acceptedEvidenceExtensions = Object.freeze(
-  Object.keys(detectedTypes),
-);
-
-export function evidenceFileExtension(filename: string): string {
-  const dot = filename.lastIndexOf(".");
-  return dot >= 0 ? filename.slice(dot + 1).toLowerCase() : "";
-}
-
-export function isAcceptedEvidenceFile(filename: string): boolean {
-  return acceptedEvidenceExtensions.includes(evidenceFileExtension(filename));
-}
 
 export class DeterministicEvidenceClassifier implements EvidenceClassifier {
   classify(metadata: EvidenceFileMetadata): EvidenceClassification {

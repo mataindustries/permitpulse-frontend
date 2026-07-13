@@ -1,8 +1,15 @@
-import type { PacketModel } from "../../shared/packet/types";
+import { packetPresentationVersion, type PacketModel } from "../../shared/packet/types";
 import { isPacketPresentationModel } from "../../shared/packet/presentation";
 import { nextDeliveryEvents, resultingDeliveryState } from "../../shared/delivery-lifecycle/state-machine";
 import type { DeliveryEvent, DeliveryEventType, DeliveryLifecycle, DeliveryState } from "../../shared/delivery-lifecycle/types";
 import type { CaseActor } from "../cases/authorization";
+import {
+  packetInputRevisionCaseBindings,
+  packetInputRevisionFields,
+  packetInputRevisionSelectSql,
+  packetInputRevisionValues,
+  type PacketInputRevision,
+} from "../packet/revision";
 import type { Bindings } from "../types";
 
 interface EventRow {
@@ -114,7 +121,17 @@ export async function deliveryTransitionReplayStatus(input: {
 
 export type RecordDeliveryOutcome =
   | { kind: "created" | "retry"; lifecycle: DeliveryLifecycle }
-  | { kind: "invalid_transition" | "idempotency_conflict" | "concurrent_transition" };
+  | { kind: "invalid_transition" | "idempotency_conflict" | "concurrent_transition" | "presentation_changed" };
+
+export interface ExpectedDeliveryLifecycle {
+  activePacketGenerationId: string;
+  sequence: number;
+  state: DeliveryState;
+}
+
+const packetInputRevisionMatchSql = packetInputRevisionFields
+  .map((field) => `packet_input_revision.${field} = ?`)
+  .join(" AND ");
 
 export async function recordDeliveryTransition(input: {
   actor: CaseActor;
@@ -124,7 +141,9 @@ export async function recordDeliveryTransition(input: {
   eventType: DeliveryEventType;
   idempotencyKey: string;
   note: string | null;
+  expectedLifecycle?: ExpectedDeliveryLifecycle;
   packet?: PacketModel;
+  packetInputRevision?: PacketInputRevision;
 }): Promise<RecordDeliveryOutcome> {
   const { database, caseId, eventType, idempotencyKey, note } = input;
   const fingerprint = await sha256(JSON.stringify({ eventType, note }));
@@ -136,39 +155,134 @@ export async function recordDeliveryTransition(input: {
     return { kind: "retry", lifecycle: await readDeliveryLifecycle(database, caseId) };
   }
 
+  const requiresPacketInputRevision =
+    eventType === "packet_generated" ||
+    eventType === "approved_for_delivery" ||
+    eventType === "delivery_recorded";
+  const requiresEvaluatedLifecycle =
+    eventType === "approved_for_delivery" || eventType === "delivery_recorded";
+
+  if (
+    (requiresPacketInputRevision && !input.packetInputRevision) ||
+    (requiresEvaluatedLifecycle && !input.expectedLifecycle)
+  ) {
+    return { kind: "invalid_transition" };
+  }
+
   const before = await readDeliveryLifecycle(database, caseId, 1);
+  if (
+    input.expectedLifecycle &&
+    (
+      before.current_state !== input.expectedLifecycle.state ||
+      before.active_packet_generation_id !==
+        input.expectedLifecycle.activePacketGenerationId ||
+      before.latest_event?.sequence !== input.expectedLifecycle.sequence
+    )
+  ) {
+    const racedRetry = await database.prepare(
+      `${eventSelect} WHERE e.case_id = ? AND e.idempotency_key = ? LIMIT 1`,
+    ).bind(caseId, idempotencyKey).first<EventRow>();
+    if (racedRetry?.request_fingerprint === fingerprint) {
+      return {
+        kind: "retry",
+        lifecycle: await readDeliveryLifecycle(database, caseId),
+      };
+    }
+    if (racedRetry) return { kind: "idempotency_conflict" };
+    return { kind: "concurrent_transition" };
+  }
   const resultingState = resultingDeliveryState(before.current_state, eventType);
   if (!resultingState) return { kind: "invalid_transition" };
 
   const eventId = crypto.randomUUID();
   const packetId = eventType === "packet_generated" ? crypto.randomUUID() : before.active_packet_generation_id;
-  if (eventType === "packet_generated" && !input.packet) return { kind: "invalid_transition" };
+  if (
+    eventType === "packet_generated" &&
+    (!input.packet || !isPacketPresentationModel(input.packet))
+  ) {
+    return { kind: "invalid_transition" };
+  }
   if (eventType !== "packet_generated" && !packetId) return { kind: "invalid_transition" };
 
   const statements = [];
+  const guarded = input.packetInputRevision;
   if (input.packet && eventType === "packet_generated") {
     const snapshot = JSON.stringify(input.packet);
-    statements.push(database.prepare(
-      `INSERT INTO packet_generations (id, case_id, case_version, generated_by_user_id, snapshot_json, content_sha256)
-       VALUES (?, ?, ?, ?, ?, ?)`,
-    ).bind(packetId, caseId, input.caseVersion, input.actor.id, snapshot, await sha256(snapshot)));
+    const snapshotDigest = await sha256(snapshot);
+    statements.push(guarded
+      ? database.prepare(
+          `WITH packet_input_revision AS (${packetInputRevisionSelectSql})
+           INSERT INTO packet_generations (id, case_id, case_version, generated_by_user_id, snapshot_json, content_sha256)
+           SELECT ?, ?, ?, ?, ?, ?
+           FROM packet_input_revision
+           WHERE ${packetInputRevisionMatchSql}`,
+        ).bind(
+          ...packetInputRevisionCaseBindings(caseId),
+          packetId,
+          caseId,
+          input.caseVersion,
+          input.actor.id,
+          snapshot,
+          snapshotDigest,
+          ...packetInputRevisionValues(guarded),
+        )
+      : database.prepare(
+          `INSERT INTO packet_generations (id, case_id, case_version, generated_by_user_id, snapshot_json, content_sha256)
+           VALUES (?, ?, ?, ?, ?, ?)`,
+        ).bind(packetId, caseId, input.caseVersion, input.actor.id, snapshot, snapshotDigest));
   }
-  statements.push(database.prepare(
-    `INSERT INTO delivery_lifecycle_events
-      (id, case_id, event_type, actor_user_id, note, packet_generation_id, previous_state, resulting_state, sequence, idempotency_key, request_fingerprint)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-  ).bind(eventId, caseId, eventType, input.actor.id, note, packetId, before.current_state, resultingState, (before.latest_event?.sequence ?? 0) + 1, idempotencyKey, fingerprint));
+  const eventStatementIndex = statements.length;
+  const eventValues = [eventId, caseId, eventType, input.actor.id, note, packetId, before.current_state, resultingState, (before.latest_event?.sequence ?? 0) + 1, idempotencyKey, fingerprint];
+  statements.push(guarded
+    ? database.prepare(
+        `WITH packet_input_revision AS (${packetInputRevisionSelectSql})
+         INSERT INTO delivery_lifecycle_events
+           (id, case_id, event_type, actor_user_id, note, packet_generation_id, previous_state, resulting_state, sequence, idempotency_key, request_fingerprint)
+         SELECT ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?
+         FROM packet_input_revision
+         WHERE ${packetInputRevisionMatchSql}`,
+      ).bind(
+        ...packetInputRevisionCaseBindings(caseId),
+        ...eventValues,
+        ...packetInputRevisionValues(guarded),
+      )
+    : database.prepare(
+        `INSERT INTO delivery_lifecycle_events
+          (id, case_id, event_type, actor_user_id, note, packet_generation_id, previous_state, resulting_state, sequence, idempotency_key, request_fingerprint)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+      ).bind(...eventValues));
 
   try {
-    await database.batch(statements);
-  } catch {
-    const racedRetry = await database.prepare(
-      `${eventSelect} WHERE e.case_id = ? AND e.idempotency_key = ? LIMIT 1`,
-    ).bind(caseId, idempotencyKey).first<EventRow>();
+    const results = await database.batch(statements);
+    if (guarded && results[eventStatementIndex].meta.changes !== 1) {
+      return { kind: "presentation_changed" };
+    }
+  } catch (error) {
+    let racedRetry: EventRow | null;
+
+    try {
+      racedRetry = await database.prepare(
+        `${eventSelect} WHERE e.case_id = ? AND e.idempotency_key = ? LIMIT 1`,
+      ).bind(caseId, idempotencyKey).first<EventRow>();
+    } catch {
+      throw error;
+    }
+
     if (racedRetry?.request_fingerprint === fingerprint) {
       return { kind: "retry", lifecycle: await readDeliveryLifecycle(database, caseId) };
     }
-    return { kind: racedRetry ? "idempotency_conflict" : "concurrent_transition" };
+    if (racedRetry) return { kind: "idempotency_conflict" };
+
+    try {
+      const after = await readDeliveryLifecycle(database, caseId, 1);
+      if ((after.latest_event?.sequence ?? 0) !== (before.latest_event?.sequence ?? 0)) {
+        return { kind: "concurrent_transition" };
+      }
+    } catch {
+      throw error;
+    }
+
+    throw error;
   }
   return { kind: "created", lifecycle: await readDeliveryLifecycle(database, caseId) };
 }
@@ -183,23 +297,43 @@ export async function readGeneratedPacketSnapshot(
   database: Bindings["DB"],
   caseId: string,
   generationId: string,
-): Promise<{ exists: boolean; packet: PacketModel | null }> {
+): Promise<{
+  exists: boolean;
+  integrity: "digest_mismatch" | "invalid" | "outdated" | "valid" | "missing";
+  packet: PacketModel | null;
+}> {
   const row = await database.prepare(
-    "SELECT snapshot_json FROM packet_generations WHERE id = ? AND case_id = ? LIMIT 1",
-  ).bind(generationId, caseId).first<{ snapshot_json: string }>();
+    "SELECT snapshot_json, content_sha256 FROM packet_generations WHERE id = ? AND case_id = ? LIMIT 1",
+  ).bind(generationId, caseId).first<{ snapshot_json: string; content_sha256: string }>();
 
   if (!row) {
-    return { exists: false, packet: null };
+    return { exists: false, integrity: "missing", packet: null };
+  }
+
+  if ((await sha256(row.snapshot_json)) !== row.content_sha256) {
+    return { exists: true, integrity: "digest_mismatch", packet: null };
   }
 
   try {
     const value: unknown = JSON.parse(row.snapshot_json);
 
+    if (
+      typeof value === "object" &&
+      value !== null &&
+      "presentation_version" in value &&
+      value.presentation_version !== packetPresentationVersion
+    ) {
+      return { exists: true, integrity: "outdated", packet: null };
+    }
+
+    const valid = isPacketPresentationModel(value);
+
     return {
       exists: true,
-      packet: isPacketPresentationModel(value) ? value : null,
+      integrity: valid ? "valid" : "invalid",
+      packet: valid ? value : null,
     };
   } catch {
-    return { exists: true, packet: null };
+    return { exists: true, integrity: "invalid", packet: null };
   }
 }

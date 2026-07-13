@@ -7,7 +7,7 @@ import { evaluateMissionIntelligence } from "../mission-intelligence/evaluate";
 import { buildMissionFacts } from "../mission-intelligence/facts";
 import type { MissionHealthMetric, MissionIntelligence, MissionReadinessFactor } from "../mission-intelligence/types";
 
-export const packetRendererVersion = 3 as const;
+export const packetRendererVersion = 4 as const;
 
 export type PacketDashboardTone = "strong" | "attention" | "at_risk";
 

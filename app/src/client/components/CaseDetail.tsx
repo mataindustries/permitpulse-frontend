@@ -1120,12 +1120,7 @@ export function CaseDetail({
                 role={role}
                 onChanged={onDeliveryLifecycleChanged}
               />
-              <PacketPreview
-                activityResponse={activityResponse}
-                caseRecord={caseRecord}
-                evidence={evidenceItems}
-                timeline={timelineItems}
-              />
+              <PacketPreview caseRecord={caseRecord} />
             </section>
           )}
 

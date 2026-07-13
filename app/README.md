@@ -1,29 +1,62 @@
 # PermitPulse Case Workspace
 
+> **Current controlled-pilot baseline (July 2026):** this application now
+> includes Evidence Inbox uploads backed by R2/D1, reviewer editorial records,
+> an immutable packet/delivery lifecycle, and canonical Preview, HTML, text,
+> and PDF rendering. Some later sections below retain historical milestone
+> notes for implementation context. Production authentication intentionally
+> remains disabled in `wrangler.jsonc` until the production D1/R2 bindings,
+> migrations, secrets, first administrator, custom domain, and operational
+> controls have been verified through the release checklist.
+
 This directory is an isolated Cloudflare Worker, React/Vite client, Hono API,
 and D1 database. It does not share deployment configuration with the public
 PermitPulse site in `../dist`, Pages Functions in `../functions`, or the
 existing Worker in `../workers/pp-api`.
 
-The current local frontend milestone provides email/password authentication,
-database-backed sessions, sign-out, and a usable authenticated React workspace
-for listing, creating, reading, editing, and reviewing case lifecycle activity
-through the protected case API. Administrators also get role-aware status
-transition controls. The browser workspace now also exposes local-only
-structured evidence, provenance, verification state, canonical timeline
-records, timeline-to-evidence links, a first local-only Packet Builder preview,
-server-side Packet Preview endpoints, and a shared local-only Packet Renderer
-foundation through protected APIs. The protected Packet Preview API can also
-generate an on-demand local-only draft PDF from the existing server-side
-`PacketModel`. The app now includes a protected, local-only PermitPulse AI
-Review provider scaffold backed by deterministic baseline and mock-live
-providers, a safe prompt contract, a structured-field safety scanner, and a
-shared provider result gate, plus a case-detail AI review panel that
-calls that endpoint only after a user selects `Generate review draft`. It does
-not call a live AI model and does not expose production AI UI.
-There is still no participant assignment, file upload, stored PDF history, live
-AI integration, billing, email delivery, OAuth, user-management UI, or
-production authentication.
+The current application provides email/password authentication, D1-backed
+sessions and case isolation, case/evidence/timeline/reviewer workspaces, an
+R2/D1-backed Evidence Inbox, immutable packet snapshots and delivery events,
+and one canonical packet presentation graph shared by Preview, HTML, text, and
+PDF adapters. The optional AI Review surface remains a deterministic local
+scaffold: it makes no live model call and stores no generated review.
+
+There is no participant-assignment UI, stored PDF artifact, live AI, billing,
+email delivery, OAuth, client sharing portal, or production user-management UI.
+Production authentication remains intentionally disabled until the deployment
+prerequisites below are completed.
+
+## Controlled-pilot deployment prerequisites
+
+The code and a deployed environment are separate release gates. Before any
+pilot user is invited:
+
+1. Use the reviewed `preview` environment for the controlled pilot. Do not
+   enable the production environment as a shortcut.
+2. Confirm the intended D1 database ID and private R2 bucket binding in
+   `wrangler.jsonc`; do not accept an accidentally auto-provisioned blank
+   production database.
+3. Apply all migrations through `0010_evidence_intake.sql` to that exact D1
+   database, then verify Wrangler reports no pending migration.
+4. Store a unique, high-entropy `BETTER_AUTH_SECRET` with Wrangler secret input;
+   never place its value in source, shell history, or `vars`.
+5. Confirm `BETTER_AUTH_URL` exactly matches the HTTPS Worker/custom-domain
+   origin that users will open. Verify cookies are `Secure`, `HttpOnly`, and
+   same-site in that environment.
+6. Keep the R2 bucket private: no `r2.dev` public URL and no public custom
+   domain. Verify uploaded objects are reachable only through the authenticated
+   evidence-file route.
+7. Bootstrap exactly one preview administrator with the one-shot procedure
+   below, immediately disable bootstrap, delete its secret, and verify the
+   endpoint returns `404` afterward.
+8. Keep public signup, development case APIs, live AI, and external AI calls
+   disabled. Pilot access must use explicitly provisioned accounts.
+9. Configure a Worker custom domain or reviewed `workers.dev` route, TLS, WAF
+   rate limits for auth and upload endpoints, log retention/redaction, alerting,
+   and an R2/D1 orphan-reconciliation runbook.
+10. Run the complete release validation matrix and the Android smoke checklist
+    against the deployed origin using only fictional data before inviting a
+    controlled operator cohort.
 
 ## Canonical fictional demo case
 
@@ -40,7 +73,7 @@ npm run demo:seed:local
 Set `PERMITPULSE_LOCAL_URL` only when the local app is not available at the
 trusted default `http://localhost:5173`. The account must already have the local `admin` role.
 The seed requires `APP_ENV=local` and `ENABLE_DEV_CASE_API=true`, is idempotent,
-does not delete other cases, and leaves `DEMO-LADBS-2026-1842` in
+does not delete other cases, and leaves `LADBS-FICTIONAL-2026-1842` in
 `packet_generated` for manual review, approval, and PDF-export testing. The
 endpoint is unavailable in preview and production.
 
@@ -354,8 +387,8 @@ npm run dev
 Wrangler keeps the persistent local database under `app/.wrangler/`. Restarting
 the server without deleting that directory verifies session persistence.
 
-Do not run `db:migrate:preview`, deploy, or create Cloudflare resources for this
-milestone.
+Do not run `db:migrate:preview`, deploy, or create Cloudflare resources as part
+of local setup. Those commands belong only to the approved release procedure.
 
 ## Workspace UI behavior
 
@@ -694,28 +727,27 @@ timeline entry; the next mutation uses the refreshed `version`.
 
 - Administrator-created cases are unassigned and admin-only under the current
   backend design.
-- There is no deletion, participant assignment, file upload/R2, stored PDF
-  history, live AI, stored AI reviews, email, billing, OAuth, or admin user
-  management UI.
-- Evidence records are structured metadata only; uploaded files are out of
-  scope.
+- Evidence Inbox files are private R2 objects with D1 metadata. Case deletion,
+  account deletion, and automatic cross-store orphan reconciliation remain out
+  of scope; administrator user deletion is disabled accordingly.
+- There is no participant assignment, stored PDF artifact, live AI, stored AI
+  review, email, billing, OAuth, or admin user-management UI.
 - Browser back-button support and deep-link case routing are intentionally out
   of scope for this milestone.
 - The workspace does not fabricate cases, analytics, authorization filters,
   evidence provenance, timeline entries, or permit outcomes.
 
-## Later preview admin bootstrap procedure
+## Preview admin bootstrap procedure
 
-Do not perform these remote steps during local implementation or testing. When
-preview auth is intentionally enabled in a later reviewed pass:
+Perform these remote steps only during an approved preview release window:
 
 1. Generate a bootstrap token with a cryptographically secure tool, for example
    `openssl rand -base64 32`.
 2. Store it only through Wrangler secret input:
    `npx wrangler secret put ADMIN_BOOTSTRAP_TOKEN --env preview`.
 3. Set `ADMIN_BOOTSTRAP_ENABLED=true` temporarily for the preview environment.
-4. Apply reviewed migration `0003_auth_roles_admin.sql` to preview D1 through
-   the approved migration process.
+4. Apply and verify every migration through `0010_evidence_intake.sql` on the
+   intended preview D1 database.
 5. Deploy the preview Worker.
 6. Call `POST /api/internal/bootstrap-admin` exactly once with an
    `Authorization: Bearer <token>` header and JSON body containing only
@@ -1297,19 +1329,22 @@ git diff --check
 Tests use Cloudflare's Workers Vitest integration and an isolated D1 database.
 They use fictional `.test` accounts and make no email or external API calls.
 
-## Preview remains disabled
+## Preview remains deployment-gated
 
-Preview auth and signup remain disabled until a later reviewed milestone.
-Before enabling preview auth, review the configured preview origin, apply the
-auth migration through the separate migration review process, and add a unique
-preview secret interactively:
+The preview environment declares `AUTH_ENABLED=true` and keeps signup disabled.
+It must not receive pilot traffic until the configured preview origin is
+reviewed, every migration is applied to the intended preview D1 database, the
+private R2 binding is verified, and a unique preview secret is added
+interactively:
 
 ```bash
 npx wrangler secret put BETTER_AUTH_SECRET --env preview
 ```
 
-That command shape intentionally contains no secret value. Do not enable
-preview auth or apply `0002` remotely as part of this milestone.
+That command shape intentionally contains no secret value. Authentication fails
+closed when the secret or origin is invalid. First-administrator bootstrap must
+use the temporary, one-shot procedure above and be disabled immediately after
+the account is created.
 
 Preview builds can still be validated locally without deploying:
 

@@ -58,6 +58,7 @@ import { sessionMiddleware } from "../middleware/session";
 import type { WorkerEnv } from "../types";
 import {
   buildCurrentPacketPresentation,
+  PacketInputChangedError,
   readPacketDeliveryContext,
 } from "../packet/service";
 
@@ -258,15 +259,31 @@ async function packetDeliveryForRequest(
     return access;
   }
 
-  return {
-    ok: true,
-    caseId: access.caseId,
-    packetContext: await readPacketDeliveryContext({
-      caseRecord: access.caseRecord,
-      database: context.env.DB,
-      evaluatedAt: new Date(),
-    }),
-  };
+  try {
+    return {
+      ok: true,
+      caseId: access.caseId,
+      packetContext: await readPacketDeliveryContext({
+        caseRecord: access.caseRecord,
+        database: context.env.DB,
+        evaluatedAt: new Date(),
+      }),
+    };
+  } catch (error) {
+    if (error instanceof PacketInputChangedError) {
+      return {
+        ok: false,
+        response: errorResponse(
+          context,
+          409,
+          "PACKET_INPUTS_CHANGED",
+          "Packet inputs changed during assembly. Reload and try again.",
+        ),
+      };
+    }
+
+    throw error;
+  }
 }
 
 function mutationErrorResponse(

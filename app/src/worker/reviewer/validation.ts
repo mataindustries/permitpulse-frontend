@@ -2,7 +2,13 @@ import { z } from "zod";
 import { actionPriorities, confidenceLevels, findingSeverities, questionStatuses } from "../../shared/reviewer/types";
 
 const id = z.string().uuid();
-const ids = z.array(id).max(50).default([]);
+const ids = z
+  .array(id)
+  .max(50)
+  .refine((values) => new Set(values).size === values.length, {
+    message: "Reference IDs must be unique.",
+  })
+  .default([]);
 const version = z.number().int().positive();
 const optionalDate = z.string().regex(/^\d{4}-\d{2}-\d{2}$/).nullable().optional();
 

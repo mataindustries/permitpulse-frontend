@@ -12,6 +12,7 @@ export async function transitionDeliveryLifecycle(
   caseId: string,
   eventType: DeliveryEventType,
   note: string | null,
+  idempotencyKey: string = crypto.randomUUID(),
 ): Promise<DeliveryLifecycle> {
   const data = await requestJson<{ lifecycle: DeliveryLifecycle; retry: boolean }>(
     `/api/v1/cases/${encodeURIComponent(caseId)}/delivery-lifecycle/transitions`,
@@ -20,11 +21,10 @@ export async function transitionDeliveryLifecycle(
       headers: { "content-type": "application/json" },
       body: JSON.stringify({
         event_type: eventType,
-        idempotency_key: crypto.randomUUID(),
+        idempotency_key: idempotencyKey,
         note,
       }),
     },
   );
   return data.lifecycle;
 }
-

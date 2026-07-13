@@ -13,6 +13,7 @@ import { workspaceRoutes } from "./routes/workspace";
 import { deliveryLifecycleRoutes } from "./routes/delivery-lifecycle";
 import { reviewerRoutes } from "./routes/reviewer";
 import { evidenceInboxRoutes } from "./routes/evidence-inbox";
+import { applicationOriginMiddleware } from "./middleware/application-origin";
 import type { WorkerEnv } from "./types";
 
 export const app = new Hono<WorkerEnv>();
@@ -30,6 +31,9 @@ app.use("/api/*", async (context, next) => {
   await next();
   context.header("cache-control", "no-store");
 });
+
+app.use("/api/v1/*", applicationOriginMiddleware);
+app.use("/api/dev/*", applicationOriginMiddleware);
 
 app.on(["GET", "POST"], "/api/auth/*", handleAuthRequest);
 app.route("/api/config/auth", authConfigRoutes);

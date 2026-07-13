@@ -53,13 +53,6 @@ function addressFromFilename(value: string): string | null {
   return match?.[1] ?? null;
 }
 
-function isoDateFromTimestamp(timestamp: number | null): string | null {
-  if (timestamp === null || !Number.isFinite(timestamp) || timestamp <= 0) {
-    return null;
-  }
-  return new Date(timestamp).toISOString().slice(0, 10);
-}
-
 export class PlaceholderEvidenceExtractor implements EvidenceExtractor {
   extract(
     metadata: EvidenceFileMetadata,
@@ -71,7 +64,7 @@ export class PlaceholderEvidenceExtractor implements EvidenceExtractor {
     const jurisdiction = matchValue(stem, jurisdictionRules);
     const address = addressFromFilename(stem);
     const discipline = matchValue(stem, disciplineRules);
-    const documentDate = isoDateFromTimestamp(metadata.lastModified);
+    const documentDate = null;
     const limited = extension === "eml" || extension === "heic";
     const detectedCount = [
       permitNumber,

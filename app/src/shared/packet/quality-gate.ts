@@ -61,6 +61,7 @@ interface RuleContext {
   snapshot: PacketPresentationModel;
   staleSnapshot: boolean;
   sourceIds: Set<string>;
+  sourceReferences: Set<string>;
 }
 
 interface QualityRuleResult {
@@ -124,6 +125,15 @@ function passed(
   return { outcome: "passed", issue: { id, title, reason, source } };
 }
 
+function isAbsoluteHttpUrl(value: string): boolean {
+  try {
+    const url = new URL(value);
+    return url.protocol === "http:" || url.protocol === "https:";
+  } catch {
+    return false;
+  }
+}
+
 const qualityRules: readonly PacketQualityRule[] = [
   {
     id: "project-identity-present",
@@ -133,13 +143,13 @@ const qualityRules: readonly PacketQualityRule[] = [
             "project-identity-present",
             "Project identity is present",
             "The packet includes a project name.",
-            "Case overview: project name",
+            "Case Snapshot: project name",
           )
         : blocker(
             "project-identity-present",
             "Project identity is missing",
             "A client-facing packet must identify the project.",
-            "Case overview: project name is empty",
+            "Case Snapshot: project name is empty",
             "Add the project name in Overview, then regenerate the packet.",
             "overview",
           ),
@@ -152,13 +162,13 @@ const qualityRules: readonly PacketQualityRule[] = [
             "address-present",
             "Project address is present",
             "The packet includes the recorded project address.",
-            "Case overview: address",
+            "Case Snapshot: address",
           )
         : blocker(
             "address-present",
             "Project address is missing",
             "The packet cannot reliably identify the project location without an address.",
-            "Case overview: address is empty",
+            "Case Snapshot: address is empty",
             "Add the project address in Overview, then regenerate the packet.",
             "overview",
           ),
@@ -171,13 +181,13 @@ const qualityRules: readonly PacketQualityRule[] = [
             "jurisdiction-present",
             "Jurisdiction is present",
             "The packet identifies the recorded permitting jurisdiction.",
-            "Case overview: jurisdiction",
+            "Case Snapshot: jurisdiction",
           )
         : blocker(
             "jurisdiction-present",
             "Jurisdiction is missing",
             "A permit packet must identify the authority associated with the record.",
-            "Case overview: jurisdiction is empty",
+            "Case Snapshot: jurisdiction is empty",
             "Add the jurisdiction in Overview, then regenerate the packet.",
             "overview",
           ),
@@ -190,7 +200,7 @@ const qualityRules: readonly PacketQualityRule[] = [
           "permit-number-present",
           "Permit number is present",
           "The packet includes the recorded permit number.",
-          "Case overview: permit number",
+          "Case Snapshot: permit number",
         );
       }
 
@@ -199,7 +209,7 @@ const qualityRules: readonly PacketQualityRule[] = [
           "permit-number-present",
           "Permit number is not yet recorded",
           "The case is still in intake, so a permit number may not have been assigned.",
-          "Case overview: permit number is empty; status is Intake",
+          "Case Snapshot: permit number is empty; status is Intake",
           "Add the permit number when the jurisdiction assigns one.",
           "overview",
         );
@@ -209,7 +219,7 @@ const qualityRules: readonly PacketQualityRule[] = [
         "permit-number-present",
         "Permit number is required",
         "The case has advanced beyond intake without a recorded permit number.",
-        `Case overview: status is ${snapshot.current_status.label}; permit number is empty`,
+        `Case Snapshot: status is ${snapshot.current_status.label}; permit number is empty`,
         "Add the permit number in Overview, then regenerate the packet.",
         "overview",
       );
@@ -221,15 +231,15 @@ const qualityRules: readonly PacketQualityRule[] = [
       snapshot.evidence_summaries.length > 0
         ? passed(
             "evidence-exists",
-            "Evidence register is populated",
+            "Supporting Evidence is populated",
             `${snapshot.evidence_summaries.length} evidence record${snapshot.evidence_summaries.length === 1 ? " is" : "s are"} included.`,
-            "Evidence register",
+            "Supporting Evidence",
           )
         : blocker(
             "evidence-exists",
-            "Evidence register is empty",
+            "Supporting Evidence is empty",
             "The packet has no source record supporting its contents.",
-            "Evidence register: 0 records",
+            "Supporting Evidence: 0 records",
             "Add at least one evidence record, then regenerate the packet.",
             "evidence",
           ),
@@ -246,13 +256,13 @@ const qualityRules: readonly PacketQualityRule[] = [
             "evidence-source-ready",
             "All evidence is source-ready",
             `${ready.length} evidence record${ready.length === 1 ? " is" : "s are"} verified and source-complete.`,
-            "Evidence register: verification and provenance metadata",
+            "Supporting Evidence: verification and provenance metadata",
           )
         : blocker(
             "evidence-source-ready",
             "Evidence is not source-ready",
             "Every evidence record must be verified and include a source label, URL, and date.",
-            `Evidence register: ${ready.length} of ${snapshot.evidence_summaries.length} records are verified and source-complete`,
+            `Supporting Evidence: ${ready.length} of ${snapshot.evidence_summaries.length} records are verified and source-complete`,
             "Resolve the evidence readiness blocker, then regenerate the packet.",
             "evidence",
           );
@@ -264,16 +274,16 @@ const qualityRules: readonly PacketQualityRule[] = [
       snapshot.timeline_summaries.length > 0
         ? passed(
             "timeline-exists",
-            "Permit timeline is populated",
+            "Timeline is populated",
             `${snapshot.timeline_summaries.length} permit event${snapshot.timeline_summaries.length === 1 ? " is" : "s are"} included.`,
-            "Permit timeline",
+            "Timeline",
           )
         : blocker(
             "timeline-exists",
-            "Permit timeline is empty",
+            "Timeline is empty",
             "The packet does not include any permit events.",
-            "Permit timeline: 0 events",
-            "Add at least one supported permit timeline event, then regenerate the packet.",
+            "Timeline: 0 events",
+            "Add at least one supported timeline event, then regenerate the packet.",
             "timeline",
           ),
   },
@@ -300,9 +310,12 @@ const qualityRules: readonly PacketQualityRule[] = [
     id: "customer-facing-language",
     evaluate: ({ snapshot }) => {
       const internalPattern =
-        /this placeholder is not ai-generated yet|runtime provider|\blive_ai\b|\bexternal_calls\b|internal (?:working|review) draft|developer-facing|component name|\/api\/v\d+\//i;
-      const offending = packetVisibleText(snapshot).find((value) =>
-        internalPattern.test(value),
+        /this placeholder is not ai-generated yet|runtime provider|\blive_ai\b|\bexternal_calls\b|internal (?:working|review) draft|developer-facing|component name/i;
+      const routePattern = /\/api\/v\d+\//i;
+      const offending = packetVisibleText(snapshot).find(
+        (value) =>
+          internalPattern.test(value) ||
+          (routePattern.test(value) && !isAbsoluteHttpUrl(value)),
       );
 
       return offending
@@ -424,6 +437,42 @@ const qualityRules: readonly PacketQualityRule[] = [
     },
   },
   {
+    id: "action-kit-grounded",
+    evaluate: ({ snapshot, sourceReferences }) => {
+      const kit = snapshot.action_kit;
+
+      if (!kit) {
+        return passed(
+          "action-kit-grounded",
+          "No Agency Follow-Up Kit requires citation review",
+          "This packet edition does not include an Agency Follow-Up Kit.",
+          "Agency Follow-Up Kit",
+        );
+      }
+
+      const invalidReferences = kit.citation_references.filter(
+        (reference) => !sourceReferences.has(reference),
+      );
+      return kit.citation_references.length > 0 && invalidReferences.length === 0
+        ? passed(
+            "action-kit-grounded",
+            "Agency Follow-Up Kit is grounded",
+            "The included Agency Follow-Up Kit cites packet evidence or timeline records.",
+            "Agency Follow-Up Kit citation references",
+          )
+        : blocker(
+            "action-kit-grounded",
+            "Agency Follow-Up Kit lacks valid citations",
+            invalidReferences.length > 0
+              ? `${invalidReferences.length} Action Kit citation reference${invalidReferences.length === 1 ? " is" : "s are"} not present in this packet.`
+              : "The included Agency Follow-Up Kit has no packet citation reference.",
+            "Agency Follow-Up Kit citation references",
+            "Link the approved Action Kit to included evidence or timeline records, then regenerate the packet.",
+            "findings",
+          );
+    },
+  },
+  {
     id: "disclaimer-present",
     evaluate: ({ snapshot }) =>
       snapshot.disclaimer.trim()
@@ -495,7 +544,7 @@ const qualityRules: readonly PacketQualityRule[] = [
             "evidence-verification-depth",
             "Evidence is source-complete but unverified",
             "No evidence record has reviewer verification, although source-complete evidence may satisfy the minimum gate.",
-            "Evidence register: 0 verified records",
+            "Supporting Evidence: 0 verified records",
             "Review and verify the strongest source records before delivery when possible.",
             "evidence",
           )
@@ -503,7 +552,7 @@ const qualityRules: readonly PacketQualityRule[] = [
             "evidence-verification-depth",
             "Verified evidence is present",
             `${verified} evidence record${verified === 1 ? " is" : "s are"} verified.`,
-            "Evidence register: verification states",
+            "Supporting Evidence: verification states",
           );
     },
   },
@@ -519,7 +568,7 @@ const qualityRules: readonly PacketQualityRule[] = [
             "disputed-evidence-disclosed",
             "Disputed evidence is included",
             `${disputed} evidence record${disputed === 1 ? " is" : "s are"} explicitly labeled disputed and is not presented as confirmed.`,
-            "Evidence Register: disputed verification state",
+            "Supporting Evidence: disputed verification state",
             "Resolve or replace disputed evidence when possible; retain the label if it remains material to the client.",
             "evidence",
           )
@@ -527,7 +576,7 @@ const qualityRules: readonly PacketQualityRule[] = [
             "disputed-evidence-disclosed",
             "No disputed evidence is included",
             "The packet contains no evidence record with a disputed verification state.",
-            "Evidence Register: verification states",
+            "Supporting Evidence: verification states",
           );
     },
   },
@@ -543,7 +592,7 @@ const qualityRules: readonly PacketQualityRule[] = [
             "evidence-provenance-complete",
             "Some evidence provenance is incomplete",
             `${incomplete} evidence record${incomplete === 1 ? " is" : "s are"} missing a source label, URL, or date.`,
-            "Evidence register: source metadata",
+            "Supporting Evidence: source metadata",
             "Complete provenance for each source when the information is available.",
             "evidence",
           )
@@ -551,7 +600,7 @@ const qualityRules: readonly PacketQualityRule[] = [
             "evidence-provenance-complete",
             "Evidence provenance is complete",
             "Every evidence record includes a source label, URL, and date.",
-            "Evidence register: source metadata",
+            "Supporting Evidence: source metadata",
           );
     },
   },
@@ -567,7 +616,7 @@ const qualityRules: readonly PacketQualityRule[] = [
             "timeline-supported",
             "Some timeline events have no linked evidence",
             `${unsupported} timeline event${unsupported === 1 ? " has" : "s have"} no supporting evidence link.`,
-            "Permit timeline: evidence links",
+            "Timeline: evidence links",
             "Link supporting evidence to each timeline event when available.",
             "timeline",
           )
@@ -575,7 +624,7 @@ const qualityRules: readonly PacketQualityRule[] = [
             "timeline-supported",
             "Timeline events are linked to evidence",
             "Every included timeline event has at least one evidence link.",
-            "Permit timeline: evidence links",
+            "Timeline: evidence links",
           );
     },
   },
@@ -587,12 +636,12 @@ const qualityRules: readonly PacketQualityRule[] = [
       );
 
       return truncationWarnings.length > 0
-        ? warning(
+        ? blocker(
             "packet-source-scope-complete",
-            "Packet source scope is bounded",
+            "Packet source scope is incomplete",
             truncationWarnings.map((item) => item.text).join(" "),
             "Presentation warnings: bounded evidence or timeline query",
-            "Review whether a narrower, manually curated source set is needed before delivery.",
+            "Reduce or curate the source set so every intended record is included, then regenerate the packet.",
             "packet",
           )
         : passed(
@@ -685,11 +734,16 @@ export function evaluatePacketQuality({
     ...snapshot.evidence_summaries.map((item) => item.id),
     ...snapshot.timeline_summaries.map((item) => item.id),
   ]);
+  const sourceReferences = new Set([
+    ...snapshot.evidence_summaries.map((item) => item.reference),
+    ...snapshot.timeline_summaries.map((item) => item.reference),
+  ]);
   const context: RuleContext = {
     lifecycleState,
     snapshot,
     staleSnapshot,
     sourceIds,
+    sourceReferences,
   };
   const results = qualityRules.map((rule) => rule.evaluate(context));
   const readinessQualityIds: Record<string, string> = {

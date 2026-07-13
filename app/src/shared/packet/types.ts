@@ -1,28 +1,111 @@
-export const packetPresentationVersion = 2 as const;
+export const packetPresentationVersion = 3 as const;
 
 export const packetDraftNotice =
-  "Prepared for client review. Confirm source records and jurisdiction requirements before delivery.";
+  "Prepared for client review. Confirm source records and jurisdiction requirements before delivery; Packet Readiness does not establish permit resolution.";
 
 export const packetDisclaimer =
   "This PermitPulse packet summarizes the records available at the time shown. It is not a permit, legal opinion, guarantee of approval, or substitute for confirmation with the applicable jurisdiction. Source records, dates, and requirements should be independently verified before reliance.";
 
 export const packetTitle = "Permit Review Packet";
 
-export const packetSectionOrder = [
-  "executive_summary",
-  "recommended_next_actions",
-  "agency_follow_up_kit",
-  "case_overview",
-  "findings",
-  "open_questions",
-  "evidence_matrix",
-  "permit_timeline",
-  "evidence_register",
-  "supporting_sources",
-  "disclaimer",
+export const packetSectionDefinitions = [
+  {
+    id: "cover",
+    block_kind: "cover",
+    title: "Cover",
+    intro: null,
+  },
+  {
+    id: "executive_summary",
+    block_kind: "executive_summary",
+    title: "Executive Summary",
+    intro:
+      "A concise statement of the reviewed record, its material strengths, and its unresolved risks.",
+  },
+  {
+    id: "case_snapshot",
+    block_kind: "case_snapshot",
+    title: "Case Snapshot",
+    intro:
+      "Core project identity and recorded workflow status at the time this packet was generated.",
+  },
+  {
+    id: "findings",
+    block_kind: "editorial_list",
+    title: "Findings",
+    intro:
+      "Reviewer-authored conclusions included in this packet edition. The presentation layer does not create findings.",
+  },
+  {
+    id: "agency_dependency_map",
+    block_kind: "dependency_map",
+    title: "Agency Dependency Map",
+    intro:
+      "Approved, evidence-grounded findings translated into the agency review sequence they affect.",
+  },
+  {
+    id: "open_questions",
+    block_kind: "editorial_list",
+    title: "Open Questions",
+    intro:
+      "Unresolved agency questions that remain explicitly open in the reviewed packet record.",
+  },
+  {
+    id: "recommended_next_actions",
+    block_kind: "editorial_list",
+    title: "Recommended Next Actions",
+    intro:
+      "Reviewer-approved client actions in recommended order; internal system operations are excluded.",
+  },
+  {
+    id: "agency_follow_up_kit",
+    block_kind: "action_kit",
+    title: "Agency Follow-Up Kit",
+    intro:
+      "Client-ready outreach language and preparation steps supported by the cited packet record.",
+  },
+  {
+    id: "timeline",
+    block_kind: "timeline",
+    title: "Timeline",
+    intro:
+      "Chronological permit history, earliest to latest, with source linkage and review status preserved.",
+  },
+  {
+    id: "supporting_evidence",
+    block_kind: "evidence",
+    title: "Supporting Evidence",
+    intro:
+      "Detailed evidence cards preserving summaries, provenance, contributor, and verification status.",
+  },
+  {
+    id: "supporting_sources",
+    block_kind: "sources",
+    title: "Supporting Sources",
+    intro:
+      "Compact source log for the evidence cited throughout this packet.",
+  },
+  {
+    id: "methodology_readiness",
+    block_kind: "readiness",
+    title: "Methodology / Readiness",
+    intro:
+      "How Investigation Health and Packet Readiness are interpreted without implying jurisdiction resolution.",
+  },
+  {
+    id: "fictional_demonstration_disclosure",
+    block_kind: "disclosure",
+    title: "Fictional Demonstration Disclosure",
+    intro:
+      "Disclosure status for illustrative or demonstration case material.",
+  },
 ] as const;
 
-export type PacketSectionId = (typeof packetSectionOrder)[number];
+export type PacketSectionId = (typeof packetSectionDefinitions)[number]["id"];
+
+export const packetSectionOrder: PacketSectionId[] = packetSectionDefinitions.map(
+  ({ id }) => id,
+);
 
 export type PacketInformationClass =
   | "confirmed_fact"

@@ -21,7 +21,7 @@ import {
   updateEvidenceForActor,
 } from "../cases/repository";
 import { readDeliveryLifecycle, recordDeliveryTransition } from "../delivery/repository";
-import { buildCurrentPacketPresentation } from "../packet/service";
+import { buildStablePacketPresentation } from "../packet/service";
 import { readReviewerWorkspace, saveReviewerActionKit, saveReviewerObject } from "../reviewer/repository";
 import type { Bindings } from "../types";
 
@@ -139,16 +139,21 @@ export async function seedArroyoVistaDemo(input: {
 
   let lifecycle = await readDeliveryLifecycle(database, caseId);
   if (lifecycle.current_state === "draft") {
-    const packet = await buildCurrentPacketPresentation({caseRecord,database,generatedAt:new Date()});
+    const stablePacket = await buildStablePacketPresentation({
+      caseRecord,
+      database,
+      generatedAt: new Date(),
+    });
     const transition = await recordDeliveryTransition({
       actor,
       caseId,
-      caseVersion:caseRecord.version,
+      caseVersion:stablePacket.case_record.version,
       database,
       eventType:"packet_generated",
       idempotencyKey:"demo-seed-arroyo-vista-packet-v1",
       note:"Fictional demo packet generated for local workflow validation.",
-      packet,
+      packet:stablePacket.packet,
+      packetInputRevision:stablePacket.packet_input_revision,
     });
     if (!("lifecycle" in transition)) throw new Error(`Demo packet generation failed: ${transition.kind}.`);
     lifecycle = transition.lifecycle;

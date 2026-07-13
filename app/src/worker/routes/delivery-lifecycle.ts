@@ -9,13 +9,16 @@ import { caseIdSchema } from "../cases/validation";
 import {
   deliveryTransitionReplayStatus,
   recordDeliveryTransition,
+  type ExpectedDeliveryLifecycle,
 } from "../delivery/repository";
 import { errorResponse } from "../lib/responses";
 import { sessionMiddleware } from "../middleware/session";
 import {
-  buildCurrentPacketPresentation,
+  buildStablePacketPresentation,
+  PacketInputChangedError,
   readPacketDeliveryContext,
 } from "../packet/service";
+import type { PacketInputRevision } from "../packet/revision";
 import type { WorkerEnv } from "../types";
 
 export const deliveryLifecycleRoutes = new Hono<WorkerEnv>();
@@ -74,24 +77,62 @@ deliveryLifecycleRoutes.post("/:caseId/delivery-lifecycle/transitions", async (c
     idempotencyKey: parsed.data.idempotency_key,
     note,
   });
+  let packetInputRevision: PacketInputRevision | undefined;
+  let expectedLifecycle: ExpectedDeliveryLifecycle | undefined;
   if (replayStatus === "none" && (
     parsed.data.event_type === "approved_for_delivery" ||
     parsed.data.event_type === "delivery_recorded"
   )) {
-    const packetContext = await readPacketDeliveryContext({
-      caseRecord: allowed.record,
-      database: context.env.DB,
-      evaluatedAt: new Date(),
-    });
+    let packetContext;
+    try {
+      packetContext = await readPacketDeliveryContext({
+        caseRecord: allowed.record,
+        database: context.env.DB,
+        evaluatedAt: new Date(),
+      });
+    } catch (error) {
+      if (error instanceof PacketInputChangedError) {
+        return errorResponse(context, 409, "PACKET_INPUTS_CHANGED", "Packet inputs changed during evaluation. Reload and try again.");
+      }
+      throw error;
+    }
     const isApplicableApproval =
       parsed.data.event_type === "approved_for_delivery" &&
       packetContext.lifecycle.current_state === "under_review";
     const isApplicableDelivery =
       parsed.data.event_type === "delivery_recorded" &&
       packetContext.lifecycle.current_state === "approved_for_delivery";
+
+    if (!isApplicableApproval && !isApplicableDelivery) {
+      return errorResponse(
+        context,
+        409,
+        "INVALID_DELIVERY_TRANSITION",
+        "That delivery lifecycle transition is not permitted from the current state.",
+      );
+    }
+
     const blocked =
       (isApplicableApproval && !packetContext.quality.eligible_for_approval) ||
       (isApplicableDelivery && !packetContext.quality.eligible_for_delivery);
+
+    packetInputRevision = packetContext.packet_input_revision;
+    const activePacketGenerationId =
+      packetContext.lifecycle.active_packet_generation_id;
+    const latestSequence = packetContext.lifecycle.latest_event?.sequence;
+    if (!activePacketGenerationId || latestSequence === undefined) {
+      return errorResponse(
+        context,
+        409,
+        "INVALID_DELIVERY_TRANSITION",
+        "That delivery lifecycle transition is not permitted from the current state.",
+      );
+    }
+    expectedLifecycle = {
+      activePacketGenerationId,
+      sequence: latestSequence,
+      state: packetContext.lifecycle.current_state,
+    };
 
     if (blocked) {
       const action = isApplicableApproval ? "approval" : "delivery";
@@ -112,21 +153,34 @@ deliveryLifecycleRoutes.post("/:caseId/delivery-lifecycle/transitions", async (c
   }
 
   let packet;
-  if (parsed.data.event_type === "packet_generated") {
-    packet = await buildCurrentPacketPresentation({
-      caseRecord: allowed.record,
-      database: context.env.DB,
-      generatedAt: new Date(),
-    });
+  let caseVersion = allowed.record.version;
+  if (parsed.data.event_type === "packet_generated" && replayStatus === "none") {
+    try {
+      const stable = await buildStablePacketPresentation({
+        caseRecord: allowed.record,
+        database: context.env.DB,
+        generatedAt: new Date(),
+      });
+      packet = stable.packet;
+      caseVersion = stable.case_record.version;
+      packetInputRevision = stable.packet_input_revision;
+    } catch (error) {
+      if (error instanceof PacketInputChangedError) {
+        return errorResponse(context, 409, "PACKET_INPUTS_CHANGED", "Packet inputs changed during generation. Reload and try again.");
+      }
+      throw error;
+    }
   }
   const outcome = await recordDeliveryTransition({
-    actor: allowed.actor, caseId: allowed.record.id, caseVersion: allowed.record.version,
+    actor: allowed.actor, caseId: allowed.record.id, caseVersion,
     database: context.env.DB, eventType: parsed.data.event_type,
-    idempotencyKey: parsed.data.idempotency_key, note, packet,
+    idempotencyKey: parsed.data.idempotency_key, note, expectedLifecycle,
+    packet, packetInputRevision,
   });
   if (outcome.kind === "invalid_transition") return errorResponse(context, 409, "INVALID_DELIVERY_TRANSITION", "That delivery lifecycle transition is not permitted from the current state.");
   if (outcome.kind === "idempotency_conflict") return errorResponse(context, 409, "IDEMPOTENCY_KEY_REUSED", "The idempotency key was already used for a different request.");
   if (outcome.kind === "concurrent_transition") return errorResponse(context, 409, "DELIVERY_STATE_CHANGED", "The delivery lifecycle changed. Reload and try again.");
+  if (outcome.kind === "presentation_changed") return errorResponse(context, 409, "PACKET_INPUTS_CHANGED", "Packet inputs changed before the lifecycle event was recorded. Reload and try again.");
   if (!("lifecycle" in outcome)) return errorResponse(context, 500, "DELIVERY_TRANSITION_FAILED", "The delivery lifecycle could not be updated.");
   const packetContext = await readPacketDeliveryContext({
     caseRecord: allowed.record,

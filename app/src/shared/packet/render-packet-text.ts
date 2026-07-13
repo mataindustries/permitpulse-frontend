@@ -1,200 +1,216 @@
-import { packetSectionTitle } from "./presentation";
 import {
-  packetDashboard,
-  packetEvidenceMissingDetails,
-  packetTimelineChronology,
-  packetTimelineReviewLabel,
-} from "./presentation-summary";
+  assertCanonicalPacketPresentation,
+  buildPacketPresentation,
+  type CanonicalPacketPresentation,
+  type PacketPresentationBlock,
+} from "./presentation";
 import type { PacketModel } from "./types";
 
 function plainText(value: string): string {
-  return value
-    .replaceAll("&", "&amp;")
-    .replaceAll("<", "&lt;")
-    .replaceAll(">", "&gt;");
-}
-
-function addSection(lines: string[], title: string, body: string[]) {
-  lines.push("", title, "-".repeat(title.length), ...body);
-}
-
-function numberedItems(items: string[], emptyMessage: string): string[] {
-  return items.length > 0
-    ? items.map((item, index) => `${index + 1}. ${plainText(item)}`)
-    : [emptyMessage];
-}
-
-export function renderPacketText(model: PacketModel): string {
-  const dashboard = packetDashboard(model);
-  const lines = [
-    "PERMITPULSE",
-    ...(model.demonstration_notice ? [model.demonstration_notice] : []),
-    plainText(model.title),
-    `Status: ${model.document_status_label}`,
-    `Generated: ${model.generated_at_label}`,
-    `Packet version: ${model.packet_version}`,
-    model.draft_notice,
-  ];
-
-  addSection(lines, "Executive Dashboard", [
-    `Executive Summary: ${plainText(model.executive_summary.text)}`,
-    `Current position: ${plainText(model.action_kit?.current_position??model.executive_summary.text)}`,
-    ...(model.action_kit?[`What the record confirms: ${plainText(model.action_kit.confirmed_record)}`,`What the record does not confirm: ${plainText(model.action_kit.unconfirmed_record)}`,`Primary unresolved issue: ${plainText(model.action_kit.primary_blocker)}`,`Why this next step is appropriate: ${plainText(model.action_kit.why_appropriate)}`,`Packet evidence readiness: ${plainText(model.action_kit.evidence_readiness)}`,`Jurisdiction position: ${plainText(model.action_kit.review_readiness)}`]:[]),
-    ...model.executive_summary.key_risks.map((item) => `Key Risk: ${plainText(item)}`),
-    ...model.executive_summary.key_strengths.map((item) => `Key Strength: ${plainText(item)}`),
-    `Investigation state: ${plainText(dashboard.permit_status)} (not a jurisdiction disposition)`,
-    `Investigation health: ${dashboard.mission_health.label} (${dashboard.mission_health.completed} of ${dashboard.mission_health.total} checks complete)`,
-    `Packet readiness: ${dashboard.readiness.completed} of ${dashboard.readiness.total} checks complete`,
-    "Packet readiness checks:",
-    ...dashboard.factors.map((factor) => `  [${factor.passed ? "PASS" : "OPEN"}] ${plainText(factor.label)} — ${plainText(factor.detail)}`),
-    "Packet-readiness conditions:",
-    ...(dashboard.blockers.length > 0
-      ? dashboard.blockers.map(
-          (item, index) =>
-            `  ${index + 1}. ${plainText(item.title)} — ${plainText(item.resolution)}`,
-        )
-      : ["  No packet-readiness conditions remain. Open findings do not indicate jurisdiction resolution."]),
-    `Recommended next action: ${plainText(dashboard.recommended_action.title)}`,
-    `Action context: ${plainText(dashboard.recommended_action.detail)}`,
-    `Evidence summary: ${plainText(dashboard.evidence.text)}`,
-    `Evidence counts: verified ${dashboard.evidence.verified}; unverified ${dashboard.evidence.unverified}; disputed ${dashboard.evidence.disputed}; provenance issues ${dashboard.evidence.provenance_issues}`,
-    ...model.warnings.map((item) => `Packet note: ${plainText(item.text)}`),
-  ]);
-
-  addSection(lines, "Packet Metadata", [
-    `Packet version: ${model.packet_version}`,
-    `Generation date: ${model.generated_at_label}`,
-    `Lifecycle status: ${dashboard.lifecycle_status}`,
-    `Reviewer status: ${dashboard.reviewer_status}`,
-    `Packet integrity / version: ${dashboard.integrity} · deterministic render`,
-  ]);
-
-  addSection(lines,"Recommended Next Actions",numberedItems(model.recommended_next_actions.items.map(item=>`${item.text}${item.citation_references.length?` (Supported by ${item.citation_references.join(", ")})`:""}`),model.recommended_next_actions.empty_message));
-  if(model.action_kit){const kit=model.action_kit;addSection(lines,"Agency Follow-Up Kit",[
-    `Subject: ${plainText(kit.email_subject)}`,`Recommended contact: ${plainText(kit.recipient_role)}`,"Message:",plainText(kit.message_body),`Supported by: ${kit.citation_references.join(", ")}`,
-    "Requested confirmations:",...kit.requested_confirmations.map((x,i)=>`  ${i+1}. ${plainText(x)}`),"Call script:",...kit.call_checklist.map((x,i)=>`  ${i+1}. ${plainText(x)}`),"Documents to have ready:",...(kit.documents_ready.length ? kit.documents_ready.map((x,i)=>`  ${i+1}. ${plainText(x)}`) : ["  Use only the cited packet sources listed above."]),`Escalation summary: ${plainText(kit.escalation_trigger)}`,`Recommended next contact: ${plainText(kit.recipient_role)}`,...(kit.follow_up_date?[`Follow-up / review date: ${kit.follow_up_date}`]:[]),
-  ]);} else { addSection(lines, "Agency Follow-Up Kit", ["No reviewer-approved findings support an Agency Follow-Up Kit for this edition."]); }
-
-  addSection(
-    lines,
-    packetSectionTitle("case_overview"),
-    model.case_overview.map(
-      (item) =>
-        `${plainText(item.label)}: ${plainText(item.information_class === "missing_information" ? "Pending record entry" : item.value)}`,
-    ),
+  return value.replace(
+    /[\u0000-\u0008\u000B\u000C\u000E-\u001F\u007F]/g,
+    " ",
   );
+}
 
-  addSection(lines, "Current Status — Case Workflow and Packet Readiness", [
-    `Case workflow status: ${plainText(model.current_status.label)}`,
-    `Investigation state: ${plainText(dashboard.permit_status)}`,
-    `Packet readiness: ${dashboard.readiness.completed} of ${dashboard.readiness.total} checks complete`,
-    "Jurisdiction resolution: Not established by packet readiness.",
-    `Case record updated: ${model.case_summary.updated_at_label}`,
-  ]);
+function unsupportedPacketBlock(block: never): never {
+  const kind = (block as { kind?: unknown }).kind;
+  throw new Error(`Unsupported canonical packet block: ${String(kind)}`);
+}
 
-  addSection(lines,"Evidence Matrix",model.evidence_summaries.map(item=>`${item.reference} | ${plainText(item.title)} | ${item.evidence_type_label} | ${item.source.date_label} | ${item.verification_label} | ${plainText(item.source.label??"Source label pending")} | Contributor: ${plainText(item.contributor_label ?? "Contributor not recorded")} | ${plainText(item.summary)}`));
+function numbered(items: readonly string[]): string[] {
+  return items.map((item, index) => `${index + 1}. ${plainText(item)}`);
+}
 
-  addSection(
-    lines,
-    packetSectionTitle("evidence_register"),
-    model.evidence_summaries.length > 0
-      ? model.evidence_summaries.flatMap((item, index) => {
-          const missing = packetEvidenceMissingDetails(item);
+function blockLines(block: PacketPresentationBlock): string[] {
+  switch (block.kind) {
+    case "cover":
+      return [
+        "PERMITPULSE · PERMIT INTELLIGENCE",
+        plainText(block.title),
+        `Project: ${plainText(block.project_name)}`,
+        `Location: ${plainText(block.location)}`,
+        `Prepared for: ${plainText(block.client_name)}`,
+        `Jurisdiction: ${plainText(block.jurisdiction)}`,
+        `Permit identifier: ${plainText(block.permit_identifier)}`,
+        `Packet status: ${plainText(block.lifecycle_status)} / ${plainText(block.packet_status)}`,
+        `Packet version: ${block.packet_version}`,
+        `Generated: ${plainText(block.generated_at_label)}`,
+        plainText(block.draft_notice),
+      ];
+    case "executive_summary":
+      return [
+        plainText(block.summary),
+        ...block.decision_lines.map(
+          (item) => `${item.label}: ${plainText(item.value)}`,
+        ),
+        ...block.key_risks.map((item) => `Key risk: ${plainText(item)}`),
+        ...block.key_strengths.map((item) => `Key strength: ${plainText(item)}`),
+      ];
+    case "case_snapshot":
+      return [
+        ...block.facts.map(
+          (item) =>
+            `${plainText(item.label)}: ${plainText(item.information_class === "missing_information" ? "Pending record entry" : item.value)}`,
+        ),
+        `Case workflow status: ${plainText(block.workflow_status)}`,
+        `Investigation state: ${plainText(block.investigation_state)}`,
+        `Packet Readiness: ${plainText(block.packet_readiness)}`,
+        plainText(block.resolution_notice),
+        `Case record updated: ${plainText(block.record_updated_at)}`,
+      ];
+    case "editorial_list":
+      return block.items.length > 0
+        ? block.items.map(
+            (item, index) =>
+              `${index + 1}. ${plainText(item.text)}${item.citation_references.length > 0 ? ` (Supported by ${item.citation_references.join(", ")})` : ""}`,
+          )
+        : [plainText(block.empty_message)];
+    case "dependency_map":
+      return block.items.length > 0
+        ? block.items.flatMap((item, index) => [
+            `${index + 1}. Discipline: ${plainText(item.discipline)}`,
+            `   Blocking issue: ${plainText(item.blocking_issue)}`,
+            `   Dependent review: ${plainText(item.dependent_review)}`,
+            `   Recommended next step: ${plainText(item.recommended_next_step)}`,
+            `   Supported by: ${item.citation_references.join(", ")}`,
+          ])
+        : [plainText(block.empty_message)];
+    case "action_kit": {
+      const kit = block.kit;
+      if (!kit) return [plainText(block.empty_message)];
 
-          return [
-            `${item.reference}. ${plainText(item.title)}`,
-            `   Type: ${item.evidence_type_label}`,
-            `   Classification: ${item.verification_label}`,
+      return [
+        `Subject: ${plainText(kit.email_subject)}`,
+        `Recommended contact: ${plainText(kit.recipient_role)}`,
+        "Message:",
+        plainText(kit.message_body),
+        `Supported by: ${kit.citation_references.join(", ")}`,
+        "Requested confirmations:",
+        ...numbered(kit.requested_confirmations).map((item) => `  ${item}`),
+        "Call script:",
+        ...numbered(kit.call_checklist).map((item) => `  ${item}`),
+        "Documents to have ready:",
+        ...(kit.documents_ready.length > 0
+          ? numbered(kit.documents_ready).map((item) => `  ${item}`)
+          : ["  Use only the cited packet sources listed above."]),
+        `Escalation summary: ${plainText(kit.escalation_trigger)}`,
+        `Recommended next contact: ${plainText(kit.recipient_role)}`,
+        ...(kit.follow_up_date
+          ? [`Follow-up / review date: ${plainText(kit.follow_up_date)}`]
+          : []),
+      ];
+    }
+    case "timeline":
+      return block.items.length > 0
+        ? block.items.flatMap((entry, index) => [
+            `${index + 1}. ${plainText(entry.occurred_on_label)} — ${plainText(entry.title)}`,
+            `   Event type: ${plainText(entry.timeline_type_label)}`,
+            `   Record classification: ${plainText(entry.source_label)}`,
+            `   Review status: ${plainText(entry.review_label)}`,
+            `   Details: ${plainText(entry.details)}`,
+            `   Supporting evidence: ${entry.linked_evidence.length > 0 ? entry.linked_evidence.map((item) => `${plainText(item.title)} (${plainText(item.verification_label)})`).join("; ") : "No supporting evidence linked; evidence linkage has not been recorded"}`,
+          ])
+        : [plainText(block.empty_message)];
+    case "evidence":
+      return block.items.length > 0
+        ? block.items.flatMap((item, index) => [
+            `${index + 1}. ${item.reference} — ${plainText(item.title)}`,
+            `   Type: ${plainText(item.evidence_type_label)}`,
+            `   Classification: ${plainText(item.verification_label)}`,
             `   Summary: ${plainText(item.summary)}`,
             ...(item.source.label
               ? [`   Source: ${plainText(item.source.label)}`]
               : []),
             ...(item.source.date
-              ? [`   Source date: ${item.source.date_label}`]
+              ? [`   Source date: ${plainText(item.source.date_label)}`]
               : []),
             `   Contributor: ${plainText(item.contributor_label ?? "Contributor not recorded")}`,
-            ...(item.source.url
-              ? [`   Provenance: ${plainText(item.source.url)}`]
+            ...(item.source_href
+              ? [`   Provenance: ${plainText(item.source_href)}`]
               : []),
-            ...(missing.length > 0
-              ? [`   Source details pending: ${missing.join(", ")}.`]
+            ...(item.missing_details.length > 0
+              ? [`   Source details pending: ${item.missing_details.join(", ")}.`]
               : []),
-            `   Reviewer note: ${item.verification_note}`,
-          ];
-        })
-      : [
-          "Evidence register not yet assembled. No evidence records are included in this packet.",
-        ],
+            `   Reviewer note: ${plainText(item.verification_note)}`,
+          ])
+        : [plainText(block.empty_message)];
+    case "sources":
+      return block.items.length > 0
+        ? block.items.flatMap((source, index) => [
+            `${index + 1}. ${plainText(source.title)}`,
+            `   Source: ${plainText(source.label_display)}`,
+            `   Date: ${plainText(source.date_display)}`,
+            `   Verification: ${plainText(source.verification_label)}`,
+            `   Contributor: ${plainText(source.contributor_label ?? "Contributor not recorded")}`,
+            `   Provenance: ${plainText(source.source_href ?? "Digital provenance not recorded")}`,
+          ])
+        : [plainText(block.empty_message)];
+    case "readiness": {
+      const dashboard = block.dashboard;
+      return [
+        plainText(block.conclusion),
+        plainText(block.methodology),
+        `Investigation state: ${plainText(dashboard.permit_status)} (not a jurisdiction disposition)`,
+        `Investigation Health: ${plainText(dashboard.mission_health.label)} (${dashboard.mission_health.completed} of ${dashboard.mission_health.total} checks complete)`,
+        `Packet Readiness: ${dashboard.readiness.completed} of ${dashboard.readiness.total} checks complete`,
+        "Packet-readiness conditions:",
+        ...(dashboard.blockers.length > 0
+          ? dashboard.blockers.map(
+              (item, index) =>
+                `  ${index + 1}. ${plainText(item.title)} — ${plainText(item.resolution)}`,
+            )
+          : [
+              "  No packet-readiness conditions remain. Open agency findings do not indicate jurisdiction resolution.",
+            ]),
+        `Recommended next action: ${plainText(dashboard.recommended_action.title)}`,
+        `Action context: ${plainText(dashboard.recommended_action.detail)}`,
+        `Evidence summary: ${plainText(dashboard.evidence.text)}`,
+        `Evidence counts: verified ${dashboard.evidence.verified}; unverified ${dashboard.evidence.unverified}; disputed ${dashboard.evidence.disputed}; provenance issues ${dashboard.evidence.provenance_issues}`,
+        "Packet Readiness checks:",
+        ...dashboard.factors.map(
+          (factor) =>
+            `  [${factor.passed ? "PASS" : "OPEN"}] ${plainText(factor.label)} — ${plainText(factor.detail)}`,
+        ),
+        ...block.warnings.map((warning) => `Packet note: ${plainText(warning)}`),
+        ...block.metadata.map(
+          (item) => `${plainText(item.label)}: ${plainText(item.value)}`,
+        ),
+        `Use limitation: ${plainText(block.disclaimer)}`,
+      ];
+    }
+    case "disclosure":
+      return [plainText(block.text)];
+    default:
+      return unsupportedPacketBlock(block);
+  }
+}
+
+export function renderPacketTextPresentation(
+  presentation: CanonicalPacketPresentation,
+): string {
+  assertCanonicalPacketPresentation(presentation);
+  const lines: string[] = [];
+
+  presentation.sections.forEach((section) => {
+    lines.push(
+      ...(lines.length > 0 ? [""] : []),
+      section.title,
+      "-".repeat(section.title.length),
+      ...(section.intro ? [plainText(section.intro)] : []),
+      ...section.blocks.flatMap(blockLines),
+    );
+  });
+
+  lines.push(
+    "",
+    "PermitPulse · Permit intelligence",
+    plainText(presentation.footer),
   );
-
-  addSection(
-    lines,
-    packetSectionTitle("permit_timeline"),
-    model.timeline_summaries.length > 0
-      ? packetTimelineChronology(model).flatMap((entry, index) => {
-          const linked = entry.linked_evidence.length > 0
-            ? entry.linked_evidence
-                .map(
-                  (item) =>
-                    `${plainText(item.title)} (${item.verification_label})`,
-                )
-                .join("; ")
-            : "No supporting evidence linked; evidence linkage has not been recorded";
-
-          return [
-            `${entry.reference}. ${entry.occurred_on_label} — ${plainText(entry.title)}`,
-            `   Event type: ${entry.timeline_type_label}`,
-            `   Record classification: ${entry.source_label}`,
-            `   Review status: ${packetTimelineReviewLabel(entry)}`,
-            `   Details: ${plainText(entry.details)}`,
-            `   Supporting evidence: ${linked}`,
-          ];
-        })
-      : [
-          "Permit history not yet assembled. No permit timeline events are included in this packet.",
-        ],
-  );
-
-  addSection(
-    lines,
-    packetSectionTitle("findings"),
-    [...numberedItems(
-      model.findings.items.map((item) => `${item.text}${item.citation_references.length?` (Supported by ${item.citation_references.join(", ")})`:""}`),
-      model.findings.empty_message,
-    ), ...(model.agency_dependencies ?? []).flatMap((item, index) => [
-      `Agency dependency ${index + 1}:`,
-      `  Discipline: ${plainText(item.discipline)}`,
-      `  ↓ Blocking issue: ${plainText(item.blocking_issue)}`,
-      `  ↓ Dependent review: ${plainText(item.dependent_review)}`,
-      `  ↓ Recommended next step: ${plainText(item.recommended_next_step)} (Supported by ${item.citation_references.join(", ")})`,
-    ])],
-  );
-
-  addSection(
-    lines,
-    packetSectionTitle("open_questions"),
-    numberedItems(
-      model.open_questions.items.map((item) => item.text),
-      model.open_questions.empty_message,
-    ),
-  );
-
-  addSection(
-    lines,
-    packetSectionTitle("supporting_sources"),
-    model.supporting_sources.length > 0
-      ? model.supporting_sources.flatMap((source, index) => [
-          `${index + 1}. ${plainText(source.title)}`,
-          `   Source: ${plainText(source.label)}`,
-          `   Date: ${source.date_label}`,
-          `   Verification: ${source.verification_label}`,
-          `   Contributor: ${plainText(source.contributor_label ?? "Contributor not recorded")}`,
-          `   Provenance: ${plainText(source.url ?? "Digital provenance not recorded")}`,
-        ])
-      : ["Source log is empty. No supporting sources are included in this packet edition."],
-  );
-
-  addSection(lines, packetSectionTitle("disclaimer"), [model.disclaimer]);
 
   return lines.join("\n");
+}
+
+export function renderPacketText(model: PacketModel): string {
+  return renderPacketTextPresentation(buildPacketPresentation(model));
 }

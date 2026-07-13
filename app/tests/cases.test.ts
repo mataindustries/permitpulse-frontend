@@ -897,6 +897,56 @@ describe("case pagination", () => {
 });
 
 describe("case API response safety", () => {
+  it("rejects a cookie-authenticated write from an untrusted origin before persistence", async () => {
+    const client = await signUp(clientA);
+    const response = await request("/api/v1/cases", {
+      method: "POST",
+      headers: {
+        cookie: client.cookie,
+        "content-type": "application/json",
+        origin: "https://attacker.example.test",
+      },
+      body: JSON.stringify(fictionalCase),
+    });
+    const count = await env.DB.prepare(
+      "SELECT COUNT(*) AS count FROM cases",
+    ).first<{ count: number }>();
+
+    expect(response.status).toBe(403);
+    expect(await response.json()).toMatchObject({
+      ok: false,
+      error: { code: "INVALID_ORIGIN" },
+    });
+    expect(count?.count).toBe(0);
+  });
+
+  it("does not trust a different Codespaces origin merely because it is same-site", async () => {
+    const client = await signUp(clientA);
+    const response = await app.request(
+      "https://victim-workspace.app.github.dev/api/v1/cases",
+      {
+        method: "POST",
+        headers: {
+          cookie: client.cookie,
+          "content-type": "application/json",
+          origin: "https://attacker-workspace.app.github.dev",
+        },
+        body: JSON.stringify(fictionalCase),
+      },
+      bindings(),
+    );
+    const count = await env.DB.prepare(
+      "SELECT COUNT(*) AS count FROM cases",
+    ).first<{ count: number }>();
+
+    expect(response.status).toBe(403);
+    expect(await response.json()).toMatchObject({
+      ok: false,
+      error: { code: "INVALID_ORIGIN" },
+    });
+    expect(count?.count).toBe(0);
+  });
+
   it("does not expose session, password, account, or participant internals", async () => {
     const client = await signUp(clientA);
     const createResponse = await postCase(client.cookie, fictionalCase);

@@ -1,5 +1,7 @@
 import {
   packetDisclaimer,
+  packetDraftNotice,
+  packetPresentationVersion,
   packetSectionOrder,
   type PacketModel,
 } from "../packet/types";
@@ -100,7 +102,7 @@ function packet(
   overrides: Partial<PacketModel> = {},
 ): PacketModel {
   return {
-    presentation_version: 2,
+    presentation_version: packetPresentationVersion,
     section_order: [...packetSectionOrder],
     title: "Permit Review Packet",
     packet_version: 2,
@@ -109,7 +111,7 @@ function packet(
     document_status: "draft",
     document_status_label: "DRAFT",
     is_internal_draft: false,
-    draft_notice: "Prepared for client review. Confirm source records and jurisdiction requirements before delivery.",
+    draft_notice: packetDraftNotice,
     executive_summary: {
       text: `This packet assembles records for Fictional ${fixtureId} project.`,
       information_class: "client_provided_information",

@@ -98,7 +98,7 @@ export async function handleAuthRequest(context: Context<WorkerEnv>) {
   }
 
   try {
-    const auth = createAuth(context.env);
+    const auth = createAuth(context.env, context.req.url);
     const pathname = new URL(context.req.url).pathname;
 
     if (
