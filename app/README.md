@@ -33,9 +33,9 @@ pilot user is invited:
 
 1. Use the reviewed `preview` environment for the controlled pilot. Do not
    enable the production environment as a shortcut.
-2. Confirm the intended D1 database ID and private R2 bucket binding in
-   `wrangler.jsonc`; do not accept an accidentally auto-provisioned blank
-   production database.
+2. Create the dedicated preview D1 database and private preview R2 bucket
+   manually. Resolve the D1 ID into the ignored `.wrangler.preview.jsonc`
+   file; no account-specific resource ID belongs in the tracked config.
 3. Apply all migrations through `0010_evidence_intake.sql` to that exact D1
    database, then verify Wrangler reports no pending migration.
 4. Store a unique, high-entropy `BETTER_AUTH_SECRET` with Wrangler secret input;
@@ -57,6 +57,296 @@ pilot user is invited:
 10. Run the complete release validation matrix and the Android smoke checklist
     against the deployed origin using only fictional data before inviting a
     controlled operator cohort.
+
+## Controlled-pilot preview deployment runbook
+
+This is a manual preview release. It does not enable production, create live-AI
+or external-delivery capabilities, or authorize Wrangler to provision missing
+resources. Run remote commands only during an approved release window. The
+tracked top-level configuration remains production-auth-disabled; the named
+`preview` environment uses a separate Worker, D1 database, and R2 bucket.
+
+### 1. Create the preview resources manually
+
+Authenticate to the intended Cloudflare account and confirm the account before
+creating anything:
+
+```bash
+npx wrangler whoami
+npx wrangler d1 create permitpulse-case-workspace-preview --location wnam
+npx wrangler r2 bucket create permitpulse-evidence-files-preview --location wnam
+```
+
+Choose a different reviewed location only when the pilot's data residency
+requires it. Record the D1 UUID returned by Cloudflare. Do not commit it. In the
+R2 dashboard, open `permitpulse-evidence-files-preview` and verify both Public
+Development URL (`r2.dev`) and Custom Domains are disabled. R2 objects are
+served only through the authenticated Worker route; the application has no
+public bucket URL setting.
+
+Set the non-secret deployment inputs in the release shell. The origin must be
+the exact HTTPS origin the browser will use:
+
+```bash
+export PERMITPULSE_PREVIEW_D1_DATABASE_ID='<D1 UUID returned above>'
+export PERMITPULSE_PREVIEW_ORIGIN='https://permitpulse-case-workspace-preview.<account-subdomain>.workers.dev'
+```
+
+Generate the ignored, mode-`0600` resolved config and validate it. The command
+does not print the resource ID or any secret value:
+
+```bash
+npm run preview:config
+npm run preflight:preview:resolved
+```
+
+`.wrangler.preview.jsonc` is ignored by Git. `npm run deploy:preview` disables
+Wrangler automatic provisioning and automatic reconfiguration, so a missing or
+incorrect resource fails the release instead of creating an accidental blank
+database or bucket.
+
+### 2. Apply and verify migrations through 0010
+
+Inspect the pending list, apply it to the resolved preview binding, then require
+an empty pending list:
+
+```bash
+npm run db:migrate:preview:list
+npm run db:migrate:preview
+npm run db:migrate:preview:list
+```
+
+Verify the migration ledger and the final Evidence Inbox table explicitly:
+
+```bash
+npx wrangler d1 execute DB \
+  --env preview \
+  --remote \
+  --config .wrangler.preview.jsonc \
+  --no-x-provision \
+  --command "SELECT id, name, applied_at FROM d1_migrations ORDER BY id; SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'evidence_drafts';"
+```
+
+The ledger must list exactly `0001_create_cases.sql` through
+`0010_evidence_intake.sql`, and the second query must return
+`evidence_drafts`. Do not deploy if either check differs.
+
+Before applying migrations to an existing pilot database, capture a D1 export:
+
+```bash
+npx wrangler d1 export DB \
+  --env preview \
+  --remote \
+  --config .wrangler.preview.jsonc \
+  --output /tmp/permitpulse-preview-before-migration.sql
+```
+
+### 3. Prepare the required authentication secret
+
+For the first deployment, upload the required secret atomically with the
+reviewed Vite build. This avoids `wrangler secret put` creating an earlier
+Worker version from the source configuration. Create a temporary mode-`0600`
+dotenv file containing exactly one line,
+`BETTER_AUTH_SECRET=<unique high-entropy value>`:
+
+```bash
+umask 077
+${EDITOR:-vi} /tmp/permitpulse-preview-secrets.env
+npm run preflight:preview:secret-file
+```
+
+Generate the value with a cryptographically secure secret manager or
+`openssl rand -base64 48`. Do not reuse a local or production credential, or
+paste the value into source, `vars`, shell arguments, tickets, or logs. The
+preflight checks the filename, permissions, only allowed key, and minimum
+length without printing the value. The runtime independently rejects secrets
+shorter than 32 bytes. Preview authentication also fails closed unless
+`BETTER_AUTH_URL` is a path-free HTTPS origin. Public signup and development
+APIs remain disabled.
+
+### 4. Deploy preview
+
+With the two `PERMITPULSE_PREVIEW_*` shell inputs still set, make the first
+deployment with the permission-checked secret file:
+
+```bash
+npm run deploy:preview:first
+rm /tmp/permitpulse-preview-secrets.env
+npx wrangler secret list \
+  --env preview \
+  --config .wrangler.preview.jsonc
+```
+
+This command prepares the ignored config, builds specifically with
+`CLOUDFLARE_ENV=preview`, reruns the resolved preflight, and deploys the Vite
+build output with `--secrets-file`, `--no-x-provision`, `--no-autoconfig`, and
+`--strict`. Confirm the secret list includes `BETTER_AUTH_SECRET`. Subsequent
+preview code deployments use `npm run deploy:preview`; Wrangler preserves the
+already-configured encrypted secret. Do not replace either command with a bare
+`wrangler deploy`, which could target the disabled top-level environment.
+
+After deployment, verify `/api/health`, the configured HTTPS origin, secure
+cookie attributes, R2 privacy, Workers Logs, and the Android checklist below
+before admitting a pilot user.
+
+### 5. Create the first administrator and permanently close bootstrap
+
+The only first-admin path is `POST /api/internal/bootstrap-admin`. It is
+preview-only, requires an empty user table, a one-time D1 claim, a temporary
+secret, and an explicit build-time switch. The tracked/default switch is
+`false`.
+
+Generate and store a separate temporary token interactively:
+
+```bash
+openssl rand -base64 48
+npx wrangler secret put ADMIN_BOOTSTRAP_TOKEN \
+  --env preview \
+  --config .wrangler.preview.jsonc
+export PERMITPULSE_PREVIEW_BOOTSTRAP_ENABLED=true
+npm run deploy:preview
+```
+
+Call the endpoint exactly once with a password of at least 12 characters. Keep
+the token and password in temporary, non-history shell variables or a reviewed
+secret manager; the request body accepts only `email`, `name`, and `password`:
+
+```bash
+read -r -s -p 'Bootstrap token: ' PERMITPULSE_BOOTSTRAP_TOKEN
+export PERMITPULSE_BOOTSTRAP_TOKEN
+umask 077
+${EDITOR:-vi} /tmp/permitpulse-bootstrap-admin.json
+curl --fail-with-body \
+  -H 'content-type: application/json' \
+  -H "authorization: Bearer ${PERMITPULSE_BOOTSTRAP_TOKEN}" \
+  --data-binary @/tmp/permitpulse-bootstrap-admin.json \
+  "${PERMITPULSE_PREVIEW_ORIGIN}/api/internal/bootstrap-admin"
+rm /tmp/permitpulse-bootstrap-admin.json
+unset PERMITPULSE_BOOTSTRAP_TOKEN
+```
+
+The temporary JSON file must contain one fictional-pilot administrator object,
+for example `{"email":"...","name":"...","password":"..."}`. Never commit
+or retain that file.
+
+Sign in as the administrator and confirm the role before closing bootstrap.
+Then remove the enablement variable, redeploy the default disabled config,
+delete the temporary secret, and require a `404` from the endpoint:
+
+```bash
+unset PERMITPULSE_PREVIEW_BOOTSTRAP_ENABLED
+npm run deploy:preview
+npx wrangler secret delete ADMIN_BOOTSTRAP_TOKEN \
+  --env preview \
+  --config .wrangler.preview.jsonc
+curl --output /dev/null --silent --write-out '%{http_code}\n' \
+  -X POST "${PERMITPULSE_PREVIEW_ORIGIN}/api/internal/bootstrap-admin"
+```
+
+The final command must print `404`. Leave bootstrap disabled permanently. A
+failed create after the D1 claim is intentionally fail-closed; investigate the
+database and release logs rather than deleting the claim and retrying casually.
+
+### 6. R2/D1 reconciliation and cleanup
+
+Normal failed uploads remove the just-written R2 object with bounded retries.
+Draft deletion first claims the D1 rows, deletes the private R2 objects, and
+then deletes the claimed rows; a stale claim becomes retryable after five
+minutes. A prolonged R2 outage can still require manual reconciliation, and a
+D1 failure after successful R2 deletion can leave a draft row that references
+a missing object.
+
+For reconciliation, pause uploads and bulk deletion, export the D1 inventory,
+and compare exact `storage_key` values with the private bucket object inventory
+in the Cloudflare dashboard:
+
+```bash
+npx wrangler d1 execute DB \
+  --env preview \
+  --remote \
+  --config .wrangler.preview.jsonc \
+  --no-x-provision \
+  --command "SELECT id, owner_user_id, storage_key, queue_state, moved_to_evidence_id, updated_at FROM evidence_drafts ORDER BY storage_key;"
+```
+
+- If D1 references a missing object, preserve the row and investigate the
+  request ID/logs. A stale delete claim may be retried through the authenticated
+  UI; do not fabricate or replace private evidence.
+- If an R2 object has no matching D1 row, wait for in-flight requests to finish,
+  repeat both inventories, record the key and decision in the incident log,
+  then delete only that confirmed orphan through the R2 dashboard or
+  `npx wrangler r2 object delete 'permitpulse-evidence-files-preview/<exact-key>'`.
+- Never log object contents, signed/private URLs, cookies, filenames containing
+  private data, or secret values. Do not enable `r2.dev` for reconciliation.
+
+### 7. Rollback
+
+Pause pilot access and list recent preview Worker versions:
+
+```bash
+npx wrangler versions list --name permitpulse-case-workspace-preview
+npx wrangler rollback '<KNOWN_GOOD_VERSION_ID>' \
+  --name permitpulse-case-workspace-preview \
+  --message 'Controlled-pilot rollback'
+```
+
+Verify health, authentication, and the affected workflow after rollback. D1
+migrations are forward-only: do not run down migrations, delete migration-ledger
+rows, or restore an older D1 snapshot merely to match rolled-back code. If a
+schema/data incident is suspected, stop writes, preserve the pre-migration
+export and R2 inventory, and conduct a separate reviewed recovery. Secrets are
+not removed by an ordinary code rollback; bootstrap must still remain disabled.
+
+### 8. Android controlled-pilot smoke checklist
+
+Use Chrome on a supported Android phone against the deployed HTTPS preview
+origin with fictional data only:
+
+1. Confirm the TLS page loads with no certificate or mixed-content warning.
+2. Confirm public signup is unavailable and an unauthenticated workspace/API
+   request returns `401` or the safe sign-in surface.
+3. Sign in with the controlled account; inspect the session cookie and confirm
+   `Secure`, `HttpOnly`, `SameSite=Lax`, and the `permitpulse` prefix.
+4. Rotate the phone and verify no page-wide horizontal overflow; only intended
+   tab strips/tables may scroll. Confirm touch targets and keyboard focus remain
+   usable at narrow width.
+5. Create/open a fictional case and confirm another controlled account cannot
+   discover it by URL or identifier.
+6. Upload one small fictional PDF or image from Android Files. Confirm the
+   private preview opens only while authenticated and downloads as an
+   attachment with `nosniff`.
+7. Try an unsupported or malformed file and confirm the safe validation error;
+   confirm no draft/object appears.
+8. Move evidence into an authorized case, exercise timeline/reviewer state,
+   and confirm stale-version conflicts require reload rather than overwrite.
+9. Generate Packet Preview and download the PDF; confirm canonical section
+   order, page readability, and no clipped identifiers or controls.
+10. Exercise the delivery lifecycle only through allowed transitions and
+    confirm confirmation prompts remain usable on touch.
+11. Open AI Review and verify `live_ai=false` and `external_calls=false`; do not
+    enter sensitive data into the deterministic draft surface.
+12. Trigger one safe validation error and confirm its response includes a
+    request ID that can be found in Workers Logs without secret, cookie, upload
+    content, or private URL disclosure.
+13. Sign out, use Back, refresh, and directly revisit a private file/API URL;
+    confirm the authenticated workspace and evidence are no longer available.
+14. Confirm the bootstrap endpoint returns `404`, the R2 bucket remains private,
+    and no development/demo route is reachable from the deployed hostname.
+
+### Known controlled-pilot limitations
+
+- No participant-assignment UI or general user-management UI; administrator
+  provisioning and support remain controlled operations.
+- No account/case deletion workflow and no automatic cross-store orphan job.
+- Evidence parsing is deterministic validation/classification only; there is no
+  OCR and no live or external AI.
+- PDFs are generated on demand and are not stored as immutable R2 artifacts.
+- No email delivery, billing, client-sharing portal, OAuth, or automated
+  notification path.
+- Case detail has no deep-link router, and Android behavior still requires the
+  deployed-origin smoke pass above.
+- Logs and request IDs aid diagnosis but do not replace an approved retention,
+  redaction, alerting, incident-response, and access-control policy.
 
 ## Canonical fictional demo case
 
@@ -739,24 +1029,11 @@ timeline entry; the next mutation uses the refreshed `version`.
 
 ## Preview admin bootstrap procedure
 
-Perform these remote steps only during an approved preview release window:
-
-1. Generate a bootstrap token with a cryptographically secure tool, for example
-   `openssl rand -base64 32`.
-2. Store it only through Wrangler secret input:
-   `npx wrangler secret put ADMIN_BOOTSTRAP_TOKEN --env preview`.
-3. Set `ADMIN_BOOTSTRAP_ENABLED=true` temporarily for the preview environment.
-4. Apply and verify every migration through `0010_evidence_intake.sql` on the
-   intended preview D1 database.
-5. Deploy the preview Worker.
-6. Call `POST /api/internal/bootstrap-admin` exactly once with an
-   `Authorization: Bearer <token>` header and JSON body containing only
-   `email`, `name`, and `password`.
-7. Verify the created user can sign in as an admin.
-8. Immediately set `ADMIN_BOOTSTRAP_ENABLED=false`.
-9. Redeploy preview.
-10. Delete the bootstrap secret with Wrangler.
-11. Verify `POST /api/internal/bootstrap-admin` is unavailable afterward.
+Use only the first-administrator sequence in the controlled-pilot preview
+deployment runbook above. The tracked switch is disabled; the ignored resolved
+config enables it only while `PERMITPULSE_PREVIEW_BOOTSTRAP_ENABLED=true` is
+explicitly present in the release shell, and the preflight requires the
+temporary token secret only for that build.
 
 The endpoint is preview-only, requires a valid Better Auth configuration,
 requires an empty `user` table, creates no session, and returns only `id`,
@@ -1321,7 +1598,7 @@ npm run test:auth
 npm run typecheck
 npm test
 npm run build
-npm run build:preview
+npm run preflight:preview
 npm run ai:eval:local
 git diff --check
 ```
@@ -1338,17 +1615,21 @@ private R2 binding is verified, and a unique preview secret is added
 interactively:
 
 ```bash
-npx wrangler secret put BETTER_AUTH_SECRET --env preview
+npm run preflight:preview:secret-file
+npm run deploy:preview:first
 ```
 
-That command shape intentionally contains no secret value. Authentication fails
-closed when the secret or origin is invalid. First-administrator bootstrap must
-use the temporary, one-shot procedure above and be disabled immediately after
-the account is created.
+The permission-checked temporary secret-file procedure intentionally prints no
+secret value. Authentication fails closed when the secret or origin is invalid.
+First-administrator bootstrap must use the temporary, one-shot procedure above
+and be disabled immediately after the account is created.
 
-Preview builds can still be validated locally without deploying:
+After the manual D1 resource has been created, preview builds can be validated
+without deploying by setting the two non-secret release inputs first:
 
 ```bash
+export PERMITPULSE_PREVIEW_D1_DATABASE_ID='<D1 UUID>'
+export PERMITPULSE_PREVIEW_ORIGIN='https://<reviewed-preview-origin>'
 npm run build:preview
 ```
 

@@ -44,5 +44,10 @@ export function logDevelopmentError(
     return;
   }
 
-  console.error(message, { requestId: context.get("requestId") });
+  console.error(JSON.stringify({
+    environment: getPublicEnvironment(context.env.APP_ENV),
+    event: "worker_request_error",
+    message,
+    request_id: context.get("requestId"),
+  }));
 }
