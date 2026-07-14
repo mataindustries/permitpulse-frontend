@@ -907,6 +907,16 @@ figure {
   color: #a6b9af;
 }
 
+.packet-email-link {
+  display: block;
+  width: fit-content;
+  margin-top: 16px;
+  color: var(--jade);
+  font-size: 0.78rem;
+  font-weight: 850;
+  text-underline-offset: 4px;
+}
+
 .packet-gallery {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -1021,6 +1031,11 @@ figure {
   max-width: 720px;
   margin: 24px auto 0;
   color: #9cb0a5;
+}
+
+.final-card > .cta-support {
+  margin-top: 16px;
+  font-size: 0.78rem;
 }
 
 .site-footer {

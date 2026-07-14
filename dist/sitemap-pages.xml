@@ -55,9 +55,7 @@
   <url><loc>https://getpermitpulse.com/free-csv.html</loc></url>
   <url><loc>https://getpermitpulse.com/es/free-csv.html</loc></url>
 
-  <!-- Booking / conversion -->
-  <url><loc>https://getpermitpulse.com/book</loc><changefreq>weekly</changefreq><priority>0.7</priority></url>
-  <url><loc>https://getpermitpulse.com/booking.html</loc><changefreq>weekly</changefreq><priority>0.6</priority></url>
+  <!-- Conversion tools -->
   <url><loc>https://getpermitpulse.com/snapshot/</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
 
   <!-- LA core categories (EN) -->

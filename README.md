@@ -36,7 +36,7 @@ PermitPulse combines a static outreach site with a Cloudflare-hosted case worksp
 - `/sample-report/` – Legacy redirect to the canonical sample packet
 - `/radar/` – Free tools / radar
 - `/pricing/` – Pricing (if present)
-- `/book` or `/booking.html` – Booking / intake (if present)
+- `/#contact` – Direct packet-walkthrough email CTA
 
 ## Payments and intake
 

@@ -46,8 +46,10 @@
 /es/ayuda-permisos-los-angeles  /es/ayuda-permisos-los-angeles.html 200
 /es/ayuda-permisos-los-angeles/ /es/ayuda-permisos-los-angeles.html 200
 
-# Retired/alternate route aliases
-/book                      /booking.html                      301
+# Retired booking routes → homepage contact action
+/book                      /#contact                         301
+/book/                     /#contact                         301
+/booking.html              /#contact                         301
 /permits/california/pasadena /california/jurisdictions/pasadena/ 301
 /permits/california/pasadena/ /california/jurisdictions/pasadena/ 301
 /building-permits/california/pasadena /california/jurisdictions/pasadena/ 301
