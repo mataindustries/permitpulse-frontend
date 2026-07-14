@@ -16,6 +16,7 @@
     "deploy:preview:first": "npm run preflight:preview:secret-file && npm run build:preview && npm run preflight:preview:resolved && wrangler deploy --config dist/permitpulse_case_workspace/wrangler.json --secrets-file /tmp/permitpulse-preview-secrets.env --no-x-provision --no-autoconfig --strict",
     "deploy:preview": "npm run build:preview && npm run preflight:preview:resolved && wrangler deploy --config dist/permitpulse_case_workspace/wrangler.json --no-x-provision --no-autoconfig --strict",
     "demo:seed:local": "node scripts/seed-demo-case.mjs",
+    "demo:seed:preview": "node scripts/seed-preview-demo.mjs",
     "dev": "vite",
     "preview": "vite preview",
     "preview:config": "node scripts/preview-deployment.mjs prepare",

@@ -367,6 +367,136 @@ does not delete other cases, and leaves `LADBS-FICTIONAL-2026-1842` in
 `packet_generated` for manual review, approval, and PDF-export testing. The
 endpoint is unavailable in preview and production.
 
+### One-time canonical demo seed for preview
+
+The deployed preview has a separate internal seed endpoint at
+`POST /api/internal/seed-arroyo-vista`. It returns `404` unless
+`APP_ENV=preview` and the temporary `PREVIEW_DEMO_SEED_ENABLED` switch is
+exactly `true`. An enabled request must also have a valid preview administrator
+session, the exact confirmation body, the trusted application origin, and a
+temporary high-entropy `PREVIEW_DEMO_SEED_TOKEN` Wrangler secret. This does not
+enable `/api/dev/*`, public signup, or any unauthenticated demo route.
+
+From an Android-connected Codespace terminal, keep the existing
+`PERMITPULSE_PREVIEW_D1_DATABASE_ID` and `PERMITPULSE_PREVIEW_ORIGIN` exports
+used for preview deployments, then run the following sequence. These are
+operator commands: no repository script deploys or changes remote D1 by
+itself.
+
+```bash
+cd /workspaces/permitpulse-frontend/app
+export PERMITPULSE_PREVIEW_BOOTSTRAP_ENABLED=false
+export PERMITPULSE_PREVIEW_DEMO_SEED_ENABLED=false
+npm run preview:config
+
+umask 077
+openssl rand -base64 48 > /tmp/permitpulse-preview-seed-token
+npx wrangler secret put PREVIEW_DEMO_SEED_TOKEN \
+  --env preview \
+  --config .wrangler.preview.jsonc \
+  < /tmp/permitpulse-preview-seed-token
+
+export PERMITPULSE_PREVIEW_DEMO_SEED_ENABLED=true
+npm run deploy:preview
+
+read -r -p 'Preview administrator email: ' PERMITPULSE_DEMO_ADMIN_EMAIL
+read -r -s -p 'Preview administrator password: ' PERMITPULSE_DEMO_ADMIN_PASSWORD
+printf '\n'
+export PERMITPULSE_DEMO_ADMIN_EMAIL PERMITPULSE_DEMO_ADMIN_PASSWORD
+export PERMITPULSE_PREVIEW_SEED_TOKEN_FILE=/tmp/permitpulse-preview-seed-token
+npm run demo:seed:preview
+npm run demo:seed:preview
+```
+
+The first seed prints `outcome: "created"` when the case is absent, or
+`"reconciled"` when canonical records were repaired. The immediate replay must
+print `outcome: "already_current"`, with no additional case, evidence,
+timeline, reviewer, or lifecycle rows. The response and remote smoke check also
+report 9 evidence records, 8 timeline events, 4 approved findings, 5 open
+questions, 5 stored approved actions, 3 Agency Dependency Map entries, a ready
+Action Kit, `packet_generated`, presentation v3, renderer v4, a current
+persisted snapshot, zero packet blockers, more than three PDF pages, and these
+populated PDF sections:
+
+```text
+Findings
+Agency Dependency Map
+Open Questions
+Recommended Next Actions
+Agency Follow-Up Kit
+Timeline
+Supporting Evidence
+```
+
+Run this read-only verification query against preview. It does not expose user
+credentials or alter remote data:
+
+```bash
+npx wrangler d1 execute DB \
+  --env preview \
+  --remote \
+  --config .wrangler.preview.jsonc \
+  --no-x-provision \
+  --command "WITH target AS (
+    SELECT id FROM cases WHERE permit_number='LADBS-FICTIONAL-2026-1842'
+  ), latest AS (
+    SELECT * FROM delivery_lifecycle_events
+    WHERE case_id=(SELECT id FROM target)
+    ORDER BY sequence DESC LIMIT 1
+  )
+  SELECT
+    (SELECT COUNT(*) FROM target) AS case_count,
+    (SELECT COUNT(*) FROM evidence_items WHERE case_id=(SELECT id FROM target) AND deleted_at IS NULL) AS evidence_count,
+    (SELECT COUNT(*) FROM timeline_entries WHERE case_id=(SELECT id FROM target) AND deleted_at IS NULL) AS timeline_count,
+    (SELECT COUNT(*) FROM reviewer_findings WHERE case_id=(SELECT id FROM target) AND approved=1) AS approved_findings,
+    (SELECT COUNT(*) FROM reviewer_questions WHERE case_id=(SELECT id FROM target) AND publishable=1 AND status IN ('open','waiting')) AS open_questions,
+    (SELECT COUNT(*) FROM reviewer_actions WHERE case_id=(SELECT id FROM target) AND approved=1) AS approved_actions,
+    (SELECT COUNT(*) FROM reviewer_action_kits WHERE case_id=(SELECT id FROM target) AND approved=1) AS approved_action_kit,
+    (SELECT resulting_state FROM latest) AS lifecycle_state,
+    (SELECT json_extract(snapshot_json,'$.presentation_version') FROM packet_generations WHERE id=(SELECT packet_generation_id FROM latest)) AS presentation_version,
+    (SELECT json_array_length(json_extract(snapshot_json,'$.agency_dependencies')) FROM packet_generations WHERE id=(SELECT packet_generation_id FROM latest)) AS agency_dependencies;
+  "
+```
+
+Expected values are `1, 9, 8, 4, 5, 5, 1, packet_generated, 3, 3` in the
+selected column order. Existing administrator and unrelated case rows remain
+untouched.
+
+Immediately after the seed and verification, disable the gate before deleting
+its secret. If any seed or verification step fails, run this shutdown block
+before investigating:
+
+```bash
+export PERMITPULSE_PREVIEW_DEMO_SEED_ENABLED=false
+npm run deploy:preview
+npx wrangler secret delete PREVIEW_DEMO_SEED_TOKEN \
+  --env preview \
+  --config .wrangler.preview.jsonc
+rm -f /tmp/permitpulse-preview-seed-token
+unset PERMITPULSE_PREVIEW_SEED_TOKEN_FILE
+unset PERMITPULSE_DEMO_ADMIN_PASSWORD PERMITPULSE_DEMO_ADMIN_EMAIL
+curl --output /dev/null --silent --write-out '%{http_code}\n' \
+  -X POST "${PERMITPULSE_PREVIEW_ORIGIN}/api/internal/seed-arroyo-vista"
+curl --output /dev/null --silent --write-out '%{http_code}\n' \
+  -X POST "${PERMITPULSE_PREVIEW_ORIGIN}/api/dev/cases/demo/arroyo-vista"
+```
+
+Both final commands must print `404`. Confirm `npx wrangler secret list --env
+preview --config .wrangler.preview.jsonc` no longer lists
+`PREVIEW_DEMO_SEED_TOKEN`.
+
+For the Android smoke pass, open the preview HTTPS origin in Chrome, sign in as
+the administrator, and open `Arroyo Vista ADU Resubmittal`. Confirm nine
+evidence cards and eight canonical timeline events, then open Packet Preview
+and verify Findings, Agency Dependency Map, Open Questions, Recommended Next
+Actions, Agency Follow-Up Kit, Timeline, Supporting Evidence, and Supporting
+Sources are populated. Download and open the PDF, rotate the phone, zoom each
+page, and confirm those sections, the fictional disclosure, source labels, and
+the `Presentation v3 · renderer v4` integrity line are readable without
+clipping. Sign out, use Back, refresh, and confirm the case and PDF are no
+longer accessible. Finally confirm the two shutdown probes above still return
+`404` and ordinary authenticated case isolation remains unchanged.
+
 ## AI Review provider scaffold and evaluation foundation
 
 The PermitPulse Packet Review Assistant remains disabled for real live-AI use.
@@ -614,6 +744,10 @@ and no live model call occurs in normal operation, tests, builds, or evaluation.
   admin bootstrap switch
 - `ADMIN_BOOTSTRAP_TOKEN`: preview-only one-time bootstrap credential stored as
   a Wrangler secret; at least 32 high-entropy bytes
+- `PREVIEW_DEMO_SEED_ENABLED`: `false` by default; temporary preview-only
+  canonical Arroyo Vista seed switch
+- `PREVIEW_DEMO_SEED_TOKEN`: temporary preview-only high-entropy authorization
+  stored as a Wrangler secret and deleted immediately after the seed
 - `AI_REVIEW_PROVIDER`: defaults to `deterministic-baseline`; live selection is
   local-test-only in this milestone
 - `AI_REVIEW_LIVE_ENABLED`, `AI_REVIEW_EXTERNAL_CALLS_ENABLED`, and

@@ -33,7 +33,8 @@
 		"AUTH_ALLOW_SIGNUP": "false",
 		"AUTH_ENABLED": "false",
 		"BETTER_AUTH_URL": "https://workspace.getpermitpulse.com",
-		"ENABLE_DEV_CASE_API": "false"
+		"ENABLE_DEV_CASE_API": "false",
+		"PREVIEW_DEMO_SEED_ENABLED": "false"
 	},
 	"d1_databases": [
 		{
@@ -73,7 +74,8 @@
 				"AUTH_ALLOW_SIGNUP": "false",
 				"AUTH_ENABLED": "true",
 				"BETTER_AUTH_URL": "https://permitpulse-case-workspace-preview.matasergio741.workers.dev",
-				"ENABLE_DEV_CASE_API": "false"
+				"ENABLE_DEV_CASE_API": "false",
+				"PREVIEW_DEMO_SEED_ENABLED": "false"
 			},
 			"d1_databases": [
 				{

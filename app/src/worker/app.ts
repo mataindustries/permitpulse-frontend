@@ -12,6 +12,7 @@ import { missionIntelligenceRoutes } from "./routes/mission-intelligence";
 import { workspaceRoutes } from "./routes/workspace";
 import { deliveryLifecycleRoutes } from "./routes/delivery-lifecycle";
 import { reviewerRoutes } from "./routes/reviewer";
+import { previewDemoSeedRoutes } from "./routes/preview-demo-seed";
 import { evidenceInboxRoutes } from "./routes/evidence-inbox";
 import { applicationOriginMiddleware } from "./middleware/application-origin";
 import type { WorkerEnv } from "./types";
@@ -34,11 +35,13 @@ app.use("/api/*", async (context, next) => {
 
 app.use("/api/v1/*", applicationOriginMiddleware);
 app.use("/api/dev/*", applicationOriginMiddleware);
+app.use("/api/internal/seed-arroyo-vista", applicationOriginMiddleware);
 
 app.on(["GET", "POST"], "/api/auth/*", handleAuthRequest);
 app.route("/api/config/auth", authConfigRoutes);
 app.route("/api/health", healthRoutes);
 app.route("/api/internal/bootstrap-admin", bootstrapAdminRoutes);
+app.route("/api/internal/seed-arroyo-vista", previewDemoSeedRoutes);
 app.route("/api/dev/cases", developmentCaseRoutes);
 app.route("/api/v1/cases", caseRoutes);
 app.route("/api/v1/cases", deliveryLifecycleRoutes);

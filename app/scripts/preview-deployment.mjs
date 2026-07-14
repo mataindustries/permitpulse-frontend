@@ -79,8 +79,8 @@ async function validateConfig(config, { resolved }) {
   if (config.vars?.APP_ENV !== "production" || config.vars?.AUTH_ENABLED !== "false") {
     fail("the top-level production configuration must remain authentication-disabled.");
   }
-  if (config.vars?.AUTH_ALLOW_SIGNUP !== "false" || config.vars?.ENABLE_DEV_CASE_API !== "false") {
-    fail("production signup and development APIs must remain disabled.");
+  if (config.vars?.AUTH_ALLOW_SIGNUP !== "false" || config.vars?.ENABLE_DEV_CASE_API !== "false" || config.vars?.PREVIEW_DEMO_SEED_ENABLED !== "false") {
+    fail("production signup, development APIs, and preview demo seed must remain disabled.");
   }
 
   const preview = config.env?.preview;
@@ -107,7 +107,7 @@ async function validateConfig(config, { resolved }) {
   if (!requiredSecrets.includes("BETTER_AUTH_SECRET")) {
     fail("preview must declare BETTER_AUTH_SECRET as required.");
   }
-  if ("BETTER_AUTH_SECRET" in vars || "ADMIN_BOOTSTRAP_TOKEN" in vars) {
+  if ("BETTER_AUTH_SECRET" in vars || "ADMIN_BOOTSTRAP_TOKEN" in vars || "PREVIEW_DEMO_SEED_TOKEN" in vars) {
     fail("secrets must not appear in preview vars.");
   }
   const bootstrapEnabled = vars.ADMIN_BOOTSTRAP_ENABLED === "true";
@@ -116,6 +116,13 @@ async function validateConfig(config, { resolved }) {
   }
   if (bootstrapEnabled !== requiredSecrets.includes("ADMIN_BOOTSTRAP_TOKEN")) {
     fail("ADMIN_BOOTSTRAP_TOKEN must be required exactly while bootstrap is enabled.");
+  }
+  const demoSeedEnabled = vars.PREVIEW_DEMO_SEED_ENABLED === "true";
+  if (vars.PREVIEW_DEMO_SEED_ENABLED !== "false" && !demoSeedEnabled) {
+    fail("PREVIEW_DEMO_SEED_ENABLED must be exactly true or false.");
+  }
+  if (demoSeedEnabled !== requiredSecrets.includes("PREVIEW_DEMO_SEED_TOKEN")) {
+    fail("PREVIEW_DEMO_SEED_TOKEN must be required exactly while preview demo seed is enabled.");
   }
 
   const database = requiredBinding(preview.d1_databases, "DB", "preview D1");
@@ -156,13 +163,20 @@ async function prepare() {
     process.env.PERMITPULSE_PREVIEW_BOOTSTRAP_ENABLED,
     "PERMITPULSE_PREVIEW_BOOTSTRAP_ENABLED",
   );
+  const demoSeedEnabled = requireExactBoolean(
+    process.env.PERMITPULSE_PREVIEW_DEMO_SEED_ENABLED,
+    "PERMITPULSE_PREVIEW_DEMO_SEED_ENABLED",
+  );
   const config = await readConfig(sourceConfigPath);
   config.env.preview.vars.BETTER_AUTH_URL = origin;
   config.env.preview.vars.ADMIN_BOOTSTRAP_ENABLED = bootstrapEnabled;
+  config.env.preview.vars.PREVIEW_DEMO_SEED_ENABLED = demoSeedEnabled;
   config.env.preview.d1_databases[0].database_id = databaseId;
-  config.env.preview.secrets.required = bootstrapEnabled === "true"
-    ? ["BETTER_AUTH_SECRET", "ADMIN_BOOTSTRAP_TOKEN"]
-    : ["BETTER_AUTH_SECRET"];
+  config.env.preview.secrets.required = [
+    "BETTER_AUTH_SECRET",
+    ...(bootstrapEnabled === "true" ? ["ADMIN_BOOTSTRAP_TOKEN"] : []),
+    ...(demoSeedEnabled === "true" ? ["PREVIEW_DEMO_SEED_TOKEN"] : []),
+  ];
   await validateConfig(config, { resolved: true });
   await writeFile(resolvedConfigPath, `${JSON.stringify(config, null, 2)}\n`, {
     mode: 0o600,

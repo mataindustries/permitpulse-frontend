@@ -19,6 +19,8 @@ export interface Bindings {
   DB: D1Database;
   EVIDENCE_FILES?: R2Bucket;
   ENABLE_DEV_CASE_API: string;
+  PREVIEW_DEMO_SEED_ENABLED?: string;
+  PREVIEW_DEMO_SEED_TOKEN?: string;
 }
 
 export interface AuthenticatedUser {

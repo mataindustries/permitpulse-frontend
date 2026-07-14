@@ -1,6 +1,8 @@
 APP_ENV=local
 ADMIN_BOOTSTRAP_ENABLED=false
 ADMIN_BOOTSTRAP_TOKEN=replace-with-preview-wrangler-secret-generated-by-openssl-rand-base64-32
+PREVIEW_DEMO_SEED_ENABLED=false
+PREVIEW_DEMO_SEED_TOKEN=replace-with-temporary-preview-seed-token
 AUTH_ALLOW_SIGNUP=true
 AUTH_ENABLED=true
 BETTER_AUTH_SECRET=replace-with-output-from-openssl-rand-base64-32
