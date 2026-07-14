@@ -125,7 +125,7 @@ function blockLines(block: PacketPresentationBlock): string[] {
             ...(item.source.date
               ? [`   Source date: ${plainText(item.source.date_label)}`]
               : []),
-            `   Contributor: ${plainText(item.contributor_label ?? "Contributor not recorded")}`,
+            `   ${item.attribution_label}: ${plainText(item.contributor_label ?? "Contributor not recorded")}`,
             ...(item.source_href
               ? [`   Provenance: ${plainText(item.source_href)}`]
               : []),
@@ -142,7 +142,7 @@ function blockLines(block: PacketPresentationBlock): string[] {
             `   Source: ${plainText(source.label_display)}`,
             `   Date: ${plainText(source.date_display)}`,
             `   Verification: ${plainText(source.verification_label)}`,
-            `   Contributor: ${plainText(source.contributor_label ?? "Contributor not recorded")}`,
+            `   ${source.attribution_label}: ${plainText(source.contributor_label ?? "Contributor not recorded")}`,
             `   Provenance: ${plainText(source.source_href ?? "Digital provenance not recorded")}`,
           ])
         : [plainText(block.empty_message)];

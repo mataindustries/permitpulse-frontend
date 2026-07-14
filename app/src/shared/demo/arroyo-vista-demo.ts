@@ -2,6 +2,7 @@ import type { CreateCaseInput, CreateEvidenceInput, CreateTimelineInput } from "
 import type { ActionInput, ActionKitInput, FindingInput, NoteInput, QuestionInput } from "../../worker/reviewer/validation";
 
 export const arroyoVistaDemoPermitNumber = "LADBS-FICTIONAL-2026-1842";
+export const arroyoVistaDemoReviewerLabel = "PermitPulse Analyst";
 
 export const arroyoVistaDemoCase = {
   project_name: "Arroyo Vista ADU Resubmittal",

@@ -25,6 +25,10 @@ import {
 } from "./types";
 import { evaluateMissionIntelligence } from "../mission-intelligence/evaluate";
 import { buildMissionFacts, isCompleteEvidenceSource } from "../mission-intelligence/facts";
+import {
+  arroyoVistaDemoPermitNumber,
+  arroyoVistaDemoReviewerLabel,
+} from "../demo/arroyo-vista-demo";
 
 const caseStatusLabels: Record<PacketCaseStatus, string> = {
   intake: "Intake",
@@ -300,7 +304,19 @@ export function buildPacketModel({
     ? cleanDemonstrationLabel
     : (value: string) => value;
   const sortedEvidence = [...evidence].sort(compareEvidence);
-  const evidenceSummaries = sortedEvidence.map((item,index)=>evidenceSummary(item,`E${String(index+1).padStart(2,"0")}`,displayLabel));
+  const isCanonicalArroyoVistaDemo =
+    isDemonstration && caseRecord.permit_number === arroyoVistaDemoPermitNumber;
+  const evidenceSummaries = sortedEvidence.map((item, index) => {
+    const summary = evidenceSummary(
+      item,
+      `E${String(index + 1).padStart(2, "0")}`,
+      displayLabel,
+    );
+
+    return isCanonicalArroyoVistaDemo
+      ? { ...summary, contributor_label: arroyoVistaDemoReviewerLabel }
+      : summary;
+  });
   const evidenceById = new Map(
     evidenceSummaries.map((item) => [item.id, item]),
   );

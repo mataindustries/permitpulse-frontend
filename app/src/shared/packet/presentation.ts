@@ -20,6 +20,10 @@ import {
   packetTimelineReviewLabel,
   type PacketDashboard,
 } from "./presentation-summary";
+import {
+  arroyoVistaDemoPermitNumber,
+  arroyoVistaDemoReviewerLabel,
+} from "../demo/arroyo-vista-demo";
 
 export interface PacketPresentationEditorialItem {
   citation_references: string[];
@@ -32,11 +36,13 @@ export interface PacketPresentationTimelineItem extends PacketTimelineSummary {
 }
 
 export interface PacketPresentationEvidenceItem extends PacketEvidenceSummary {
+  attribution_label: "Contributor" | "Reviewed by";
   missing_details: string[];
   source_href: string | null;
 }
 
 export interface PacketPresentationSourceItem extends PacketSupportingSource {
+  attribution_label: "Contributor" | "Reviewed by";
   date_display: string;
   label_display: string;
   source_href: string | null;
@@ -243,7 +249,7 @@ function assertPacketBlock(block: PacketPresentationBlock): void {
         typeof block.empty_message === "string" && Array.isArray(block.items) &&
           block.items.every(
             (item) => [item?.id, item.reference, item.title, item.summary, item.evidence_type_label,
-              item.verification_label, item.verification_note].every(
+              item.verification_label, item.verification_note, item.attribution_label].every(
               (value) => typeof value === "string",
             ) && isStringArray(item.missing_details) &&
               (item.source_href === null || typeof item.source_href === "string") &&
@@ -257,7 +263,9 @@ function assertPacketBlock(block: PacketPresentationBlock): void {
         typeof block.empty_message === "string" && Array.isArray(block.items) &&
           block.items.every(
             (item) => [item?.id, item.title, item.label_display, item.date_display,
-              item.verification_label].every((value) => typeof value === "string") &&
+              item.verification_label, item.attribution_label].every(
+                (value) => typeof value === "string",
+              ) &&
               (item.source_href === null || typeof item.source_href === "string"),
           ),
         "sources block is malformed",
@@ -445,6 +453,13 @@ function sectionBlocks(
   model: PacketPresentationModel,
   dashboard: PacketDashboard,
 ): PacketPresentationBlock[] {
+  const usesCanonicalDemoReviewerAttribution =
+    Boolean(model.demonstration_notice?.trim()) &&
+    model.permit_number === arroyoVistaDemoPermitNumber;
+  const attributionLabel = usesCanonicalDemoReviewerAttribution
+    ? "Reviewed by" as const
+    : "Contributor" as const;
+
   switch (id) {
     case "cover":
       return [{
@@ -534,6 +549,10 @@ function sectionBlocks(
           "Supporting evidence is not yet assembled. No evidence records are included in this packet.",
         items: model.evidence_summaries.map((item) => ({
           ...item,
+          attribution_label: attributionLabel,
+          contributor_label: usesCanonicalDemoReviewerAttribution
+            ? arroyoVistaDemoReviewerLabel
+            : item.contributor_label,
           missing_details: packetEvidenceMissingDetails(item),
           source_href: safePacketHref(item.source.url),
         })),
@@ -545,6 +564,10 @@ function sectionBlocks(
           "Source log is empty. No supporting sources are included in this packet edition.",
         items: model.supporting_sources.map((item) => ({
           ...item,
+          attribution_label: attributionLabel,
+          contributor_label: usesCanonicalDemoReviewerAttribution
+            ? arroyoVistaDemoReviewerLabel
+            : item.contributor_label,
           date_display:
             item.date_label === "Not provided" ? "Source date pending" : item.date_label,
           label_display:

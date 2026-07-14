@@ -568,7 +568,7 @@ function drawDependencyMap(
     }
     drawParagraph(state, `DEPENDENCY ${String(index + 1).padStart(2, "0")}`, { indent: 14, width: contentWidth - 28, font: state.boldFont, color: colors.orange, size: 6.5, lineHeight: 12, paragraphGap: 2 });
     lines.forEach(([label, value], lineIndex) => {
-      drawParagraph(state, `${lineIndex > 0 ? "DOWN / " : ""}${label.toUpperCase()}`, { indent: 14, width: contentWidth - 28, font: state.boldFont, color: colors.jade, size: 6.2, lineHeight: 10 });
+      drawParagraph(state, label.toUpperCase(), { indent: 14, width: contentWidth - 28, font: state.boldFont, color: colors.jade, size: 6.2, lineHeight: 10 });
       drawParagraph(state, value, { indent: 22, width: contentWidth - 44, font: lineIndex === 3 ? state.boldFont : state.bodyFont, color: lineIndex === 3 ? colors.jadeDark : colors.ink, size: 8, lineHeight: 10, paragraphGap: 3 });
     });
     if (height <= usableHeight - 20) state.y = top - height - 10;
@@ -700,7 +700,7 @@ function drawEvidence(
   block.items.forEach((item, index) => {
     const metadata = [
       ...(item.source.label?.trim() ? [`Source: ${item.source.label}`] : []),
-      `Contributor: ${item.contributor_label ?? "Contributor not recorded"}`,
+      `${item.attribution_label}: ${item.contributor_label ?? "Contributor not recorded"}`,
       ...(item.source.date ? [`Source date: ${item.source.date_label}`] : []),
       ...(item.source_href ? [`Provenance: ${item.source_href}`] : []),
       ...(item.missing_details.length > 0 ? [`Source details pending: ${item.missing_details.join(", ")}.`] : []),
@@ -743,7 +743,7 @@ function drawSources(
     const lines = [
       source.title,
       `${source.label_display} / ${source.date_display}`,
-      `Contributor: ${source.contributor_label ?? "Contributor not recorded"}`,
+      `${source.attribution_label}: ${source.contributor_label ?? "Contributor not recorded"}`,
       `Provenance: ${source.source_href ?? "Digital provenance not recorded"}`,
       `Review: ${source.verification_label}`,
     ];

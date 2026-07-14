@@ -202,7 +202,7 @@ function PacketBlock({ block }: { block: PacketPresentationBlock }): ReactNode {
               <p className="packet-evidence-summary">{item.summary}</p>
               <dl className="packet-client-meta">
                 {item.source.label?.trim() && <div><dt>Source</dt><dd>{item.source.label}</dd></div>}
-                <div><dt>Contributor</dt><dd>{item.contributor_label ?? "Contributor not recorded"}</dd></div>
+                <div><dt>{item.attribution_label}</dt><dd>{item.contributor_label ?? "Contributor not recorded"}</dd></div>
                 {item.source.date && <div><dt>Source date</dt><dd>{item.source.date_label}</dd></div>}
                 {item.source_href && <div><dt>Provenance</dt><dd><a href={item.source_href} rel="noreferrer noopener" target="_blank">{item.source_href}</a></dd></div>}
               </dl>
@@ -218,7 +218,7 @@ function PacketBlock({ block }: { block: PacketPresentationBlock }): ReactNode {
           <div className="packet-source-list__heading" role="row"><span>Source record</span><span>Provenance</span><span>Review</span></div>
           {block.items.map((source, index) => (
             <div className="packet-source-list__row" role="row" key={source.id}>
-              <div><strong>{String(index + 1).padStart(2, "0")} / {source.title}</strong><small>{source.label_display} · {source.date_display} · {source.contributor_label ?? "Contributor not recorded"}</small></div>
+              <div><strong>{String(index + 1).padStart(2, "0")} / {source.title}</strong><small>{source.label_display} · {source.date_display} · {source.attribution_label}: {source.contributor_label ?? "Contributor not recorded"}</small></div>
               <div>{source.source_href ? <a href={source.source_href} rel="noreferrer noopener" target="_blank">{source.source_href}</a> : <span>Digital provenance not recorded</span>}</div>
               <div><span className="packet-pill">{source.verification_label}</span></div>
             </div>

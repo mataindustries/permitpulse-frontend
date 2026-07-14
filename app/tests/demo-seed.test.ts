@@ -3,7 +3,11 @@ import { decodePDFRawStream, PDFArray, PDFDocument, PDFRawStream } from "pdf-lib
 import { beforeEach, describe, expect, it } from "vitest";
 import { app } from "../src/worker/app";
 import type { Bindings } from "../src/worker/types";
-import { arroyoVistaDemoEvidence, arroyoVistaDemoPermitNumber } from "../src/shared/demo/arroyo-vista-demo";
+import {
+  arroyoVistaDemoEvidence,
+  arroyoVistaDemoPermitNumber,
+  arroyoVistaDemoReviewerLabel,
+} from "../src/shared/demo/arroyo-vista-demo";
 
 const origin="http://localhost";
 const previewOrigin="https://workspace-preview.getpermitpulse.com";
@@ -78,7 +82,8 @@ describe("canonical rich demo case",()=>{
     expect(packetBody.data.packet.agency_dependencies).toHaveLength(3);
     expect(packetBody.data.packet.action_kit).not.toBeNull();
     expect(packetBody.data.packet.evidence_summaries.every((item)=>item.verification_status==="verified"&&item.source.complete)).toBe(true);
-    expect(packetBody.data.packet.evidence_summaries.every((item)=>item.contributor_label&&item.contributor_label!=="Contributor not recorded")).toBe(true);
+    expect(packetBody.data.packet.evidence_summaries.every((item)=>item.contributor_label===arroyoVistaDemoReviewerLabel)).toBe(true);
+    expect(serialized).not.toContain("Sergio Mata");
     expect(packetBody.data.packet.evidence_summaries.find((item)=>item.title==="Client status inquiry")?.source).toMatchObject({label:"Client email record",complete:true});
     expect(packetBody.data.packet.evidence_summaries.find((item)=>item.title==="Reviewer routing email note")?.source).toMatchObject({label:"Agency routing email record",complete:true});
     const portalSummary=arroyoVistaDemoEvidence.find((item)=>item.key==="portal")!.summary;
@@ -94,6 +99,9 @@ describe("canonical rich demo case",()=>{
       expect(text).toContain("Receipt does not establish reviewer assignment");
       expect(text).toContain("Client email record");
       expect(text).toContain("Agency routing email record");
+      expect(text).toContain(`Reviewed by${extension === "html" ? "</dt><dd>" : ": "}${arroyoVistaDemoReviewerLabel}`);
+      expect(text).not.toContain("Sergio Mata");
+      expect(text).not.toContain("DOWN /");
       expect(text).not.toContain(`${portalSummary} ${portalSummary}`);
       expect(text).not.toContain("Source label pending");
       expect(text).not.toContain("Digital provenance not recorded");
@@ -108,6 +116,10 @@ describe("canonical rich demo case",()=>{
     const operators=pdfOperators(document);
     expect(operators).toContain(pdfHex("Client email record"));
     expect(operators).toContain(pdfHex("Agency routing email record"));
+    expect(operators).toContain(pdfHex(arroyoVistaDemoReviewerLabel));
+    expect(operators).toContain(pdfHex("Reviewed by"));
+    expect(operators).not.toContain(pdfHex("Sergio Mata"));
+    expect(operators).not.toContain(pdfHex("DOWN /"));
     for(const heading of ["Findings","Agency Dependency Map","Open Questions","Recommended Next Actions","Agency Follow-Up Kit","Timeline","Supporting Evidence"]){
       expect(operators).toContain(pdfHex(heading));
     }

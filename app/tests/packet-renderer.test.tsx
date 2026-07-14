@@ -47,6 +47,10 @@ import {
   packetSectionDefinitions,
   packetSectionOrder,
 } from "../src/shared/packet/types";
+import {
+  arroyoVistaDemoPermitNumber,
+  arroyoVistaDemoReviewerLabel,
+} from "../src/shared/demo/arroyo-vista-demo";
 import { PacketDocument } from "../src/shared/packet/PacketDocument";
 import {
   PacketPreview,
@@ -228,7 +232,7 @@ describe("canonical packet presentation architecture", () => {
       renderer_version: packetRendererVersion,
     }).toMatchInlineSnapshot(`
       {
-        "html_sha256": "e8ee366ccab0e81a076fa57a8e62f1dc0af6ef1912d64f0f0bba3c74a970bf46",
+        "html_sha256": "e7b3bae389dc95f062a7d01d82b5fb90c4b2d54cb981024982fa56ab3077c346",
         "pdf_sha256": "75b5f3e5871863afd82c3dc5c853cf27856a577fff429f0690ee3bb3e57332e1",
         "presentation_version": 3,
         "renderer_version": 4,
@@ -585,6 +589,97 @@ describe("canonical packet presentation architecture", () => {
 });
 
 describe("packet model builder", () => {
+  it("uses role-based reviewer attribution only for the canonical Arroyo Vista demo", async () => {
+    const canonicalDemo = buildPacketModel(completeInput({
+      caseRecord: {
+        ...caseRecord,
+        project_name: "Arroyo Vista ADU Resubmittal",
+        permit_number: arroyoVistaDemoPermitNumber,
+      },
+      editorialContent: {
+        findings: [{
+          id: "routing-risk",
+          text: "Routing remains unconfirmed in the cited record.",
+          title: "Routing confirmation",
+          finding_type: "risk",
+          recommended_resolution: "Confirm the assigned review queue.",
+          supporting_source_ids: [evidenceBase.id],
+          grounded: true,
+          reviewer_approved: true,
+        }],
+      },
+      evidence: [{
+        ...evidenceBase,
+        contributor: { id: "demo-contributor", name: "Sergio Mata" },
+        source_label: "LADBS permit portal record",
+      }],
+    }));
+    const presentation = buildPacketPresentation(canonicalDemo);
+    const preview = renderToStaticMarkup(
+      <PacketDocument presentation={presentation} />,
+    );
+    const html = renderPacketHtmlPresentation(presentation);
+    const text = renderPacketTextPresentation(presentation);
+    const pdf = await PDFDocument.load(
+      await renderPacketPdfPresentation(presentation),
+    );
+    const operators = pdf.getPages().map(decodedPageOperators).join("\n");
+
+    expect(JSON.stringify(canonicalDemo)).not.toContain("Sergio Mata");
+    expect(canonicalDemo.evidence_summaries[0]).toMatchObject({
+      contributor_label: arroyoVistaDemoReviewerLabel,
+      source: { label: "LADBS permit portal record" },
+    });
+    for (const output of [preview, html, text]) {
+      expect(output).toContain(arroyoVistaDemoReviewerLabel);
+      expect(output).toContain("Reviewed by");
+      expect(output).toContain("LADBS permit portal record");
+      expect(output).not.toContain("Sergio Mata");
+      expect(output).not.toContain("DOWN /");
+    }
+    expect(operators).toContain(pdfHex(arroyoVistaDemoReviewerLabel));
+    expect(operators).toContain(pdfHex("Reviewed by"));
+    expect(operators).toContain(pdfHex("LADBS permit portal record"));
+    expect(operators).not.toContain(pdfHex("Sergio Mata"));
+    expect(operators).not.toContain(pdfHex("DOWN /"));
+
+    const dependencyLabels = [
+      "Blocking issue",
+      "Dependent review",
+      "Recommended next step",
+      "Supported by",
+    ];
+    for (const label of dependencyLabels) {
+      expect(preview).toContain(label);
+      expect(html).toContain(label);
+      expect(text).toContain(label);
+      expect(operators).toContain(pdfHex(label.toUpperCase()));
+    }
+    expect(markupSectionIds(preview)).toEqual(packetSectionOrder);
+    expect(markupSectionIds(html)).toEqual(packetSectionOrder);
+    for (const { title } of packetSectionDefinitions) {
+      expect(text).toContain(title);
+      expect(operators).toContain(pdfHex(title === "Cover" ? "COVER" : title));
+    }
+
+    const realCase = buildPacketModel(completeInput({
+      caseRecord: {
+        ...caseRecord,
+        project_name: "Oak Street ADU",
+        permit_number: "REAL-2026-001",
+      },
+      evidence: [{
+        ...evidenceBase,
+        contributor: { id: "real-contributor", name: "Case Contributor" },
+      }],
+    }));
+    const realText = renderPacketText(realCase);
+    expect(realCase.evidence_summaries[0]?.contributor_label).toBe("Case Contributor");
+    expect(realText).toContain("Contributor: Case Contributor");
+    expect(realText).not.toContain(arroyoVistaDemoReviewerLabel);
+    expect(realText).not.toContain("Reviewed by: Case Contributor");
+  });
+
   it("keeps source-detail readiness wording and evidence counts identical across UI, HTML, text, and PDF", async () => {
     const evidence = Array.from({ length: 9 }, (_, index) => ({
       ...evidenceBase,
