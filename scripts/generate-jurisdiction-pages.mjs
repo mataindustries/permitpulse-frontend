@@ -1280,7 +1280,7 @@ function renderHeader() {
       <a href="/permits/">Permit directory</a>
       <a href="/california/jurisdictions/">California hub</a>
       <a href="/california-permit-history/">California search</a>
-      <a href="/mission-control/">Mission Control</a>
+      <a href="/#mission-control">Mission Control</a>
       <a href="/guides/">Guides</a>
       <a href="/free-tools/">Free tools</a>
     </nav>
@@ -1302,7 +1302,7 @@ function renderFooter() {
         <a href="/permits/" class="link-line">Permit directory</a>
         <a href="/california/jurisdictions/" class="link-line">California hub</a>
         <a href="/california-permit-history/" class="link-line">California search</a>
-        <a href="/mission-control/" class="link-line">Mission Control</a>
+        <a href="/#mission-control" class="link-line">Mission Control</a>
         <a href="/guides/" class="link-line">Guides</a>
         <a href="/free-tools/" class="link-line">Free tools</a>
       </div>
@@ -1594,7 +1594,7 @@ ${renderHeader()}
       <h1>Permit pages organized by state and jurisdiction.</h1>
       <p class="lead">PermitPulse generates this directory from the current shared jurisdiction catalog. Use it to find covered state pages, city permit portals, live-data support levels, and the right path into Mission Control.</p>
       <div class="btn-row">
-        <a class="btn btn-primary" href="/mission-control/">Open Mission Control</a>
+        <a class="btn btn-primary" href="/#mission-control">Open Mission Control</a>
         <a class="btn btn-secondary" href="/california-permit-history/">Open California permit search</a>
       </div>
       <div class="stats">
@@ -1727,7 +1727,7 @@ ${renderHeader()}
       <h1>${escapeHtml(state.stateName)} permit pages</h1>
       <p class="lead">${escapeHtml(`${state.stateName} currently has ${coverageCounts.total} covered jurisdictions in the PermitPulse catalog. ${coverageCounts.apiBacked} have live-data support, ${coverageCounts.portalOnly} are portal-only, and the current platform mix includes ${platformSummary}.`)}</p>
       <div class="btn-row">
-        <a class="btn btn-primary" href="/mission-control/">Open Mission Control</a>
+        <a class="btn btn-primary" href="/#mission-control">Open Mission Control</a>
         <a class="btn btn-secondary" href="/permits/">Browse all states</a>
       </div>
       <div class="stats">
@@ -1824,7 +1824,7 @@ ${renderHeader()}
       <div class="btn-row">
         ${entry.portalUrl ? `<a class="btn btn-primary" href="${escapeHtml(entry.portalUrl)}" target="_blank" rel="noopener">Open official permit portal</a>` : ''}
         <a class="btn btn-secondary" href="${buildBuildingPermitsCityPath(entry)}">Open building permits page</a>
-        <a class="btn btn-secondary" href="/mission-control/">Open Mission Control</a>
+        <a class="btn btn-secondary" href="/#mission-control">Open Mission Control</a>
         <a class="btn btn-secondary" href="${buildPermitsStatePath(entry.state)}">Back to ${escapeHtml(stateName)}</a>
       </div>
     </div>
@@ -1867,7 +1867,7 @@ ${renderHeader()}
           <p class="lead">${escapeHtml(copy.missionLead)}</p>
         </div>
         <div class="btn-row">
-          <a class="btn btn-primary" href="/mission-control/">Open Mission Control</a>
+          <a class="btn btn-primary" href="/#mission-control">Open Mission Control</a>
           <a class="btn btn-secondary" href="${buildPermitsStatePath(entry.state)}">Browse ${escapeHtml(stateName)} permit pages</a>
         </div>
       </div>
@@ -1885,7 +1885,7 @@ ${renderHeader()}
         <div class="page-card-actions" style="font-size:14px;">
           <a class="link-line" href="${buildBuildingPermitsCityPath(entry)}">${escapeHtml(entry.name)} building permits</a>
           <a class="link-line" href="${buildPermitsStatePath(entry.state)}">${escapeHtml(stateName)} permit directory</a>
-          <a class="link-line" href="/mission-control/">Mission Control</a>
+          <a class="link-line" href="/#mission-control">Mission Control</a>
           ${relatedEntries
             .map(
               (relatedEntry) =>
@@ -1931,7 +1931,7 @@ ${renderHeader()}
       <div class="btn-row">
         ${entry.portalUrl ? `<a class="btn btn-primary" href="${escapeHtml(entry.portalUrl)}" target="_blank" rel="noopener">Find building permits in official portal</a>` : ''}
         <a class="btn btn-secondary" href="${buildPermitsCityPath(entry)}">Open main permit page</a>
-        <a class="btn btn-secondary" href="/mission-control/">Open Mission Control</a>
+        <a class="btn btn-secondary" href="/#mission-control">Open Mission Control</a>
       </div>
     </div>
   </section>
@@ -1973,7 +1973,7 @@ ${renderHeader()}
         </div>
         <div class="btn-row">
           <a class="btn btn-primary" href="${buildPermitsCityPath(entry)}">Open main permit page</a>
-          <a class="btn btn-secondary" href="/mission-control/">Open Mission Control</a>
+          <a class="btn btn-secondary" href="/#mission-control">Open Mission Control</a>
           <a class="btn btn-secondary" href="${buildPermitsStatePath(entry.state)}">Browse ${escapeHtml(stateName)}</a>
         </div>
       </div>
@@ -1991,7 +1991,7 @@ ${renderHeader()}
         <div class="page-card-actions" style="font-size:14px;">
           <a class="link-line" href="${buildPermitsCityPath(entry)}">${escapeHtml(entry.name)} permit page</a>
           <a class="link-line" href="${buildPermitsStatePath(entry.state)}">${escapeHtml(stateName)} permit directory</a>
-          <a class="link-line" href="/mission-control/">Mission Control</a>
+          <a class="link-line" href="/#mission-control">Mission Control</a>
           ${relatedEntries
             .map(
               (relatedEntry) =>

@@ -189,7 +189,7 @@ function buildSourceLinks(records, fallbackMode) {
 	if (!urls.length && fallbackMode) {
 		urls.push({
 			label: 'Mock mission-control source',
-			url: 'https://getpermitpulse.com/mission-control/',
+			url: 'https://getpermitpulse.com/#mission-control',
 		});
 	}
 

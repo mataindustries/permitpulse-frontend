@@ -1,13 +1,13 @@
-# PermitPulse (Beta)
+# PermitPulse
 
-PermitPulse is a lightweight, static front-end for permit, utility, and property-record support.
-This repo ships the marketing site + service pages, public-record tools, and conversion flows.
+PermitPulse combines a static outreach site with a Cloudflare-hosted case workspace for evidence-backed permit intelligence and professional Permit Review Packet production.
 
 ## What’s live in this version
 
 - **PermitPulse Stuck Project Desk (starting at $299)**: 48-hour public-record status packet for one stuck permit, utility, correction, or property-record issue.
 - **Quick Address Screen ($49 pilot)**: lightweight first-pass address screen before deciding whether a full packet is needed.
-- **Sample Report (redacted)**: example output format at `/sample-report/`.
+- **Canonical Sample Permit Review Packet**: `dist/assets/docs/PermitPulse-Permit-Review-Packet-Sample.pdf`.
+- **Mission Control**: the homepage introduces the current authenticated workspace and its end-to-end review flow.
 - **Radar**: free tool entrypoint at `/radar/` (header “Free tools” should link here).
 - **Help Guides**: LA permit help pages + internal links.
 - **Sitemap**: `dist/sitemap.xml`
@@ -24,14 +24,16 @@ This repo ships the marketing site + service pages, public-record tools, and con
 - `dist/` – production site (HTML/CSS/JS) served by hosting
   - `dist/index.html` – homepage
   - `dist/permit-due-diligence-los-angeles/index.html` – legacy Permit Review Plus page
-  - `dist/sample-report/index.html` – redacted sample
+  - `dist/assets/docs/PermitPulse-Permit-Review-Packet-Sample.pdf` – canonical fictional sample packet
+  - `dist/sample-report/index.html` – compatibility redirect to the canonical packet
   - `dist/sitemap.xml` – sitemap
 
 ## Key routes
 
 - `/` – Home
 - `/permit-due-diligence-los-angeles/` – legacy Permit Review Plus page
-- `/sample-report/` – Redacted sample report
+- `/assets/docs/PermitPulse-Permit-Review-Packet-Sample.pdf` – Canonical sample packet
+- `/sample-report/` – Legacy redirect to the canonical sample packet
 - `/radar/` – Free tools / radar
 - `/pricing/` – Pricing (if present)
 - `/book` or `/booking.html` – Booking / intake (if present)

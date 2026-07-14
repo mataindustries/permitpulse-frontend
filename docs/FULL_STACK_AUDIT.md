@@ -194,12 +194,9 @@ The standalone Worker's pilot handler treats `FORWARD_TO` as a URL and calls `fe
 - The checkout success and cancel URLs point to `/loi/` (`functions/api/checkout.js:33-39`), while `/loi/` permanently redirects to `/free-tools` (`dist/_redirects:1-3`).
 - No Stripe webhook implementation is present, so the repository cannot confirm payment, provision access, or reconcile a case.
 
-### PDFs
+### PDFs (superseded audit note)
 
-- Three redacted PDF assets are committed under `dist/assets/docs/`.
-- The sample-report HTML uses browser `window.print()` for Save as PDF (`dist/sample-report/index.html:1443-1445`).
-- Mission Control describes PDF export as a UI-only simulation and explicitly does not create a file (`dist/assets/mission-control.js:263-266`).
-- There is no server-side PDF renderer, HTML report template pipeline, packet persistence, or version history.
+The outreach site now treats `dist/assets/docs/PermitPulse-Permit-Review-Packet-Sample.pdf` as its canonical fictional sample. Legacy sample routes redirect to that artifact. The authenticated case workspace now contains the canonical HTML, text, and PDF rendering pipeline; the older static Mission Control prototype described elsewhere in this audit is retired from public navigation.
 
 ### Analytics
 

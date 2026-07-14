@@ -3,26 +3,27 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>PermitPulse | Evidence-Driven Permit Intelligence</title>
-  <meta name="description" content="PermitPulse is permit investigation software for evidence management, timeline reconstruction, reviewer workflows, and professional permit review packets." />
-  <meta name="keywords" content="permit investigation software, permit evidence management, permit timeline reconstruction, permit review workflow, professional permit review packet, permit operations platform" />
+  <title>PermitPulse | Mission Control for Permit Intelligence</title>
+  <meta name="description" content="Turn fragmented public records into evidence-backed permit review packets with Mission Control, evidence review, timeline reconstruction, and reviewer-approved findings." />
+  <meta name="keywords" content="permit intelligence, permit review packet, permit evidence review, permit timeline, permit findings, permit operations platform" />
   <meta name="robots" content="index,follow" />
+  <meta name="theme-color" content="#071710" />
   <link rel="canonical" href="https://getpermitpulse.com/" />
 
   <meta property="og:type" content="website" />
   <meta property="og:url" content="https://getpermitpulse.com/" />
-  <meta property="og:title" content="PermitPulse | Evidence-Driven Permit Intelligence" />
-  <meta property="og:description" content="An evidence-driven permit investigation workspace for reconstructed timelines, reviewer workflows, and professional review packets." />
+  <meta property="og:title" content="PermitPulse | Mission Control for Permit Intelligence" />
+  <meta property="og:description" content="Turn fragmented public records into evidence-backed permit review packets." />
   <meta property="og:image" content="https://getpermitpulse.com/assets/images/permitpulse-00-mission-control-collage.png" />
   <meta property="og:image:width" content="1536" />
   <meta property="og:image:height" content="1024" />
-  <meta property="og:image:alt" content="PermitPulse Mission Control workspace alongside a professional permit review packet" />
+  <meta property="og:image:alt" content="PermitPulse Mission Control connected to a professional permit review packet" />
   <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="PermitPulse | Evidence-Driven Permit Intelligence" />
-  <meta name="twitter:description" content="Permit investigation software for evidence management, timeline reconstruction, reviewer workflows, and client-ready packets." />
+  <meta name="twitter:title" content="PermitPulse | Mission Control for Permit Intelligence" />
+  <meta name="twitter:description" content="Evidence review, reconstructed timelines, reviewer-approved findings, and professional permit review packets." />
   <meta name="twitter:image" content="https://getpermitpulse.com/assets/images/permitpulse-00-mission-control-collage.png" />
-  <meta name="twitter:image:alt" content="PermitPulse Mission Control workspace alongside a professional permit review packet" />
 
+  <link rel="preload" as="image" href="/assets/images/permitpulse-01-mission-control.png" fetchpriority="high" />
   <link rel="stylesheet" href="/assets/platform-home.css" />
 
   <script type="application/ld+json">
@@ -33,11 +34,10 @@
       "applicationCategory": "BusinessApplication",
       "operatingSystem": "Web",
       "url": "https://getpermitpulse.com/",
-      "description": "An evidence-driven permit investigation workspace for evidence management, timeline reconstruction, reviewer workflows, and professional permit review packets."
+      "description": "Mission Control for evidence-backed permit intelligence and professional permit review packet production."
     }
   </script>
 
-  <!-- GA4 -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-0S8S6156CV"></script>
   <script>
     window.dataLayer = window.dataLayer || [];
@@ -46,7 +46,7 @@
     gtag("config", "G-0S8S6156CV");
   </script>
   <script defer src="/assets/permitpulse-tracking.js"></script>
-  <!-- Cloudflare Web Analytics -->
+  <script defer src="/assets/platform-home.js"></script>
   <script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token":"7046e03c84424a49988d1930fda247b6"}'></script>
 </head>
 
@@ -56,292 +56,265 @@
   <header class="site-header">
     <div class="wrap nav-inner">
       <a class="brand" href="/" aria-label="PermitPulse home">
-        <span class="brand-mark" aria-hidden="true"></span>
+        <span class="brand-mark" aria-hidden="true"><i></i></span>
         <span>Permit<span>Pulse</span></span>
       </a>
       <nav class="primary-nav" aria-label="Primary navigation">
-        <a href="#workflow">Workflow</a>
-        <a href="#capabilities">Capabilities</a>
-        <a href="#packet">Review packet</a>
-        <a class="nav-cta" href="/mission-control/" data-pp-cta="true" data-pp-location="homepage_nav_mission_control">Mission Control</a>
+        <a href="#workflow">How it works</a>
+        <a href="#packet">Packet</a>
+        <a href="/assets/docs/PermitPulse-Permit-Review-Packet-Sample.pdf" target="_blank" rel="noopener" data-pp-cta="true" data-pp-location="homepage_nav_sample_packet">Sample packet</a>
+        <a class="nav-cta" href="/booking.html" data-pp-cta="true" data-pp-location="homepage_nav_demo">Request a demo</a>
       </nav>
     </div>
   </header>
 
   <main id="main-content">
-    <section class="hero" aria-labelledby="hero-title">
-      <div class="hero-grid wrap">
-        <div class="hero-copy">
-          <p class="eyebrow"><span class="status-dot" aria-hidden="true"></span> Permit operations platform</p>
-          <h1 id="hero-title">Evidence-Driven Permit Intelligence</h1>
-          <p class="hero-lead">Transform fragmented permit records into structured evidence, reconstructed timelines, reviewer workflows, and professional review packets.</p>
-          <div class="hero-actions">
-            <a class="btn btn-primary" href="/mission-control/" data-pp-cta="true" data-pp-location="homepage_hero_mission_control">View Mission Control <span aria-hidden="true">→</span></a>
-            <a class="btn btn-secondary" href="/assets/docs/PermitPulse-Redacted-Sample-Permit-Review-Plus-Full.pdf" target="_blank" rel="noopener" data-pp-cta="true" data-pp-location="homepage_hero_sample_packet">Explore Sample Packet</a>
-          </div>
-          <p class="system-line">Mission Control <span>•</span> Evidence Register <span>•</span> Timeline Reconstruction <span>•</span> Reviewer Workspace <span>•</span> Client Packet Generation</p>
+    <section class="hero" id="mission-control" aria-labelledby="hero-title">
+      <div class="hero-glow" aria-hidden="true"></div>
+      <div class="wrap hero-copy" data-reveal>
+        <p class="eyebrow"><span class="live-dot" aria-hidden="true"></span> PermitPulse operating system</p>
+        <h1 id="hero-title">Mission Control for permit intelligence.</h1>
+        <p class="hero-lead">Turn fragmented public records into evidence-backed permit review packets.</p>
+        <div class="hero-actions">
+          <a class="btn btn-primary" href="/assets/docs/PermitPulse-Permit-Review-Packet-Sample.pdf" target="_blank" rel="noopener" data-pp-cta="true" data-pp-location="homepage_hero_sample_packet">Explore Sample Packet <span aria-hidden="true">↗</span></a>
+          <a class="btn btn-secondary" href="#workflow">See what happens next <span aria-hidden="true">↓</span></a>
         </div>
+        <ol class="story-rail" aria-label="PermitPulse workflow summary">
+          <li class="is-active"><span>01</span><strong>Mission Control</strong></li>
+          <li><span>02</span><strong>Evidence Review</strong></li>
+          <li><span>03</span><strong>Timeline + Findings</strong></li>
+          <li><span>04</span><strong>Review Packet</strong></li>
+        </ol>
+      </div>
 
-        <figure class="mission-visual">
-          <div class="visual-label">
-            <span>Live workspace view</span>
-            <span class="visual-state"><i aria-hidden="true"></i> Investigation ready</span>
-          </div>
-          <a href="/assets/images/permitpulse-01-mission-control.png" target="_blank" rel="noopener" aria-label="Open the full Mission Control screenshot">
-            <img src="/assets/images/permitpulse-01-mission-control.png" width="720" height="1341" alt="PermitPulse Mission Control showing a case overview, investigation health, evidence and timeline counts, and packet readiness" fetchpriority="high" decoding="async" />
-          </a>
-          <figcaption>One operational view for case state, investigation health, evidence coverage, timeline coverage, and packet readiness.</figcaption>
-        </figure>
+      <div class="wrap mission-stage" data-reveal>
+        <div class="window-bar" aria-hidden="true">
+          <span class="window-dots"><i></i><i></i><i></i></span>
+          <span>Mission Control / Arroyo Vista ADU Resubmittal</span>
+          <span class="window-status"><i></i> Ready for review</span>
+        </div>
+        <a class="mission-screen" href="/assets/images/permitpulse-01-mission-control.png" target="_blank" rel="noopener" aria-label="Open the complete Mission Control interface screenshot">
+          <img src="/assets/images/permitpulse-01-mission-control.png" width="720" height="1341" alt="PermitPulse Mission Control showing case health, evidence coverage, timeline coverage, review status, and packet readiness" fetchpriority="high" decoding="async" />
+        </a>
+        <div class="mission-caption">
+          <p><span>One case record</span> connects every source, event, finding, review decision, and packet revision.</p>
+          <ul aria-label="Mission Control case metrics">
+            <li><strong>9</strong> evidence records</li>
+            <li><strong>8</strong> timeline events</li>
+            <li><strong>5/5</strong> readiness checks</li>
+          </ul>
+        </div>
       </div>
     </section>
 
-    <section class="proof-strip" aria-label="Platform principles">
+    <section class="proof-strip" aria-label="Platform trust principles">
       <div class="wrap proof-grid">
-        <p><strong>Evidence first</strong><span>Source records stay connected to the work.</span></p>
-        <p><strong>Human reviewed</strong><span>Findings and decisions remain reviewer-authored.</span></p>
-        <p><strong>Deliverable ready</strong><span>One canonical model drives packet outputs.</span></p>
+        <p><span aria-hidden="true">✓</span><strong>Evidence-backed</strong><small>Claims stay connected to their sources.</small></p>
+        <p><span aria-hidden="true">✓</span><strong>Reviewer approved</strong><small>Human judgment controls client findings.</small></p>
+        <p><span aria-hidden="true">✓</span><strong>Deterministic output</strong><small>One reviewed model drives every packet.</small></p>
       </div>
     </section>
 
     <section class="section workflow-section" id="workflow" aria-labelledby="workflow-title">
       <div class="wrap">
-        <div class="section-heading">
-          <p class="eyebrow">Platform workflow / 01–06</p>
-          <h2 id="workflow-title">A traceable path from source record to agency follow-up.</h2>
-          <p>Every stage keeps the investigation legible: what is known, what remains unresolved, who reviewed it, and what should happen next.</p>
+        <div class="section-heading" data-reveal>
+          <p class="eyebrow">What happens after I submit?</p>
+          <h2 id="workflow-title">A clear path from scattered records to a professional deliverable.</h2>
+          <p>Within one workflow, the case moves from intake through evidence review and human judgment to a source-linked packet.</p>
         </div>
 
-        <ol class="workflow-list">
-          <li class="workflow-stage">
-            <div class="stage-copy">
-              <span class="stage-number">01</span>
-              <p class="stage-kicker">Evidence Register</p>
-              <h3>Collect evidence</h3>
-              <p>Bring permit records, uploads, correspondence, and source notes into one case record.</p>
-              <a class="text-link" href="/assets/images/permitpulse-02-evidence-register.png" target="_blank" rel="noopener">Open full evidence view <span aria-hidden="true">↗</span></a>
-            </div>
-            <figure class="stage-visual stage-visual-tall">
-              <img src="/assets/images/permitpulse-02-evidence-register.png" width="719" height="1443" loading="lazy" decoding="async" alt="PermitPulse Evidence Register with source records, provenance, and review status" />
-              <figcaption>Evidence records retain source context and verification state.</figcaption>
-            </figure>
+        <ol class="workflow-grid">
+          <li data-reveal>
+            <span class="step-number">01</span>
+            <div class="step-icon" aria-hidden="true">⌁</div>
+            <h3>Mission Control</h3>
+            <p>Your project becomes a structured case with visible investigation health, open questions, and packet readiness.</p>
           </li>
-
-          <li class="workflow-stage">
-            <div class="stage-copy">
-              <span class="stage-number">02</span>
-              <p class="stage-kicker">Source verification</p>
-              <h3>Verify sources</h3>
-              <p>Record provenance, distinguish source facts from assumptions, and surface gaps before analysis.</p>
-              <a class="text-link" href="/assets/images/permitpulse-03-case-timeline.png" target="_blank" rel="noopener">Open full timeline view <span aria-hidden="true">↗</span></a>
-            </div>
-            <figure class="stage-visual stage-visual-tall">
-              <img src="/assets/images/permitpulse-03-case-timeline.png" width="719" height="1350" loading="lazy" decoding="async" alt="PermitPulse case timeline linking permit events to supporting evidence" />
-              <figcaption>Verified sources establish the foundation for chronology.</figcaption>
-            </figure>
+          <li data-reveal>
+            <span class="step-number">02</span>
+            <div class="step-icon" aria-hidden="true">▤</div>
+            <h3>Evidence Review</h3>
+            <p>Records are organized, dated, source-labeled, and reviewed so facts stay separate from assumptions.</p>
           </li>
-
-          <li class="workflow-stage">
-            <div class="stage-copy">
-              <span class="stage-number">03</span>
-              <p class="stage-kicker">Timeline Reconstruction</p>
-              <h3>Reconstruct the timeline</h3>
-              <p>Arrange material events in sequence and link each one to the evidence that supports it.</p>
-              <a class="text-link" href="/assets/images/permitpulse-04-packet-preview.png" target="_blank" rel="noopener">Open full packet preview <span aria-hidden="true">↗</span></a>
-            </div>
-            <figure class="stage-visual stage-visual-tall">
-              <img src="/assets/images/permitpulse-04-packet-preview.png" width="719" height="1465" loading="lazy" decoding="async" alt="PermitPulse packet preview assembled from reviewed case information" />
-              <figcaption>The canonical case model flows into a reviewable packet preview.</figcaption>
-            </figure>
+          <li data-reveal>
+            <span class="step-number">03</span>
+            <div class="step-icon" aria-hidden="true">⌖</div>
+            <h3>Timeline + Findings</h3>
+            <p>Material events are reconstructed and reviewer-approved findings remain linked to supporting evidence.</p>
           </li>
-
-          <li class="workflow-stage">
-            <div class="stage-copy">
-              <span class="stage-number">04</span>
-              <p class="stage-kicker">Reviewer Workspace</p>
-              <h3>Review findings</h3>
-              <p>Separate evidence from open questions, reviewer findings, recommended actions, and approval decisions.</p>
-              <a class="text-link" href="/assets/images/permitpulse-06-executive-summary.png" target="_blank" rel="noopener">Open full summary view <span aria-hidden="true">↗</span></a>
-            </div>
-            <figure class="stage-visual">
-              <img src="/assets/images/permitpulse-06-executive-summary.png" width="719" height="932" loading="lazy" decoding="async" alt="PermitPulse executive summary identifying confirmed records, unresolved issues, risks, and strengths" />
-              <figcaption>Reviewer-approved findings become a concise executive summary.</figcaption>
-            </figure>
-          </li>
-
-          <li class="workflow-stage">
-            <div class="stage-copy">
-              <span class="stage-number">05</span>
-              <p class="stage-kicker">Client Packet Generation</p>
-              <h3>Generate the packet</h3>
-              <p>Render a consistent professional deliverable from the reviewed evidence, chronology, and findings.</p>
-              <a class="text-link" href="/assets/images/permitpulse-07-dependency-map.png" target="_blank" rel="noopener">Open full dependency map <span aria-hidden="true">↗</span></a>
-            </div>
-            <figure class="stage-visual">
-              <img src="/assets/images/permitpulse-07-dependency-map.png" width="719" height="925" loading="lazy" decoding="async" alt="PermitPulse Agency Dependency Map showing unresolved review dependencies and next steps" />
-              <figcaption>Dependencies translate findings into an ordered review sequence.</figcaption>
-            </figure>
-          </li>
-
-          <li class="workflow-stage">
-            <div class="stage-copy">
-              <span class="stage-number">06</span>
-              <p class="stage-kicker">Action kit</p>
-              <h3>Prepare agency follow-up</h3>
-              <p>Package the cited evidence, open questions, dependencies, and next steps for the next professional conversation.</p>
-              <a class="text-link" href="/assets/images/permitpulse-08-supporting-evidence.png" target="_blank" rel="noopener">Open full supporting evidence view <span aria-hidden="true">↗</span></a>
-            </div>
-            <figure class="stage-visual">
-              <img src="/assets/images/permitpulse-08-supporting-evidence.png" width="720" height="924" loading="lazy" decoding="async" alt="PermitPulse supporting evidence packet page preserving summaries, provenance, and verification status" />
-              <figcaption>Supporting evidence stays traceable when the packet leaves the workspace.</figcaption>
-            </figure>
+          <li class="workflow-output" data-reveal>
+            <span class="step-number">04</span>
+            <div class="step-icon" aria-hidden="true">▧</div>
+            <h3>Professional Review Packet</h3>
+            <p>The reviewed case renders into a consistent client deliverable—without implying agency approval.</p>
+            <a href="/assets/docs/PermitPulse-Permit-Review-Packet-Sample.pdf" target="_blank" rel="noopener">Open the 14-page sample <span aria-hidden="true">↗</span></a>
           </li>
         </ol>
       </div>
     </section>
 
-    <section class="section capabilities-section" id="capabilities" aria-labelledby="capabilities-title">
-      <div class="wrap">
-        <div class="section-heading section-heading-wide">
-          <p class="eyebrow">Operational capabilities</p>
-          <h2 id="capabilities-title">Built for the investigation, not only the export.</h2>
+    <section class="section feature-section" id="evidence" aria-labelledby="evidence-title">
+      <div class="wrap feature-grid">
+        <div class="feature-copy" data-reveal>
+          <p class="eyebrow">Evidence Review / source provenance</p>
+          <h2 id="evidence-title">Every conclusion starts with a record.</h2>
+          <p>Portal captures, correction notices, receipts, correspondence, and analyst notes enter one evidence register. Each record retains its source, date, contributor, provenance, and verification state.</p>
+          <ul class="feature-checks">
+            <li>Verified, awaiting-review, and disputed states remain visible</li>
+            <li>Source facts stay separate from assumptions and analysis</li>
+            <li>Timeline events and findings cite their supporting records</li>
+          </ul>
         </div>
-        <div class="capability-grid">
-          <article class="capability-card capability-featured">
-            <span class="capability-index">01</span>
-            <h3>Mission Control</h3>
-            <p>Track the case, investigation health, evidence state, timeline coverage, and packet readiness from one workspace.</p>
-          </article>
-          <article class="capability-card">
-            <span class="capability-index">02</span>
-            <h3>Evidence Register</h3>
-            <p>Preserve sources, provenance, review status, and unresolved conditions.</p>
-          </article>
-          <article class="capability-card">
-            <span class="capability-index">03</span>
-            <h3>Timeline Reconstruction</h3>
-            <p>Rebuild what happened, when it happened, and which evidence supports each event.</p>
-          </article>
-          <article class="capability-card">
-            <span class="capability-index">04</span>
-            <h3>Reviewer Workspace</h3>
-            <p>Separate evidence gathering from findings, questions, recommended actions, and approval decisions.</p>
-          </article>
-          <article class="capability-card">
-            <span class="capability-index">05</span>
-            <h3>Agency Dependency Map</h3>
-            <p>Show which unresolved discipline, routing, or review dependency is blocking the next move.</p>
-          </article>
-          <article class="capability-card">
-            <span class="capability-index">06</span>
-            <h3>Client Packet Generation</h3>
-            <p>Generate preview, HTML, text, and PDF deliverables from one canonical presentation model.</p>
-          </article>
-          <article class="capability-card capability-architecture" id="architecture">
-            <span class="capability-index">07</span>
-            <h3>Private Cloudflare Architecture</h3>
-            <p>Use authenticated Workers, D1 case records, and private R2 evidence storage.</p>
-            <div class="architecture-line" aria-label="Architecture flow">
-              <span>Authenticated Worker</span><i aria-hidden="true">→</i><span>D1 case record</span><i aria-hidden="true">→</i><span>Private R2 evidence</span>
-            </div>
-          </article>
+        <figure class="interface-card interface-card-tall" data-reveal>
+          <div class="card-label"><span>Evidence Register</span><span>Source complete</span></div>
+          <a href="/assets/images/permitpulse-02-evidence-register.png" target="_blank" rel="noopener" aria-label="Open the full Evidence Register screenshot">
+            <img src="/assets/images/permitpulse-02-evidence-register.png" width="719" height="1443" loading="lazy" decoding="async" alt="PermitPulse Evidence Register showing source records, provenance, and review status" />
+          </a>
+          <figcaption>Source context remains attached from intake through delivery.</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <section class="section timeline-section" id="timeline" aria-labelledby="timeline-title">
+      <div class="wrap">
+        <div class="section-heading section-heading-split" data-reveal>
+          <div>
+            <p class="eyebrow">Timeline / traceability</p>
+            <h2 id="timeline-title">The chronology stays connected on screen and on paper.</h2>
+          </div>
+          <p>Mission Control links every material event to evidence. The same reviewed chronology appears in the final packet with source linkage and review status preserved.</p>
+        </div>
+        <div class="timeline-pair">
+          <figure class="interface-card" data-reveal>
+            <div class="card-label"><span>Workspace timeline</span><span>8 linked events</span></div>
+            <a href="/assets/images/permitpulse-03-case-timeline.png" target="_blank" rel="noopener" aria-label="Open the complete Mission Control timeline screenshot">
+              <img src="/assets/images/permitpulse-03-case-timeline.png" width="719" height="1350" loading="lazy" decoding="async" alt="PermitPulse case timeline connecting permit events to reviewed evidence" />
+            </a>
+            <figcaption>Operational view</figcaption>
+          </figure>
+          <figure class="packet-page-card" data-reveal>
+            <div class="card-label card-label-light"><span>Packet timeline</span><span>Page 7 of 14</span></div>
+            <a href="/assets/images/permitpulse-10-timeline.png" target="_blank" rel="noopener" aria-label="Open the complete packet timeline page">
+              <img src="/assets/images/permitpulse-10-timeline.png" width="720" height="932" loading="lazy" decoding="async" alt="Full timeline page from the canonical PermitPulse Permit Review Packet" />
+            </a>
+            <figcaption>Client deliverable</figcaption>
+          </figure>
+        </div>
+      </div>
+    </section>
+
+    <section class="section findings-section" id="findings" aria-labelledby="findings-title">
+      <div class="wrap feature-grid feature-grid-reverse">
+        <figure class="packet-page-card" data-reveal>
+          <div class="card-label card-label-light"><span>Reviewer-approved findings</span><span>Page 3 of 14</span></div>
+          <a href="/assets/images/permitpulse-09-findings.png" target="_blank" rel="noopener" aria-label="Open the complete findings page">
+            <img src="/assets/images/permitpulse-09-findings.png" width="720" height="932" loading="lazy" decoding="async" alt="Full findings page from the canonical PermitPulse Permit Review Packet" />
+          </a>
+          <figcaption>Findings are reviewer-authored and evidence-grounded.</figcaption>
+        </figure>
+        <div class="feature-copy" data-reveal>
+          <p class="eyebrow">Findings / human review</p>
+          <h2 id="findings-title">Software organizes the record. People approve the judgment.</h2>
+          <p>PermitPulse can assist with classification, chronology, and drafting, but client-facing findings and recommended actions remain a human review decision.</p>
+          <div class="review-sequence" aria-label="Finding approval sequence">
+            <p><span>01</span><strong>Evidence is reviewed</strong></p>
+            <p><span>02</span><strong>Draft findings are grounded</strong></p>
+            <p><span>03</span><strong>A reviewer approves delivery</strong></p>
+          </div>
+          <p class="plain-language-note"><strong>No approval promises.</strong> Packet Readiness means the deliverable is complete; it does not mean a jurisdiction has resolved or approved the permit.</p>
         </div>
       </div>
     </section>
 
     <section class="section packet-section" id="packet" aria-labelledby="packet-title">
-      <div class="wrap packet-grid">
-        <div class="packet-copy">
-          <p class="eyebrow">The output</p>
-          <h2 id="packet-title">The review packet is the deliverable. The workspace is the system that produces it.</h2>
-          <p>Mission Control turns reviewed source material into a structured handoff without hiding the evidence, assumptions, open questions, or human decisions behind it.</p>
-          <ol class="packet-path" aria-label="Path from workspace to packet">
-            <li>Mission Control</li>
-            <li>Evidence review</li>
-            <li>Timeline and findings</li>
-            <li>Client-ready packet</li>
-          </ol>
-          <a class="btn btn-secondary" href="/assets/docs/PermitPulse-Redacted-Sample-Permit-Review-Plus-Full.pdf" target="_blank" rel="noopener" data-pp-cta="true" data-pp-location="homepage_packet_sample">Explore Sample Packet <span aria-hidden="true">↗</span></a>
-        </div>
-        <figure class="packet-cover">
-          <img src="/assets/images/permitpulse-05-review-packet-cover.png" width="717" height="866" loading="lazy" decoding="async" alt="Cover of a PermitPulse professional permit review packet" />
-          <figcaption>Professional output, generated from the same reviewed case model.</figcaption>
-        </figure>
-      </div>
-    </section>
-
-    <section class="section system-proof" aria-labelledby="system-proof-title">
       <div class="wrap">
-        <div class="section-heading">
-          <p class="eyebrow">Workspace → deliverable</p>
-          <h2 id="system-proof-title">The work stays connected from investigation through presentation.</h2>
+        <div class="packet-intro" data-reveal>
+          <div>
+            <p class="eyebrow">The professional deliverable</p>
+            <h2 id="packet-title">One packet. Every important layer of the review.</h2>
+          </div>
+          <div>
+            <p>The canonical sample is a 14-page fictional demonstration showing how reviewed records become a clear, source-linked client artifact.</p>
+            <a class="btn btn-primary" href="/assets/docs/PermitPulse-Permit-Review-Packet-Sample.pdf" target="_blank" rel="noopener" data-pp-cta="true" data-pp-location="homepage_packet_download">Download Sample Packet <span aria-hidden="true">↗</span></a>
+          </div>
         </div>
-        <figure class="collage-card">
-          <img src="/assets/images/permitpulse-00-mission-control-collage.png" width="1536" height="1024" loading="lazy" decoding="async" alt="PermitPulse software workspace connected to a review packet, executive summary, dependency map, and supporting evidence" />
-          <figcaption>One case model connects operational review to the professional pages a client can use.</figcaption>
-        </figure>
+
+        <div class="packet-gallery" aria-label="Permit Review Packet page gallery">
+          <figure class="packet-page-card gallery-cover" data-reveal>
+            <a href="/assets/images/permitpulse-05-review-packet-cover.png" target="_blank" rel="noopener" aria-label="Open the complete packet cover">
+              <img src="/assets/images/permitpulse-05-review-packet-cover.png" width="720" height="932" loading="lazy" decoding="async" alt="Full cover of the canonical PermitPulse Permit Review Packet" />
+            </a>
+            <figcaption><span>01</span> Cover</figcaption>
+          </figure>
+          <figure class="packet-page-card" data-reveal>
+            <a href="/assets/images/permitpulse-06-executive-summary.png" target="_blank" rel="noopener" aria-label="Open the complete executive summary page">
+              <img src="/assets/images/permitpulse-06-executive-summary.png" width="720" height="932" loading="lazy" decoding="async" alt="Full executive summary page from the canonical PermitPulse Permit Review Packet" />
+            </a>
+            <figcaption><span>02</span> Executive Summary</figcaption>
+          </figure>
+          <figure class="packet-page-card" data-reveal>
+            <a href="/assets/images/permitpulse-09-findings.png" target="_blank" rel="noopener" aria-label="Open the complete findings page">
+              <img src="/assets/images/permitpulse-09-findings.png" width="720" height="932" loading="lazy" decoding="async" alt="Full reviewer-approved findings page from the canonical PermitPulse Permit Review Packet" />
+            </a>
+            <figcaption><span>03</span> Findings</figcaption>
+          </figure>
+          <figure class="packet-page-card" data-reveal>
+            <a href="/assets/images/permitpulse-10-timeline.png" target="_blank" rel="noopener" aria-label="Open the complete timeline page">
+              <img src="/assets/images/permitpulse-10-timeline.png" width="720" height="932" loading="lazy" decoding="async" alt="Full permit timeline page from the canonical PermitPulse Permit Review Packet" />
+            </a>
+            <figcaption><span>04</span> Timeline</figcaption>
+          </figure>
+          <figure class="packet-page-card" data-reveal>
+            <a href="/assets/images/permitpulse-08-supporting-evidence.png" target="_blank" rel="noopener" aria-label="Open the complete supporting evidence page">
+              <img src="/assets/images/permitpulse-08-supporting-evidence.png" width="720" height="932" loading="lazy" decoding="async" alt="Full supporting evidence page from the canonical PermitPulse Permit Review Packet" />
+            </a>
+            <figcaption><span>05</span> Evidence</figcaption>
+          </figure>
+          <figure class="packet-page-card" data-reveal>
+            <a href="/assets/images/permitpulse-07-dependency-map.png" target="_blank" rel="noopener" aria-label="Open the complete Agency Dependency Map page">
+              <img src="/assets/images/permitpulse-07-dependency-map.png" width="720" height="932" loading="lazy" decoding="async" alt="Full Agency Dependency Map page from the canonical PermitPulse Permit Review Packet" />
+            </a>
+            <figcaption><span>06</span> Agency Dependency Map</figcaption>
+          </figure>
+          <figure class="packet-page-card" data-reveal>
+            <a href="/assets/images/permitpulse-11-methodology.png" target="_blank" rel="noopener" aria-label="Open the complete methodology and readiness page">
+              <img src="/assets/images/permitpulse-11-methodology.png" width="720" height="932" loading="lazy" decoding="async" alt="Full methodology and readiness page from the canonical PermitPulse Permit Review Packet" />
+            </a>
+            <figcaption><span>07</span> Methodology</figcaption>
+          </figure>
+        </div>
       </div>
     </section>
 
     <section class="section trust-section" id="trust" aria-labelledby="trust-title">
-      <div class="wrap trust-grid">
-        <div class="trust-copy">
-          <p class="eyebrow">Trust and clarity</p>
-          <h2 id="trust-title">Evidence is organized. Judgment stays human.</h2>
-          <p class="trust-statement">PermitPulse organizes and presents reviewed records. It does not replace agency determinations or professional judgment.</p>
-          <div class="ai-model">
-            <p><span aria-hidden="true">01</span><strong>AI-assisted engineering and review support</strong></p>
-            <p><span aria-hidden="true">02</span><strong>Deterministic client packet rendering</strong></p>
-            <p><span aria-hidden="true">03</span><strong>Human verification and approval</strong></p>
-          </div>
-        </div>
-        <dl class="clarity-list">
-          <div><dt>Verified evidence</dt><dd>Source-backed records with provenance and review state.</dd></div>
-          <div><dt>Recorded assumptions</dt><dd>Interpretive context labeled separately from confirmed facts.</dd></div>
-          <div><dt>Open questions</dt><dd>Unresolved conditions kept visible for follow-up.</dd></div>
-          <div><dt>Reviewer-authored findings</dt><dd>Human conclusions, recommended actions, and approvals.</dd></div>
-          <div><dt>Generated deliverables</dt><dd>Consistent outputs rendered from reviewed case information.</dd></div>
-        </dl>
-      </div>
-    </section>
-
-    <section class="section audience-section" aria-labelledby="audience-title">
       <div class="wrap">
-        <div class="section-heading">
-          <p class="eyebrow">Choose your path</p>
-          <h2 id="audience-title">See PermitPulse from the angle that matters to you.</h2>
+        <div class="section-heading section-heading-split" data-reveal>
+          <div>
+            <p class="eyebrow">Trust by design</p>
+            <h2 id="trust-title">Traceable inputs. Controlled judgment. Reproducible output.</h2>
+          </div>
+          <p>Every layer is designed to make the basis, reviewer state, and limits of the work visible—not to manufacture certainty that the record does not support.</p>
         </div>
-        <div class="audience-grid">
-          <article>
-            <span class="audience-tag">For permit professionals</span>
-            <h3>Follow the operational sequence.</h3>
-            <p>See how evidence moves through verification, chronology, review, and follow-up.</p>
-            <a class="text-link" href="#workflow">Explore the workflow <span aria-hidden="true">→</span></a>
-          </article>
-          <article>
-            <span class="audience-tag">For architecture and project teams</span>
-            <h3>Start with the client deliverable.</h3>
-            <p>Review the structure, sourcing, findings, and action sequence in the finished packet.</p>
-            <a class="text-link" href="/assets/docs/PermitPulse-Redacted-Sample-Permit-Review-Plus-Full.pdf" target="_blank" rel="noopener">View the sample packet <span aria-hidden="true">↗</span></a>
-          </article>
-          <article>
-            <span class="audience-tag">For technical and implementation clients</span>
-            <h3>Inspect the system behind the output.</h3>
-            <p>See the authenticated application, evidence data layer, and canonical rendering model.</p>
-            <a class="text-link" href="#architecture">See how the system was built <span aria-hidden="true">→</span></a>
-          </article>
+        <div class="trust-grid">
+          <article data-reveal><span>01</span><h3>Evidence-backed</h3><p>Material statements point back to reviewed source records.</p></article>
+          <article data-reveal><span>02</span><h3>Source provenance</h3><p>Source label, date, contributor, and digital provenance travel with the evidence.</p></article>
+          <article data-reveal><span>03</span><h3>Reviewer-approved findings</h3><p>Client findings and actions require recorded human review.</p></article>
+          <article data-reveal><span>04</span><h3>Deterministic rendering</h3><p>Preview, HTML, text, and PDF consume one canonical presentation model.</p></article>
+          <article data-reveal><span>05</span><h3>Cloudflare architecture</h3><p>Authenticated Workers coordinate D1 case records and private R2 evidence storage.</p></article>
+          <article data-reveal><span>06</span><h3>Better Auth access</h3><p>Workspace sessions and roles gate access to client and reviewer operations.</p></article>
         </div>
+        <p class="trust-limit" data-reveal><strong>Important:</strong> PermitPulse supports research, organization, review, and delivery. It does not guarantee permit approval, replace jurisdiction confirmation, or substitute for legal, architectural, or engineering advice.</p>
       </div>
     </section>
 
-    <section class="final-cta" aria-labelledby="final-cta-title">
-      <div class="wrap final-cta-inner">
-        <div>
-          <p class="eyebrow">Permit intelligence workspace</p>
-          <h2 id="final-cta-title">See the operating system behind the packet.</h2>
-        </div>
-        <div class="final-actions">
-          <a class="btn btn-primary" href="/mission-control/" data-pp-cta="true" data-pp-location="homepage_final_mission_control">View Mission Control <span aria-hidden="true">→</span></a>
-          <a class="btn btn-secondary" href="mailto:hello@getpermitpulse.com">Discuss an implementation</a>
+    <section class="section final-cta" aria-labelledby="final-title">
+      <div class="wrap final-card" data-reveal>
+        <p class="eyebrow">See the complete system</p>
+        <h2 id="final-title">From first record to professional packet.</h2>
+        <p>Walk through Mission Control, the evidence register, reconstructed timeline, reviewer findings, and the final client deliverable.</p>
+        <div class="hero-actions">
+          <a class="btn btn-primary" href="/booking.html" data-pp-cta="true" data-pp-location="homepage_final_demo">Request a packet walkthrough <span aria-hidden="true">→</span></a>
+          <a class="btn btn-secondary" href="/assets/docs/PermitPulse-Permit-Review-Packet-Sample.pdf" target="_blank" rel="noopener" data-pp-cta="true" data-pp-location="homepage_final_sample_packet">Download Sample Packet <span aria-hidden="true">↗</span></a>
         </div>
       </div>
     </section>
@@ -350,23 +323,19 @@
   <footer class="site-footer">
     <div class="wrap footer-grid">
       <div>
-        <a class="brand" href="/" aria-label="PermitPulse home">
-          <span class="brand-mark" aria-hidden="true"></span>
+        <a class="brand footer-brand" href="/" aria-label="PermitPulse home">
+          <span class="brand-mark" aria-hidden="true"><i></i></span>
           <span>Permit<span>Pulse</span></span>
         </a>
-        <p>Evidence-driven permit intelligence.</p>
+        <p>Evidence-backed permit intelligence.</p>
       </div>
       <nav aria-label="Footer navigation">
-        <a href="/resources/">Resources</a>
-        <a href="/who-it-helps/">Who it helps</a>
-        <a href="/how-permitpulse-works/">How it works</a>
+        <a href="#mission-control">Mission Control</a>
+        <a href="#workflow">Workflow</a>
+        <a href="#packet">Packet</a>
         <a href="/legal/">Legal</a>
       </nav>
-      <div class="footer-contact">
-        <a href="mailto:hello@getpermitpulse.com">hello@getpermitpulse.com</a>
-        <a href="tel:+15626762691">(562) 676-2691</a>
-        <p>© 2026 PermitPulse</p>
-      </div>
+      <p class="footer-note">© <span data-current-year>2026</span> PermitPulse. All demonstration records shown are fictional.</p>
     </div>
   </footer>
 </body>

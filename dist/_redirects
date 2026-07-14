@@ -16,10 +16,21 @@
 /pilot/es                  /                                   301
 /guides/permit-dossier     /resources/los-angeles-permit-record-checklist/ 301
 /guides/permit-dossier/    /resources/los-angeles-permit-record-checklist/ 301
-/preview-pack              /sample-report/                    301
-/preview-pack/             /sample-report/                    301
-/sample-dossier            /sample-report/                    301
-/sample-dossier/           /sample-report/                    301
+/preview-pack              /assets/docs/PermitPulse-Permit-Review-Packet-Sample.pdf 301
+/preview-pack/             /assets/docs/PermitPulse-Permit-Review-Packet-Sample.pdf 301
+/sample-dossier            /assets/docs/PermitPulse-Permit-Review-Packet-Sample.pdf 301
+/sample-dossier/           /assets/docs/PermitPulse-Permit-Review-Packet-Sample.pdf 301
+/sample-report             /assets/docs/PermitPulse-Permit-Review-Packet-Sample.pdf 301
+/sample-report/            /assets/docs/PermitPulse-Permit-Review-Packet-Sample.pdf 301
+
+# Retired PDF assets → canonical Permit Review Packet
+/assets/docs/PermitPulse-Redacted-Sample-Decision-Snapshot.pdf /assets/docs/PermitPulse-Permit-Review-Packet-Sample.pdf 301
+/assets/docs/PermitPulse-Redacted-Sample-Permit-Review-Plus-Full.pdf /assets/docs/PermitPulse-Permit-Review-Packet-Sample.pdf 301
+/assets/docs/PermitPulse-Redacted-Sample-Preview-Pack.pdf /assets/docs/PermitPulse-Permit-Review-Packet-Sample.pdf 301
+
+# Retired Mission Control prototype → current homepage showcase
+/mission-control           /#mission-control                  301
+/mission-control/          /#mission-control                  301
 
 # SGV EV + Battery Radar (pretty URL)
 /sgv/ev-battery-radar   /sgv-ev-battery-radar.html   301
@@ -28,6 +39,19 @@
 # Pretty landers → static files
 /la-contractors            /la-contractors-la.html            200
 /es/la-contratistas        /es/la-contratistas-la.html        200
+/ladbs-roofing-permits     /ladbs-roofing-permits.html        200
+/ladbs-roofing-permits/    /ladbs-roofing-permits.html        200
+/retroactive-permits-unpermitted-work-los-angeles  /retroactive-permits-unpermitted-work-los-angeles.html 200
+/retroactive-permits-unpermitted-work-los-angeles/ /retroactive-permits-unpermitted-work-los-angeles.html 200
+/es/ayuda-permisos-los-angeles  /es/ayuda-permisos-los-angeles.html 200
+/es/ayuda-permisos-los-angeles/ /es/ayuda-permisos-los-angeles.html 200
+
+# Retired/alternate route aliases
+/book                      /booking.html                      301
+/permits/california/pasadena /california/jurisdictions/pasadena/ 301
+/permits/california/pasadena/ /california/jurisdictions/pasadena/ 301
+/building-permits/california/pasadena /california/jurisdictions/pasadena/ 301
+/building-permits/california/pasadena/ /california/jurisdictions/pasadena/ 301
 
 # (optional) known SPA sections
 /city/*                    /city/index.html                   200
