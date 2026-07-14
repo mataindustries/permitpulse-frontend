@@ -1,11 +1,13 @@
 .evidence-inbox {
   display: grid;
-  gap: var(--pp-space-5);
+  gap: var(--pp-space-6);
 }
 
 .evidence-inbox__header {
   display: grid;
-  gap: var(--pp-space-4);
+  gap: var(--pp-space-5);
+  border-bottom: 1px solid var(--pp-border-subtle);
+  padding-bottom: var(--pp-space-5);
 }
 
 .evidence-inbox__header h1 {
@@ -28,12 +30,14 @@
   gap: 0.1rem;
   border: 1px solid var(--pp-border-subtle);
   border-radius: var(--pp-radius-sm);
-  background: var(--pp-surface-base);
+  background: var(--pp-surface-raised);
   padding: var(--pp-space-3);
 }
 
 .evidence-inbox__counts strong {
+  color: var(--pp-text-primary);
   font-size: var(--pp-text-xl);
+  letter-spacing: var(--pp-tracking-tight);
 }
 
 .evidence-inbox__counts span {
@@ -48,7 +52,7 @@
   gap: var(--pp-space-3);
   border: 1px dashed var(--pp-border-strong);
   border-radius: var(--pp-radius-lg);
-  background: var(--pp-surface-base);
+  background: var(--pp-surface-raised);
   color: var(--pp-jade-300);
   padding: var(--pp-space-6);
   text-align: center;
@@ -58,6 +62,11 @@
 .evidence-dropzone--active {
   border-color: var(--pp-jade-300);
   background: var(--pp-jade-alpha-08);
+}
+
+.evidence-dropzone:focus-within {
+  border-color: var(--pp-jade-300);
+  box-shadow: 0 0 0 3px var(--pp-jade-alpha-14);
 }
 
 .evidence-dropzone h2 {
@@ -120,7 +129,7 @@
 
 .evidence-bulk-bar {
   position: sticky;
-  top: calc(var(--pp-topbar-height) + var(--pp-space-2));
+  top: calc(var(--pp-topbar-height) + env(safe-area-inset-top, 0px) + var(--pp-space-2));
   z-index: 20;
   display: grid;
   gap: var(--pp-space-3);
@@ -187,7 +196,7 @@
 .evidence-inbox__empty {
   border: 1px solid var(--pp-border-subtle);
   border-radius: var(--pp-radius-md);
-  background: var(--pp-surface-base);
+  background: var(--pp-surface-raised);
   padding: var(--pp-space-8);
   text-align: center;
 }
@@ -213,6 +222,7 @@
   border-left: 3px solid var(--pp-status-neutral);
   border-radius: var(--pp-radius-md);
   background: var(--pp-surface-card);
+  box-shadow: var(--pp-shadow-sm);
   padding: var(--pp-space-4);
 }
 
@@ -419,3 +429,30 @@
   }
 }
 
+@media (max-width: 26.25rem) {
+  .evidence-inbox {
+    gap: var(--pp-space-5);
+  }
+
+  .evidence-inbox__counts {
+    gap: var(--pp-space-2);
+  }
+
+  .evidence-dropzone {
+    min-height: 11rem;
+    padding: var(--pp-space-4);
+  }
+
+  .evidence-bulk-actions {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .evidence-draft__fields {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .evidence-state {
+    grid-column: 1 / -1;
+    margin-left: 2rem;
+  }
+}

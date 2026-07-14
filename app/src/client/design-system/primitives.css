@@ -15,6 +15,10 @@
   background: var(--pp-surface-raised);
   color: var(--pp-text-primary);
   box-shadow: var(--pp-shadow-sm);
+  transition:
+    border-color var(--pp-duration-fast) var(--pp-ease-standard),
+    background-color var(--pp-duration-fast) var(--pp-ease-standard),
+    box-shadow var(--pp-duration-fast) var(--pp-ease-standard);
 }
 
 .pp-surface-card--elevated {
@@ -28,33 +32,48 @@
   min-height: 1.625rem;
   align-items: center;
   width: fit-content;
-  border: 1px solid currentColor;
+  gap: 0.4rem;
+  border: 1px solid var(--pp-border-default);
   border-radius: var(--pp-radius-round);
   padding: 0.25rem 0.55rem;
   background: var(--pp-status-neutral-soft);
   color: var(--pp-status-neutral);
   font-size: var(--pp-text-xs);
-  font-weight: 750;
+  font-weight: 780;
+  letter-spacing: 0.01em;
   line-height: 1;
   white-space: nowrap;
 }
 
+.pp-status-badge::before {
+  width: 0.4rem;
+  height: 0.4rem;
+  flex: 0 0 auto;
+  border-radius: var(--pp-radius-round);
+  background: currentColor;
+  content: "";
+}
+
 .pp-status-badge--success {
+  border-color: rgba(66, 201, 138, 0.34);
   background: var(--pp-status-success-soft);
   color: var(--pp-status-success);
 }
 
 .pp-status-badge--warning {
+  border-color: rgba(224, 180, 94, 0.34);
   background: var(--pp-status-warning-soft);
   color: var(--pp-status-warning);
 }
 
 .pp-status-badge--danger {
+  border-color: rgba(224, 122, 120, 0.34);
   background: var(--pp-status-danger-soft);
   color: var(--pp-status-danger);
 }
 
 .pp-status-badge--info {
+  border-color: rgba(127, 182, 208, 0.34);
   background: var(--pp-status-info-soft);
   color: var(--pp-status-info);
 }
@@ -62,7 +81,7 @@
 .pp-metric-chip {
   display: grid;
   grid-template-columns: auto minmax(0, 1fr);
-  gap: 0.05rem var(--pp-space-2);
+  gap: 0.15rem var(--pp-space-3);
   min-width: 0;
   align-items: center;
 }
@@ -74,15 +93,16 @@
   grid-row: 1 / span 2;
   place-items: center;
   border: 1px solid var(--pp-border-default);
-  border-radius: var(--pp-radius-round);
+  border-radius: var(--pp-radius-sm);
+  background: var(--pp-surface-base);
   color: var(--pp-text-tertiary);
 }
 
 .pp-metric-chip__value {
   min-width: 0;
   color: var(--pp-text-primary);
-  font-size: var(--pp-text-md);
-  font-weight: 760;
+  font-size: var(--pp-text-lg);
+  font-weight: 780;
   line-height: 1.2;
   overflow-wrap: anywhere;
 }
@@ -90,7 +110,7 @@
 .pp-metric-chip__label {
   color: var(--pp-text-tertiary);
   font-size: var(--pp-text-xs);
-  line-height: 1.25;
+  line-height: 1.35;
 }
 
 .pp-metric-chip--jade .pp-metric-chip__icon,
@@ -127,7 +147,7 @@
 
 .pp-section-header h2 {
   color: var(--pp-text-primary);
-  font-size: var(--pp-text-xl);
+  font-size: clamp(1.35rem, 4vw, 1.75rem);
   letter-spacing: var(--pp-tracking-tight);
   line-height: var(--pp-leading-tight);
 }
@@ -142,6 +162,7 @@
 }
 
 .pp-section-header__description {
+  max-width: 46rem;
   margin-top: var(--pp-space-2) !important;
   color: var(--pp-text-secondary);
   font-size: var(--pp-text-sm);
@@ -154,7 +175,7 @@
   justify-content: center;
   gap: var(--pp-space-2);
   border-radius: var(--pp-radius-sm);
-  padding: 0.7rem 1rem;
+  padding: 0.72rem 1rem;
   font-size: var(--pp-text-sm);
   font-weight: 780;
   line-height: 1;
@@ -184,6 +205,10 @@
   border-color: var(--pp-border-default);
   background: var(--pp-surface-overlay);
   color: var(--pp-text-primary);
+}
+
+.pp-action:disabled {
+  cursor: not-allowed;
 }
 
 .pp-action--secondary:hover:not(:disabled) {
@@ -234,7 +259,9 @@
   border: 1px solid var(--pp-border-subtle);
   border-radius: var(--pp-radius-md);
   background: var(--pp-surface-raised);
-  padding: var(--pp-space-4);
+  min-height: 10rem;
+  align-content: center;
+  padding: var(--pp-space-5);
 }
 
 .pp-skeleton {
@@ -277,13 +304,27 @@
   display: grid;
   justify-items: start;
   gap: var(--pp-space-3);
+  min-height: 14rem;
+  align-content: center;
   padding: var(--pp-space-6);
   border-style: dashed;
 }
 
 .pp-empty-state h3,
 .pp-empty-state p {
+  max-width: 36rem;
   margin: 0;
+}
+
+@media (max-width: 30rem) {
+  .pp-section-header {
+    display: grid;
+  }
+
+  .pp-section-header__action,
+  .pp-section-header__action .pp-action {
+    width: 100%;
+  }
 }
 
 .pp-empty-state p {

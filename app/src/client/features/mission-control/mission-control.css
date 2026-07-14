@@ -1,12 +1,14 @@
 .mission-control {
   display: grid;
-  gap: var(--pp-space-5);
+  gap: var(--pp-space-6);
 }
 
 .mission-control__hero {
+  position: relative;
   display: grid;
   gap: var(--pp-space-2);
-  padding-block: var(--pp-space-2) var(--pp-space-3);
+  border-bottom: 1px solid var(--pp-border-subtle);
+  padding-block: var(--pp-space-2) var(--pp-space-6);
 }
 
 .mission-control__hero h1,
@@ -15,6 +17,7 @@
 }
 
 .mission-control__hero h1 {
+  max-width: 20ch;
   color: var(--pp-text-primary);
   font-size: var(--pp-text-2xl);
   letter-spacing: var(--pp-tracking-tight);
@@ -22,6 +25,7 @@
 }
 
 .mission-control__hero > p:last-child {
+  max-width: 48rem;
   color: var(--pp-text-secondary);
   font-size: var(--pp-text-sm);
 }
@@ -36,7 +40,7 @@
 
 .mission-control__grid {
   display: grid;
-  gap: var(--pp-space-3);
+  gap: var(--pp-space-4);
 }
 
 .mission-card {
@@ -44,13 +48,13 @@
   display: grid;
   gap: var(--pp-space-4);
   overflow: hidden;
-  padding: var(--pp-space-4);
+  padding: var(--pp-space-5);
 }
 
 .mission-card::before {
   position: absolute;
   inset: 0 auto 0 0;
-  width: 2px;
+  width: 3px;
   background: var(--pp-jade-500);
   content: "";
 }
@@ -84,11 +88,10 @@
 }
 
 .mission-card__location {
-  overflow: hidden;
+  overflow: visible;
   color: var(--pp-text-tertiary);
   font-size: var(--pp-text-xs);
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  overflow-wrap: anywhere;
 }
 
 .mission-card__provenance {
@@ -140,7 +143,7 @@
 .mission-card__metrics {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: var(--pp-space-3);
+  gap: var(--pp-space-4);
   border-block: 1px solid var(--pp-border-subtle);
   padding-block: var(--pp-space-3);
 }
@@ -170,7 +173,8 @@
   background: var(--pp-status-warning-soft);
   color: var(--pp-status-warning);
   padding: var(--pp-space-3);
-  font-size: var(--pp-text-xs);
+  font-size: var(--pp-text-sm);
+  line-height: 1.45;
 }
 
 .mission-card__warning svg {
@@ -210,6 +214,37 @@
 @media (min-width: 48rem) {
   .mission-control__grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 26.25rem) {
+  .mission-control {
+    gap: var(--pp-space-5);
+  }
+
+  .mission-card {
+    gap: var(--pp-space-3);
+    padding: var(--pp-space-4);
+  }
+
+  .mission-card__header {
+    display: grid;
+  }
+
+  .mission-card__metrics {
+    gap: var(--pp-space-2);
+  }
+
+  .mission-card__metrics .pp-metric-chip__value {
+    font-size: var(--pp-text-md);
+  }
+
+  .mission-card__next-action {
+    display: grid;
+  }
+
+  .mission-card__next-action .pp-action {
+    width: 100%;
   }
 }
 

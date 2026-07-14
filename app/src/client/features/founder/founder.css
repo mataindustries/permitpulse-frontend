@@ -1,13 +1,14 @@
 .founder-view__profile {
   display: grid;
   gap: var(--pp-space-4);
-  padding: var(--pp-space-5);
+  max-width: 44rem;
+  padding: var(--pp-space-6);
 }
 
 .founder-view__avatar {
   display: grid;
-  width: 3.25rem;
-  height: 3.25rem;
+  width: 3.75rem;
+  height: 3.75rem;
   place-items: center;
   border: 1px solid var(--pp-border-accent);
   border-radius: var(--pp-radius-round);
@@ -22,6 +23,11 @@
   margin: 0;
 }
 
+.founder-view__identity h3 {
+  font-size: var(--pp-text-xl);
+  letter-spacing: var(--pp-tracking-tight);
+}
+
 .founder-view__identity p {
   margin-top: var(--pp-space-1);
   color: var(--pp-text-secondary);
@@ -34,4 +40,10 @@
   gap: var(--pp-space-4);
   border-block: 1px solid var(--pp-border-subtle);
   padding-block: var(--pp-space-4);
+}
+
+@media (max-width: 26.25rem) {
+  .founder-view__profile {
+    padding: var(--pp-space-4);
+  }
 }
