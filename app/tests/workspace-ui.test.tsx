@@ -1664,6 +1664,26 @@ describe("case workspace components", () => {
     expect(markup).toContain('role="tab"');
   });
 
+  it("renders the isolated Integrity Review cockpit for administrators only", () => {
+    const adminMarkup = renderToStaticMarkup(
+      <CaseDetail
+        {...defaultDetailProps}
+        caseRecord={safeCase}
+        initialSection="integrity-review"
+        role="admin"
+      />,
+    );
+    const clientMarkup = renderToStaticMarkup(
+      <CaseDetail {...defaultDetailProps} caseRecord={safeCase} />,
+    );
+
+    expect(adminMarkup).toContain("OpenAI Build Week 2026 extension");
+    expect(adminMarkup).toContain("Run Integrity Review");
+    expect(adminMarkup).toContain("Human approval is required");
+    expect(adminMarkup).toContain("No AI output enters the client packet automatically");
+    expect(clientMarkup).not.toContain("OpenAI Build Week 2026 extension");
+  });
+
   it("can open the existing AI review section from OS navigation", () => {
     const markup = renderToStaticMarkup(
       <CaseDetail

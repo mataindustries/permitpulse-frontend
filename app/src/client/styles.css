@@ -6,6 +6,7 @@
 @import "./features/founder/founder.css";
 @import "./features/case-cockpit/case-cockpit.css";
 @import "./features/evidence-inbox/evidence-inbox.css";
+@import "./features/build-week-integrity/integrity-review.css";
 
 :root {
   color: var(--pp-text-primary);

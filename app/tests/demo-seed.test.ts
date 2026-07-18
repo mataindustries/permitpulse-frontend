@@ -57,7 +57,7 @@ describe("canonical rich demo case",()=>{
     const first=await post(admin.cookie,"/api/dev/cases/demo/arroyo-vista");
     expect(first.status).toBe(201);
     const seeded=await first.json<{data:{case_id:string;created:boolean;outcome:string;evidence_count:number;timeline_count:number;finding_count:number;question_count:number;action_count:number;internal_note_count:number;agency_dependency_count:number;action_kit_ready:boolean;lifecycle_state:string;presentation_version:number;renderer_version:number}}>();
-    expect(seeded.data).toMatchObject({created:true,outcome:"created",evidence_count:9,timeline_count:8,finding_count:4,question_count:5,action_count:5,internal_note_count:2,agency_dependency_count:3,action_kit_ready:true,lifecycle_state:"packet_generated",presentation_version:3,renderer_version:4});
+    expect(seeded.data).toMatchObject({created:true,outcome:"created",evidence_count:9,timeline_count:8,finding_count:5,question_count:5,action_count:5,internal_note_count:2,agency_dependency_count:3,action_kit_ready:true,lifecycle_state:"packet_generated",presentation_version:3,renderer_version:4});
     const second=await post(admin.cookie,"/api/dev/cases/demo/arroyo-vista");
     expect(second.status).toBe(200);
     expect((await second.json<{data:typeof seeded.data}>()).data).toMatchObject({...seeded.data,created:false,outcome:"already_current"});

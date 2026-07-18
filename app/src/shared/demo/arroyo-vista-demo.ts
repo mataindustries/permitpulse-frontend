@@ -1,5 +1,6 @@
 import type { CreateCaseInput, CreateEvidenceInput, CreateTimelineInput } from "../../worker/cases/validation";
 import type { ActionInput, ActionKitInput, FindingInput, NoteInput, QuestionInput } from "../../worker/reviewer/validation";
+import { buildWeekUnsupportedReassignmentFinding } from "../build-week-integrity/demo";
 
 export const arroyoVistaDemoPermitNumber = "LADBS-FICTIONAL-2026-1842";
 export const arroyoVistaDemoReviewerLabel = "PermitPulse Analyst";
@@ -49,6 +50,7 @@ export const arroyoVistaDemoFindings: readonly DemoFinding[] = [
   { key:"stale-portal", title:"Visible portal status may be stale", finding_type:"risk", severity:"medium", summary:"The portal still displays a correction-stage status that predates the documented resubmittal receipt.", evidence_keys:["portal","receipt"], timeline_keys:["corrections","uploaded","waiting"], confidence:"high", recommended_resolution:"Request confirmation of the authoritative internal status and the date of the latest routing action.", internal_notes:"", approved:true },
   { key:"discipline-unclear", title:"One discipline response remains unclear", finding_type:"risk", severity:"medium", summary:"The structural response is documented, but the available record does not establish whether energy or another discipline has accepted its response.", evidence_keys:["corrections","structural","energy"], timeline_keys:["corrections","revisions","uploaded"], confidence:"medium", recommended_resolution:"Confirm whether every cycle-one discipline response is complete and whether any fee, form, or clearance remains open.", internal_notes:"Internal only: the energy file is client-provided; avoid describing it as agency-accepted.", approved:true },
   { key:"targeted-followup", title:"Record supports targeted follow-up", finding_type:"strength", severity:"low", summary:"The documented upload and response package support a targeted routing inquiry rather than a new or duplicate submission.", evidence_keys:["receipt","structural","analyst"], timeline_keys:["uploaded","reviewer-inquiry"], confidence:"high", recommended_resolution:"Use the prepared follow-up language and preserve the existing receipt trail.", internal_notes:"", approved:true },
+  buildWeekUnsupportedReassignmentFinding,
 ] as const;
 
 export const arroyoVistaDemoQuestions: readonly (QuestionInput & {key:string})[] = [

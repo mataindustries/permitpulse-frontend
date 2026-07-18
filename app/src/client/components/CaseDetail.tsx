@@ -27,6 +27,7 @@ import { PacketPreview } from "./PacketPreview";
 import { DeliveryLifecyclePanel } from "./DeliveryLifecyclePanel";
 import { AIReviewPanel } from "./AIReviewPanel";
 import { ReviewerWorkspacePanel } from "./ReviewerWorkspacePanel";
+import { IntegrityReviewPanel } from "../features/build-week-integrity/IntegrityReviewPanel";
 import { StatusBadge } from "./StatusBadge";
 import { StatusManagement } from "./StatusManagement";
 import { TimelineForm } from "./TimelineForm";
@@ -55,6 +56,7 @@ export type CaseDetailSection =
   | "activity"
   | "packet"
   | "ai-review"
+  | "integrity-review"
   | "reviewer"
   | "findings";
 
@@ -249,13 +251,21 @@ export function RecordConflictNotice({
   );
 }
 
-type CockpitSection = "overview" | "evidence" | "timeline" | "findings" | "reviewer" | "packet";
+type CockpitSection =
+  | "overview"
+  | "evidence"
+  | "timeline"
+  | "findings"
+  | "integrity-review"
+  | "reviewer"
+  | "packet";
 
 const detailSections = [
   ["overview", "Overview", "mission"],
   ["evidence", "Evidence", "evidence"],
   ["timeline", "Timeline", "timeline"],
   ["findings", "Findings", "ai"],
+  ["integrity-review", "Integrity", "ai"],
   ["reviewer", "Reviewer", "evidence"],
   ["packet", "Packet", "packets"],
 ] as const satisfies readonly [CockpitSection, string, IconName][];
@@ -375,6 +385,9 @@ export function CaseDetail({
     ["missing-evidence", "disputed-evidence", "unready-evidence"].includes(item.id)
   ).length ?? 0;
   const nextAction = currentIntelligence?.recommendedAction;
+  const visibleDetailSections = detailSections.filter(
+    ([section]) => role === "admin" || section !== "integrity-review",
+  );
 
   useEffect(() => {
     setActiveSection(normalizeSection(initialSection));
@@ -565,14 +578,15 @@ export function CaseDetail({
     let nextIndex: number | null = null;
 
     if (event.key === "ArrowRight") {
-      nextIndex = (currentIndex + 1) % detailSections.length;
+      nextIndex = (currentIndex + 1) % visibleDetailSections.length;
     } else if (event.key === "ArrowLeft") {
       nextIndex =
-        (currentIndex - 1 + detailSections.length) % detailSections.length;
+        (currentIndex - 1 + visibleDetailSections.length) %
+        visibleDetailSections.length;
     } else if (event.key === "Home") {
       nextIndex = 0;
     } else if (event.key === "End") {
-      nextIndex = detailSections.length - 1;
+      nextIndex = visibleDetailSections.length - 1;
     }
 
     if (nextIndex === null) {
@@ -580,7 +594,7 @@ export function CaseDetail({
     }
 
     event.preventDefault();
-    const nextSection = detailSections[nextIndex][0];
+    const nextSection = visibleDetailSections[nextIndex][0];
     setActiveSection(nextSection);
     tabRefs.current[nextIndex]?.focus();
   }
@@ -704,7 +718,7 @@ export function CaseDetail({
           </div>
 
           <div className="section-tabs case-cockpit__tabs" role="tablist" aria-label="Case cockpit sections">
-            {detailSections.map(([section, label, icon], index) => (
+            {visibleDetailSections.map(([section, label, icon], index) => (
               <button
                 aria-controls={`case-detail-panel-${section}`}
                 aria-selected={activeSection === section}
@@ -1138,6 +1152,41 @@ export function CaseDetail({
               />
             </section>
           )}
+          {activeSection === "integrity-review" && (role === "admin" ? (
+            <section className="cockpit-section" aria-label="Integrity Review">
+              <IntegrityReviewPanel
+                caseId={caseRecord.id}
+                onDemoReset={() => {
+                  void onReloadLatest();
+                  onEvidenceRetry();
+                  onTimelineRetry();
+                  onActivityRetry();
+                  void onDeliveryLifecycleChanged();
+                }}
+                onOpenEvidence={(evidenceId) => {
+                  const evidence = evidenceItems.find(
+                    (candidate) => candidate.id === evidenceId,
+                  );
+                  if (evidence) {
+                    onSelectEvidence(evidence);
+                    setActiveSection("evidence");
+                    return;
+                  }
+                  void onReloadEvidence(evidenceId)
+                    .then(() => {
+                      setActiveSection("evidence");
+                    })
+                    .catch(() => {
+                      // The parent preserves session and record error handling.
+                    });
+                }}
+              />
+            </section>
+          ) : (
+            <section className="cockpit-section">
+              <p>Integrity Review access is limited to permit analysts.</p>
+            </section>
+          ))}
           {activeSection === "reviewer" && (role === "admin" ? (
             <ReviewerWorkspacePanel caseId={caseRecord.id} evidence={evidenceItems} timeline={timelineItems} />
           ) : (

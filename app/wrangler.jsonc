@@ -33,6 +33,9 @@
 		"AUTH_ALLOW_SIGNUP": "false",
 		"AUTH_ENABLED": "false",
 		"BETTER_AUTH_URL": "https://workspace.getpermitpulse.com",
+		"BUILD_WEEK_DEMO_MODE": "false",
+		"BUILD_WEEK_INTEGRITY_ENABLED": "false",
+		"BUILD_WEEK_INTEGRITY_LIVE_ENABLED": "false",
 		"ENABLE_DEV_CASE_API": "false",
 		"PREVIEW_DEMO_SEED_ENABLED": "false"
 	},
@@ -74,6 +77,9 @@
 				"AUTH_ALLOW_SIGNUP": "false",
 				"AUTH_ENABLED": "true",
 				"BETTER_AUTH_URL": "https://permitpulse-case-workspace-preview.matasergio741.workers.dev",
+				"BUILD_WEEK_DEMO_MODE": "true",
+				"BUILD_WEEK_INTEGRITY_ENABLED": "true",
+				"BUILD_WEEK_INTEGRITY_LIVE_ENABLED": "false",
 				"ENABLE_DEV_CASE_API": "false",
 				"PREVIEW_DEMO_SEED_ENABLED": "false"
 			},
