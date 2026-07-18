@@ -200,8 +200,8 @@ cd app
 npm ci
 cp .dev.vars.example .dev.vars
 # Replace the BETTER_AUTH_SECRET placeholder with a local 32+ character secret.
-npm run db:migrate:local
-npm run dev
+npm run db:migrate:build-week-local
+npm run dev:build-week
 ```
 
 The extension-specific environment variables are:
@@ -215,8 +215,13 @@ The extension-specific environment variables are:
 
 `.dev.vars.example` deliberately enables the local extension and demo boundary
 but keeps live reviews off. To exercise the live pipeline locally, set
-`BUILD_WEEK_INTEGRITY_LIVE_ENABLED=true`, replace the API-key placeholder in
-the untracked `.dev.vars`, and restart the dev server. With live mode disabled
+the real API key in the untracked `.dev.vars`, run
+`npm run db:migrate:build-week-live-local`, and start
+`npm run dev:build-week:live`. The named `build-week-local` and
+`build-week-live-local` Cloudflare environments are intentionally separate from
+production and preview. The safe local environment keeps live AI off and does
+not load an OpenAI key; only the explicitly named live-local environment loads
+the key and enables live review. With live mode disabled
 or the key absent, the API returns a clear unavailable response and makes no AI
 call; it does not fabricate a result.
 

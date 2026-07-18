@@ -60,6 +60,79 @@
 		]
 	},
 	"env": {
+		"build-week-local": {
+			"name": "permitpulse-case-workspace-build-week-local",
+			"secrets": {
+				"required": [
+					"BETTER_AUTH_SECRET"
+				]
+			},
+			"vars": {
+				"ADMIN_BOOTSTRAP_ENABLED": "false",
+				"AI_REVIEW_EXTERNAL_CALLS_ENABLED": "false",
+				"AI_REVIEW_LIVE_ENABLED": "false",
+				"AI_REVIEW_LOCAL_TEST_ENABLED": "false",
+				"AI_REVIEW_PROVIDER": "deterministic-baseline",
+				"APP_ENV": "local",
+				"AUTH_ALLOW_SIGNUP": "true",
+				"AUTH_ENABLED": "true",
+				"BETTER_AUTH_URL": "http://localhost:5173",
+				"BUILD_WEEK_DEMO_MODE": "true",
+				"BUILD_WEEK_INTEGRITY_ENABLED": "true",
+				"BUILD_WEEK_INTEGRITY_LIVE_ENABLED": "false",
+				"ENABLE_DEV_CASE_API": "true",
+				"PREVIEW_DEMO_SEED_ENABLED": "false"
+			},
+			"d1_databases": [
+				{
+					"binding": "DB",
+					"migrations_dir": "migrations"
+				}
+			],
+			"r2_buckets": [
+				{
+					"binding": "EVIDENCE_FILES",
+					"bucket_name": "permitpulse-evidence-files-build-week-local"
+				}
+			]
+		},
+		"build-week-live-local": {
+			"name": "permitpulse-case-workspace-build-week-live-local",
+			"secrets": {
+				"required": [
+					"BETTER_AUTH_SECRET",
+					"OPENAI_API_KEY"
+				]
+			},
+			"vars": {
+				"ADMIN_BOOTSTRAP_ENABLED": "false",
+				"AI_REVIEW_EXTERNAL_CALLS_ENABLED": "false",
+				"AI_REVIEW_LIVE_ENABLED": "false",
+				"AI_REVIEW_LOCAL_TEST_ENABLED": "false",
+				"AI_REVIEW_PROVIDER": "deterministic-baseline",
+				"APP_ENV": "local",
+				"AUTH_ALLOW_SIGNUP": "true",
+				"AUTH_ENABLED": "true",
+				"BETTER_AUTH_URL": "http://localhost:5173",
+				"BUILD_WEEK_DEMO_MODE": "true",
+				"BUILD_WEEK_INTEGRITY_ENABLED": "true",
+				"BUILD_WEEK_INTEGRITY_LIVE_ENABLED": "true",
+				"ENABLE_DEV_CASE_API": "true",
+				"PREVIEW_DEMO_SEED_ENABLED": "false"
+			},
+			"d1_databases": [
+				{
+					"binding": "DB",
+					"migrations_dir": "migrations"
+				}
+			],
+			"r2_buckets": [
+				{
+					"binding": "EVIDENCE_FILES",
+					"bucket_name": "permitpulse-evidence-files-build-week-live-local"
+				}
+			]
+		},
 		"preview": {
 			"name": "permitpulse-case-workspace-preview",
 			"secrets": {

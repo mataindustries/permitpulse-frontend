@@ -470,12 +470,15 @@ function Workspace({
     );
   }
 
-  async function reloadLatestCase() {
+  async function reloadLatestCase(options?: { background?: boolean }) {
     if (!detailCase) {
       return;
     }
 
-    setDetailLoading(true);
+    const background = options?.background === true;
+    if (!background) {
+      setDetailLoading(true);
+    }
     setDetailError("");
 
     try {
@@ -488,7 +491,9 @@ function Workspace({
       handleCaseError(error, setDetailError);
       throw error;
     } finally {
-      setDetailLoading(false);
+      if (!background) {
+        setDetailLoading(false);
+      }
     }
   }
 

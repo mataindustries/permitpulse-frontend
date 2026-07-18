@@ -812,6 +812,23 @@ npm run db:migrate:local
 npm run dev
 ```
 
+The OpenAI Build Week extension uses a separate, local-only Cloudflare
+environment so its optional OpenAI key can be loaded without changing the
+production or preview secret contract. For the fictional Case Integrity demo,
+use these commands instead:
+
+```bash
+npm run db:migrate:build-week-local
+npm run dev:build-week
+```
+
+That named environment keeps auth, signup, the development case API, demo mode,
+and the Integrity Review UI local while keeping live AI off. For an explicitly
+authorized live-local review, put `OPENAI_API_KEY` in the untracked `.dev.vars`
+and use `npm run db:migrate:build-week-live-local` followed by
+`npm run dev:build-week:live`. The tracked production and preview live flags
+remain off.
+
 Wrangler keeps the persistent local database under `app/.wrangler/`. Restarting
 the server without deleting that directory verifies session persistence.
 

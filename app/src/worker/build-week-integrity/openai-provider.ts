@@ -35,6 +35,16 @@ const responseEnvelopeSchema = z
   })
   .passthrough();
 
+const errorEnvelopeSchema = z
+  .object({
+    error: z
+      .object({
+        code: z.string().nullable().optional(),
+      })
+      .passthrough(),
+  })
+  .passthrough();
+
 export class OpenAIIntegrityError extends Error {
   readonly code: string;
 
@@ -108,6 +118,36 @@ function outputText(value: z.infer<typeof responseEnvelopeSchema>): string {
   );
 }
 
+function rejectedRequestError(response: Response, bodyText: string) {
+  if (response.status === 429) {
+    let providerCode: string | null | undefined;
+
+    try {
+      const parsed = errorEnvelopeSchema.safeParse(JSON.parse(bodyText));
+      providerCode = parsed.success ? parsed.data.error.code : undefined;
+    } catch {
+      providerCode = undefined;
+    }
+
+    if (providerCode === "insufficient_quota") {
+      return new OpenAIIntegrityError(
+        "OPENAI_INSUFFICIENT_QUOTA",
+        "The OpenAI project has insufficient quota for this integrity review.",
+      );
+    }
+
+    return new OpenAIIntegrityError(
+      "OPENAI_RATE_LIMITED",
+      "The OpenAI Responses API rate-limited this integrity review.",
+    );
+  }
+
+  return new OpenAIIntegrityError(
+    "OPENAI_REQUEST_REJECTED",
+    `The OpenAI Responses API returned HTTP ${response.status}.`,
+  );
+}
+
 export async function requestOpenAIStructuredOutput<T>(input: {
   apiKey: string;
   instructions: string;
@@ -155,10 +195,7 @@ export async function requestOpenAIStructuredOutput<T>(input: {
 
   const bodyText = await readBoundedResponse(response);
   if (!response.ok) {
-    throw new OpenAIIntegrityError(
-      "OPENAI_REQUEST_REJECTED",
-      `The OpenAI Responses API returned HTTP ${response.status}.`,
-    );
+    throw rejectedRequestError(response, bodyText);
   }
 
   let envelopeValue: unknown;

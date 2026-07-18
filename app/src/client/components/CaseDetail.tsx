@@ -100,7 +100,7 @@ interface CaseDetailProps {
   ) => Promise<TimelineEntryDto>;
   onMetadataUpdate: (input: UpdateCaseMetadataInput) => Promise<void>;
   onReloadEvidence: (evidenceId: string) => Promise<EvidenceItemDto>;
-  onReloadLatest: () => Promise<void>;
+  onReloadLatest: (options?: { background?: boolean }) => Promise<void>;
   onReloadTimeline: (timelineId: string) => Promise<TimelineEntryDto>;
   onRetry: () => void;
   onSelectEvidence: (evidence: EvidenceItemDto) => void;
@@ -1157,10 +1157,9 @@ export function CaseDetail({
               <IntegrityReviewPanel
                 caseId={caseRecord.id}
                 onDemoReset={() => {
-                  void onReloadLatest();
+                  void onReloadLatest({ background: true });
                   onEvidenceRetry();
                   onTimelineRetry();
-                  onActivityRetry();
                   void onDeliveryLifecycleChanged();
                 }}
                 onOpenEvidence={(evidenceId) => {
