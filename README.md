@@ -1,8 +1,45 @@
 # PermitPulse
 
+## OpenAI Build Week 2026 submission
+
+- **Project:** PermitPulse Case Integrity Engine
+- **Track:** Work and Productivity
+- **Public demo:**
+  <https://permitpulse-case-integrity-build-week-demo.matasergio741.workers.dev>
+- **Repository branch:** `build-week-case-integrity`
+
+The Case Integrity Engine uses three GPT-5.6 Terra specialists and GPT-5.6 Sol
+synthesis to challenge unsupported permit conclusions and ground every material
+observation in case evidence. Every generated finding remains a draft until a
+human reviewer accepts, edits, or rejects it, and no AI decision automatically
+changes the client packet.
+
+## Public Demo and Judge Testing
+
+- **Public demo:**
+  <https://permitpulse-case-integrity-build-week-demo.matasergio741.workers.dev>
+- **Email:** `build-week-demo-admin@example.test`
+- **Password:** Provided privately in the Devpost testing instructions.
+
+All demo data is fictional. No real client data is present in the public Build
+Week environment.
+
+1. Sign in.
+2. Open **Arroyo Vista ADU Resubmittal**.
+3. Open **Integrity Review**.
+4. Run the review.
+5. Inspect the intake-receipt versus stale-portal contradiction.
+6. Open an evidence citation.
+7. Accept one item, edit one, and reject one.
+8. Confirm that AI decisions do not mutate the packet.
+9. Run the unchanged case again to observe the clearly labeled cache result.
+10. Use **Reset demo** to restore the fictional baseline.
+
+## Existing PermitPulse platform
+
 PermitPulse combines a static outreach site with a Cloudflare-hosted case workspace for evidence-backed permit intelligence and professional Permit Review Packet production.
 
-## What’s live in this version
+## What’s live in the legacy product
 
 - **PermitPulse Stuck Project Desk (starting at $299)**: 48-hour public-record status packet for one stuck permit, utility, correction, or property-record issue.
 - **Quick Address Screen ($49 pilot)**: lightweight first-pass address screen before deciding whether a full packet is needed.
@@ -35,8 +72,7 @@ PermitPulse combines a static outreach site with a Cloudflare-hosted case worksp
 - `/assets/docs/PermitPulse-Permit-Review-Packet-Sample.pdf` – Canonical sample packet
 - `/sample-report/` – Legacy redirect to the canonical sample packet
 - `/radar/` – Free tools / radar
-- `/pricing/` – Pricing (if present)
-- `/book` or `/booking.html` – Booking / intake (if present)
+- `/booking.html` – Booking / intake
 
 ## Payments and intake
 
@@ -47,9 +83,12 @@ PermitPulse combines a static outreach site with a Cloudflare-hosted case worksp
   - mobile layout is intact
   - GA/event tracking still fires (if enabled)
 
-## Deploy
+## Legacy static-site deployment
 
-This site is intended to be deployed as static files (Cloudflare Pages or similar).
+These instructions apply to the existing static outreach site, which is
+intended to be deployed as static files through Cloudflare Pages or similar.
+The public Case Integrity Engine demo is a separate, isolated Worker deployment
+described below and does not replace this legacy workflow.
 
 Typical flow:
 1. Edit files in `dist/`
@@ -68,20 +107,30 @@ python3 -m http.server --directory dist 8080
 
 The **PermitPulse Case Integrity Engine** is an isolated Build Week extension
 inside the authenticated case workspace in `app/`. It adversarially reviews a
-canonical permit case before packet release. This work has **not** been
-deployed to production, does not change production secrets, and is disabled in
-the tracked production Worker configuration.
+canonical permit case before packet release. It is deployed only to a
+dedicated Build Week Worker with a dedicated D1 database and private R2 bucket;
+the existing legacy preview and production resources were not modified. The
+extension remains disabled in the tracked production Worker configuration.
 
-### Baseline and provenance
+### Build Week Evidence
 
-- Official comparison baseline: tag `build-week-baseline-2026`, commit
-  `5e32ed6fc6792204a4e9402e0bb47f9fabc0c8a1` (July 14, 2026).
-- Strict pre-July-13 snapshot: commit
-  `9bba2b6b8098f8bcd8c6536f19521e7fc88f8d82` (July 12, 2026).
+- **Strict pre-event snapshot:**
+  `9bba2b6b8098f8bcd8c6536f19521e7fc88f8d82` — July 12, 2026.
+- **Comparison baseline:**
+  `5e32ed6fc6792204a4e9402e0bb47f9fabc0c8a1` — July 14, 2026.
+- **Core Build Week implementation:**
+  `12984f6f45552c272e84715a1c34927d097d16a6` —
+  `feat(build-week): add PermitPulse Case Integrity Engine`.
+- **Final QA hardening:**
+  `6c48d8220a2a4f854e77fafcbe99a446a1204793` —
+  `fix(build-week): harden live-local integrity review QA`.
+- **Primary Codex `/feedback` Thread ID:**
+  `019f73a3-7f9c-7051-a231-d2d419c9d20e`.
 
-The official tag was created after July 13, so both anchors are recorded rather
-than presenting the tag as the strict pre-event snapshot. At the July 12
-snapshot, PermitPulse already had Better Auth and D1-backed sessions; structured
+The `build-week-baseline-2026` tag points to the July 14 comparison baseline and
+was created after July 13, so both anchors are recorded rather than presenting
+that tag as the strict pre-event snapshot. At the July 12 snapshot, PermitPulse
+already had Better Auth and D1-backed sessions; structured
 case records; an evidence register with provenance and verification state;
 source-linked canonical timeline events; reviewer findings, questions, actions,
 and an Action Kit; packet readiness rules; deterministic HTML, text, and PDF
@@ -137,6 +186,21 @@ demo fixture. Migration
 - An administrator-only demo reset that reconciles the Arroyo Vista seed and
   archives completed/failed integrity runs without touching unrelated cases.
 
+### Isolated public deployment
+
+- The Case Integrity Engine is deployed only to the dedicated public Build Week
+  Worker linked above, its dedicated D1 database, and its private R2 bucket.
+- Migrations `0001` through `0011` were applied only to the new isolated Build
+  Week D1 database. Existing legacy preview and production databases were not
+  migrated or modified.
+- Only `BETTER_AUTH_SECRET` and `OPENAI_API_KEY` remain configured as secrets on
+  the isolated Worker. Secret values are never stored in this repository.
+- One-time administrator bootstrap and fictional-demo seed gates were removed
+  or disabled after provisioning; signup and development seed routes remain
+  disabled.
+- The final public demo was verified with only the fictional Arroyo Vista case.
+  No real client records were copied into or reviewed by the environment.
+
 The extension adds these authenticated API routes:
 
 | Method | Route | Purpose |
@@ -183,12 +247,13 @@ and select one best next question or action. The Responses API request uses
 strict `json_schema` output, `store: false`, and is made only by the Worker;
 the OpenAI API key is never returned to or read by browser code.
 
-Codex was used as an engineering assistant to inspect the existing repository
-and git history, map the canonical data and rendering boundaries, implement the
-isolated vertical slice, author deterministic validation and tests, review the
-Mission Control integration, and document the result. Codex did not deploy the
-application, alter remote data, create production resources, or approve any AI
-finding. Human reviewers retain every product and packet-release decision.
+Codex was used as an engineering assistant for repository and git-history
+inspection, architecture and rendering-boundary analysis, implementation,
+deterministic validation and tests, deployment planning, staged Cloudflare
+execution, troubleshooting, public browser QA, and documentation. Every remote
+mutation and credential boundary required explicit human approval. Codex did
+not approve any AI finding or modify legacy preview or production resources;
+human reviewers retain every product and packet-release decision.
 
 ### Local setup
 
@@ -218,19 +283,21 @@ but keeps live reviews off. To exercise the live pipeline locally, set
 the real API key in the untracked `.dev.vars`, run
 `npm run db:migrate:build-week-live-local`, and start
 `npm run dev:build-week:live`. The named `build-week-local` and
-`build-week-live-local` Cloudflare environments are intentionally separate from
-production and preview. The safe local environment keeps live AI off and does
-not load an OpenAI key; only the explicitly named live-local environment loads
-the key and enables live review. With live mode disabled
-or the key absent, the API returns a clear unavailable response and makes no AI
-call; it does not fabricate a result.
+`build-week-live-local` configurations remain local development boundaries and
+do not target legacy production resources. The public Build Week demo uses its
+own dedicated Worker and storage resources. The safe local environment keeps
+live AI off and does not load an OpenAI key; only the explicitly named
+live-local environment loads the key and enables live review. With live mode
+disabled or the key absent, the API returns a clear unavailable response and
+makes no AI call; it does not fabricate a result.
 
 ### Fictional demo and reset
 
-No shared demo credentials are committed. Use an existing local administrator
-account provisioned according to `app/README.md`; local signup alone does not
-grant the `admin` role. With the local server running, seed or reconcile the
-case using that account:
+No shared demo credentials are committed; public judge credentials are provided
+through the private Devpost testing instructions described above. For local
+testing, use an existing local administrator account provisioned according to
+`app/README.md`; local signup alone does not grant the `admin` role. With the
+local server running, seed or reconcile the case using that account:
 
 ```bash
 PERMITPULSE_DEMO_ADMIN_EMAIL='your-local-admin@example.test' \
@@ -302,6 +369,7 @@ Tests do not require a real OpenAI key and do not make a live model call.
   parsing, citation validation, certainty-language rejection, immutable
   decision events, and optimistic version checks are defense-in-depth. They do
   not replace professional human review.
-- Production and tracked live-AI settings remain off. No production deployment,
-  remote D1 migration, secret change, or real-client review is part of this
-  Build Week implementation.
+- Production and tracked live-AI settings remain off. The authorized Build Week
+  deployment applied migrations `0001` through `0011` and configured the two
+  required secrets only on the isolated environment; no legacy preview or
+  production resource was modified, and no real-client review occurred.
