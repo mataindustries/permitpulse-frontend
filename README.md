@@ -4,10 +4,10 @@ PermitPulse combines a static outreach site with a Cloudflare-hosted case worksp
 
 ## What’s live in this version
 
-- **PermitPulse Stuck Project Desk (starting at $299)**: 48-hour public-record status packet for one stuck permit, utility, correction, or property-record issue.
-- **Quick Address Screen ($49 pilot)**: lightweight first-pass address screen before deciding whether a full packet is needed.
+- **Permit Review Packet (starting at $249)**: 48-business-hour public-record review for an active permit that is stuck, returned with corrections, showing conflicting statuses, or missing a clear next step.
+- **Founding Research Desk Pilot ($299 total)**: three client-ready Development Snapshots for people evaluating property before buying, bidding, designing, or advising a client.
 - **Canonical Sample Permit Review Packet**: `dist/assets/docs/PermitPulse-Permit-Review-Packet-Sample.pdf`.
-- **Mission Control**: the homepage introduces the current authenticated workspace and its end-to-end review flow.
+- **Human-reviewed delivery**: the homepage leads with the service outcome while the structured evidence workflow remains supporting credibility.
 - **Radar**: free tool entrypoint at `/radar/` (header “Free tools” should link here).
 - **Help Guides**: LA permit help pages + internal links.
 - **Sitemap**: `dist/sitemap.xml`
@@ -31,12 +31,13 @@ PermitPulse combines a static outreach site with a Cloudflare-hosted case worksp
 ## Key routes
 
 - `/` – Home
+- `/development-snapshot/` – Founding Research Desk Pilot
 - `/permit-due-diligence-los-angeles/` – legacy Permit Review Plus page
 - `/assets/docs/PermitPulse-Permit-Review-Packet-Sample.pdf` – Canonical sample packet
 - `/sample-report/` – Legacy redirect to the canonical sample packet
 - `/radar/` – Free tools / radar
 - `/pricing/` – Pricing (if present)
-- `/#contact` – Direct packet-walkthrough email CTA
+- `/#permit-check` – Free Permit Review Packet fit check
 
 ## Payments and intake
 

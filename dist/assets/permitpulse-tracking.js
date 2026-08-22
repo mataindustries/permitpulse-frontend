@@ -145,6 +145,13 @@
     if (!form || FORM_START_EVENTS.has(form)) return;
     FORM_START_EVENTS.add(form);
     populateFormAttribution(form);
+    var startEvent = form.getAttribute("data-pp-start-event");
+    if (startEvent) {
+      track(startEvent, {
+        form_type: form.getAttribute("data-pp-form-type") || "lead",
+        page_path: pagePath()
+      });
+    }
     track("pp_form_start", {
       form_name: formName(form),
       page_path: pagePath()

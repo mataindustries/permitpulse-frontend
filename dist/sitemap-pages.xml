@@ -57,6 +57,7 @@
 
   <!-- Conversion tools -->
   <url><loc>https://getpermitpulse.com/snapshot/</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
+  <url><loc>https://getpermitpulse.com/development-snapshot/</loc><changefreq>weekly</changefreq><priority>0.8</priority></url>
 
   <!-- LA core categories (EN) -->
   <url><loc>https://getpermitpulse.com/los-angeles-roofing-permits.html</loc></url>
