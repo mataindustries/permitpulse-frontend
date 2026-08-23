@@ -9,7 +9,7 @@ const ROOT_DIR = path.resolve(__dirname, '..');
 const DIST_DIR = path.join(ROOT_DIR, 'dist');
 const HUB_DIR = path.join(DIST_DIR, 'california', 'jurisdictions');
 const SITE_URL = 'https://getpermitpulse.com';
-const STRIPE_URL = 'https://buy.stripe.com/9B614ofhJ72H5Ft93Q1wY0l';
+const OFFER_URL = '/#research-intake';
 const LASTMOD = '2026-05-09';
 const OG_IMAGE = `${SITE_URL}/img/permitpulse-og-los-angeles-permit-radar.webp`;
 
@@ -22,12 +22,12 @@ const LAUNCH_JURISDICTIONS = [
     slug: 'los-angeles',
     jurisdictionId: 'la_city',
     name: 'Los Angeles',
-    title: 'Los Angeles Permit History + Risk Report | PermitPulse',
-    h1: 'Los Angeles permit history and risk report',
+    title: 'Los Angeles Permit Deep Research | PermitPulse',
+    h1: 'Los Angeles Permit Deep Research brief',
     description:
       'Check Los Angeles permit history, official LADBS records, and PermitPulse coverage for fast due diligence before a bid, purchase, or submission.',
     intro:
-      'Los Angeles permit research usually starts in LADBS, but the useful details still end up scattered across status pages, permit reports, and raw record language. This page gives contractors, owners, and diligence teams a cleaner starting point before they escalate to a full Permit History + Risk Report.',
+      'Los Angeles permit research usually starts in LADBS, but the useful details still end up scattered across status pages, permit reports, and raw record language. This page gives contractors, owners, and diligence teams a cleaner starting point before they escalate to a full Permit Deep Research.',
     summary:
       'City permit coverage for LADBS addresses, permit numbers, valuation, and high-signal scope language.',
     officialPortalUrl: 'https://www.ladbs.org/services/check-status/online-building-records',
@@ -42,7 +42,7 @@ const LAUNCH_JURISDICTIONS = [
     coverageNotes: [
       'PermitPulse has live search coverage for Los Angeles permit records through the city public dataset.',
       'This lane is strongest for fast checks on permit number, address, issue date, permit type, and valuation.',
-      'Use a Permit History + Risk Report when you need a clearer timeline, scope summary, or caveats documented in one place.',
+      'Use a Permit Deep Research when you need a clearer timeline, scope summary, or caveats documented in one place.',
     ],
     related: ['los-angeles-county', 'beverly-hills', 'pasadena'],
   },
@@ -50,10 +50,10 @@ const LAUNCH_JURISDICTIONS = [
     slug: 'los-angeles-county',
     jurisdictionId: 'la_county',
     name: 'Los Angeles County',
-    title: 'Los Angeles County Permit History + Risk Report | PermitPulse',
-    h1: 'Los Angeles County permit history and risk report',
+    title: 'Los Angeles County Permit Deep Research | PermitPulse',
+    h1: 'Los Angeles County Permit Deep Research brief',
     description:
-      'Use PermitPulse to route Los Angeles County permit searches correctly, review EPIC-LA case history, and request a permit history and risk report for county-served addresses.',
+      'Use PermitPulse to route Los Angeles County permit searches correctly, review EPIC-LA case history, and request a Permit Deep Research brief for county-served addresses.',
     intro:
       'County routing is where many Southern California permit searches go sideways. If the address is in unincorporated Los Angeles County or inside a county-served pocket, EPIC-LA is the lane that matters and city-only assumptions can waste real time.',
     summary:
@@ -70,7 +70,7 @@ const LAUNCH_JURISDICTIONS = [
     coverageNotes: [
       'PermitPulse currently treats Los Angeles County as a portal-assisted jurisdiction rather than a live public feed.',
       'This page is designed for county-served addresses, mixed-routing questions, and cases where city assumptions are risky.',
-      'Request a Permit History + Risk Report when county scope, status gaps, or historical records need manual interpretation.',
+      'Request a Permit Deep Research when county scope, status gaps, or historical records need manual interpretation.',
     ],
     related: ['los-angeles', 'glendale', 'long-beach'],
   },
@@ -78,8 +78,8 @@ const LAUNCH_JURISDICTIONS = [
     slug: 'sacramento',
     jurisdictionId: 'sacramento',
     name: 'Sacramento',
-    title: 'Sacramento Permit History + Risk Report | PermitPulse',
-    h1: 'Sacramento permit history and risk report',
+    title: 'Sacramento Permit Deep Research | PermitPulse',
+    h1: 'Sacramento Permit Deep Research brief',
     description:
       'Review Sacramento permit history, public permit portal records, and PermitPulse coverage for issued permits, valuation, and scope signals before you move on a project.',
     intro:
@@ -98,7 +98,7 @@ const LAUNCH_JURISDICTIONS = [
     coverageNotes: [
       'PermitPulse has live search coverage for Sacramento issued permit records through the city dataset.',
       'This coverage is useful when you need status date, valuation, permit type, and work description quickly.',
-      'Move to a Permit History + Risk Report when entitlement context, sequencing, or record caveats matter to the decision.',
+      'Move to a Permit Deep Research when entitlement context, sequencing, or record caveats matter to the decision.',
     ],
     related: ['san-diego', 'long-beach', 'los-angeles'],
   },
@@ -134,8 +134,8 @@ const LAUNCH_JURISDICTIONS = [
     slug: 'culver-city',
     jurisdictionId: 'culver_city',
     name: 'Culver City',
-    title: 'Culver City Permit History + Risk Report | PermitPulse',
-    h1: 'Culver City permit history and risk report',
+    title: 'Culver City Permit Deep Research | PermitPulse',
+    h1: 'Culver City Permit Deep Research brief',
     description:
       'Review Culver City permit history, official permit portal records, and PermitPulse coverage for remodels, MEP work, and address-level permit diligence.',
     intro:
@@ -154,7 +154,7 @@ const LAUNCH_JURISDICTIONS = [
     coverageNotes: [
       'PermitPulse has live search coverage for Culver City permit records through the city public data service.',
       'This coverage is especially useful for address lookups, record status, and work descriptions across multiple trades.',
-      'Use a Permit History + Risk Report when a project involves multiple records, vague descriptions, or diligence-sensitive timing.',
+      'Use a Permit Deep Research when a project involves multiple records, vague descriptions, or diligence-sensitive timing.',
     ],
     related: ['santa-monica', 'beverly-hills', 'los-angeles'],
   },
@@ -162,8 +162,8 @@ const LAUNCH_JURISDICTIONS = [
     slug: 'beverly-hills',
     jurisdictionId: 'beverly_hills',
     name: 'Beverly Hills',
-    title: 'Beverly Hills Permit History + Risk Report | PermitPulse',
-    h1: 'Beverly Hills permit history and risk report',
+    title: 'Beverly Hills Permit Deep Research | PermitPulse',
+    h1: 'Beverly Hills Permit Deep Research brief',
     description:
       'Use PermitPulse to review Beverly Hills permit history, official permit application records, and risk signals before a high-touch remodel, reroof, or commercial job moves forward.',
     intro:
@@ -182,7 +182,7 @@ const LAUNCH_JURISDICTIONS = [
     coverageNotes: [
       'PermitPulse has live search coverage for Beverly Hills permit records through the city public dataset.',
       'The official city application portal is still the right first stop when you need to work directly from the jurisdiction source.',
-      'Request a Permit History + Risk Report when the property or project visibility makes record ambiguity expensive.',
+      'Request a Permit Deep Research when the property or project visibility makes record ambiguity expensive.',
     ],
     related: ['los-angeles', 'santa-monica', 'culver-city'],
   },
@@ -218,14 +218,14 @@ const LAUNCH_JURISDICTIONS = [
     slug: 'glendale',
     jurisdictionId: null,
     name: 'Glendale',
-    title: 'Glendale Permit History + Risk Report | PermitPulse',
-    h1: 'Glendale permit history and risk report',
+    title: 'Glendale Permit Deep Research | PermitPulse',
+    h1: 'Glendale Permit Deep Research brief',
     description:
-      'Use the Glendale permit portal, review PermitPulse coverage notes, and request a permit history and risk report for projects that need a cleaner jurisdiction read.',
+      'Use the Glendale permit portal, review PermitPulse coverage notes, and request a Permit Deep Research brief for projects that need a cleaner jurisdiction read.',
     intro:
       'Glendale permit checks usually need a fast answer on record status, scope, and whether the visible work lines up with what the city actually has on file. This page keeps the workflow simple: start in the official portal, then move to a report when the project needs more than a raw lookup.',
     summary:
-      'Portal-assisted Glendale coverage for permit routing, status checks, and report requests tied to a specific address.',
+      'Portal-assisted Glendale coverage for permit routing, status checks, and research requests tied to a specific address.',
     officialPortalUrl: 'https://glendaleca-energovweb.tylerhost.net/apps/SelfService#/home',
     officialPortalLabel: 'Open Glendale self-service portal',
     officialPortalNote:
@@ -237,7 +237,7 @@ const LAUNCH_JURISDICTIONS = [
     ],
     coverageNotes: [
       'PermitPulse currently treats Glendale as a portal-assisted jurisdiction for launch.',
-      'This page is built for teams that need the official portal link plus a direct route into a Permit History + Risk Report.',
+      'This page is built for teams that need the official portal link plus a direct route into a Permit Deep Research.',
       'Use a report when address-level permit questions need manual review, timeline cleanup, or risk framing.',
     ],
     related: ['pasadena', 'los-angeles', 'los-angeles-county'],
@@ -246,14 +246,14 @@ const LAUNCH_JURISDICTIONS = [
     slug: 'long-beach',
     jurisdictionId: 'long_beach',
     name: 'Long Beach',
-    title: 'Long Beach Permit History + Risk Report | PermitPulse',
-    h1: 'Long Beach permit history and risk report',
+    title: 'Long Beach Permit Deep Research | PermitPulse',
+    h1: 'Long Beach Permit Deep Research brief',
     description:
-      'Review Long Beach permit portal access, PermitPulse coverage notes, and request a permit history and risk report for residential or commercial project due diligence.',
+      'Review Long Beach permit portal access, PermitPulse coverage notes, and request a Permit Deep Research brief for residential or commercial project due diligence.',
     intro:
       'Long Beach projects range from simple online reroof permits to bigger multifamily, coastal, and commercial files that need more context than one portal screen provides. This page gives you the official city system and a clean handoff into PermitPulse when the record matters.',
     summary:
-      'Long Beach permit coverage for portal-first research, online permitting workflows, and report requests.',
+      'Long Beach permit coverage for portal-first research, online permitting workflows, and research requests.',
     officialPortalUrl: 'https://permitslicenses.longbeach.gov/',
     officialPortalLabel: 'Open Long Beach permitting and licensing portal',
     officialPortalNote:
@@ -264,9 +264,9 @@ const LAUNCH_JURISDICTIONS = [
       'Escalate when a coastal, multifamily, or commercial file has more risk than the portal summary reveals.',
     ],
     coverageNotes: [
-      'PermitPulse has Long Beach jurisdiction wiring staged, but the public launch page currently routes through the official city portal first.',
-      'This page is designed to capture address-level demand while keeping the user on an official Long Beach permit lane.',
-      'Request a Permit History + Risk Report when the project is important enough that portal-only review is not enough.',
+      'PermitPulse treats Long Beach as portal-assisted; the former open-data endpoint is not represented as a live source.',
+      'Research starts with the current official city portal and record-search routes, then manually verifies any conclusion against the available record.',
+      'Request a Permit Deep Research when the project is important enough that portal-only review is not enough.',
     ],
     related: ['san-diego', 'los-angeles-county', 'los-angeles'],
   },
@@ -274,14 +274,14 @@ const LAUNCH_JURISDICTIONS = [
     slug: 'san-diego',
     jurisdictionId: null,
     name: 'San Diego',
-    title: 'San Diego Permit History + Risk Report | PermitPulse',
-    h1: 'San Diego permit history and risk report',
+    title: 'San Diego Permit Deep Research | PermitPulse',
+    h1: 'San Diego Permit Deep Research brief',
     description:
-      'Use the City of San Diego permit portal, review PermitPulse coverage notes, and request a permit history and risk report when a San Diego address needs deeper review.',
+      'Use the City of San Diego permit portal, review PermitPulse coverage notes, and request a Permit Deep Research brief when a San Diego address needs deeper review.',
     intro:
       'San Diego permit research can split across city systems depending on the record type, timing, and workflow. This page is built to keep the search practical: start with the official city approvals portal, then move to a report if the address still carries open permit risk.',
     summary:
-      'Portal-assisted San Diego coverage for city permit lookup, record review, and report requests.',
+      'Portal-assisted San Diego coverage for city permit lookup, record review, and research requests.',
     officialPortalUrl: 'https://opendsd.sandiego.gov/web/approvals/',
     officialPortalLabel: 'Open San Diego OpenDSD approvals portal',
     officialPortalNote:
@@ -294,7 +294,7 @@ const LAUNCH_JURISDICTIONS = [
     coverageNotes: [
       'PermitPulse currently treats San Diego city coverage as portal-assisted on the public launch pages.',
       'This page is intended for city-served project review, not county-only routing or non-city systems.',
-      'Use a Permit History + Risk Report when the address matters and the official portal leaves too many open questions.',
+      'Use a Permit Deep Research when the address matters and the official portal leaves too many open questions.',
     ],
     related: ['long-beach', 'sacramento', 'los-angeles'],
   },
@@ -873,6 +873,20 @@ function isSanJose(entry) {
   return entry?.id === 'san_jose';
 }
 
+function isCaliforniaState(stateCode) {
+  return stateCode === 'CA';
+}
+
+function getResearchCtaLabel(stateCode) {
+  return isCaliforniaState(stateCode) ? 'Research an address' : 'Research a California address';
+}
+
+function getResearchAvailabilityNote(stateCode) {
+  return isCaliforniaState(stateCode)
+    ? ''
+    : 'Permit Deep Research’s founding offer currently serves California addresses only. This page is a public-source directory, not a statement of service availability in this jurisdiction.';
+}
+
 function buildCoverage(entry) {
   if (entry.provider && entry.enabled !== false) {
     return {
@@ -893,23 +907,28 @@ function buildCoverage(entry) {
 
 function getPermitsCityPageCopy(entry, stateName, coverage) {
   const tierPhrase = coverage.id === 'api_backed' ? 'live-data supported' : 'portal-only';
+  const californiaOffer = isCaliforniaState(entry.state);
 
   const defaults = {
     title: `${entry.name}, ${stateName} Permit Portal + Coverage | PermitPulse`,
-    description: `${entry.name}, ${stateName} permit page with the official ${entry.platform || 'permit'} portal, ${tierPhrase} coverage, and Mission Control access.`,
+    description: californiaOffer
+      ? `${entry.name}, ${stateName} permit page with the official ${entry.platform || 'permit'} portal, ${tierPhrase} coverage, and Permit Deep Research access.`
+      : `${entry.name}, ${stateName} permit page with the official ${entry.platform || 'permit'} portal and ${tierPhrase} coverage notes. California research service is listed separately.`,
     h1: `${entry.name} permit portal and PermitPulse coverage`,
-    heroLead:
-      coverage.id === 'api_backed'
-        ? `${entry.name} is listed in the current PermitPulse jurisdiction catalog with live-data support in ${stateName}. Start with the official ${entry.platform || 'permit'} portal, review the current coverage notes below, and use Mission Control when the permit record needs more context.`
-        : `${entry.name} is listed in the current PermitPulse jurisdiction catalog with portal-only coverage in ${stateName}. Start with the official ${entry.platform || 'permit'} portal, review the current coverage notes below, and use Mission Control when the permit record needs more context.`,
+    heroLead: !californiaOffer
+      ? `${entry.name} is listed in the PermitPulse public-source catalog with ${tierPhrase} coverage in ${stateName}. Start with the official ${entry.platform || 'permit'} portal. Permit Deep Research’s founding offer currently serves California addresses only.`
+      : coverage.id === 'api_backed'
+        ? `${entry.name} is listed in the current PermitPulse jurisdiction catalog with live-data support in ${stateName}. Start with the official ${entry.platform || 'permit'} portal, review the current coverage notes below, and use Permit Deep Research when the permit record needs more context.`
+        : `${entry.name} is listed in the current PermitPulse jurisdiction catalog with portal-only coverage in ${stateName}. Start with the official ${entry.platform || 'permit'} portal, review the current coverage notes below, and use Permit Deep Research when the permit record needs more context.`,
     fallbackNote:
       coverage.id === 'api_backed'
         ? `${entry.name} has public permit data connected in PermitPulse, but the official ${entry.platform || 'permit'} portal remains the jurisdiction source for direct record confirmation and workflow steps.`
         : `${entry.name} is currently cataloged as portal-only coverage, so the official ${entry.platform || 'permit'} portal is the primary lookup path.`,
-    missionLead:
-      coverage.id === 'api_backed'
+    missionLead: !californiaOffer
+      ? `${entry.name} is included here as a public-source directory page. The Permit Deep Research founding offer currently serves California addresses; use the official ${entry.platform || 'permit'} portal for this jurisdiction.`
+      : coverage.id === 'api_backed'
         ? `${entry.name} is available in PermitPulse with live-data support. Use it for faster permit context around a city record, then use the official portal when the next step requires source confirmation.`
-        : `${entry.name} is available in PermitPulse with portal-only coverage. Mission Control keeps the current portal-first behavior intact while giving operators a cleaner route into the next action.`,
+        : `${entry.name} is available in PermitPulse with portal-only coverage. Permit Deep Research keeps the current portal-first behavior intact while giving operators a cleaner route into the next action.`,
     supportLabel: 'Live data support',
     supportValue:
       coverage.id === 'api_backed' ? 'Supported through the official public permit dataset' : 'Not connected yet',
@@ -937,23 +956,28 @@ function getPermitsCityPageCopy(entry, stateName, coverage) {
 
 function getBuildingPermitsPageCopy(entry, stateName, coverage) {
   const tierPhrase = coverage.id === 'api_backed' ? 'live-data supported' : 'portal-only';
+  const californiaOffer = isCaliforniaState(entry.state);
 
   const defaults = {
     title: `${entry.name}, ${stateName} Building Permits | PermitPulse`,
     description: `Find ${entry.name}, ${stateName} building permits with the official ${entry.platform || 'permit'} portal, ${tierPhrase} coverage notes, and links to the main PermitPulse permit page.`,
     h1: `${entry.name} building permits`,
-    heroLead: `Find building permits in ${entry.name}, ${stateName} using the current jurisdiction catalog and the official ${entry.platform || 'permit'} portal. This page is framed for building-permit lookup first, with direct links into the broader PermitPulse permit page and Mission Control when the record needs a wider review.`,
-    fallbackNote:
-      coverage.id === 'api_backed'
+    heroLead: californiaOffer
+      ? `Find building permits in ${entry.name}, ${stateName} using the current jurisdiction catalog and the official ${entry.platform || 'permit'} portal. This page is framed for building-permit lookup first, with direct links into the broader PermitPulse permit page and Permit Deep Research when the record needs a wider review.`
+      : `Find building permits in ${entry.name}, ${stateName} using the public-source catalog and the official ${entry.platform || 'permit'} portal. Permit Deep Research’s founding offer currently serves California addresses only.`,
+    fallbackNote: !californiaOffer
+      ? `${entry.name} is listed for public-source navigation only. Use the official ${entry.platform || 'permit'} portal for current building-permit lookup; the founding research offer is limited to California.`
+      : coverage.id === 'api_backed'
         ? `${entry.name} has public data coverage in PermitPulse, but the official ${entry.platform || 'permit'} portal remains the primary source for building permit lookup and record confirmation.`
-        : `${entry.name} is currently routed as portal-only coverage, so building permit lookup should start in the official ${entry.platform || 'permit'} portal before moving into Mission Control.`,
+        : `${entry.name} is currently routed as portal-only coverage, so building permit lookup should start in the official ${entry.platform || 'permit'} portal before moving into Permit Deep Research.`,
     fallbackKicker: coverage.id === 'api_backed' ? 'Coverage notes' : 'Fallback notes',
     fallbackHeading:
       coverage.id === 'api_backed' ? 'Official portal plus live coverage' : 'Portal-first building permit lookup',
-    ctaLead:
-      coverage.id === 'api_backed'
+    ctaLead: !californiaOffer
+      ? `Use the official ${entry.platform || 'permit'} portal for ${entry.name}. The Permit Deep Research founding offer currently serves California addresses only; this page does not represent local research-service availability.`
+      : coverage.id === 'api_backed'
         ? `Use PermitPulse when you need faster building-permit context around ${entry.name} records, then move to the official portal when the next step requires direct source confirmation.`
-        : `Use the official portal first for ${entry.name} building permits, then move to the main PermitPulse permit page for the full jurisdiction view or Mission Control when the next step is unclear.`,
+        : `Use the official portal first for ${entry.name} building permits, then move to the main PermitPulse permit page for the full jurisdiction view or Permit Deep Research when the next step is unclear.`,
   };
 
   if (isSanJose(entry)) {
@@ -1280,7 +1304,7 @@ function renderHeader() {
       <a href="/permits/">Permit directory</a>
       <a href="/california/jurisdictions/">California hub</a>
       <a href="/california-permit-history/">California search</a>
-      <a href="/#mission-control">Mission Control</a>
+      <a href="/#research-intake">Permit Deep Research</a>
       <a href="/guides/">Guides</a>
       <a href="/free-tools/">Free tools</a>
     </nav>
@@ -1302,22 +1326,22 @@ function renderFooter() {
         <a href="/permits/" class="link-line">Permit directory</a>
         <a href="/california/jurisdictions/" class="link-line">California hub</a>
         <a href="/california-permit-history/" class="link-line">California search</a>
-        <a href="/#mission-control" class="link-line">Mission Control</a>
+        <a href="/#research-intake" class="link-line">Permit Deep Research</a>
         <a href="/guides/" class="link-line">Guides</a>
         <a href="/free-tools/" class="link-line">Free tools</a>
       </div>
       <div style="margin-top:18px; text-align:right;">
         <a href="mailto:hello@getpermitpulse.com" class="link-line">hello@getpermitpulse.com</a>
-        <div class="muted mono" style="margin-top:18px;">© 2026 PermitPulse Inc.</div>
+        <div class="muted mono" style="margin-top:18px;">© 2026 PermitPulse, a research brand from ENM Ventures.</div>
       </div>
     </div>
   </div>
 </footer>`;
 }
 
-function renderStickyCta() {
+function renderStickyCta(label = 'Research an address') {
   return `<div class="sticky-cta" role="navigation" aria-label="Start PermitPulse">
-  <a class="sticky-primary" href="${STRIPE_URL}" target="_blank" rel="noopener">Get Permit Review Plus — $149</a>
+  <a class="sticky-primary" href="${OFFER_URL}">${escapeHtml(label)}</a>
   <a class="sticky-ghost" href="/permits/">Browse permit directory</a>
 </div>`;
 }
@@ -1365,7 +1389,7 @@ ${renderHeader()}
       <h1>${escapeHtml(entry.h1)}</h1>
       <p class="lead">${escapeHtml(entry.intro)}</p>
       <div class="btn-row">
-        <a class="btn btn-primary" href="${STRIPE_URL}" target="_blank" rel="noopener">Get Permit Review Plus — $149</a>
+        <a class="btn btn-primary" href="${OFFER_URL}">Research an address</a>
         <a class="btn btn-secondary" href="${escapeHtml(entry.officialPortalUrl)}" target="_blank" rel="noopener">${escapeHtml(entry.officialPortalLabel)}</a>
       </div>
       <p class="mono muted" style="font-size:12px;">Need statewide search instead? Start at <a href="/california-permit-history/" class="link-line">/california-permit-history/</a>.</p>
@@ -1414,10 +1438,10 @@ ${renderHeader()}
         <div class="section-head" style="margin-bottom:0;">
           <div class="kicker">Next step</div>
           <h2>Need more than a portal screenshot?</h2>
-          <p class="lead">For a specific ${escapeHtml(entry.name)} address, PermitPulse can package permit history, timeline context, risk flags, and scope notes into a decision-ready report.</p>
+          <p class="lead">For a specific ${escapeHtml(entry.name)} address, PermitPulse can package permit history, timeline context, risk flags, and scope notes into a source-backed brief.</p>
         </div>
         <div class="btn-row">
-          <a class="btn btn-primary" href="${STRIPE_URL}" target="_blank" rel="noopener">Get Permit Review Plus — $149</a>
+          <a class="btn btn-primary" href="${OFFER_URL}">Research an address</a>
           <a class="btn btn-secondary" href="/permit-history-report-los-angeles/">See how the report workflow works</a>
         </div>
       </div>
@@ -1496,7 +1520,7 @@ ${renderHeader()}
       <h1>Covered California jurisdictions</h1>
       <p class="lead">This hub gives search traffic a clear, crawlable path into PermitPulse jurisdiction coverage pages. Each link is an indexable public page built for real permit research, not thin doorway copy.</p>
       <div class="btn-row">
-        <a class="btn btn-primary" href="${STRIPE_URL}" target="_blank" rel="noopener">Get Permit Review Plus — $149</a>
+        <a class="btn btn-primary" href="${OFFER_URL}">Research an address</a>
         <a class="btn btn-secondary" href="/california-permit-history/">Open California permit search</a>
         <a class="btn btn-secondary" href="/permits/">Open U.S. permit directory</a>
       </div>
@@ -1522,7 +1546,7 @@ ${renderHeader()}
       <div class="section-head">
         <div class="kicker">Jurisdiction pages</div>
         <h2>Crawlable launch coverage for California search intent</h2>
-        <p class="lead">Every card below links to a public PermitPulse jurisdiction page with a canonical URL, an official portal link, coverage notes, and a direct CTA for Permit History + Risk Report requests.</p>
+        <p class="lead">Every card below links to a public PermitPulse jurisdiction page with a canonical URL, an official portal link, coverage notes, and a direct CTA for Permit Deep Research requests.</p>
       </div>
       <div class="hub-grid">
         ${cards}
@@ -1536,7 +1560,7 @@ ${renderHeader()}
         <div class="section-head" style="margin-bottom:0;">
           <div class="kicker">Internal linking</div>
           <h2>Need statewide search instead of a single jurisdiction page?</h2>
-          <p class="lead">Use the California permit history search to scan supported public datasets, then come back to the jurisdiction pages when you need a more local landing page or a report request path.</p>
+          <p class="lead">Use the California permit history search to scan supported public datasets, then come back to the jurisdiction pages when you need a more local landing page or a research request path.</p>
         </div>
         <div class="btn-row">
           <a class="btn btn-secondary" href="/california-permit-history/">Open California permit search</a>
@@ -1592,9 +1616,9 @@ ${renderHeader()}
     <div class="hero-copy">
       <span class="badge">U.S. permit directory</span>
       <h1>Permit pages organized by state and jurisdiction.</h1>
-      <p class="lead">PermitPulse generates this directory from the current shared jurisdiction catalog. Use it to find covered state pages, city permit portals, live-data support levels, and the right path into Mission Control.</p>
+      <p class="lead">PermitPulse generates this directory from the current shared jurisdiction catalog. Use it to find state pages, city permit portals, and current data-support levels. Permit Deep Research’s founding offer currently serves California addresses only.</p>
       <div class="btn-row">
-        <a class="btn btn-primary" href="/#mission-control">Open Mission Control</a>
+        <a class="btn btn-primary" href="/#research-intake">Research a California address</a>
         <a class="btn btn-secondary" href="/california-permit-history/">Open California permit search</a>
       </div>
       <div class="stats">
@@ -1673,7 +1697,7 @@ ${renderHeader()}
   </section>
 </main>
 ${renderFooter()}
-${renderStickyCta()}
+${renderStickyCta('Research a California address')}
 </body>
 </html>
 `;
@@ -1725,9 +1749,10 @@ ${renderHeader()}
         <span class="pill ${coverageCounts.apiBacked ? 'live' : 'portal'}">${coverageCounts.apiBacked ? `${coverageCounts.apiBacked} live-data supported` : 'Portal-only coverage'}</span>
       </div>
       <h1>${escapeHtml(state.stateName)} permit pages</h1>
-      <p class="lead">${escapeHtml(`${state.stateName} currently has ${coverageCounts.total} covered jurisdictions in the PermitPulse catalog. ${coverageCounts.apiBacked} have live-data support, ${coverageCounts.portalOnly} are portal-only, and the current platform mix includes ${platformSummary}.`)}</p>
+      <p class="lead">${escapeHtml(`${state.stateName} currently has ${coverageCounts.total} jurisdictions in the PermitPulse public-source catalog. ${coverageCounts.apiBacked} have live-data support, ${coverageCounts.portalOnly} are portal-only, and the current platform mix includes ${platformSummary}.`)}</p>
+${getResearchAvailabilityNote(state.stateCode) ? `      <p class="mono muted" style="font-size:12px;">${escapeHtml(getResearchAvailabilityNote(state.stateCode))}</p>` : ''}
       <div class="btn-row">
-        <a class="btn btn-primary" href="/#mission-control">Open Mission Control</a>
+        <a class="btn btn-primary" href="/#research-intake">${escapeHtml(getResearchCtaLabel(state.stateCode))}</a>
         <a class="btn btn-secondary" href="/permits/">Browse all states</a>
       </div>
       <div class="stats">
@@ -1752,7 +1777,7 @@ ${renderHeader()}
       <div class="section-head">
         <div class="kicker">Covered jurisdictions</div>
         <h2>${escapeHtml(state.stateName)} city and county permit pages</h2>
-        <p class="lead">These pages are generated directly from current jurisdiction metadata. Each one includes the official permit portal, platform label, current support level, and Mission Control path.</p>
+        <p class="lead">These pages are generated directly from current jurisdiction metadata. Each one includes the official permit portal, platform label, current support level, and an explicit research-service availability boundary.</p>
       </div>
       <div class="hub-grid">
         ${cards}
@@ -1785,7 +1810,7 @@ ${renderHeader()}
   </section>
 </main>
 ${renderFooter()}
-${renderStickyCta()}
+${renderStickyCta(getResearchCtaLabel(state.stateCode))}
 </body>
 </html>
 `;
@@ -1821,10 +1846,11 @@ ${renderHeader()}
       </div>
       <h1>${escapeHtml(copy.h1)}</h1>
       <p class="lead">${escapeHtml(copy.heroLead)}</p>
+${getResearchAvailabilityNote(entry.state) ? `      <p class="mono muted" style="font-size:12px;">${escapeHtml(getResearchAvailabilityNote(entry.state))}</p>` : ''}
       <div class="btn-row">
         ${entry.portalUrl ? `<a class="btn btn-primary" href="${escapeHtml(entry.portalUrl)}" target="_blank" rel="noopener">Open official permit portal</a>` : ''}
         <a class="btn btn-secondary" href="${buildBuildingPermitsCityPath(entry)}">Open building permits page</a>
-        <a class="btn btn-secondary" href="/#mission-control">Open Mission Control</a>
+        <a class="btn btn-secondary" href="/#research-intake">${escapeHtml(getResearchCtaLabel(entry.state))}</a>
         <a class="btn btn-secondary" href="${buildPermitsStatePath(entry.state)}">Back to ${escapeHtml(stateName)}</a>
       </div>
     </div>
@@ -1862,12 +1888,12 @@ ${renderHeader()}
     <div class="wrap">
       <div class="card cta-panel">
         <div class="section-head" style="margin-bottom:0;">
-          <div class="kicker">Mission Control</div>
+          <div class="kicker">Permit Deep Research</div>
           <h2>Need more than the permit portal?</h2>
           <p class="lead">${escapeHtml(copy.missionLead)}</p>
         </div>
         <div class="btn-row">
-          <a class="btn btn-primary" href="/#mission-control">Open Mission Control</a>
+          <a class="btn btn-primary" href="/#research-intake">${escapeHtml(getResearchCtaLabel(entry.state))}</a>
           <a class="btn btn-secondary" href="${buildPermitsStatePath(entry.state)}">Browse ${escapeHtml(stateName)} permit pages</a>
         </div>
       </div>
@@ -1885,7 +1911,7 @@ ${renderHeader()}
         <div class="page-card-actions" style="font-size:14px;">
           <a class="link-line" href="${buildBuildingPermitsCityPath(entry)}">${escapeHtml(entry.name)} building permits</a>
           <a class="link-line" href="${buildPermitsStatePath(entry.state)}">${escapeHtml(stateName)} permit directory</a>
-          <a class="link-line" href="/#mission-control">Mission Control</a>
+          <a class="link-line" href="/#research-intake">${isCaliforniaState(entry.state) ? 'Permit Deep Research' : 'California Permit Deep Research'}</a>
           ${relatedEntries
             .map(
               (relatedEntry) =>
@@ -1898,7 +1924,7 @@ ${renderHeader()}
   </section>
 </main>
 ${renderFooter()}
-${renderStickyCta()}
+${renderStickyCta(getResearchCtaLabel(entry.state))}
 </body>
 </html>
 `;
@@ -1928,10 +1954,11 @@ ${renderHeader()}
       </div>
       <h1>${escapeHtml(copy.h1)}</h1>
       <p class="lead">${escapeHtml(copy.heroLead)}</p>
+${getResearchAvailabilityNote(entry.state) ? `      <p class="mono muted" style="font-size:12px;">${escapeHtml(getResearchAvailabilityNote(entry.state))}</p>` : ''}
       <div class="btn-row">
         ${entry.portalUrl ? `<a class="btn btn-primary" href="${escapeHtml(entry.portalUrl)}" target="_blank" rel="noopener">Find building permits in official portal</a>` : ''}
         <a class="btn btn-secondary" href="${buildPermitsCityPath(entry)}">Open main permit page</a>
-        <a class="btn btn-secondary" href="/#mission-control">Open Mission Control</a>
+        <a class="btn btn-secondary" href="/#research-intake">${escapeHtml(getResearchCtaLabel(entry.state))}</a>
       </div>
     </div>
   </section>
@@ -1973,7 +2000,7 @@ ${renderHeader()}
         </div>
         <div class="btn-row">
           <a class="btn btn-primary" href="${buildPermitsCityPath(entry)}">Open main permit page</a>
-          <a class="btn btn-secondary" href="/#mission-control">Open Mission Control</a>
+          <a class="btn btn-secondary" href="/#research-intake">${escapeHtml(getResearchCtaLabel(entry.state))}</a>
           <a class="btn btn-secondary" href="${buildPermitsStatePath(entry.state)}">Browse ${escapeHtml(stateName)}</a>
         </div>
       </div>
@@ -1991,7 +2018,7 @@ ${renderHeader()}
         <div class="page-card-actions" style="font-size:14px;">
           <a class="link-line" href="${buildPermitsCityPath(entry)}">${escapeHtml(entry.name)} permit page</a>
           <a class="link-line" href="${buildPermitsStatePath(entry.state)}">${escapeHtml(stateName)} permit directory</a>
-          <a class="link-line" href="/#mission-control">Mission Control</a>
+          <a class="link-line" href="/#research-intake">${isCaliforniaState(entry.state) ? 'Permit Deep Research' : 'California Permit Deep Research'}</a>
           ${relatedEntries
             .map(
               (relatedEntry) =>
@@ -2004,7 +2031,7 @@ ${renderHeader()}
   </section>
 </main>
 ${renderFooter()}
-${renderStickyCta()}
+${renderStickyCta(getResearchCtaLabel(entry.state))}
 </body>
 </html>
 `;

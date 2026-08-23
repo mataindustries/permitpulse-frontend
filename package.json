@@ -1,0 +1,13 @@
+{
+  "name": "permitpulse-frontend",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "check": "npm run syntax:public && npm run validate:public",
+    "syntax:public": "node --check dist/assets/permitpulse-tracking.js && node --check dist/assets/platform-home.js && node --check scripts/generate-jurisdiction-pages.mjs && node --check scripts/align-legacy-offers.mjs && node --check scripts/validate-public-site.mjs",
+    "validate:public": "node scripts/validate-public-site.mjs",
+    "generate:jurisdictions": "node scripts/generate-jurisdiction-pages.mjs",
+    "align:legacy-offers": "node scripts/align-legacy-offers.mjs"
+  }
+}
+

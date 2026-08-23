@@ -46,7 +46,7 @@
       },
       {
         "@type": "Question",
-        "name": "When should I use Permit Review Plus?",
+        "name": "When should I use Permit Deep Research?",
         "acceptedAnswer": {
           "@type": "Answer",
           "text": "Buy the permit review summary when the address matters to a purchase, bid, underwriting, or filing decision and you need a clean timeline, scope summary, and risk analysis instead of raw portal output."
@@ -348,7 +348,7 @@
       <div style="display:flex; gap:20px; align-items:center; flex-wrap:wrap; justify-content:flex-end;">
         <a href="/guides/" class="mono" style="font-size:13px;">Permit Help Guides</a>
         <a href="/free-tools/" class="mono" style="font-size:13px;">Free tools</a>
-        <a href="/permit-due-diligence-los-angeles/" class="mono" style="font-size:13px;">Permit Review Plus</a>
+        <a href="/permit-due-diligence-los-angeles/" class="mono" style="font-size:13px;">Permit Deep Research</a>
       </div>
     </div>
   </header>
@@ -361,12 +361,12 @@
 
       <div style="display:flex; gap:16px; flex-wrap:wrap;">
         <a
-          href="https://buy.stripe.com/9B614ofhJ72H5Ft93Q1wY0l"
+          href="/#research-intake"
           class="btn btn-orange"
           target="_blank"
           rel="noopener"
           onclick="gtag && gtag('event','click_pay_fasttrack',{location:'hero_ca_history'});"
-        >Get Permit Review Plus — $149</a>
+        >Research an address</a>
         <a href="#search-tool" class="btn btn-ghost">Search Permit History</a>
       </div>
 
@@ -427,7 +427,7 @@
 
             <div class="search-actions">
               <button id="searchBtn" class="btn btn-orange" type="submit">Search</button>
-              <a class="btn btn-ghost" href="https://buy.stripe.com/9B614ofhJ72H5Ft93Q1wY0l" target="_blank" rel="noopener">Get Permit Review Plus — $149</a>
+              <a class="btn btn-ghost" href="/#research-intake">Research an address</a>
             </div>
             <div id="searchStatus" class="status-line" aria-live="polite"></div>
             <a id="debugApiUrl" class="debug-link mono" href="#" target="_blank" rel="noopener" hidden>Debug API URL</a>
@@ -506,8 +506,8 @@
         <div class="callout">
           <div class="tools-eyebrow">Next step</div>
           <h2 style="margin-bottom:10px;">Need a decision-ready answer instead of raw records?</h2>
-          <p class="muted" style="max-width:650px; margin-bottom:18px;">Permit Review Plus is for addresses where permit history affects a buy, bid, underwriting, scope review, or filing strategy. We turn portal fragments into a clean timeline, summary, and risk readout.</p>
-          <a class="btn btn-orange" href="https://buy.stripe.com/9B614ofhJ72H5Ft93Q1wY0l" target="_blank" rel="noopener">Get Permit Review Plus — $149</a>
+          <p class="muted" style="max-width:650px; margin-bottom:18px;">Permit Deep Research is for addresses where permit history affects a buy, bid, underwriting, scope review, or filing strategy. We turn portal fragments into a clean timeline, summary, and risk readout.</p>
+          <a class="btn btn-orange" href="/#research-intake">Research an address</a>
         </div>
 
         <div class="faq">
@@ -551,7 +551,7 @@
   </footer>
 
   <div class="sticky-cta" role="navigation" aria-label="Start PermitPulse">
-    <a class="sticky-primary" href="https://buy.stripe.com/9B614ofhJ72H5Ft93Q1wY0l" target="_blank" rel="noopener">Get Permit Review Plus — $149</a>
+    <a class="sticky-primary" href="/#research-intake">Research an address</a>
     <a class="sticky-ghost" href="#search-tool">Search</a>
   </div>
 
@@ -559,7 +559,7 @@
     (function () {
       const PRIMARY_API_BASE = "https://api.getpermitpulse.com";
       const FALLBACK_API_BASE = "https://pp-api-next.matasergio741.workers.dev";
-      const STRIPE_URL = "https://buy.stripe.com/9B614ofhJ72H5Ft93Q1wY0l";
+      const STRIPE_URL = "/#research-intake";
       const DEFAULT_JURISDICTIONS = [
         { id: "la_city", name: "Los Angeles", placeholder: true }
       ];
