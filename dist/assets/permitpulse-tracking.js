@@ -53,6 +53,24 @@
     }
   }
 
+  function analyticsDestination(rawUrl) {
+    if (!rawUrl) return "";
+    if (/^mailto:/i.test(rawUrl)) return "mailto:";
+    if (/^tel:/i.test(rawUrl)) return "tel:";
+    if (/^sms:/i.test(rawUrl)) return "sms:";
+
+    var url = safeUrl(rawUrl);
+    if (!url) return cleanText(rawUrl).split(/[?#]/)[0].slice(0, 120);
+    if (!/^https?:$/i.test(url.protocol)) return url.protocol;
+    return url.origin === window.location.origin ? url.pathname : url.origin + url.pathname;
+  }
+
+  function attributionUrl(rawUrl) {
+    var url = safeUrl(rawUrl);
+    if (!url || !/^https?:$/i.test(url.protocol)) return "";
+    return url.origin + url.pathname;
+  }
+
   function isInternalUrl(url) {
     return !url || url.origin === window.location.origin;
   }
@@ -106,7 +124,7 @@
       utm_campaign: params.get("utm_campaign") || "",
       utm_content: params.get("utm_content") || "",
       landing_page: window.location.origin + window.location.pathname,
-      referrer: document.referrer || "",
+      referrer: attributionUrl(document.referrer || ""),
       page_path: pagePath()
     };
   }
@@ -191,8 +209,6 @@
   function sourceName(link, url) {
     var explicit = link.getAttribute("data-pp-source-name");
     if (explicit) return explicit;
-    var text = cleanText(link.textContent);
-    if (text) return text.slice(0, 80);
     return url ? url.hostname.replace(/^www\./, "") : "";
   }
 
@@ -225,7 +241,7 @@
     if (link.getAttribute("data-pp-event")) {
       track(link.getAttribute("data-pp-event"), {
         cta_location: location,
-        destination: link.getAttribute("data-pp-destination") || href,
+        destination: analyticsDestination(link.getAttribute("data-pp-destination") || href),
         price: link.getAttribute("data-pp-price") ? Number(link.getAttribute("data-pp-price")) : undefined,
         page_path: pagePath()
       });
@@ -236,7 +252,7 @@
         cta_text: text || link.getAttribute("aria-label") || "",
         cta_location: location,
         page_path: pagePath(),
-        target_url: href
+        target_url: analyticsDestination(href)
       });
     }
 
@@ -268,6 +284,7 @@
     if (isSampleAsset(link, url, text)) {
       track("pp_sample_view", {
         asset_name: assetName(link, url, text),
+        view_method: "asset_click",
         page_path: pagePath()
       });
     }
@@ -275,7 +292,7 @@
     if (isOfficialSourceLink(link, url, text)) {
       track("pp_outbound_official_source_click", {
         source_name: sourceName(link, url),
-        target_url: href,
+        target_url: analyticsDestination(href),
         page_path: pagePath()
       });
     }
@@ -305,13 +322,44 @@
 
   function trackThankYouView() {
     if (/\/(snapshot-thank-you|thank-you|success)\/?$/i.test(pagePath())) {
-      var params = new URLSearchParams(window.location.search);
       track("generate_lead", {
-        form_name: params.get("form_name") || (pagePath().indexOf("snapshot") >= 0 ? "PermitPulse Snapshot" : "lead_form"),
-        lead_type: params.get("lead_type") || "lead",
+        form_name: pagePath().indexOf("snapshot") >= 0 ? "PermitPulse Snapshot" : "lead_form",
+        lead_type: pagePath().indexOf("snapshot") >= 0 ? "snapshot" : "lead",
         page_path: pagePath()
       });
     }
+  }
+
+  function trackContentView() {
+    var body = document.body;
+    if (!body) return;
+    var contentId = body.getAttribute("data-pp-content-id");
+    var contentLane = body.getAttribute("data-pp-content-lane");
+    if (!contentId || !contentLane) return;
+    track("pp_content_view", {
+      content_id: contentId,
+      content_lane: contentLane,
+      last_verified: body.getAttribute("data-pp-content-verified") || "",
+      page_path: pagePath()
+    });
+  }
+
+  function trackSamplePageView() {
+    var body = document.body;
+    if (!body) return;
+    var sampleName = body.getAttribute("data-pp-sample-page");
+    if (!sampleName) return;
+    track("pp_sample_view", {
+      asset_name: sampleName,
+      view_method: "page_load",
+      page_path: pagePath()
+    });
+  }
+
+  function trackInitialPageEvents() {
+    trackThankYouView();
+    trackContentView();
+    trackSamplePageView();
   }
 
   window.ppTrack = track;
@@ -330,9 +378,9 @@
   if (document.readyState === "loading") {
     document.addEventListener("DOMContentLoaded", function () {
       populateAllForms();
-      trackThankYouView();
+      trackInitialPageEvents();
     });
   } else {
-    trackThankYouView();
+    trackInitialPageEvents();
   }
 })();

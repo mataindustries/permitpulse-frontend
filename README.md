@@ -1,66 +1,62 @@
 # PermitPulse
 
-PermitPulse combines a static outreach site with a Cloudflare-hosted case workspace for evidence-backed permit intelligence and professional Permit Review Packet production.
+PermitPulse is ENM Ventures’ permit and property-record research brand. The public site is a static deployment in **dist/**; the separate **app/** directory is the Cloudflare-hosted internal case workspace.
 
-## What’s live in this version
+## Current customer offer
 
-- **Permit Review Packet (starting at $249)**: 48-business-hour public-record review for an active permit that is stuck, returned with corrections, showing conflicting statuses, or missing a clear next step.
-- **Founding Research Desk Pilot ($299 total)**: three client-ready Development Snapshots for people evaluating property before buying, bidding, designing, or advising a client.
-- **Canonical Sample Permit Review Packet**: `dist/assets/docs/PermitPulse-Permit-Review-Packet-Sample.pdf`.
-- **Human-reviewed delivery**: the homepage leads with the service outcome while the structured evidence workflow remains supporting credibility.
-- **Radar**: free tool entrypoint at `/radar/` (header “Free tools” should link here).
-- **Help Guides**: LA permit help pages + internal links.
-- **Sitemap**: `dist/sitemap.xml`
+**Permit Deep Research** is a manually reviewed, source-backed brief for California residential contractors and small builders evaluating an address before they bid, buy, or build.
 
-## Scope and limitations (important)
+- Promise: **Give us the address. We follow the paper trail.**
+- Founding offer: **three California addresses for $299 total**
+- Delivery target: **within 48 business hours per address**, after scope confirmation and receipt of required information
+- Transaction path: request a scope review; payment is arranged only after a request is accepted
+- Primary CTA: **Research an address**
+- Secondary CTA: **See a redacted example**
 
-- Deliverables are based on **publicly available portal data** and **public records**.
-- **Public-record lookup is conditional**: some documents may be restricted, require owner authorization, specific identifiers, appointments, or agency processing time.
-- **Plan sets / blueprints require owner authorization** (not included without it).
-- This is **research, organization, documentation, and next-step visibility support**, not legal, code, entitlement, architectural, engineering, insurance, filing, or agency advice.
+PermitPulse does not guarantee approval, completeness, code compliance, entitlement, ownership, access, or project feasibility and does not replace an architect, attorney, engineer, contractor, surveyor, title professional, or agency.
 
-## Repo structure
+## Core routes
 
-- `dist/` – production site (HTML/CSS/JS) served by hosting
-  - `dist/index.html` – homepage
-  - `dist/permit-due-diligence-los-angeles/index.html` – legacy Permit Review Plus page
-  - `dist/assets/docs/PermitPulse-Permit-Review-Packet-Sample.pdf` – canonical fictional sample packet
-  - `dist/sample-report/index.html` – compatibility redirect to the canonical packet
-  - `dist/sitemap.xml` – sitemap
+- **/** — Permit Deep Research offer and the only address-research intake
+- **/sample-report/** — anonymized reconstruction of actual completed research
+- **/resources/** — Permit Drops, Paper Trail Playbooks, and Permit Nightmares
+- **/about/** — ENM Ventures / PermitPulse / SGV Turf brand architecture and operator model
+- **/legal/** — terms, privacy, reusable-learning rules, and editorial standards
+- **/assets/docs/PermitPulse-Permit-Review-Packet-Sample.pdf** — fictional format sample, linked only with an explicit disclosure
 
-## Key routes
+Legacy offer, snapshot, and dashboard routes redirect to the current offer or source-backed field notes.
 
-- `/` – Home
-- `/development-snapshot/` – Founding Research Desk Pilot
-- `/permit-due-diligence-los-angeles/` – legacy Permit Review Plus page
-- `/assets/docs/PermitPulse-Permit-Review-Packet-Sample.pdf` – Canonical sample packet
-- `/sample-report/` – Legacy redirect to the canonical sample packet
-- `/radar/` – Free tools / radar
-- `/pricing/` – Pricing (if present)
-- `/#permit-check` – Free Permit Review Packet fit check
+## Strategy and operations
 
-## Payments and intake
-
-- Stripe Payment Links may be hard-coded in legacy service pages.
-- Intake forms use Formspree (or equivalent) endpoints configured in the relevant page/script.
-- After changing Stripe links or endpoints, verify:
-  - buttons open correct link
-  - mobile layout is intact
-  - GA/event tracking still fires (if enabled)
-
-## Deploy
-
-This site is intended to be deployed as static files (Cloudflare Pages or similar).
-
-Typical flow:
-1. Edit files in `dist/`
-2. Commit to `main`
-3. Hosting auto-builds / publishes
+- **docs/PERMIT_DEEP_RESEARCH_POSITIONING.md** — decision record and message house
+- **docs/PAPER_TRAIL_LOOP.md** — privacy-safe learning and reverification loop
+- **docs/ORGANIC_CONTENT_SYSTEM.md** — three-lane system and four-week plan
+- **docs/PERMIT_NIGHTMARES_STANDARD.md** — editorial and legal-safety rules
+- **docs/content-packets/** — reusable template and three starter source packets
+- **docs/LAUNCH_READINESS.md** — exact remaining manual launch tasks
 
 ## Development
 
-If you just edit static HTML/CSS in `dist/`, you can preview locally with any static server:
+Preview the static site:
 
-```bash
-python3 -m http.server --directory dist 8080
-```
+    python3 -m http.server --directory dist 8080
+
+Run public-site validation:
+
+    npm run check
+
+Run the internal case-workspace checks:
+
+    npm --prefix app run check
+
+The public validator uses only Node built-ins. The internal app has its own lockfile and dependencies.
+
+## Boundaries
+
+Do not publish a source packet without current-source, privacy, inference, allegation, and link review. Do not place names, emails, phone numbers, addresses, permit numbers, free-text requests, private documents, or URL query strings in analytics or reusable playbooks.
+
+The SGV Turf funnel is a separate brand and is not part of the PermitPulse offer or intake.
+
+## Deployment
+
+This repository pass does not deploy or publish. Use a hosting preview first, repeat the documented rendered and analytics checks, and approve production separately.

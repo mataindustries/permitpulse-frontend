@@ -376,26 +376,14 @@ export const JURISDICTIONS = [
   {
     id: "long_beach",
     name: "Long Beach",
+    state: "CA",
     placeholder: true,
     enabled: false,
-    reason: "source not wired yet",
-    provider: {
-      type: "socrata",
-      domain: "data.longbeach.gov",
-      dataset: "y3ad-yhi1",
-      fields: {
-        id: "permit_number",
-        address: "address",
-        status: "status",
-        type: null,
-        subtype: null,
-        filed_at: "file_date",
-        issued_at: null,
-        valuation: null,
-        description: "description",
-      },
-      searchFields: ["permit_number", "address", "status", "description"],
-    },
+    reason: "former open-data endpoint retired; official search is portal-only",
+    provider: null,
+    platform: "Long Beach Permit Status / Records",
+    portalUrl: "https://www.longbeach.gov/lbcd/building/permit-center/building-permit-records/",
+    portalNotes: "Use the official City of Long Beach Permit Status / Records page for current permit history and document-search routes. The former open-data endpoint is no longer treated as a live source.",
   },
 
   {
