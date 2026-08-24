@@ -482,7 +482,7 @@
 
   function formatCurrency(val) {
     var num = Number(val);
-    if (!isFinite(num)) return '—';
+    if (!isFinite(num)) return 'N/A';
     if (num >= 1000000) {
       return '$' + (num / 1000000).toFixed(1).replace(/\.0$/, '') + 'M';
     }
@@ -516,7 +516,7 @@
 
     rows.forEach(function (row) {
       var issueRaw = firstField(row, ['issue_date']);
-      var issue = issueRaw ? String(issueRaw).slice(0, 10) : '—';
+      var issue = issueRaw ? String(issueRaw).slice(0, 10) : 'N/A';
 
       var valRaw = firstField(row, ['valuation', 'est_valuation']);
       var val = formatCurrency(valRaw);
@@ -530,9 +530,9 @@
       }
       var city = firstField(row, ['city', 'city_name']);
       var zip = firstField(row, ['zip', 'zip_code']);
-      var fullAddr = [addr, city, zip].filter(Boolean).join(', ') || '—';
+      var fullAddr = [addr, city, zip].filter(Boolean).join(', ') || 'N/A';
 
-      var desc = firstField(row, ['work_desc', 'description']) || '—';
+      var desc = firstField(row, ['work_desc', 'description']) || 'N/A';
 
       var tr = document.createElement('tr');
       tr.innerHTML =

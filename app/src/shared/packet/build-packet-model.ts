@@ -86,7 +86,7 @@ const activityFieldLabels: Record<string, string> = {
 };
 
 const demonstrationNotice =
-  "Fictional case disclosure — all names, records, dates, and agency activity in this packet are illustrative.";
+  "Fictional case disclosure: all names, records, dates, and agency activity in this packet are illustrative.";
 
 function cleanDemonstrationLabel(value: string): string {
   return value
@@ -455,7 +455,7 @@ export function buildPacketModel({
     why_appropriate: derivedNextStep,
     evidence_readiness: readiness.evidenceHealth.explanation,
     review_readiness: readiness.packetReadiness.explanation,
-    email_subject: `Permit record follow-up${caseRecord.permit_number ? ` — ${caseRecord.permit_number}` : ""}`,
+    email_subject: `Permit record follow-up${caseRecord.permit_number ? `: ${caseRecord.permit_number}` : ""}`,
     recipient_role: `Agency review contact for ${caseRecord.jurisdiction}`,
     message_body: `Hello, I am following up on ${displayLabel(caseRecord.project_name)}${caseRecord.permit_number ? ` (${caseRecord.permit_number})` : ""}. Our record indicates ${primaryApprovedFinding.text.charAt(0).toLowerCase()}${primaryApprovedFinding.text.slice(1)} Please confirm the current jurisdiction position, the responsible review contact, and whether the following next step remains appropriate: ${derivedNextStep} Thank you.`,
     call_checklist: [

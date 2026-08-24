@@ -672,7 +672,7 @@ export function CaseDetail({
               <div className="mission-health__heading">
                 <div>
                   <p className="eyebrow">Investigation health</p>
-                  <h2>{signalsLoading ? "—" : `${missionHealth}%`}</h2>
+                  <h2>{signalsLoading ? "Loading" : `${missionHealth}%`}</h2>
                 </div>
                 <OsStatusBadge
                   tone={signalsLoading ? "info" : missionHealth >= 80 ? "success" : missionHealth >= 55 ? "warning" : "danger"}
@@ -694,7 +694,7 @@ export function CaseDetail({
                 <ul className="readiness-factor-list" aria-label="Mission health calculation">
                   {currentIntelligence.readinessFactors.map((factor) => (
                     <li className={factor.passed ? "is-passed" : "is-pending"} key={factor.id}>
-                      <span aria-hidden="true">{factor.passed ? "✓" : "—"}</span>
+                      <span aria-hidden="true">{factor.passed ? "✓" : "○"}</span>
                       <div><strong>{factor.label}</strong><small>{factor.detail}</small></div>
                     </li>
                   ))}
@@ -1107,7 +1107,7 @@ export function CaseDetail({
                   <ul className="readiness-factor-list readiness-factor-list--packet" aria-label="Packet readiness calculation">
                     {currentIntelligence.readinessFactors.slice(0, 5).map((factor) => (
                       <li className={factor.passed ? "is-passed" : "is-pending"} key={factor.id}>
-                        <span aria-hidden="true">{factor.passed ? "✓" : "—"}</span>
+                        <span aria-hidden="true">{factor.passed ? "✓" : "○"}</span>
                         <div><strong>{factor.label}</strong><small>{factor.detail}</small></div>
                       </li>
                     ))}

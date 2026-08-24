@@ -104,7 +104,7 @@ function blockLines(block: PacketPresentationBlock): string[] {
     case "timeline":
       return block.items.length > 0
         ? block.items.flatMap((entry, index) => [
-            `${index + 1}. ${plainText(entry.occurred_on_label)} — ${plainText(entry.title)}`,
+            `${index + 1}. ${plainText(entry.occurred_on_label)}: ${plainText(entry.title)}`,
             `   Event type: ${plainText(entry.timeline_type_label)}`,
             `   Record classification: ${plainText(entry.source_label)}`,
             `   Review status: ${plainText(entry.review_label)}`,
@@ -115,7 +115,7 @@ function blockLines(block: PacketPresentationBlock): string[] {
     case "evidence":
       return block.items.length > 0
         ? block.items.flatMap((item, index) => [
-            `${index + 1}. ${item.reference} — ${plainText(item.title)}`,
+            `${index + 1}. ${item.reference}: ${plainText(item.title)}`,
             `   Type: ${plainText(item.evidence_type_label)}`,
             `   Classification: ${plainText(item.verification_label)}`,
             `   Summary: ${plainText(item.summary)}`,
@@ -158,7 +158,7 @@ function blockLines(block: PacketPresentationBlock): string[] {
         ...(dashboard.blockers.length > 0
           ? dashboard.blockers.map(
               (item, index) =>
-                `  ${index + 1}. ${plainText(item.title)} — ${plainText(item.resolution)}`,
+                `  ${index + 1}. ${plainText(item.title)}: ${plainText(item.resolution)}`,
             )
           : [
               "  No packet-readiness conditions remain. Open agency findings do not indicate jurisdiction resolution.",
@@ -170,7 +170,7 @@ function blockLines(block: PacketPresentationBlock): string[] {
         "Packet Readiness checks:",
         ...dashboard.factors.map(
           (factor) =>
-            `  [${factor.passed ? "PASS" : "OPEN"}] ${plainText(factor.label)} — ${plainText(factor.detail)}`,
+            `  [${factor.passed ? "PASS" : "OPEN"}] ${plainText(factor.label)}: ${plainText(factor.detail)}`,
         ),
         ...block.warnings.map((warning) => `Packet note: ${plainText(warning)}`),
         ...block.metadata.map(

@@ -1840,7 +1840,7 @@ describe("case workspace components", () => {
       />,
     );
 
-    expect(text).toContain("Draft review — verify before sending");
+    expect(text).toContain("Draft review. Verify before sending");
     expect(text).toContain("live_ai=false");
     expect(text).toContain("external_calls=false");
     expect(text).toContain(`evidence: ${safeEvidence.id}`);

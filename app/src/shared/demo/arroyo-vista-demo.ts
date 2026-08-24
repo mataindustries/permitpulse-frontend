@@ -81,7 +81,7 @@ export const arroyoVistaDemoActionKit = {
   why_appropriate:"A narrow routing inquiry uses the documented receipt trail and can identify an outstanding response without creating a duplicate submission.",
   evidence_readiness:"Packet evidence is delivery-ready: nine reviewed records include complete source details.",
   review_readiness:"The investigation supports targeted agency follow-up; reviewer assignment and discipline acceptance remain open.",
-  email_subject:"Routing confirmation request — LADBS-FICTIONAL-2026-1842",
+  email_subject:"Routing confirmation request: LADBS-FICTIONAL-2026-1842",
   recipient_role:"LADBS intake coordinator or assigned plan-check reviewer",
   message_body:"Hello, I am following up on permit LADBS-FICTIONAL-2026-1842 for 1842 Arroyo Vista Drive. Our record includes a revised-package receipt dated May 18, 2026. Please confirm the assigned reviewer, current discipline routing, and whether any fee, form, clearance, or correction response remains outstanding. If available, please also provide the latest routing date and expected review window. Thank you.",
   requested_confirmations:["Current assigned reviewer or responsible agency role","Current discipline queue and routing date","Whether any fee, form, clearance, or correction response remains outstanding","Current review window or next expected milestone"],

@@ -41,7 +41,7 @@
       state.items = data.items || [];
 
       if (updatedEl) {
-        updatedEl.textContent = `Updated: ${data.updatedAt || "—"} • Signals: ${data.count || 0}`;
+        updatedEl.textContent = `Updated: ${data.updatedAt || "N/A"} • Signals: ${data.count || 0}`;
       }
 
       render();
@@ -64,10 +64,10 @@
         <td>${x.score ?? 0}</td>
         <td>${fmtDate(x.ts)}</td>
         <td>${titleCase(x.city)}</td>
-        <td>${x.address || "—"}</td>
+        <td>${x.address || "N/A"}</td>
         <td>${titleCase(x.category)}</td>
-        <td>${x.description || "—"}</td>
-        <td>${x.sourceUrl ? `<a href="${x.sourceUrl}" target="_blank" rel="noopener">Open</a>` : "—"}</td>
+        <td>${x.description || "N/A"}</td>
+        <td>${x.sourceUrl ? `<a href="${x.sourceUrl}" target="_blank" rel="noopener">Open</a>` : "N/A"}</td>
       </tr>
     `).join("");
   }
