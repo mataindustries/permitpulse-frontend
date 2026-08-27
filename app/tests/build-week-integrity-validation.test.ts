@@ -101,6 +101,43 @@ describe("Build Week Integrity Engine deterministic validation", () => {
     );
   });
 
+  it("requires an AI conflict observation to preserve its unresolved unknown", () => {
+    expectValidationCode(
+      () =>
+        validateIntegrityAnalystOutput(
+          {
+            analyst_summary:
+              "The cited records disagree and require deterministic review.",
+            observations: [item({ unknown: null })],
+          },
+          evidenceIds,
+          "evidence_auditor",
+        ),
+      "CONFLICT_MUST_REMAIN_UNRESOLVED",
+    );
+  });
+
+  it("requires a missing-record observation to remain unknown", () => {
+    expectValidationCode(
+      () =>
+        validateIntegrityAnalystOutput(
+          {
+            analyst_summary:
+              "The lookup did not establish whether the requested record exists.",
+            observations: [
+              item({
+                category: "missing_record_or_confirmation",
+                unknown: null,
+              }),
+            ],
+          },
+          evidenceIds,
+          "evidence_auditor",
+        ),
+      "MISSING_RECORD_MUST_REMAIN_UNKNOWN",
+    );
+  });
+
   it.each([
     "The permit will be approved after intake.",
     "The permit was approved after intake.",

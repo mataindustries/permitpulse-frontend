@@ -138,6 +138,16 @@ function decisionLabel(decision: IntegrityDecision): string {
   return "Pending human review";
 }
 
+function epistemicStateLabel(item: IntegrityReviewItem): string | null {
+  if (item.category === "evidence_contradiction") {
+    return "Conflict · unresolved";
+  }
+  if (item.category === "missing_record_or_confirmation") {
+    return "Unknown · not absent";
+  }
+  return null;
+}
+
 function stageStatus(
   stage: IntegrityReviewStage | undefined,
 ): { label: string; tone: StatusTone } {
@@ -272,6 +282,8 @@ function IntegrityItemCard({
   onEdit: () => void;
   onOpenEvidence?: (evidenceId: string) => void;
 }) {
+  const epistemicState = epistemicStateLabel(item);
+
   function submitEdit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     onDecision(item, "edited", editText.trim());
@@ -290,18 +302,29 @@ function IntegrityItemCard({
           <div className="integrity-item__badges">
             <StatusBadge tone={severityTone(item.severity)}>{item.severity}</StatusBadge>
             <span className="integrity-category">{categoryLabels[item.category]}</span>
+            {epistemicState && (
+              <span className="integrity-category">{epistemicState}</span>
+            )}
           </div>
           <h3>{item.title}</h3>
         </div>
         <div className="integrity-confidence" aria-label={`${item.confidence}% confidence`}>
           <strong>{item.confidence}%</strong>
-          <span>confidence</span>
+          <span>
+            {item.category === "evidence_contradiction"
+              ? "conflict confidence"
+              : "confidence"}
+          </span>
         </div>
       </header>
 
       <div className="integrity-observation-grid">
         <div className="integrity-observation integrity-observation--fact">
-          <span>Verified fact</span>
+          <span>
+            {item.category === "evidence_contradiction"
+              ? "Verified fact about the disagreement"
+              : "Verified fact"}
+          </span>
           <p>{item.verified_fact}</p>
         </div>
         <div className="integrity-observation">
@@ -310,7 +333,12 @@ function IntegrityItemCard({
         </div>
         <div className="integrity-observation integrity-observation--unknown">
           <span>Unknown</span>
-          <p>{item.unknown ?? "No additional unknown stated."}</p>
+          <p>
+            {item.unknown ??
+              (item.category === "missing_record_or_confirmation"
+                ? "Evidence is insufficient; absence is not established."
+                : "No additional unknown stated.")}
+          </p>
         </div>
       </div>
 

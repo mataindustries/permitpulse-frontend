@@ -22,6 +22,51 @@ export const integrityStageNames = [
   "synthesis",
 ] as const;
 
+export const evidenceIntegrityClassifications = [
+  "verified_fact",
+  "source_observation",
+  "inference",
+  "unknown",
+  "conflict",
+] as const;
+
+export const evidenceIntegrityTypes = [
+  "official_map",
+  "official_portal",
+  "official_document",
+  "lookup_attempt",
+  "correspondence",
+  "research_note",
+  "other",
+] as const;
+
+export const evidenceSourceAuthorities = [
+  "official",
+  "client",
+  "third_party",
+  "permitpulse",
+] as const;
+
+export const evidenceIntegrityReviewStatuses = [
+  "unreviewed",
+  "review_required",
+  "reviewed",
+  "resolved",
+] as const;
+
+export const evidenceCaptureMethods = [
+  "manual_research",
+  "provider_retrieval",
+  "system_import",
+] as const;
+
+export const evidenceUnknownReasons = [
+  "retrieval_failed",
+  "insufficient_evidence",
+  "record_not_returned",
+  "not_observed",
+] as const;
+
 export type IntegrityCategory = (typeof integrityCategories)[number];
 export type IntegritySeverity = (typeof integritySeverities)[number];
 export type IntegrityPacketImpact = (typeof integrityPacketImpacts)[number];
@@ -29,6 +74,151 @@ export type IntegrityDecision = (typeof integrityDecisions)[number];
 export type IntegrityStageName = (typeof integrityStageNames)[number];
 export type IntegrityStageStatus = "queued" | "running" | "completed" | "failed";
 export type IntegrityRunStatus = "running" | "completed" | "failed";
+export type EvidenceIntegrityClassification =
+  (typeof evidenceIntegrityClassifications)[number];
+export type EvidenceIntegrityType = (typeof evidenceIntegrityTypes)[number];
+export type EvidenceSourceAuthority = (typeof evidenceSourceAuthorities)[number];
+export type EvidenceIntegrityReviewStatus =
+  (typeof evidenceIntegrityReviewStatuses)[number];
+export type EvidenceCaptureMethod = (typeof evidenceCaptureMethods)[number];
+export type EvidenceUnknownReason = (typeof evidenceUnknownReasons)[number];
+
+export type EvidenceObservedValue =
+  | { kind: "boolean"; value: boolean }
+  | { kind: "number"; value: number; unit: string | null }
+  | { kind: "text"; value: string }
+  | { kind: "date"; value: string }
+  | { kind: "not_observed"; value: null };
+
+export type EvidenceNormalizedValue =
+  | Exclude<EvidenceObservedValue, { kind: "not_observed" }>
+  | { kind: "unknown"; value: null; reason: EvidenceUnknownReason }
+  | { kind: "unresolved"; value: null; reason: "conflicting_evidence" };
+
+export interface IntegrityEvidenceSubject {
+  case_id: string;
+  property_id: string | null;
+}
+
+export interface IntegrityEvidenceClaim {
+  key: string;
+  label: string;
+  client_label: string;
+}
+
+export interface IntegrityEvidenceSource {
+  agency: string;
+  title: string;
+  description: string | null;
+  url: string | null;
+  authority: EvidenceSourceAuthority;
+  retrieved_at: string;
+}
+
+/**
+ * A source-backed observation. AI is intentionally absent from the allowed
+ * capture methods and `is_ai_generated` is a literal false safety boundary.
+ */
+export interface CanonicalEvidenceRecord {
+  id: string;
+  subject: IntegrityEvidenceSubject;
+  claim: IntegrityEvidenceClaim;
+  source: IntegrityEvidenceSource;
+  raw_observed_value: EvidenceObservedValue;
+  normalized_value: EvidenceNormalizedValue;
+  evidence_type: EvidenceIntegrityType;
+  classification: EvidenceIntegrityClassification;
+  confidence: number | null;
+  conflicts_with: string[];
+  review_status: EvidenceIntegrityReviewStatus;
+  notes: string[];
+  limitations: string[];
+  provenance: {
+    source_record_id: string;
+    capture_method: EvidenceCaptureMethod;
+    is_ai_generated: false;
+  };
+}
+
+export interface IntegrityClaimAssessment {
+  id: string;
+  subject: IntegrityEvidenceSubject;
+  claim: IntegrityEvidenceClaim;
+  classification: EvidenceIntegrityClassification;
+  normalized_value: EvidenceNormalizedValue;
+  confidence: {
+    classification: number;
+    conclusion: number | null;
+  };
+  evidence_ids: string[];
+  evidence_records: CanonicalEvidenceRecord[];
+  review_status: EvidenceIntegrityReviewStatus;
+  human_review_required: boolean;
+  client_safe_statement: string;
+}
+
+export interface IntegrityEvidenceProvenanceCitation {
+  evidence_id: string;
+  source_agency: string;
+  source_title: string;
+  source_description: string | null;
+  source_url: string | null;
+  retrieved_at: string;
+  evidence_type: EvidenceIntegrityType;
+  record_origin: "source_evidence";
+}
+
+export interface IntegrityAiInterpretation {
+  assessment_id: string;
+  explanation: string | null;
+  abstained: boolean;
+  evidence_ids: string[];
+  generated_by: "ai";
+  is_evidence: false;
+}
+
+export interface ClientSafeIntegrityFinding {
+  assessment_id: string;
+  classification: EvidenceIntegrityClassification;
+  statement: string;
+  normalized_value: EvidenceNormalizedValue;
+  confidence: IntegrityClaimAssessment["confidence"];
+  review_status: EvidenceIntegrityReviewStatus;
+  human_review_required: boolean;
+  evidence: IntegrityEvidenceProvenanceCitation[];
+  ai_interpretation: IntegrityAiInterpretation | null;
+}
+
+export interface CaseIntegrityFixture {
+  id: string;
+  description: string;
+  evidence_records: CanonicalEvidenceRecord[];
+  expected: {
+    classification: EvidenceIntegrityClassification;
+    evidence_ids: string[];
+    client_safe_statement: string;
+  };
+}
+
+export interface CaseIntegrityEvalMetrics {
+  unsupported_definitive_claims: number;
+  lost_evidence_records: number;
+  missed_known_conflicts: number;
+  conflicts_silently_resolved: number;
+  unknown_to_false_conversions: number;
+  missing_provenance: number;
+}
+
+export interface CaseIntegrityEvalReport {
+  fixture_count: number;
+  metrics: CaseIntegrityEvalMetrics;
+  cases: Array<{
+    fixture_id: string;
+    classification: EvidenceIntegrityClassification;
+    evidence_record_count: number;
+    client_safe_statement: string;
+  }>;
+}
 
 export interface IntegrityDraftItem {
   category: IntegrityCategory;

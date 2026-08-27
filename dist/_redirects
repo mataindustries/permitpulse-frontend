@@ -22,6 +22,8 @@
 /sample-dossier/           /sample-report/                   301
 /sample-report             /sample-report/index.html         200
 /sample-report/            /sample-report/index.html         200
+/case-integrity            /case-integrity/index.html        200
+/case-integrity/           /case-integrity/index.html        200
 
 # Retired PDF assets → canonical Permit Review Packet
 /assets/docs/PermitPulse-Redacted-Sample-Decision-Snapshot.pdf /sample-report/ 301
