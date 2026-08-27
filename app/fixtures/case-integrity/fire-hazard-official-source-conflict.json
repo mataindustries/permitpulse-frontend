@@ -1,0 +1,102 @@
+{
+  "id": "fire-hazard-official-source-conflict",
+  "description": "Fictional property fixture in which two relevant official sources report incompatible fire-hazard designations.",
+  "evidence_records": [
+    {
+      "id": "evidence-fire-cal-fire",
+      "subject": {
+        "case_id": "case-fictional-canyon-001",
+        "property_id": "property-fictional-canyon-001"
+      },
+      "claim": {
+        "key": "very-high-fire-hazard-severity-zone",
+        "label": "Very High Fire Hazard Severity Zone",
+        "client_label": "the property's fire-hazard designation"
+      },
+      "source": {
+        "agency": "CAL FIRE",
+        "title": "Fire Hazard Severity Zone map observation",
+        "description": "Fictionalized observation from the state fire-hazard map used only for deterministic integrity testing.",
+        "url": "https://records.example.test/case-integrity/cal-fire/fire-hazard-map",
+        "authority": "official",
+        "retrieved_at": "2026-07-10T16:05:00.000Z"
+      },
+      "raw_observed_value": {
+        "kind": "text",
+        "value": "YES"
+      },
+      "normalized_value": {
+        "kind": "boolean",
+        "value": true
+      },
+      "evidence_type": "official_map",
+      "classification": "source_observation",
+      "confidence": 99,
+      "conflicts_with": [],
+      "review_status": "reviewed",
+      "notes": [
+        "The fixture records exactly what the fictionalized source displayed."
+      ],
+      "limitations": [
+        "The address and source URL are anonymized and do not identify a real property."
+      ],
+      "provenance": {
+        "source_record_id": "fixture-cal-fire-map-record-001",
+        "capture_method": "manual_research",
+        "is_ai_generated": false
+      }
+    },
+    {
+      "id": "evidence-fire-zimas-city",
+      "subject": {
+        "case_id": "case-fictional-canyon-001",
+        "property_id": "property-fictional-canyon-001"
+      },
+      "claim": {
+        "key": "very-high-fire-hazard-severity-zone",
+        "label": "Very High Fire Hazard Severity Zone",
+        "client_label": "the property's fire-hazard designation"
+      },
+      "source": {
+        "agency": "ZIMAS / City source",
+        "title": "City parcel hazard-layer observation",
+        "description": "Fictionalized observation from a city property-information layer used only for deterministic integrity testing.",
+        "url": "https://records.example.test/case-integrity/city/property-hazard-layer",
+        "authority": "official",
+        "retrieved_at": "2026-07-10T16:12:00.000Z"
+      },
+      "raw_observed_value": {
+        "kind": "text",
+        "value": "NO"
+      },
+      "normalized_value": {
+        "kind": "boolean",
+        "value": false
+      },
+      "evidence_type": "official_portal",
+      "classification": "source_observation",
+      "confidence": 99,
+      "conflicts_with": [],
+      "review_status": "reviewed",
+      "notes": [
+        "The fixture records exactly what the fictionalized source displayed."
+      ],
+      "limitations": [
+        "The address and source URL are anonymized and do not identify a real property."
+      ],
+      "provenance": {
+        "source_record_id": "fixture-city-hazard-layer-record-001",
+        "capture_method": "manual_research",
+        "is_ai_generated": false
+      }
+    }
+  ],
+  "expected": {
+    "classification": "conflict",
+    "evidence_ids": [
+      "evidence-fire-cal-fire",
+      "evidence-fire-zimas-city"
+    ],
+    "client_safe_statement": "Official sources conflict regarding the property's fire-hazard designation."
+  }
+}

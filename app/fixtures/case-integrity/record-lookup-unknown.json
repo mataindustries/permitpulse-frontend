@@ -1,0 +1,58 @@
+{
+  "id": "record-lookup-insufficient-evidence",
+  "description": "Fictional official-record lookup that did not return enough information to determine whether a condition exists.",
+  "evidence_records": [
+    {
+      "id": "evidence-code-record-lookup",
+      "subject": {
+        "case_id": "case-fictional-oak-002",
+        "property_id": "property-fictional-oak-002"
+      },
+      "claim": {
+        "key": "active-code-enforcement-record",
+        "label": "Active code-enforcement record",
+        "client_label": "whether an active code-enforcement record exists"
+      },
+      "source": {
+        "agency": "Fictional City Records Division",
+        "title": "Official code-record portal lookup attempt",
+        "description": "The lookup ended before a complete result set could be verified.",
+        "url": "https://records.example.test/case-integrity/city/code-record-search",
+        "authority": "official",
+        "retrieved_at": "2026-07-11T09:30:00.000Z"
+      },
+      "raw_observed_value": {
+        "kind": "not_observed",
+        "value": null
+      },
+      "normalized_value": {
+        "kind": "unknown",
+        "value": null,
+        "reason": "retrieval_failed"
+      },
+      "evidence_type": "lookup_attempt",
+      "classification": "unknown",
+      "confidence": 100,
+      "conflicts_with": [],
+      "review_status": "review_required",
+      "notes": [
+        "The lookup failure is recorded; no absence conclusion is supported."
+      ],
+      "limitations": [
+        "A failed or incomplete lookup does not establish that no record exists."
+      ],
+      "provenance": {
+        "source_record_id": "fixture-code-record-lookup-attempt-001",
+        "capture_method": "provider_retrieval",
+        "is_ai_generated": false
+      }
+    }
+  ],
+  "expected": {
+    "classification": "unknown",
+    "evidence_ids": [
+      "evidence-code-record-lookup"
+    ],
+    "client_safe_statement": "Available evidence is insufficient to determine whether an active code-enforcement record exists."
+  }
+}

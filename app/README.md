@@ -829,6 +829,27 @@ and use `npm run db:migrate:build-week-live-local` followed by
 `npm run dev:build-week:live`. The tracked production and preview live flags
 remain off.
 
+### Case Integrity V2 evidence foundation
+
+The Build Week validation boundary also contains the deterministic Case
+Integrity V2 evidence foundation. It models source observations separately from
+claim assessments, preserves raw and normalized values, requires source
+identity and retrieval time, and represents unresolved conflicts and failed
+lookups without selecting a factual answer. The governing rules are in
+`../PROJECT_LAWS.md`.
+
+Run the small anonymized evidence-integrity evaluation suite with:
+
+```bash
+npm run case-integrity:eval
+```
+
+The fixtures under `fixtures/case-integrity/` are intentionally fictional and
+are structured so additional reviewed cases can be added without changing the
+evaluator. AI interpretations use a strict non-evidence schema and must pass the
+same deterministic post-output boundary before a client-safe representation is
+created.
+
 Wrangler keeps the persistent local database under `app/.wrangler/`. Restarting
 the server without deleting that directory verifies session persistence.
 

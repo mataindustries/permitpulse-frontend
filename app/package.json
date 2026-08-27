@@ -9,6 +9,7 @@
     "check": "npm run typecheck && npm test && npm run verify:os && npm run build",
     "auth:schema:verify": "vitest run tests/auth-schema.test.ts",
     "ai:eval:local": "node scripts/ai-eval-local.mjs",
+    "case-integrity:eval": "vitest run tests/case-integrity-eval.test.ts --reporter=verbose",
     "cf-typegen": "wrangler types --env-interface CloudflareBindings",
     "db:migrate:local": "wrangler d1 migrations apply DB --local",
     "db:migrate:build-week-local": "wrangler d1 migrations apply DB --env build-week-local --local",
