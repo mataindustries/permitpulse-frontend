@@ -80,6 +80,7 @@ function redirectMatchers(source) {
 
 const requiredFiles = [
   "index.html",
+  "case-integrity/index.html",
   "sample-report/index.html",
   "resources/index.html",
   "resources/permit-drops/los-angeles-building-records-online-first/index.html",
@@ -88,6 +89,9 @@ const requiredFiles = [
   "about/index.html",
   "legal/index.html",
   "assets/permitpulse-tracking.js",
+  "assets/case-integrity-demo.js",
+  "assets/case-integrity-demo.css",
+  "assets/case-integrity-demo-data.json",
   "assets/platform-home.js",
   "assets/platform-home.css",
   "sitemap-pages.xml",
@@ -104,12 +108,21 @@ const htmlByRel = new Map();
 for (const file of htmlFiles) htmlByRel.set(rel(file), await readFile(file, "utf8"));
 
 const home = htmlByRel.get("index.html") || "";
+const caseIntegrityDemo = htmlByRel.get("case-integrity/index.html") || "";
 const sample = htmlByRel.get("sample-report/index.html") || "";
 const resources = htmlByRel.get("resources/index.html") || "";
 const legal = htmlByRel.get("legal/index.html") || "";
 const bostonPermitPage = htmlByRel.get("permits/massachusetts/boston/index.html") || "";
 const tracking = await readFile(path.join(distRoot, "assets/permitpulse-tracking.js"), "utf8");
 const formScript = await readFile(path.join(distRoot, "assets/platform-home.js"), "utf8");
+const caseIntegrityDemoScript = await readFile(path.join(distRoot, "assets/case-integrity-demo.js"), "utf8");
+const caseIntegrityDemoCss = await readFile(path.join(distRoot, "assets/case-integrity-demo.css"), "utf8");
+let caseIntegrityDemoData = {};
+try {
+  caseIntegrityDemoData = JSON.parse(await readFile(path.join(distRoot, "assets/case-integrity-demo-data.json"), "utf8"));
+} catch (error) {
+  failures.push("Valid public Case Integrity demo data: " + error.message);
+}
 const css = await readFile(path.join(distRoot, "assets/platform-home.css"), "utf8");
 const redirectsText = await readFile(path.join(distRoot, "_redirects"), "utf8");
 const sitemap = await readFile(path.join(distRoot, "sitemap-pages.xml"), "utf8");
@@ -135,6 +148,58 @@ check((home.match(/data-pp-form-type="permit_deep_research"/g) || []).length ===
 check(home.includes("This confirms receipt only; it does not confirm acceptance, payment, or a research conclusion."), "Homepage success state is receipt-only");
 check(home.includes("formspree.io/f/mbdwdklj"), "Homepage retains established Formspree intake");
 check(home.includes("Names, emails, addresses, and request contents are not sent in analytics events."), "Homepage states analytics PII boundary");
+check(home.includes('href="/case-integrity/"'), "Homepage links to the Case Integrity demo");
+
+const caseIntegrityDemoRequirements = [
+  "See what PermitPulse catches before you build.",
+  "Two official sources disagree.",
+  "Fictional sample property",
+  "Run Case Integrity check",
+  "Source conflict found",
+  "PermitPulse won’t guess.",
+  "Client-safe conclusion",
+  "Next question",
+  "Not returned does not mean “no.”",
+  "Research my property",
+  'href="/#research-intake"',
+  "Fixture-powered demo analysis. No external agency system is contacted",
+  "data-case-integrity-demo"
+];
+for (const required of caseIntegrityDemoRequirements) {
+  check(caseIntegrityDemo.includes(required), "Case Integrity demo includes " + required);
+}
+check(caseIntegrityDemo.includes("readonly"), "Case Integrity sample address cannot imply a different property lookup");
+check(!caseIntegrityDemo.includes("CAL FIRE") && !caseIntegrityDemo.includes(">YES<") && !caseIntegrityDemo.includes(">NO<"), "Case Integrity evidence is not duplicated in presentation HTML");
+check(caseIntegrityDemoScript.includes('window.fetch("/assets/case-integrity-demo-data.json"'), "Case Integrity browser reads the generated static fixture payload");
+check(!/https?:\/\//i.test(caseIntegrityDemoScript), "Case Integrity browser makes no external request");
+check((caseIntegrityDemoScript.match(/window\.fetch\(/g) || []).length === 1, "Case Integrity browser makes only its static payload request");
+check(caseIntegrityDemoScript.includes('conflict.classification !== "conflict"'), "Case Integrity presentation fails closed unless V2 reports conflict");
+check(caseIntegrityDemoScript.includes('conflict.normalized_value.kind !== "unresolved"'), "Case Integrity presentation fails closed unless V2 remains unresolved");
+check(!caseIntegrityDemoScript.includes("CAL FIRE") && !caseIntegrityDemoScript.includes("ZIMAS / City source"), "Case Integrity source identity comes from the V2 payload");
+check(caseIntegrityDemoCss.includes("@media (max-width: 360px)"), "Case Integrity demo covers narrow Android widths");
+check(caseIntegrityDemoCss.includes("@media (prefers-reduced-motion: reduce)"), "Case Integrity demo respects reduced motion");
+
+const demoConflict = caseIntegrityDemoData.conflict || {};
+const demoEvidence = Array.isArray(demoConflict.evidence) ? demoConflict.evidence : [];
+const demoUnknown = caseIntegrityDemoData.unknown_example || {};
+check(caseIntegrityDemoData.demo_kind === "fixture_powered", "Public Case Integrity data declares fixture-powered behavior");
+check(caseIntegrityDemoData.sample_property?.fictional === true, "Public Case Integrity property is explicitly fictional");
+check(caseIntegrityDemoData.integrity_boundary?.deterministic_validation === true, "Public Case Integrity data passed deterministic validation");
+check(caseIntegrityDemoData.integrity_boundary?.ai_used === false, "Public Case Integrity demo uses no AI interpretation");
+check(demoConflict.classification === "conflict", "Public Case Integrity data retains conflict classification");
+check(demoConflict.normalized_value?.kind === "unresolved" && demoConflict.normalized_value?.value === null, "Public Case Integrity conflict has no YES or NO conclusion");
+check(demoConflict.confidence?.classification === 100 && demoConflict.confidence?.conclusion === null, "Public Case Integrity separates conflict confidence from conclusion confidence");
+check(demoConflict.human_review_required === true, "Public Case Integrity conflict retains human review");
+check(demoConflict.ai_interpretation === null, "Public Case Integrity conflict contains no AI evidence");
+check(demoConflict.statement === "Official sources conflict regarding the property's fire-hazard designation.", "Public Case Integrity data retains approved client-safe wording");
+check(demoEvidence.length === 2, "Public Case Integrity data preserves both conflicting records");
+check(demoEvidence.map((record) => record.observed_display_value).join("|") === "YES|NO", "Public Case Integrity data preserves both observed values without selecting one");
+check(demoEvidence.map((record) => record.source?.source_agency).join("|") === "CAL FIRE|ZIMAS / City source", "Public Case Integrity data preserves both source identities");
+check(demoEvidence.map((record) => record.source?.retrieved_at).join("|") === "2026-07-10T16:05:00.000Z|2026-07-10T16:12:00.000Z", "Public Case Integrity data preserves both retrieval timestamps");
+check(demoEvidence.every((record) => record.source?.record_origin === "source_evidence" && record.provenance?.is_ai_generated === false), "Public Case Integrity evidence remains source evidence, never AI output");
+check(demoUnknown.separate_sample === true, "Unknown example is not attributed to the conflict property");
+check(demoUnknown.classification === "unknown" && demoUnknown.normalized_value?.kind === "unknown", "Public Case Integrity failed lookup remains unknown");
+check(demoUnknown.confidence?.conclusion === null, "Public Case Integrity unknown has no conclusion confidence");
 
 const homeJson = jsonLdBlocks(home, "dist/index.html");
 const service = homeJson.find((item) => item && item["@type"] === "Service");
@@ -232,6 +297,7 @@ check(redirectsText.includes("/permit-due-diligence-los-angeles /#research-intak
 check(redirectsText.includes("/snapshot                  /#research-intake"), "Legacy snapshot route redirects to current intake");
 
 const sitemapRequirements = [
+  "https://getpermitpulse.com/case-integrity/",
   "https://getpermitpulse.com/sample-report/",
   "https://getpermitpulse.com/about/",
   "https://getpermitpulse.com/legal/",
@@ -266,7 +332,7 @@ for (const packetName of docs.filter((name) => name.startsWith("content-packets/
 const launchDoc = await readFile(path.join(repoRoot, "docs", "LAUNCH_READINESS.md"), "utf8");
 check((launchDoc.match(/^\d+\. \*\*/gm) || []).length === 8, "Manual launch list is capped at eight");
 
-const coreRelPaths = ["index.html", "sample-report/index.html", "resources/index.html", ...contentRoutes.map(([suffix]) => "resources/" + suffix), "about/index.html", "legal/index.html"];
+const coreRelPaths = ["index.html", "case-integrity/index.html", "sample-report/index.html", "resources/index.html", ...contentRoutes.map(([suffix]) => "resources/" + suffix), "about/index.html", "legal/index.html"];
 for (const fileName of coreRelPaths) {
   const html = htmlByRel.get(fileName) || "";
   check((html.match(/<h1\b/gi) || []).length === 1, fileName + " has one H1");

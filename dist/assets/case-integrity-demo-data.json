@@ -1,0 +1,160 @@
+{
+  "schema_version": "case-integrity-public-demo-v1",
+  "demo_kind": "fixture_powered",
+  "disclosure": "Fictional sample case. This interaction replays validated fixture data and does not query live agency systems.",
+  "integrity_boundary": {
+    "deterministic_validation": true,
+    "ai_used": false,
+    "client_safe_projection_validated": true
+  },
+  "sample_property": {
+    "address_line_1": "1428 Arroyo Vista",
+    "locality": "Los Angeles, CA",
+    "fictional": true,
+    "disclosure": "Fictional public display alias for the anonymized conflict fixture."
+  },
+  "fixture_ids": {
+    "conflict": "fire-hazard-official-source-conflict",
+    "unknown": "record-lookup-insufficient-evidence"
+  },
+  "conflict": {
+    "assessment_id": "integrity-claim-3d8377a3f6bec1ff",
+    "claim_label": "Very High Fire Hazard Severity Zone",
+    "classification": "conflict",
+    "normalized_value": {
+      "kind": "unresolved",
+      "value": null,
+      "reason": "conflicting_evidence"
+    },
+    "confidence": {
+      "classification": 100,
+      "conclusion": null
+    },
+    "review_status": "review_required",
+    "human_review_required": true,
+    "statement": "Official sources conflict regarding the property's fire-hazard designation.",
+    "evidence": [
+      {
+        "id": "evidence-fire-cal-fire",
+        "claim_label": "Very High Fire Hazard Severity Zone",
+        "classification": "source_observation",
+        "observed_value": {
+          "kind": "text",
+          "value": "YES"
+        },
+        "observed_display_value": "YES",
+        "normalized_value": {
+          "kind": "boolean",
+          "value": true
+        },
+        "conflicts_with": [
+          "evidence-fire-zimas-city"
+        ],
+        "source_authority": "official",
+        "source": {
+          "evidence_id": "evidence-fire-cal-fire",
+          "source_agency": "CAL FIRE",
+          "source_title": "Fire Hazard Severity Zone map observation",
+          "source_description": "Fictionalized observation from the state fire-hazard map used only for deterministic integrity testing.",
+          "source_url": "https://records.example.test/case-integrity/cal-fire/fire-hazard-map",
+          "retrieved_at": "2026-07-10T16:05:00.000Z",
+          "evidence_type": "official_map",
+          "record_origin": "source_evidence"
+        },
+        "provenance": {
+          "source_record_id": "fixture-cal-fire-map-record-001",
+          "capture_method": "manual_research",
+          "is_ai_generated": false
+        }
+      },
+      {
+        "id": "evidence-fire-zimas-city",
+        "claim_label": "Very High Fire Hazard Severity Zone",
+        "classification": "source_observation",
+        "observed_value": {
+          "kind": "text",
+          "value": "NO"
+        },
+        "observed_display_value": "NO",
+        "normalized_value": {
+          "kind": "boolean",
+          "value": false
+        },
+        "conflicts_with": [
+          "evidence-fire-cal-fire"
+        ],
+        "source_authority": "official",
+        "source": {
+          "evidence_id": "evidence-fire-zimas-city",
+          "source_agency": "ZIMAS / City source",
+          "source_title": "City parcel hazard-layer observation",
+          "source_description": "Fictionalized observation from a city property-information layer used only for deterministic integrity testing.",
+          "source_url": "https://records.example.test/case-integrity/city/property-hazard-layer",
+          "retrieved_at": "2026-07-10T16:12:00.000Z",
+          "evidence_type": "official_portal",
+          "record_origin": "source_evidence"
+        },
+        "provenance": {
+          "source_record_id": "fixture-city-hazard-layer-record-001",
+          "capture_method": "manual_research",
+          "is_ai_generated": false
+        }
+      }
+    ],
+    "ai_interpretation": null,
+    "next_question": "Which hazard designation should govern this property, and what source should be relied on for project review?"
+  },
+  "unknown_example": {
+    "assessment_id": "integrity-claim-c6fc247ac2acd681",
+    "claim_label": "Active code-enforcement record",
+    "classification": "unknown",
+    "normalized_value": {
+      "kind": "unknown",
+      "value": null,
+      "reason": "retrieval_failed"
+    },
+    "confidence": {
+      "classification": 100,
+      "conclusion": null
+    },
+    "review_status": "review_required",
+    "human_review_required": true,
+    "statement": "Available evidence is insufficient to determine whether an active code-enforcement record exists.",
+    "evidence": [
+      {
+        "id": "evidence-code-record-lookup",
+        "claim_label": "Active code-enforcement record",
+        "classification": "unknown",
+        "observed_value": {
+          "kind": "not_observed",
+          "value": null
+        },
+        "observed_display_value": "NOT OBSERVED",
+        "normalized_value": {
+          "kind": "unknown",
+          "value": null,
+          "reason": "retrieval_failed"
+        },
+        "conflicts_with": [],
+        "source_authority": "official",
+        "source": {
+          "evidence_id": "evidence-code-record-lookup",
+          "source_agency": "Fictional City Records Division",
+          "source_title": "Official code-record portal lookup attempt",
+          "source_description": "The lookup ended before a complete result set could be verified.",
+          "source_url": "https://records.example.test/case-integrity/city/code-record-search",
+          "retrieved_at": "2026-07-11T09:30:00.000Z",
+          "evidence_type": "lookup_attempt",
+          "record_origin": "source_evidence"
+        },
+        "provenance": {
+          "source_record_id": "fixture-code-record-lookup-attempt-001",
+          "capture_method": "provider_retrieval",
+          "is_ai_generated": false
+        }
+      }
+    ],
+    "ai_interpretation": null,
+    "separate_sample": true
+  }
+}

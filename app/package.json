@@ -20,6 +20,7 @@
     "deploy:preview": "npm run build:preview && npm run preflight:preview:resolved && wrangler deploy --config dist/permitpulse_case_workspace/wrangler.json --no-x-provision --no-autoconfig --strict",
     "demo:seed:local": "node scripts/seed-demo-case.mjs",
     "demo:seed:preview": "node scripts/seed-preview-demo.mjs",
+    "generate:public-case-integrity-demo": "esbuild scripts/generate-public-case-integrity-demo.ts --bundle --platform=node --format=esm --outfile=/tmp/permitpulse-generate-public-case-integrity-demo.mjs && node /tmp/permitpulse-generate-public-case-integrity-demo.mjs",
     "dev": "vite",
     "dev:build-week": "CLOUDFLARE_ENV=build-week-local vite",
     "dev:build-week:live": "CLOUDFLARE_ENV=build-week-live-local vite",
