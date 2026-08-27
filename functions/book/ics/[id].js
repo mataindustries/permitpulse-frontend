@@ -7,7 +7,7 @@ export async function onRequestGet({ params, env }) {
   const minutes = parseInt(env.SLOT_MINUTES || '30', 10);
   const { startLocal, endLocal } = localDateTimeRange(date, time, minutes);
 
-  const ics = `BEGIN:VCALENDAR\nVERSION:2.0\nPRODID:-//PermitPulse//Booking//EN\nCALSCALE:GREGORIAN\nMETHOD:PUBLISH\nBEGIN:VEVENT\nUID:${id}@permitpulse\nDTSTAMP:${ts(new Date())}\nDTSTART:${startLocal}\nDTEND:${endLocal}\nSUMMARY:${escapeICS(title || 'PermitPulse — Intro Call')}\nDESCRIPTION:${escapeICS('Booked via PermitPulse' + (name?` for ${name}`:''))}\nORGANIZER;CN=PermitPulse:MAILTO:hello@getpermitpulse.com\nATTENDEE;CN=${escapeICS(name||'Client')};PARTSTAT=ACCEPTED:MAILTO:${email||'client@example.com'}\nEND:VEVENT\nEND:VCALENDAR\n`;
+  const ics = `BEGIN:VCALENDAR\nVERSION:2.0\nPRODID:-//PermitPulse//Booking//EN\nCALSCALE:GREGORIAN\nMETHOD:PUBLISH\nBEGIN:VEVENT\nUID:${id}@permitpulse\nDTSTAMP:${ts(new Date())}\nDTSTART:${startLocal}\nDTEND:${endLocal}\nSUMMARY:${escapeICS(title || 'PermitPulse: Intro Call')}\nDESCRIPTION:${escapeICS('Booked via PermitPulse' + (name?` for ${name}`:''))}\nORGANIZER;CN=PermitPulse:MAILTO:hello@getpermitpulse.com\nATTENDEE;CN=${escapeICS(name||'Client')};PARTSTAT=ACCEPTED:MAILTO:${email||'client@example.com'}\nEND:VEVENT\nEND:VCALENDAR\n`;
 
   return new Response(ics, {
     headers: {

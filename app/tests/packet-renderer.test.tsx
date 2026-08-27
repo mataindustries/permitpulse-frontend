@@ -232,8 +232,8 @@ describe("canonical packet presentation architecture", () => {
       renderer_version: packetRendererVersion,
     }).toMatchInlineSnapshot(`
       {
-        "html_sha256": "e7b3bae389dc95f062a7d01d82b5fb90c4b2d54cb981024982fa56ab3077c346",
-        "pdf_sha256": "75b5f3e5871863afd82c3dc5c853cf27856a577fff429f0690ee3bb3e57332e1",
+        "html_sha256": "34011f338c85b8f488dbe1ab3612bd4a4730fd8b43d5fdba01261bb017349154",
+        "pdf_sha256": "11a5c66f31585a83faf71faf89de537cc40ef7aaadffbfa905f6c6e0b4a9d645",
         "presentation_version": 3,
         "renderer_version": 4,
       }
@@ -580,7 +580,7 @@ describe("canonical packet presentation architecture", () => {
     }));
 
     expect(model.demonstration_notice).toBe(
-      "Fictional case disclosure — all names, records, dates, and agency activity in this packet are illustrative.",
+      "Fictional case disclosure: all names, records, dates, and agency activity in this packet are illustrative.",
     );
     expect(packetPresentationSectionIds(buildPacketPresentation(model))).toContain(
       "fictional_demonstration_disclosure",
@@ -828,7 +828,7 @@ describe("packet model builder", () => {
       permit_status: "Needs Verification",
       mission_health: { score: 67, label: "Needs attention" },
       readiness: { score: 80 },
-      reviewer_status: "Packet review blocked — 1 open condition",
+      reviewer_status: "Packet review blocked: 1 open condition",
     });
     expect(dashboard.blockers).toContainEqual(
       expect.objectContaining({ id: "unready-evidence" }),
@@ -920,7 +920,7 @@ describe("packet model builder", () => {
       evidence: [{ ...evidenceBase, title: "DEMO — Portal record", source_url: "https://records.example/demo" }],
     }));
 
-    expect(model.demonstration_notice).toBe("Fictional case disclosure — all names, records, dates, and agency activity in this packet are illustrative.");
+    expect(model.demonstration_notice).toBe("Fictional case disclosure: all names, records, dates, and agency activity in this packet are illustrative.");
     expect(model.case_summary.project_name).toBe("Arroyo Vista");
     expect(model.evidence_summaries[0]?.title).toBe("Portal record");
     const html = renderPacketHtml(model);

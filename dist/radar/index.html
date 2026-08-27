@@ -561,7 +561,7 @@
 
   function formatCurrency(val) {
     const num = Number(val);
-    if (!isFinite(num)) return '—';
+    if (!isFinite(num)) return 'N/A';
     if (num >= 1_000_000) {
       return '$' + (num / 1_000_000).toFixed(1).replace(/\.0$/, '') + 'M';
     }
@@ -594,7 +594,7 @@
 
     for (const row of rows) {
       const issueRaw = firstField(row, ['issue_date']);
-      const issue = issueRaw ? String(issueRaw).slice(0, 10) : '—';
+      const issue = issueRaw ? String(issueRaw).slice(0, 10) : 'N/A';
 
       const valRaw = firstField(row, ['valuation', 'est_valuation']);
       const val = formatCurrency(valRaw);
@@ -608,9 +608,9 @@
       }
       const city = firstField(row, ['city', 'city_name']);
       const zip = firstField(row, ['zip', 'zip_code']);
-      const fullAddr = [addr, city, zip].filter(Boolean).join(', ') || '—';
+      const fullAddr = [addr, city, zip].filter(Boolean).join(', ') || 'N/A';
 
-      const desc = firstField(row, ['work_desc', 'description']) || '—';
+      const desc = firstField(row, ['work_desc', 'description']) || 'N/A';
 
       const tr = document.createElement('tr');
       tr.innerHTML = `

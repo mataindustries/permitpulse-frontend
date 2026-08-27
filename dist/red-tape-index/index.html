@@ -993,7 +993,7 @@
           <div class="actions" data-pp-location="who_it_helps_cta">
             <a class="btn btn-orange" href="/who-it-helps/" data-pp-cta="true" data-pp-location="who_it_helps_cta">See Who It Helps</a>
             <a class="btn btn-blue" href="/assets/docs/PermitPulse-Permit-Review-Packet-Sample.pdf" data-pp-cta="true" data-pp-location="who_it_helps_cta" data-pp-asset-name="PermitPulse Permit Review Packet">View Sample Permit Review Packet</a>
-            <a class="btn btn-ghost" href="/permit-due-diligence-los-angeles/" data-pp-cta="true" data-pp-event="pp_checkout_click" data-pp-location="who_it_helps_cta" data-pp-price="149">Order Permit Review Plus</a>
+            <a class="btn btn-ghost" href="/permit-due-diligence-los-angeles/" data-pp-cta="true" data-pp-event="research_intake_cta_click" data-pp-location="who_it_helps_cta">Research an address</a>
           </div>
         </div>
       </section>
@@ -1084,65 +1084,29 @@
               <p class="muted">Send one address and project type. PermitPulse will review the public-record trail and return a first-pass read.</p>
             </div>
 
-            <form id="redTapeAddressForm" action="https://formspree.io/f/mbdwdklj" method="POST">
-              <input type="hidden" name="_subject" value="New PermitPulse Red Tape Index Lead" />
-              <input type="hidden" name="form_name" value="PermitPulse Red Tape Index Address Checker" />
-              <input type="hidden" name="lead_source" value="red-tape-index" />
-              <input type="hidden" name="page_url" value="https://getpermitpulse.com/red-tape-index/" />
-              <input type="text" name="_gotcha" style="display:none" tabindex="-1" autocomplete="off" />
-
-              <div class="form-grid two-col">
-                <label class="field"><span>Name</span><input name="name" required autocomplete="name" /></label>
-                <label class="field"><span>Email</span><input name="email" type="email" required autocomplete="email" /></label>
-                <label class="field"><span>Phone optional</span><input name="phone" autocomplete="tel" /></label>
-                <label class="field"><span>Project type</span>
-                  <select name="project_type" required>
-                    <option value="" selected>Select one</option>
-                    <option>ADU</option>
-                    <option>Remodel / addition</option>
-                    <option>Commercial TI</option>
-                    <option>Multifamily</option>
-                    <option>Solar / electrical</option>
-                    <option>Other</option>
-                  </select>
-                </label>
-                <label class="field span-2"><span>Project address</span><input name="project_address" required autocomplete="street-address" /></label>
-                <label class="field span-2"><span>Is it currently stuck? Optional</span>
-                  <select name="currently_stuck">
-                    <option value="" selected>Select one</option>
-                    <option>Yes</option>
-                    <option>No</option>
-                    <option>Not sure</option>
-                  </select>
-                </label>
-                <label class="field span-2"><span>Notes</span><textarea name="notes" placeholder="Permit number, city, project status, or what you are trying to decide."></textarea></label>
-              </div>
-
-              <div class="form-actions" style="margin-top:14px;">
-                <button class="btn btn-orange" id="addressSubmitBtn" type="submit">Submit address for review</button>
-                <div class="success" id="addressSuccess">Got it. PermitPulse will review the public-record trail and send back the first-pass read.</div>
-                <p class="form-error" id="addressError">Could not submit. Please try again or email hello@getpermitpulse.com.</p>
-                <p class="muted mono" style="font-size:11px;">Form handled through the existing PermitPulse Formspree pattern.</p>
-              </div>
-            </form>
+            <p class="muted">The public index can show a broad signal. Address-specific research now uses one Permit Deep Research intake so scope, privacy, and the customer question stay together.</p>
+            <div class="actions" style="margin-top:18px;">
+              <a class="btn btn-orange" href="/#research-intake" data-pp-cta="true" data-pp-location="red_tape_address_checker">Research an address</a>
+              <a class="btn btn-ghost" href="/sample-report/" data-pp-cta="true" data-pp-location="red_tape_address_sample">See a redacted example</a>
+            </div>
           </article>
 
           <aside class="card plus-card">
-            <div class="eyebrow">Permit Review Plus</div>
-            <h2>Need the full first-pass review?</h2>
-            <p class="muted">Permit Review Plus checks official public records for one address, including permit history, planning/zoning signals, parcel profile, map layers, and obvious risk flags.</p>
+            <div class="eyebrow">Permit Deep Research</div>
+            <h2>Need address-specific research?</h2>
+            <p class="muted">Permit Deep Research organizes available permit and property records, retrieval dates, conflicts, gaps, inference, and useful next questions in one manually reviewed brief.</p>
             <div class="plus-points">
               <div>Address-level research stays private, not exposed in the public watchlist.</div>
               <div>Built for a first-pass read before you spend on deeper professional review.</div>
             </div>
             <div class="price-row">
-              <div class="price-box"><span>Price</span><strong>$149</strong></div>
-              <div class="price-box"><span>Turnaround</span><strong>24-48 business hours</strong></div>
+              <div class="price-box"><span>Founding offer</span><strong>3 addresses · $299</strong></div>
+              <div class="price-box"><span>Target</span><strong>48 business hours each</strong></div>
             </div>
-            <p class="muted">Express option available when schedule allows.</p>
+            <p class="muted">A person reviews fit and scope before payment is arranged.</p>
             <div class="actions">
-              <a class="btn btn-orange" href="https://buy.stripe.com/9B614ofhJ72H5Ft93Q1wY0l" target="_blank" rel="noopener" data-pp-event="red_tape_pr_plus_click" data-pp-location="red_tape_index" data-pp-price="149">Order Permit Review Plus</a>
-              <a class="btn btn-ghost" href="/assets/docs/PermitPulse-Permit-Review-Packet-Sample.pdf" data-pp-cta="true" data-pp-location="red_tape_index_plus_card" data-pp-asset-name="PermitPulse Permit Review Packet">View Sample Permit Review Packet</a>
+              <a class="btn btn-orange" href="/#research-intake" data-pp-event="red_tape_pr_plus_click" data-pp-location="red_tape_index">Research an address</a>
+              <a class="btn btn-ghost" href="/sample-report/" data-pp-cta="true" data-pp-location="red_tape_index_plus_card">See a redacted example</a>
             </div>
           </aside>
         </div>
@@ -1173,7 +1137,7 @@
         <br />
         <a href="/assets/docs/PermitPulse-Permit-Review-Packet-Sample.pdf" data-pp-asset-name="PermitPulse Permit Review Packet" data-pp-location="red_tape_footer">View Sample Permit Review Packet</a> ·
         <a href="sms:+15626762691?body=Hi%20PermitPulse%2C%20I%20saw%20the%20Red%20Tape%20Index.%20Please%20check%20this%20property%20address%3A%20" data-pp-cta="true" data-pp-location="red_tape_footer" data-pp-destination="sms">Send One Address</a> ·
-        <a href="/permit-due-diligence-los-angeles/" data-pp-cta="true" data-pp-event="pp_checkout_click" data-pp-location="red_tape_footer" data-pp-price="149">Order Permit Review Plus</a> ·
+        <a href="/permit-due-diligence-los-angeles/" data-pp-cta="true" data-pp-event="research_intake_cta_click" data-pp-location="red_tape_footer">Research an address</a> ·
         <a href="/who-it-helps/" data-pp-cta="true" data-pp-location="red_tape_footer">See Who It Helps</a>
       </div>
     </footer>
@@ -1193,60 +1157,6 @@
     var PRIMARY_API_BASE = "https://api.getpermitpulse.com";
     var RADAR_API_PATH = "/api/radar?days=365&limit=100";
     var TOP_PERMITS_API_PATH = "/api/top-permits?days=365&minValue=0&limit=100&trade=all";
-
-    var demoRecords = [
-      {
-        permit: "DEMO-ADU-01",
-        status: "Open",
-        type: "ADU",
-        description: "Detached ADU plan check with zoning clearance pending",
-        zip: "90026",
-        value: 185000,
-        filed_at: "2025-08-18",
-        raw: { source: "fallback_demo" }
-      },
-      {
-        permit_id: "DEMO-TI-02",
-        status: "In review",
-        type: "Commercial alteration",
-        subtype: "Tenant improvement",
-        description: "Restaurant tenant improvement with fire clearance signal",
-        zip: "90013",
-        valuation: 460000,
-        filed_at: "2025-06-03",
-        raw: { source: "fallback_demo" }
-      },
-      {
-        id: "DEMO-MF-03",
-        status: "Correction",
-        type: "Multifamily",
-        description: "Multifamily renovation correction cycle",
-        zip: "90004",
-        value: 720000,
-        status_at: "2025-05-22",
-        raw: { source: "fallback_demo" }
-      },
-      {
-        permit: "DEMO-SOLAR-04",
-        status: "Open",
-        type: "Electrical",
-        description: "Solar and service panel upgrade awaiting review",
-        zip: "90065",
-        value: 42000,
-        filed_at: "2025-10-09",
-        raw: { source: "fallback_demo" }
-      },
-      {
-        permit: "DEMO-ADD-05",
-        status: "Open",
-        type: "Addition",
-        description: "Residential remodel and addition under plan check",
-        zip: "90039",
-        value: 310000,
-        filed_at: "2025-07-14",
-        raw: { source: "fallback_demo" }
-      }
-    ];
 
     var els = {
       active: document.getElementById("metricActive"),
@@ -1545,11 +1455,11 @@
       els.highValue.textContent = String(summary.highValue);
       els.oldest.textContent = summary.oldest ? formatAge(summary.oldest.ageDays) : "Unknown";
       els.category.textContent = summary.topCategory;
-      els.refreshed.textContent = apiUsable && lastRefreshedAt ? lastRefreshedAt.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" }) : "Demo";
+      els.refreshed.textContent = apiUsable && lastRefreshedAt ? lastRefreshedAt.toLocaleTimeString("en-US", { hour: "numeric", minute: "2-digit" }) : "Unavailable";
 
       if (usingFallback) {
-        els.status.textContent = "API unavailable or missing usable fields. Showing fallback/demo records.";
-        els.sourceNote.textContent = lastApiFailureReason || "Fallback/demo data is labeled and should not be used for permit decisions.";
+        els.status.textContent = "Live source unavailable. No permit records are shown.";
+        els.sourceNote.textContent = lastApiFailureReason || "The page does not substitute invented records when a live source is unavailable.";
         els.dot.classList.remove("ok");
         els.dot.parentElement.classList.add("demo");
       } else if (apiUsable) {
@@ -1717,9 +1627,9 @@
       apiUsable = false;
       apiBaseInUse = "";
       lastRefreshedAt = null;
-      lastApiFailureReason = reason || "Fallback/demo data is labeled and should not be used for permit decisions.";
+      lastApiFailureReason = reason || "Live source unavailable. No records are shown.";
       liveSourceNote = "";
-      allRecords = demoRecords.map(function (row) { return normalizeRow(row, "fallback"); });
+      allRecords = [];
       track("red_tape_api_fallback", { page_path: "/red-tape-index/" });
       render();
     }
@@ -1729,7 +1639,7 @@
       try {
         var loaded = await loadApiData();
         if (!loaded.jsonLoaded) {
-          useFallback("API routing failed or did not return JSON. Showing fallback/demo records.");
+          useFallback("API routing failed or did not return usable JSON. No records are shown.");
           return;
         }
         usingFallback = false;
@@ -1745,7 +1655,7 @@
         allRecords = loaded.records;
         render();
       } catch (error) {
-        useFallback(error && error.message ? error.message + ". Showing fallback/demo records." : "API request failed. Showing fallback/demo records.");
+        useFallback(error && error.message ? error.message + ". No records are shown." : "API request failed. No records are shown.");
       }
     }
 

@@ -187,7 +187,7 @@ export function packetDashboard(model: PacketModel): PacketDashboard {
       ? "Delivered"
       : "Draft packet";
   const reviewerStatus = blockers.length > 0
-    ? `Packet review blocked — ${blockers.length} open condition${blockers.length === 1 ? "" : "s"}`
+    ? `Packet review blocked: ${blockers.length} open condition${blockers.length === 1 ? "" : "s"}`
     : model.document_status === "approved" || model.document_status === "delivered"
     ? model.executive_summary.key_risks.length > 0
       ? "Reviewer approved; jurisdiction risks remain open"

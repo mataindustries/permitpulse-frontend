@@ -12,7 +12,7 @@
   Access-Control-Allow-Methods: GET, POST, OPTIONS
 
 /booking.html
-  X-Robots-Tag: index, follow
+  X-Robots-Tag: noindex, nofollow
 
 /sgv-ev-battery-radar.html
   Content-Security-Policy: default-src 'self'; script-src 'self'; connect-src 'self' https://pp-sgv-radar.matasergio741.workers.dev; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; object-src 'none'; base-uri 'self'

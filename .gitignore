@@ -7,3 +7,5 @@ cf_account_id.txt
 .dev.vars
 workers/pp-api/.dev.vars
 .codex/
+
+.private/

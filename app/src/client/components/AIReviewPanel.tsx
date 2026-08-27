@@ -26,7 +26,7 @@ function addTextSection(lines: string[], heading: string, values: string[]) {
 export function compileAiReviewText(data: PacketReviewDraftResponseData): string {
   const { evaluation, metadata, review } = data;
   const lines = [
-    "Draft review — verify before sending",
+    "Draft review. Verify before sending",
     `Provider: ${metadata.provider}`,
     `Reviewer: ${metadata.reviewer}`,
     `live_ai=${metadata.live_ai}`,
@@ -346,7 +346,7 @@ export function AIReviewPanel({
           <div><dt>Active provider</dt><dd>{responseMetadata?.provider ?? "deterministic-baseline"}</dd></div>
           <div><dt>Live AI</dt><dd>Off · <code>live_ai={String(responseMetadata?.live_ai ?? false)}</code></dd></div>
           <div><dt>External calls</dt><dd>Off · <code>external_calls={String(responseMetadata?.external_calls ?? false)}</code></dd></div>
-          <div><dt>Evaluation passed</dt><dd>{responseMetadata ? (responseMetadata.evaluation_passed ? "Yes" : "No — blocked") : "Not run"}</dd></div>
+          <div><dt>Evaluation passed</dt><dd>{responseMetadata ? (responseMetadata.evaluation_passed ? "Yes" : "No (blocked)") : "Not run"}</dd></div>
           <div><dt>Warnings count</dt><dd>{responseMetadata?.warnings_count ?? 0}</dd></div>
           <div><dt>Reviewed packet source</dt><dd>Case / evidence / timeline / activity</dd></div>
         </dl>

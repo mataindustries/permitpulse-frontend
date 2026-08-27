@@ -20,7 +20,7 @@ export async function onRequestPost({ request, env }) {
 
     const minutes = parseInt(env.SLOT_MINUTES || '30', 10);
     const { startLocal, endLocal } = localDateTimeRange(date, time, minutes);
-    const title = env.EVENT_TITLE || 'PermitPulse — Intro Call';
+    const title = env.EVENT_TITLE || 'PermitPulse: Intro Call';
     const baseUrl = (env.BASE_URL || '').replace(/\/$/, '');
 
     // Save both by slot and by id
