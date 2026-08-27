@@ -18,11 +18,14 @@ The current application provides email/password authentication, D1-backed
 sessions and case isolation, case/evidence/timeline/reviewer workspaces, an
 R2/D1-backed Evidence Inbox, immutable packet snapshots and delivery events,
 and one canonical packet presentation graph shared by Preview, HTML, text, and
-PDF adapters. The optional AI Review surface remains a deterministic local
-scaffold: it makes no live model call and stores no generated review.
+PDF adapters. The legacy optional AI Review surface remains a deterministic
+local scaffold: it makes no live model call and stores no generated review.
+The separately gated OpenAI Build Week 2026 Case Integrity Engine is documented
+in the repository root README and uses its own schema, routes, and controls.
 
-There is no participant-assignment UI, stored PDF artifact, live AI, billing,
-email delivery, OAuth, client sharing portal, or production user-management UI.
+There is no participant-assignment UI, stored PDF artifact, generally enabled
+live AI in production, billing, email delivery, OAuth, client sharing portal,
+or production user-management UI.
 Production authentication remains intentionally disabled until the deployment
 prerequisites below are completed.
 
@@ -36,8 +39,8 @@ pilot user is invited:
 2. Create the dedicated preview D1 database and private preview R2 bucket
    manually. Resolve the D1 ID into the ignored `.wrangler.preview.jsonc`
    file; no account-specific resource ID belongs in the tracked config.
-3. Apply all migrations through `0010_evidence_intake.sql` to that exact D1
-   database, then verify Wrangler reports no pending migration.
+3. Apply all migrations through `0011_build_week_case_integrity.sql` to that
+   exact D1 database, then verify Wrangler reports no pending migration.
 4. Store a unique, high-entropy `BETTER_AUTH_SECRET` with Wrangler secret input;
    never place its value in source, shell history, or `vars`.
 5. Confirm `BETTER_AUTH_URL` exactly matches the HTTPS Worker/custom-domain
@@ -105,7 +108,7 @@ Wrangler automatic provisioning and automatic reconfiguration, so a missing or
 incorrect resource fails the release instead of creating an accidental blank
 database or bucket.
 
-### 2. Apply and verify migrations through 0010
+### 2. Apply and verify migrations through 0011
 
 Inspect the pending list, apply it to the resolved preview binding, then require
 an empty pending list:
@@ -124,12 +127,13 @@ npx wrangler d1 execute DB \
   --remote \
   --config .wrangler.preview.jsonc \
   --no-x-provision \
-  --command "SELECT id, name, applied_at FROM d1_migrations ORDER BY id; SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'evidence_drafts';"
+  --command "SELECT id, name, applied_at FROM d1_migrations ORDER BY id; SELECT name FROM sqlite_master WHERE type = 'table' AND name IN ('evidence_drafts', 'build_week_integrity_runs') ORDER BY name;"
 ```
 
 The ledger must list exactly `0001_create_cases.sql` through
-`0010_evidence_intake.sql`, and the second query must return
-`evidence_drafts`. Do not deploy if either check differs.
+`0011_build_week_case_integrity.sql`, and the second query must return both
+`build_week_integrity_runs` and `evidence_drafts`. Do not deploy if either
+check differs.
 
 Before applying migrations to an existing pilot database, capture a D1 export:
 
@@ -807,6 +811,23 @@ links for timeline entries:
 npm run db:migrate:local
 npm run dev
 ```
+
+The OpenAI Build Week extension uses a separate, local-only Cloudflare
+environment so its optional OpenAI key can be loaded without changing the
+production or preview secret contract. For the fictional Case Integrity demo,
+use these commands instead:
+
+```bash
+npm run db:migrate:build-week-local
+npm run dev:build-week
+```
+
+That named environment keeps auth, signup, the development case API, demo mode,
+and the Integrity Review UI local while keeping live AI off. For an explicitly
+authorized live-local review, put `OPENAI_API_KEY` in the untracked `.dev.vars`
+and use `npm run db:migrate:build-week-live-local` followed by
+`npm run dev:build-week:live`. The tracked production and preview live flags
+remain off.
 
 Wrangler keeps the persistent local database under `app/.wrangler/`. Restarting
 the server without deleting that directory verifies session persistence.

@@ -12,6 +12,7 @@ import {
 import { Icon } from "../../design-system/icons";
 import { caseStatusLabels, type CaseStatus } from "../../types/cases";
 import type { MissionControlItem } from "../../types/mission-control";
+import { arroyoVistaDemoPermitNumber } from "../../../shared/demo/arroyo-vista-demo";
 
 interface MissionControlHomeProps {
   displayName: string;
@@ -19,6 +20,7 @@ interface MissionControlHomeProps {
   loading: boolean;
   missions: MissionControlItem[];
   onCreateCase: () => void;
+  onOpenIntegrity?: (mission: MissionControlItem) => void;
   onOpenMission: (mission: MissionControlItem) => void;
   onRetry: () => void;
   onViewCases: () => void;
@@ -68,9 +70,11 @@ function formatUpdated(value: string): string {
 function MissionCard({
   mission,
   onOpen,
+  onOpenIntegrity,
 }: {
   mission: MissionControlItem;
   onOpen: () => void;
+  onOpenIntegrity?: () => void;
 }) {
   const findingCount =
     mission.intelligence.counts.blockers + mission.intelligence.counts.warnings;
@@ -156,6 +160,12 @@ function MissionCard({
         </div>
       )}
 
+      {onOpenIntegrity && mission.permit_number === arroyoVistaDemoPermitNumber && (
+        <SecondaryAction fullWidth icon="ai" onClick={onOpenIntegrity}>
+          Open Integrity Review
+        </SecondaryAction>
+      )}
+
       <div className="mission-card__next-action">
         <div>
           <span>Next action</span>
@@ -180,6 +190,7 @@ export function MissionControlHome({
   loading,
   missions,
   onCreateCase,
+  onOpenIntegrity,
   onOpenMission,
   onRetry,
   onViewCases,
@@ -251,6 +262,9 @@ export function MissionControlHome({
               key={mission.id}
               mission={mission}
               onOpen={() => onOpenMission(mission)}
+              onOpenIntegrity={
+                onOpenIntegrity ? () => onOpenIntegrity(mission) : undefined
+              }
             />
           ))}
         </div>

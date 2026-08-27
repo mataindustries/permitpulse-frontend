@@ -130,6 +130,38 @@ describe("Mission Control client and UI", () => {
     expect(markup).toContain("Resolve missing information");
     expect(markup).not.toContain("AI confidence");
   });
+
+  it("exposes the Build Week Integrity Review only for the fictional demo mission", () => {
+    const demoMarkup = renderToStaticMarkup(
+      <MissionControlHome
+        displayName="Avery Example"
+        error=""
+        loading={false}
+        missions={[{ ...mission, permit_number: "LADBS-FICTIONAL-2026-1842" }]}
+        onCreateCase={() => undefined}
+        onOpenIntegrity={() => undefined}
+        onOpenMission={() => undefined}
+        onRetry={() => undefined}
+        onViewCases={() => undefined}
+      />,
+    );
+    const ordinaryMarkup = renderToStaticMarkup(
+      <MissionControlHome
+        displayName="Avery Example"
+        error=""
+        loading={false}
+        missions={[mission]}
+        onCreateCase={() => undefined}
+        onOpenIntegrity={() => undefined}
+        onOpenMission={() => undefined}
+        onRetry={() => undefined}
+        onViewCases={() => undefined}
+      />,
+    );
+
+    expect(demoMarkup).toContain("Open Integrity Review");
+    expect(ordinaryMarkup).not.toContain("Open Integrity Review");
+  });
 });
 
 describe("PermitPulse OS primitives and shell", () => {

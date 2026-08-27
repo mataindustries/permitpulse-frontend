@@ -16,11 +16,15 @@ export interface Bindings {
   AUTH_ENABLED: string;
   BETTER_AUTH_SECRET?: string;
   BETTER_AUTH_URL: string;
+  BUILD_WEEK_DEMO_MODE?: string;
+  BUILD_WEEK_INTEGRITY_ENABLED?: string;
+  BUILD_WEEK_INTEGRITY_LIVE_ENABLED?: string;
   DB: D1Database;
   EVIDENCE_FILES?: R2Bucket;
   ENABLE_DEV_CASE_API: string;
   PREVIEW_DEMO_SEED_ENABLED?: string;
   PREVIEW_DEMO_SEED_TOKEN?: string;
+  OPENAI_API_KEY?: string;
 }
 
 export interface AuthenticatedUser {

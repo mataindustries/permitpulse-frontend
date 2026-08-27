@@ -14,6 +14,10 @@ import { deliveryLifecycleRoutes } from "./routes/delivery-lifecycle";
 import { reviewerRoutes } from "./routes/reviewer";
 import { previewDemoSeedRoutes } from "./routes/preview-demo-seed";
 import { evidenceInboxRoutes } from "./routes/evidence-inbox";
+import {
+  buildWeekIntegrityCaseRoutes,
+  buildWeekIntegrityRoutes,
+} from "./routes/build-week-integrity";
 import { applicationOriginMiddleware } from "./middleware/application-origin";
 import type { WorkerEnv } from "./types";
 
@@ -44,11 +48,13 @@ app.route("/api/internal/bootstrap-admin", bootstrapAdminRoutes);
 app.route("/api/internal/seed-arroyo-vista", previewDemoSeedRoutes);
 app.route("/api/dev/cases", developmentCaseRoutes);
 app.route("/api/v1/cases", caseRoutes);
+app.route("/api/v1/cases", buildWeekIntegrityCaseRoutes);
 app.route("/api/v1/cases", deliveryLifecycleRoutes);
 app.route("/api/v1/cases", reviewerRoutes);
 app.route("/api/v1/mission-control", missionControlRoutes);
 app.route("/api/v1/mission-intelligence", missionIntelligenceRoutes);
 app.route("/api/v1/evidence-inbox", evidenceInboxRoutes);
+app.route("/api/v1/build-week", buildWeekIntegrityRoutes);
 app.route("/api/workspace", workspaceRoutes);
 
 app.notFound((context) =>

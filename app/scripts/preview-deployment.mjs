@@ -15,6 +15,7 @@ const expectedMigrationNames = [
   "0008_reviewer_editorial_workspace.sql",
   "0009_decision_brief_action_kit.sql",
   "0010_evidence_intake.sql",
+  "0011_build_week_case_integrity.sql",
 ];
 const previewDatabaseName = "permitpulse-case-workspace-preview";
 const previewBucketName = "permitpulse-evidence-files-preview";
@@ -82,6 +83,13 @@ async function validateConfig(config, { resolved }) {
   if (config.vars?.AUTH_ALLOW_SIGNUP !== "false" || config.vars?.ENABLE_DEV_CASE_API !== "false" || config.vars?.PREVIEW_DEMO_SEED_ENABLED !== "false") {
     fail("production signup, development APIs, and preview demo seed must remain disabled.");
   }
+  if (
+    config.vars?.BUILD_WEEK_INTEGRITY_ENABLED !== "false" ||
+    config.vars?.BUILD_WEEK_DEMO_MODE !== "false" ||
+    config.vars?.BUILD_WEEK_INTEGRITY_LIVE_ENABLED !== "false"
+  ) {
+    fail("the Build Week extension must remain disabled in production configuration.");
+  }
 
   const preview = config.env?.preview;
   if (!preview || preview.name !== previewWorkerName) {
@@ -96,6 +104,8 @@ async function validateConfig(config, { resolved }) {
     APP_ENV: "preview",
     AUTH_ALLOW_SIGNUP: "false",
     AUTH_ENABLED: "true",
+    BUILD_WEEK_DEMO_MODE: "true",
+    BUILD_WEEK_INTEGRITY_ENABLED: "true",
     ENABLE_DEV_CASE_API: "false",
   };
   for (const [name, expected] of Object.entries(requiredValues)) {
@@ -107,8 +117,15 @@ async function validateConfig(config, { resolved }) {
   if (!requiredSecrets.includes("BETTER_AUTH_SECRET")) {
     fail("preview must declare BETTER_AUTH_SECRET as required.");
   }
-  if ("BETTER_AUTH_SECRET" in vars || "ADMIN_BOOTSTRAP_TOKEN" in vars || "PREVIEW_DEMO_SEED_TOKEN" in vars) {
+  if ("BETTER_AUTH_SECRET" in vars || "ADMIN_BOOTSTRAP_TOKEN" in vars || "PREVIEW_DEMO_SEED_TOKEN" in vars || "OPENAI_API_KEY" in vars) {
     fail("secrets must not appear in preview vars.");
+  }
+  const integrityLiveEnabled = vars.BUILD_WEEK_INTEGRITY_LIVE_ENABLED === "true";
+  if (vars.BUILD_WEEK_INTEGRITY_LIVE_ENABLED !== "false" && !integrityLiveEnabled) {
+    fail("BUILD_WEEK_INTEGRITY_LIVE_ENABLED must be exactly true or false.");
+  }
+  if (integrityLiveEnabled !== requiredSecrets.includes("OPENAI_API_KEY")) {
+    fail("OPENAI_API_KEY must be required exactly while live Integrity Review is enabled.");
   }
   const bootstrapEnabled = vars.ADMIN_BOOTSTRAP_ENABLED === "true";
   if (vars.ADMIN_BOOTSTRAP_ENABLED !== "false" && !bootstrapEnabled) {
@@ -146,7 +163,7 @@ async function validateConfig(config, { resolved }) {
     .filter((name) => name.endsWith(".sql"))
     .sort();
   if (JSON.stringify(migrationNames) !== JSON.stringify(expectedMigrationNames)) {
-    fail("the migration set must be exactly 0001 through 0010.");
+    fail("the migration set must be exactly 0001 through 0011.");
   }
 }
 
@@ -167,15 +184,21 @@ async function prepare() {
     process.env.PERMITPULSE_PREVIEW_DEMO_SEED_ENABLED,
     "PERMITPULSE_PREVIEW_DEMO_SEED_ENABLED",
   );
+  const integrityLiveEnabled = requireExactBoolean(
+    process.env.PERMITPULSE_PREVIEW_INTEGRITY_LIVE_ENABLED,
+    "PERMITPULSE_PREVIEW_INTEGRITY_LIVE_ENABLED",
+  );
   const config = await readConfig(sourceConfigPath);
   config.env.preview.vars.BETTER_AUTH_URL = origin;
   config.env.preview.vars.ADMIN_BOOTSTRAP_ENABLED = bootstrapEnabled;
   config.env.preview.vars.PREVIEW_DEMO_SEED_ENABLED = demoSeedEnabled;
+  config.env.preview.vars.BUILD_WEEK_INTEGRITY_LIVE_ENABLED = integrityLiveEnabled;
   config.env.preview.d1_databases[0].database_id = databaseId;
   config.env.preview.secrets.required = [
     "BETTER_AUTH_SECRET",
     ...(bootstrapEnabled === "true" ? ["ADMIN_BOOTSTRAP_TOKEN"] : []),
     ...(demoSeedEnabled === "true" ? ["PREVIEW_DEMO_SEED_TOKEN"] : []),
+    ...(integrityLiveEnabled === "true" ? ["OPENAI_API_KEY"] : []),
   ];
   await validateConfig(config, { resolved: true });
   await writeFile(resolvedConfigPath, `${JSON.stringify(config, null, 2)}\n`, {

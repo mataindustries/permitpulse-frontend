@@ -470,12 +470,15 @@ function Workspace({
     );
   }
 
-  async function reloadLatestCase() {
+  async function reloadLatestCase(options?: { background?: boolean }) {
     if (!detailCase) {
       return;
     }
 
-    setDetailLoading(true);
+    const background = options?.background === true;
+    if (!background) {
+      setDetailLoading(true);
+    }
     setDetailError("");
 
     try {
@@ -488,7 +491,9 @@ function Workspace({
       handleCaseError(error, setDetailError);
       throw error;
     } finally {
-      setDetailLoading(false);
+      if (!background) {
+        setDetailLoading(false);
+      }
     }
   }
 
@@ -625,9 +630,11 @@ function Workspace({
 
       return {
         ...current,
-        evidence: current.evidence.map((item) =>
-          item.id === updated.id ? updated : item,
-        ),
+        evidence: current.evidence.some((item) => item.id === updated.id)
+          ? current.evidence.map((item) =>
+              item.id === updated.id ? updated : item,
+            )
+          : [updated, ...current.evidence],
       };
     });
   }
@@ -924,6 +931,16 @@ function Workspace({
             loading={missionLoading}
             missions={missions}
             onCreateCase={showCreateCase}
+            onOpenIntegrity={
+              user.role === "admin"
+                ? (mission) =>
+                    void loadCaseDetail(
+                      mission.id,
+                      "integrity-review",
+                      "mission",
+                    )
+                : undefined
+            }
             onOpenMission={(mission) =>
               void loadCaseDetail(
                 mission.id,
