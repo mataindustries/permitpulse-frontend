@@ -354,6 +354,45 @@ const redirectSources = redirectLines.map((line) => line.split(/\s+/)[0]);
 const exactRedirects = new Set(redirectSources.filter((source) => !source.includes("*")));
 const wildcardRedirects = redirectSources.map(redirectMatchers).filter(Boolean);
 
+// These indexed articles must remain native Pages assets, not retired guides or
+// rewrites back to .html (which Pages redirects to the extensionless URL).
+const indexedArticles = [
+  {
+    route: "/retroactive-permits-unpermitted-work-los-angeles",
+    file: "retroactive-permits-unpermitted-work-los-angeles.html",
+    sections: ["What Is a Retroactive Permit?", "Common Types of Unpermitted Work"]
+  },
+  {
+    route: "/resources/check-adu-permit-history-los-angeles/",
+    file: "resources/check-adu-permit-history-los-angeles/index.html",
+    sections: ["Match the ADU to the right address or unit", "ADU red-flag checklist", "Check inspections and final status"]
+  }
+];
+for (const { route, file, sections } of indexedArticles) {
+  const html = htmlByRel.get(file) || "";
+  const stem = route.replace(/\/$/, "");
+  const canonical = "https://getpermitpulse.com" + route;
+  const canonicalTags = (html.match(/<link\b[^>]*>/gi) || []).filter((tag) => attribute(tag, "rel") === "canonical");
+  check(canonicalTags.length === 1 && attribute(canonicalTags[0], "href") === canonical, file + " has one self-referencing canonical");
+  check(!/noindex|http-equiv=["']refresh/i.test(html), file + " remains indexable without a meta redirect");
+  check(sections.every((section) => html.includes(section)), file + " retains dedicated article content");
+  check(!exactRedirects.has(stem) && !exactRedirects.has(stem + "/"), route + " uses native Pages routing");
+  const sitemapUrls = [...sitemap.matchAll(/<loc>(.*?)<\/loc>/g)].map((match) => match[1]);
+  const variants = sitemapUrls.filter((url) => url.replace(/(?:\/index)?\.html$|\/$/g, "") === "https://getpermitpulse.com" + stem);
+  check(variants.length === 1 && variants[0] === canonical, route + " has only its canonical URL in the sitemap");
+  check(resources.includes('href="' + route + '"'), route + " is linked from resources using its canonical URL");
+  const noncanonicalLinks = [];
+  for (const [sourceFile, sourceHtml] of htmlByRel) {
+    for (const tag of sourceHtml.match(/<a\b[^>]*href=["'][^"']+["'][^>]*>/gi) || []) {
+      const url = new URL(attribute(tag, "href"), "https://getpermitpulse.com" + routeForFile(path.join(distRoot, sourceFile)));
+      if (url.origin !== "https://getpermitpulse.com") continue;
+      const normalized = url.pathname.replace(/(?:\/index)?\.html$|\/$/g, "");
+      if (normalized === stem && url.pathname !== route) noncanonicalLinks.push(sourceFile + " -> " + url.pathname);
+    }
+  }
+  check(noncanonicalLinks.length === 0, route + " internal links are canonical", noncanonicalLinks.join("; "));
+}
+
 async function routeExists(pathname) {
   let decoded;
   try {

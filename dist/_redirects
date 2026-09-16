@@ -43,8 +43,7 @@
 /es/la-contratistas        /es/la-contratistas-la.html        200
 /ladbs-roofing-permits     /ladbs-roofing-permits.html        200
 /ladbs-roofing-permits/    /ladbs-roofing-permits.html        200
-/retroactive-permits-unpermitted-work-los-angeles  /retroactive-permits-unpermitted-work-los-angeles.html 200
-/retroactive-permits-unpermitted-work-los-angeles/ /retroactive-permits-unpermitted-work-los-angeles.html 200
+# Retroactive permits uses native Pages .html routing (canonical: no trailing slash).
 /es/ayuda-permisos-los-angeles  /es/ayuda-permisos-los-angeles.html 200
 /es/ayuda-permisos-los-angeles/ /es/ayuda-permisos-los-angeles.html 200
 
@@ -79,8 +78,8 @@
 /permit-file-review-los-angeles/ /#research-intake           301
 /permit-history-report-los-angeles /#research-intake         301
 /permit-history-report-los-angeles/ /#research-intake        301
-/resources/check-adu-permit-history-los-angeles /resources/ 301
-/resources/check-adu-permit-history-los-angeles/ /resources/ 301
+# ADU history uses its own index.html via native Pages directory routing.
+/resources/check-adu-permit-history-los-angeles.html /resources/check-adu-permit-history-los-angeles/ 301
 /resources/what-ladbs-permit-status-means /resources/how-to-check-permit-history-los-angeles/ 301
 /resources/what-ladbs-permit-status-means/ /resources/how-to-check-permit-history-los-angeles/ 301
 /resources/permit-history-report-vs-permit-expeditor /resources/ 301
