@@ -13,6 +13,13 @@ const OFFER_URL = '/#research-intake';
 const LASTMOD = '2026-05-09';
 const OG_IMAGE = `${SITE_URL}/img/permitpulse-og-los-angeles-permit-radar.webp`;
 
+// Jurisdictions whose /permits/ and /building-permits/ pages 301-redirect
+// (see dist/_redirects) to their /california/jurisdictions/ page. Their
+// /permits/ and /building-permits/ URLs still render (for the redirect to
+// have something to point at pre-deploy) but must not be submitted to the
+// sitemap, since Google would only ever see a 301 there, never a 200.
+const CA_HUB_REDIRECTED_SLUGS = new Set(['pasadena']);
+
 const JURISDICTION_SOURCE = new Map(
   JURISDICTIONS.map((entry) => [entry.id, entry]),
 );
@@ -1441,7 +1448,7 @@ ${renderHeader()}
           <p class="lead">For a specific ${escapeHtml(entry.name)} address, PermitPulse can package permit history, timeline context, risk flags, and scope notes into a source-backed brief.</p>
         </div>
         <div class="btn-row">
-          <a class="btn btn-primary" href="${OFFER_URL}">Research an address</a>
+          <a class="btn btn-primary" href="${OFFER_URL}" data-pp-event="pp_content_to_offer_click" data-pp-location="jurisdiction_cta_panel">Research an address</a>
           <a class="btn btn-secondary" href="/permit-history-report-los-angeles/">See how the report workflow works</a>
         </div>
       </div>
@@ -1893,7 +1900,7 @@ ${getResearchAvailabilityNote(entry.state) ? `      <p class="mono muted" style=
           <p class="lead">${escapeHtml(copy.missionLead)}</p>
         </div>
         <div class="btn-row">
-          <a class="btn btn-primary" href="/#research-intake">${escapeHtml(getResearchCtaLabel(entry.state))}</a>
+          <a class="btn btn-primary" href="/#research-intake" data-pp-event="pp_content_to_offer_click" data-pp-location="jurisdiction_cta_panel">${escapeHtml(getResearchCtaLabel(entry.state))}</a>
           <a class="btn btn-secondary" href="${buildPermitsStatePath(entry.state)}">Browse ${escapeHtml(stateName)} permit pages</a>
         </div>
       </div>
@@ -2000,7 +2007,7 @@ ${getResearchAvailabilityNote(entry.state) ? `      <p class="mono muted" style=
         </div>
         <div class="btn-row">
           <a class="btn btn-primary" href="${buildPermitsCityPath(entry)}">Open main permit page</a>
-          <a class="btn btn-secondary" href="/#research-intake">${escapeHtml(getResearchCtaLabel(entry.state))}</a>
+          <a class="btn btn-secondary" href="/#research-intake" data-pp-event="pp_content_to_offer_click" data-pp-location="jurisdiction_cta_panel">${escapeHtml(getResearchCtaLabel(entry.state))}</a>
           <a class="btn btn-secondary" href="${buildPermitsStatePath(entry.state)}">Browse ${escapeHtml(stateName)}</a>
         </div>
       </div>
@@ -2122,7 +2129,9 @@ function renderPermitsSitemap(states) {
   const urls = [
     buildPermitsHubPath(),
     ...states.map((state) => buildPermitsStatePath(state.stateCode)),
-    ...states.flatMap((state) => state.entries.map((entry) => buildPermitsCityPath(entry))),
+    ...states.flatMap((state) => state.entries
+      .filter((entry) => !CA_HUB_REDIRECTED_SLUGS.has(getJurisdictionSlug(entry)))
+      .map((entry) => buildPermitsCityPath(entry))),
   ];
 
   return `<?xml version="1.0" encoding="UTF-8"?>
@@ -2142,7 +2151,9 @@ ${urls
 }
 
 function renderBuildingPermitsSitemap(entries) {
-  const urls = entries.map((entry) => buildBuildingPermitsCityPath(entry));
+  const urls = entries
+    .filter((entry) => !CA_HUB_REDIRECTED_SLUGS.has(getJurisdictionSlug(entry)))
+    .map((entry) => buildBuildingPermitsCityPath(entry));
 
   return `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
