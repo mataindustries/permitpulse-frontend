@@ -30,7 +30,16 @@ function align(source) {
     .replace(/\sdata-pp-price="(?:99|149|300)"/g, '')
     .replace(/data-pp-event="pp_checkout_click"/g, 'data-pp-event="research_intake_cta_click"')
     .replace(/href="\/#research-intake"\s+target="_blank"\s+rel="noopener"/g, 'href="/#research-intake"')
-    .replace(/href="\/#research-intake"\s+rel="noopener"\s+target="_blank"/g, 'href="/#research-intake"');
+    .replace(/href="\/#research-intake"\s+rel="noopener"\s+target="_blank"/g, 'href="/#research-intake"')
+    // Jurisdiction pages (permits/, building-permits/, california/jurisdictions/):
+    // instrument the dedicated "cta-panel" content-to-offer CTA with the same
+    // pp_content_to_offer_click event already used on resources/index.html.
+    // Bounded to one section so it never reaches into an unrelated, later CTA;
+    // matching only an un-instrumented `>` makes this idempotent on rerun.
+    .replace(
+      /(class="card cta-panel">(?:(?!<\/section>)[\s\S])*?<a class="btn btn-(?:primary|secondary)" href="\/#research-intake")>/g,
+      '$1 data-pp-event="pp_content_to_offer_click" data-pp-location="jurisdiction_cta_panel">',
+    );
 }
 
 const files = await htmlFiles(root);

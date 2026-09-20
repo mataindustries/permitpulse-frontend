@@ -127,6 +127,15 @@ const css = await readFile(path.join(distRoot, "assets/platform-home.css"), "utf
 const redirectsText = await readFile(path.join(distRoot, "_redirects"), "utf8");
 const sitemap = await readFile(path.join(distRoot, "sitemap-pages.xml"), "utf8");
 const jurisdictionConfig = await readFile(path.join(repoRoot, "workers/pp-api/src/config/jurisdictions.js"), "utf8");
+const belmontBuildingPermitsPage = htmlByRel.get("building-permits/california/belmont/index.html") || "";
+const santaMonicaJurisdictionPage = htmlByRel.get("california/jurisdictions/santa-monica/index.html") || "";
+
+const auxSitemapNames = ["sitemap-jurisdictions.xml", "sitemap-permits.xml", "sitemap-building-permits.xml"];
+const auxSitemaps = [];
+for (const name of auxSitemapNames) {
+  const file = path.join(distRoot, name);
+  if (await exists(file)) auxSitemaps.push([name, await readFile(file, "utf8")]);
+}
 
 const homepageRequirements = [
   "Permit Deep Research",
@@ -273,7 +282,8 @@ const stalePatterns = [
   ["old Mission Control position", /Mission Control/i],
   ["old Instant Snapshot position", /Instant Snapshot/i],
   ["invented Red Tape fallback records", /fallback_demo|DEMO-(?:ADU|TI|MF|SOLAR|ADD)/i],
-  ["old subscription price schema", /"price"\s*:\s*"(?:29|99|149|249|300)(?:\.00)?"/i]
+  ["old subscription price schema", /"price"\s*:\s*"(?:29|99|149|249|300)(?:\.00)?"/i],
+  ["mislabeled city-dataset proxy content", /LADBS (?:CSV|dataset) filtered by (?:keyword|topic)/i]
 ];
 for (const [label, pattern] of stalePatterns) {
   const hits = publicForStaleScan.filter(([, html]) => pattern.test(html)).map(([name]) => name);
@@ -283,6 +293,18 @@ for (const [label, pattern] of stalePatterns) {
 check(bostonPermitPage.includes("founding offer currently serves California addresses only"), "Non-California directory states the California service boundary");
 check(bostonPermitPage.includes("Research a California address"), "Non-California directory uses a scoped research CTA");
 check(!bostonPermitPage.includes("Boston is available in PermitPulse"), "Non-California directory does not imply local service availability");
+
+check(bostonPermitPage.includes('data-pp-event="pp_content_to_offer_click"'), "Permits directory jurisdiction pages instrument content-to-offer CTA");
+check(belmontBuildingPermitsPage.includes('data-pp-event="pp_content_to_offer_click"'), "Building-permits jurisdiction pages instrument content-to-offer CTA");
+check(santaMonicaJurisdictionPage.includes('data-pp-event="pp_content_to_offer_click"'), "California jurisdiction hub pages instrument content-to-offer CTA");
+
+const jsonLdPlaceholderHits = [];
+for (const [fileName, html] of htmlByRel) {
+  for (const match of html.matchAll(/<script[^>]*type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/gi)) {
+    if (/X{5,}|PLACEHOLDER_|REPLACE_ME|FIXME|"TODO"/i.test(match[1])) jsonLdPlaceholderHits.push(fileName);
+  }
+}
+check(jsonLdPlaceholderHits.length === 0, "No placeholder values in production JSON-LD", jsonLdPlaceholderHits.slice(0, 10).join(", "));
 check(!jurisdictionConfig.includes('dataset: "y3ad-yhi1"'), "Retired Long Beach API dataset is not configured");
 check(jurisdictionConfig.includes("building-permit-records"), "Long Beach uses the current official records route");
 
@@ -295,6 +317,37 @@ check(!redirectsText.includes("/sample-report             /assets/docs/"), "Samp
 check(redirectsText.includes("/sample-report/index.html"), "Sample route serves disclosure page");
 check(redirectsText.includes("/permit-due-diligence-los-angeles /#research-intake"), "Legacy service route redirects to current intake");
 check(redirectsText.includes("/snapshot                  /#research-intake"), "Legacy snapshot route redirects to current intake");
+check(redirectsText.includes("/austin-building-permits.html /resources/"), "Retired Austin dataset-proxy page redirects to field notes");
+check(redirectsText.includes("/chicago-building-permits.html /resources/"), "Retired Chicago dataset-proxy page redirects to field notes");
+
+// A sitemap URL that always 301s is a contradiction: Google is told to index
+// a page it will only ever see as a redirect (see the Pasadena case this
+// check now guards against). Covers all four sitemap files, not just pages.
+const permanentRedirectLines = redirectsText.split(/\r?\n/).map((line) => line.trim()).filter((line) => line && !line.startsWith("#"));
+const permanentRedirectSources = permanentRedirectLines
+  .map((line) => line.split(/\s+/))
+  .filter(([, , status]) => status === "301" || status === "302")
+  .map(([source]) => source);
+const permanentRedirectExact = new Set(permanentRedirectSources.filter((source) => !source.includes("*")));
+const permanentRedirectWildcards = permanentRedirectSources.map(redirectMatchers).filter(Boolean);
+function pathIsPermanentlyRedirected(pathname) {
+  const bare = pathname.replace(/\/$/, "");
+  return permanentRedirectExact.has(pathname) || permanentRedirectExact.has(bare) || permanentRedirectExact.has(bare + "/") ||
+    permanentRedirectWildcards.some((matcher) => matcher.test(pathname));
+}
+const redirectedSitemapUrls = [];
+for (const [sitemapName, xml] of [["sitemap-pages.xml", sitemap], ...auxSitemaps]) {
+  for (const match of xml.matchAll(/<loc>(.*?)<\/loc>/g)) {
+    let pathname;
+    try {
+      pathname = new URL(match[1]).pathname;
+    } catch {
+      continue;
+    }
+    if (pathIsPermanentlyRedirected(pathname)) redirectedSitemapUrls.push(sitemapName + " -> " + match[1]);
+  }
+}
+check(redirectedSitemapUrls.length === 0, "No sitemap URL points at a permanently redirected path", redirectedSitemapUrls.slice(0, 10).join("; "));
 
 const sitemapRequirements = [
   "https://getpermitpulse.com/case-integrity/",

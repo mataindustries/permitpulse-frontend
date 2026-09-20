@@ -89,6 +89,11 @@
 /la-building-permit-help.html /resources/                    301
 /la-city-vs-county-permits.html /resources/                  301
 /los-angeles-adu-permit-help.html /resources/                301
+
+# Retired mislabeled city-dataset proxy pages (served LA/LADBS data under
+# an Austin/Chicago label) -> canonical field notes
+/austin-building-permits.html /resources/                    301
+/chicago-building-permits.html /resources/                   301
 /resources                 /resources/index.html              200
 /free-tools                /free-tools/index.html             200
 /top-permits               /top-permits/index.html            200
