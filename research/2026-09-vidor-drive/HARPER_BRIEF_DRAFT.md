@@ -1,9 +1,8 @@
-> **INTERNAL — HUMAN REVIEW REQUIRED BEFORE SENDING.**
-> Revision 4, prepared for review 2026-09-21. Remove this banner on approval.
-> Reviewer checklist: (1) no sentence states why RSO reads "No"; (2) no
-> sentence states what the `[Q]` condition says; (3) no date is attached to the
-> Ellis look-back; (4) affordable-housing incentives are described as a
-> potential pathway, never an entitlement.
+> **INTERNAL — remove this banner before export.** Reviewer checks: no statement
+> of why RSO reads "No"; no statement of what the `[Q]` condition says; no Ellis
+> look-back date; affordable-housing designations never described as an
+> entitlement or as unlimited density; statutory ADU allowances never presented
+> as site capacity.
 
 ---
 
@@ -13,223 +12,204 @@
 Prepared for Harper Halprin, AIA — AAHA Studio
 PermitPulse · 21 September 2026
 
-**What this is.** A review of what the City's records currently say about your
-property, which of the programs you asked about actually reach it, and what has
-to be pinned down before design money is spent. It is not a legal opinion, a
-zoning determination, or an entitlement analysis.
+**Scope.** A review of what the City's records currently say about this
+property, which housing programs reach it, and what to pin down before design
+money is spent. Not a legal opinion, zoning determination, or entitlement
+analysis.
 
-**How to read it.** Every conclusion below is labelled **CONFIRMED**,
-**LIKELY / CONDITIONAL**, or **UNRESOLVED**. Nothing important is hidden in a
-footnote. Where we don't know, we say so.
-
----
-
-## 1 · What the City currently says
-
-**CONFIRMED** — City of Los Angeles ZIMAS Parcel Profile Report, 20 Sept 2026.
-
-Your parcel is **5,974.5 sq ft** carrying **four units** in a **1947** building
-of 4,092 sq ft, zoned **`[Q]R3-1-O`**, General Plan Medium Residential, in the
-West Los Angeles Community Plan, CD 5. It is **not** hillside, coastal, very
-high fire hazard, HPOZ or historic, liquefaction or flood. It **is** in a
-**Methane Zone** and a **Special Grading Area**.
-
-Three things on that record matter more than the rest, and none of them is
-self-explanatory:
-
-**The `[Q]` in your zoning.** A `[Q]` is a site-specific condition imposed by
-Council ordinance that sits on top of the base R3 zone. **CONFIRMED: it is live
-on your current zoning string. UNRESOLVED: what it says.** We traced it and
-could not retrieve the text — City ordinances numbered below 170,000 are not
-published in any online system and exist only at the City Archives. Your record
-lists a 1988 zone-change case whose description mentions limiting density, but
-the record does not link that case to your condition, and we will not assert
-that it does. A `[Q]` can restrict density, uses, setbacks, or require
-affordability. Until someone reads it, its content is an open question.
-
-**Your property's housing status is genuinely unresolved.** ZIMAS reports
-**RSO: No**, and simultaneously **Just Cause for Eviction: Yes**, **Ellis Act
-Property: Yes (filed 15 May 2017)**, **HCA / Resident Protections Replacement
-Review: Yes**, **Housing Element Site with replacement required: Yes**, and
-**Housing use within the prior five years: Yes**. On 21 September 2026 we
-called LAHD about exactly this discrepancy. Staff said nothing has been filed
-or registered since 2019 and that **they could not determine or confirm from
-the records they were viewing** whether the property is currently RSO or JCO.
-That was a phone inquiry, not a written determination, and it settles nothing
-in either direction.
-
-**You are not near a qualifying transit stop.** Your report says **High Quality
-Transit Corridor: Yes** — which looks encouraging and is a different test. The
-operative field is **within ½ mile of a Major Transit Stop: No**, and TOC plus
-all three CHIP incentive areas independently return **Not Eligible**.
+**Reading the labels.** Conclusions are marked **CONFIRMED**,
+**LIKELY / CONDITIONAL**, or **UNRESOLVED**. Nothing material is hidden in a
+footnote.
 
 ---
 
-## 2 · The programs you asked about
+## 1 · Property snapshot
 
-| Program | Status | Why | Confidence |
+| | |
+|---|---|
+| Parcel | APN 4330-005-041 · 5,974.5 sq ft · TR 11106, Lot 85 |
+| Zoning | `[Q]R3-1-O` — R3 multiple dwelling, Height District 1, Oil Drilling district, with a qualified `[Q]` condition |
+| General Plan | Medium Residential · West Los Angeles Community Plan · CD 5 |
+| Existing | Four units · 8 bd / 4 ba · 4,092 sq ft · built 1947 |
+| Not applicable | Hillside · Coastal · Very High Fire Hazard Severity Zone · Historic Preservation Overlay Zone · Liquefaction · Flood |
+| Applies | Methane Zone · Special Grading Area · West LA Transportation Improvement and Mitigation Specific Plan |
+
+**Bottom line.** An additive strategy — accessory dwelling units (ADUs) — is
+the path worth testing first. The programs aimed at redeveloping or
+subdividing the site run into this property's housing history, which is
+unresolved in ways that matter.
+
+---
+
+## 2 · What the City currently says
+
+**CONFIRMED** from the ZIMAS Parcel Profile Report dated 20 September 2026.
+Three items carry weight and none is self-explanatory.
+
+**The `[Q]` condition.** A `[Q]` is a site-specific condition imposed by
+Council ordinance on top of the base R3 zone. It is live on the current zoning
+string. **Its text is UNRESOLVED.** City of Los Angeles ordinances numbered
+below 170,000 are not published online and are held at the City Archives;
+every era-plausible candidate for this condition falls below that number. The
+parcel record lists a 1988 zone-change case whose description mentions limiting
+density, but the record does not link that case to this condition. A `[Q]` can
+restrict density, uses, or setbacks, or require affordability.
+
+**The housing-status block is unresolved.** The parcel record reports
+**Rent Stabilization Ordinance (RSO): No** alongside **Just Cause for
+Eviction Ordinance (JCO): Yes**,
+**Ellis Act Property: Yes (filed 15 May 2017)**, **Housing Crisis Act (HCA) /
+Resident Protections Ordinance (RPO) Replacement Review: Yes**, **Housing
+Element Site with replacement required: Yes**, and **housing use within the
+prior five years: Yes**. On 21 September 2026 the Los Angeles Housing
+Department (LAHD) was asked about this directly. Staff reported nothing filed
+or registered since 2019 and **could not determine or confirm current Rent
+RSO or JCO status** from the records they were
+viewing. That was a telephone inquiry, not a written determination, and it
+settles nothing in either direction. **UNRESOLVED.**
+
+**Transit designations are mostly negative.** The record shows **High Quality
+Transit Corridor: Yes** — a corridor test, not a stop test — while **within
+½ mile of a Major Transit Stop: No**. Transit Oriented Communities and all
+three Citywide Housing Incentive Program (CHIP) incentive areas return **Not
+Eligible**.
+
+---
+
+## 3 · Program matrix
+
+| Program | Status | Basis | Confidence |
 |---|---|---|---|
-| **SB 1123** | **Does not apply** | Single-family-zoned lots only. Yours is multifamily | **CONFIRMED** |
-| **SB 9** | **Does not apply** | Same — single-family zones only | **CONFIRMED** |
-| **CHIP — Mixed Income (MIIP)** | **Not eligible** | All three incentive geographies return Not Eligible on the City's record | **CONFIRMED** |
-| **SB 79** | **Does not reach this parcel** | Keys to proximity to a qualifying major transit stop; the City records you as outside the ½-mile radius. LA has also deferred citywide application | **CONFIRMED** on the distance test |
-| **Low-Rise Ordinance** | **Does not reach this parcel** | Applies at station areas; same distance finding | **CONFIRMED** on the distance test |
-| **SB 684** | **Potentially blocked for a project altering or demolishing existing units** | City Planning's SHRA rules prohibit demolition or alteration of units occupied by tenants within the prior five years, and separately restrict parcels with qualifying Ellis Act withdrawals. ZIMAS reports housing use within the prior five years and a 2017 Ellis filing — but those parcel flags do not by themselves establish the facts necessary to make a final SHRA eligibility determination. Separately, little land would remain to subdivide | **LIKELY / CONDITIONAL.** *Verify:* confirm the relevant occupancy history and the status and effect of the Ellis record before relying on SB 684 either way |
-| **ADUs (incl. SB 1211)** | **Worth pursuing** | The only route that adds housing without removing or altering the existing four units, and therefore the only one none of your replacement protections penalise | **LIKELY / CONDITIONAL** — limited by physical capacity, not by zoning |
-| **ED 1 (as a current route)** | **Not available for a new application** | The emergency declaration supporting ED 1 ended **18 November 2025**, ending ED 1 ministerial processing for new applications apart from qualifying vested ones. Your ZIMAS report still carries an **ED 1 Eligible Site** flag — a parcel-system flag that has outlived the program it names | **CONFIRMED** that ED 1 is not a route to start today. **UNRESOLVED** whether any vested-application exception could apply |
-| **Affordable-housing incentives generally** | **Potential pathway, conditional** | Your parcel carries **Highest** TCAC Opportunity Area and **Very Low Vehicle Travel Area** designations. For a project meeting deep affordability requirements, these can relieve density constraints that would otherwise apply. The City has since codified parts of this streamlining framework, so any such project would need to be evaluated under the **current** Affordable Housing Incentive Program / Housing Element Sites framework — not under ED 1 | **LIKELY / CONDITIONAL** — subject to affordability and other eligibility requirements; not a right the parcel holds |
+| **SB 1123** | Does not reach this parcel | Applies to single-family-zoned lots; this parcel is zoned R3 | **CONFIRMED** |
+| **SB 9** | Does not reach this parcel | Single-family zones only | **CONFIRMED** |
+| **CHIP — Mixed Income** | Not eligible | All three incentive geographies return Not Eligible on the City's record | **CONFIRMED** |
+| **SB 79** | Likely does not reach this parcel | The City's parcel record places the site outside the ½-mile major transit stop radius. SB 79 applies its own qualifying-stop and TOD-zone framework | **LIKELY.** Confirm against the City's current SB 79 eligibility map and qualifying-stop definitions |
+| **Low-Rise Ordinance** | Likely does not reach this parcel | Applies in low-density zones within ½ mile of an Opportunity Station Area. This parcel is zoned R3 and sits outside the ½-mile radius on the City's record | **LIKELY.** Confirm against the City's Low-Rise eligibility map |
+| **SB 684 — Starter Home Revitalization Act (SHRA)** | Potentially blocked for a project altering or demolishing existing units | SHRA rules prohibit demolition or alteration of units occupied by tenants within the prior five years, and separately restrict parcels with qualifying Ellis Act withdrawals. The parcel record reports housing use in the prior five years and a 2017 Ellis filing — but those flags do not by themselves establish the facts needed for a final SHRA eligibility determination. Little land would remain to subdivide | **LIKELY / CONDITIONAL.** Confirm occupancy history and Ellis status before relying on this either way |
+| **ADUs** | Worth pursuing | The only route that adds housing without removing or altering the existing four units | **LIKELY / CONDITIONAL.** Limited by site capacity, not zoning |
+| **Executive Directive 1** | Not a route for a new application | The local homelessness emergency ended 18 November 2025, ending ED 1 ministerial processing. Projects without a filed application no longer qualify unless they hold a valid HCA Vesting Preliminary Application. The ZIMAS **ED 1 Eligible Site** flag remains on the record | **CONFIRMED.** A parcel flag, not an available process |
+| **Affordable housing** | Potential pathway | The parcel carries **Highest** California Tax Credit Allocation Committee (TCAC) Opportunity Area and **Very Low Vehicle Travel Area** designations, which can relieve density constraints for deeply affordable projects | **LIKELY / CONDITIONAL.** Subject to affordability and other eligibility requirements. Evaluate under the current Affordable Housing Incentive Program and Housing Element Sites framework, not ED 1 |
 
 ---
 
-## 3 · What is realistically worth investigating
+## 4 · What is realistically worth investigating
 
-**An ADU, or a small number of them.** State law allows detached ADUs on a
-multifamily lot up to the number of existing units, plus conversion of
-non-livable space. **That is the legal ceiling, not your site capacity.** You
-have 5,974.5 sq ft with a 4,092 sq ft building on it. The real constraint is
-what fits after setbacks, open space and circulation — plus methane and
-grading requirements, which the City's record flags for this parcel and which
-typically add cost to new construction.
+**ADUs, as the first path to test.** With four existing units, the current
+state-law ceiling is **up to four detached ADUs**, subject to site and building
+requirements. Qualifying non-habitable space within the existing multifamily
+structure may also support conversion ADUs under the separate state-law
+formula. **These are statutory allowances, not a finding that this site can
+physically accommodate that yield.** On 5,974.5 sq ft already carrying a 4,092
+sq ft building, the real constraint is what fits after setbacks, open space and
+circulation — plus methane and grading requirements the City flags for this
+parcel, which typically add cost to new construction.
 
-This is the recommendation because of where the risk sits: **the major
-housing-protection flags identified here primarily create risk when existing
-units are removed or altered, which is why an additive ADU strategy deserves
-investigation first.** That is a statement about the flags we found, not a
-guarantee that nothing else on the parcel constrains an addition.
+**An additive strategy still needs a tenant-service check.** If RSO
+protections apply, using tenant parking or other housing-service areas for an
+ADU may create separate tenant-protection consequences. Current RSO status for
+this property remains unresolved.
 
-**A deeply affordable project, if that ever interests you.** The TCAC and
-Very Low Vehicle Travel Area designations line up in a way nothing else on this
-parcel does. Two cautions. It is a different business — affordable developer,
-financing stack, recorded covenants — and it depends on meeting requirements we
-have not tested against any real project. And it would have to be pursued under
-the **current** affordable-housing framework, not under ED 1: your report's
-ED 1 flag no longer reflects an available route for a new application.
+**A deeply affordable project, if that direction ever interests you.** The TCAC
+and Very Low Vehicle Travel Area designations line up in a way nothing else on
+this parcel does. Two cautions: it is a different business — affordable
+developer, financing stack, recorded covenants — and it would be pursued under
+the current affordable-housing framework, not under ED 1.
 
-**Market-rate redevelopment or subdivision** is the path where the `[Q]`
-condition and the replacement protections would weigh most heavily. We would
-retrieve the `[Q]` text and resolve the housing-status question before spending
-anything here.
+**Redevelopment or subdivision** is where the `[Q]` condition and the
+replacement obligations would weigh most heavily. Retrieve the `[Q]` text and
+resolve the housing-status question before spending anything on that path.
 
 ---
 
-## 4 · What we found that the record does not explain
+## 5 · What the parcel record does not explain
 
-- **Four units plus replacement protections.** Your Housing Element site
-  designation carries a replacement requirement, and the Resident Protections
-  Ordinance calls for a Replacement Unit Determination on projects using the
-  City's incentive programs. Removing units carries cost that the zoning fields
-  alone do not reveal.
+- **Four units against replacement obligations.** The Housing Element site
+  designation carries a replacement requirement, and the RPO calls for a
+  Replacement Unit Determination on projects using the City's incentive
+  programs. Removing units carries cost the zoning fields alone do not reveal.
 - **`RSO: No` is not a clean bill of health.** Just-cause protections, the
-  Ellis filing and two replacement flags all sit on the same record. Reading
-  the single RSO field as "unencumbered" is the most likely expensive mistake
-  available here.
-- **LAHD could not answer from its own screen.** That changes the next step
-  from "make a call" to "request a written determination."
-- **High Quality Transit Corridor is not the same test as a major transit
-  stop.** One field reads as encouraging; four others record the parcel as not
+  Ellis filing and two replacement flags sit on the same record. Reading the
+  single RSO field as "unencumbered" is the most likely expensive mistake here.
+- **LAHD could not answer from its own screen.** The next step is a written
+  determination, not another call.
+- **High Quality Transit Corridor is a different test from Major Transit
+  Stop.** One field reads as encouraging; four others record the parcel as not
   eligible for the transit-based programs.
-- **The `[Q]` may matter most if you pursue redevelopment or subdivision.**
-  Its actual condition text remains unresolved, so we would retrieve it before
-  evaluating that path. For an ADU it appears less likely to control, since
-  state ADU law limits how far local density rules reach — but that reasoning
-  assumes a density condition, and we have not read the text.
-- **A parcel flag can outlive the program it names.** Your report flags the
-  parcel as an **ED 1 Eligible Site**. The emergency declaration supporting
-  ED 1 ended on 18 November 2025, closing that route to new applications apart
-  from qualifying vested ones. The flag is still accurate about the parcel; it
-  is no longer a description of an available process. Any affordable pathway
-  would be evaluated under the current framework instead.
-- **Methane Zone and Special Grading Area** are flagged on the parcel and
-  would normally reach new construction, including an ADU. Ordinary on the
-  Westside; budget for them rather than discovering them later.
+- **A parcel flag can outlive the program it names.** The **ED 1 Eligible
+  Site** flag remains accurate about the parcel and no longer describes an
+  available process.
+- **The `[Q]` may matter most for redevelopment or subdivision.** Its text is
+  unresolved. For an ADU it appears less likely to control, since state ADU law
+  limits how far local density rules reach — but that reasoning assumes a
+  density condition, and the text has not been read.
+- **Methane Zone and Special Grading Area** would normally reach new
+  construction, including an ADU. Ordinary on the Westside; budget for them.
 
 ---
 
-## 5 · Verify before spending on design or entitlement
+## 6 · Verify before spending on design or entitlement
 
 1. **A written determination from LAHD** on current RSO and JCO status and the
-   present effect of the 2017 Ellis filing. The phone route has been tried and
-   returned "cannot determine." Everything about what you can do with the
-   existing units runs through this. **Do this first.**
+   present effect of the 2017 Ellis filing. The telephone route returned
+   "cannot determine." **Do this first.**
 2. **A measured existing-conditions survey** — footprint, coverage, setbacks,
-   parking, open space. This is what turns the ADU ceiling into a real number.
-3. **LADBS permit history and certificate of occupancy** — confirms all four
-   units are legally permitted, which is what the ADU count is computed from,
-   and surfaces any unpermitted work before you open a file with the City.
-4. **The `[Q]` ordinance from the City Archives** (555 Ramirez St, Rm 320,
-   213-473-8440) — **only if** you decide to pursue redevelopment or
-   subdivision. We would not expect it to change the ADU answer.
+   parking, open space. This converts the statutory ADU ceiling into a real
+   number, and identifies whether any tenant-service area would be affected.
+3. **Los Angeles Department of Building and Safety (LADBS) permit history and
+   certificate of occupancy** — confirms all four
+   units are legally permitted, which is what the ADU count runs from, and
+   surfaces any unpermitted work before a file is opened with the City.
+4. **The City's current SB 79 and Low-Rise eligibility maps in ZIMAS**, to
+   confirm the transit conclusions against the programs' own geography.
+5. **The `[Q]` ordinance from the City Archives** (555 Ramirez St, Room 320,
+   213-473-8440) — only if redevelopment or subdivision is pursued.
 
 ---
 
-*Prepared from the City's parcel record dated 20 September 2026 and research
-current to 21 September 2026. Not a permit, legal opinion, zoning determination
-or guarantee of approval; does not replace confirmation with the applicable
-agency. Items marked UNRESOLVED have not been confirmed and should not be
-relied upon. Los Angeles land-use rules changed materially during 2025–2026 and
-are scheduled to change further under the Westside Community Plans Update.*
+## 7 · Sources and open items
 
----
----
+### Parcel record
 
-# Appendix — evidence, sources and open items
+- **City of Los Angeles, Department of City Planning** — Parcel Profile Report,
+  9854 W Vidor Dr, APN 4330005041, **20 September 2026**. `zimas.lacity.org`
+- **Los Angeles Housing Department** — telephone inquiry re APN 4330-005-041,
+  **21 September 2026**. Staff could not determine current RSO or JCO status.
+  Not a written determination. `housing.lacity.gov`
 
-## A1 · Evidence status
+### Programs
 
-| Source | Authority | Date |
+| Program | Source |
+|---|---|
+| Executive Directive 1 — emergency ended 18 Nov 2025, ending ED 1 ministerial processing (Council File 22-1545) | LA City Planning, *Executive Directive 1 (ED 1)* — `planning.lacity.gov/project-review/executive-directive-1` |
+| SB 79 — local implementation, phased to 2030 | LA City Planning, *Senate Bill (SB) 79* — `planning.lacity.gov/resources/senate-bill-sb-79` |
+| Low-Rise Ordinance — low-density zones within ½ mile of Opportunity Station Areas; amends Municipal Code §12.22 A.38; adopted 23 June 2026 (CF 25-1083) | LA City Planning, *SB 79 Phased Implementation Ordinance and Low-Rise Ordinance Fact Sheet* — `planning.lacity.gov` |
+| SHRA — SB 684 eff. 1 Jul 2024; SB 1123 and AB 130 eff. 1 Jul 2025; 10 or fewer parcels/units; 60-day ministerial decision | LA City Planning, *SHRA / SB 684 / 1123* — `planning.lacity.gov/project-review/shra-senate-bill-684-1123`; California HCD, *Starter Home Revitalization Act* — `hcd.ca.gov` |
+| SB 1211 — up to 8 detached ADUs on a lot with an existing multifamily dwelling, not exceeding the number of existing units; conversion ADUs in portions not used as habitable space. Gov. Code § 66323, eff. 1 Jan 2025 | `leginfo.legislature.ca.gov` (SB 1211, 2023–24); California HCD, *Accessory Dwelling Unit Handbook* — `hcd.ca.gov` |
+| Citywide Housing Incentive Program (CHIP); Housing Crisis Act (HCA) and Resident Protections Ordinance (RPO) | LA City Planning — `planning.lacity.gov` |
+| Rent Stabilization Ordinance (RSO); Just Cause for Eviction Ordinance (JCO); Replacement Unit Determinations; housing-service reductions | Los Angeles Housing Department — `housing.lacity.gov` |
+
+### Open items
+
+| # | Item | Route |
 |---|---|---|
-| ZIMAS Parcel Profile Report, 9854 W Vidor Dr, APN 4330005041 | **Official** — City of LA Dept. of City Planning | 2026-09-20 |
-| LAHD telephone inquiry re RSO / JCO / Ellis | **Dated staff inquiry — not a written determination** | 2026-09-21 |
-| Program and statutory summaries (SB 684, SB 1123, SB 1211, SB 79, AB 130, AB 2334, CHIP, RPO, ED 1) | Secondary — agency pages and legal alerts identified but not opened | 2026-09-21 |
-| Current LA City Planning material on the end of the ED 1 emergency declaration (18 Nov 2025) | Secondary — City Planning material as reported to us; not independently retrieved in this pass | 2026-09-21 |
-| `[Q]` condition ordinance | **Not retrieved** — see A3 | — |
+| 1 | Current RSO status, and why the field reads No | LAHD written determination |
+| 2 | Current JCO status | LAHD written determination |
+| 3 | Present effect of the 2017 Ellis filing | LAHD written determination |
+| 4 | Relevant tenant-occupancy history of the four units | Owner records / LAHD |
+| 5 | `[Q]` condition text | City Archives |
+| 6 | Legal permitted unit count; certificate of occupancy | LADBS |
+| 7 | Physical ADU capacity, including tenant-service areas | Measured survey |
+| 8 | SB 79 and Low-Rise eligibility against the programs' own maps | ZIMAS / City Planning |
+| 9 | Which affordable-housing framework currently governs | City Planning |
+| 10 | Recorded covenants, conditions and restrictions; easements | LA County Recorder |
+| 11 | Westside Community Plans Update draft zoning for this parcel | City Planning |
 
-Every parcel fact in §1 comes from the official ZIMAS report. No statement in
-this brief rests on the LAHD call, which resolved nothing.
+---
 
-## A2 · The LAHD inquiry, in full
-
-On 21 September 2026 LAHD staff, asked about the RSO / JCO / Ellis discrepancy
-for APN 4330-005-041, stated that nothing has been filed or registered since
-2019 and that they could not determine or confirm from the records they were
-viewing whether the property is currently RSO or JCO.
-
-This supports **none** of the following, and each is expressly not concluded:
-that RSO applies; that RSO does not apply; that JCO applies; that JCO does not
-apply; that the Ellis filing has expired; that the Ellis filing remains
-operative. No meaning is attached to the 2019 date.
-
-## A3 · Why the `[Q]` ordinance was not obtained
-
-Per LADBS Information Bulletin P/GI 2020-025, City of Los Angeles ordinances
-numbered **170,000 and higher** are available online from 24 August 1994;
-those **below 170,000** are obtainable only from the **City Archives**. Every
-era-plausible candidate on this parcel's record is below that number.
-
-Two candidates were positively eliminated: **Ordinance 171492** is the West Los
-Angeles Transportation Improvement and Mitigation Specific Plan (8 March 1997),
-and **Ordinance 183497** is a 2015 mansionization interim control ordinance.
-A third, Ordinance 165986, remains a candidate on era consistency alone and is
-**not** asserted to be the source.
-
-## A4 · Unresolved items
-
-| # | Item | Blocks | Route |
-|---|---|---|---|
-| 1 | Current RSO status, and why the field reads No | Any project removing or replacing units | LAHD written determination |
-| 2 | Current JCO status | Tenant protections on any occupancy | LAHD written determination |
-| 3 | Present effect of the 2017 Ellis filing, including any look-back period | Timing of any redevelopment strategy | LAHD written determination |
-| 4 | `[Q]` condition text | Market-rate density and subdivision only | City Archives |
-| 5 | Legal permitted unit count; certificate of occupancy | ADU count; unpermitted-work exposure | LADBS |
-| 6 | Physical ADU capacity | The only number that matters for the recommended path | Measured survey |
-| 7 | Methane mitigation and BOE grading scope | Cost of any new structure | LADBS / BOE |
-| 8 | Which affordable-housing framework currently governs, and whether any ED 1 vested-application exception could apply | Whether an affordable pathway is available, and under what rules | City Planning |
-| 9 | Recorded CC&Rs and easements | Private restrictions — not visible in ZIMAS | County Recorder |
-| 10 | Westside Community Plans Update draft zoning | Your future zoning designation | City Planning |
-
-## A5 · Deliberately not stated
-
-Why RSO reads No · what the `[Q]` says · any date for the Ellis look-back · any
-market-rate unit yield · any characterisation of the affordable-housing
-designations as an entitlement or as unlimited density · any suggestion that
-the ED 1 parcel flag makes ED 1 available for a new application today.
+*Prepared from the City's parcel record dated 20 September 2026 and program
+sources current to 21 September 2026. Not a permit, legal opinion, zoning
+determination or guarantee of approval; does not replace confirmation with the
+applicable agency. Items marked UNRESOLVED have not been confirmed and should
+not be relied upon. Los Angeles land-use rules changed materially during
+2025–2026 and are scheduled to change further under the Westside Community
+Plans Update.*
