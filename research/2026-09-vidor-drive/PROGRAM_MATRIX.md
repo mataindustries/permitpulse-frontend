@@ -1,424 +1,300 @@
-# Program Matrix — 9854 Vidor Drive, Los Angeles, CA 90035
+# Program Matrix — 9854 W Vidor Drive, Los Angeles, CA 90035
 
-Case ID: `PP-CASE-2026-09-VIDOR` · Analysis date: **2026-09-21**
+Case ID: `PP-CASE-2026-09-VIDOR`
+**Revision 2 — re-evaluated against the official ZIMAS Parcel Profile Report
+dated 2026-09-20. Analysis date: 2026-09-21.**
 
-## How to read this file
+## Verified inputs driving every verdict below
 
-Every verdict below is **conditional on unverified parcel facts**
-(`PROPERTY_EVIDENCE.md`). No statute text, ordinance text, or ZIMAS record was
-retrieved (`RESEARCH_LEDGER.md` §0). Program descriptions come from
-search-engine summaries of law-firm alerts and agency pages that were not
-opened — useful for *framing the tests*, not for *deciding them*.
+| Fact | Value | Source |
+| --- | --- | --- |
+| Zoning | **`[Q]R3-1-O`** | ZIMAS `official` |
+| Lot area | **5,974.5 sf** | ZIMAS `official` |
+| Existing units | **4** (Use Code 0400), built **1947**, 4,092 sf | ZIMAS `official` |
+| RSO | **No** | ZIMAS `official` |
+| **Ellis Act Property** | **Yes — filed 2017-05-15** | ZIMAS `official` |
+| Just Cause for Eviction (JCO) | **Yes** | ZIMAS `official` |
+| HCA / RPO Replacement Review | **Yes** | ZIMAS `official` |
+| Housing Element Site · HE Replacement Required | **Yes** · SB 166 units 0.15 | ZIMAS `official` |
+| Housing Use within Prior 5 Years | **Yes** | ZIMAS `official` |
+| TOC | **Not Eligible** | ZIMAS `official` |
+| MIIP — TOIA / Opportunity Corridors / Corridor Transition | **Not Eligible ×3** | ZIMAS `official` |
+| Within ½ mi of a Major Transit Stop (AB 2097) | **No** | ZIMAS `official` |
+| High Quality Transit Corridor within ½ mi | **Yes** *(different test — see `PROPERTY_EVIDENCE.md` §5)* | ZIMAS `official` |
+| AB 2334 Very Low Vehicle Travel Area | **Yes** | ZIMAS `official` |
+| TCAC Opportunity Area | **Highest** | ZIMAS `official` |
+| ED 1 Eligibility | **Eligible Site** | ZIMAS `official` |
+| Minimum Density Requirement | **Yes (Citywide)** | ZIMAS `official` |
+| Specific Plan | **WLA Transportation Improvement and Mitigation** | ZIMAS `official` |
+| Methane Zone · Special Grading Area | **Yes · Yes** | ZIMAS `official` |
+| Hillside · VHFHSZ · Coastal · HPOZ · Liquefaction | **No / None** | ZIMAS `official` |
 
-Verdict vocabulary, per mission:
-
-- **CONFIRMED** — strong primary-source evidence. *(Count this pass: 0.)*
-- **LIKELY / REQUIRES VERIFICATION** — evidence points toward it; a missing
-  parcel fact, interpretation, or agency determination prevents certainty.
-- **NOT SUPPORTED / NOT APPLICABLE** — evidence indicates the pathway does not apply.
-- **UNKNOWN** — cannot responsibly determine.
-
-The two parcel facts that govern almost everything:
-
-- **F-1** — Is the parcel zoned multifamily (`LAR3` or similar)?
-  *Currently unverified; block pattern says yes.*
-- **F-2** — Are the existing units rent-stabilized (RSO) and/or
-  tenant-occupied within the last 5 years?
-  *Currently unverified; a 1947 4-unit City of LA building is presumptively RSO.*
+**The `[Q]` density question governs everything.** See `PROPERTY_EVIDENCE.md`
+§2 E-04d. If `[Q]` imposes RD1.5 density (per case CPC-1988-341-ZC), permitted
+units ≈ **3** against **4 existing** → legal nonconforming, **zero residual
+density**. At unqualified R3 the figure is 7. **This single unretrieved
+document is worth more than every remaining line of research in this file.**
 
 ---
 
-## 1. SB 684 — Starter Home Revitalization Act (multifamily pathway)
+## 1. SB 684 — Starter Home Revitalization Act
 
-**Verdict: LIKELY NOT AVAILABLE IN ITS OBVIOUS FORM / REQUIRES VERIFICATION**
+### Verdict: **NOT SUPPORTED** *(upgraded from "likely not available / verify")*
 
-**1. What is it?** A state law requiring *ministerial* (no hearing, no
-discretionary review, no CEQA) approval of a subdivision creating **10 or
-fewer parcels** with a corresponding housing development of **10 or fewer
-units**, on qualifying urban lots. LA City Planning must approve or deny a
-complete application within **60 days**. ADUs and JADUs are excluded from the
-10-unit count. Reported effective **2024-07-01** per LA City Planning; amended
-by SB 1123 and AB 130 effective **2025-07-01**.
+**What changed.** The prior pass could not decide this. The official record now
+supplies three independent obstacles, any one of which is likely fatal:
 
-**2. Eligibility requirements that matter here**
+| Test | Verified finding | Effect |
+| --- | --- | --- |
+| Protected housing — tenant occupancy within 5 yrs | **Housing Use within Prior 5 Years: Yes** | Triggers the SHRA demolition/alteration bar |
+| Protected housing — Ellis withdrawal | **Ellis filed 2017-05-15** — inside the RPO 10-year Protected Unit look-back until ≈**2027-05-15** | Units are Protected Units today |
+| Replacement obligations | **HCA/RPO Replacement Review: Yes** and **HE Replacement Required: Yes** | Replacement attaches to any removal |
+| Residual density | Lot 5,974.5 sf; 4 units existing; `[Q]` possibly RD1.5 (≈3 permitted) | **Likely nothing to build** |
 
-| Test | Requirement |
-| --- | --- |
-| Zone | Multifamily-zoned lot, **< 5 acres** |
-| Scale | ≤ 10 new parcels, ≤ 10 units |
-| Unit size | Average ≤ **1,750 net habitable sf** across proposed units |
-| New parcel size | ≥ **600 sf** in multifamily zones |
-| Setbacks | Agency cannot impose side/rear setbacks beyond 4 ft from the original lot line, or unit-separation requirements |
-| **Protected housing** | **Project may not require demolition or alteration of** housing that is (a) deed-restricted affordable, (b) **subject to any form of rent or sales-price control**, or (c) **occupied by a tenant within the 5 years preceding the application** — including housing since demolished or vacated |
-| Local overlay | LA's Small Lot Design Standards apply if the project opts into the Small Lot Subdivision Ordinance |
+**What the RSO = No finding does *not* rescue.** Losing the rent-control limb
+of the protected-housing test does not save SB 684 here, because the
+tenant-occupancy limb and the Ellis limb both appear to be live, and because
+the replacement-review flags are affirmative on the City's own record.
 
-**3. What this parcel clearly satisfies** — Nothing is *clearly* satisfied,
-because no parcel fact is confirmed. On the reported facts: lot far under 5
-acres (satisfied with near-certainty); multifamily zoning (likely, F-1);
-600 sf minimum parcel size is not a constraint at this lot size.
+**The AB 130 remainder-parcel route — now effectively foreclosed on
+arithmetic, not law.** The route survived adversarial review in Revision 1 and
+remains legally interesting. But a remainder parcel must carry the existing
+4,092 sf building on a **5,974.5 sf** lot. Whatever is left cannot
+realistically yield conforming new parcels **and** there is likely no unused
+density to assign to them. The obstacle moved from *interpretive* to
+*dimensional*, which is a much harder obstacle.
 
-**4. What it clearly fails** — Nothing is *clearly* failed either. But the
-**protected-housing bar is the live threat**. If the parcel carries four
-RSO units — which the reported 1947 build date and 4-unit count make
-presumptively true (F-2) — then any scheme requiring their **demolition or
-alteration** is barred, regardless of whether tenants are currently in place
-and regardless of what the owner is willing to pay. Rent control alone
-triggers the bar; tenant occupancy within 5 years triggers it independently.
+**What remains unknown**
 
-**5. What remains unknown**
+- The **`[Q]` condition text** (density). If `[Q]` is not RD1.5 and unqualified
+  R3 applies, a 7-unit ceiling against 4 existing leaves theoretical headroom —
+  and this section would need re-opening.
+- The **ZIMAS `SHRA / SB 684 Eligibility` flag is not printed in the Parcel
+  Profile Report.** It is an interactive-viewer hyperlink. **Still unchecked.**
+- Whether the four units were tenant-occupied (as distinct from "housing use")
+  in the 5 years before any application. `Housing Use within Prior 5 Years` is
+  the City's HCA flag, not a direct statement of tenancy.
 
-- ZIMAS publishes a per-parcel **`SHRA / SB 684 Eligibility`** flag under its
-  Planning and Zoning menu. **This is the decisive, parcel-specific answer and
-  it was not retrieved.** One lookup likely settles this entire section.
-- Whether LA treats RSO units as categorically disqualifying, or only where
-  the project touches them.
-- **The AB 130 `remainder parcel` question — the most important open
-  interpretive issue in this case, and the one that survived adversarial
-  testing best (`ADVERSARIAL_REVIEW.md` §A-04).** AB 130 authorizes a
-  subdivision to designate a remainder parcel that *retains existing land uses
-  or structures*, contains *no new residential units*, and is not exclusively
-  dedicated to serving the housing development. Remainder parcels do not count
-  against the 10-parcel maximum and are excluded from density calculations.
-  The existing fourplex could stay **untouched** on a remainder parcel while
-  new units go on the balance of the lot — and if nothing is demolished or
-  altered, the protected-housing bar may not be triggered at all.
-
-  **Two independent supports for this reading:** HCD's **2025-10-07** guidance
-  expressly endorses the remainder-parcel mechanic for isolating an existing
-  structure and treating the balance of the site as developable; and LA County
-  Planning staff guidance repeats the statutory authorization in the same terms.
-
-  **Three counterarguments, all live:** (a) the guidance language reads
-  *"including an existing single dwelling unit"* — phrasing that suggests the
-  drafters pictured **one house**, not a four-unit rent-stabilized building,
-  and whether a fourplex qualifies as remainder-parcel content is genuinely
-  open; (b) the underlying prohibition is unchanged — an agency may not
-  approve a project requiring **demolition of occupied or vacant protected
-  units**, and **all Housing Crisis Act replacement requirements and review
-  procedures still apply** to any SB 684 project demolishing one or more
-  residential units, so the route helps only if *nothing* is demolished or
-  altered; (c) HCD guidance is **not binding law**.
-
-  **Net: real enough to investigate, far too uncertain to design against.**
-- Whether the residual land after a remainder parcel is physically large
-  enough to yield usable lots, given unknown lot size and existing coverage.
-
-**6. Practical outcome it could enable** — Fee-simple, individually saleable
-small-lot homes created by right, without a hearing, on a 60-day clock. For an
-architect-owner that is the difference between a ministerial permit and a
-multi-year discretionary entitlement.
-
-**7. Agency / process** — LA City Planning, SHRA application (parcel map or
-tentative/final map), ministerial track, 60-day decision.
-
-**8. Verify before spending design money**
-
-1. The ZIMAS **SHRA / SB 684 Eligibility** flag for this exact parcel.
-2. RSO registration status and the LADBS certificate-of-occupancy date.
-3. Written City Planning confirmation on whether an AB 130 remainder parcel
-   carrying the existing RSO fourplex clears the protected-housing bar.
-4. Actual lot dimensions and existing building footprint.
+**What Harper should verify before spending design money:** the `[Q]` text
+first; the interactive SHRA flag second. Both are cheap.
 
 ---
 
 ## 2. SB 1123
 
-**Verdict: NOT APPLICABLE — *but only because of zoning*, and zoning is
-unverified.** *(Confidence downgraded during adversarial review — see
-`ADVERSARIAL_REVIEW.md` §A-01.)*
+### Verdict: **NOT APPLICABLE — CONFIRMED** *(the first confirmed conclusion in this case)*
 
-**1. What is it?** The 2024 amendment extending SHRA ministerial subdivision
-to **vacant** lots in **single-family** zones under **1.5 acres**, with new
-parcels ≥ 1,200 sf. Reported effective **2025-07-01**.
+Zoning is verified as **`[Q]R3-1-O`**, a multifamily zone. SB 1123 extends the
+SHRA to **single-family-zoned** lots. The gate is zoning, and the zoning is now
+an `official` fact.
 
-**2. Requirements.** Two gating conditions: single-family zoning, and vacancy.
-
-**3–4. What it fails — and the one that no longer holds.**
-
-- **Single-family zoning — still the operative failure.** The subject sits in
-  a multifamily cluster (F-1). SB 1123 is the single-family extension; a
-  multifamily parcel uses the SB 684 pathway instead.
-- **Vacancy — *this test no longer disqualifies.*** I originally treated the
-  occupied 1947 building as an independent, decisive failure. **That was
-  wrong.** California HCD guidance dated **2025-10-07** states that a
-  single-family-zoned lot *with an existing home* can still qualify as
-  "vacant" where the subdivision designates a **remainder parcel** for the
-  portion holding the existing structure — after which *"the site area
-  outside of the remainder parcel may be considered 'vacant' for purposes of
-  eligibility."* HCD grounds this in AB 130's express authorization of
-  remainder parcels retaining existing land uses or structures.
-
-**5. What remains unknown — and it is now the whole question.**
-
-Because the vacancy failure has collapsed, **the SB 1123 verdict rests
-entirely on the unverified zoning fact (F-1).** If ZIMAS returns any
-single-family zone for this parcel, SB 1123 becomes live via the
-remainder-parcel route and must be re-analyzed from scratch.
-
-Also unresolved: HCD guidance is **not binding law**. Courts generally defer
-to HCD on housing-reform statutes, but statutory interpretation rests with the
-judiciary. A pathway resting on guidance carries risk that a pathway resting
-on statutory text does not.
-
-**6. Practical outcome** — None if the zone is multifamily. Potentially
-significant if it is not.
-
-**7. Agency / process** — LA City Planning, SHRA application, if it applies at all.
-
-**8. Verify before spending design money** — Confirm the zone in ZIMAS. That
-one field decides this section. **Do not tell Harper "SB 1123 doesn't apply"
-without first confirming the zone** — the reason she'd be given
-("your lot isn't vacant") is no longer a valid reason.
+The Revision 1 adversarial pass (§A-01) correctly established that the
+*vacancy* objection had been dissolved by HCD's 2025-10-07 guidance, leaving
+zoning as the sole surviving test. **That test is now confirmed and SB 1123 is
+definitively out.** Harper can stop tracking it.
 
 ---
 
 ## 3. CHIP — Citywide Housing Incentive Program
 
-**Verdict: PARTIALLY AVAILABLE / REQUIRES VERIFICATION** — and the
-**Resident Protections Ordinance is the hinge, not the incentive tier.**
+### Verdict: **MIIP CONFIRMED NOT ELIGIBLE. AHIP LIVE AND UNEXPECTEDLY STRONG. State Density Bonus available but numerically thin.**
 
-**1. What is it?** LA's consolidated local density-bonus framework, adopted
-**2025-02-07**, operative **2025-02-11**, with three subprograms:
+### 3a. MIIP — **NOT ELIGIBLE, confirmed on three independent rows**
 
-- **State Density Bonus Program** — the state entitlement, available on
-  eligible housing developments citywide.
-- **MIIP (Mixed Income Incentive Program)** — mixed-income projects in
-  **specified geographies only**: Transit Oriented Incentive Areas (within
-  ½ mile of a major transit stop), Opportunity Corridors (5–7 stories on
-  major streets in Higher Opportunity Areas), and Opportunity Corridor
-  Transition Areas (within 750 ft of the rear property line of an Opportunity
-  Corridor area; lower-density multifamily zones; capped at **10 units and
-  3 stories**).
-- **AHIP (Affordable Housing Incentive Program)** — **100% affordable**
-  projects, **citywide**, with density limited only by floor area in Higher/
-  Moderate Opportunity Areas or within ½ mile of a major transit stop.
+`Transit Oriented Incentive Area: Not Eligible` ·
+`Opportunity Corridors Incentive Area: Not Eligible` ·
+`Corridor Transition Incentive Area: Not Eligible`
 
-**2. Requirements that matter here**
+Consistent with `AB 2097: within ½ mile of a Major Transit Stop — No` and
+`TOC: Not Eligible`. The City has reached this conclusion itself. **Closed.**
 
-| Sub-program | Gating test for this parcel |
+### 3b. AHIP (100% affordable) — **LIKELY AVAILABLE, and three findings stack favourably**
+
+| Verified flag | Value | Why it matters |
+| --- | --- | --- |
+| AHIP geography | **Citywide** | No location gate |
+| **TCAC Opportunity Area** | **Highest** | AHIP grants enhanced incentives in Higher Opportunity Areas |
+| **AB 2334 Very Low Vehicle Travel Area** | **Yes** | Under AB 2334, qualifying 100% affordable projects in a Very Low VMT area obtain density limited only by floor area, plus height relief |
+| **ED 1 Eligibility** | **Eligible Site** | Mayoral Executive Directive 1 ministerial streamlining for 100% affordable projects |
+
+This is the **only pathway on the parcel where the verified designations line
+up positively rather than negatively.** A 100% affordable project here is not
+subject to the density cap that otherwise strangles this lot — which matters
+enormously if the `[Q]` condition turns out to be RD1.5.
+
+**The obvious caveat:** 100% affordable is a fundamentally different business
+than an architect adding units to her own building. It implies an affordable
+developer, a financing stack, and covenants. It is recorded because the
+evidence supports it, not because it is likely to suit Harper.
+
+**Unknowns:** exact AHIP incentive menu; ED 1's current operative terms and
+whether it still applies in its original form; whether the Ellis/HE
+replacement obligations offset the gain.
+
+### 3c. State Density Bonus — available, but the base is the problem
+
+A percentage bonus on a base of 3–4 units yields fractions of a unit. Until the
+`[Q]` density is known, no bonus figure can be computed. Note also
+`Inclusionary Housing: No` and `Local Affordable Housing Incentive: No`.
+
+### 3d. The replacement obligation — now confirmed, not hypothesised
+
+Revision 1 flagged the RPO Replacement Unit Determination as the hinge. The
+record confirms **both** `HCA/RPO Replacement Review: Yes` **and**
+`HE Replacement Required: Yes` (Housing Element site, SB 166 no-net-loss,
+0.15 units). Any CHIP project removing units faces replacement. The Ellis
+filing compounds it: Ellis-withdrawn units within ten years are Protected Units.
+
+---
+
+## 4. ADU / JADU — including SB 1211
+
+### Verdict: **LIKELY AVAILABLE and still the strongest practical pathway — but the verified lot size cuts the realistic yield far below the statutory cap**
+
+**What improved.** `RSO: No` **removes the single largest economic risk flagged
+in Revision 1** — the worry that new ADUs on a pre-1978 parcel would be pulled
+into rent stabilisation. On the City's own record the property is not RSO.
+*(The reason remains `unknown`; see `PROPERTY_EVIDENCE.md` §E-11i. If the
+reason is the Ellis withdrawal, whether RSO status could revive on re-rental
+is a question for LAHD.)*
+
+**What got worse — the arithmetic.**
+
+| | Value |
 | --- | --- |
-| State Density Bonus | Provide the required affordable percentage; no geographic gate |
-| MIIP | **Parcel must sit inside a mapped MIIP incentive area** |
-| AHIP | Project must be **100% affordable** |
-| **All CHIP projects** | **A Resident Protections Ordinance Replacement Unit Determination (RUD) from LAHD is required** |
+| Statutory ceiling (SB 1211) | 4 detached ADUs (capped at existing unit count) **+** 1 conversion ADU (25% of 4) = **9 units theoretical** |
+| Lot area | **5,974.5 sf** |
+| Existing building | **4,092 sf** |
 
-**3. What this parcel clearly satisfies** — Nothing confirmed. AHIP's
-*geographic* reach is citywide, so a 100% affordable project would not face a
-location gate — but that is almost certainly not Harper's project.
+Four detached ADUs on a 5,974.5 sf lot already carrying a four-unit building
+is not a credible program. Revision 1 warned that "the statutory cap is not a
+site capacity"; the verified lot size now makes that concrete. A realistic
+outcome is **one detached ADU and/or one conversion ADU**, subject to survey.
 
-**4. What it clearly fails** — Nothing clearly fails on evidence. The
-Opportunity Corridor Transition Area path, if it applied, caps at 10 units /
-3 stories, which on a lot of this size is a modest envelope.
+**Newly confirmed constraints that add cost to any ADU**
 
-**5. What remains unknown — and the part that decides the economics**
+- **Methane Zone** — methane mitigation for new construction.
+- **Special Grading Area** (BOE Basic Grid Map A-13372) — grading review.
+- **WLA TIMP Specific Plan** — trip-mitigation requirements may attach.
+- **Minimum Density Requirement: Yes (Citywide)** — interacts with new
+  development on a Housing Element site.
+- `[Q]` condition — may or may not constrain ADUs; state ADU law substantially
+  overrides local density limits, but the `[Q]` text is unread.
 
-The **RPO Replacement Unit Determination** is required for *every* CHIP
-project. Under the RPO, **RSO units that are removed must be replaced 1:1 as
-covenanted affordable units regardless of the prior tenant's income level or
-occupancy.** "Protected Units" also captures units rent/price-controlled
-within the past 5 years, units occupied by lower or very-low-income
-households, and units Ellis-withdrawn within the past 10 years.
+**Still unknown:** building footprint, lot coverage, existing parking and
+circulation, open-space compliance, and whether all four units are legally
+permitted (LADBS).
 
-So if the parcel carries 4 RSO units (F-2), a CHIP redevelopment starts
-**4 covenanted affordable units in deficit** before a single market-rate unit
-is counted. On a lot likely between 6,000 and 12,000 sf, that may consume the
-entire achievable density. **This is the number that decides whether CHIP is
-worth pursuing, and we cannot compute it without the RSO determination.**
-
-Also unknown: whether the parcel falls in any MIIP geography (ZIMAS flag,
-`CP-4095` maps), and its Opportunity Area classification.
-
-**6. Practical outcome it could enable** — Additional density, height, FAR and
-parking relief above base `R3`, in exchange for on-site affordability.
-
-**7. Agency / process** — LA City Planning (CHIP entitlement) **and** LAHD
-(RPO Replacement Unit Determination). Two agencies, two determinations.
-
-**8. Verify before spending design money**
-
-1. LAHD RUD — get the replacement obligation in writing **first**. It is the
-   gate, and it is knowable before any design work.
-2. ZIMAS MIIP / TOIA / Opportunity Area flags.
-3. Base `R3` density on the confirmed lot area, so the bonus has a denominator.
+**Why it still wins:** it does not demolish or alter existing units, so it
+avoids the SHRA protected-housing bar, the RPO replacement obligation, the HE
+replacement requirement, and the Ellis complications — every one of which is
+now a **confirmed** obstacle on the other pathways.
 
 ---
 
-## 4. ADU / JADU — including the SB 1211 multifamily pathway
+## 5. SB 79 and the LA Low-Rise Ordinance
 
-**Verdict: LIKELY AVAILABLE / REQUIRES VERIFICATION — the strongest
-practical pathway identified in this case**
+### Verdict: **NOT SUPPORTED** *(downgraded from "unknown — potentially largest upside")*
 
-**1. What is it?** State ADU law, as expanded for **existing multifamily
-properties** by **SB 1211** (effective **2025-01-01**).
+`AB 2097: Within a half mile of a Major Transit Stop — **No**.`
 
-**2. Requirements that matter here**
+SB 79 keys to proximity to a qualifying transit stop; the Low-Rise Ordinance
+applies at station areas. The City's own record places this parcel outside the
+half-mile major-transit-stop radius, and `TOC: Not Eligible` plus three MIIP
+`Not Eligible` rows corroborate it from four directions.
 
-- **Detached ADUs:** up to **8** on a lot with existing multifamily dwellings,
-  **capped at the number of existing units**. On a 4-unit property that is
-  **up to 4 detached ADUs**.
-- **Conversion ADUs:** convert non-livable existing space (storage, boiler
-  rooms, garages, carports, basements) to ADUs at up to **25% of the existing
-  unit count, minimum 1**. On 4 units that is **1**.
-- The two categories are counted **separately and combine**.
-- SB 1211 **prohibits local agencies from requiring replacement of uncovered
-  off-street parking** demolished or converted for ADU construction.
-- ADUs and JADUs are **excluded** from the SHRA 10-unit count — so this
-  pathway does not spend SB 684 capacity.
+Revision 1 speculated that the two-intersecting-bus-routes test might reach the
+parcel via Pico and Robertson. **The record says it does not.**
+`High Quality Transit Corridor within ½ mile: Yes` is a *corridor* test, not a
+*stop* test, and does not qualify the site (`PROPERTY_EVIDENCE.md` §E-18l).
 
-**3. What this parcel appears to satisfy** — It is an existing multifamily
-property (reported 4 units), which is the entire trigger for SB 1211.
-Critically, **this pathway does not require demolishing or altering the
-existing units**, so it sidesteps the protected-housing bar that threatens
-SB 684 and the replacement obligation that threatens CHIP. That asymmetry is
-the most useful structural finding in this case.
-
-**4. What it clearly fails** — Nothing identified.
-
-**5. What remains unknown**
-
-- **Physical capacity.** Lot size, existing footprint, existing parking and
-  circulation, required open space, and setbacks are all unknown. The legal
-  cap (4 + 1) is almost certainly higher than what the site can absorb. The
-  legal ceiling is not a design program.
-- **RSO exposure on the new units.** LAHD materials list **ADUs and JADUs
-  among RSO-covered property types**. Whether a *new* ADU on a parcel whose
-  certificate of occupancy predates 1978-10-01 is itself pulled into rent
-  stabilization is a genuine, unresolved, and commonly-missed question. It
-  changes the pro forma materially. **Confirm with LAHD in writing before design.**
-- LA's local ADU ordinance conformance with SB 1211, and current LADBS
-  plan-check practice.
-- Whether recorded CC&Rs purport to restrict this (see §C-03).
-
-**6. Practical outcome it could enable** — On the reported facts, a legal
-theoretical path from 4 units toward as many as 9, **without demolishing
-anything and without displacing anyone** — by ministerial ADU permit rather
-than discretionary entitlement. Even a fraction of that is a meaningful result.
-
-**7. Agency / process** — LADBS (ADU plan check and permit), LA City Planning
-for zoning clearance, LAHD for the RSO question.
-
-**8. Verify before spending design money**
-
-1. Confirmed lot area and a measured existing-conditions survey.
-2. Written LAHD position on RSO coverage of new ADUs on this parcel.
-3. Confirmed existing legal unit count from LADBS records — the ADU cap is
-   computed from *legal* units, not occupied rooms.
+**Residual uncertainty, honestly stated:** SB 79's "qualifying transit stop"
+definition is its own and the authoritative SB 79 geography is the SCAG map,
+not the AB 2097 field. The two definitions are closely related but not
+identical. Confidence is high, not absolute. LA's deferral of SB 79 to ~2030
+makes the question near-academic for now in any event.
 
 ---
 
-## 5. SB 79 + LA's Low-Rise and Phased Implementation Ordinances
+## 6. Small Lot Subdivision Ordinance
 
-**Verdict: SB 79 itself is LARGELY DEFERRED IN LOS ANGELES. The live
-instrument is the City's Low-Rise Ordinance. UNKNOWN whether this parcel
-qualifies for it.** *(Corrected during adversarial review — the original
-framing overstated SB 79's near-term reach; see `ADVERSARIAL_REVIEW.md` §A-05.)*
+### Verdict: **NOT SUPPORTED in practice**
 
-**1. What is it?** SB 79 (Wiener, signed October 2025, **effective
-2026-07-01** — already operative as of this analysis) overrides local zoning
-to permit higher-density residential within **½ mile of qualifying transit
-stops**, at 5–9 stories by tier. LA City Council on **2026-03-24** directed a
-**phased** local implementation running to roughly **2030**, and adopted a
-targeted **Low-Rise Ordinance** plus a **Phased Implementation Ordinance**,
-**both effective 2026-06-30**.
-
-**2. Requirements that matter here**
-
-- **SB 79 tiers:** Tier 1 = heavy rail / commuter rail with ≥72 trains per
-  day; Tier 2 = light rail, commuter rail 48–71 trains per day, or BRT. Bus
-  qualification requires a BRT station **or the intersection of two or more
-  major bus routes at ≤20-minute peak headway**.
-- **Buffers:** ½ mile and ¼ mile. **If a buffer intersects any part of a
-  parcel, the entire parcel is treated as within the qualifying area.**
-- **Low-Rise Ordinance:** 2-to-4-story multifamily at **50+ station areas**,
-  including some previously single-family areas. Rear setback increased from
-  4 ft to **8 ft**. **HPOZs and Historic-Cultural Monuments are exempted.**
-
-**2a. The critical correction: LA used SB 79's own off-ramp.** SB 79 contains
-**alternative compliance pathways** permitting a city to delay implementation
-on certain properties, adopt a transit-oriented development alternative plan
-that preserves citywide net zoned capacity, or both. **Los Angeles used them.**
-Cities cannot fully opt out, and may exclude only defined categories (very
-high fire hazard severity zones, sea-level-rise-vulnerable sites, sites with a
-local historic resource, and "low resource" areas) — but LA's phased approach
-defers citywide SB 79 application to roughly **2030**, substituting the
-Low-Rise Ordinance now.
-
-So the practical question for this parcel is **not** "am I in an SB 79 tier"
-but **"am I in a Low-Rise Ordinance station area"**, with SB 79 as a later and
-contested backstop. *(LA's delay is being challenged; the position may shift.)*
-
-**3–4. What this parcel satisfies or fails** — **Undetermined.** The nearest
-Metro rail appears to be well over ½ mile away, which would rule out the rail
-tiers. The **two-intersecting-bus-routes** test (≤20-minute peak headway)
-could still reach the area via Pico Blvd and Robertson Blvd, and the
-parcel-intersection rule is generous. This cannot be resolved by reasoning;
-it requires the map.
-
-**5. What remains unknown**
-
-- Whether the parcel is in one of the Low-Rise Ordinance's 50+ station areas —
-  **the operative question today.**
-- Whether the parcel is in an SB 79 ¼- or ½-mile buffer (SCAG map, published
-  **2026-07-01**, further updates expected) — matters for ~2030 and for any
-  challenge to LA's deferral.
-- Whether any LA exclusion category (historic resource in particular) would
-  reach this parcel.
-- **ZIMAS publishes local SB 79 and Low-Rise eligibility maps.** Not retrieved.
-
-**6. Practical outcome** — If the parcel is in a Low-Rise station area:
-two-to-four-story multifamily, available now. If not: nothing here until
-roughly 2030, and possibly not then.
-
-**7. Agency / process** — LA City Planning; SCAG for the tier map.
-
-**8. Verify before spending design money** — Check the ZIMAS SB 79 and
-Low-Rise flags and the SCAG map **before** developing any scheme under CHIP or
-SB 684. A qualifying SB 79 designation would change the brief entirely.
+Available by zone in R3. But it faces the same confirmed obstacles as SB 684 —
+protected units, Ellis look-back, HCA/RPO and HE replacement — and the same
+dimensional problem: a 5,974.5 sf lot with a 4,092 sf building and possibly
+zero residual density. Minimum small lot is 600 sf, so the constraint is
+density and protected housing, not lot geometry.
 
 ---
 
-## 6. Small Lot Subdivision Ordinance (local, discretionary)
+## 7. How the four housing-status flags affect each pathway
 
-**Verdict: LIKELY AVAILABLE AS A ZONE MATTER / BLOCKED BY THE SAME RSO PROBLEM**
+The user asked this specifically. Each row is a **verified** flag.
 
-Available in RD, **R3**, R4 and R5 at the density the zone permits. Minimum
-lot **600 sf**, minimum width **16 ft**; no yard setbacks between small lots;
-5-ft side yard where abutting a non-small-lot parcel; design variation
-required for more than six homes in a row.
+| Flag | SB 684 | SB 1123 | CHIP | ADU | Low-Rise/SB 79 |
+| --- | --- | --- | --- | --- | --- |
+| **Ellis Act, filed 2017-05-15** | Units are Protected Units until ≈2027-05-15 → bar likely triggered | n/a (zone) | RPO replacement attaches | **No effect** — no units removed | n/a (no transit) |
+| **HE Replacement Required: Yes** (Housing Element site, SB 166 0.15) | Replacement on any unit loss | n/a | Replacement obligation on top of RPO | **No effect** | n/a |
+| **HCA / RPO Replacement Review: Yes** | RUD required; replacement on removal | n/a | **RUD required for every CHIP project** | **No effect** | n/a |
+| **Housing Use within Prior 5 Years: Yes** | Triggers the 5-year protected-housing limb | n/a | Feeds RPO protected-unit analysis | **No effect** | n/a |
+| **JCO: Yes** | Tenancy protections on any displacement | n/a | Tenant protections apply | Applies to any new tenancy | n/a |
+| **RSO: No** | Removes only the rent-control limb — insufficient | n/a | Does not remove RPO/HE replacement | **Removes the largest ADU risk** | n/a |
 
-This is the *local* predecessor to the SB 684 ministerial route and remains
-useful as a fallback — but it does not escape the RSO replacement obligation
-or tenant protections if the existing units must go. **Its advantage is
-flexibility; its disadvantage is that it is discretionary and slower.**
+**The pattern is unambiguous: every flag penalises removing or altering the
+existing units, and none of them penalises adding new ones.** That is the
+central strategic finding of this revision.
+
+### 7a. The Ellis Act ten-year window — time-sensitive
+
+Filed **2017-05-15**. The RPO Protected Units definition reaches units
+withdrawn under the Ellis Act **within the past ten years**, which on that date
+runs to approximately **2027-05-15** — roughly **eight months from today
+(2026-09-21)**.
+
+**Classification: `LIKELY / REQUIRES VERIFICATION`.** The ten-year look-back
+comes from an LA Planning RPO fact sheet summary, not from retrieved ordinance
+text, and Ellis carries separate LAMC re-rental restrictions and former-tenant
+rights whose current status is unknown. **This is the most decision-relevant
+date in the file and it must be confirmed with LAHD before anyone relies on
+it.** Do not tell Harper to wait for a deadline we have not verified.
 
 ---
 
-## 7. Programs screened and set aside
+## 8. Programs newly identified from the official record
 
-| Program | Verdict | Reason |
+None of these were on the board before the ZIMAS report.
+
+| Program / flag | Status | Relevance |
 | --- | --- | --- |
-| **SB 9** (urban lot split / two-unit) | **NOT APPLICABLE** *(conditional on F-1)* | Applies only in single-family zones. A multifamily-zoned parcel is outside its scope. |
-| **AB 130 CEQA infill exemption** | **LIKELY IRRELEVANT HERE** | Powerful (sites ≤20 ac, no affordability / prevailing-wage / unit-cap / transit precondition, 30-day action deadline) — but a ministerial ADU or SHRA project needs no CEQA clearance to begin with. Matters only on a discretionary CHIP track. |
-| **AB 130 remainder parcels** | **MATERIAL — see §1** | The one AB 130 provision that could change the SB 684 answer. |
-| **TOC (Measure JJJ)** | **UNKNOWN** | Tiers keyed to 750 / 1,500 / 2,640 ft from a major transit stop (rail, or two bus routes at ≤15-min peak headway). Largely superseded by CHIP but the tier flag still appears in ZIMAS. Unchecked. |
-| **Westside Community Plans Update** | **IN PROGRESS — MONITOR** | CEQAnet `2026020746`. Covers the West LA Community Plan area. Will remap parcels into the New Zoning Code (adopted January 2025). Until then this parcel stays under existing Chapter I zoning. **This is a direct answer to Harper's "changing requirements" concern** and she should be tracking it. |
-| **Beverlywood Homes Association CC&Rs** | **UNKNOWN** | 1,354 single-family homes under binding CC&Rs limiting use to single-family. Whether Vidor Dr is a member tract is unresolved (§C-03). |
+| **ED 1 — Eligible Site** | Confirmed flag | 100% affordable ministerial streamlining |
+| **AB 2334 Very Low VMT Area — Yes** | Confirmed flag | Removes density cap for qualifying affordable projects |
+| **TCAC Opportunity Area — Highest** | Confirmed flag | Enhances AHIP / state density bonus for affordable |
+| **Housing Element Site (ZI-2512)** | Confirmed | HE replacement + SB 166 no-net-loss |
+| **Minimum Density Requirement (Citywide)** | Confirmed | Floor on density for new development |
+| **WLA TIMP Specific Plan (ZI-2192)** | Confirmed | Trip-mitigation requirements / fees |
+| **Affordable Housing Linkage Fee** — Pico-Robertson, Medium/Low | Confirmed | Fee exposure on market-rate development |
+| **Citywide Adaptive Reuse Program** | Confirmed flag | Unlikely to fit a 1947 four-plex; noted for completeness |
+| **Urban Agriculture Incentive Zone — Yes** | Confirmed flag | Minor; not a housing pathway |
+| **Universal Planning Review Service — Needs Review** | Confirmed flag | Procedural; meaning unresolved |
+| **`[Q]` qualified condition** | Confirmed present, text unread | **Potentially decisive on density** |
+| **Methane Zone · Special Grading Area** | Confirmed | Construction cost on any new structure |
 
 ---
 
-## 8. Summary
+## 9. Summary
 
-| Program | Verdict | Blocking unknown |
-| --- | --- | --- |
-| SB 684 | LIKELY NOT AVAILABLE IN OBVIOUS FORM / VERIFY | ZIMAS SHRA flag; RSO status; AB 130 remainder-parcel reading |
-| SB 1123 | NOT APPLICABLE **only if zone is multifamily** | Zone confirmation — the vacancy bar no longer applies (HCD 2025-10-07) |
-| CHIP | PARTIALLY AVAILABLE / VERIFY | RPO Replacement Unit Determination; MIIP geography |
-| ADU / SB 1211 | **LIKELY — strongest path** | Lot capacity; RSO coverage of new ADUs |
-| LA Low-Rise Ordinance | **UNKNOWN — live now, check first** | Station-area mapping |
-| SB 79 (state) | **LARGELY DEFERRED IN LA to ~2030** | LA's phased implementation; contested |
-| Small Lot Subdivision | Available by zone / same RSO problem | RSO status |
-| SB 9 | **NOT APPLICABLE** | Zone confirmation only |
-| Westside CPU | In progress — monitor | Draft zoning map for this parcel |
+| Program | Rev 1 verdict | **Rev 2 verdict** | Basis |
+| --- | --- | --- | --- |
+| SB 684 | Likely not available / verify | **NOT SUPPORTED** | Protected units + Ellis + replacement flags + no residual density |
+| SB 1123 | Not applicable if multifamily | **NOT APPLICABLE — CONFIRMED** | Zoning `[Q]R3-1-O` verified |
+| CHIP — MIIP | Unknown geography | **NOT ELIGIBLE — CONFIRMED** | Three `Not Eligible` rows |
+| CHIP — AHIP | Citywide, unlikely to suit | **LIKELY AVAILABLE — strongest density path** | TCAC Highest + AB 2334 + ED 1 |
+| CHIP — State Density Bonus | Available | **Available but numerically thin** | Base density unresolved pending `[Q]` |
+| ADU / SB 1211 | Likely — strongest path | **LIKELY — still strongest, yield much smaller** | RSO risk removed; lot only 5,974.5 sf |
+| SB 79 / Low-Rise | Unknown — largest upside | **NOT SUPPORTED** | No major transit stop within ½ mile |
+| Small Lot Subdivision | Available by zone | **NOT SUPPORTED in practice** | Same obstacles as SB 684 |
+| SB 9 | Not applicable | **NOT APPLICABLE — CONFIRMED** | Multifamily zone verified |
 
-**Confirmed conclusions this pass: zero.** That is the honest state of the
-file, not a failure of analysis.
+**Confirmed conclusions this revision: four** (SB 1123 out, SB 9 out, MIIP out,
+zoning/parcel baseline). Revision 1 had zero.

@@ -4,14 +4,22 @@ Case ID: `PP-CASE-2026-09-VIDOR`
 Opened: 2026-09-21
 Research analyst: PermitPulse (automated research pass, not human-reviewed)
 Subject: Harper Halprin, AIA — AAHA Studio (prospective user, product-validation case)
-Status: **RESEARCH INCOMPLETE — NOT CLIENT-READY**
+Status: **REVISION 2 — PARCEL RECORD VERIFIED · BRIEF STILL GATED**
 
 ## Read this first
 
-This pass was executed in an environment whose network egress policy blocked
-**every government domain** required for primary-source property research.
-No ZIMAS record, LADBS record, Assessor record, statute text, or adopted
-ordinance was retrieved. See `RESEARCH_LEDGER.md` §0 and `PAIN_LOG.md` §P-00.
+**Revision 2 (2026-09-21).** The case owner supplied the official **ZIMAS
+Parcel Profile Report dated 2026-09-20** (APN 4330005041). It is preserved
+verbatim at `sources/`. The parcel baseline is now verified and every program
+verdict has been re-evaluated against it.
+
+**The headline correction: Revision 1 presumed the property was
+rent-stabilised. The City reports `RSO: No`.** The inference was defensible and
+its inputs were confirmed correct — and the conclusion was wrong. See
+`PAIN_LOG.md` §P-15 and `ADVERSARIAL_REVIEW.md` §A-10.
+
+Network egress remained blocked, so LADBS, LAHD, the Assessor, statute text and
+the `[Q]` ordinance are **still unretrieved**. See `RESEARCH_LEDGER.md` §0-R2.
 
 Under `PROJECT_LAWS.md`:
 
@@ -36,6 +44,7 @@ verification plan, not a determination.
 | `PAIN_LOG.md` | Product and workflow observations for PermitPulse |
 | `ADVERSARIAL_REVIEW.md` | Attempts to disprove each conclusion, and the corrections applied |
 | `HARPER_BRIEF_DRAFT.md` | Client deliverable draft — **GATED, do not send** |
+| `sources/` | Verbatim retrieved records (`official` authority) |
 
 Read `ADVERSARIAL_REVIEW.md` before relying on anything in the matrix. The
 adversarial pass materially changed two verdicts (SB 1123 and SB 79) and
@@ -45,7 +54,7 @@ reduced confidence in a third.
 
 | Tier | Meaning | Count this pass |
 | --- | --- | --- |
-| `official` | Government primary source opened and read | **0** |
+| `official` | Government primary source opened and read | **1** (ZIMAS Parcel Profile Report, 2026-09-20) |
 | `official_unretrieved` | Official source identified by URL; content not retrieved | 14 |
 | `secondary_professional` | Law firm / planning consultant summary, not opened | 9 |
 | `third_party_aggregator` | Redfin / Spokeo / LoopNet / PropertyShark listing data | 5 |

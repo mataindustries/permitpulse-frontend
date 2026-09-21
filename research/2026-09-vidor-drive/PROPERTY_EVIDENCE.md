@@ -1,122 +1,275 @@
-# Property Evidence — 9854 Vidor Drive, Los Angeles, CA 90035
+# Property Evidence — 9854 W Vidor Drive, Los Angeles, CA 90035
 
 Case ID: `PP-CASE-2026-09-VIDOR`
-Retrieval date for every row: **2026-09-21**
-Evidence model: `app/src/shared/build-week-integrity/types.ts` → `CanonicalEvidenceRecord`
+**Status: VERIFIED against official City record — 2026-09-21**
 
-## Standing limitation on this entire file
+## Source of record
 
-No government source was retrieved this session (`RESEARCH_LEDGER.md` §0).
-Every row below is therefore either `unknown` with
-`reason: retrieval_failed`, or an observation from a **third-party
-aggregator** whose own source and currency we could not inspect.
+| | |
+| --- | --- |
+| Document | **Parcel Profile Report**, City of Los Angeles Department of City Planning (ZIMAS) |
+| Subject | 9854 W VIDOR DR · APN **4330005041** · PIN **132A165 351** |
+| Report date | **2026-09-20** |
+| Retrieved / extracted | 2026-09-21 |
+| Authority | **`official`** |
+| Local copy | `sources/ZIMAS-2026-09-20-parcel-profile-9854-W-Vidor-Dr.txt` |
 
-**Nothing in this file is a confirmed fact.** In the repo's vocabulary
-(`PacketInformationClass`), no row qualifies as `confirmed_fact`; rows are
-`unverified_evidence` or `missing_information`.
-
----
-
-## §1. Baseline table
-
-| # | Field | Value | Classification | Source | Authority | Confidence | Notes |
-| --- | --- | --- | --- | --- | --- | --- | --- |
-| E-01 | Street address | 9854 Vidor Dr, Los Angeles, CA 90035 | `client_provided_information` | Harper Halprin, direct written statement | `client` | High | Client-stated. Not independently geocoded against an official address point. |
-| E-02 | Jurisdiction | City of Los Angeles (presumed) | `unverified_evidence` | Inference from ZIP 90035 + aggregator "Los Angeles" labeling + neighbor parcels carrying **LA**R3 (a City of LA zone string) | `derived` | Medium | **Not confirmed.** 90035 abuts Beverly Hills, Culver City, and LA County unincorporated pockets. A jurisdiction error invalidates the entire analysis. Resolve via ZIMAS or Assessor. |
-| E-03 | APN | **UNKNOWN** | `missing_information` | — | — | — | `normalized_value: {kind:"unknown", reason:"retrieval_failed"}`. Three unrelated APNs surfaced in search noise; see `CONFLICTS_AND_UNKNOWNS.md` §C-01. **Do not use any of them.** |
-| E-04 | Current zoning | **UNKNOWN for this parcel.** Even-numbered side reports `LAR3`; **the street is zoning-mixed.** | `unverified_evidence` | Redfin pages for 9836 #1B, 9800, 9880 Vidor Dr; LoopNet 9800 Vidor Dr | `third_party_aggregator` | **Low** (downgraded) | **9875 Vidor Dr reports as a single-family property.** The street contains both single-family and multifamily. Adjacency reasoning is therefore demonstrably unsafe *on this street*. See `ADVERSARIAL_REVIEW.md` §A-02. ZIMAS is the source of record. |
-| E-05 | General Plan / Community Plan | **UNKNOWN.** Likely West Los Angeles Community Plan area. | `missing_information` | Westside Community Plans Update scope names the West LA CPA | `official_unretrieved` | Low | The CPA boundary was not verified for this address. |
-| E-06 | Lot size | **UNKNOWN.** Neighboring lots 5,976 sf / ~6,534 sf / 12,340 sf. | `missing_information` | Redfin, LoopNet | `third_party_aggregator` | None for subject | Lot area is an input to nearly every program test below. Must come from the Assessor or ZIMAS. |
-| E-07 | Existing use | Residential, multi-unit (reported) | `unverified_evidence` | Redfin / Spokeo / PropertyShark descriptions | `third_party_aggregator` | Medium | Consistent across three aggregators, which share upstream data and are not independent. |
-| E-08 | Existing unit count | **4 units reported** ("Quadplex, 4 Units, Any Combination") | `unverified_evidence` | Redfin property id `6810133`; PropertyShark property id `16212216`; Spokeo | `third_party_aggregator` | Medium | **This is the single most consequential unverified fact in the case.** It drives the ADU cap, the RSO question, and the protected-housing bar. |
-| E-09 | Building size | 4,092 sf reported; 8 bd / 4 ba | `unverified_evidence` | Redfin | `third_party_aggregator` | Medium | Consistent with 4 × ~1,000 sf 2-bedroom units. |
-| E-10 | Year built | **1947 reported** | `unverified_evidence` | Redfin | `third_party_aggregator` | Medium | **Decisive if true** — see E-11. Year built ≠ certificate of occupancy date, which is the RSO trigger. |
-| E-11 | RSO (rent stabilization) status | **UNKNOWN — presumptively applicable** | `warning` | LAHD: RSO covers City of LA buildings with a certificate of occupancy before **1978-10-01** containing **2+ units** | `official_unretrieved` | — | If E-02, E-08 and E-10 all hold, the parcel meets the test on its face. **Presumption, not a determination.** Known exemptions that could defeat it: detached single-family with one unit on the parcel (non-corporate owner); individually-owned condominiums (unless converted from a pre-1978 apartment building); pre-1978 Luxury Exemption Certificates; **a certificate of occupancy issued within the last 15 years**. Note **year built ≠ C-of-O date**, and the C-of-O is the trigger. Nearby 9800 and 9880 Vidor Dr report 1990 construction and *not* rent-controlled — so RSO is a property of the building, not the block. See `ADVERSARIAL_REVIEW.md` §A-03. |
-| E-12 | Overlays | **UNKNOWN** | `missing_information` | — | — | — | Specific plan, CDO, CUGU, POD, RFA, sign district — none checked. |
-| E-13 | Specific plan | **UNKNOWN** | `missing_information` | — | — | — | |
-| E-14 | HPOZ / historic status | **UNKNOWN — no positive indication** | `missing_information` | LA has 35 HPOZs; partial list surfaced does not name Beverlywood or Castle Heights | `official_unretrieved` | Low | Absence from a partial list is **not** evidence of absence (Law 4). Also unchecked: HCM status, SurveyLA findings, California Register eligibility. A 1947 building can be a survey-identified resource. **Material: the Low-Rise Ordinance exempts HPOZs and HCMs.** |
-| E-15 | Hillside status | **UNKNOWN — likely not** | `missing_information` | Area is described as flat urban fabric between Pico Blvd and the I-10 | `derived` | Low | ZIMAS carries the Hillside Area flag. Not checked. |
-| E-16 | Fire hazard (VHFHSZ) | **UNKNOWN — likely not** | `missing_information` | Dense flat urban area, not a wildland interface | `derived` | Low | Not checked against ZIMAS **or** CAL FIRE. The repo already ships a fixture for exactly the case where these two disagree (`fire-hazard-official-source-conflict.json`) — so a single source would not have settled it anyway. |
-| E-17 | Coastal zone | **NOT APPLICABLE** | `unverified_evidence` | Location ~6 miles inland | `derived` | High | The only baseline item this pass can answer with real confidence. |
-| E-18 | Transit designations (TOC tier / CHIP incentive area / SB 79 tier / Low-Rise station area) | **UNKNOWN — all four** | `missing_information` | — | — | — | All four are published in ZIMAS; SB 79 tiers also in the SCAG map. **None checked.** This is the largest open upside in the case. |
-| E-19 | Environmental constraints | **UNKNOWN** | `missing_information` | — | — | — | Methane zone, liquefaction, fault (Newport-Inglewood trends through the Westside), oil field. All ZIMAS layers. Unchecked. |
-| E-20 | Permit history | **UNKNOWN — no record retrieved** | `missing_information` | LADBS routes identified but blocked | `official_unretrieved` | — | `reason: retrieval_failed`. Per `docs/content-packets/PP-2026-001`: this is "official route checked but not retrieved", **not** "no permits exist". |
-| E-21 | Certificate of occupancy | **UNKNOWN** | `missing_information` | — | — | — | The RSO trigger. Highest-value single retrieval after ZIMAS. |
-| E-22 | Recorded conditions (CC&Rs, easements, Ellis filings) | **UNKNOWN** | `missing_information` | — | — | — | Beverlywood Homes Association CC&Rs restrict member lots to single-family use. Whether Vidor Dr is a member tract is unresolved (§C-03). Note: state ADU law voids many private restrictions on ADUs, but that interaction is fact-specific. |
-| E-23 | Prior planning cases | **UNKNOWN** | `missing_information` | — | — | — | ZIMAS lists case numbers (ZA/CPC/DIR/ENV/VTT). Unchecked. |
+This supersedes the aggregator-derived baseline of the prior pass. Fields the
+report does not carry remain `unknown`; its silence is not a negative finding
+(`PROJECT_LAWS.md` Law 4).
 
 ---
 
-## §2. Derived observations (analysis, not evidence)
+## §1. Identity and jurisdiction — CONFIRMED
 
-Recorded separately so they never read as facts (Law 8).
+| # | Field | Verified value | Class |
+| --- | --- | --- | --- |
+| E-01 | Address | 9854 W Vidor Dr. Parcel also carries **9856, 9856½ and 9858 W Vidor Dr** | `confirmed_fact` |
+| E-02 | Jurisdiction | **City of Los Angeles** | `confirmed_fact` |
+| E-03 | APN | **4330005041** (4330-005-041) | `confirmed_fact` |
+| E-03a | PIN | 132A165 351 | `confirmed_fact` |
+| E-03b | Legal | **TR 11106, Lot 85**, M B 203-19/22, Block None, Arb None | `confirmed_fact` |
+| E-05 | Community Plan | **West Los Angeles** | `confirmed_fact` |
+| E-05a | Area Planning Commission | West Los Angeles APC | `confirmed_fact` |
+| E-05b | Neighborhood Council | **South Robertson NC** | `confirmed_fact` |
+| E-05c | Council District | **CD 5 — Katy Young Yaroslavsky** | `confirmed_fact` |
+| E-05d | LADBS District Office | West Los Angeles | `confirmed_fact` |
+| E-05e | Census Tract | 2690.00 | `confirmed_fact` |
 
-- **O-01 — The even-numbered side of the 9800 block of Vidor Drive presents
-  as established low-rise multifamily; the street as a whole is mixed.**
-  Basis: 9800, 9836 and 9880 carry `LAR3`; listings reference condominium unit
-  numbers (`#103`, `#104`, `#301`, `#401`, `#402`, `1B`); building-to-lot
-  ratios (11,859 sf on ~6,534 sf) indicate multi-story multifamily. **But
-  9875 Vidor Dr reports as single-family**, so the street is not uniform and
-  the subject's zone cannot be inferred from its neighbours. This matters
-  because several of the programs Harper named turn on single-family zoning.
-- **O-02 — The reported 1947 / 4-unit combination puts the property inside
-  LA's rent-stabilization perimeter on its face.** Basis: E-02 + E-08 + E-10
-  against the LAHD coverage test. This is the pivot of the whole case and is
-  currently supported only by aggregator data.
-- **O-03 — The property profile is "already-built small multifamily",
-  not "underused land".** Most of the programs Harper named were written for
-  vacant or single-family sites. This is the central mismatch in the case and
-  the likely reason she found the programs hard to apply to her own property.
+**Note on E-01:** four street addresses on one parcel independently corroborates
+the four-unit count.
 
 ---
 
-## §3. Evidence register in repo form
+## §2. Zoning and land use — CONFIRMED, with one unresolved qualifier
 
-Modeled on `app/fixtures/case-integrity/*.json`. Illustrates how this case
-would enter the Case Integrity Engine. **Not wired to any code; no production
-file was modified.**
+| # | Field | Verified value | Class |
+| --- | --- | --- | --- |
+| E-04 | **Zoning** | **`[Q]R3-1-O`** | `confirmed_fact` |
+| E-04a | General Plan Land Use | **Medium Residential** | `confirmed_fact` |
+| E-04b | General Plan Note(s) | Yes | `confirmed_fact` |
+| E-04c | **Minimum Density Requirement** | **Yes (Citywide)** | `confirmed_fact` |
+| E-06 | **Lot / Parcel Area (ZIMAS calculated)** | **5,974.5 sq ft** | `confirmed_fact` |
+| E-06a | APN Area (County Public Works) | 0.138 ac (≈6,011 sf) | `confirmed_fact` |
+| E-12 | Specific Plan | **West Los Angeles Transportation Improvement and Mitigation** (ZI-2192). Subarea: None | `confirmed_fact` |
+| E-12a | Zoning Information | ZI-2192 (WLA TIMP); **ZI-2512 Housing Element Sites** | `confirmed_fact` |
+| E-12b | CDO / CPIO / CUGU / NSO / POD / RFA / RIO / Sign District | **All None or No** | `confirmed_fact` |
+| E-23 | Case numbers | CPC-7571, **CPC-2018-7546-CPU**, CPC-2014-1457-SP, CPC-2009-1536-CPU, **CPC-1988-341-ZC**, ORD-186108, ORD-183497, ORD-171492, ORD-165986, ORD-129279, ORD-109734, ZA-1993-1046-SP, ZA-1960-15466, ZA-14423, ENV-2014-1458, ENV-2009-1537, ENV-2005-8253-ND, ND-89-255-ZC, MND-89-719-SUB | `confirmed_fact` |
+| E-23a | Recent Activity | **None** | `confirmed_fact` |
 
-```json
-{
-  "id": "evidence-vidor-unit-count",
-  "subject": { "case_id": "PP-CASE-2026-09-VIDOR", "property_id": null },
-  "claim": {
-    "key": "existing-dwelling-unit-count",
-    "label": "Existing dwelling units on parcel",
-    "client_label": "how many units the property currently has"
-  },
-  "source": {
-    "agency": "Redfin / PropertyShark (third-party aggregators)",
-    "title": "Listing profile for 9854 Vidor Dr",
-    "description": "Aggregator description reporting a 4-unit quadplex built 1947.",
-    "url": "https://www.redfin.com/CA/Los-Angeles/9854-Vidor-Dr-90035/home/6810133",
-    "authority": "unofficial",
-    "retrieved_at": "2026-09-21T03:30:00.000Z"
-  },
-  "raw_observed_value": { "kind": "text", "value": "Quadplex (4 Units, Any Combination)" },
-  "normalized_value": { "kind": "unknown", "value": null, "reason": "insufficient_evidence" },
-  "evidence_type": "third_party_listing",
-  "classification": "source_observation",
-  "confidence": 45,
-  "conflicts_with": [],
-  "review_status": "review_required",
-  "notes": [
-    "Page was not opened; content known only from a search-engine summary.",
-    "Aggregators share upstream data and are not independent corroboration."
-  ],
-  "limitations": [
-    "Not an official record.",
-    "No Assessor or LADBS record was retrievable this session.",
-    "Unit count drives the ADU cap, RSO status, and the SHRA protected-housing bar."
-  ],
-  "provenance": {
-    "source_record_id": "redfin-6810133",
-    "capture_method": "manual_research",
-    "is_ai_generated": false
-  }
-}
-```
+### E-04d · The `[Q]` qualifier — the most consequential unresolved item
 
-Note that `normalized_value` is `unknown` even though `raw_observed_value`
-carries text. That is deliberate: the aggregator's *statement* was observed;
-the *fact* was not established.
+The zone string is `[Q]R3-1-O`, decomposing as: `[Q]` qualified condition ·
+`R3` Multiple Dwelling · `-1` Height District 1 · `-O` Oil Drilling District.
+
+**The `[Q]` condition's operative text is not in this report.** ZIMAS lists
+case **CPC-1988-341-ZC**, described as *"ZONE CHANGE TO LIMIT THE LAND SO
+DESIGNATED TO THE **RD1.5 DENSITY** FOR PROPERTY IN THE VICINITY OF PICO
+BOULEVARD AND BEVERWIL DRIVE."*
+
+If that case is the source of this parcel's `[Q]`, the density consequence is
+severe:
+
+| Density basis | Lot area ÷ factor | Permitted units |
+| --- | --- | --- |
+| R3 unqualified (1 per 800 sf) | 5,974.5 ÷ 800 | **7** |
+| RD1.5 (1 per 1,500 sf) | 5,974.5 ÷ 1,500 | **3** |
+| **Existing** | — | **4** |
+
+Under an RD1.5 cap the existing four units would **exceed** permitted density
+and stand as legal nonconforming — meaning **zero residual density**.
+
+**Class: `unverified_evidence`.** ZIMAS reports the case and the zone string
+but does **not** state that this case produced this parcel's `[Q]`, nor does it
+reproduce the condition text. Attribution is inference. **Resolve by pulling
+the ordinance (ORD-165986 is the likeliest candidate by era) or the `[Q]`
+condition text from City Planning.** Until then, no unit yield may be quoted.
+
+---
+
+## §3. Building and assessor data — CONFIRMED
+
+| # | Field | Verified value |
+| --- | --- | --- |
+| E-07 | Use Code | **0400 — Residential, Four Units (Any Combination), 4 Stories or Less** |
+| E-08 | **Number of units** | **4** (Building 1; no data for Buildings 2–5) |
+| E-09 | Building square footage | **4,092.0 sq ft** · 8 bedrooms · 4 bathrooms |
+| E-10 | **Year built** | **1947** |
+| E-10a | Assessed land value | $703,561 |
+| E-10b | Assessed improvement value | $407,690 |
+| E-10c | Last owner change | **2021-02-18** |
+| E-10d | Last sale amount | **$560,000** |
+| E-10e | Tax Rate Area | 67 |
+
+**The prior pass's aggregator figures (4 units, 4,092 sf, 8bd/4ba, built 1947)
+were correct in every particular.** They were nonetheless properly held at
+`medium` confidence until an official source confirmed them — being right by
+luck is not the same as being evidenced.
+
+---
+
+## §4. Housing status — the decisive section
+
+| # | Field | Verified value | Class |
+| --- | --- | --- | --- |
+| E-11 | **Rent Stabilization Ordinance (RSO)** | **No** `[APN: 4330005041]` | `confirmed_fact` |
+| E-11a | **Ellis Act Property** | **Yes — Date Filed on 2017-05-15**, 9854 W Vidor Dr, APN 4330005041 | `confirmed_fact` |
+| E-11b | **Just Cause for Eviction Ordinance (JCO)** | **Yes.** Report note: *"The Just Cause Ordinance applies after the expiration of the initial lease or after 6 months of continuous occupancy, whichever comes first."* | `confirmed_fact` |
+| E-11c | **HCA / Resident Protections Ordinance Replacement Review** | **Yes** | `confirmed_fact` |
+| E-11d | **Housing Element Site** | Yes (ZI-2512). **HE Replacement Required: Yes.** SB 166 Units: Appendix 4.1 — **0.15** | `confirmed_fact` |
+| E-11e | **Housing Use within Prior 5 Years** | **Yes** | `confirmed_fact` |
+| E-11f | Inclusionary Housing | No | `confirmed_fact` |
+| E-11g | Local Affordable Housing Incentive | No | `confirmed_fact` |
+| E-11h | Affordable Housing Linkage Fee | Neighborhood **Pico-Robertson**; Residential Market Area **Medium/Low**; Commercial Market Area High | `confirmed_fact` |
+
+### E-11i · Why does a 1947 four-unit property show RSO = No?
+
+**The report states the fact. It does not state the reason. The reason is
+`unknown`.** (`PROJECT_LAWS.md` Laws 1, 3 and 7 — AI may propose questions but
+may not silently resolve factual uncertainty.)
+
+What the record *does* establish is that **two housing fields on the same
+official record sit in tension on their face**: a 1947 four-unit residential
+building would ordinarily fall inside the RSO coverage test (City of Los
+Angeles, certificate of occupancy before 1978-10-01, two or more units), yet
+the City reports `RSO: No` **and** `Ellis Act Property: Yes (2017-05-15)`.
+
+Candidate explanations, none adopted:
+
+| # | Candidate | What would confirm it |
+| --- | --- | --- |
+| 1 | **Ellis Act withdrawal (2017-05-15) removed the units from the rental market**, and the RSO field reflects post-withdrawal status | LAHD withdrawal record and current RSO registration history |
+| 2 | Permanent removal from rental use / change of use | LAHD + LADBS records |
+| 3 | All four units owner-occupied, so none is a registered rental | LAHD registration record |
+| 4 | An exemption certificate (e.g. luxury exemption) | LAHD certificate record |
+| 5 | The field reports **registration status**, not **ordinance coverage** | LAHD definition of the ZIMAS RSO field |
+| 6 | Data currency or layer lag | LAHD direct confirmation |
+
+Candidate 1 is the most economical reading given that ZIMAS reports both
+fields for the same APN — **but the report nowhere states a causal link, and
+inferring one would be exactly the kind of tidy-sounding fabrication this
+case file exists to prevent.**
+
+**Verdict: `UNKNOWN`, reason `insufficient_evidence`. Requires LAHD.**
+
+### E-11j · What RSO = No does *not* mean
+
+A material misreading risk, stated plainly because it is the most likely way
+this record gets misused:
+
+- **It does not mean the property is unprotected.** `JCO: Yes` — just-cause
+  eviction protections apply after the initial lease expires or six months of
+  continuous occupancy.
+- **It does not mean replacement obligations are avoided.**
+  `HCA / RPO Replacement Review: Yes` and `HE Replacement Required: Yes`.
+- **It does not erase the Ellis filing.** Ellis-withdrawn units are named in
+  the RPO's Protected Units definition.
+- **It does not mean "no housing here recently."**
+  `Housing Use within Prior 5 Years: Yes`.
+
+---
+
+## §5. Transit and incentive designations — CONFIRMED, and mostly negative
+
+| # | Field | Verified value |
+| --- | --- | --- |
+| E-18 | **Transit Oriented Communities (TOC)** | **Not Eligible** |
+| E-18a | **MIIP — Transit Oriented Incentive Area** | **Not Eligible** |
+| E-18b | **MIIP — Opportunity Corridors Incentive Area** | **Not Eligible** |
+| E-18c | **MIIP — Corridor Transition Incentive Area** | **Not Eligible** |
+| E-18d | **AB 2097 — within ½ mile of a Major Transit Stop** | **No** |
+| E-18e | **High Quality Transit Corridor (within ½ mile)** | **Yes** |
+| E-18f | **AB 2334 — Very Low Vehicle Travel Area** | **Yes** |
+| E-18g | **TCAC Opportunity Area** | **Highest** |
+| E-18h | **ED 1 Eligibility** | **Eligible Site** |
+| E-18i | Adaptive Reuse | Citywide Adaptive Reuse Program |
+| E-18j | Urban Agriculture Incentive Zone | **Yes** |
+| E-18k | Redevelopment Project Area / Opportunity Zone / Enterprise Zone / JEDI / Hubzone / BID | **All None or No** |
+
+### E-18l · The two transit fields that appear to contradict each other
+
+`AB 2097: within ½ mile of a Major Transit Stop = **No**` while
+`High Quality Transit Corridor within ½ mile = **Yes**`.
+
+**These are not in conflict — they are different statutory tests**, and
+conflating them is an easy and expensive error:
+
+- A **major transit stop** is a rail/ferry station or the intersection of two
+  or more bus routes at high peak frequency. It is the trigger for TOC, MIIP
+  TOIA, AB 2097 parking elimination, and SB 79.
+- A **High Quality Transit Corridor** is a *corridor* with bus service at
+  ≤15-minute peak headways. Being near the corridor is not being near a stop
+  that qualifies.
+
+The parcel is near a frequent bus corridor but **not** near a qualifying stop.
+That single distinction forecloses most transit-based programs here, and the
+three `Not Eligible` MIIP rows and `TOC: Not Eligible` independently confirm
+the City reached the same conclusion.
+
+---
+
+## §6. Physical, environmental and hazard constraints — CONFIRMED
+
+| # | Field | Verified value | Effect |
+| --- | --- | --- | --- |
+| E-15 | Hillside Area (Zoning Code) | **No** | Hillside ordinance does not apply |
+| E-15a | Hillside Construction Regulation | No | — |
+| E-16 | **Very High Fire Hazard Severity Zone** | **No** | Chapter 7A / WUI does not apply |
+| E-16a | Fire District No. 1 | No | — |
+| E-17 | **Coastal Zone** | **None** | Coastal Act does not apply |
+| E-19 | **Methane Hazard Site** | **Methane Zone** | **Methane mitigation required for new construction — real cost** |
+| E-19a | **Special Grading Area** (BOE Basic Grid Map A-13372) | **Yes** | **BOE grading review — real cost** |
+| E-19b | Liquefaction | No | — |
+| E-19c | Landslide | No | — |
+| E-19d | Alquist-Priolo Fault Zone | No | — |
+| E-19e | Nearest fault | **Santa Monica Fault, 1.66 km**, Type B, slip 1.0 mm/yr, max magnitude 6.6 | Seismic design input |
+| E-19f | Flood Zone | **Outside Flood Zone** | — |
+| E-19g | Tsunami / Sea Level Rise / Watercourse / Streams | No | — |
+| E-19h | High Wind Velocity Area | No | — |
+| E-19i | Airport Hazard | None | — |
+| E-19j | Wells / Oil Well Adjacency | None / No | Despite the `-O` Oil Drilling District suffix |
+| E-19k | Biological / SEA / habitat / Santa Monica Mountains Zone | All No or None | — |
+| E-19l | **Universal Planning Review Service Applicability** | **Needs Review** | Procedural flag — meaning unresolved |
+| E-19m | 500 Ft School Zone / 500 Ft Park Zone / Building Line | None | — |
+
+Every prior-pass guess in this section (not hillside, not coastal, not
+VHFHSZ) proved correct — but **two constraints nobody anticipated are now
+confirmed: the Methane Zone and the Special Grading Area.** Both add cost to
+any new structure, including an ADU.
+
+---
+
+## §7. Fields the report does NOT carry — still `unknown`
+
+| # | Unknown | Why it still matters | Source |
+| --- | --- | --- | --- |
+| E-20 | **Permit history / open permits** | Legal unit count, unpermitted work | LADBS |
+| E-21 | **Certificate of occupancy date** | Independent RSO/JCO check | LADBS |
+| E-24 | **`[Q]` condition operative text** | **Decides residual density — see §2** | ORD / City Planning |
+| E-25 | **SHRA / SB 684 eligibility flag** | **Not printed in this report.** It is an interactive-only ZIMAS hyperlink | ZIMAS interactive |
+| E-26 | **RSO = No, reason** | Governs how the Ellis history is read | LAHD |
+| E-27 | Ellis Act current status and re-rental restrictions | Timing strategy — see `PROGRAM_MATRIX.md` | LAHD |
+| E-28 | Existing building footprint, coverage, setbacks, parking | ADU site capacity | Survey |
+| E-29 | Recorded CC&Rs / easements | Private restrictions | County Recorder |
+| E-30 | Current occupancy of the four units | SHRA tenant test; JCO exposure | Owner |
+| E-31 | SB 79 / Low-Rise eligibility layers | Confirmation of §5 reading | ZIMAS interactive / SCAG |
+
+---
+
+## §8. Scorecard — prior pass vs. official record
+
+| Prior-pass position | Official record | Outcome |
+| --- | --- | --- |
+| Jurisdiction = City of LA (unverified) | Confirmed | ✅ |
+| Zoning likely LAR3 | `[Q]R3-1-O` | ✅ **but the `[Q]` was missed entirely** |
+| Community Plan likely West LA | Confirmed | ✅ |
+| 4 units, 4,092 sf, 1947 (aggregator) | Confirmed exactly | ✅ |
+| Lot size unknown | **5,974.5 sf** | ✅ resolved |
+| APN unknown; 3 candidates rejected | **4330005041** — all 3 candidates were wrong | ✅ **rejection was correct** |
+| Not hillside / not coastal / not VHFHSZ | Confirmed | ✅ |
+| No positive HPOZ indication | HPOZ None, Historic Review No | ✅ |
+| **RSO presumptively applicable** | **RSO: No** | ❌ **WRONG** |
+| Transit designations unknown | TOC / all MIIP areas **Not Eligible**; no major transit stop | ✅ resolved — **negative** |
+| Ellis Act history | Not considered at all | ❌ **MISSED** |
+| Housing Element site / HE replacement | Not considered at all | ❌ **MISSED** |
+| Methane Zone / Special Grading Area | Not considered at all | ❌ **MISSED** |

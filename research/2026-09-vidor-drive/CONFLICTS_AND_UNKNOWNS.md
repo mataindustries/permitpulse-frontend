@@ -1,177 +1,173 @@
-# Conflicts and Unknowns — 9854 Vidor Drive
+# Conflicts and Unknowns — 9854 W Vidor Drive
 
-Case ID: `PP-CASE-2026-09-VIDOR` · 2026-09-21
+Case ID: `PP-CASE-2026-09-VIDOR`
+**Revision 2 — post-ZIMAS. 2026-09-21.**
 
 Per `PROJECT_LAWS.md` Law 5, contradictory sources remain contradictory until
-explicitly resolved, and per Law 6 one source never silently overwrites
-another. Nothing below has been resolved by picking a winner.
+explicitly resolved; per Law 6, one source never silently overwrites another.
 
 ---
 
 ## Part A — Conflicts
 
-### C-01 · Three unrelated APNs surfaced for one address — **none adopted**
+### C-01 · APN candidates — **RESOLVED**
 
-| Candidate APN | Where it came from | Assessment |
-| --- | --- | --- |
-| `8025-001-015` | Top result for the query *"9854 Vidor Dr Los Angeles APN assessor parcel number lot size"*, as `portal.assessor.lacounty.gov/parceldetail/8025-001-015` | **Rejected as unsupported.** No retrieved text ties this APN to the address. |
-| `5542-025-002` | Surfaced as `portal.assessor.lacounty.gov/parceldetail/5542025002` in a later search for the same address | **Rejected as unsupported.** |
-| `4330-005-092` | LoopNet listing for **9800** Vidor Dr — a *different* address on the same block | Plausibly the correct **book/page neighborhood** (`4330-005-xxx`) for the 9800 block, but **not this parcel**. |
+Verified APN: **4330005041**.
 
-**Status: UNRESOLVED. APN = `unknown`, reason `retrieval_failed`.**
+All three candidates surfaced by search in Revision 1 — `8025-001-015`,
+`5542-025-002`, `4330-005-092` — were **wrong**. The first two were unrelated
+parcels returned by search-engine inference against official assessor URLs; the
+third belonged to a neighbouring property (9800 Vidor Dr).
 
-**Why this matters beyond bookkeeping:** a search engine returning an
-assessor-portal URL creates a strong false impression of authority. The URL
-*is* an official domain. The *association* between that URL and the queried
-address is search-engine inference. A researcher in a hurry adopts the first
-APN, and every downstream record pull is then silently about a different
-property. **This is the most dangerous failure mode encountered in this case.**
+**The Revision 1 decision to reject all three and record `unknown` was
+correct.** Adopting the top search result would have mis-keyed every
+downstream record pull in this case. Recorded as a validated near-miss.
 
-### C-02 · SB 684 effective date — two dates in circulation
+### C-02 · SB 684 / SB 1123 effective dates — **STILL UNRESOLVED, now moot**
 
-| Source | Date |
-| --- | --- |
-| LA City Planning SHRA page (via search summary) | **2024-07-01** |
-| Law-firm alert summary | **2024-01-01** |
+SB 684 reported as both 2024-07-01 (LA City Planning) and 2024-01-01
+(commentary). Unresolved. Immaterial: SB 684 is now `NOT SUPPORTED` on
+substantive grounds.
 
-Likely a chaptered-date versus operative-date distinction, but **not resolved**.
-Prefer the LA City Planning date for LA filings. Same pattern for SB 1123:
-reported as effective **2025-07-01** by LA City Planning alongside AB 130,
-while the bill was chaptered in 2024.
+### C-03 · Beverlywood HOA — **RESOLVED AS NOT APPLICABLE**
 
-**Status: UNRESOLVED.** Immaterial to eligibility today (all dates have
-passed); material to any claim about an application filed in 2024–25.
+ZIMAS reports no CDO, no CPIO, no HPOZ, no specific-plan subarea, and no
+special land use for this parcel. The parcel sits in **TR 11106, Lot 85**,
+which is not the Beverlywood Homes Association tract pattern of single-family
+homes. *Recorded CC&Rs were still not searched (County Recorder) — a private
+covenant would not appear in ZIMAS.* So: not an HOA-governed lot on the City
+record; private restrictions remain `unknown`.
 
-### C-03 · Beverlywood HOA boundary versus the character of Vidor Drive
+### C-04 · Zoning by adjacency — **RESOLVED, and the method is vindicated as unsafe**
 
-The Beverlywood Homes Association covers **1,354 single-family homes** under
-binding CC&Rs restricting use to single-family dwellings, bounded by Monte Mar
-Dr (N), Robertson Blvd (E), Hillcrest Country Club / Anchor Ave (W), and
-Beverlywood St (S).
+Verified zoning is **`[Q]R3-1-O`**. The adjacency guess got "R3" right and
+**missed the `[Q]` entirely** — which is potentially the single most
+consequential field on the parcel. The heuristic produced a half-right answer
+that would have overstated capacity by roughly 2× (7 units vs ≈3).
 
-The 9800 block of Vidor Dr presents as `LAR3` multifamily with condominium
-units — inconsistent with an HOA tract of single-family homes.
+### C-05 · Fire hazard cross-check — **RESOLVED**
 
-**Status: UNRESOLVED.** Not established whether Vidor Dr falls inside the
-described boundary, and a stated boundary is not a recorded tract map.
-Resolve via the recorded CC&Rs and tract map, not the HOA website.
+ZIMAS: `Very High Fire Hazard Severity Zone: No`. No CAL FIRE cross-check was
+run, so the known ZIMAS/CAL FIRE disagreement pattern
+(`app/fixtures/case-integrity/fire-hazard-official-source-conflict.json`) is
+untested here. Given a flat inland urban parcel, residual risk is low.
 
-### C-04 · Zoning by adjacency versus zoning of record
+### C-06 · Vidor Drive zoning mix — **SUPERSEDED**
 
-Three neighbors report `LAR3`. The subject parcel's zone was never retrieved.
-LA zone boundaries can and do split block faces, and listing-site zoning
-fields are frequently stale or mis-keyed.
+Irrelevant now that the subject parcel's own zoning is an `official` fact.
+Retained only as the evidentiary lesson recorded at `PAIN_LOG.md` §P-14.
 
-**Status: UNRESOLVED.** Treated throughout as "likely `LAR3`, unverified".
+### C-07 · HCD guidance vs. statutory text on "vacant" — **MOOT HERE**
 
-### C-05 · Fire hazard — a conflict we could not even stage
+Unresolved in kind, but no longer bears on this parcel: SB 1123 fails on
+zoning, which is now confirmed.
 
-Neither ZIMAS nor CAL FIRE was reachable. The repository already ships
-`app/fixtures/case-integrity/fire-hazard-official-source-conflict.json`
-precisely because these two official sources are known to disagree on this
-flag. A single source would therefore not have settled it.
+### C-08 · SB 79 statewide effect vs. LA deferral — **MOOT HERE**
 
-**Status: UNKNOWN, with a known conflict risk.** Check both.
+The parcel is outside the half-mile major-transit-stop radius, so neither SB 79
+nor the Low-Rise Ordinance reaches it regardless of LA's deferral.
 
-### C-06 · Vidor Drive is zoning-mixed — adjacency reasoning fails here
+### C-09 · **NEW — RSO = No on a 1947 four-unit building**
 
-Even-numbered addresses on the 9800 block (9800, 9806, 9836, 9880) report as
-multifamily, several with `LAR3`. **9875 Vidor Dr reports as a single-family
-property** (sold $2,195,000, 2018).
+The official record reports, for the same APN:
 
-The subject is even-numbered and sits within the multifamily cluster, so the
-working assumption probably holds — **but the method used to reach it has been
-shown to fail on this very street.** No program verdict may rest on adjacency
-alone.
+- `Rent Stabilization Ordinance (RSO): **No** [APN: 4330005041]`
+- `Ellis Act Property: **Yes** — Date Filed on 2017-05-15`
+- `Just Cause For Eviction Ordinance (JCO): **Yes**` — Year Built 1947,
+  Use Code 0400 (four units)
+- `Housing Use within Prior 5 Years: **Yes**`
 
-Related: 9800 Vidor Dr ("Vidor Place Apartments") and 9880 Vidor Dr report
-**1990** construction, and 9800 is reported **not subject to rent control**.
-The block therefore contains both RSO-era and post-RSO buildings. The RSO
-presumption for the subject rests entirely on its unverified 1947 date.
+A 1947 four-unit City of Los Angeles building sits inside the ordinary RSO
+coverage test. The City reports it as not RSO. **The report states the fact and
+not the reason.**
 
-**Status: UNRESOLVED.** See `ADVERSARIAL_REVIEW.md` §A-02 and §A-03.
+**Status: the fact is `confirmed`. The reason is `UNKNOWN`
+(`insufficient_evidence`).** Six candidate explanations are recorded at
+`PROPERTY_EVIDENCE.md` §E-11i, none adopted. The Ellis withdrawal is the most
+economical reading, but the record asserts no causal link and this file will
+not invent one.
 
-### C-07 · HCD guidance vs. statutory text on "vacant"
+**Resolution route: LAHD.** Ask for RSO registration history, the withdrawal
+record, and the definition of the ZIMAS RSO field (coverage vs. registration).
 
-HCD guidance dated **2025-10-07** holds that a single-family lot with an
-existing home can qualify as "vacant" under SB 1123 once a remainder parcel is
-designated for the existing structure. The statutory definition on its face
-reads "no permanent structure unless abandoned and uninhabitable."
+### C-10 · **NEW — two transit fields that read as contradictory**
 
-These are reconcilable only through the AB 130 remainder-parcel mechanic. HCD
-guidance is **not binding law**; courts generally defer but interpretation
-rests with the judiciary.
+`AB 2097: within ½ mile of a Major Transit Stop: **No**` alongside
+`High Quality Transit Corridor (within ½ mile): **Yes**`.
 
-**Status: UNRESOLVED IN KIND.** Both readings recorded; neither adopted as
-settled. This materially changed the SB 1123 verdict (`ADVERSARIAL_REVIEW.md` §A-01).
+**Not an actual conflict — two different statutory tests** (stop vs. corridor;
+see `PROPERTY_EVIDENCE.md` §E-18l). Recorded because it is a high-probability
+misreading: a reader who sees "High Quality Transit: Yes" will assume transit
+incentives apply. Four other rows (`TOC: Not Eligible` and three MIIP
+`Not Eligible`) confirm they do not.
 
-### C-08 · SB 79's statewide effect vs. LA's deferral
+### C-11 · **NEW — the `[Q]` condition and case CPC-1988-341-ZC**
 
-SB 79 is effective statewide **2026-07-01**. Los Angeles used SB 79's
-alternative-compliance provisions to defer citywide application to roughly
-**2030**, substituting the Low-Rise Ordinance (effective 2026-06-30). Cities
-cannot fully opt out. **LA's deferral is contested.**
+ZIMAS reports zoning `[Q]R3-1-O` and, separately, case **CPC-1988-341-ZC**:
+*"ZONE CHANGE TO LIMIT THE LAND SO DESIGNATED TO THE RD1.5 DENSITY FOR
+PROPERTY IN THE VICINITY OF PICO BOULEVARD AND BEVERWIL DRIVE."*
 
-**Status: UNRESOLVED.** Treat the Low-Rise Ordinance as the live instrument
-and SB 79 as a contested backstop (`ADVERSARIAL_REVIEW.md` §A-05).
+**ZIMAS does not state that this case produced this parcel's `[Q]`.** The
+association is inference. If correct, permitted density ≈ 3 units against 4
+existing (legal nonconforming, zero residual). If incorrect and unqualified R3
+governs, the ceiling is 7 and SB 684 would need re-opening.
+
+**Status: UNRESOLVED — and this is the highest-value open item in the case.**
+Resolve via the ordinance text (ORD-165986 is the likeliest candidate by era)
+or a `[Q]` condition readout from City Planning.
 
 ---
 
-## Part B — Unknowns that block client advice
+## Part B — Unknowns that still block client advice
 
-Ordered by how much they change the answer.
-
-| # | Unknown | What it blocks | How to resolve |
+| # | Unknown | What it blocks | Source |
 | --- | --- | --- | --- |
-| U-01 | **RSO status of the existing units** | SB 684 protected-housing bar; CHIP replacement obligation; the entire redevelopment pro forma | LAHD RSO lookup + LADBS certificate-of-occupancy date |
-| U-02 | **Confirmed zoning** | SB 684 vs SB 1123 vs SB 9; base density; CHIP and Small Lot eligibility | ZIMAS |
-| U-03 | **ZIMAS `SHRA / SB 684 Eligibility` flag** | The SB 684 answer, directly | ZIMAS → Planning and Zoning menu |
-| U-04 | **SB 79 / Low-Rise eligibility** | Possibly the largest development envelope available | ZIMAS SB 79 + Low-Rise maps; SCAG SB 79 map |
-| U-05 | **Confirmed lot area** | Every density and yield calculation in the file | Assessor + ZIMAS |
-| U-06 | **Confirmed legal unit count** | ADU cap (detached = existing units; conversion = 25% of existing units); RSO exposure | LADBS records + Assessor |
-| U-07 | **Whether new ADUs on a pre-1978 parcel become RSO-covered** | Whether the ADU pathway's economics hold | Written LAHD determination |
-| U-08 | **CHIP / MIIP incentive-area designation** | Whether MIIP is even on the table | ZIMAS flag; `CP-4095` maps |
-| U-09 | **AB 130 remainder-parcel treatment for an occupied RSO building** | Whether SB 684 revives on this parcel | Statute text + written City Planning position |
-| U-10 | **Permit history and open permits** | Unpermitted-work exposure; whether all 4 units are legal | LADBS Property Activity Report |
-| U-11 | **Historic status (HPOZ / HCM / SurveyLA)** | Low-Rise Ordinance exempts HPOZs and HCMs; affects demolition and alteration | ZIMAS + Office of Historic Resources |
-| U-12 | **Recorded CC&Rs, easements, Ellis filings** | Private restrictions; RPO 10-year Ellis look-back | LA County Recorder |
-| U-13 | **Environmental overlays** (methane, liquefaction, fault) | Cost and feasibility of new construction | ZIMAS |
-| U-14 | **Westside Community Plans Update draft zoning** | What her zoning becomes, and when | LA City Planning / planningthewestside.org |
-| U-15 | **Jurisdiction confirmation** | Everything — a 90035 address is not automatically City of LA | ZIMAS or Assessor |
+| **U-01** | **`[Q]` condition text / permitted density** | **Every unit-yield figure in the file** | Ordinance / City Planning |
+| U-02 | Reason RSO = No | How the Ellis history and any re-rental are read | LAHD |
+| U-03 | Ellis Act current status; 10-year look-back confirmation; re-rental restrictions; former-tenant rights | Timing strategy, and whether the ≈2027-05-15 date is real | LAHD |
+| U-04 | ZIMAS interactive `SHRA / SB 684 Eligibility` flag | Final confirmation of the SB 684 verdict — **not printed in the Parcel Profile Report** | ZIMAS interactive |
+| U-05 | LADBS permit history, certificate of occupancy, legality of all 4 units | ADU cap (computed on *legal* units); unpermitted-work exposure | LADBS |
+| U-06 | Building footprint, lot coverage, setbacks, parking, open space | **Real ADU capacity** — the statutory cap of 4+1 is not achievable on 5,974.5 sf | Measured survey |
+| U-07 | Current occupancy of the four units | SHRA tenant-occupancy limb; JCO exposure | Owner |
+| U-08 | Recorded CC&Rs, easements | Private restrictions — invisible to ZIMAS | County Recorder |
+| U-09 | WLA TIMP trip-fee exposure | Cost of any new unit | City Planning / DOT |
+| U-10 | Methane mitigation and BOE grading scope | Cost of any new structure | LADBS / BOE |
+| U-11 | ED 1 current operative terms | Whether the AHIP pathway is real today | City Planning / Mayor's Office |
+| U-12 | "Universal Planning Review Service: Needs Review" | Unclear procedural flag | City Planning |
+| U-13 | Westside Community Plans Update draft zoning for this parcel (CPC-2018-7546-CPU) | Future zoning — Re:Code LA remapping | City Planning |
 
 ---
 
 ## Part C — What we must not say to Harper
 
-Stated plainly so no downstream draft drifts past the evidence (Law 10).
-
 **Do not say:**
 
-- that the property is zoned R3 — **we did not verify it**;
-- that it has 4 units, 4,092 sf, or was built in 1947 — **aggregator data only**;
-- that it is or is not rent-stabilized — **presumption, not determination**;
-- that SB 684 is unavailable — **the AB 130 remainder-parcel route is live and unexamined**;
-- that SB 1123 doesn't apply **because the lot isn't vacant** — HCD's
-  2025-10-07 guidance removed that reason; the only surviving reason is zoning,
-  **which we did not verify**;
-- that SB 9 "doesn't apply" without the one-line caveat that this rests on
-  unverified zoning;
-- that SB 79 gives her anything in Los Angeles today — **the City deferred it
-  to roughly 2030**;
-- that she can build N ADUs — **the statutory cap is not a site capacity**;
-- that the property is not in an HPOZ, fire zone, or hillside area — **we checked nothing**;
-- that no permits exist — **we could not reach LADBS** (Law 4);
-- **any** APN.
+- any unit yield, any "you could build N units" — **`[Q]` is unread** (U-01);
+- that the property "is not rent controlled, so you're free" — **JCO applies,
+  RPO and HE replacement apply, and the Ellis units are likely Protected Units
+  until ≈2027**;
+- *why* RSO reads No — **unknown**, and the tidy Ellis explanation is exactly
+  the kind of inference this file exists to refuse;
+- that she can add 4 detached ADUs — that is the statutory ceiling, and the
+  lot is 5,974.5 sf with a 4,092 sf building on it;
+- that the Ellis ten-year window closes on a specific date — **the look-back
+  is from a secondary summary, not retrieved ordinance text** (U-03);
+- that SB 684 is absolutely foreclosed — high confidence, but the interactive
+  SHRA flag is unchecked (U-04) and `[Q]` could change the density picture;
+- that no permits exist or all four units are legal — **LADBS not retrieved**.
 
-**We can say, and it is genuinely useful:**
+**We can now say, with `official` backing:**
 
-- which programs are keyed to facts she can verify herself in one ZIMAS session;
-- that the programs she named were largely written for vacant or
-  single-family sites, and her property appears to be neither — which is a
-  substantive explanation for why they felt inapplicable;
-- that rent stabilization, not zoning, is likely the binding constraint;
-- that **SB 79 and LA's Low-Rise Ordinance became effective 2026-06-30 /
-  2026-07-01 and she did not mention them**;
-- that the **Westside Community Plans Update** is actively in progress over
-  her community plan area;
-- the exact, ordered verification sequence.
+- the full verified parcel baseline — APN, zoning, lot area, units, year built,
+  community plan, council district, overlays, hazards;
+- that **SB 1123 and SB 9 do not apply** — confirmed on verified zoning;
+- that **CHIP's MIIP is not available** — three `Not Eligible` rows;
+- that **SB 79 and the Low-Rise Ordinance do not reach this parcel** — no major
+  transit stop within ½ mile;
+- that the parcel is **not** hillside, coastal, VHFHSZ, HPOZ, liquefaction or
+  flood — but **is** in a Methane Zone and a Special Grading Area;
+- that **every housing flag penalises removing units and none penalises adding
+  them**, which is a genuine strategic conclusion;
+- that the parcel is an **ED 1 Eligible Site** in the **Highest** TCAC
+  Opportunity Area and a **Very Low VMT Area** — a real, if narrow, affordable
+  pathway she did not know about.

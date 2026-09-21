@@ -8,6 +8,43 @@ absence of record (`PROJECT_LAWS.md` Law 4).
 
 ---
 
+## §0-R2. REVISION 2 — official source retrieved (2026-09-21)
+
+The constraint described in §0 below was **partially lifted by the client
+supplying the document directly** rather than by network access.
+
+| Item | Detail |
+| --- | --- |
+| Document | **ZIMAS Parcel Profile Report**, City of Los Angeles Dept. of City Planning |
+| Subject | 9854 W VIDOR DR · APN **4330005041** |
+| Report date | **2026-09-20** |
+| Received / extracted | 2026-09-21 (12-page PDF, supplied by the case owner) |
+| Authority | **`official`** — first official-authority source in this case |
+| Local copy | `sources/ZIMAS-2026-09-20-parcel-profile-9854-W-Vidor-Dr.txt` |
+| Extraction method | `pypdf` text extraction; pages 1–6 carry data, 7–12 are map sheet and legends |
+
+**Resolved by this single document:** APN, PIN, legal description, lot area,
+zoning, General Plan, community plan, council district, neighborhood council,
+unit count, year built, building area, assessed values, sale history, specific
+plan, overlays, historic status, all hazard layers, all transit/incentive
+designations, and the complete housing-status block.
+
+**Overturned by this document:** the Revision 1 RSO presumption
+(`PAIN_LOG.md` §P-15, `ADVERSARIAL_REVIEW.md` §A-10).
+
+**Not resolved by this document, though expected to be:**
+
+- the **`SHRA / SB 684 Eligibility`** flag — it is an interactive-viewer
+  hyperlink and is **not printed in the Parcel Profile Report** (§P-16);
+- the **`[Q]` condition text** — the zone string carries the qualifier but the
+  report neither expands it nor links it to an ordinance (§P-17);
+- the **reason** `RSO` reports `No` — the field states a value, not a basis.
+
+Network egress remained blocked throughout Revision 2; no additional retrieval
+was possible. The §0 capability record below stands unchanged.
+
+---
+
 ## §0. Retrieval capability of this session — READ BEFORE USING ANY FINDING
 
 The research environment routes all outbound HTTPS through an egress proxy

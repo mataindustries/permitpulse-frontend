@@ -381,3 +381,143 @@ populate a parcel field. If adjacency is used at all, store it as a separate
 `not_a_substitute_for` pointer to the authoritative field — and **block any
 client-facing conclusion that consumes it**. A product whose value is
 source-traceability cannot ship neighborhood averages as parcel facts.
+
+---
+
+# Revision 2 — lessons from the official ZIMAS record (2026-09-21)
+
+## P-15 · A plausible inference from age + unit count was flatly wrong
+
+**Source / system:** PermitPulse analysis vs. ZIMAS Parcel Profile Report,
+9854 W Vidor Dr, APN 4330005041, dated 2026-09-20.
+
+**What made it difficult.** Revision 1 reasoned: *City of Los Angeles + built
+1947 + four units → the LAHD coverage test is met on its face → presumptively
+rent-stabilised.* The reasoning was sound, the inputs were correct (ZIMAS
+confirmed 1947 and four units exactly), and the conclusion was **wrong**.
+
+The City reports **`Rent Stabilization Ordinance (RSO): No`**.
+
+This was not a small error. The RSO presumption was promoted to the central
+finding of Revision 1 — it was the stated "hinge", the first verification step,
+the lead item in the client brief, and the basis for flagging the largest
+economic risk on the ADU pathway. **One authoritative field invalidated the
+spine of the analysis.**
+
+Worse, the presumption was *nearly* right in effect while being wrong in fact.
+The property really is encumbered — `Ellis Act Property: Yes (2017-05-15)`,
+`JCO: Yes`, `HCA/RPO Replacement Review: Yes`, `HE Replacement Required: Yes`,
+`Housing Use within Prior 5 Years: Yes`. A reader who saw the Revision 1
+conclusion vindicated "in spirit" would have learned exactly the wrong lesson.
+**Being accidentally directionally correct is the most dangerous failure mode
+available to an inference engine**, because it trains confidence in the method.
+
+**What a human architect would have to do.** Exactly what happened here: pull
+the parcel record. There is no reasoning path from age and unit count to RSO
+status, because RSO status is an administrative fact about a specific parcel,
+not a derivable property of its physical characteristics.
+
+**How PermitPulse could reduce that work — the core product lesson.**
+
+1. **Never let a derived value stand in for a retrievable authoritative flag.**
+   RSO, TOC, MIIP eligibility, Ellis status, HE replacement, SHRA eligibility
+   and fire/hillside/coastal designations are all **published per-parcel flags**.
+   They are retrievals, not inferences. A rule engine must be structurally
+   incapable of emitting a program verdict when a required authoritative flag
+   is `unknown` — the verdict should be withheld, not estimated.
+2. **Separate `presumption` from `finding` in the type system.** The repo's
+   `CanonicalEvidenceRecord` already forbids AI-authored evidence
+   (`is_ai_generated: false`). It does not yet model *"analyst presumption
+   pending authoritative retrieval"* as a first-class state that **blocks**
+   downstream conclusions. Revision 1 labelled the RSO presumption honestly in
+   prose — and prose labelling did not stop it becoming the headline. **The
+   guardrail has to be structural, not editorial.**
+3. **Rank retrievals by how many conclusions they gate.** One ZIMAS report
+   resolved roughly twenty fields, confirmed four programs closed, opened one
+   new pathway, and overturned the central finding. A queue that had ordered
+   "LAHD RSO lookup" ahead of "ZIMAS parcel report" — as Revision 1 did — was
+   optimising for the wrong thing. **Fetch the widest source first.**
+4. **Report the correction loudly.** This case is now the best regression
+   fixture PermitPulse has: a defensible inference, correct inputs, wrong
+   answer, caught by an authoritative flag. `PROJECT_LAWS.md` Law 12 requires a
+   regression test for every evidence-integrity bug. **This one deserves a
+   fixture: `rso-presumption-overturned-by-parcel-record`.**
+
+---
+
+## P-16 · The decisive flag is in the viewer but not in the printed report
+
+**Source / system:** ZIMAS Parcel Profile Report vs. ZIMAS interactive viewer.
+
+**What made it difficult.** Revision 1 identified the per-parcel
+`SHRA / SB 684 Eligibility` hyperlink as the single decisive source for the
+SB 684 question. The official 12-page Parcel Profile Report **does not contain
+it.** It is an interactive-viewer-only link. The same is true of the SB 79 and
+Low-Rise eligibility layers.
+
+So the canonical printable artifact — the thing a professional would attach to
+a file, email to a client, or archive as evidence — **omits the field that
+decides the question.**
+
+**What a human architect would have to do.** Know that the printed report is
+incomplete, return to the interactive viewer, click through the menu, and
+screenshot the result, because there is no shareable permalink.
+
+**How PermitPulse could reduce that work.** Treat "the authoritative document"
+and "the authoritative dataset" as different things, and record per-field
+*which surface* a value came from. A case is not source-complete because the
+PDF was obtained; it is source-complete when every required field has been
+retrieved from a surface that actually carries it.
+
+---
+
+## P-17 · The most consequential field on the parcel is an unexpanded abbreviation
+
+**Source / system:** ZIMAS `Zoning: [Q]R3-1-O`.
+
+**What made it difficult.** The zone string carries four pieces of
+information. ZIMAS expands none of them. The `[Q]` qualified condition may —
+via case CPC-1988-341-ZC, *"limit the land so designated to the RD1.5
+density"* — cut permitted density from roughly 7 units to roughly 3 on this
+5,974.5 sf lot, which would make the existing four units legal nonconforming
+and leave **zero residual density**.
+
+ZIMAS lists the zone string in one section and the case numbers in another and
+**never connects them**. The operative condition text is in an ordinance that
+is not linked from the report. A reader who takes "R3" at face value overstates
+capacity by roughly 2×.
+
+Revision 1's adjacency guess produced "LAR3" — right about the zone, blind to
+the qualifier. **A half-correct zoning answer is worse than none, because it
+reads as an answer.**
+
+**What a human architect would have to do.** Notice the bracketed prefix, hunt
+the originating ordinance through the case-number list, read the condition, and
+apply it against the lot area by hand.
+
+**How PermitPulse could reduce that work.** Parse the zone string into its
+components and **refuse to report a density or unit yield while a `[Q]`, `[T]`
+or `D` condition is present and unread.** Link the qualifier to its originating
+case and ordinance automatically. This is deterministic string-and-lookup work —
+precisely what `PROJECT_LAWS.md` Law 13 says to prefer over judgment.
+
+---
+
+## P-18 · Two adjacent official fields invite the opposite conclusion
+
+**Source / system:** ZIMAS transit fields.
+
+**What made it difficult.** The same report states
+`AB 2097: Within a half mile of a Major Transit Stop: **No**` and
+`High Quality Transit Corridor (within 1/2 mile): **Yes**`. Both are correct;
+they are different statutory tests (a *stop* test vs. a *corridor* test). A
+reader scanning for "transit" sees an encouraging Yes and reaches the wrong
+conclusion about TOC, MIIP, AB 2097 parking and SB 79 — all of which are in
+fact closed here, as four other rows confirm.
+
+**How PermitPulse could reduce that work.** Where two fields are routinely
+confused, render them as a single resolved answer with both inputs shown:
+*"Not near a qualifying major transit stop (AB 2097: No; TOC: Not Eligible;
+MIIP: Not Eligible ×3). Near a high-quality transit corridor, which is a
+different test and does not confer these incentives."* **Disambiguation is a
+deliverable.**

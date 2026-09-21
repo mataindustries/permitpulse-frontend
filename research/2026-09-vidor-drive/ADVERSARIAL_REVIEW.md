@@ -206,3 +206,119 @@ timing argument built on them needs the statutory text.
 | A-07 | ADU pathway is safest | Survives; RSO-on-new-ADU risk flagged |
 
 **Conclusions that survived unchanged: none without qualification.**
+
+---
+---
+
+# Revision 2 — adjudicated against the official ZIMAS record (2026-09-21)
+
+Revision 1's adversarial pass was conducted without any authoritative source.
+The ZIMAS Parcel Profile Report dated 2026-09-20 now settles most of it. This
+section marks each Revision 1 attack as **upheld**, **overturned**, or
+**moot**, and adds the attacks that only became possible with real data.
+
+## Adjudication of Revision 1
+
+| ID | Revision 1 position | Official record | Outcome |
+| --- | --- | --- | --- |
+| A-01 | SB 1123 fails only on zoning, which is unverified | Zoning `[Q]R3-1-O` — multifamily | **UPHELD, now confirmed.** SB 1123 definitively out |
+| A-02 | Adjacency reasoning is unsafe | `[Q]R3-1-O` — "R3" right, `[Q]` missed | **UPHELD, and worse than stated.** Half-right answer overstated capacity ~2× |
+| A-03 | RSO presumption survives with exemptions | **`RSO: No`** | **OVERTURNED.** See A-10 |
+| A-04 | AB 130 remainder parcel might revive SB 684 | Lot 5,974.5 sf; building 4,092 sf; density possibly capped at ~3 | **OVERTURNED ON ARITHMETIC, not law.** The legal reading may still be right; there is no room to use it |
+| A-05 | SB 79 framing overstated; Low-Rise is the live instrument | **No major transit stop within ½ mile** | **UPHELD AND EXTENDED.** Neither reaches this parcel |
+| A-06 | Property identity unresolved — largest risk | APN 4330005041 confirmed; all three search-derived APNs wrong | **RESOLVED.** The refusal to adopt a search-derived APN was correct |
+| A-07 | ADU pathway safest; RSO-on-new-ADU risk | `RSO: No` removes that risk; lot is 5,974.5 sf | **UPHELD on logic, halved on yield** |
+| A-08 | Aggregator agreement is not corroboration | Aggregators were **exactly right** (1947, 4 units, 4,092 sf, 8bd/4ba) | **UPHELD AS METHOD.** Right answer, unearned confidence — holding at `medium` was still correct |
+| A-09 | Effective-date drift unresolved | — | **MOOT** for this parcel |
+
+## A-10 · The overturned conclusion, examined
+
+**What broke.** Revision 1 held the property presumptively rent-stabilised on
+the LAHD coverage test (City of LA, pre-1978-10-01, 2+ units). ZIMAS reports
+**`RSO: No`**.
+
+**Why the error deserves scrutiny rather than a shrug.** The inference was
+defensible and the inputs were *verified correct* — 1947 and four units both
+confirmed. The failure was not bad data or bad logic. It was **applying program
+logic to a parcel before retrieving the parcel's authoritative flags.** There
+is no reasoning path from building age to RSO status, because RSO status is an
+administrative fact, not a physical property.
+
+**The subtler danger.** The presumption was directionally useful while being
+factually wrong: the property *is* heavily encumbered, just by different
+instruments (Ellis, JCO, HCA/RPO, HE replacement). Anyone treating Revision 1
+as "basically right" would draw precisely the wrong methodological lesson.
+Recorded at `PAIN_LOG.md` §P-15 and proposed as a regression fixture.
+
+## New attacks, only possible with real data
+
+### A-11 · ATTACK: "RSO = No because of the 2017 Ellis filing."
+**Result: REFUSED — not established.**
+
+It is the most economical reading and it may well be right. But the report
+asserts **no causal link** between the two fields, and the LAMC mechanism by
+which an Ellis withdrawal affects the ZIMAS RSO field was not retrieved. Five
+other candidates remain live (`PROPERTY_EVIDENCE.md` §E-11i), including the
+possibility that the field reports *registration* rather than *coverage*.
+**Marked `UNKNOWN`. This is the single place in the file where a satisfying
+answer was available and deliberately not taken.**
+
+### A-12 · ATTACK: "The `[Q]` is harmless boilerplate."
+**Result: CANNOT DISMISS — elevated to the top open item.**
+
+ZIMAS carries case CPC-1988-341-ZC: *"ZONE CHANGE TO LIMIT THE LAND SO
+DESIGNATED TO THE RD1.5 DENSITY FOR PROPERTY IN THE VICINITY OF PICO BOULEVARD
+AND BEVERWIL DRIVE."* The parcel is in that vicinity and carries a `[Q]`.
+If linked, permitted density ≈ 3 against 4 existing — zero residual.
+
+**Counter-argument preserved:** ZIMAS never states that this case produced this
+parcel's `[Q]`. The attribution is inference, and this file has just been burned
+by an inference. So it is recorded as unresolved and **no unit yield is quoted
+anywhere in Revision 2.**
+
+### A-13 · ATTACK: "SB 684 is now definitively dead."
+**Result: HIGH CONFIDENCE, NOT ABSOLUTE.**
+
+Three verified triggers support the `NOT SUPPORTED` verdict. But: (a) the
+interactive `SHRA / SB 684 Eligibility` flag is **not in the printed report**
+and remains unchecked; (b) `Housing Use within Prior 5 Years` is the City's HCA
+flag, not a direct statement of *tenant* occupancy, which is the actual SHRA
+test; (c) if `[Q]` turns out not to cap density, headroom exists. Stated as
+`NOT SUPPORTED` with those three caveats visible.
+
+### A-14 · ATTACK: "The Ellis ten-year window closes 2027-05-15, so advise waiting."
+**Result: DO NOT SAY THIS YET.**
+
+The ten-year Protected Unit look-back comes from an **LA Planning fact-sheet
+summary retrieved via search in Revision 1 — not from ordinance text.** Ellis
+also carries separate LAMC re-rental restrictions and former-tenant rights of
+unknown current status. The date is the most decision-relevant figure in the
+file **and the least well-evidenced.** Flagged for LAHD confirmation; excluded
+from the brief as an actionable deadline.
+
+### A-15 · ATTACK: "This whole analysis is just reading ZIMAS back to her."
+**Result: PARTIALLY CONCEDED — see the closing answer to the user.**
+
+The individual fields are ones Harper could pull herself in ten minutes. What
+she could not readily do: recognise that `RSO: No` does **not** mean
+unencumbered; spot that four `Not Eligible` rows jointly foreclose CHIP's main
+path; know that `High Quality Transit Corridor: Yes` and
+`Major Transit Stop: No` are different tests pointing the same way; decode
+`[Q]R3-1-O` against a 1988 zone-change case; or see that `ED 1 Eligible` +
+`TCAC Highest` + `AB 2334 Very Low VMT` compose into a coherent pathway.
+**The fields are hers. The interactions are the work.** Conceded honestly
+rather than defended.
+
+## Summary of Revision 2 corrections
+
+| Conclusion | Change |
+| --- | --- |
+| RSO presumptively applies | **OVERTURNED** — `RSO: No` |
+| SB 1123 not applicable | **CONFIRMED** on verified zoning |
+| SB 9 not applicable | **CONFIRMED** on verified zoning |
+| CHIP MIIP geography unknown | **CONFIRMED NOT ELIGIBLE** ×3 |
+| SB 79 / Low-Rise unknown, possibly large upside | **NOT SUPPORTED** — no qualifying stop within ½ mile |
+| SB 684 likely unavailable / verify | **NOT SUPPORTED** — three verified triggers |
+| ADU strongest pathway | **UPHELD**, yield revised sharply down on verified lot area |
+| AHIP unlikely to matter | **UPGRADED** — ED 1 + TCAC Highest + AB 2334 stack favourably |
+| Ellis Act, HE replacement, Methane Zone, Special Grading Area, `[Q]` | **ENTIRELY MISSED in Revision 1** |
