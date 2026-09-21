@@ -29,11 +29,33 @@ dated 2026-09-20. Analysis date: 2026-09-21.**
 | Methane Zone · Special Grading Area | **Yes · Yes** | ZIMAS `official` |
 | Hillside · VHFHSZ · Coastal · HPOZ · Liquefaction | **No / None** | ZIMAS `official` |
 
-**The `[Q]` density question governs everything.** See `PROPERTY_EVIDENCE.md`
-§2 E-04d. If `[Q]` imposes RD1.5 density (per case CPC-1988-341-ZC), permitted
-units ≈ **3** against **4 existing** → legal nonconforming, **zero residual
-density**. At unqualified R3 the figure is 7. **This single unretrieved
-document is worth more than every remaining line of research in this file.**
+### The `[Q]` question — resolved as far as evidence allows (Revision 3)
+
+**The condition text was not obtained, and it is not obtainable online.** Per
+LADBS Information Bulletin P/GI 2020-025, City ordinances below **170,000** are
+held only at the **City Archives**. ORD-165986 is below that line. Two of the
+four candidate ordinances were **eliminated** (ORD-171492 = WLA TIMP Specific
+Plan 1997; ORD-183497 = 2015 mansionization ICO). None was confirmed.
+See `PROPERTY_EVIDENCE.md` §E-04e.
+
+**But the `[Q]` matters far less than Revision 2 assumed.** Its *relevance* is
+now established even though its *text* is not:
+
+| Pathway | Blocked by a `[Q]` density cap? |
+| --- | --- |
+| **ADU / SB 1211** | **NO** — state ADU law preempts local density limits; ADUs are not counted against density |
+| **100% affordable (AB 2334)** | **NO** — Very Low VMT Area + designated county → **unlimited density bonus** |
+| Market-rate density bonus | **YES** — the cap sets the base the bonus multiplies |
+| Subdivision / SB 684 / Small Lot | **YES** — already `NOT SUPPORTED` on other grounds |
+| Remodel / floor-area expansion | **NO** — LAMC 12.23: floor area does not increase density nonconformity |
+
+**Consequence for this case: the `[Q]` does not gate either of the two
+pathways that remain open.** Revision 2 called it "worth more than every
+remaining line of research." That was wrong — it is decisive only for
+market-rate redevelopment, which is closed here for independent reasons.
+
+If the cap is RD1.5 (1,500 sf/unit per LAMC 12.09.1): 5,974.5 ÷ 1,500 = **3
+permitted** against **4 existing** → legal nonconforming as to density.
 
 ---
 
@@ -147,6 +169,35 @@ filing compounds it: Ellis-withdrawn units within ten years are Protected Units.
 
 ---
 
+## 3e. AB 2334 — the unlimited-density finding *(new in Revision 3)*
+
+ZIMAS confirms **AB 2334 Very Low Vehicle Travel Area: Yes**. Los Angeles
+County is a designated county under the statute.
+
+AB 2334 (Wicks, 2022) provides that a housing development project in an
+urbanized very low vehicle travel area, in a designated county, where **at
+least 80% of units are restricted to lower income households and no more than
+20% to moderate income**, receives:
+
+- an **unlimited density bonus** — i.e. no density cap;
+- an automatic **+3 stories or 33 feet** of height;
+- **four** incentives or concessions.
+
+**This is the one pathway on the parcel where the `[Q]` density condition —
+whatever it says — becomes irrelevant**, because the density limit itself is
+removed. Stacked with `TCAC Opportunity Area: Highest` and
+`ED 1 Eligibility: Eligible Site`, the 100% affordable route is the only one
+whose verified designations all point the same direction.
+
+**Classification: `LIKELY / REQUIRES VERIFICATION`** — the AB 2334 mechanics
+come from secondary legal summaries and a LA City Planning memo identified but
+not opened (`planning.lacity.gov/odocument/ce5fae12-…/AB 2334, 1551, 682 (2022)
+Density Bonus Memo.pdf`). ED 1's current operative terms in 2026 are also
+unverified (`U-11`). And the affordability requirement makes this a different
+business from what Harper is likely contemplating.
+
+---
+
 ## 4. ADU / JADU — including SB 1211
 
 ### Verdict: **LIKELY AVAILABLE and still the strongest practical pathway — but the verified lot size cuts the realistic yield far below the statutory cap**
@@ -178,8 +229,10 @@ outcome is **one detached ADU and/or one conversion ADU**, subject to survey.
 - **WLA TIMP Specific Plan** — trip-mitigation requirements may attach.
 - **Minimum Density Requirement: Yes (Citywide)** — interacts with new
   development on a Housing Element site.
-- `[Q]` condition — may or may not constrain ADUs; state ADU law substantially
-  overrides local density limits, but the `[Q]` text is unread.
+- `[Q]` condition — **resolved: does not block ADUs.** State ADU law preempts
+  local density limits and ADUs are not counted against density. The unread
+  `[Q]` text does not gate this pathway. *(Secondary sources; statutory text
+  not retrieved.)*
 
 **Still unknown:** building footprint, lot coverage, existing parking and
 circulation, open-space compliance, and whether all four units are legally
@@ -291,7 +344,8 @@ None of these were on the board before the ZIMAS report.
 | CHIP — MIIP | Unknown geography | **NOT ELIGIBLE — CONFIRMED** | Three `Not Eligible` rows |
 | CHIP — AHIP | Citywide, unlikely to suit | **LIKELY AVAILABLE — strongest density path** | TCAC Highest + AB 2334 + ED 1 |
 | CHIP — State Density Bonus | Available | **Available but numerically thin** | Base density unresolved pending `[Q]` |
-| ADU / SB 1211 | Likely — strongest path | **LIKELY — still strongest, yield much smaller** | RSO risk removed; lot only 5,974.5 sf |
+| ADU / SB 1211 | Likely — strongest path | **LIKELY — still strongest; `[Q]` confirmed not to block it** | RSO risk removed; gate is physical capacity on 5,974.5 sf, not zoning |
+| AB 2334 unlimited density (100% affordable) | Not identified | **LIKELY AVAILABLE — bypasses the `[Q]` entirely** | Requires 80%+ lower-income; ED 1 terms unverified |
 | SB 79 / Low-Rise | Unknown — largest upside | **NOT SUPPORTED** | No major transit stop within ½ mile |
 | Small Lot Subdivision | Available by zone | **NOT SUPPORTED in practice** | Same obstacles as SB 684 |
 | SB 9 | Not applicable | **NOT APPLICABLE — CONFIRMED** | Multifamily zone verified |

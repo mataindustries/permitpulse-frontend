@@ -322,3 +322,133 @@ rather than defended.
 | ADU strongest pathway | **UPHELD**, yield revised sharply down on verified lot area |
 | AHIP unlikely to matter | **UPGRADED** — ED 1 + TCAC Highest + AB 2334 stack favourably |
 | Ellis Act, HE replacement, Methane Zone, Special Grading Area, `[Q]` | **ENTIRELY MISSED in Revision 1** |
+
+
+---
+---
+
+# Revision 3 — adversarial check on the `[Q]` conclusion (2026-09-21)
+
+## A-16 · ATTACK: "The `[Q]` is a density condition limiting the parcel to RD1.5."
+### Result: **NOT ESTABLISHED — and the attack found a hole I had not seen**
+
+**What I claimed.** Working hypothesis: the `[Q]` derives from CPC-1988-341-ZC
+and caps density at RD1.5 (1,500 sf/unit), yielding 3 permitted units against
+4 existing.
+
+**What broke it.** A `[Q]` condition in Los Angeles **is not necessarily about
+density at all.** Practitioner guidance describes `[Q]` conditions as
+site-specific restrictions imposed by Council ordinance that *"may cap unit
+counts, restrict uses, impose setbacks, or require affordability — beyond
+anything the base zone says."*
+
+So the possibility space for this parcel's `[Q]` is wider than assumed:
+
+| If the `[Q]` is… | Effect on the ADU pathway |
+| --- | --- |
+| A **density cap** (the hypothesis) | **None** — state ADU law preempts local density limits |
+| A **setback or yard condition** | **Possibly material** — depends on whether the ADU qualifies as a statewide-exemption ADU under Gov. Code § 66323 |
+| A **use restriction** | Unknown |
+| An **affordability requirement** | Unknown |
+
+**Correction applied.** The Revision 3 statement *"the `[Q]` does not block
+ADUs"* is **too strong as written.** The defensible statement is:
+
+> **If** the `[Q]` is a density condition — which the CPC-1988-341-ZC
+> description suggests but does not prove — it does not block ADUs, because
+> state ADU law preempts local density limits. **If** it imposes something
+> else, its effect on ADUs is **unknown**.
+
+This matters because Revision 3 used the ADU finding to *demote* the `[Q]`
+from the top of the queue. That demotion is still right on balance — density
+is the most probable reading given the case description, and the two
+pathways that survive are the two least exposed — **but it is a probabilistic
+judgment, not a proof, and it is now labelled as one.**
+
+## A-17 · ATTACK: "ZIMAS links each `[Q]` to its creating ordinance, so the chain should have been trivial."
+### Result: **CONTRADICTED BY THE ARTIFACT ITSELF**
+
+One practitioner source asserts ZIMAS *"links each condition to the City
+Council ordinance that created it, so you can read the source document in one
+click."* Another, in the same result set, states the opposite: *"`[Q]`
+conditions are not always visible in ZIMAS… Many are buried in City Council
+ordinances from decades ago."*
+
+**The primary artifact settles it.** The official Parcel Profile Report for
+this parcel (2026-09-20) contains:
+
+- the zone string `[Q]R3-1-O`, with **no condition text**;
+- a flat `CASE NUMBERS` list of 19 entries with **no stated relationship**
+  between any ordinance and the `[Q]`.
+
+**There is no link, one click or otherwise, in the document the City produces.**
+Whether the interactive viewer exposes one is untested and now recorded as an
+open item. Two secondary sources disagreed; the primary source decided it.
+
+## A-18 · ATTACK: "ORD-165986 is obviously the ordinance."
+### Result: **STILL REFUSED — and the refusal is now better grounded**
+
+The prior pass named ORD-165986 a candidate; the user correctly instructed
+that the association not be assumed. Revision 3 upholds that.
+
+What changed: **two candidates were positively eliminated**, which narrows the
+field without confirming anything.
+
+- **ORD-171492** → identified as the **West LA Transportation Improvement and
+  Mitigation Specific Plan**, adopted 1997-03-08. Explains ZIMAS's specific-plan
+  flag. Not a `[Q]` source.
+- **ORD-183497** → identified as the **2015 mansionization Interim Control
+  Ordinance** covering 15 neighborhoods including Beverlywood. Single-family
+  scope, expired. Not a `[Q]` source.
+
+ORD-165986 remains the leading candidate on **era consistency alone** — which
+is the same class of reasoning (plausible inference from indirect
+characteristics) that produced the RSO error in Revision 1. **Recorded as
+unverified.**
+
+## A-19 · ATTACK: "A later ordinance or law already removed or overrode the `[Q]`."
+### Result: **NO EVIDENCE OF REMOVAL — one future change identified**
+
+Searched for later ordinances, Re:Code LA translation, and state preemption.
+
+- **No ordinance was found removing or amending this parcel's `[Q]`.** It is
+  present on the City's record as of **2026-09-20**, which is itself the best
+  available evidence that it remains in force.
+- **Re:Code LA / New Zoning Code (Chapter 1A):** Q conditions persist under
+  Chapter 1 until a Community Plan area is remapped. This parcel's area is not
+  yet remapped — the **Westside Community Plans Update (CPC-2018-7546-CPU)** is
+  the vehicle, and it is in progress. **That is a real future change to watch,
+  not a present override.**
+- **State law:** ADU preemption and AB 2334 unlimited density **bypass** a
+  density condition for specific project types; neither **removes** the `[Q]`.
+  The distinction matters — the condition survives and continues to bind
+  everything outside those statutory tracks.
+
+## A-20 · ATTACK: "Demoting the `[Q]` was self-serving — it excused a failed retrieval."
+### Result: **FAIR CHALLENGE, PARTIALLY CONCEDED**
+
+We set out to retrieve the `[Q]`, failed, and then concluded it mattered less
+than we had said. That sequence deserves suspicion.
+
+**In defence:** the demotion rests on three findings established
+*independently* of the failure — state ADU density preemption, AB 2334
+unlimited density in a Very Low VMT Area (a ZIMAS-verified designation), and
+LAMC 12.23's treatment of floor area vs. unit count. Any of those would have
+demoted the `[Q]` regardless of whether the ordinance was obtained.
+
+**Conceded:** the demotion is now hedged by A-16 — it holds cleanly only if the
+`[Q]` is a density condition. And the honest lesson is not about the `[Q]` at
+all but about **queue order** (`PAIN_LOG.md` §P-20): the item should have been
+ranked by what its answer would change, and that test was never applied before
+spending a pass on it.
+
+## Summary of Revision 3 corrections
+
+| Conclusion | Change |
+| --- | --- |
+| `[Q]` caps density at RD1.5 | **UNVERIFIED HYPOTHESIS** — a `[Q]` may instead restrict use, setbacks or affordability |
+| `[Q]` does not block ADUs | **SOFTENED** — true if it is a density condition; unknown otherwise |
+| ORD-165986 is the ordinance | **STILL UNVERIFIED** — two other candidates eliminated, none confirmed |
+| `[Q]` is the highest-value unknown | **DEMOTED** — it gates only pathways already closed |
+| A later law removed the `[Q]` | **NO EVIDENCE** — but the Westside CPU will eventually remap it |
+| The ordinance is retrievable | **NO** — below the City's 170,000 online cutoff; City Archives only |

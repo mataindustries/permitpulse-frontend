@@ -4,7 +4,7 @@ Case ID: `PP-CASE-2026-09-VIDOR`
 Opened: 2026-09-21
 Research analyst: PermitPulse (automated research pass, not human-reviewed)
 Subject: Harper Halprin, AIA — AAHA Studio (prospective user, product-validation case)
-Status: **REVISION 2 — PARCEL RECORD VERIFIED · BRIEF STILL GATED**
+Status: **REVISION 3 — `[Q]` CHAIN TRACED (BREAKS) · BRIEF GATED ON 2 LAHD ITEMS**
 
 ## Read this first
 
@@ -18,8 +18,20 @@ rent-stabilised. The City reports `RSO: No`.** The inference was defensible and
 its inputs were confirmed correct — and the conclusion was wrong. See
 `PAIN_LOG.md` §P-15 and `ADVERSARIAL_REVIEW.md` §A-10.
 
-Network egress remained blocked, so LADBS, LAHD, the Assessor, statute text and
-the `[Q]` ordinance are **still unretrieved**. See `RESEARCH_LEDGER.md` §0-R2.
+**Revision 3 (2026-09-21).** Traced CPC-1988-341-ZC → ordinance → `[Q]` text.
+**The chain breaks at step two for a documented structural reason:** City of
+Los Angeles ordinances below number 170,000 are not published online at all
+(LADBS Information Bulletin P/GI 2020-025) and exist only at the City Archives.
+Two candidate ordinances were eliminated; none confirmed.
+
+The `[Q]` was then **demoted**: a density condition would not block ADUs
+(state preemption) or a 100% affordable project (AB 2334 unlimited density in
+a Very Low VMT Area), and would not affect remodelling (LAMC 12.23). It gates
+only market-rate redevelopment, which is closed here on other grounds. See
+`PAIN_LOG.md` §P-20 for the queue-ordering lesson.
+
+Network egress remained blocked, so LADBS, LAHD, the Assessor and statute text
+are **still unretrieved**. See `RESEARCH_LEDGER.md` §0-R3 and §0-R2.
 
 Under `PROJECT_LAWS.md`:
 

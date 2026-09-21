@@ -521,3 +521,83 @@ confused, render them as a single resolved answer with both inputs shown:
 MIIP: Not Eligible ×3). Near a high-quality transit corridor, which is a
 different test and does not confer these incentives."* **Disambiguation is a
 deliverable.**
+
+---
+
+# Revision 3 — lessons from tracing the `[Q]` ordinance chain (2026-09-21)
+
+## P-19 · The controlling document is not online, and never was
+
+**Source / system:** City of Los Angeles ordinance publication policy.
+
+**What made it difficult.** The `[Q]` condition on this parcel is the single
+zoning fact that determines market-rate development capacity. Tracing it
+requires the adopting ordinance. Per **LADBS Information Bulletin
+P/GI 2020-025**, City ordinances numbered **170,000 and higher** are online
+from 1994-08-24 forward; **anything below 170,000 exists only at the City
+Archives** (Piper Tech, 555 Ramirez St, Room 320, 213-473-8440).
+
+ORD-165986 — the leading candidate — is below that line. **So is every other
+era-plausible candidate on this parcel.** The document is not behind a
+paywall, a login, or this session's egress policy. It is not on the internet.
+
+Worse, **ZIMAS cites the ordinance number without any indication that the
+document is unobtainable online.** A researcher sees `ORD-165986` beside a
+live zoning condition and reasonably assumes a lookup exists. The failure
+looks like incompetence rather than policy.
+
+**What a human architect would have to do.** Discover the 170,000 cutoff —
+which is documented in a *building-department information bulletin*, not in
+ZIMAS or on any Planning page — then telephone or visit the City Archives in
+person and wait for a physical retrieval.
+
+**How PermitPulse could reduce that work.** Maintain a **retrievability map**
+per jurisdiction: for each document class, whether it is online, gated,
+archive-only, or absent, and the exact request channel. Then a case can say
+*"this fact requires a City Archives request, phone 213-473-8440, allow N
+days"* instead of *"not found."* The distinction between **"we could not find
+it"** and **"it is structurally unavailable and here is how to get it"** is
+most of the professional value in a research product, and it is exactly what
+`PROJECT_LAWS.md` Law 4 demands.
+
+---
+
+## P-20 · We nearly optimised for the wrong unknown
+
+**Source / system:** PermitPulse's own Revision 2 prioritisation.
+
+**What made it difficult.** Revision 2 declared the `[Q]` condition *"worth
+more than every remaining line of research in this file"* and made it the
+#1 next retrieval. Revision 3 chased it, failed to retrieve it — **and then
+discovered it barely matters for this client.**
+
+A `[Q]` density cap does **not** block:
+
+- **ADUs** — state ADU law preempts local density limits and ADUs are not
+  counted against density;
+- **a 100% affordable project** — AB 2334 grants unlimited density in a Very
+  Low VMT Area, which ZIMAS confirms this parcel is;
+- **remodelling or floor-area expansion** — LAMC 12.23 provides that floor
+  area does not increase density nonconformity; only unit count does.
+
+It gates market-rate redevelopment and subdivision — **both already
+`NOT SUPPORTED` for independent reasons.** So the highest-priority unknown in
+the file was gating a pathway that was already closed.
+
+**The methodological error:** Revision 2 ranked unknowns by *how much
+uncertainty they removed* rather than by *how much they changed the
+recommendation*. Those are different, and only the second one matters to a
+client. An unknown that resolves cleanly but changes nothing is a research
+luxury; an unknown that is messy but flips the advice is the job.
+
+**How PermitPulse could reduce that work.** Rank open items by **decision
+impact**, not information content: for each unknown, record *which
+recommendation flips if the answer goes the other way.* An unknown that flips
+nothing gets deprioritised however satisfying it would be to close. In this
+case that test, applied at the start of Revision 3, would have sent us to LAHD
+first — which is where the two remaining client-facing blockers actually live.
+
+**This is the second time in three revisions that an ordering error cost a
+pass.** Revision 1 queued the LAHD lookup ahead of the ZIMAS parcel report
+(§P-15); Revision 3 queued the `[Q]` ordinance ahead of LAHD. Both times the
+fix is the same: **ask what the answer would change before going to get it.**

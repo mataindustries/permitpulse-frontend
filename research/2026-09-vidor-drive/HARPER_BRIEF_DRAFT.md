@@ -1,14 +1,18 @@
 > **INTERNAL GATE — DO NOT SEND.**
-> Revision 2. The parcel record is now verified against the City's official
-> ZIMAS Parcel Profile Report (2026-09-20), and most of this brief is now
-> source-backed. **Three items still block sending:**
-> 1. The **`[Q]` condition text** is unread, so no unit yield can be stated.
-> 2. The **reason RSO reads "No"** is unknown, so the Ellis history cannot be
->    explained to her.
-> 3. The **Ellis ten-year look-back date** rests on a secondary summary, not
->    ordinance text, so it must not be presented as a deadline.
-> Remove this banner only after LAHD and the `[Q]` ordinance are retrieved and
-> a human has reviewed.
+> Revision 3. Parcel record verified against the City's official ZIMAS Parcel
+> Profile Report (2026-09-20). The `[Q]` chain was traced in Revision 3 and
+> **cannot be resolved online** — the ordinance predates the City's 170,000
+> digitisation cutoff and exists only at the City Archives. It has been
+> **demoted**: it gates only market-rate redevelopment, which is closed here
+> for other reasons.
+>
+> **Two blockers remain, and both are answerable by one LAHD inquiry:**
+> 1. **Why does RSO read "No"** on a 1947 four-unit building?
+> 2. **What is the current effect of the 2017 Ellis filing**, including whether
+>    any deadline is approaching? The ten-year look-back we have is from a
+>    secondary summary, not ordinance text, so no date may be stated.
+>
+> Remove this banner only after LAHD responds and a human has reviewed.
 
 ---
 
@@ -66,14 +70,25 @@ Why this route and not the others: every housing flag on your parcel penalises
 adding new ones**. That asymmetry is the single most useful thing the record
 tells us.
 
-**A second, narrower possibility worth knowing exists.** Your parcel is flagged
-**ED 1 Eligible**, sits in the **Highest** TCAC Opportunity Area, and is a
-**Very Low Vehicle Travel Area** under AB 2334. Stacked together, those three
-designations mean a **100% affordable** project here would not face the density
-ceiling that otherwise constrains this lot. That is a different business from
-adding units to your own building — it implies an affordable developer and a
-financing stack — and we raise it only because the designations genuinely line
-up, and nothing else on this parcel does.
+**A second, narrower possibility — and it is a big one if you ever want it.**
+Your parcel is flagged **ED 1 Eligible**, sits in the **Highest** TCAC
+Opportunity Area, and is a **Very Low Vehicle Travel Area**.
+
+That third flag is the significant one. Under AB 2334, a project in a very low
+vehicle travel area in a designated county — Los Angeles qualifies — where at
+least 80% of units are restricted to lower-income households receives an
+**unlimited density bonus**, an automatic **three additional stories or 33
+feet**, and four incentives or concessions.
+
+Unlimited density means exactly that: the density ceiling that otherwise
+constrains this lot, including the `[Q]` condition discussed below, stops
+applying. This is the only route on your property where every verified
+designation points the same way.
+
+The obvious catch is the 80% affordability requirement, which makes this a
+different business from adding units to your own building. We raise it because
+nothing else on this parcel lines up this cleanly, and because it is not
+something you would find by reading the report.
 
 ---
 
@@ -116,24 +131,50 @@ ft building, there is very little left to subdivide even if the law allowed it.
 
 ---
 
+## ABOUT THE `[Q]` ON YOUR ZONING
+
+Worth explaining, because it looks alarming and mostly is not.
+
+Your zone reads `[Q]R3-1-O`. The bracketed `[Q]` is a site-specific condition
+imposed by Council ordinance that sits on top of the base R3 zone. Your record
+also lists case **CPC-1988-341-ZC**, described as a zone change *"to limit the
+land so designated to the RD1.5 density"* in the vicinity of Pico and Beverwil.
+
+If that is your condition, permitted density would be about **three units** on
+your lot — against four existing. Your building would be **legal
+nonconforming** as to density. Unqualified R3 would instead allow about seven.
+
+**We could not obtain the ordinance, and neither can anyone else online.**
+City of Los Angeles ordinances numbered below 170,000 are not published in any
+online system; they are held at the City Archives (555 Ramirez St, Room 320,
+213-473-8440). Every era-plausible candidate for your condition is below that
+number. We did eliminate two of the candidates listed on your record —
+Ordinance 171492 is the West LA Transportation Specific Plan, and 183497 is a
+2015 mansionization ordinance — but we confirmed none.
+
+**Here is why we are not treating this as urgent.** Even on the worst reading,
+a density cap would not stop the two things actually available to you:
+
+- **ADUs are not counted against density.** State ADU law preempts local
+  density limits, so a `[Q]` density cap does not block an ADU.
+- **A 100% affordable project has no density cap at all**, per AB 2334 above.
+- **Remodelling or enlarging the existing building does not worsen a density
+  nonconformity** — under the City's nonconforming rules, floor area does not
+  affect density nonconformity; only changing the number of units does.
+
+What it would block is market-rate redevelopment and subdivision — and those
+are already closed to you for the separate reasons set out above.
+
+One honest caveat: a `[Q]` condition can also restrict uses, impose setbacks,
+or require affordability rather than cap density. The case description points
+to density, but we have not read the document. If you ever pursue something
+where the answer matters, pull it from the Archives first.
+
+---
+
 ## WHAT NEEDS VERIFICATION
 
-**1. The `[Q]` condition on your zoning — the most important open item.**
-Your zone is `[Q]R3-1-O`. The bracketed `[Q]` is a qualified condition whose
-text is not in the parcel report. Your record also lists case
-**CPC-1988-341-ZC**, described as a zone change *"to limit the land so
-designated to the RD1.5 density"* in the vicinity of Pico and Beverwil.
-
-If that condition governs your parcel, permitted density is roughly **three
-units** on your lot area — against four existing, which would make your
-building legal nonconforming with **no residual density**. Unqualified R3 would
-instead allow about seven.
-
-We are not going to tell you which it is, because the report does not link the
-case to the condition and we have not read the ordinance. **Until that document
-is pulled, no one should quote you a unit count** — including us.
-
-**2. Why your property shows `RSO: No`.** A 1947 four-unit building in the City
+**1. Why your property shows `RSO: No`.** A 1947 four-unit building in the City
 of Los Angeles would ordinarily fall under the Rent Stabilization Ordinance.
 Your record says it does not. The record states the fact and **not the reason**,
 and we are not going to guess at it. The 2017 Ellis filing is the most obvious
@@ -149,7 +190,7 @@ is unencumbered:
 - `HE Replacement Required: Yes` — your parcel is a Housing Element site.
 - The Ellis filing remains on the record.
 
-**3. The Ellis Act history and its current effect.** Filed 15 May 2017. Ellis
+**2. The Ellis Act history and its current effect.** Filed 15 May 2017. Ellis
 carries re-rental restrictions, former-tenant rights, and a look-back period
 during which withdrawn units count as protected units. We have a secondary
 description of that look-back, **not the ordinance text**, so we are
@@ -157,31 +198,39 @@ deliberately not putting a date in front of you. Confirm with LAHD — and ask
 specifically whether any deadline is approaching, because if the look-back
 works the way the secondary sources describe, timing could matter.
 
-**4. LADBS permit history and certificate of occupancy.** Confirms all four
+**3. LADBS permit history and certificate of occupancy.** Confirms all four
 units are legally permitted — which matters, because the ADU count is computed
 from *legal* units — and surfaces any unpermitted work before you open a file
 with the City.
 
-**5. A measured existing-conditions survey.** Footprint, coverage, setbacks,
+**4. A measured existing-conditions survey.** Footprint, coverage, setbacks,
 parking, open space. This is what converts "up to four detached ADUs" into a
-real number.
+real number — and on a 5,974.5 sq ft lot already carrying a 4,092 sq ft
+building, the real number is what matters, not the statutory one.
+
+**5. The `[Q]` ordinance, from the City Archives** — but only if you decide to
+pursue market-rate redevelopment or subdivision. For an ADU or an affordable
+project it does not change the answer.
 
 ---
 
 ## MOST IMPORTANT NEXT STEPS
 
-**First, pull the `[Q]` condition.** One ordinance decides whether you have
-development capacity at all. Everything else is secondary to it. City Planning
-can provide the condition text against case CPC-1988-341-ZC and the related
-ordinances on your record.
+**First, call LAHD.** One conversation answers the two questions that still
+matter: why does APN 4330-005-041 show `RSO: No`, and what is the current
+effect of the 15 May 2017 Ellis filing — including whether any deadline is
+approaching. Everything about your property's encumbrance runs through those
+two answers.
 
-**Second, call LAHD** with two questions: why does APN 4330-005-041 show
-`RSO: No`, and what is the current effect of the 15 May 2017 Ellis filing —
-including any date by which its consequences change.
+**Second, if you are going to spend design money, spend it on an ADU
+feasibility study.** It is the only pathway your record does not penalise, and
+the constraint is physical, not legal: what will fit on 5,974.5 sq ft beside a
+4,092 sq ft building, given setbacks, open space and the methane and grading
+requirements. Start with a measured survey, not a scheme.
 
-**Third, if you are going to spend design money, spend it on the ADU study.**
-It is the only pathway the record does not penalise. Start with the survey, not
-a scheme.
+**Third, leave the `[Q]` alone for now.** It requires a City Archives request
+and it does not change either of the above. Pull it only if you decide to
+pursue market-rate redevelopment.
 
 Two things worth saying plainly.
 
@@ -207,7 +256,10 @@ where a zoning-first analysis goes wrong.
 
 **Identified, not yet retrieved** — each is a specific next step above
 
-- `[Q]` condition ordinance / case CPC-1988-341-ZC — City Planning
+- `[Q]` condition ordinance / case CPC-1988-341-ZC — **City Archives**, 555
+  Ramirez St Rm 320, (213) 473-8440. Not available online: City ordinances
+  below number 170,000 are not published in any online system
+  (LADBS Information Bulletin P/GI 2020-025)
 - LAHD: RSO registration history for APN 4330-005-041; Ellis Act record
 - LADBS: permit history and certificate of occupancy
 - ZIMAS interactive `SHRA / SB 684 Eligibility` layer (not included in the
@@ -221,6 +273,9 @@ where a zoning-first analysis goes wrong.
 - LAHD — RSO overview; Replacement Unit Determinations
 - California HCD guidance on SB 1123 eligibility, 7 October 2025
 - SB 684, SB 1123, SB 1211, SB 79, AB 130, AB 2334 — statutory summaries
+- LAMC 12.09.1 (RD zone density), 12.23 (nonconforming), 12.32 G (Q conditions)
+- Ordinance 171492 (West LA Transportation Specific Plan, 1997-03-08);
+  Ordinance 183497 (2015 mansionization interim control ordinance)
 
 ---
 

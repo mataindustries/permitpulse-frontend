@@ -112,9 +112,47 @@ association is inference. If correct, permitted density ≈ 3 units against 4
 existing (legal nonconforming, zero residual). If incorrect and unqualified R3
 governs, the ceiling is 7 and SB 684 would need re-opening.
 
-**Status: UNRESOLVED — and this is the highest-value open item in the case.**
-Resolve via the ordinance text (ORD-165986 is the likeliest candidate by era)
-or a `[Q]` condition readout from City Planning.
+**Status after Revision 3: STILL UNRESOLVED, and now known to be
+UNRESOLVABLE ONLINE.** Per LADBS Information Bulletin P/GI 2020-025, City
+ordinances below **170,000** exist only at the **City Archives**; ORD-165986 is
+below that line. Two candidates were **eliminated** — ORD-171492 (WLA TIMP
+Specific Plan, 1997-03-08) and ORD-183497 (2015 mansionization ICO, Beverlywood
+among 15 areas). None confirmed.
+
+**Demoted from "highest-value open item."** Revision 3 established that a
+`[Q]` density cap would **not** block ADUs (state preemption) or a 100%
+affordable project (AB 2334 unlimited density). It gates only market-rate
+redevelopment and subdivision, both already `NOT SUPPORTED`. The item remains
+open; it is no longer the binding constraint on advice.
+
+### C-12 · **NEW — `[Q]` vs `(Q)`: two search summaries, two incompatible glosses**
+
+Two independent searches of LAMC 12.32 G produced contradictory readings:
+
+| Gloss | Claim |
+| --- | --- |
+| A | *"the permanent `[Q]` Qualified classification"* — brackets are removed once conditions are fulfilled; no time limit on removal |
+| B | `(Q)` in parentheses is temporary; once a Certificate of Occupancy issues the parentheses are dropped and `Q` is permanent; *"temporary conditions shown with brackets have the same status as those that have become permanent"* |
+
+Gloss A's own quoted text calls `[Q]` **permanent**, while A's summary sentence
+calls it temporary — internally inconsistent. Gloss B treats brackets as
+equivalent in effect to permanent.
+
+**Neither adopted. The LAMC text was not retrieved.** What both agree on, and
+what is sufficient here: **the condition is live on the parcel's current zone
+string as of 2026-09-20.** Its enforceability today is not in doubt; only its
+formal classification is.
+
+### C-13 · **NEW — naming collision: "ED 1" vs "EO 1"**
+
+Searching LA "EO 1" returns **Executive Order 1 implementation guidelines for
+wildfire rebuild** (Palisades recovery). ZIMAS's field is **ED 1** —
+**Executive Directive 1**, the 100% affordable housing streamlining directive.
+Different instruments, near-identical shorthand, both live in 2026, both with
+"Implementation Guidelines" PDFs on City domains.
+
+**Recorded so no later pass conflates them.** The parcel's `ED 1 Eligibility:
+Eligible Site` refers to affordable-housing streamlining.
 
 ---
 
@@ -122,7 +160,7 @@ or a `[Q]` condition readout from City Planning.
 
 | # | Unknown | What it blocks | Source |
 | --- | --- | --- | --- |
-| **U-01** | **`[Q]` condition text / permitted density** | **Every unit-yield figure in the file** | Ordinance / City Planning |
+| **U-01** | **`[Q]` condition text / permitted density** | **Market-rate** yield only. **Not** ADUs, **not** 100%-affordable (AB 2334) | **City Archives**, 555 Ramirez St Rm 320, (213) 473-8440 — **not online** |
 | U-02 | Reason RSO = No | How the Ellis history and any re-rental are read | LAHD |
 | U-03 | Ellis Act current status; 10-year look-back confirmation; re-rental restrictions; former-tenant rights | Timing strategy, and whether the ≈2027-05-15 date is real | LAHD |
 | U-04 | ZIMAS interactive `SHRA / SB 684 Eligibility` flag | Final confirmation of the SB 684 verdict — **not printed in the Parcel Profile Report** | ZIMAS interactive |
@@ -142,7 +180,11 @@ or a `[Q]` condition readout from City Planning.
 
 **Do not say:**
 
-- any unit yield, any "you could build N units" — **`[Q]` is unread** (U-01);
+- any **market-rate** unit yield — **`[Q]` is unread** (U-01). *(We may now say
+  the `[Q]` does not block ADUs or a 100% affordable project — state ADU
+  preemption and AB 2334 respectively.)*
+- that ORD-165986 is the `[Q]` ordinance — **unverified**; two other candidates
+  were eliminated but none confirmed;
 - that the property "is not rent controlled, so you're free" — **JCO applies,
   RPO and HE replacement apply, and the Ellis units are likely Protected Units
   until ≈2027**;

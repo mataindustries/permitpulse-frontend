@@ -8,6 +8,73 @@ absence of record (`PROJECT_LAWS.md` Law 4).
 
 ---
 
+## §0-R3. REVISION 3 — the `[Q]` ordinance chain (2026-09-21)
+
+**Objective:** trace CPC-1988-341-ZC → adopted ordinance → Q condition text →
+parcel applicability → density effect.
+
+**Outcome: the chain BREAKS at step two, for a documented structural reason.**
+
+### Searches performed (WebSearch only; all WebFetch and direct egress blocked)
+
+| # | Query | Outcome |
+| --- | --- | --- |
+| S-31 | `"CPC-1988-341" OR "CPC 88-341" … RD1.5 Pico Beverwil` | **No result.** No published document ties the case to an ordinance |
+| S-32 | `"Ordinance 165986" OR "ORD-165986" 1990 zone change` | **No content.** Surfaced the reason instead — see §0-R3.2 |
+| S-33 | `LA City Clerk ordinances online only 170000 and higher …` | **Decisive.** See §0-R3.2 |
+| S-34 | `LAMC 12.32 G "[Q]" permanent vs "(Q)" temporary` | Conflicting glosses — recorded as `C-12` |
+| S-35 | `California ADU law local density limits … preemption` | **Decisive for the client answer.** State ADU law preempts local density limits; ADUs are not counted against density |
+| S-36 | `LAMC RD1.5 … 1500 square feet per unit` | RD1.5 = **1,500 sf minimum lot area per unit** (LAMC 12.09.1) |
+| S-37 | `density bonus waiver of local Q condition` | Waivers reach *development standards* that physically preclude; base density is a separate question. No source found on Q-condition waiver specifically |
+| S-38 | `Ordinance 171492 West LA Transportation Improvement …` | **ORD-171492 IDENTIFIED** — WLA TIMP Specific Plan, adopted **1997-03-08**. **Eliminated as a `[Q]` candidate** |
+| S-39 | `AB 2334 very low vehicle travel area … unlimited density` | **AB 2334 confirmed:** 100% affordable in a very low VMT area in a designated county → **unlimited density bonus**, +3 stories / 33 ft, 4 incentives |
+| S-40 | `Los Angeles 1990 zone change Pico Beverwil RD1.5 …` | **Dead end** |
+| S-41 | `Ordinance 183497 and 186108` | **ORD-183497 IDENTIFIED** — 2015 mansionization Interim Control Ordinance covering 15 neighborhoods **including Beverlywood**. **Eliminated** (single-family ICO, expired). ORD-186108 **unidentified** |
+| S-42 | `Re:Code LA … Q conditions carried over` | Q conditions persist under Chapter 1 until a Community Plan area is remapped into Chapter 1A |
+| S-43 | `LAMC 12.23 nonconforming density … rebuild rights` | **Decisive for Q5.** Floor-area expansion does **not** increase density nonconformity; only changing unit count does |
+
+### §0-R3.1 · Retrieval attempts that failed
+
+| Target | Result |
+| --- | --- |
+| `cityclerk.lacity.org` ordinance PDF (WebFetch) | `EGRESS_BLOCKED` |
+| `www.ladbsservices2.lacity.org/OnlineServices/PermitReport/ParcelProfileDetail2?pin=132A165+++351` | `EGRESS_BLOCKED` — **exact URL recorded for the next pass; PIN-keyed LADBS parcel profile** |
+| Direct probe: `clkrep.lacity.org`, `cityclerk.lacity.org`, `planning.lacity.gov`, `zimas.lacity.org`, `codelibrary.amlegal.com`, `ens.lacity.org` | All `000` — unchanged from §0 |
+
+### §0-R3.2 · Why the ordinance cannot be retrieved online *at all*
+
+Per **LADBS Information Bulletin P/GI 2020-025, "How to Obtain Copies of City
+of Los Angeles Ordinances"** (identified at
+`dbs.lacity.gov/sites/default/files/efs/forms/pc17/how-to-obtain-copies-of-city-of-los-angeles-ordinances-ib-p-gi2020-025.pdf`;
+content via search summary, document not opened):
+
+> Ordinances numbered **170,000 and higher** are available online from
+> **1994-08-24** to present. For ordinance numbers **lower than 170,000**, a
+> copy **may be obtained from the City Archives** — Piper Tech, 555 Ramirez
+> Street, Room 320, **(213) 473-8440**.
+
+**ORD-165986 is below 170,000.** So is ORD-129279 and ORD-109734. By the
+City's own published policy these are **not published online in any system**.
+
+This is not a research failure and not an egress problem. **Even on an
+unrestricted network, the controlling document would not be retrievable
+without contacting the City Archives.** Recorded at `PAIN_LOG.md` §P-19.
+
+### §0-R3.3 · Ordinance candidates: eliminated, remaining
+
+| Ordinance | Status |
+| --- | --- |
+| **ORD-171492** | **ELIMINATED** — WLA TIMP Specific Plan (1997-03-08) |
+| **ORD-183497** | **ELIMINATED** — 2015 mansionization ICO (single-family; expired) |
+| **ORD-165986** | **REMAINS THE LEADING CANDIDATE** on era consistency alone (< 170,000 ⇒ pre-1994; CPC filed 1988). **Association with CPC-1988-341-ZC is UNVERIFIED.** Not online |
+| ORD-129279, ORD-109734 | Era-implausible for a 1988 case; both also < 170,000 |
+| ORD-186108 | Unidentified |
+
+**The prior pass's caution — "do not assume ORD-165986" — was correct and is
+reaffirmed. Two candidates were eliminated; none was confirmed.**
+
+---
+
 ## §0-R2. REVISION 2 — official source retrieved (2026-09-21)
 
 The constraint described in §0 below was **partially lifted by the client

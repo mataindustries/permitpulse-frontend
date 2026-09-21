@@ -81,9 +81,66 @@ and stand as legal nonconforming — meaning **zero residual density**.
 
 **Class: `unverified_evidence`.** ZIMAS reports the case and the zone string
 but does **not** state that this case produced this parcel's `[Q]`, nor does it
-reproduce the condition text. Attribution is inference. **Resolve by pulling
-the ordinance (ORD-165986 is the likeliest candidate by era) or the `[Q]`
-condition text from City Planning.** Until then, no unit yield may be quoted.
+reproduce the condition text. Attribution is inference.
+
+### E-04e · Revision 3 — the ordinance chain was traced and it BREAKS
+
+**The `[Q]` condition text was NOT obtained.** Not because of this session's
+network restrictions, but for a documented structural reason.
+
+Per **LADBS Information Bulletin P/GI 2020-025**, City of Los Angeles
+ordinances numbered **170,000 and higher** are online from 1994-08-24 forward;
+ordinances **below 170,000** are obtainable only from the **City Archives**
+(Piper Tech, 555 Ramirez St, Room 320, 213-473-8440).
+
+**ORD-165986 is below 170,000. It is not published online in any system.**
+
+Candidate ordinances on this parcel's ZIMAS case list, adjudicated:
+
+| Ordinance | Status |
+| --- | --- |
+| **ORD-171492** | **ELIMINATED** — identified as the **West LA Transportation Improvement and Mitigation Specific Plan**, adopted 1997-03-08 |
+| **ORD-183497** | **ELIMINATED** — identified as the **2015 mansionization Interim Control Ordinance** covering 15 neighborhoods including Beverlywood; single-family scope, expired |
+| **ORD-165986** | **LEADING CANDIDATE, UNVERIFIED.** Era-consistent with a 1988 case; not retrievable online |
+| ORD-129279 / ORD-109734 | Era-implausible; also below 170,000 |
+| ORD-186108 | Unidentified |
+
+**Verdict on applicability:** the `[Q]` **unquestionably governs this parcel** —
+it is in the current official zone string as of 2026-09-20. **What it says
+remains `unknown`.** Whether CPC-1988-341-ZC produced it remains `unknown`.
+
+### E-04f · What the `[Q]` does and does not gate — resolved
+
+Even without the text, the *relevance* of a density-limiting `[Q]` is now
+established:
+
+| Pathway | Gated by a `[Q]` density cap? |
+| --- | --- |
+| **ADUs / SB 1211** | **NO.** State ADU law preempts local density limits; ADUs are not counted against density |
+| **100% affordable + AB 2334** | **NO.** Very Low VMT Area + designated county → **unlimited density bonus** |
+| Market-rate density bonus | **YES** — the cap would set the base the bonus multiplies |
+| Subdivision / SB 684 / Small Lot | **YES** — but those are already `NOT SUPPORTED` on other grounds |
+| Remodel / floor-area expansion | **NO** — see E-04g |
+
+### E-04g · If the cap is RD1.5, what happens to the existing four units
+
+RD1.5 = **1,500 sf minimum lot area per unit** (LAMC 12.09.1). On 5,974.5 sf
+that permits **3 units** against **4 existing** → the building would be **legal
+nonconforming as to density**.
+
+Under **LAMC 12.23** *(secondary sources; text not retrieved)*:
+
+- expansion of **floor area does not increase** the degree of density
+  nonconformity — **only a change in unit count does**;
+- a nonconforming building may be maintained, repaired or structurally altered
+  provided at least **50% of the perimeter length** of existing nonconforming
+  exterior walls is retained;
+- after fire or other calamity it may be restored where restoration cost does
+  not exceed **75% of replacement value**.
+
+**Practical reading: she could remodel or even enlarge the existing building
+without worsening the nonconformity — she just could not add a unit under the
+base zone. ADUs are a separate statutory track and are unaffected.**
 
 ---
 
@@ -243,9 +300,9 @@ any new structure, including an ADU.
 
 | # | Unknown | Why it still matters | Source |
 | --- | --- | --- | --- |
-| E-20 | **Permit history / open permits** | Legal unit count, unpermitted work | LADBS |
+| E-20 | **Permit history / open permits** | Legal unit count, unpermitted work | LADBS — **exact endpoint found:** `ladbsservices2.lacity.org/OnlineServices/PermitReport/ParcelProfileDetail2?pin=132A165+++351` |
 | E-21 | **Certificate of occupancy date** | Independent RSO/JCO check | LADBS |
-| E-24 | **`[Q]` condition operative text** | **Decides residual density — see §2** | ORD / City Planning |
+| E-24 | **`[Q]` condition operative text** | Decides **market-rate** residual density only — **not** ADUs or 100%-affordable (E-04f) | **City Archives** (not online — see E-04e) |
 | E-25 | **SHRA / SB 684 eligibility flag** | **Not printed in this report.** It is an interactive-only ZIMAS hyperlink | ZIMAS interactive |
 | E-26 | **RSO = No, reason** | Governs how the Ellis history is read | LAHD |
 | E-27 | Ellis Act current status and re-rental restrictions | Timing strategy — see `PROGRAM_MATRIX.md` | LAHD |
