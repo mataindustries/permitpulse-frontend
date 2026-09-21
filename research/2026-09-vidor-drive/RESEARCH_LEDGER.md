@@ -8,6 +8,26 @@ absence of record (`PROJECT_LAWS.md` Law 4).
 
 ---
 
+## §0-R4. REVISION 4 — LAHD inquiry and client deliverable (2026-09-21)
+
+**No web research pass was performed.** Work was limited to recording one new
+primary-source follow-up and producing the client deliverable.
+
+| Item | Detail |
+| --- | --- |
+| New source | **LAHD telephone inquiry**, APN 4330-005-041, 2026-09-21 |
+| Type | **Dated staff inquiry — NOT a written determination** |
+| Authority | `agency_staff_statement` (below `official`) |
+| Result | Staff stated nothing filed or registered since 2019; **could not determine or confirm** current RSO or JCO status from records viewed |
+| Effect on case | **Resolves nothing.** RSO / JCO / Ellis status remains `UNRESOLVED`. Next channel changes from phone to **written determination** |
+| Recorded at | `PROPERTY_EVIDENCE.md` §E-11k · `CONFLICTS_AND_UNKNOWNS.md` §C-09 · `PAIN_LOG.md` §P-21 |
+
+Also in this revision: three standing overstatements corrected
+(`ADVERSARIAL_REVIEW.md` §A-21 to §A-23), and `HARPER_BRIEF_DRAFT.md`
+rewritten to a short client brief (~1,490 words) plus appendix.
+
+---
+
 ## §0-R3. REVISION 3 — the `[Q]` ordinance chain (2026-09-21)
 
 **Objective:** trace CPC-1988-341-ZC → adopted ordinance → Q condition text →

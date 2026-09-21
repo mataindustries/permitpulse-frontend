@@ -119,7 +119,7 @@ established:
 | **ADUs / SB 1211** | **NO.** State ADU law preempts local density limits; ADUs are not counted against density |
 | **100% affordable + AB 2334** | **NO.** Very Low VMT Area + designated county → **unlimited density bonus** |
 | Market-rate density bonus | **YES** — the cap would set the base the bonus multiplies |
-| Subdivision / SB 684 / Small Lot | **YES** — but those are already `NOT SUPPORTED` on other grounds |
+| Subdivision / SB 684 / Small Lot | **YES** — and SB 684 is separately `LIKELY / CONDITIONAL` on unresolved SHRA occupancy and Ellis questions |
 | Remodel / floor-area expansion | **NO** — see E-04g |
 
 ### E-04g · If the cap is RD1.5, what happens to the existing four units
@@ -208,6 +208,42 @@ inferring one would be exactly the kind of tidy-sounding fabrication this
 case file exists to prevent.**
 
 **Verdict: `UNKNOWN`, reason `insufficient_evidence`. Requires LAHD.**
+
+### E-11k · LAHD telephone inquiry, 2026-09-21 — **resolved nothing**
+
+| | |
+| --- | --- |
+| Type | **Dated staff inquiry by telephone.** Not an official written determination |
+| Date | 2026-09-21 |
+| Made by | Case owner (PermitPulse) |
+| Subject | APN 4330-005-041 — the RSO / JCO / Ellis discrepancy |
+| Authority | `agency_staff_statement` — **below `official`**; no document issued |
+
+**What LAHD staff said:** nothing has been filed or registered for the property
+**since 2019**, and from the records they were viewing they **could not
+determine or confirm** whether the property is currently RSO or JCO.
+
+**What this establishes: that LAHD staff could not answer from the records on
+their screen.** Nothing more.
+
+**What it does NOT establish** — none of the following may be inferred, and
+each is explicitly rejected:
+
+- ✗ RSO applies · ✗ RSO does not apply
+- ✗ JCO applies · ✗ JCO does not apply
+- ✗ The Ellis filing has expired · ✗ The Ellis filing remains operative
+- ✗ Any meaning attaches to the 2019 date
+
+**Correct conclusion: current LAHD status and effect remain `UNRESOLVED`, and
+must be verified in writing before relying on them for any project that
+removes or replaces housing.**
+
+**Why this matters more than a null result usually would.** The agency that
+owns the answer could not produce it from its own screen. That converts the
+next step from "make a call" into "request a written determination" — a
+different, slower, and more formal action. It also means a designer proceeding
+on the assumption that `RSO: No` means "unencumbered" would be doing so
+against an explicitly unresolved record.
 
 ### E-11j · What RSO = No does *not* mean
 

@@ -601,3 +601,160 @@ first — which is where the two remaining client-facing blockers actually live.
 pass.** Revision 1 queued the LAHD lookup ahead of the ZIMAS parcel report
 (§P-15); Revision 3 queued the `[Q]` ordinance ahead of LAHD. Both times the
 fix is the same: **ask what the answer would change before going to get it.**
+
+---
+
+# Revision 4 — the agency could not answer its own question (2026-09-21)
+
+## P-21 · The authoritative source returned "cannot determine"
+
+**Source / system:** LAHD telephone inquiry, APN 4330-005-041, 2026-09-21.
+
+**What made it difficult.** Three revisions of this case converged on one
+question: why does a 1947 four-unit building report `RSO: No` while also
+reporting an Ellis filing, just-cause coverage, and two replacement flags?
+Every prior pass answered "ask LAHD" — the agency that owns the field.
+
+We asked. **LAHD staff could not determine or confirm current RSO or JCO
+status from the records they were viewing**, noting only that nothing had
+been filed or registered since 2019.
+
+This is a failure mode none of the three prior revisions anticipated. The
+research plan assumed authoritative sources return authoritative answers. Here
+the authoritative source returned *no answer*, from a live staff member with
+the file open.
+
+**The dangerous part is what a hurried researcher does next.** "Nothing since
+2019" is a factual crumb that invites reconstruction — the Ellis completed,
+the units came out, RSO ended, ZIMAS is right. That story is coherent,
+plausible, and **entirely unevidenced**. It is the same shape as the Revision 1
+RSO presumption that this case already got wrong once (§P-15). A null result
+from an agency is not raw material for inference.
+
+**What a human architect would have to do.** Recognise that a phone call
+produced no determination, resist the reconstruction, and escalate to a
+written determination request — a slower and more formal channel most people
+skip precisely because the phone call felt like it happened.
+
+**How PermitPulse could reduce that work.**
+
+1. **Model agency non-answers as a first-class evidence type.** The repo's
+   `evidenceUnknownReasons` enum has `retrieval_failed`,
+   `record_not_returned`, `insufficient_evidence`, `not_observed` — none of
+   which is *"the authoritative agency was asked and could not determine."*
+   That deserves its own reason code, because it implies a different next
+   action than any of the others: escalate channel, don't re-query.
+2. **Record the channel, not just the source.** "LAHD, phone, 2026-09-21,
+   could not determine" and "LAHD, written determination, pending" are
+   different evidentiary states from the same agency. A case is not
+   source-complete because an agency was contacted.
+3. **Guard the inference boundary explicitly.** When a null result arrives,
+   the system should enumerate the inferences it does *not* support — as
+   `PROPERTY_EVIDENCE.md` §E-11k now does with six express rejections. Writing
+   down what may not be concluded is cheaper than catching it later in review.
+
+**The broader product point:** PermitPulse's value proposition assumes that
+somewhere there is an authoritative answer and the work is retrieving it. This
+case is the counterexample. Sometimes the answer does not exist in retrievable
+form, and the professional service is **saying so precisely, naming the channel
+that would produce it, and refusing to fill the gap** — which is exactly what
+`PROJECT_LAWS.md` Laws 3, 4 and 7 already require.
+
+---
+
+# Revision 5 — a flag outlived its program (2026-09-21)
+
+## P-22 · A positive parcel-system flag can outlive or differ from the operative program
+
+**Source / system:** ZIMAS `ED 1 Eligibility: Eligible Site` vs. current LA
+City Planning material on the end of the ED 1 emergency declaration.
+
+**What made it difficult.** The City's official parcel record, dated
+**2026-09-20**, carries a positive `ED 1 Eligibility: Eligible Site` flag. The
+emergency declaration supporting ED 1 **ended 2025-11-18**, ending ED 1
+ministerial processing for new applications apart from qualifying vested ones.
+The City subsequently codified parts of that streamlining framework elsewhere.
+
+**Both are true at once.** The flag correctly reports that the parcel satisfies
+ED 1's *site* criteria. It says nothing about whether ED 1 remains an available
+*process*. Nothing on the report signals the difference — no sunset date, no
+status qualifier, no pointer to the successor framework.
+
+Revision 3 and Revision 4 both read this flag as a live pathway and wrote it
+into the client brief. **That was wrong, and it was caught in human review
+rather than by us.** It is the same failure shape as the RSO presumption
+(§P-15) and the "unlimited density" overstatement (§A-21): **a verified field
+narrated as an available outcome.**
+
+**What a human architect would have to do.** Know independently that ED 1's
+enabling declaration lapsed in November 2025 — information that lives in
+council files and policy announcements, not in the parcel viewer — and then
+work out which framework replaced it.
+
+**How PermitPulse could reduce that work.**
+
+1. **Give every program flag a program-status field, separate from the parcel
+   result.** `parcel_qualifies: true` and `program_status: closed_to_new_
+   applications (2025-11-18)` are different facts and must not collapse into
+   one green check. Today the product has no place to record the second.
+2. **Maintain program lifecycle dates as first-class data** — adopted,
+   operative, amended, sunset, superseded-by — and join them to parcel flags at
+   render time. A flag whose program is closed should render as closed no
+   matter what the source layer says.
+3. **Re-screen stored cases when a program's status changes**, the same way
+   `docs/PAPER_TRAIL_LOOP.md` re-verifies sources. A case written in October
+   2025 citing ED 1 became wrong on 18 November 2025 without anything in the
+   case file changing.
+4. **Treat GIS layers as lagging indicators of policy.** Parcel systems update
+   on their own cadence; programs change on the Council's. The gap between them
+   is a structural, recurring source of confident error — and it is invisible
+   unless something explicitly looks for it.
+
+**The product lesson, stated plainly: a positive flag answers "does this parcel
+qualify?" It does not answer "can I file this today?" PermitPulse's value is
+in never letting a client confuse the two.**
+
+---
+
+# Revision 6 — framework conflation (2026-09-21)
+
+## P-23 · Five regimes, five tests, one bundle — and the bundle was wrong
+
+**Source / system:** SHRA eligibility vs. Housing Crisis Act / Resident
+Protections replacement vs. RSO vs. JCO vs. Ellis.
+
+**What made it difficult.** All five appear on one ZIMAS page, under one
+heading, as adjacent Yes/No rows. Nothing on the page signals that they are
+**separate regimes with separate tests and separate look-back periods**. So the
+analysis did the natural thing and reasoned from the group.
+
+The specific failure: the SB 684 evidence table cited the **RPO ten-year**
+Protected Unit look-back to support an **SHRA** eligibility conclusion. Those
+are different rules. The table also treated `Housing Use within Prior 5 Years`
+as proof of **tenant occupancy**, which is the term SHRA actually turns on.
+Residential use and tenant occupancy are not the same fact.
+
+**What a human architect would have to do.** Know that each framework has its
+own predicate, then chase each one independently — occupancy records for SHRA,
+LAHD registration for RSO, the RUD process for RPO — rather than reading five
+adjacent rows as one verdict.
+
+**How PermitPulse could reduce that work.**
+
+1. **Bind every flag to the regime that owns it.** A flag should carry its
+   authority (`SHRA` / `HCA-RPO` / `RSO` / `JCO` / `Ellis`), its test, and its
+   look-back period. A conclusion drawing on flags from two regimes should be
+   structurally flagged for review.
+2. **Distinguish *indicator* from *predicate*.** `Housing Use within Prior 5
+   Years: Yes` is an indicator pointing at SHRA's tenant-occupancy predicate.
+   It is not the predicate. The model needs both fields so a conclusion cannot
+   silently substitute one for the other.
+3. **Watch for correction overshoot.** Revision 5 fixed a genuine
+   under-claim and installed an over-claim doing it. A correction is a change
+   like any other and deserves the same adversarial pass as the original —
+   which it did not get, because it felt like a fix.
+
+**The product point:** the hardest errors in this case were not missing data.
+They were **adjacent facts from different legal regimes read as one story.**
+A research tool that surfaces flags without surfacing which rule owns each one
+is handing the user the raw material for exactly this mistake.

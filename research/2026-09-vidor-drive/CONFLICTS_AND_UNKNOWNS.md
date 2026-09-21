@@ -26,8 +26,9 @@ downstream record pull in this case. Recorded as a validated near-miss.
 ### C-02 · SB 684 / SB 1123 effective dates — **STILL UNRESOLVED, now moot**
 
 SB 684 reported as both 2024-07-01 (LA City Planning) and 2024-01-01
-(commentary). Unresolved. Immaterial: SB 684 is now `NOT SUPPORTED` on
-substantive grounds.
+(commentary). Unresolved. Low materiality: SB 684 is separately
+`LIKELY / CONDITIONAL` on unresolved SHRA occupancy and Ellis questions, and
+all candidate dates have passed.
 
 ### C-03 · Beverlywood HOA — **RESOLVED AS NOT APPLICABLE**
 
@@ -87,8 +88,15 @@ not the reason.**
 economical reading, but the record asserts no causal link and this file will
 not invent one.
 
-**Resolution route: LAHD.** Ask for RSO registration history, the withdrawal
-record, and the definition of the ZIMAS RSO field (coverage vs. registration).
+**Resolution attempted 2026-09-21 — LAHD telephone inquiry. STILL UNRESOLVED.**
+Staff stated nothing has been filed or registered since 2019 and that they
+could not determine or confirm current RSO or JCO status from the records they
+were viewing. This is a dated staff inquiry, not a written determination, and
+it supports **no** inference in either direction on RSO, JCO, or the Ellis
+filing's operative status. See `PROPERTY_EVIDENCE.md` §E-11k.
+
+**Resolution route now: a written determination from LAHD**, not a further
+phone call. The phone channel has been tried and returned "cannot determine".
 
 ### C-10 · **NEW — two transit fields that read as contradictory**
 
@@ -143,6 +151,23 @@ what is sufficient here: **the condition is live on the parcel's current zone
 string as of 2026-09-20.** Its enforceability today is not in doubt; only its
 formal classification is.
 
+### C-14 · **NEW — a parcel flag that outlived its program**
+
+ZIMAS reports `ED 1 Eligibility: **Eligible Site**` on the 2026-09-20 record.
+The emergency declaration supporting ED 1 **ended 2025-11-18**, ending ED 1
+ministerial processing for new applications apart from qualifying vested ones.
+
+**Both statements are true.** The flag accurately describes the parcel against
+ED 1's site criteria; it does not describe an available process. A reader who
+treats the flag as a live route reaches the wrong conclusion about what can be
+filed today.
+
+**Status: the flag is `confirmed`; ED 1 as a current route for a new
+application is `NOT AVAILABLE`; which framework now governs, and whether any
+vested-application exception could reach this parcel, is `UNRESOLVED`.**
+Evaluate any affordable pathway under the current Affordable Housing Incentive
+Program / Housing Element Sites framework.
+
 ### C-13 · **NEW — naming collision: "ED 1" vs "EO 1"**
 
 Searching LA "EO 1" returns **Executive Order 1 implementation guidelines for
@@ -161,8 +186,9 @@ Eligible Site` refers to affordable-housing streamlining.
 | # | Unknown | What it blocks | Source |
 | --- | --- | --- | --- |
 | **U-01** | **`[Q]` condition text / permitted density** | **Market-rate** yield only. **Not** ADUs, **not** 100%-affordable (AB 2334) | **City Archives**, 555 Ramirez St Rm 320, (213) 473-8440 — **not online** |
-| U-02 | Reason RSO = No | How the Ellis history and any re-rental are read | LAHD |
-| U-03 | Ellis Act current status; 10-year look-back confirmation; re-rental restrictions; former-tenant rights | Timing strategy, and whether the ≈2027-05-15 date is real | LAHD |
+| U-02 | **Current RSO status and the reason it reads No** | How the Ellis history and any re-rental are read | **LAHD written determination** — phone inquiry 2026-09-21 returned "cannot determine" |
+| U-03 | **Current JCO status** | Tenant protections on any occupancy | **LAHD written determination** — same inquiry, same result |
+| U-04 | Ellis Act current operative effect; look-back; re-rental restrictions; former-tenant rights | Timing strategy; whether any date is approaching | **LAHD written determination** |
 | U-04 | ZIMAS interactive `SHRA / SB 684 Eligibility` flag | Final confirmation of the SB 684 verdict — **not printed in the Parcel Profile Report** | ZIMAS interactive |
 | U-05 | LADBS permit history, certificate of occupancy, legality of all 4 units | ADU cap (computed on *legal* units); unpermitted-work exposure | LADBS |
 | U-06 | Building footprint, lot coverage, setbacks, parking, open space | **Real ADU capacity** — the statutory cap of 4+1 is not achievable on 5,974.5 sf | Measured survey |

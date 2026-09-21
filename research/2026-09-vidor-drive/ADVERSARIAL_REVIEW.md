@@ -452,3 +452,219 @@ spending a pass on it.
 | `[Q]` is the highest-value unknown | **DEMOTED** — it gates only pathways already closed |
 | A later law removed the `[Q]` | **NO EVIDENCE** — but the Westside CPU will eventually remap it |
 | The ordinance is retrievable | **NO** — below the City's 170,000 online cutoff; City Archives only |
+
+
+---
+---
+
+# Revision 4 — final review before client delivery (2026-09-21)
+
+## A-21 · ATTACK: "PermitPulse overstated the affordable-housing finding."
+### Result: **UPHELD — overstatement confirmed and corrected**
+
+Revision 3 told the case owner that Harper "is sitting on an **unlimited-density
+entitlement**." **That was wrong in two ways.**
+
+1. **"Entitlement" is false.** The parcel holds a *designation* — Very Low VMT
+   Area — not an entitlement. No approval, vesting, or right attaches to the
+   land. The benefit exists only for a project that qualifies.
+2. **"Unlimited density" strips the conditions.** AB 2334's density provision
+   is contingent on an affordability mix (at least 80% lower-income), project
+   type, and other criteria none of which were verified for any actual project.
+
+**Corrected framing, now used everywhere:** *a potential pathway subject to
+affordability and other eligibility requirements.*
+
+This is the third overstatement caught in four revisions (RSO presumption §A-10;
+"`[Q]` does not block ADUs" §A-16; this one). The common mechanism: **a
+verified flag gets narrated as a conclusion.** `Very Low VMT Area: Yes` is a
+fact. "Unlimited density" is a conclusion that requires facts we do not have.
+
+## A-22 · ATTACK: "The LAHD call resolved the RSO question."
+### Result: **REJECTED — it resolved nothing, and must not be read as if it did**
+
+LAHD staff stated that nothing has been filed or registered since 2019 and
+that they **could not determine or confirm** current RSO or JCO status from
+the records they were viewing.
+
+Tempting but impermissible readings, all rejected:
+
+| Tempting inference | Why rejected |
+| --- | --- |
+| "Nothing since 2019 ⇒ the Ellis withdrawal completed and RSO ended" | Staff explicitly did not say this. Absence of filings is not a status determination |
+| "LAHD couldn't find it ⇒ it isn't RSO" | `PROJECT_LAWS.md` Law 4 — failure to retrieve is not proof of absence |
+| "ZIMAS says No and LAHD didn't contradict it ⇒ No is confirmed" | Silence is not corroboration. Law 6 — no source silently overwrites another |
+
+**The only supportable conclusion: current status is `UNRESOLVED` and requires
+a written determination.** The phone channel has been tried and returned
+"cannot determine," which changes the *next action*, not the answer.
+
+## A-23 · ATTACK: "The brief is now just a longer ZIMAS printout."
+### Result: **PARTIALLY CONCEDED — and the brief was cut accordingly**
+
+Fair. Revision 3's brief restated many fields Harper can pull herself. The
+Revision 4 client brief was rewritten to a hard length limit, and every field
+that does not change a decision was removed. What survives is the interactions:
+four existing units against replacement protections; the RSO/JCO/Ellis
+unresolved block; HQTC vs. major transit stop; the `[Q]` uncertainty and its
+limited reach; Housing Element replacement; ADU path vs. redevelopment path;
+and the methane / special-grading cost items.
+
+## Standing corrections carried into the client brief
+
+| Must never say | Must say instead |
+| --- | --- |
+| "unlimited-density entitlement" | "a potential pathway subject to affordability and other eligibility requirements" |
+| "the `[Q]` caps this parcel at RD1.5" | "a `[Q]` is live in the current zoning string; its text was not retrieved" |
+| "the property is not rent-stabilised" | "ZIMAS reports RSO: No; current status is unresolved and LAHD could not confirm it" |
+| "why RSO reads No" | nothing — the reason is unknown |
+| "the Ellis window closes on [date]" | nothing — the look-back is unverified |
+
+
+---
+---
+
+# Revision 5 — corrections from human review (2026-09-21)
+
+Four issues were found **in human review, not by our own adversarial passes.**
+That is itself the most important datum in this revision.
+
+## A-24 · ED 1 presented as a live pathway
+### Result: **WRONG — corrected**
+
+Revisions 3 and 4 read `ED 1 Eligibility: Eligible Site` as evidence that an
+ED 1 project could be initiated. The emergency declaration supporting ED 1
+ended **2025-11-18**. The flag describes the parcel; it does not describe an
+available process. Corrected in the matrix, §3, §4, the appendix and the
+conclusions; recorded as a product finding at `PAIN_LOG.md` §P-22.
+
+## A-25 · SB 684 leaned on the wrong evidence
+### Result: **RESTRUCTURED — then OVERCORRECTED. Superseded by §A-29.**
+
+The Revision 4 matrix attributed the SB 684 conclusion to a bundle — housing
+use, Ellis, replacement flags — and labelled it conditional because the
+RSO/JCO block is unresolved. **That understated it.** City Planning's SHRA
+guidance independently bars demolition or alteration of housing occupied by
+tenants in the previous five years, and the City's own record reports housing
+use within the prior five years. For a project that would demolish or alter the
+existing units, that criterion resolves the question **without waiting on
+LAHD**. Stated at the time as confirmed as to such a project.
+
+**That was itself an overstatement — see §A-29.** The correction swapped one
+error for another: it removed a false dependency on RSO/JCO and replaced it
+with false certainty about occupancy and Ellis facts the parcel flags never
+established.
+
+## A-26 · An absolute claim about the protection flags
+### Result: **REMOVED**
+
+*"Every protective flag on your property penalises removing or altering the
+existing four units, and none of them penalises adding new ones."* — an
+absolute over a set we did not exhaustively enumerate. Replaced with a claim
+about the flags actually identified, plus an explicit statement that it is not
+a guarantee nothing else constrains an addition.
+
+## A-27 · An assertion about unread `[Q]` text
+### Result: **REMOVED**
+
+*"The `[Q]` matters less than it looks. It would constrain market-rate
+redevelopment."* — we have not read the condition. Replaced with: it may matter
+most for redevelopment or subdivision, its text is unresolved, and we would
+retrieve it before evaluating that path.
+
+## A-28 · Scan for unsupported certainty
+
+Swept the client brief for `is` / `will` / `does` / `cannot` / `eligible` /
+`entitlement` / `preempts` / `requires`. Additional softenings applied:
+
+| Was | Now |
+| --- | --- |
+| methane and grading "both of which apply here" | "which the City's record flags for this parcel and which typically add cost" |
+| RPO "requires a Replacement Unit Determination for any project" | "calls for a Replacement Unit Determination on projects" |
+| "four others confirm they do not" | "four others record the parcel as not eligible for the transit-based programs" |
+| `[Q]` "does not change the ADU answer" | "we would not expect it to change the ADU answer" |
+| "state ADU law preempts local density limits" | "state ADU law limits how far local density rules reach" |
+
+Remaining absolute language was reviewed and retained as sound: statements
+about our own conduct ("we will not assert"), direct quotation of LAHD
+("cannot determine"), and standard disclaimers.
+
+## Pattern across five revisions
+
+| Revision | Error | Caught by |
+| --- | --- | --- |
+| 1 | RSO presumed from age + unit count | Official ZIMAS record |
+| 3 | "`[Q]` does not block ADUs" stated flatly | Own adversarial pass |
+| 3 | "unlimited-density entitlement" | Human review |
+| 4 | ED 1 read as a live pathway | **Human review** |
+| 4 | Absolute claim over protection flags | **Human review** |
+| 4 | Assertion about unread `[Q]` text | **Human review** |
+
+**Three of six were caught only in human review.** The recurring mechanism is
+constant: **a verified field gets narrated as an available outcome.** The flag
+is evidence; the outcome is a conclusion requiring facts we often do not have.
+`PROJECT_LAWS.md` Law 11 — human review may be required before a finding
+becomes client-ready — is not a formality on this case. It is load-bearing.
+
+
+---
+---
+
+# Revision 6 — the SB 684 evidentiary correction (2026-09-21)
+
+## A-29 · ATTACK: "The SB 684 conclusion rests on facts the parcel flags never established."
+### Result: **UPHELD — and this is the most instructive error in the case**
+
+**The charge.** Revision 5 stated SB 684 was **CONFIRMED** closed for any
+project altering or demolishing the existing units, on the strength of
+`Housing Use within Prior 5 Years: Yes` plus the 2017 Ellis filing.
+
+**Why it fails.** Neither flag establishes the predicate the rule turns on.
+
+| SHRA rule | Flag relied on | The gap |
+| --- | --- | --- |
+| No demolition/alteration of units **occupied by tenants** in the prior 5 years | `Housing Use within Prior 5 Years: Yes` | Residential **use** ≠ **tenant occupancy**. An owner-occupied or vacant-but-maintained building registers use without tenancy |
+| Restriction on parcels with a **qualifying Ellis withdrawal** in SHRA's look-back | `Ellis Act Property: Yes`, 2017-05-15 | Establishes a filing and a date. Not that it is a *qualifying* withdrawal, not its current status, not that it falls within **SHRA's** look-back (as distinct from RPO's ten-year Protected Unit look-back — a different regime) |
+
+**The deeper error: framework conflation.** Revisions 2–5 progressively fused
+five regimes — SHRA eligibility, Housing Crisis Act / Resident Protections
+replacement, RSO, JCO, and Ellis — into a single "protected housing" bundle,
+then reasoned from the bundle. **They have different tests and different
+look-back periods.** The clearest symptom: the §1 evidence table cited the
+**RPO ten-year** Protected Unit look-back as though it settled an **SHRA**
+question. It does not.
+
+**What makes this the most instructive error:** Revision 5 *was* a correction.
+It fixed a real defect — an SB 684 conclusion improperly dependent on the
+unresolved RSO/JCO determination — and in fixing it, overshot into certainty
+the evidence never supported. **Correcting an understatement produced an
+overstatement.** Each revision's fix became the next revision's defect.
+
+**Correction applied.** SB 684 is now `POTENTIALLY BLOCKED for a project
+altering or demolishing existing units — LIKELY / CONDITIONAL`, with the
+verification step named: confirm the relevant occupancy history and the status
+and effect of the Ellis record. Propagated to the client brief, the program
+matrix (§1 verdict, evidence table, §7 interaction table, summary row, Small
+Lot section, ADU section) and `PROPERTY_EVIDENCE.md`.
+
+## A-30 · Error pattern across six revisions
+
+| Rev | Error | Direction | Caught by |
+| --- | --- | --- | --- |
+| 1 | RSO presumed from age + unit count | Overstated | Official record |
+| 3 | "`[Q]` does not block ADUs" | Overstated | Own adversarial pass |
+| 3 | "unlimited-density entitlement" | Overstated | Human review |
+| 4 | ED 1 read as a live pathway | Overstated | Human review |
+| 4 | Absolute claim over protection flags | Overstated | Human review |
+| 4 | Assertion about unread `[Q]` text | Overstated | Human review |
+| 5 | SB 684 tied to unresolved RSO/JCO | **Understated** | Human review |
+| 5 | SB 684 "CONFIRMED closed" | **Overstated** | **Human review** |
+
+**Eight errors; seven overstatements; five caught only in human review.** The
+mechanism is unchanged throughout: **a verified field narrated as a
+conclusion.** Revision 6 adds a second mechanism worth naming —
+**correction overshoot**: fixing an under-claim by installing an over-claim in
+the same sentence.
+
+`PROJECT_LAWS.md` Law 11 is not ceremony on this case. Five of eight errors
+survived our own adversarial passes and were stopped only at human review.

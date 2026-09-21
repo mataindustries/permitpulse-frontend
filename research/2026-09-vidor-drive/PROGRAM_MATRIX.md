@@ -11,7 +11,7 @@ dated 2026-09-20. Analysis date: 2026-09-21.**
 | Zoning | **`[Q]R3-1-O`** | ZIMAS `official` |
 | Lot area | **5,974.5 sf** | ZIMAS `official` |
 | Existing units | **4** (Use Code 0400), built **1947**, 4,092 sf | ZIMAS `official` |
-| RSO | **No** | ZIMAS `official` |
+| RSO | **No** *(ZIMAS field; current status UNRESOLVED — LAHD could not confirm, 2026-09-21)* | ZIMAS `official` |
 | **Ellis Act Property** | **Yes — filed 2017-05-15** | ZIMAS `official` |
 | Just Cause for Eviction (JCO) | **Yes** | ZIMAS `official` |
 | HCA / RPO Replacement Review | **Yes** | ZIMAS `official` |
@@ -46,7 +46,7 @@ now established even though its *text* is not:
 | **ADU / SB 1211** | **NO** — state ADU law preempts local density limits; ADUs are not counted against density |
 | **100% affordable (AB 2334)** | **NO** — Very Low VMT Area + designated county → **unlimited density bonus** |
 | Market-rate density bonus | **YES** — the cap sets the base the bonus multiplies |
-| Subdivision / SB 684 / Small Lot | **YES** — already `NOT SUPPORTED` on other grounds |
+| Subdivision / SB 684 / Small Lot | **YES** — though SB 684 is separately `LIKELY / CONDITIONAL` on SHRA grounds |
 | Remodel / floor-area expansion | **NO** — LAMC 12.23: floor area does not increase density nonconformity |
 
 **Consequence for this case: the `[Q]` does not gate either of the two
@@ -61,22 +61,38 @@ permitted** against **4 existing** → legal nonconforming as to density.
 
 ## 1. SB 684 — Starter Home Revitalization Act
 
-### Verdict: **NOT SUPPORTED** *(upgraded from "likely not available / verify")*
+### Verdict: **POTENTIALLY BLOCKED for a project altering or demolishing existing units — `LIKELY / CONDITIONAL`**
 
-**What changed.** The prior pass could not decide this. The official record now
-supplies three independent obstacles, any one of which is likely fatal:
+*(Revision 6 correction. Earlier revisions escalated this to `NOT SUPPORTED`
+and then to `CONFIRMED` for a demolition/alteration project. **Both
+overstated the evidence** and are withdrawn. See `ADVERSARIAL_REVIEW.md` §A-29.)*
 
-| Test | Verified finding | Effect |
+**Keep four frameworks separate.** SHRA eligibility, Housing Crisis Act /
+Resident Protections replacement rules, RSO, JCO, and the Ellis history are
+**different regimes with different tests and different look-back periods.** A
+finding under one does not establish a finding under another, and this case has
+twice drifted into treating them as one bundle.
+
+| SHRA test | What ZIMAS actually reports | What that does and does not establish |
 | --- | --- | --- |
-| Protected housing — tenant occupancy within 5 yrs | **Housing Use within Prior 5 Years: Yes** | Triggers the SHRA demolition/alteration bar |
-| Protected housing — Ellis withdrawal | **Ellis filed 2017-05-15** — inside the RPO 10-year Protected Unit look-back until ≈**2027-05-15** | Units are Protected Units today |
-| Replacement obligations | **HCA/RPO Replacement Review: Yes** and **HE Replacement Required: Yes** | Replacement attaches to any removal |
-| Residual density | Lot 5,974.5 sf; 4 units existing; `[Q]` possibly RD1.5 (≈3 permitted) | **Likely nothing to build** |
+| No demolition or alteration of units **occupied by tenants** in the prior 5 years | `Housing Use within Prior 5 Years: **Yes**` | Indicates residential **use**. **Does not establish tenant occupancy**, which is the operative SHRA term. `UNRESOLVED` |
+| Restriction on parcels with a **qualifying Ellis Act withdrawal** within the applicable SHRA look-back | `Ellis Act Property: **Yes**`, filed **2017-05-15** | Establishes that a filing exists and its date. **Does not establish** that it is a qualifying withdrawal, its current status, or that it falls within SHRA's look-back. `UNRESOLVED` |
+| Site and scale criteria | Lot 5,974.5 sf; 4 units; `[Q]` text unread | Little land would remain to subdivide. Density effect `UNRESOLVED` pending `[Q]` |
 
-**What the RSO = No finding does *not* rescue.** Losing the rent-control limb
-of the protected-housing test does not save SB 684 here, because the
-tenant-occupancy limb and the Ellis limb both appear to be live, and because
-the replacement-review flags are affirmative on the City's own record.
+**Separately** — and not part of SHRA eligibility — `HCA/RPO Replacement
+Review: Yes` and `HE Replacement Required: Yes` attach replacement obligations
+to unit removal. Those are Housing Crisis Act / Resident Protections rules with
+their own tests. They are a cost and process consequence, **not** an SHRA
+eligibility determination.
+
+**Net.** The parcel flags point toward SB 684 being unavailable for a project
+that would alter or demolish the existing units. **They do not by themselves
+establish the facts necessary for a final SHRA eligibility determination.**
+
+**What the RSO = No finding does not rescue — restated.** Losing the
+rent-control limb does not by itself open SB 684, because the occupancy and
+Ellis questions remain open. Equally, it does not close it: **unresolved is
+unresolved in both directions.**
 
 **The AB 130 remainder-parcel route — now effectively foreclosed on
 arithmetic, not law.** The route survived adversarial review in Revision 1 and
@@ -97,8 +113,12 @@ density to assign to them. The obstacle moved from *interpretive* to
   in the 5 years before any application. `Housing Use within Prior 5 Years` is
   the City's HCA flag, not a direct statement of tenancy.
 
-**What Harper should verify before spending design money:** the `[Q]` text
-first; the interactive SHRA flag second. Both are cheap.
+**What Harper should verify before relying on SB 684 either way:**
+(1) the **relevant occupancy history** of the four units — tenant occupancy,
+not merely residential use; (2) the **status and effect of the Ellis record**,
+including whether it is a qualifying withdrawal within SHRA's look-back;
+(3) the interactive ZIMAS **SHRA / SB 684 Eligibility** flag; (4) the `[Q]`
+text if subdivision is ever contemplated.
 
 ---
 
@@ -137,7 +157,7 @@ Consistent with `AB 2097: within ½ mile of a Major Transit Stop — No` and
 | AHIP geography | **Citywide** | No location gate |
 | **TCAC Opportunity Area** | **Highest** | AHIP grants enhanced incentives in Higher Opportunity Areas |
 | **AB 2334 Very Low Vehicle Travel Area** | **Yes** | Under AB 2334, qualifying 100% affordable projects in a Very Low VMT area obtain density limited only by floor area, plus height relief |
-| **ED 1 Eligibility** | **Eligible Site** | Mayoral Executive Directive 1 ministerial streamlining for 100% affordable projects |
+| **ED 1 Eligibility** | **Eligible Site** — *parcel flag only.* **The emergency declaration supporting ED 1 ended 2025-11-18**, ending ED 1 ministerial processing for new applications apart from qualifying vested ones. The flag has outlived the program it names |
 
 This is the **only pathway on the parcel where the verified designations line
 up positively rather than negatively.** A 100% affordable project here is not
@@ -183,11 +203,20 @@ least 80% of units are restricted to lower income households and no more than
 - an automatic **+3 stories or 33 feet** of height;
 - **four** incentives or concessions.
 
-**This is the one pathway on the parcel where the `[Q]` density condition —
-whatever it says — becomes irrelevant**, because the density limit itself is
-removed. Stacked with `TCAC Opportunity Area: Highest` and
-`ED 1 Eligibility: Eligible Site`, the 100% affordable route is the only one
-whose verified designations all point the same direction.
+**Language correction (Revision 4).** Earlier drafts described this as an
+"unlimited-density entitlement." **That was an overstatement and is
+withdrawn.** AB 2334 is a **potential pathway subject to affordability and
+other eligibility requirements**, not an entitlement the parcel holds. The
+parcel holds a *designation* (Very Low VMT Area); the benefit attaches only to
+a project that qualifies, and qualification depends on the affordability mix,
+project type and other criteria not verified here.
+
+Stated correctly: on this parcel, a deeply affordable project **may** be able
+to proceed without the density constraint that would otherwise apply —
+including whatever the `[Q]` imposes — **if** it satisfies AB 2334's
+requirements. Stacked with `TCAC Opportunity Area: Highest` and
+`ED 1 Eligibility: Eligible Site`, it is the only route whose verified
+designations point in a consistent direction.
 
 **Classification: `LIKELY / REQUIRES VERIFICATION`** — the AB 2334 mechanics
 come from secondary legal summaries and a LA City Planning memo identified but
@@ -239,9 +268,10 @@ circulation, open-space compliance, and whether all four units are legally
 permitted (LADBS).
 
 **Why it still wins:** it does not demolish or alter existing units, so it
-avoids the SHRA protected-housing bar, the RPO replacement obligation, the HE
-replacement requirement, and the Ellis complications — every one of which is
-now a **confirmed** obstacle on the other pathways.
+sidesteps the SHRA occupancy and Ellis questions, the RPO replacement
+obligation, the HE replacement requirement, and the Ellis complications
+altogether — each of which is live, in one form or another, on the pathways
+that do remove or alter units.
 
 ---
 
@@ -273,9 +303,9 @@ makes the question near-academic for now in any event.
 
 ### Verdict: **NOT SUPPORTED in practice**
 
-Available by zone in R3. But it faces the same confirmed obstacles as SB 684 —
-protected units, Ellis look-back, HCA/RPO and HE replacement — and the same
-dimensional problem: a 5,974.5 sf lot with a 4,092 sf building and possibly
+Available by zone in R3. But it faces the same open questions as SB 684 —
+occupancy history, Ellis status, and the separate HCA/RPO and HE replacement
+obligations — and the same dimensional problem: a 5,974.5 sf lot with a 4,092 sf building and possibly
 zero residual density. Minimum small lot is 600 sf, so the constraint is
 density and protected housing, not lot geometry.
 
@@ -287,10 +317,10 @@ The user asked this specifically. Each row is a **verified** flag.
 
 | Flag | SB 684 | SB 1123 | CHIP | ADU | Low-Rise/SB 79 |
 | --- | --- | --- | --- | --- | --- |
-| **Ellis Act, filed 2017-05-15** | Units are Protected Units until ≈2027-05-15 → bar likely triggered | n/a (zone) | RPO replacement attaches | **No effect** — no units removed | n/a (no transit) |
+| **Ellis Act, filed 2017-05-15** | SHRA separately restricts parcels with a **qualifying** Ellis withdrawal in its look-back. Whether this filing qualifies, and its current status, is `UNRESOLVED` | n/a (zone) | Under **RPO** (a different regime), Ellis-withdrawn units are named in the Protected Units definition; replacement may attach | **No effect** — no units removed | n/a (no transit) |
 | **HE Replacement Required: Yes** (Housing Element site, SB 166 0.15) | Replacement on any unit loss | n/a | Replacement obligation on top of RPO | **No effect** | n/a |
 | **HCA / RPO Replacement Review: Yes** | RUD required; replacement on removal | n/a | **RUD required for every CHIP project** | **No effect** | n/a |
-| **Housing Use within Prior 5 Years: Yes** | Triggers the 5-year protected-housing limb | n/a | Feeds RPO protected-unit analysis | **No effect** | n/a |
+| **Housing Use within Prior 5 Years: Yes** | Points toward the SHRA 5-year limb, but reports *use*, not *tenant occupancy* — the operative SHRA term. `UNRESOLVED` | n/a | Feeds the separate RPO protected-unit analysis | **No effect** | n/a |
 | **JCO: Yes** | Tenancy protections on any displacement | n/a | Tenant protections apply | Applies to any new tenancy | n/a |
 | **RSO: No** | Removes only the rent-control limb — insufficient | n/a | Does not remove RPO/HE replacement | **Removes the largest ADU risk** | n/a |
 
@@ -320,7 +350,7 @@ None of these were on the board before the ZIMAS report.
 
 | Program / flag | Status | Relevance |
 | --- | --- | --- |
-| **ED 1 — Eligible Site** | Confirmed flag | 100% affordable ministerial streamlining |
+| **ED 1 — Eligible Site** | **Flag confirmed; program route closed to new applications** (declaration ended 2025-11-18). Evaluate under the **current** AHIP / Housing Element Sites framework instead | Parcel flag ≠ available process |
 | **AB 2334 Very Low VMT Area — Yes** | Confirmed flag | Removes density cap for qualifying affordable projects |
 | **TCAC Opportunity Area — Highest** | Confirmed flag | Enhances AHIP / state density bonus for affordable |
 | **Housing Element Site (ZI-2512)** | Confirmed | HE replacement + SB 166 no-net-loss |
@@ -339,13 +369,13 @@ None of these were on the board before the ZIMAS report.
 
 | Program | Rev 1 verdict | **Rev 2 verdict** | Basis |
 | --- | --- | --- | --- |
-| SB 684 | Likely not available / verify | **NOT SUPPORTED** | Protected units + Ellis + replacement flags + no residual density |
+| SB 684 | Likely not available / verify | **POTENTIALLY BLOCKED for a project altering or demolishing existing units — `LIKELY / CONDITIONAL`** | SHRA prohibits demolition/alteration of units tenant-occupied in the prior 5 years and separately restricts qualifying Ellis withdrawals. ZIMAS reports housing use in the prior 5 years and a 2017 Ellis filing, **but those flags do not by themselves establish the facts needed for a final SHRA eligibility determination.** Verify occupancy history and Ellis status/effect |
 | SB 1123 | Not applicable if multifamily | **NOT APPLICABLE — CONFIRMED** | Zoning `[Q]R3-1-O` verified |
 | CHIP — MIIP | Unknown geography | **NOT ELIGIBLE — CONFIRMED** | Three `Not Eligible` rows |
 | CHIP — AHIP | Citywide, unlikely to suit | **LIKELY AVAILABLE — strongest density path** | TCAC Highest + AB 2334 + ED 1 |
 | CHIP — State Density Bonus | Available | **Available but numerically thin** | Base density unresolved pending `[Q]` |
 | ADU / SB 1211 | Likely — strongest path | **LIKELY — still strongest; `[Q]` confirmed not to block it** | RSO risk removed; gate is physical capacity on 5,974.5 sf, not zoning |
-| AB 2334 unlimited density (100% affordable) | Not identified | **LIKELY AVAILABLE — bypasses the `[Q]` entirely** | Requires 80%+ lower-income; ED 1 terms unverified |
+| AB 2334 / affordable-housing incentives | Not identified | **POTENTIAL PATHWAY — subject to affordability and other eligibility requirements**, and to be evaluated under the **current** AHIP / Housing Element Sites framework, **not** ED 1 | 80%+ lower-income; not an entitlement the parcel holds |
 | SB 79 / Low-Rise | Unknown — largest upside | **NOT SUPPORTED** | No major transit stop within ½ mile |
 | Small Lot Subdivision | Available by zone | **NOT SUPPORTED in practice** | Same obstacles as SB 684 |
 | SB 9 | Not applicable | **NOT APPLICABLE — CONFIRMED** | Multifamily zone verified |

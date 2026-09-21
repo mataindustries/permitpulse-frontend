@@ -4,7 +4,7 @@ Case ID: `PP-CASE-2026-09-VIDOR`
 Opened: 2026-09-21
 Research analyst: PermitPulse (automated research pass, not human-reviewed)
 Subject: Harper Halprin, AIA — AAHA Studio (prospective user, product-validation case)
-Status: **REVISION 3 — `[Q]` CHAIN TRACED (BREAKS) · BRIEF GATED ON 2 LAHD ITEMS**
+Status: **REVISION 4 — CLIENT BRIEF READY FOR HUMAN REVIEW**
 
 ## Read this first
 
@@ -30,8 +30,15 @@ a Very Low VMT Area), and would not affect remodelling (LAMC 12.23). It gates
 only market-rate redevelopment, which is closed here on other grounds. See
 `PAIN_LOG.md` §P-20 for the queue-ordering lesson.
 
-Network egress remained blocked, so LADBS, LAHD, the Assessor and statute text
-are **still unretrieved**. See `RESEARCH_LEDGER.md` §0-R3 and §0-R2.
+**Revision 4 (2026-09-21).** An LAHD telephone inquiry on the RSO / JCO /
+Ellis discrepancy **resolved nothing** — staff could not determine current
+status from the records viewed. Recorded as a dated staff inquiry, not a
+determination; no inference drawn in either direction
+(`PROPERTY_EVIDENCE.md` §E-11k). Three overstatements were corrected
+(§A-21–A-23), and the client brief was rewritten short with an appendix.
+
+Network egress remained blocked, so LADBS, the Assessor, statute text and the
+`[Q]` ordinance are **still unretrieved**. See `RESEARCH_LEDGER.md` §0-R4.
 
 Under `PROJECT_LAWS.md`:
 
