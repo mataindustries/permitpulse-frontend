@@ -1,0 +1,104 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Preliminary Site Check | PermitPulse</title>
+  <meta name="description" content="Enter a property address and project idea. See the key site questions, what needs official verification, and where to investigate next." />
+  <meta name="robots" content="index,follow" />
+  <meta name="theme-color" content="#03100b" />
+  <link rel="canonical" href="https://getpermitpulse.com/free-tools/site-check/" />
+  <meta property="og:type" content="website" />
+  <meta property="og:title" content="Preliminary Site Check | PermitPulse" />
+  <meta property="og:description" content="A source-aware first pass for site constraints, open questions, and the next official checks." />
+  <meta property="og:url" content="https://getpermitpulse.com/free-tools/site-check/" />
+  <link rel="stylesheet" href="/assets/platform-home.css" />
+  <link rel="stylesheet" href="/assets/site-check.css" />
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-0S8S6156CV"></script>
+  <script>window.dataLayer=window.dataLayer||[];function gtag(){window.dataLayer.push(arguments);}gtag("js",new Date());gtag("config","G-0S8S6156CV");</script>
+  <script defer src="/assets/permitpulse-tracking.js"></script>
+  <script defer src="/assets/site-check.js"></script>
+  <script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token":"7046e03c84424a49988d1930fda247b6"}'></script>
+</head>
+<body class="site-check-page">
+  <a class="skip-link" href="#main-content">Skip to content</a>
+  <header class="site-header"><div class="wrap nav-inner">
+    <a class="brand" href="/" aria-label="PermitPulse home"><span class="brand-mark" aria-hidden="true"><i></i></span><span>Permit<span>Pulse</span></span></a>
+    <nav class="primary-nav" aria-label="Primary navigation"><a href="/free-tools/">Free tools</a><a href="/resources/">Field notes</a><a href="/sample-report/">Example brief</a></nav>
+  </div></header>
+
+  <main id="main-content">
+    <section class="site-check-hero" aria-labelledby="page-title"><div class="wrap">
+      <p class="eyebrow">PermitPulse / Free tools</p>
+      <h1 id="page-title">Preliminary Site Check</h1>
+      <p class="site-check-deck">See what looks promising, what needs verification, and which site constraints deserve a closer look.</p>
+      <p class="site-check-scope">A first research step for a real property and project idea. Official parcel and site facts stay open until checked at the source.</p>
+    </div></section>
+
+    <section class="check-entry wrap" id="check-entry" aria-labelledby="entry-title">
+      <div class="entry-heading"><p class="eyebrow">01 / Start with the idea</p><h2 id="entry-title">What site are you considering?</h2></div>
+      <form id="site-check-form" class="check-form">
+        <label for="property-address">Property address <span class="required-mark" aria-hidden="true">*</span></label>
+        <input id="property-address" name="property_address" type="text" required autocomplete="street-address" inputmode="text" placeholder="Street address, city, state" aria-describedby="address-help" />
+        <p id="address-help" class="field-help">Include the city and state if you know them. The address is shown as entered; it is not parcel-matched here.</p>
+        <fieldset><legend>What are you considering?</legend>
+          <div class="intent-options">
+            <label class="intent-option"><input type="radio" name="intent" value="sb1123" required /><span>Small subdivision / SB 1123</span></label>
+            <label class="intent-option"><input type="radio" name="intent" value="adu" /><span>ADU</span></label>
+            <label class="intent-option"><input type="radio" name="intent" value="multifamily" /><span>Multifamily housing</span></label>
+            <label class="intent-option"><input type="radio" name="intent" value="residential" /><span>General residential development</span></label>
+            <label class="intent-option"><input type="radio" name="intent" value="other" /><span>Other</span></label>
+          </div>
+        </fieldset>
+        <button class="btn btn-primary run-button" type="submit">Run preliminary site check <span aria-hidden="true">→</span></button>
+        <p class="form-boundary">No live property records are retrieved in this phase. Your address stays in this browser until you choose to send a research request.</p>
+      </form>
+    </section>
+
+    <section id="site-check-result" class="site-check-result" aria-labelledby="result-title" tabindex="-1" hidden>
+      <div class="wrap">
+        <div class="result-heading"><div><p class="eyebrow">02 / Known from your input</p><h2 id="result-title">What this site needs next</h2></div><button type="button" id="check-another" class="text-button">Check another address</button></div>
+        <dl class="result-identity"><div><dt>Property entered</dt><dd id="result-address"></dd></div><div><dt>Project intent</dt><dd id="result-intent"></dd></div></dl>
+
+        <div class="signal-panel" role="status" aria-live="polite">
+          <div class="signal-main"><div><p class="signal-label">Preliminary signal</p><strong class="signal-word" id="result-signal">VERIFY</strong></div><p id="result-signal-copy">Parcel and site facts need official confirmation.</p></div>
+          <div class="signal-facts">
+            <p><strong>Key constraints</strong><span>Topography, zoning, access, and overlays have not been screened against property records.</span></p>
+            <p><strong>What needs verification</strong><span id="result-priority"></span></p>
+            <p><strong>Sources / evidence</strong><span>0 address-specific official records retrieved.</span></p>
+          </div>
+          <div class="signal-next"><p><strong>Next step</strong><span>Confirm the parcel and site conditions, or ask PermitPulse to follow the paper trail.</span></p><a class="btn btn-primary" href="/?source=site-check#permit-deep-research-form" data-pp-event="site_check_to_research_click" data-pp-cta="true" data-pp-location="site_check_result_top" data-site-check-handoff>Get a Full Property Research Snapshot <span aria-hidden="true">→</span></a></div>
+        </div>
+
+        <section class="topography-section" aria-labelledby="topography-title"><div class="topography-mark" aria-hidden="true">≈</div><div><p class="eyebrow">Site condition / high priority</p><h3 id="topography-title">Topography not yet verified</h3><p id="topography-copy"></p><p class="evidence-tag">Evidence status: no survey, elevation, grading, or official slope layer reviewed</p></div></section>
+
+        <div class="result-columns">
+          <section class="result-section" aria-labelledby="screen-title"><p class="eyebrow">Unresolved property facts</p><h3 id="screen-title">What we do not know</h3><p class="screen-note">The address and intent above came from you. No official parcel was matched.</p><dl class="screen-list">
+            <div><dt>Jurisdiction</dt><dd>Which city or county controls planning and building review?</dd></div>
+            <div><dt>Base zoning / land use</dt><dd>Official parcel zoning, plan designation, and overlays have not been read.</dd></div>
+            <div><dt>Hazards / access</dt><dd>Mapped hazards and legal site access remain open.</dd></div>
+          </dl></section>
+
+          <section class="result-section pathway-section" aria-labelledby="pathway-title"><p class="eyebrow">Project pathway</p><h3 id="pathway-title"></h3><p id="pathway-copy"></p><p class="pathway-boundary">The selected intent points to a research path. It does not establish project-specific qualification.</p><h4>First project questions</h4><ul id="pathway-questions"></ul></section>
+        </div>
+
+        <section class="verification-section" aria-labelledby="verification-title"><div class="section-lead"><p class="eyebrow">Project-specific checks</p><h3 id="verification-title">What still needs verification</h3><p>After the core site facts above, these questions depend on the project you selected.</p></div><ol id="verification-list" class="verification-list"></ol></section>
+
+        <section class="evidence-section" aria-labelledby="evidence-title"><div class="section-lead"><p class="eyebrow">Sources / evidence</p><h3 id="evidence-title">What supports this screen</h3><p>The entered address has not been matched to a parcel or responsible agency. Keep general pathway guidance separate from evidence about this property.</p></div>
+          <div class="evidence-ledger">
+            <div><h4>Address-specific evidence</h4><p class="evidence-count">0 official records retrieved</p><p>No parcel, zoning, slope, hazard, or agency record was checked for this address.</p></div>
+            <div><h4>Pathway / reference sources</h4><p>No jurisdiction-neutral official reference is linked in this phase. The selected intent is a research prompt, not a property finding.</p></div>
+            <div><h4>Sources still needed</h4><ul><li>Local agency source — needs jurisdiction verification</li><li>Official parcel and zoning record</li><li>Reliable site topography and applicable hazard map</li></ul></div>
+          </div>
+        </section>
+
+        <section class="research-next" aria-labelledby="research-next-title"><div><p class="eyebrow">PermitPulse / Deeper research</p><h3 id="research-next-title">Need the property verified?</h3><p>PermitPulse can research the official paper trail, surface conflicts, document unanswered questions, and prepare an evidence-backed property research snapshot. A person reviews fit and scope before any payment is arranged.</p></div><a class="btn btn-primary" href="/?source=site-check#permit-deep-research-form" data-pp-event="site_check_to_research_click" data-pp-cta="true" data-pp-location="site_check_result_final" data-site-check-handoff>Request a research scope review <span aria-hidden="true">→</span></a></section>
+
+        <details class="signal-guide"><summary>How to read the three preliminary signals</summary><div class="signal-definitions"><p><strong>Promising</strong> Nothing obvious in available evidence indicates a major conflict; important facts may still need verification.</p><p><strong>Verify</strong> Important facts are unknown, ambiguous, conflicting, or need official confirmation.</p><p><strong>Constraint found</strong> Evidence points to a material issue worth reviewing before proceeding.</p></div><p>This phase has no live property lookup, so a submitted address receives Verify. These are research signals, not agency decisions or legal conclusions.</p></details>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer"><div class="wrap footer-grid"><div><a class="brand footer-brand" href="/"><span class="brand-mark" aria-hidden="true"><i></i></span><span>Permit<span>Pulse</span></span></a><p>Permit and property-record research from ENM Ventures.</p></div><nav aria-label="Footer navigation"><a href="/free-tools/">Free tools</a><a href="/resources/">Field notes</a><a href="/sample-report/">Example brief</a><a href="/legal/">Legal &amp; privacy</a></nav><p class="footer-note">© 2026 PermitPulse.</p></div></footer>
+</body>
+</html>

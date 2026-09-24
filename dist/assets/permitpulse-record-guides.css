@@ -1,4 +1,4 @@
-/* Scoped to the two property-record guides; loaded after the resource styles. */
+/* Shared property-research guide styles; loaded after the resource styles. */
 .record-guide {
   --bg: #07100d;
   --card-bg: #0e1915;
@@ -94,4 +94,103 @@
   .record-guide .sticky-cta a { display: flex; align-items: center; justify-content: center; min-height: 48px; padding: 12px 8px; font-size: 13px; line-height: 1.4; border-radius: 6px; }
   .record-guide .sticky-cta .sticky-primary { color: #17100b; border-color: var(--accent-orange); }
   .record-guide .guide-footer { padding-block: 28px 32px; }
+}
+
+/* Housing research guides extend the record-guide system without changing it. */
+.housing-guide { --source-blue: #9cc9ed; }
+.housing-guide .hero { padding-block: 48px 36px; }
+.housing-guide h1 { max-width: 940px; font-size: clamp(2.15rem, 4.6vw, 3.65rem); }
+.housing-guide .title-question { display: block; margin-top: 16px; font-size: clamp(1.35rem, 2.5vw, 1.75rem); line-height: 1.4; font-weight: 500; letter-spacing: -.025em; }
+.housing-guide .lead { max-width: 790px; }
+.housing-guide .article { max-width: 1040px; gap: 40px; }
+.housing-guide .article :is(section, div), .housing-guide .wrap > * { min-width: 0; }
+.housing-guide :is(h1, h2, h3, a, td, th) { overflow-wrap: anywhere; }
+.housing-guide :is(section, details, [id]) { scroll-margin-top: 24px; }
+.housing-guide .article p { max-width: 78ch; }
+.housing-guide .guide-jumps { margin-top: 24px; }
+.housing-guide .guide-jumps a { display: inline-flex; align-items: center; min-height: 44px; }
+.housing-guide .start-heading { margin-top: 26px; font-size: 1rem; letter-spacing: -.01em; }
+.housing-guide .research-steps { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 10px; list-style: none; margin-top: 14px; }
+.housing-guide .research-steps a { display: grid; grid-template-columns: 1fr; gap: 8px; height: 100%; padding: 15px; border: 1px solid var(--card-border); border-radius: 8px; background: var(--card-bg); font-size: 14px; line-height: 1.5; }
+.housing-guide .step-number { color: var(--source-blue); font-family: var(--font-mono); font-size: 12px; }
+.housing-guide .research-steps a:hover, .housing-guide .decision-card:hover { border-color: var(--source-blue); }
+.housing-guide .decision-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin-top: 16px; }
+.housing-guide .decision-card { display: grid; gap: 7px; padding: 20px; border: 1px solid var(--card-border); border-radius: 8px; background: var(--card-bg); }
+.housing-guide .decision-card strong { font-size: 1.05rem; line-height: 1.4; letter-spacing: -.015em; }
+.housing-guide .decision-card span { color: var(--source-blue); font-size: 14px; }
+.housing-guide .hero-note { max-width: 75ch; }
+.housing-guide .source-check { display: grid; grid-template-columns: .8fr 1.2fr; gap: 24px; padding: 24px; border: 1px solid var(--card-border); border-top: 3px solid var(--source-blue); border-radius: 8px; background: var(--card-bg); }
+.housing-guide .source-check .eyebrow { color: var(--source-blue); margin-bottom: 10px; }
+.housing-guide .source-check h2 { font-size: 1.15rem; line-height: 1.45; letter-spacing: -.02em; }
+.housing-guide .source-check p { font-size: 14px; line-height: 1.65; }
+.housing-guide .source-check .source-owner { margin-top: 8px; }
+.housing-guide .source-check a { color: var(--source-blue); text-decoration: underline; text-underline-offset: 4px; }
+.housing-guide .source-check a.source-directory-link { display: inline-flex; align-items: center; min-height: 44px; }
+.housing-guide .article .official-link { display: inline-flex; align-items: center; min-height: 44px; color: var(--source-blue); }
+.housing-guide .article .official-link:hover { color: #d3eaff; }
+.housing-guide .verify-links { display: flex; flex-wrap: wrap; gap: 2px 22px; font-size: 14px; }
+.housing-guide .article .fact-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px 24px; padding: 0; margin: 0; list-style: none; }
+.housing-guide .fact-list li { border-top: 1px solid var(--card-border); padding-top: 12px; font-size: 15px; }
+.housing-guide .article .fact-list li + li { margin-top: 0; }
+.housing-guide .program-paths { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.housing-guide .program-path { padding: 20px; background: var(--card-bg); border: 1px solid var(--card-border); border-radius: 8px; }
+.housing-guide .program-path .mono { display: block; margin-bottom: 10px; color: var(--source-blue); font-size: 11px; letter-spacing: .06em; }
+.housing-guide .program-path p { margin-top: 12px; font-size: 15px; line-height: 1.65; }
+.housing-guide .program-facts { display: grid; grid-template-columns: 145px minmax(0, 1fr); gap: 10px 22px; font-size: 15px; }
+.housing-guide .program-facts dt { font-weight: 600; color: var(--text-main); }
+.housing-guide .program-facts dd { color: var(--text-muted); }
+.housing-guide .comparison { width: 100%; border-collapse: collapse; font-size: 14px; line-height: 1.6; text-align: left; }
+.housing-guide .comparison caption { text-align: left; margin-bottom: 16px; color: var(--text-muted); }
+.housing-guide .comparison :is(th, td) { vertical-align: top; padding: 16px; border: 1px solid var(--card-border); }
+.housing-guide .comparison thead th { color: var(--source-blue); font-size: 12px; font-weight: 600; background: #12201c; }
+.housing-guide .comparison tbody th { width: 23%; font-weight: 600; background: var(--card-bg); }
+.housing-guide .comparison td { width: 25.66%; color: var(--text-muted); }
+.housing-guide .comparison .official-link { font-weight: 400; margin-top: 8px; font-size: 13px; }
+.housing-guide .cell-label { display: none; }
+.housing-guide .navigator-slot { padding: clamp(24px, 4vw, 36px); border: 1px solid #4c6b7f; border-radius: 10px; background: #101e22; }
+.housing-guide .navigator-slot .eyebrow { color: var(--source-blue); }
+.housing-guide .navigator-slot .navigator-content { display: grid; gap: 14px; }
+.housing-guide .navigator-slot .actions { margin-top: 4px; }
+.housing-guide .navigator-slot .safety-copy { margin-top: 0; font-family: var(--font-sans); }
+.housing-guide .source-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.housing-guide .source-grid-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.housing-guide .article a.source-card { display: grid; gap: 7px; padding: 18px 20px; border: 1px solid var(--card-border); border-radius: 8px; color: var(--source-blue); text-decoration: none; background: var(--card-bg); }
+.housing-guide .source-card strong { text-decoration: underline; text-underline-offset: 4px; font-size: 15px; }
+.housing-guide .source-card span { color: var(--text-muted); font-size: 13px; line-height: 1.55; }
+.housing-guide .source-card:hover { border-color: var(--source-blue); }
+.housing-guide .research-invite { background: var(--card-bg); }
+.housing-guide .guide-footer { color: var(--text-muted); }
+@media (max-width: 768px) {
+  .housing-guide .hero { padding-block: 32px; }
+  .housing-guide .wrap { padding-inline: 20px; }
+  .housing-guide .article { gap: 32px; }
+  .housing-guide .article section { gap: 12px; }
+  .housing-guide .record-note { padding: 14px 16px; }
+  .housing-guide .lead { font-size: 17px; line-height: 1.65; margin-top: 18px; }
+  .housing-guide .research-steps { grid-template-columns: 1fr; gap: 6px; }
+  .housing-guide .research-steps a { grid-template-columns: 24px 1fr; align-items: baseline; gap: 8px; padding: 10px 14px; min-height: 44px; }
+  .housing-guide .source-check { grid-template-columns: 1fr; gap: 14px; padding: 20px; }
+  .housing-guide .program-paths { grid-template-columns: 1fr; }
+  .housing-guide .comparison, .housing-guide .comparison tbody { display: block; }
+  .housing-guide .comparison caption { display: block; }
+  .housing-guide .comparison thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+  .housing-guide .comparison tr { display: block; border: 1px solid var(--card-border); border-radius: 8px; overflow: hidden; background: var(--card-bg); }
+  .housing-guide .comparison tr + tr { margin-top: 14px; }
+  .housing-guide .comparison :is(th, td) { display: block; width: auto; border: 0; padding: 12px 18px; }
+  .housing-guide .comparison tbody th { width: auto; padding-top: 18px; border-bottom: 1px solid var(--card-border); font-size: 16px; }
+  .housing-guide .comparison td:last-child { padding-bottom: 18px; }
+  .housing-guide .cell-label { display: block; margin-bottom: 3px; color: var(--source-blue); font-size: 12px; font-weight: 600; }
+  .housing-guide .program-facts { grid-template-columns: 1fr; gap: 4px; }
+  .housing-guide .program-facts dd + dt { margin-top: 8px; }
+  .housing-guide .source-grid { grid-template-columns: 1fr; }
+  .housing-guide .verify-links { display: grid; gap: 4px; }
+}
+@media (max-width: 560px) {
+  .housing-guide .decision-grid, .housing-guide .article .fact-list { grid-template-columns: 1fr; }
+  .housing-guide .decision-card { padding: 15px 18px; }
+}
+@media print {
+  .housing-guide { padding-bottom: 0; }
+  .housing-guide .guide-header, .housing-guide .sticky-cta { display: none; }
+  .housing-guide .comparison tr, .housing-guide .source-card { break-inside: avoid; }
 }

@@ -49,6 +49,44 @@
     };
   }
 
+  function prefillSiteCheckIntake() {
+    var params = new URLSearchParams(window.location.search);
+    if (params.get("source") !== "site-check") return;
+    var form = document.getElementById("permit-deep-research-form");
+    if (!form) return;
+
+    var handoff;
+    try {
+      handoff = JSON.parse(window.sessionStorage.getItem("pp_site_check_handoff_v1") || "null");
+      window.sessionStorage.removeItem("pp_site_check_handoff_v1");
+    } catch (error) {
+      return;
+    }
+    if (!handoff || !Number.isFinite(handoff.created_at) || Date.now() - handoff.created_at > 30 * 60 * 1000 || Date.now() < handoff.created_at) return;
+    if (typeof handoff.address !== "string" || !handoff.address.trim() || typeof handoff.intent_label !== "string" || !Array.isArray(handoff.questions)) return;
+
+    function setHidden(name, value) {
+      var input = form.querySelector('input[name="' + name + '"]');
+      if (!input) {
+        input = document.createElement("input");
+        input.type = "hidden";
+        input.name = name;
+        form.appendChild(input);
+      }
+      input.value = value;
+    }
+
+    var questions = handoff.questions.filter(function (item) { return typeof item === "string"; }).slice(0, 12);
+    form.elements.namedItem("property_address").value = handoff.address.slice(0, 300);
+    form.elements.namedItem("research_goal").value = "Planning a build or remodel";
+    form.elements.namedItem("research_context").value = "Preliminary Site Check — " + handoff.intent_label + ". Open questions: " + questions.join("; ") + ".";
+    setHidden("lead_source", "preliminary-site-check");
+    setHidden("page_url", window.location.origin + "/free-tools/site-check/");
+    setHidden("originating_tool", "preliminary-site-check");
+    setHidden("project_intent", String(handoff.intent || "").slice(0, 40));
+    setHidden("site_check_questions", questions.join("; "));
+  }
+
   function setupAsyncForms() {
     document.querySelectorAll("form[data-pp-async-form]").forEach(function (form) {
       form.addEventListener("submit", function (event) {
@@ -103,6 +141,7 @@
     });
   }
 
+  prefillSiteCheckIntake();
   setupReveal();
   setupAsyncForms();
 }());
