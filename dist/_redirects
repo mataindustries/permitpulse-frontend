@@ -25,6 +25,10 @@
 /case-integrity            /case-integrity/index.html        200
 /case-integrity/           /case-integrity/index.html        200
 
+# LA Housing Program Check is now the broader Preliminary Site Check.
+/free-tools/la-housing-program-check  /free-tools/site-check/  301
+/free-tools/la-housing-program-check/ /free-tools/site-check/  301
+
 # Retired PDF assets → canonical Permit Review Packet
 /assets/docs/PermitPulse-Redacted-Sample-Decision-Snapshot.pdf /sample-report/ 301
 /assets/docs/PermitPulse-Redacted-Sample-Permit-Review-Plus-Full.pdf /sample-report/ 301

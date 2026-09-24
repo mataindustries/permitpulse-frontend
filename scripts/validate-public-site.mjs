@@ -83,6 +83,9 @@ const requiredFiles = [
   "case-integrity/index.html",
   "sample-report/index.html",
   "resources/index.html",
+  "resources/does-sb79-low-rise-apply-los-angeles-property/index.html",
+  "resources/los-angeles-housing-programs-chip-sb79-sb684-sb1123/index.html",
+  "free-tools/site-check/index.html",
   "resources/permit-drops/los-angeles-building-records-online-first/index.html",
   "resources/how-to-check-permit-history-los-angeles/index.html",
   "resources/permit-nightmares/nine-departments-one-paper-trail/index.html",
@@ -94,6 +97,8 @@ const requiredFiles = [
   "assets/case-integrity-demo-data.json",
   "assets/platform-home.js",
   "assets/platform-home.css",
+  "assets/site-check.js",
+  "assets/site-check.css",
   "sitemap-pages.xml",
   "_redirects"
 ];
@@ -111,10 +116,16 @@ const home = htmlByRel.get("index.html") || "";
 const caseIntegrityDemo = htmlByRel.get("case-integrity/index.html") || "";
 const sample = htmlByRel.get("sample-report/index.html") || "";
 const resources = htmlByRel.get("resources/index.html") || "";
+const siteCheck = htmlByRel.get("free-tools/site-check/index.html") || "";
+const housingGuides = [
+  "resources/does-sb79-low-rise-apply-los-angeles-property/index.html",
+  "resources/los-angeles-housing-programs-chip-sb79-sb684-sb1123/index.html"
+];
 const legal = htmlByRel.get("legal/index.html") || "";
 const bostonPermitPage = htmlByRel.get("permits/massachusetts/boston/index.html") || "";
 const tracking = await readFile(path.join(distRoot, "assets/permitpulse-tracking.js"), "utf8");
 const formScript = await readFile(path.join(distRoot, "assets/platform-home.js"), "utf8");
+const siteCheckScript = await readFile(path.join(distRoot, "assets/site-check.js"), "utf8");
 const caseIntegrityDemoScript = await readFile(path.join(distRoot, "assets/case-integrity-demo.js"), "utf8");
 const caseIntegrityDemoCss = await readFile(path.join(distRoot, "assets/case-integrity-demo.css"), "utf8");
 let caseIntegrityDemoData = {};
@@ -308,6 +319,20 @@ check(jsonLdPlaceholderHits.length === 0, "No placeholder values in production J
 check(!jurisdictionConfig.includes('dataset: "y3ad-yhi1"'), "Retired Long Beach API dataset is not configured");
 check(jurisdictionConfig.includes("building-permit-records"), "Long Beach uses the current official records route");
 
+check(siteCheck.includes('id="site-check-form"') && siteCheck.includes('name="property_address"'), "Site Check has an address form");
+for (const intent of ["sb1123", "adu", "multifamily", "residential", "other"]) {
+  check(siteCheck.includes('value="' + intent + '"'), "Site Check offers " + intent + " intent");
+  check(siteCheckScript.includes(intent + ": {"), "Site Check explains " + intent + " pathway");
+}
+check(siteCheck.includes("Topography not yet verified") && siteCheck.includes("What still needs verification"), "Site Check exposes unverified site conditions");
+check(["Address-specific evidence", "Pathway / reference sources", "Sources still needed", "0 official records retrieved", "Local agency source — needs jurisdiction verification"].every((label) => siteCheck.includes(label)), "Site Check separates evidence, references, and sources still needed");
+check(!/zimas\.lacity\.org|planning\.lacity\.gov|City of Los Angeles|LA Planning|\/resources\/[^"\s]*los-angeles/i.test(siteCheck + siteCheckScript), "Unmatched Site Check does not offer LA-specific source links");
+check(siteCheck.includes('data-pp-event="site_check_to_research_click"') && siteCheck.includes('data-site-check-handoff'), "Site Check instruments the research handoff");
+check(siteCheckScript.includes('site_check_completed') && siteCheckScript.includes('site_check_result_verify'), "Site Check tracks completed verify results");
+check(formScript.includes("pp_site_check_handoff_v1") && formScript.includes("preliminary-site-check"), "Existing research intake accepts Site Check handoff");
+check(housingGuides.every((file) => (htmlByRel.get(file) || "").includes('data-pp-event="pp_content_to_offer_click"')), "Housing guides preserve content-to-offer tracking");
+check(housingGuides.every((file) => (htmlByRel.get(file) || "").includes('href="/free-tools/site-check/?intent=')), "Housing guides link to the intent-aware Site Check");
+
 const addressIntakeFiles = publicForStaleScan.filter(([, html]) => {
   return /formspree\.io/i.test(html) && /name=["'](?:property_address|project_address|permit_number|address)["']/i.test(html);
 }).map(([name]) => name);
@@ -319,6 +344,7 @@ check(redirectsText.includes("/permit-due-diligence-los-angeles /#research-intak
 check(redirectsText.includes("/snapshot                  /#research-intake"), "Legacy snapshot route redirects to current intake");
 check(redirectsText.includes("/austin-building-permits.html /resources/"), "Retired Austin dataset-proxy page redirects to field notes");
 check(redirectsText.includes("/chicago-building-permits.html /resources/"), "Retired Chicago dataset-proxy page redirects to field notes");
+check(redirectsText.includes("/free-tools/la-housing-program-check/ /free-tools/site-check/  301"), "Old housing tool route redirects to Site Check");
 
 // A sitemap URL that always 301s is a contradiction: Google is told to index
 // a page it will only ever see as a redirect (see the Pasadena case this
@@ -356,6 +382,9 @@ const sitemapRequirements = [
   "https://getpermitpulse.com/legal/",
   "https://getpermitpulse.com/resources/permit-drops/los-angeles-building-records-online-first/",
   "https://getpermitpulse.com/resources/how-to-check-permit-history-los-angeles/",
+  "https://getpermitpulse.com/resources/does-sb79-low-rise-apply-los-angeles-property/",
+  "https://getpermitpulse.com/resources/los-angeles-housing-programs-chip-sb79-sb684-sb1123/",
+  "https://getpermitpulse.com/free-tools/site-check/",
   "https://getpermitpulse.com/resources/permit-nightmares/nine-departments-one-paper-trail/"
 ];
 for (const url of sitemapRequirements) check(sitemap.includes(url), "Sitemap includes " + url);
@@ -385,7 +414,7 @@ for (const packetName of docs.filter((name) => name.startsWith("content-packets/
 const launchDoc = await readFile(path.join(repoRoot, "docs", "LAUNCH_READINESS.md"), "utf8");
 check((launchDoc.match(/^\d+\. \*\*/gm) || []).length === 8, "Manual launch list is capped at eight");
 
-const coreRelPaths = ["index.html", "case-integrity/index.html", "sample-report/index.html", "resources/index.html", ...contentRoutes.map(([suffix]) => "resources/" + suffix), "about/index.html", "legal/index.html"];
+const coreRelPaths = ["index.html", "case-integrity/index.html", "sample-report/index.html", "free-tools/index.html", "free-tools/site-check/index.html", "resources/index.html", ...contentRoutes.map(([suffix]) => "resources/" + suffix), ...housingGuides, "about/index.html", "legal/index.html"];
 for (const fileName of coreRelPaths) {
   const html = htmlByRel.get(fileName) || "";
   check((html.match(/<h1\b/gi) || []).length === 1, fileName + " has one H1");
@@ -419,6 +448,21 @@ const indexedArticles = [
     route: "/resources/check-adu-permit-history-los-angeles/",
     file: "resources/check-adu-permit-history-los-angeles/index.html",
     sections: ["Match the ADU to the right address or unit", "ADU red-flag checklist", "Check inspections and final status"]
+  },
+  {
+    route: "/free-tools/site-check/",
+    file: "free-tools/site-check/index.html",
+    sections: ["Topography not yet verified", "What still needs verification", "Sources / evidence"]
+  },
+  {
+    route: "/resources/does-sb79-low-rise-apply-los-angeles-property/",
+    file: housingGuides[0],
+    sections: ["Check the current official SB 79 / Low-Rise map", "Questions worth bringing to Planning"]
+  },
+  {
+    route: "/resources/los-angeles-housing-programs-chip-sb79-sb684-sb1123/",
+    file: housingGuides[1],
+    sections: ["CHIP: identify the pathway first", "Can more than one program matter?"]
   }
 ];
 for (const { route, file, sections } of indexedArticles) {

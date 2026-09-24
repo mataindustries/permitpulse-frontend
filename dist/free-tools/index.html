@@ -8,7 +8,7 @@
   <link rel="canonical" href="https://getpermitpulse.com/free-tools/" />
   <meta property="og:type" content="website" />
   <meta property="og:title" content="PermitPulse Free Tools" />
-  <meta property="og:description" content="Live Permit Radar, review-time estimator, Top Permits, and top permit views in one hub." />
+  <meta property="og:description" content="Preliminary Site Check, review-time estimator, Live Permit Radar, and permit research guides in one hub." />
   <meta property="og:url" content="https://getpermitpulse.com/free-tools/" />
   <meta property="og:image" content="https://getpermitpulse.com/img/og/permitpulse-og-live-ladbs-permits-los-angeles-1200x630-2025-10.png" />
   <style>
@@ -26,6 +26,8 @@
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body { background: var(--bg); color: var(--text-main); font-family: var(--font-sans); line-height: 1.45; padding-bottom: 86px; overflow-x: hidden; -webkit-font-smoothing: antialiased; }
+    .skip-link { position: fixed; z-index: 1000; top: 10px; left: 10px; padding: 10px 14px; background: #fff; color: #111; transform: translateY(-160%); }
+    .skip-link:focus { transform: none; }
     a { color: inherit; text-decoration: none; }
     .wrap { max-width: 1000px; margin: 0 auto; padding: 0 20px; }
     header { padding: 20px 0; position: fixed; width: 100%; top: 0; z-index: 100; backdrop-filter: blur(10px); border-bottom: 1px solid rgba(255,255,255,0.05); background: rgba(5,5,5,0.85); }
@@ -89,6 +91,7 @@
   <!-- Cloudflare Web Analytics --><script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token":"7046e03c84424a49988d1930fda247b6"}'></script><!-- End Cloudflare Web Analytics -->
 </head>
 <body>
+<a class="skip-link" href="#main-content">Skip to content</a>
 <header>
   <div class="wrap nav-inner">
     <a href="/" class="logo">PermitPulse <span class="orange">/</span> Beta</a>
@@ -100,12 +103,12 @@
   </div>
 </header>
 
-<main>
+<main id="main-content">
   <section class="wrap hero">
     <div class="eyebrow">Free Permit Tools</div>
     <h1>Free tools for permit outreach and planning.</h1>
     <p class="lead">Use the free stack to explore live permit activity, review useful guides, and prepare smarter outreach before you pay for deeper work.</p>
-    <p class="mono muted" style="margin-top:18px; font-size:12px;">Last updated: 2026-02-18</p>
+    <p class="mono muted" style="margin-top:18px; font-size:12px;">Last updated: 2026-09-24</p>
     <div class="actions">
       <a href="#tools" class="btn btn-orange">Explore Free Tools</a>
       <a href="/#research-intake" class="btn btn-ghost" target="_blank" rel="noopener">Research an address</a>
@@ -114,6 +117,14 @@
 
   <section class="wrap section" id="tools">
     <div class="grid grid-3">
+      <article class="card">
+        <div>
+          <div class="tool-kicker">Property research</div>
+          <h3>Preliminary Site Check</h3>
+          <p class="muted" style="margin-top:10px;">Start with an address and project idea. See site constraints and official facts worth verifying before going further.</p>
+        </div>
+        <a class="tool-link" href="/free-tools/site-check/" data-pp-cta="true" data-pp-location="free_tools_site_check">Run Site Check</a>
+      </article>
       <article class="card">
         <div>
           <div class="tool-kicker">Planning</div>
