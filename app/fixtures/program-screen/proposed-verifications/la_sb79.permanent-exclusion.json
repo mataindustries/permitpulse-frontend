@@ -3,32 +3,125 @@
   "criterion_id": "la_sb79.permanent-exclusion",
   "source_id": "ordinance-188968",
   "additional_sources_needed": [
-    "Any adoption map or exhibit the ordinance incorporates, if exclusions are shown by map rather than by text.",
-    "SB 79 (2025) chaptered text on leginfo.legislature.ca.gov, if the ordinance relies on state-defined exclusions."
+    "The Director of Planning's exemption maps issued under Sec. 3, with their publication dates.",
+    "The SCAG TOD stop and zone maps (GCS 65912.160(f)); the ordinance recites that the final map is not yet produced.",
+    "SB 79 (GCS 65912.155-65912.162). Chaptered text of the statute on leginfo.legislature.ca.gov. It cannot be captured as evidence until a statute source type exists; do not capture it as an adopted_ordinance."
   ],
   "related_draft_source_ids": [],
-  "source_sha256": null,
-  "candidate_page": null,
-  "candidate_pinpoint": null,
-  "candidate_excerpt": null,
-  "locate_in_source": "Not yet located: Ordinance 188968 (ordinance-188968) has not been captured, so no page or section has been read. The repository's current citation pointer is \"Sections 1-6: permanent exclusions and mapping provisions\", taken from repository notes, not from the ordinance text.",
-  "question_for_human_reviewer": "Which categories of parcels does Ordinance 188968 permanently exclude, and what legal effect does an exclusion have on SB 79 applicability for the parcel? Which record (ordinance text, map, exhibit, or ZIMAS field) authoritatively shows whether a given parcel is excluded? Does absence from that record establish that a parcel is not excluded?",
+  "source_sha256": "91ea56cfb5db7b1d0f42bba4afef52179fd9052ef726d7a337fe35091410a588",
+  "candidate_page": 4,
+  "candidate_pinpoint": "Ordinance 188968, Section 1, page 4",
+  "candidate_excerpt": "Section 1. Pursuant to California Government Code Section 65912.160(e), the City Council adopts this ordinance on eligible sites meeting one of the criteria referenced below, making the sites permanently exempt from Senate Bill 79, codified at Government Code, Title 7, Division 1, Chapter 4.1.5 (Senate Bill 79):",
+  "locate_in_source": "Located in ordinance-188968 (8 pages, City OCR text layer): Section 1 and its criteria A and B, page 4; Sec. 3 (maps), page 5; Sec. 6 (ZIMAS), page 6; recitals on the SCAG final map, page 3.",
+  "question_for_human_reviewer": "Ordinance 188968 Section 1 makes sites meeting either criterion (no walking path under one mile to the TOD stop, or an industrial employment hub) permanently exempt from SB 79, and Section 3 delegates the exemption maps to the Director of Planning. Do you agree that a permanent exemption shown on the Director's map is a disqualifier for the SB 79 pathway, that 'none shown' must stay requires_judgment until the SCAG final map exists, and that the fact should be renamed from 'exclusion' to 'exemption' with its category? Should the ZIMAS display that Section 6 directs remain observation-only?",
   "proposed_controlled_interpretation": {
     "fact_keys": [
       "sb79-permanent-exclusion"
     ],
-    "controlled_values_required": "sb79-permanent-exclusion is a yes/no: the adopted record shows a permanent exclusion for the parcel. The reviewer should determine whether yes/no is enough, or whether the exclusion category must be recorded because categories have different effects.",
-    "fact_narrowing_required": false,
-    "narrowing_note": null,
-    "predicate_shape_if_reviewer_agrees": "If the reviewer finds that a permanent exclusion makes SB 79 inapplicable: shown -> disqualifying_per_source. Not shown -> consistent_with_source only if the reviewer determines the named record is exhaustive; otherwise -> requires_judgment.",
+    "controlled_values_required": "Rename sb79-permanent-exclusion to sb79-permanent-exemption with controlled values walking_path (Sec. 1.A) | industrial_employment_hub (Sec. 1.B) | none_shown | not_retrieved, human-recorded from the Director's exemption map with its publication date.",
+    "fact_narrowing_required": true,
+    "narrowing_note": "Replace the yes/no with the category from the Director's map. The ordinance says 'permanently exempt'.",
+    "predicate_shape_if_reviewer_agrees": "walking_path or industrial_employment_hub -> disqualifying_per_source; none_shown -> requires_judgment while the SCAG final map is pending; not_retrieved -> unknown.",
     "must_remain_unresolved_when": [
-      "the parcel's exclusion record is missing or was not retrieved; a failed lookup is not a no",
-      "the ordinance record and a ZIMAS display disagree",
-      "the exclusion's effect differs by category and the category is not recorded"
+      "the Director's exemption map was not retrieved or is undated",
+      "the map shows no exemption while the SCAG final TOD map is not produced",
+      "the ZIMAS display and the Director's map disagree"
     ],
-    "zimas_conflict_risk": "High. zimas-sb79-exemption stays observation-only; if it disagrees with the criterion result, the existing program_flag_divergence blocker applies. It never settles the criterion."
+    "zimas_conflict_risk": "High. Sec. 6 directs the Director to show in ZIMAS which sites are and are not covered by SB 79, so ZIMAS may carry the most current display, but it is neither the ordinance nor the Director's map. zimas-sb79-exemption does not distinguish permanent from temporary exemption and stays observation-only; any divergence raises program_flag_divergence."
   },
+  "candidate_components": [
+    {
+      "component_id": "la_sb79.permanent-exemption-effect",
+      "label": "Effect of a Section 1 permanent exemption on the SB 79 pathway",
+      "pinpoint": "Ordinance 188968, Section 1, page 4",
+      "excerpts": [
+        {
+          "page": 4,
+          "text": "Section 1. Pursuant to California Government Code Section 65912.160(e), the City Council adopts this ordinance on eligible sites meeting one of the criteria referenced below, making the sites permanently exempt from Senate Bill 79, codified at Government Code, Title 7, Division 1, Chapter 4.1.5 (Senate Bill 79):"
+        }
+      ],
+      "disposition": "partially_deterministic",
+      "reads_existing_fact_keys": [
+        "sb79-permanent-exclusion"
+      ],
+      "new_facts_needed": [
+        "sb79-permanent-exemption: walking_path | industrial_employment_hub | none_shown | not_retrieved."
+      ],
+      "controlled_value_encoding": "Both categories have the same effect; the category is recorded for traceability.",
+      "proposed_rule_if_reviewer_agrees": "walking_path or industrial_employment_hub -> disqualifying_per_source for the SB 79 pathway. none_shown -> requires_judgment while the SCAG final map is pending. not_retrieved -> unknown.",
+      "judgment_or_ambiguity": [
+        "The ordinance lists no parcels; whether a site meets a criterion is a mapping determination (Sec. 3), so absence from a provisional map is not a finding.",
+        "The repository calls this an 'exclusion'; the ordinance says 'permanently exempt'."
+      ]
+    },
+    {
+      "component_id": "la_sb79.permanent-exemption-walking-path",
+      "label": "Criterion A: no walking path of less than one mile to the TOD stop",
+      "pinpoint": "Ordinance 188968, Section 1.A, page 4",
+      "excerpts": [
+        {
+          "page": 4,
+          "text": "A. A site for which there exists no walking path of less than one mile from that location to the transit-oriented development stop (Gov. Code Sec. 65912.160(e)(1));"
+        }
+      ],
+      "disposition": "professional_judgment",
+      "reads_existing_fact_keys": [],
+      "new_facts_needed": [],
+      "controlled_value_encoding": "None; rely on the Director's map.",
+      "proposed_rule_if_reviewer_agrees": null,
+      "judgment_or_ambiguity": [
+        "Needs a walking-network analysis to SCAG-designated TOD stops, which are not final."
+      ]
+    },
+    {
+      "component_id": "la_sb79.permanent-exemption-industrial-hub",
+      "label": "Criterion B: industrial employment hub",
+      "pinpoint": "Ordinance 188968, Section 1.B, page 4",
+      "excerpts": [
+        {
+          "page": 4,
+          "text": "B. A site designated as an industrial employment hub if the City has at least 15 transit-oriented development stops."
+        }
+      ],
+      "disposition": "professional_judgment",
+      "reads_existing_fact_keys": [],
+      "new_facts_needed": [],
+      "controlled_value_encoding": "None; rely on the Director's map.",
+      "proposed_rule_if_reviewer_agrees": null,
+      "judgment_or_ambiguity": [
+        "Needs the General Plan employment-lands designation made on or before January 1, 2025, a 250-acre contiguity test, and the industrial-use test of GCS 65912.121."
+      ]
+    },
+    {
+      "component_id": "la_sb79.exemption-map-record",
+      "label": "Which record shows a parcel's exemption",
+      "pinpoint": "Ordinance 188968, Sec. 3, page 5; Sec. 6, page 6; recital, page 3",
+      "excerpts": [
+        {
+          "page": 5,
+          "text": "By enacting this ordinance, the City Council grants the Director of Planning with the power and duty, consistent with City Charter Section 553, to issue and update maps with eligible transit-oriented development sites meeting the criteria for permanent or temporarily exempt status"
+        },
+        {
+          "page": 6,
+          "text": "(1) indicate on its public facing zoning map in the Zone Information and Map Access System (ZIMAS), which sites or transit-oriented development zones are and are not covered by Senate Bill 79’s provisions;"
+        },
+        {
+          "page": 3,
+          "text": "WHEREAS, eligibility for the Phased Implementation Ordinance is contingent on the availability of a final map which has not yet been produced and approved by the Southern California Association of Governments"
+        }
+      ],
+      "disposition": "professional_judgment",
+      "reads_existing_fact_keys": [],
+      "new_facts_needed": [],
+      "controlled_value_encoding": "A design decision for the reviewer, not a fact.",
+      "proposed_rule_if_reviewer_agrees": null,
+      "judgment_or_ambiguity": [
+        "Sec. 6 directs the City to show SB 79 coverage in ZIMAS. Making ZIMAS the record would be a design change, not a verification.",
+        "The recital says the SCAG final map is not produced, so eligibility rests on current data and can change."
+      ]
+    }
+  ],
   "reviewer": null,
   "reviewed_at": null,
-  "status": "awaiting_source_capture"
+  "status": "awaiting_human_review"
 }

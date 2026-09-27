@@ -3,34 +3,118 @@
   "criterion_id": "la_shra.existing-structures-and-occupancy",
   "source_id": "shra-2025-10-28",
   "additional_sources_needed": [
-    "Chaptered text of SB 684 (2023) and SB 1123 (2024) on leginfo.legislature.ca.gov, if the memo cross-references state requirements instead of restating them.",
-    "Los Angeles Housing Department records, if the reviewer finds Rent Stabilization Ordinance status relevant (rso-status fact)."
+    "GCS 66499.41(a)(8), for the exact demolition-protection test. Chaptered text of the statute on leginfo.legislature.ca.gov. It cannot be captured as evidence until a statute source type exists; do not capture it as an adopted_ordinance.",
+    "Los Angeles Housing Department records for RSO status, covenants, and Ellis Act withdrawals.",
+    "LADBS permit records for the five-year look-back."
   ],
   "related_draft_source_ids": [],
-  "source_sha256": null,
-  "candidate_page": null,
-  "candidate_pinpoint": null,
-  "candidate_excerpt": null,
-  "locate_in_source": "Not yet located: the October 28, 2025 SHRA implementation memo (shra-2025-10-28) has not been captured, so no page or section has been read. Look for provisions on existing housing, demolition, tenant occupancy, or protected units, and any look-back period. The criterion currently cites the City SHRA page (\"Filing checklists and implementation memo\"), not a memo pinpoint; a converted record must cite the memo pinpoint instead.",
-  "question_for_human_reviewer": "Which existing-structure or residential-occupancy conditions, if any, does the memo treat as barring or conditioning an SHRA project? For each, record the exact condition, any look-back period and how it is measured, and whether it is a bar or a condition the project can satisfy (for example, by replacement).",
+  "source_sha256": "f44574084091c51419d0475d4b8501d9a2c3577b3a16830fc6ecb2a88b20f6e2",
+  "candidate_page": 3,
+  "candidate_pinpoint": "Memo Part I, Demolition Protections, page 3 (GCS 66499.41(a)(8))",
+  "candidate_excerpt": "Specifically, a project may not be approved if it would require the demolition or alteration of any of the following types of housing:",
+  "locate_in_source": "Located in shra-2025-10-28: Part I, Demolition Protections, pages 3-4 (GCS 66499.41(a)(8), the SB 1123 no-separation rule, and the Ellis Act bar). Vacancy is FAQ Q.1, page 12, and stays in la_shra.vacant-site-definition.",
+  "question_for_human_reviewer": "The memo (pages 3-4) bars a project that would demolish or alter covenant-restricted, rent-controlled (including RSO), or recently tenant-occupied housing, and bars sites with an Ellis Act withdrawal within 15 years of the application. Do you agree that the Ellis Act bar can be encoded from a dated LAHD record, that the demolition protections must stay judgment whenever protected housing is present because they depend on the project, and that occupancy-history (free text) and existing-structures (a count) should be replaced by the structured facts proposed? How should look-back periods that run from the application date be measured in a screen that has no application?",
   "proposed_controlled_interpretation": {
     "fact_keys": [
       "existing-structures",
       "occupancy-history"
     ],
-    "controlled_values_required": "existing-structures is a count of structures and may not express the condition the text uses. occupancy-history is free text and cannot drive a rule. A rule needs a structured, human-recorded fact for exactly the condition the text names, such as a yes/no for that condition within the stated period.",
+    "controlled_values_required": "occupancy-history is free text and cannot drive a rule. existing-structures counts any structure and cannot express protected housing. Proposed: residential-use-within-5-years (yes/no), affordability-covenant-recorded (yes/no), rso-status (existing), and ellis-act-withdrawal-date (a date or none), each human-recorded from the record named.",
     "fact_narrowing_required": true,
-    "narrowing_note": "Replace or supplement the bundle with facts that mirror each condition the reviewer finds. Keep vacancy out of this criterion; it stays professional under la_shra.vacant-site-definition.",
-    "predicate_shape_if_reviewer_agrees": "If the reviewer finds bar B: B recorded true -> disqualifying_per_source; B recorded false from a record the text makes authoritative -> consistent_with_source; otherwise -> requires_judgment. A condition the project can satisfy -> requires_judgment.",
+    "narrowing_note": "Split into la_shra.protected-housing-demolition, la_shra.ellis-act-withdrawal, and la_shra.existing-units-not-separated (see candidate_components). Vacancy stays professional under la_shra.vacant-site-definition.",
+    "predicate_shape_if_reviewer_agrees": "Ellis Act: a withdrawal within 15 years before the application -> disqualifying_per_source; none in a reviewed LAHD record -> consistent_with_source. Demolition protections: no housing within the look-back (reviewed) -> consistent_with_source; protected housing present -> requires_judgment. No-separation rule: project design, not screened.",
     "must_remain_unresolved_when": [
       "occupancy history exists only as free text",
-      "the look-back period cannot be established from the record",
-      "the condition has exceptions or can be satisfied by the project",
-      "structure or occupancy records conflict"
+      "the look-back period cannot be measured because no application date is recorded",
+      "protected housing is present and the project's demolition or alteration is unknown",
+      "structure, occupancy, RSO, or covenant records conflict"
     ],
-    "zimas_conflict_risk": "Low to medium. The reviewer should determine which record authoritatively shows occupancy history; a parcel display alone does not show it. Structure counts from different records can differ; a difference stays a conflict."
+    "zimas_conflict_risk": "Low to medium. The memo points to the ZIMAS eligibility checklist for the Ellis Act bar (page 4); ZIMAS stays observation-only unless the reviewer designates the LAHD record. A parcel display alone does not show occupancy history."
   },
+  "candidate_components": [
+    {
+      "component_id": "la_shra.protected-housing-demolition",
+      "label": "No demolition or alteration of covenant-restricted, rent-controlled, or recently tenant-occupied housing",
+      "pinpoint": "Memo Part I, Demolition Protections, page 3 (GCS 66499.41(a)(8))",
+      "excerpts": [
+        {
+          "page": 3,
+          "text": "Specifically, a project may not be approved if it would require the demolition or alteration of any of the following types of housing:"
+        },
+        {
+          "page": 3,
+          "text": "2) Housing subject to any form of rent or sales price control imposed by a local public entity’s valid exercise of its police power (e.g., the Rent Stabilization Ordinance (RSO)); or"
+        },
+        {
+          "page": 3,
+          "text": "3) Housing that has been occupied by a tenant within the five years prior to the application date, including, including housing that has been demolished or that tenants have vacated."
+        }
+      ],
+      "disposition": "partially_deterministic",
+      "reads_existing_fact_keys": [
+        "existing-dwelling-units",
+        "rso-status",
+        "occupancy-history",
+        "existing-structures"
+      ],
+      "new_facts_needed": [
+        "residential-use-within-5-years: yes/no, human-recorded from LADBS and LAHD records for the five years before a recorded application date, including demolished or vacated housing.",
+        "affordability-covenant-recorded: yes/no from the recorded covenant."
+      ],
+      "controlled_value_encoding": "A structured yes/no for housing within the look-back, plus rso-status and a covenant flag.",
+      "proposed_rule_if_reviewer_agrees": "residential-use-within-5-years recorded false from a reviewed record and no covenant -> consistent_with_source. Any protected housing now or within five years -> requires_judgment, because the bar applies only if the project would demolish or alter it. Never disqualifying_per_source from parcel facts alone.",
+      "judgment_or_ambiguity": [
+        "The five-year look-back runs from the application date, which a parcel screen does not have.",
+        "The bar turns on project design; AB 130 remainder parcels can retain existing housing (FAQ Q.23).",
+        "Item 3 prints 'including, including'; read GCS 66499.41(a)(8) for the exact test.",
+        "HCA and RPO replacement and the No Net Loss Declaration (page 4) are conditions, not bars."
+      ]
+    },
+    {
+      "component_id": "la_shra.ellis-act-withdrawal",
+      "label": "No Ellis Act withdrawal of units on the parcel within 15 years of the application",
+      "pinpoint": "Memo Part I, Demolition Protections, page 4",
+      "excerpts": [
+        {
+          "page": 4,
+          "text": "In addition, the development may not be located on parcels where an Ellis Act withdrawal of units has occurred within 15 years of the application (see the ZIMAS eligibility checklist noted above)."
+        }
+      ],
+      "disposition": "deterministic_candidate",
+      "reads_existing_fact_keys": [],
+      "new_facts_needed": [
+        "ellis-act-withdrawal-date: the date of the most recent Ellis Act withdrawal for the parcel, or none, human-recorded from the Los Angeles Housing Department record."
+      ],
+      "controlled_value_encoding": "An ISO date or an explicit none from the LAHD record. A failed lookup is unknown, not none.",
+      "proposed_rule_if_reviewer_agrees": "Withdrawal within 15 years before the application date -> disqualifying_per_source; none in a reviewed LAHD record, or the latest withdrawal more than 15 years before -> consistent_with_source; not retrieved -> unknown.",
+      "judgment_or_ambiguity": [
+        "Measured from the application; the reviewer must decide whether the screen's as_of date may stand in.",
+        "Which Ellis Act event sets the date (notice filing or effective withdrawal) is not stated."
+      ]
+    },
+    {
+      "component_id": "la_shra.existing-units-not-separated",
+      "label": "Existing dwelling units may not be legally separated by the SHRA subdivision",
+      "pinpoint": "Memo Part I, Demolition Protections, page 4 (SB 1123)",
+      "excerpts": [
+        {
+          "page": 4,
+          "text": "Pursuant to SB 1123, any existing dwelling units on the property may not be legally separated as part of a SHRA subdivision."
+        }
+      ],
+      "disposition": "professional_judgment",
+      "reads_existing_fact_keys": [
+        "existing-dwelling-units"
+      ],
+      "new_facts_needed": [],
+      "controlled_value_encoding": "None at the parcel screen; this constrains the subdivision design.",
+      "proposed_rule_if_reviewer_agrees": null,
+      "judgment_or_ambiguity": [
+        "A project-design condition, not a site bar: existing units do not by themselves make the site ineligible (see also FAQ Q.22 and Q.23)."
+      ]
+    }
+  ],
   "reviewer": null,
   "reviewed_at": null,
-  "status": "awaiting_source_capture"
+  "status": "awaiting_human_review"
 }

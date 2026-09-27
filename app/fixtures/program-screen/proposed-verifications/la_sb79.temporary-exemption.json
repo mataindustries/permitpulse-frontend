@@ -3,31 +3,108 @@
   "criterion_id": "la_sb79.temporary-exemption",
   "source_id": "ordinance-188968",
   "additional_sources_needed": [
-    "The City's Housing Element adoption record, if the exemption ends on that event."
+    "The City's record of adoption of the seventh Housing Element revision, once it exists.",
+    "Ordinance 188967 (captured as ordinance-188967), which refers to sites 'not exempt' under this ordinance.",
+    "HCD's review of the ordinance (Sec. 6 directs transmittal within 60 days)."
   ],
   "related_draft_source_ids": [],
-  "source_sha256": null,
-  "candidate_page": null,
-  "candidate_pinpoint": null,
-  "candidate_excerpt": null,
-  "locate_in_source": "Not yet located: Ordinance 188968 (ordinance-188968) has not been captured, so no page or section has been read. The repository's current citation pointer is \"Sections 1-6: temporary exemptions\", taken from repository notes, not from the ordinance text.",
-  "question_for_human_reviewer": "Which parcels does Ordinance 188968 temporarily exempt, what is the effect during the exemption, and exactly when, or on what event, does the exemption end? Can the end condition be recorded as a dated fact?",
+  "source_sha256": "91ea56cfb5db7b1d0f42bba4afef52179fd9052ef726d7a337fe35091410a588",
+  "candidate_page": 6,
+  "candidate_pinpoint": "Ordinance 188968, Sec. 4, page 6",
+  "candidate_excerpt": "Sec. 4. Pursuant to the City’s local housing incentive programs, including, without limitation, LAMC Section 12.22 A.38, all parcels within the City’s jurisdiction are subject to temporarily exempt status under Government Code Section 65912.161(b).",
+  "locate_in_source": "Located in ordinance-188968: Sec. 2 (duration and criteria A-H), pages 4-5; Sec. 4 (all parcels), page 6; recitals on the draft citywide map and on expiry, pages 3-4.",
+  "question_for_human_reviewer": "Ordinance 188968 Section 2 temporarily exempts parcels from SB 79 until one year after the City adopts the seventh revision of its Housing Element, and Section 4 says all parcels within the City are subject to temporarily exempt status. Do you read Section 4 as exempting every parcel in the City now? If so, should the per-parcel yes/no be replaced by the jurisdiction anchor plus a dated end-condition fact? How do you reconcile it with Ordinance 188967's references to sites 'not exempt' under the Phased Implementation Ordinance?",
   "proposed_controlled_interpretation": {
     "fact_keys": [
       "sb79-temporary-exemption"
     ],
-    "controlled_values_required": "sb79-temporary-exemption is a yes/no. A time-bounded rule also needs a human-recorded end condition: a date, or a recorded event with its date.",
+    "controlled_values_required": "Add seventh-housing-element-revision-adopted-on (an ISO date, or not_adopted), human-recorded from the City's adoption record. If Sec. 4 applies citywide, the per-parcel yes/no is redundant; otherwise it must become a controlled value from the Director's map.",
     "fact_narrowing_required": true,
-    "narrowing_note": "Add an end-condition fact (a date, or a dated event) and compare it with the screen's as_of date. A yes/no alone cannot express a time-bounded rule.",
-    "predicate_shape_if_reviewer_agrees": "If the reviewer finds that an exemption makes SB 79 inapplicable until end condition E: exempt and E not reached as of as_of -> disqualifying_per_source; E reached per a dated record -> consistent_with_source; E not recorded -> requires_judgment.",
+    "narrowing_note": "Add the dated end-condition fact. Either retire the per-parcel yes/no (citywide reading of Sec. 4) or take it from the Director's map (criteria reading of Sec. 2).",
+    "predicate_shape_if_reviewer_agrees": "Within the City and the exemption period not ended -> disqualifying_per_source for the SB 79 pathway. Period ended (as_of on or after the adoption date plus one year) -> consistent_with_source for this criterion. End condition not recorded -> unknown.",
     "must_remain_unresolved_when": [
-      "the end condition is an event with no recorded date",
-      "the parcel's exemption record is missing or conflicting",
-      "the effect during the exemption is partial rather than a full bar"
+      "the reviewer reads Sec. 4 as eligibility for exemption rather than exemption",
+      "the seventh Housing Element revision's adoption is not recorded",
+      "the Director determines under Ordinance 188967 Sec. 14 that the City's approach is inconsistent with GCS 65912.161(b)",
+      "state review changes the ordinance's effect"
     ],
-    "zimas_conflict_risk": "High. zimas-sb79-exemption records one display for exemption or exclusion, so it cannot tell the two apart; it stays observation-only."
+    "zimas_conflict_risk": "High. zimas-sb79-exemption records one display for exemption or exclusion, so it cannot tell temporary from permanent; it stays observation-only."
   },
+  "candidate_components": [
+    {
+      "component_id": "la_sb79.citywide-temporary-exemption",
+      "label": "Sec. 4: all parcels in the City are subject to temporarily exempt status",
+      "pinpoint": "Ordinance 188968, Sec. 4, page 6",
+      "excerpts": [
+        {
+          "page": 6,
+          "text": "Sec. 4. Pursuant to the City’s local housing incentive programs, including, without limitation, LAMC Section 12.22 A.38, all parcels within the City’s jurisdiction are subject to temporarily exempt status under Government Code Section 65912.161(b)."
+        }
+      ],
+      "disposition": "partially_deterministic",
+      "reads_existing_fact_keys": [
+        "jurisdiction",
+        "sb79-temporary-exemption"
+      ],
+      "new_facts_needed": [],
+      "controlled_value_encoding": "If Sec. 4 exempts every parcel, the jurisdiction anchor plus the end condition decides this criterion.",
+      "proposed_rule_if_reviewer_agrees": "Parcel within the City of Los Angeles (jurisdiction anchor) and the exemption period not ended -> disqualifying_per_source for the SB 79 pathway. Period ended -> consistent_with_source for this criterion.",
+      "judgment_or_ambiguity": [
+        "'Subject to temporarily exempt status' may mean every parcel is exempt, or only that every parcel is eligible to be mapped as exempt. Sec. 2 adopts the exemption 'on eligible sites meeting any one of the criteria', and a recital (page 3) says a draft map identified all of the City as eligible.",
+        "Ordinance 188967 ((c)(10) and (g)(1)(iii)b) refers to sites 'not exempt' under this ordinance, which is hard to square with a citywide exemption.",
+        "Ordinance 188967 Sec. 14 applies SB 79 if the Director determines the City's approach has become inconsistent with GCS 65912.161(b)."
+      ]
+    },
+    {
+      "component_id": "la_sb79.temporary-exemption-end",
+      "label": "End of the temporary exemption: one year after the seventh Housing Element revision",
+      "pinpoint": "Ordinance 188968, Sec. 2, page 4",
+      "excerpts": [
+        {
+          "page": 4,
+          "text": "Sec. 2. Pursuant to California Government Code Section 65912.161(b), the City Council adopts this ordinance temporarily exempting certain parcels from Senate Bill 79, for the period that is prior to one year following the adoption of the seventh revision of the City’s Housing Element."
+        }
+      ],
+      "disposition": "deterministic_candidate",
+      "reads_existing_fact_keys": [],
+      "new_facts_needed": [
+        "seventh-housing-element-revision-adopted-on: an ISO date, or not_adopted, human-recorded from the City's adoption record."
+      ],
+      "controlled_value_encoding": "A dated event fact compared with the screen's as_of date.",
+      "proposed_rule_if_reviewer_agrees": "not_adopted as of as_of, or as_of before (adopted_on + 1 year) -> exemption in effect; as_of on or after (adopted_on + 1 year) -> exemption ended. Not recorded -> unknown.",
+      "judgment_or_ambiguity": [
+        "'Prior to one year following' is read as ending on the anniversary; confirm the boundary day.",
+        "Which act counts as adoption (Council adoption or HCD certification) is not stated."
+      ]
+    },
+    {
+      "component_id": "la_sb79.temporary-exemption-criteria",
+      "label": "Sec. 2 site criteria A-H (capacity, TOD zone, low-resource, TOD plan, fire, sea level, historic)",
+      "pinpoint": "Ordinance 188968, Sec. 2.A-H, pages 4-5",
+      "excerpts": [
+        {
+          "page": 4,
+          "text": "This ordinance is adopted on eligible sites meeting any one of the criteria referenced below making the sites temporarily exempt from Government Code, Title 7, Division 1, Chapter 4.1.5:"
+        },
+        {
+          "page": 5,
+          "text": "F. A site within a very high fire hazard severity zone, as determined by the Department of Forestry and Fire Protection pursuant to Government Code Section 51178, or within the state responsibility area, as defined in Public Resources Code Section 4102 (Gov. Code Sec. 65912.161(b)(1)(D))."
+        }
+      ],
+      "disposition": "professional_judgment",
+      "reads_existing_fact_keys": [
+        "sb79-temporary-exemption"
+      ],
+      "new_facts_needed": [],
+      "controlled_value_encoding": "Only needed if Sec. 4 does not exempt every parcel; then take the result from the Director's map.",
+      "proposed_rule_if_reviewer_agrees": null,
+      "judgment_or_ambiguity": [
+        "Criteria A-D need capacity analyses of whole TOD zones; E-H need map records (TOD alternative plans, fire zones or state responsibility areas, sea level rise, historic resources).",
+        "The text layer is City OCR; page 5 reads 'ora local government' where the image shows 'or a'."
+      ]
+    }
+  ],
   "reviewer": null,
   "reviewed_at": null,
-  "status": "awaiting_source_capture"
+  "status": "awaiting_human_review"
 }

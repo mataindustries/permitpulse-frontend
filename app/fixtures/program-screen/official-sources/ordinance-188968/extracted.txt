@@ -1,0 +1,275 @@
+A Phased Implementation Ordinance to locally implement Senate Bill 79, “The
+Abundant and Affordable Homes Near Transit Act.”
+WHEREAS, the City’s Sixth Cycle 2021-2029 Housing Element (Housing
+Element) was initially adopted on November 24, 2021, and later amended on June 14,
+2022 (Council File Nos. 21-1230, 21-1230-S1);
+WHEREAS, the City’s Housing Element Rezoning Program (Rezoning Program),
+encompassing the Hollywood Community Plan (Council File No. 21-0934), Downtown
+Community Plan (Council File No. 22-0617), Citywide Housing Incentive Program
+(CHIP) (Council File No. 21-1230-S5), Housing Element Sites and Minimum Density
+Ordinance (HESMDO) (Council File No. 21-1230-S6), and Resident Protections
+Ordinance (RPO) (Council File No. 21-1230-S8), was adopted and effective as of
+February 11,2025;
+WHEREAS, the Rezoning Program responded to the City’s Regional Housing
+Needs Allocation shortfall of 255,432 housing units, including a shortfall of 130,553
+lower-income units, by creating capacity for more than 563,594 total units, including
+195,877 lower income units;
+WHEREAS, the City’s adopted 2021-2029 Housing Element, the Citywide
+Housing Incentive Program, and the Rezoning Program are built upon years of public
+feedback from thousands of Angelenos, incorporate locally calibrated value capture
+tools, provide an abundance of incentive schemes for various housing typologies, and
+affirmatively further fair housing as defined in California Government Code Section
+WHEREAS, the California legislature declared, through Senate Bill 79 (SB 79),
+also as “The Abundant and Affordable Homes Near Transit Act,” was signed into law in
+October 2025, and described by the State as a matter of statewide concern to address
+California’s housing crisis with incentives intended to enable additional density in
+excess of local zoning and land use regulations by increasing the capacity for housing
+in areas located within one-half mile of specified transit stops referred to as transit-
+oriented development zones (TOD Zones);
+WHEREAS, SB 79 is chaptered in California Government Code Sections
+65912.155 through 65912.162 inclusive, and contains provisions that allow a local
+agency to adopt an ordinance that would temporarily exclude sites from using SB 79 for
+a period that includes one year following the adoption of the seventh revision of a local
+jurisdiction’s Housing Element of the General Plan;
+WHEREAS, California Government Code Sections 65912.160(e) and
+65912.161(b)(1) specify that exemptions from the application of SB 79 must be adopted
+by ordinance, and only apply where sites and TOD Zones meet specified criteria in
+those sections;
+ORDINANCE NO. 188968
+
+8899.50 by facilitating the development of housing near strong infrastructure in Higher
+Opportunity Areas as defined by the California Tax Credit Allocation Committee
+(CTCAC);
+WHEREAS, SB 79 affords local jurisdictions the ability to select among several
+compliance approaches, with the City selecting a phased implementation approach to
+SB 79 through the instant “Phased Implementation Ordinance, in conjunction with the
+Low-Rise Ordinance, intended to, among other things, ensure that the City’s local
+implementation of state law does not conflict with the City’s existing local land use
+priorities, housing policies, City initiatives, and environmental concerns;
+WHEREAS, the CHIP program builds upon transit-based housing programs,
+such as the Transit Oriented Communities (TOC) program (Ordinance No. 184,745) and
+the Affordable Housing Streamlining Ordinance, that establishes long-term the
+emergency expediting policies of Executive Directive 1 (Dec. 16, 2022) (Council File No.
+23-0623-S1), both of which reflect the City's ongoing commitment to significantly
+expand opportunities for building more housing near high-quality transit hubs and
+corridors in Higher Opportunity Areas;
+WHEREAS, the California Department of Housing and Community Development
+(HCD) certified the City’s Housing Element and Rezoning Program on June 29, 2022,
+and June 18, 2025, respectively;
+WHEREAS, on March 24, 2026, the City Council (Council File No. 25-1083)
+voted in favor of a phased implementation approach to SB 79 for all eligible sites
+identified in Government Code Section 65912.161(b)(1), with an accompanying
+ordinance to amend Los Angeles Municipal Code (LAMC) Section 12.22 A.38,
+consistent with the goals, value capture strategies, and priorities of the City’s existing
+Housing Element and Rezoning Program;
+WHEREAS, it is the intent of this ordinance to maintain consistency with
+Government Code Section 65912.161(b)(1), inclusive of future amendments to expand
+areas eligible for phased implementation;
+WHEREAS, in the absence of adopting this ordinance phasing the
+implementation of SB 79, effective July 1,2026, California law would require the City to
+approve high-density multi-family development on sites: (1) within low resources areas,
+(2) covered by local transit-oriented development alternative plans, (3) within very high
+fire severity zones, (4) vulnerable to one foot sea level rise, (5) containing designated
+historic resources, (6) that already permit density and residential floor area ratios which
+are at least 50 percent of SB 79’s provisions, and (7) within a transit-oriented
+development zone where at least 33 percent of sites have permitted density and
+residential floor area ratios that are at least 50 percent of SB 79’s provisions, and where
+sites have densities that cumulatively allow at least 75 percent of the aggregate density
+under SB 79’s provisions;
+
+WHEREAS, the City proposes enactment of the Low-Rise Ordinance (Council
+File No. 25-1083-S3) and the Phased Implementation Ordinance (Council File No. 25-
+1083-S4) to facilitate compliance with SB 79, and does so without prejudice to, and
+shall not be construed as a waiver of the City’s ability to file a protest or pursue other
+rights, remedies, and legal proceeding to challenge SB 79;
+WHEREAS, City Council has broad powers in enacting ordinances to maintain
+the public health within its jurisdiction. (Crown Motors v. City of Redding (1991) 232
+Cal.App.3d 173);
+WHEREAS, this ordinance is required to protect public peace, health and safety
+by, without limitation, implementing the permanent and temporary exemptions provided
+by California law to protect sensitive sites;
+WHEREAS, the City conducted an in-depth assessment of TOD Zones through
+mapping and modeling analyses, to evaluate sites within the City that are eligible for
+permanent and temporary exemption, and based on this information, the City released a
+draft map identifying all of the City as eligible for permanent and temporary exemption;
+WHEREAS, the City’s mapping efforts are subject to change given that SB 79,
+pursuant to Government Code Section 65912.160(f), authorizes the Southern California
+Association of Governments (SCAG), the region’s metropolitan planning organization, to
+create maps of designated transit-oriented development stops and zones and update
+them as new stops become eligible;
+WHEREAS, eligibility for the Phased Implementation Ordinance is contingent on
+the availability of a final map which has not yet been produced and approved by the
+Southern California Association of Governments, pursuant to California Government
+Code Section 65912.160(f), and in the absence of that map, eligibility has been
+determined based on currently available information and data;
+WHEREAS, pursuant to California Government Code Section 65912.160(e), a
+local agency may declare that parcels in transit-oriented development zones are
+permanently exempt from SB 79’s provisions, if the local agency makes findings,
+supported by substantial evidence, that: (1) there exists no walking path of less than
+one mile between that parcel and the transit-oriented development stop; or (2) the
+parcel is part of an industrial employment hub, as defined in Government Code Section
+65912.160(e)(2);
+WHEREAS, pursuant to Government Code Section 65912.161(b)(1), a local
+agency may declare that parcels in transit-oriented development zones are temporarily
+WHEREAS, for the purpose of phasing the implementation, sites with a historic
+resource designated as of January 1,2025 on a local register shall include Historic
+Cultural Monuments (HCM) and Historic Preservation Overlay Zones (HPOZ),
+consistent with Government Code Section 65912.161(b)(1)(F);
+
+Section 1. Pursuant to California Government Code Section 65912.160(e), the
+City Council adopts this ordinance on eligible sites meeting one of the criteria
+referenced below, making the sites permanently exempt from Senate Bill 79, codified at
+Government Code, Title 7, Division 1, Chapter 4.1.5 (Senate Bill 79):
+exempt from SB 79 provisions, which exemption expires one year after adoption of the
+jurisdiction’s seventh housing element revision; and
+WHEREAS, the City has and will continue to comply with SB 79’s purpose and
+intent, including without limitation, building more homes near transit access to promote
+environmental sustainability, foster economic growth, reduce traffic congestion, and
+continue Affirmatively Furthering Fair Housing.
+THE PEOPLE OF THE CITY OF LOS ANGELES
+DO ORDAIN AS FOLLOWS:
+A. A site that has been identified by the City which permits density and
+a residential floor area ratio at no less than 50 percent of the standards specified
+in subdivision (a) of Government Code Section 65912.157 (Gov. Code Sec.
+65912.161(b)(1)(A)).
+B. A site in a transit-oriented development zone in which at least 33
+percent of sites in the relevant transit-oriented development zone have permitted
+density and residential floor area ratio no less than 50 percent of the standards
+A. A site for which there exists no walking path of less than one mile
+from that location to the transit-oriented development stop (Gov. Code Sec.
+65912.160(e)(1));
+B. A site designated as an industrial employment hub if the City has at
+least 15 transit-oriented development stops. An industrial employment hub shall
+be a contiguous area of at least 250 acres designated in the City’s General Plan
+on or before January 1, 2025, as an employment lands area; the parcels within it
+shall be primarily dedicated to industrial use as defined in paragraph (3) or
+subdivision (f) of Government Code Section 65912.121; and housing shall not be
+a permitted use on any of the sites so excluded (Gov. Code Sec.
+65912.160(e)(2)).
+Sec. 2. Pursuant to California Government Code Section 65912.161(b), the City
+Council adopts this ordinance temporarily exempting certain parcels from Senate Bill
+79, for the period that is prior to one year following the adoption of the seventh revision
+of the City’s Housing Element. This ordinance is adopted on eligible sites meeting any
+one of the criteria referenced below making the sites temporarily exempt from
+Government Code, Title 7, Division 1, Chapter 4.1.5:
+NOW THEREFORE,
+
+specified under subdivision (a) of Government Code Section 65912.157 and
+which includes sites with densities that cumulatively allow for at least 75 percent
+of the aggregate density for the transit-oriented development zone specified
+under subdivision (a) of Government Code Section 65912.157 (Gov. Code Sec.
+65912.161(b)(1)(B)(i)).
+C. A site in a transit-oriented development zone around a transit-
+oriented development stop that is primarily comprised of a low-resource area
+which includes sites with densities that cumulatively allow for at least 40 percent
+of the aggregate density for the transit-oriented development zone specified
+under subdivision (a) of Government Code Section 65912.157 (Gov. Code Sec.
+65912.161(b)(1)(B)(ii)).
+D. A site in an area designated as low-resource on the most recently
+adopted version of the opportunity area maps published by the California Tax
+Credit Allocation Committee and the California Department of Housing and
+Community Development (HCD), and the City cumulatively allows for at least 50
+percent of the total capacity for units and floor area as specified under
+Government Code Section 65912.157 across all transit-oriented development
+zones (Gov. Code Sec. 65912.161 (b)(1)(B)(iii)).
+E. A site that is covered by a local transit-oriented development
+alternative plan adopted by the City (Gov. Code Sec. 65912.161(b)(1)(C)).
+F. A site within a very high fire hazard severity zone, as determined
+by the Department of Forestry and Fire Protection pursuant to Government Code
+Section 51178, or within the state responsibility area, as defined in Public
+Resources Code Section 4102 (Gov. Code Sec. 65912.161(b)(1)(D)).
+G. A site that is vulnerable to one foot of sea level rise, as determined
+by the National Oceanic and Atmospheric Administration, the Ocean Protection
+Council, the United States Geological Survey, the University of California, ora
+local government’s coastal hazards vulnerability assessment (Gov. Code Sec.
+65912.161(b)(1)(E)).
+H. A site with a historic resource designated as of January 1,2025, on
+a local register (Gov. Code Sec. 65912.161(b)(1)(F)).
+Sec. 3. By enacting this ordinance, the City Council grants the Director of
+Planning with the power and duty, consistent with City Charter Section 553, to issue and
+update maps with eligible transit-oriented development sites meeting the criteria for
+permanent or temporarily exempt status pursuant to Government Code Sections
+65912.160(e)(1 )-(2), 65912.161 (b)(1 )(A) - 65912.161 (b) 1 )(F), and 65912.161 (b)(2), to
+ensure consistency with the most current transit-oriented development zones map
+published by the Southern California Association of Governments or additional guidance
+from the California Department of Housing and Community Development.
+
+Sec. 7. URGENCY CLAUSE. The City Council finds and declares that this
+ordinance is required for the immediate preservation of the public peace, health or
+safety for the reasons set forth herein. This ordinance is required to take effect
+immediately upon publication to preserve the quality of life within the City. SB 79
+applies universally to development sites within one-half mile around all eligible transit
+stations regardless of whether they are in healthy, lower resource, or hazardous areas,
+failing to take into account whether sites are within very high fire hazard severity zones;
+industrial areas; areas with displacement pressures; vulnerable communities; or areas
+with past zoning or environmental injustice. The City’s 2021-2029 certified Housing
+Element commits the City of Los Angeles to plan for housing in a way that addresses
+past patterns of discrimination and exclusion, and strives for greater affordability, equity,
+and sustainability citywide through prioritizing growth in areas shown to have positive
+life and health outcomes by encouraging infill development in high opportunity areas
+near access to jobs, transit, amenities, and neighborhood services. Adoption of this
+ordinance to phase implementation of SB 79 would provide more time to evaluate
+alternative plan options and consider approaches to address issues such as health,
+safety, and displacement pressures. Charter Section 253 authorizes the City Council to
+adopt this ordinance as an urgency ordinance that takes effect immediately upon its
+publication when it is adopted by a minimum three-fourths vote of the Council.
+Sec. 8. SEVERABILITY. If any provision of this ordinance is found to be
+unconstitutional or otherwise invalid by any court of competent jurisdiction, that invalidity
+shall not affect the remaining provisions of this ordinance, which can be implemented
+without the invalid provisions and, to this end, the provisions of this ordinance are
+declared to be severable. The City Council hereby declares that it would have adopted
+each and every provision and portion thereof not declared invalid or unconstitutional,
+Sec. 4. Pursuant to the City’s local housing incentive programs, including,
+without limitation, LAMC Section 12.22 A.38, all parcels within the City’s jurisdiction are
+subject to temporarily exempt status under Government Code Section 65912.161(b).
+Unless otherwise provided, the City’s subsequent adoption of a transit-oriented
+development alternative plan for either a transit-oriented development zone(s) or transit-
+oriented development stop(s) will not impact this ordinance. The Director of Planning,
+or the Director’s designee, shall notify the City Council when updates to the maps are
+published.
+Sec. 5. Pursuant to California Government Code Section 65912.160(c)(2), the
+City Council determined that this ordinance is not a project for purposes of the California
+Environmental Quality Act (California Public Resources Code Sections 21000 et. seq.).
+Sec. 6. The City Council directs the Director of City Planning, or designee, to:
+(1) indicate on its public facing zoning map in the Zone Information and Map Access
+System (ZIMAS), which sites or transit-oriented development zones are and are not
+covered by Senate Bill 79’s provisions; and (2) transmit a final copy of this ordinance to
+HCD no later than 60 days after it takes effect.
+
+without regard to whether any portion of the ordinance would be subsequently declared
+invalid or unconstitutional.
+
+HYDEE FELDSTEIN SOTO, City Attorney
+File No. 25-1083-S4
+"M:\Real Prop_Env_Land Use\Ordinances Active\Senate Bill 79\SB 79 • Phased Implementation Ordinance"
+CITY CLERK MAYOR
+/ y — Xa.b.
+VINCENT P. BERTONI, AICP
+Director of Planning
+The Clerk of the City of Los Angeles hereby
+certifies that the foregoing ordinance was
+passed by the Council of the City of Los
+Angeles, by a vote of not less than three-
+fourths of all its members.
+Approved 96/26/2026
+Sec. 9. The City Clerk shall certify to the passage of this ordinance and have it
+published in accordance with Council policy, either in a daily newspaper circulated in
+the City of Los Angeles or by posting for ten days in three public places in the City of
+Los Angeles: one copy on the bulletin board located at the Main Street entrance to the
+Los Angeles City Hall; one copy on the bulletin board located at the Main Street
+entrance to the Los Angeles City Hall East; and one copy on the bulletin board located
+at the Temple Street entrance to the Los Angeles County Hall of Records.
+Date _ne (4 2026
+Pursuant to Charter Section 559, I
+disapprove this ordinance on behalf
+of the City Planning Commission and
+recommend that it not be adopted.
+0060k
+Ordinance Passed June 23, 2026
+Ordinance Published: 06/30/2026
+Ordinance Effective Date: 06/30/2026
+By ^^^a-~^^
+KIMBERLY HUANGFU
+Deputy City Attorney
+Date Ju ne 17,2026
+Approved as to Form and Legality

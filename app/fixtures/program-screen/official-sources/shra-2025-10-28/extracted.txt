@@ -1,0 +1,784 @@
+FORM GEN. 160 (Rev. 6-80)
+CITY OF LOS ANGELES
+INTER-DEPARTMENTAL CORRESPONDENCE
+DATE:
+TO:
+FROM:
+October 28, 2025
+Los Angeles City Planning Staff;
+Subdivision Committee;
+Interested Parties
+Vincent P. Bertoni, AICP, Director of Planning
+Los Angeles City Planning
+Osama Younan, General Manager
+Department of Building and Safety
+Alfred Mata, Interim City Engineer,
+Department of Public Works: Bureau of Engineering
+SUBJECT: Implementation of Senate Bills 1123 (2024) and 684 (2023) and Assembly
+Bill 130 (2025) - Starter Home Revitalization Act - Streamlined Subdivision
+Review for Housing Development Projects with 10 or Fewer Units
+The Starter Home Revitalization Act of 2021 (SHRA) was recently amended by Senate Bill (SB) 1123
+and Assembly Bill (AB) 130, both of which took effect on July 1, 2025. Previous amendments to the SHRA
+from SB 684 took effect on July 1, 2024. The SHRA establishes a ministerial approval process for a
+parcel map or a tentative and final map for a subdivision resulting in 10 or fewer parcels and
+corresponding housing development projects of 10 or fewer units. Eligible project applications for a parcel
+map or tentative map and or housing development are not subject to discretionary review or a public
+hearing and must be approved or denied within 60 days following receipt of a completed application.
+This memorandum outlines the Starter Home Revitalization Act and its implementation by the Los
+Angeles City Planning (LACP) and other city departments involved in the subdivision process. It is divided
+into three sections: the first summarizes eligibility criteria, the second details objective standards
+applicable and non-applicable to qualified projects, and the final section describes the SHRA project
+application process. This memo pertains to Chapter 1 of the Zoning Code. A subsequent memo specific
+to Chapter 1A of the Zoning Code will follow.
+This memo summarizes key SHRA provisions for reference and does not include all applicable planning,
+building, or other departmental/agency regulations. It reflects LACP's current understanding based on
+available information and may be updated based on subsequent guidance. This memo updates and
+replaces the prior SB 684 memo, issued by LACP on October 9, 2024, to reflect changes to State law
+that are now effective. Please refer to California Government Code Sections (GCS) 65852.28, 65913.4.5,
+and 66499.41 for the full SHRA.
+o.y.AM
+
+2
+I. Starter Home Revitalization Act (SHRA) Property Eligibility Criteria
+GCS 66499.41 outlines the eligibility criteria for streamlined subdivision map processing under the SHRA.
+A summary of these provisions is provided below. To evaluate site eligibility, please consult the SHRA
+Eligibility Criteria Checklist, located under the “Planning and Zoning” tab in ZIMAS
+(https://zimas.lacity.org). City Planning will confirm eligibility.
+A proposed subdivision may create no more than 10 parcels and 10 residential units, excluding any
+proposed remainder parcel and any Accessory Dwelling Units (ADUs) or Junior ADUs (JADUs). More
+information about remainder parcels and ADUs/JADUs can be found in the Frequently Asked Questions
+(FAQ) Section (Q. 8 and 23).
+To qualify, multifamily-zoned lots must be less than 5 acres, and single-family zoned lots must be under
+1.5 acres and "vacant." (See FAQ Section, Q.1.) Newly created parcels must be at least 600 square feet
+(sq. ft.) in multifamily zones and 1,200 sq. ft. in single-family zones. These minimum parcel sizes control
+the maximum number of lots and units that may be created (within the 10 unit maximum). However, local
+zoning density standards apply to each newly subdivided lot individually. For more information on how
+density is calculated after subdivision, see the “Allowable Density” section on page 5 below.
+Eligible sites must be substantially surrounded by qualified urban uses, as defined in GCS
+66499.41(a)(2)(B). Lots previously recorded pursuant to the SHRA or SB 9 (2021) are ineligible.
+However, this particular eligibility restriction does not apply if the tentative map has not been recorded.
+Housing units proposed under the SHRA must be developed under one of the following ownership
+structures listed in GCS 66499.41(a)(4):
+(i) fee simple ownership lots;
+(ii) units within a common interest development (e.g., condominiums);
+(iii) housing cooperatives as defined in Civil Code Section 817;
+(iv) community land trusts as defined under SHRA; or
+(v) tenancy in common arrangements consistent with Civil Code Section 685.
+In addition, the average total area of floorspace of all proposed units on the lot to be subdivided must not
+exceed 1,750 net habitable square feet (see FAQ Section, Q.13). This floorspace cap applies at the time
+of initial development approval and construction. It does not restrict additions or renovations to individual
+units that occur after Certificates of Occupancy have been issued. SHRA projects must also comply with
+any applicable local inclusionary housing requirements, such as those in effect for the Central City West
+Specific Plan or the Downtown Community Plan Area.
+Minimum Density and Affordability Requirements for Housing Element Sites
+Pursuant to GCS 66499.41(a)(5), all SHRA development projects proposed on sites identified in the City’s
+2021-2029 Housing Element must result in at least the number of units projected for that parcel. This
+would apply to the following site categories identified in Chapter 4 of the 2021-2029 Housing Element: (i)
+Appendix 4.1 - Inventory of Adequate Sites, (ii) Appendix 4.2 - Public Development Pipeline Projects,
+and (iii) Appendix 4.3 - Private Development Pipeline Projects. Of note, this is not the same collection of
+sites covered by the Housing Element Sites definition in Los Angeles Municipal Code (LAMC) Sec. 16.70
+
+3
+B. In particular, this SHRA requirement does not apply to the rezoning sites list adopted by the City
+Council in February 2025 (Council File 21-1230-S6).
+If a parcel in Appendices 4.1 - 4.3 is identified to accommodate any portion of the City’s Regional Housing
+Needs Allocation (RHNA) for lower income households, the project must include at least the number of
+lower income units projected for that site. Please see Q.9 in the FAQ Section for additional guidance on
+how to determine whether a parcel is listed as a Housing Element Site and what unit or affordability
+requirements apply.
+Minimum Density Requirements for Non-Housing Element Sites
+SHRA projects located on parcels not listed in the Housing Element appendices listed above are subject
+to the greater of the following minimum density requirements:
+(i) 66% of the maximum allowable residential density permitted by local zoning (if specified), or
+(ii) 20 dwelling units per acre (i,.e. 66% of 30 DU/acre), which equates to 1 unit per 2,178 sq. ft.
+As a general rule, this will require projects to have a minimum density of one unit per 2,178 sq. ft. of lot
+area, unless the parcel is located in the R3 or less restrictive zone (e.g., R4, RAS, or commercial zones),
+where higher maximum allowable densities would apply. However, the area of any designated remainder
+parcel or any required land dedications shall be excluded from this calculation. These density calculations
+are rounded down to the next whole number. (see Q. 24).
+ADUs and JADUs may count toward the minimum density requirements for both Housing Element and
+Non-Housing Element Sites, including any units required to be made available for lower income
+households. However, these units must meet applicable provisions in the Fair Housing Requirements for
+Affordable Housing pursuant to LAMC Sec. 16.61 B (e.g. unit mix, unit size, quality and amenities, etc).
+For ADUs and JADUs, the “unit size” provision should be interpreted to require comparability only
+between the restricted ADU and its associated primary dwelling on the same lot, but not between the
+ADU and primary units located in separate buildings or lots.
+Demolition Protections
+GCS 66499.41(a)(8) includes provisions that aim to protect affordable housing and prevent the
+displacement of tenants. Specifically, a project may not be approved if it would require the demolition or
+alteration of any of the following types of housing:
+1) Housing that is subject to a recorded covenant, ordinance, or law that restricts rents to levels
+affordable to persons and families of low, very low, or extremely low income;
+2) Housing subject to any form of rent or sales price control imposed by a local public entity’s valid
+exercise of its police power (e.g., the Rent Stabilization Ordinance (RSO)); or
+3) Housing that has been occupied by a tenant within the five years prior to the application date,
+including, including housing that has been demolished or that tenants have vacated.
+Please note that multifamily building permits issued since January 2023 may be reviewed to ensure these
+types of housing have not been demolished or altered for the purposes of using the SHRA project.
+
+4
+Pursuant to SB 1123, any existing dwelling units on the property may not be legally separated as part of
+a SHRA subdivision. This prevents multifamily properties subject to the RSO from losing their status and
+prohibits condo conversions of legally existing units. In addition, the development may not be located on
+parcels where an Ellis Act withdrawal of units has occurred within 15 years of the application (see the
+ZIMAS eligibility checklist noted above).
+All housing replacement requirements and review procedures from the Housing Crisis Act of 2019 (HCA)
+and Resident Protections Ordinance (RPO) (LAMC Sec. 16.60) will still apply to any SHRA project that
+would result in the demolition of one or more residential units.
+SHRA projects that have, or will require demolition of a single-family dwelling not subject to any of the
+above conditions may provide a signed No Net Loss Declaration (CP-4069) to certify compliance with
+the HCA/RPO as well as the SHRA’s demolition protections. Please keep in mind that any incorrect
+information provided on the No Net Loss Declaration may result in a revocation or denial of the SHRA
+project.
+SHRA projects that do not qualify for a No Net Loss Declaration may require a Replacement Unit
+Determination from the Los Angeles Housing Department.
+Please email lahd-landlordeclarations@lacity.org if you have additional questions concerning their review
+processes.
+Environmental Criteria
+The SHRA includes several provisions that either prohibit or restrict eligibility for sites located in
+environmentally sensitive areas. Please consult the SHRA Eligibility Checklist in ZIMAS to determine if a
+site is located in any of the following prohibited and/or restricted areas.
+First, SHRA projects may not be located on the following site categories:
+1) Prime farmland or farmland of statewide importance;
+2) Wetlands (see CA Department of Fish and Wildlife);
+3) High or very high fire hazard severity zones, as referenced in GCS 51178 and Public Resources
+Code Section 42021.
+4) Land identified for conservation in an adopted natural community conservation plan;
+5) Habitat for protected species; or
+6) Lands under a conservation easement.
+The following site categories may only utilize SHRA streamlining if applicable conditions or standards
+have been met:
+1) Hazardous waste sites (see Los Angeles Fire Department CUPA);
+2) Special flood hazard areas and regulatory floodways (see LADBS Flood Hazard Management
+Ordinance Bulletin); and
+3) Earthquake fault zones (see LADBS Information Bulletins P/BC 2023-129 and P/BC 2023-044).
+1 Please note this includes both state and local responsibility areas.
+
+5
+Please see GCS 66499.41(a)(9) for more information about these site limitations as well as any specific
+conditions or standards needed to verify eligibility.
+II. Application of Objective Standards for the SHRA
+GCS 65852.28 and 66499.41 establish the objective standards that apply to subdivisions and housing
+development projects eligible under the SHRA. These sections identify the types of standards that cannot
+be applied because they have been superseded by the SHRA, as well as those standards that may be
+applied unless they conflict with the physical preclusion provisions in GCS 65852.28(b)(2)(A). They also
+specify the written findings a local agency must make to deny a qualifying project (see FAQ Section, Q.7
+& Q.11).2
+The following paragraphs summarize key SHRA provisions and applicable local objective standards.
+However, this is not an exhaustive list of all planning or building regulations that may apply to SHRA
+projects.
+Local Objective Standards That Cannot be Applied
+Allowable Density
+HCD has issued Technical Assistance letters to Oakland (February 19, 2025) and Morro Bay (May 5,
+2025) clarifying that local density limits cannot be used to prohibit the creation of up to 10 parcels or 10
+units when otherwise allowed under SHRA minimum parcel size provisions. Maximum allowable density
+is therefore primarily determined by the number of 600 sq. ft. (multifamily zones) or 1,200 sq. ft. (single-
+family zones) lots that could fit on an eligible site. However, if the zone’s minimum area per dwelling unit
+permits more than one unit on the subdivided lot, then the allowable density may be higher.
+The allowable density for condominiums and other for-sale multifamily ownership structures is calculated
+differently because these projects are subdividing airspace - not land. As such, the allowable density in
+these projects is either the maximum number of units allowed by local zoning or 30 units per acre,
+whichever is greater. These projects are still limited to 10 primary dwelling units (not including
+ADU/JADUs) and are only permitted in zones where multifamily dwellings are an allowable use.
+Rear/Side Lot Line Setbacks
+Any side or rear setback imposed from the original property lines of a pre-subdivided lot must comply
+with GCS 65852.21(b)(2)(B). This section prohibits local agencies from requiring setbacks greater than
+four feet from the original side or rear lot lines, and from imposing setbacks on existing structures—or
+new structures built in the same location with the same dimensions as an existing structure.
+Building Separation / Passageways / Setbacks Between Units
+Per GCS 65852.28(b)(2)(C), no zoning setbacks or other building separation requirements between the
+units may be enforced. This includes setbacks between units on the same lot as well as between units
+on the newly created lots, including any yard or passageway that would normally be required by the
+2 See HCD Technical Assistance and Enforcement Letters https://www.hcd.ca.gov/planning-and-community-
+development/accountability-and-enforcement
+
+6
+LAMC (including 12.21 C.2). However, any building separation requirements from the California Building
+Code would still apply.
+Parking Requirements
+Automobile parking requirements for SHRA projects may not exceed the limits set by SB 9 in GCS
+65852.21(c)(1). This section prohibits local agencies from requiring more than one parking space per
+SHRA unit. However, no on-site parking spaces can be required if the site is within one block of a car
+share vehicle3 or is within one-half mile walking distance from a high quality transit corridor or a major
+transit stop.4 Finally, GCS 65852.28(b)(2)(D) prohibits local agencies from imposing any requirements
+that on-site parking be covered or enclosed.
+Minimum Lot Size, Width, Frontage or Depth
+GCS 66499.41(b)(1) prohibits the City from imposing any minimum lot size, width, depth, or frontage
+standards beyond those specified in the SHRA (i.e. 600 sq. ft. for parcels zoned for multifamily use and
+1,200 sq. ft. for those zoned for single-family use).
+Frontage standards are generally understood to refer to requirements for a lot to front or abut a public
+right of way, or a private street, or an alley if it is approved by a subdivision map. This includes provisions
+in the definition of a “Lot” in LAMC Sec. 12.03, which require that a lot front for at least 20 feet on a
+street or private street easement and that it maintain a minimum 20-foot wide access strip. (See the
+Access section below for more information on how lot access may be provided through alternative
+means.)
+Floor Area Ratio (FAR)
+GCS 65852.28(b)(2)(G) prohibits local agencies from imposing a FAR standard of less than 1.0 for
+projects with 3 to 7 units, or less than 1.25 for projects with 8 to 10 units. These minimum state FAR
+standards will apply when they permit more than the local zoning FAR standard, which is mostly the case
+in single-family zones. FAR should be calculated as normal per the applicable zoning.
+Standards that Apply Solely or Partially to SHRA Projects
+GCS 65852.28(b)(2)(B) prohibits cities from imposing any requirement that applies to a project solely or
+partially on the basis that the subdivision or housing development receives approval pursuant to the
+SHRA.
+Local Objective Standards That Can be Applied
+Beyond the standards explicitly preempted by state law (described above), the City may impose objective
+zoning, subdivision, or design standards related to the design, improvement, or development of a housing
+development, provided these standards do not conflict with the SHRA.
+However, pursuant to GCS 65852.28(b)(2)(A), local agencies may not impose any zoning, subdivision or
+design standard that would physically preclude development at the “protected density,” which is defined
+3 Please see Q.10 in the FAQ Section for more information.
+4 “High quality transit corridor” and “major transit stop” are defined in Public Resources Code Sections 21155(b)
+and 21064.3 respectively. Please reference the SHRA Eligibility Checklist in ZIMAS to determine if a site qualifies
+for one of these exceptions.
+
+7
+as either (i) 30 units per acre (or 1 unit per 1,452 sq. ft. of lot area), or (ii) the maximum density allowed
+by the underlying zoning, whichever is greater5. Projects at or below this density are protected by the
+SHRA’s physical preclusion language, while projects exceeding this density are not. Protected density
+calculations that yield a fractional number shall be rounded down to the next whole number. Development
+proponents may also utilize LAMC 12.22 C.16 to include one-half the width of any abutting alleys in the
+guaranteed density calculation when utilizing the underlying zoning. Local agencies are also prohibited
+from enforcing any local standard that would have the effect of imposing any of the other prohibited
+standards in GCS 65852.28(b)(2).
+Development proponents may make a written request in their application to waive or modify a local
+standard(s), to the minimum extent required, by identifying the standard and demonstrating how its
+application would physically preclude an otherwise SHRA-compliant housing development (i.e., a project
+that complies with allowable density and floor area). Applicants are encouraged to complete their
+Preliminary Zoning Assessment (CP13-4064) before submitting this request to obtain a full accounting of
+all applicable zoning standards. If waiver or modification requests are denied or modified by the Advisory
+Agency, an explanation will be included in the Letter of Compliance detailing why application of the
+development standard(s) did not physically preclude the project.
+The Advisory Agency may also exercise its LAMC authority6 to grant adjustments or deviations from
+development standards. However, the granting of such requests is not required. Denial of a requested
+adjustment or deviation shall not affect the project’s eligibility for ministerial approval under the SHRA
+(See FAQ Section, Q.3 for more information). Please see the Related Concurrent Adjustment Actions
+section in the Preliminary Parcel Map Filing Instructions & Checklist (CP13-1801) or the Tentative Tract
+Map Filing Instructions & Checklist (CP-6110) forms for more information.
+Height
+LAMC building height requirements will generally apply to SHRA projects. Notwithstanding the protected
+density provision, GCS 65852.28(b)(2)(A)(ii) allows the City to deny requests for relief from height limits
+in single-family zones. As such, any request to modify height standards in a single-family zone must
+include additional justification and will be subject to Planning Department discretion.
+Dedications of Rights-Of-Way and Off-Site Improvements.
+GCS 65913.4.5(a)(3) of the SHRA permits local governments to require dedications of rights-of-way or
+the construction of off-site improvements as conditions of approval for Parcel or Tract Maps associated
+with SHRA projects. A security deposit such as a bond may be required to ensure the faithful performance
+of such requirements but the cost shall not exceed 300 percent the estimated costs of the improvements
+or of the acts to be performed.
+Importantly, a required right-of-way dedication may not preclude the development at a project’s protected
+density. Furthermore, Assembly Bill 3177 (2024) limits the City’s ability to impose land dedication on
+housing development projects to widen a roadway to mitigate vehicular traffic impacts, achieve an
+adopted traffic level of service related to vehicular traffic, or achieve a desired roadway width. Exceptions
+5 See GCS 65852.28(b)(2)(A)(ii) and HCD technical assistance letters to the City of Oakland and City of Morro
+Bay, dated February 19, 2025 and May 5, 2025 respectively.
+6 Including but not limited to LAMC Sections 17.03 A (yards, height, area and passageway) and 17.05 (design
+standards) of Chapter 1 as well as 13B.7.3 (Tract Maps) and 13B.7.5 (Parcel Maps) of Chapter 1A.
+
+8
+to this prohibition must be consistent with GCS 66005.1(c). In addition, GCS 66005.1(c) does not prevent
+the City from requiring dedications for sidewalks and other public improvements, or requiring the
+construction of improvements where dedication is not required.
+Access
+As noted previously, the SHRA was amended by SB 1123 to prevent local agencies from enforcing lot
+frontage standards, including the lot strip access contained in the definition of a “Lot” in LAMC Sec. 12.03.
+However, other access requirements may apply, including those relating to emergency response and
+utility access. For example, the Fire Department may require that fire apparatus be able to reach within
+150 feet of all portions of a building’s exterior walls, unless alternate means of fire protection (such as
+sprinklers or a fire lane) are approved. Similarly, access standards may be needed to accommodate utility
+connections, waste collection, and other services. The City encourages early coordination with the
+respective agencies on these matters.
+The City’s Small Lot Subdivision (SLS) Ordinance, including the Small Lot Map Standards, offers a useful
+framework for addressing access, including pedestrian and vehicular access easements, alley access
+and utility easements. SHRA projects may request to utilize SLS frontage and access provisions without
+being subject to other SLS requirements. Additionally, driveway access is not required if the project does
+not include any automobile parking spaces. Pedestrian access may also be provided through a 3-foot
+pedestrian access easement. Finally, objective zoning, subdivision, or design standards pertaining to lot
+access cannot be imposed if they would physically preclude the development of a project built to its
+protected density.
+Open Space
+LAMC Sec. 12.21 G. establishes open space and landscaping requirements for residential developments
+with six or more dwelling units on a single lot. However, this requirement would only apply to a SHRA
+project that proposed more than five units on a single newly created lot.
+Protected Trees and Street Tree Removals
+All subdivision of land applications must include a Tree Disclosure Statement (CP-4067). Additional
+documentation, such as a Tree Report (CP-4068) prepared by an arborist, may also be required
+depending on site conditions. Protected trees and shrubs may not be relocated or removed as part of a
+subdivision unless approved by the Advisory Agency in accordance with LAMC Sec. 17.05 R, which
+requires either 4:1 replacement for any removed protected tree, or its relocation elsewhere. Alternatively,
+removal may be permitted through a separate tree removal permit process, as outlined in Article 6 of
+Chapter IV of the LAMC. Removal of street trees must be approved by StreetsLA. Additionally, LAMC
+Sec. 17.08 F requires subdivisions to work with StreetsLA to either plant street trees or pay an in-lieu fee,
+in coordination with StreetsLA.
+The LAMC’s discretionary tree removal permit provisions must be reconciled with the SHRA’s
+requirements for ministerial approval and protected density. While public hearings and CEQA review are
+generally not required for tree removals tied to SHRA projects, objective standards—such as tree
+replacement ratios—still apply unless they would physically preclude development at the protected
+density or otherwise conflict with the SHRA. Given the Advisory Agency’s authority to modify zoning and
+subdivision standards, applicants are encouraged to develop project designs that preserve protected or
+
+9
+other significant mature trees and may request modifications that would result in similar building sizes as
+would have been available without preserving the tree.
+Front Yard Setbacks
+The SHRA does not prohibit local agencies from applying objective setback standards from the front lot
+line of the pre-subdivided lot. The City’s base yard setback regulations are established in the area
+regulations of the zone (e.g. LAMC §§ 12.08 C.1,12.09 C.1). Additionally, preliminary parcel maps for
+four units or less on sites less than one acre in RA or R zones must maintain the original front yard of the
+pre-subdivided lot per LAMC Sec. 12.21 C.1(e). For new subdivisions, the Advisory Agency may exercise
+limited discretion to establish and modify yards as part of a map approval, as discussed on page 7.
+Small Lot Design Standards
+If a project opts into the City’s Small Lot Subdivision (SLS) Ordinance in combination with their SHRA
+project, the objective standards of the City’s Small Lot Design Standards (CP-6975) would apply, as well
+as any applicable allowances. Compliance with these standards is conducted through an administrative
+review, consistent with SHRA’s ministerial processing requirement (e.g. no public hearing and subject to
+SHRA’s review timelines). Please see Q.10 in the FAQ Section for more information on the application
+of SLS Ordinance standards.
+Because the SLS Ordinance is a very similar housing typology as the SHRA, many of the provisions of
+the ordinance may be relevant when the Advisory Agency is considering modifications and waivers of
+zoning code provisions. Standard zoning code provisions that are not well suited for small lot projects
+including lot access, passageways and lot coverage - all of which have alternative provisions in the SLS
+Ordinance that may be requested through the application process without opting into the SLS Ordinance
+(either as a “protected density” waiver/modification request, or through a specified Advisory Agency’s
+authority).
+III. Application Process for Submitting a SHRA Project
+Effective July 1, 2025, a development proponent may submit a SHRA application for projects located on
+newly eligible parcels pursuant to SB 1123. SHRA projects will be administratively reviewed for
+compliance with applicable objective criteria and will not be subject to a public hearing or appeal.
+Additionally, the California Environmental Quality Act (CEQA) will not apply and project determinations
+may not be appealed. However, public hearings will be required for projects located in the California
+Coastal Zone (see FAQ Section, Q.13 for more information).
+An application for a parcel/tentative map for a housing development project or a housing development
+project submitted pursuant to the SHRA must be approved or denied within 60 days from the date the
+local agency receives a completed application. If the local agency does not approve or deny a completed
+application within 60 days, the application shall be deemed approved. Thereafter, the project process will
+follow the normal final map recordation timelines.
+The normal 30-day deadline to determine completeness under the Permit Streamlining Act will also apply
+to SHRA projects. If the City deems an application incomplete within 30 days of submission, the 60 day
+clock does not begin until a completed application is received. Importantly, the 60 day clock will begin on
+
+10
+the date a completed application is received (including payment of fees) - not the date when the City
+confirms an application is complete7.
+Regulations for Parcel and Tract Maps are located in Article 7 of the Zoning Code, including general
+provisions, map standards, and procedures for preliminary and final map approvals and modifications
+(see LAMC Ch. 1 17.50-17.58 and Ch.1A LAMC Sections 13B.7.3 (Tentative Tract Map), 13B.7.5. (Parcel
+Map) and 13B.7.4 (Final Tract Map), 13B.7.6. (Final Parcel Map) of Chapter 1A). Additionally, the City’s
+Small Lot Subdivision Ordinance can be found in LAMC Sec. 12.22 C.27 along with the Small Lot Design
+Standards Administrative Review form (CP-6975) on the City Planning forms webpage (see here).
+A development proponent submitting a SHRA project that is also eligible for the Small Lot Subdivision
+(SLS) Ordinance (single-family and R2 zones are not eligible) may choose to opt into the provisions of
+the SLS Ordinance and be subject to all applicable provisions (except for standards eligible to be waived
+by the SHRA or other subdivision processes). These projects will receive both the Small Lot Subdivision
+(SL) and SHRA (SH) entitlement suffixes, while non SLS projects will only receive the SH suffix. A
+condominium project would receive a Condominium (CN) suffix and the SH suffix.
+For detailed application instructions, please refer to the Preliminary Parcel Map Filing Instructions &
+Checklist (CP13-1801) for projects creating up to four new lots/units or the Tentative Tract Map Filing
+Instructions & Checklist (CP-6110) for projects creating five to ten new lots/units (excluding
+ADUs/JADUs) on the forms page (see here). Please note that a Geologic and Soils Engineering Report
+is required in Hillside, Seismic, or Liquefaction Areas (see here).
+An appointment can be scheduled to submit an application at the public counter (see here). Once an
+application is filed, the project is assigned a case number and routed to the appropriate staff members to
+review.
+Fees
+The City Planning application fee will depend on whether the project requires a Parcel Map (up to four
+lots) or a Tract Map (five - ten lots). Additionally, SHRA projects that do not opt into or are ineligible for
+the SLS Ordinance will not be charged any fees related to the Administrative Small Lot Design Standards
+compliance review. Applicants are also advised to pay any fees required by other departments, such as
+the Bureau of Engineering Land Development Fee for Tentative/Preliminary Subdivision Maps, in a timely
+manner to allow for the required reviews to take place. SHRA applications will not be deemed complete
+until all required fees from other Advisory Agency departments are paid.
+SHRA dwelling units will also be assessed any applicable development impact fees such as the LAUSD
+Developer Fee, Park Fee, and the Affordable Housing Linkage Fee. Quimby (In-Lieu) Fees will be
+calculated by the Department of Recreation and Parks after an applicant submits the Park Fee
+Calculation Application (more information here). The Affordable Housing Linkage Fee is calculated based
+on the “market area” of the City the project is located in and whether it is a single-family or multiple-unit
+development (see here). Small lot subdivisions consisting of multiple detached single-family dwellings
+will be considered single-family units for the purpose of Linkage Fee calculation. If the project is located
+7See HCD technical assistance letter to the City of Los Angeles dated December 11, 2024
+
+11
+in a single-family zone and the new homes are each less than 1,500 square feet, an individual small lot
+may qualify for the exemption provided in LAMC Ch 1 Section 19.18 B.2(e)(2). Additionally, in any zone,
+the replacement of a detached single-family home that results in a net increase of no more than 1,500
+square feet of Floor Area compared to the previously existing home may qualify for an exemption for one
+of the new units under LAMC Ch 1 Section 19.18 B.2(e)(3).
+Projects requiring permit clearances or other procedures will be assessed additional fees, in addition to
+typical plan check, final map processing, and permit fees.
+Early Start Building Permits
+GCS 65913.4.5(a)(1) requires local agencies to issue building permits for SHRA projects if the applicant
+has received “...tentative map approval or parcel map approval for the subdivision.” and “...submitted a
+building permit application that the local agency deemed complete pursuant to subdivision (b) of Section
+65913.3.”
+Additionally, GCS 65913.4.5(a)(2) states that the City “...may condition the issuance of a building permit
+on the applicant submitting proof to the satisfaction of the local agency of a recorded covenant and
+agreement…that states that the applicant…agree[s] that the building permit is issued on the condition
+that a certificate of occupancy or equivalent final approval for the building will not be issued unless the
+final map has been recorded.” There is nearly identical language in LAMC Sec. 17.06(A)(2)(d) that allows
+for the issuance of “early start” building permits for Small Lot Subdivisions with the same condition
+regarding final map recordation. As such, the City will apply the policy outlined in GCS 65913.4.5(a)(2)
+to all SHRA projects. Please keep in mind that any permitted construction based on tentative map
+approval may need to be re-designed to account for any changes made to the final map.
+Prohibition on Selling, Leasing or Financing
+AB 130 (2025) updated GCS 66499.41(e) to allow cities to prohibit a person from selling, leasing, or
+financing any parcel resulting from a SHRA subdivision separately from the other parcels (except for the
+remainder parcel), unless each parcel meets one of the following criteria listed in GCS 66499.41(e)(1)(A):
+1) The parcel contains an existing legally permitted residential structure, or at least one unit that was
+legally permitted at the time of construction.
+2) The parcel is reserved for internal circulation, open space, or common area.
+3) The parcel is the only remaining parcel within the subdivision not developed with a residential
+structure.
+SHRA Projects within Overlays
+Pursuant to GCS 65852.28(c)(1), all housing development projects and their associated subdivisions
+eligible for the SHRA shall be subject to a ministerial review process, including any related overlay
+reviews. All eligible housing development projects are still subject to any applicable objective zoning,
+subdivision, or design standards from the overlay unless the standard is explicitly precluded by the law
+or physically precludes a project at the protected density. Compliance with an overlay’s applicable
+
+12
+objective standards would be verified through a ministerial process. The ministerial overlay review shall
+be filed at the same time as the parcel or tentative tract map review.
+Frequently Asked Questions (FAQ) Related to SHRA Implementation
+Q.1 SB 1123 expands SHRA eligibility to lots that are “vacant and zoned for single-family residential
+development.” What does that mean?
+A. The SHRA defines “vacant” as a site that has no permanent structure at the time of application,
+unless the existing structure is abandoned and uninhabitable. A structure may be considered
+vacant or abandoned and uninhabitable if sufficient evidence exists to make that determination,
+consistent with the SHRA’s intent and a desire to minimize the presence of vacant land and
+prevent unnecessary demolitions (when projects aren’t able to be constructed).
+Documentation relating to abandonment may include, but is not limited to: (i) At least 180
+consecutive days of vacancy based on LADWP or other utility service records; (ii) Structure visibly
+boarded up, fenced off, or otherwise secured (with date-stamped photos); (iii) Record of being
+declared a public nuisance by the Board of Building and Safety Commissioners; (iv) Records of
+repeated break-ins, squatting, or vandalism;
+Documentation of lack of habitability may include, but is not limited to: (i) An unresolved Notice
+and Order to Vacate or Order to Comply related to habitability issued by the Los Angeles
+Department of Building and Safety (LADBS); (ii) Lack of active utility connections; (iii) Official
+records or inspection reports documenting lack of habitability; (iv) Absence of a valid Certificate
+of Occupancy; (vi) Insurance documentation of a total loss; (vii) Inspection reports indicating
+hazardous conditions (e.g., asbestos, lead paint, biohazards) that prohibit lawful occupancy.
+An existing dwelling that qualifies as “abandoned and uninhabitable” at the time of application
+does not need to be demolished for the site to maintain SHRA eligibility. In this instance, the
+existing dwelling may be rehabilitated and included as part of the subdivision or as a remainder
+parcel. The SHRA also does not consider “vacant” any of the types of housing protected from
+demolition or alteration (see pg. 3) and expands this to for-sale restricted affordable units in
+addition to rental.
+Zoned for single-family residential development means sites in the following zones: A1, A2, RA,
+RE, RS, R1, RU, RZ, and RW1.
+Q.2 Can development proponents utilize State Density Bonus or other affordable housing incentive
+programs in conjunction with a SHRA project?
+A. Yes, development proponents may utilize an affordable housing incentive program in conjunction
+with a SHRA project. This includes the State Density Bonus Program (LAMC Section 12.22 A.37),
+a program from the recently adopted Citywide Housing Incentive Program Ordinance (Ordinance
+188,477), or any other local incentive program in the LAMC, a Community Plan Implementation
+Overlay, or a Specific Plan. These projects will need to meet all applicable requirements from
+
+13
+both the SHRA and incentive program. Additionally, any lower-income units provided to meet the
+SHRA’s Housing Element Site requirements may be utilized to qualify for an incentive program.
+SHRA projects that utilize this option will be subject to the following provisions:
+● Projects cannot exceed 10 dwelling units (not including ADUs/JADUs or any existing units
+located on a remainder parcel).
+● Development proponents may only request incentives or waivers from local development
+standards and not SHRA standards or requirements.
+● No public hearings may be required.
+● The application for the affordable housing incentive program shall be filed simultaneously
+as the SHRA project.
+● “Maximum allowable residential density” in GCS 65915 (Density Bonus Law) means the
+greatest number of units allowed by local zoning or the general plan - not the allowable
+SHRA density. The number of bonus units shall be calculated this way for any SHRA
+project filed concurrently with an incentive program that follows state density bonus
+procedures.
+Q.3 Can any allowance or authority given to the Deputy Advisory Agency by the LAMC be exercised in
+combination with a SHRA project?
+A. Yes. The Deputy Advisory Agency has the authority to conditionally approve, modify, or waive
+development standards related to subdivision design, improvements, easements, lot
+configuration, dedications, and other map-related requirements, provided such actions are
+consistent with applicable findings, public health and safety, and applicable state law such as the
+Subdivision Map Act and the SHRA8.
+Q.4 The Baseline Mansionization Ordinance (BMO) and Baseline Hillside Ordinance (BHO) added
+several residential development standards specific to single-family zones. Are any of those standards
+preempted by the SHRA?
+A. The BMO and BHO development standards were intended to limit the bulk and massing of
+residential structures in single-family zones. However, these development standards were
+explicitly designed for detached single-family dwellings in zones with at least 5,000 square-foot
+minimum lot areas. Consequently, some of these regulations are not well-suited for the
+development typologies allowed by the SHRA. Here is a breakdown of some of the most pertinent
+BMO development standards and how they interact with the townhome style/small lot
+developments we expect will be most common under the SHRA.
+● Residential Floor Area Ratio (RFAR): RFAR standards in the BMO and BHO vary by lot
+size and zone, but do not exceed 0.65. As previously noted, the SHRA prohibits local
+agencies from imposing a FAR below 1.0 for 3 to 7 unit projects and 1.25 for 8 to 10 unit
+projects. The net habitable square footage is not used for this calculation.
+8 Including but not limited to LAMC Sections 17.03 A (yards, height, area and passageway) and 17.05 (design
+standards) of Chapter 1 as well as 13B.7.3 (Tract Maps) and 13B.7.5 (Parcel Maps) of Chapter 1A.
+
+14
+● Encroachment Plane: Projects in R1 or R1 Variation Zones require a 45 degree angled
+plane toward the lot interior that originates at a specified height above the front and/or side
+yard setback. Building mass cannot extend beyond the encroachment plane. However,
+the SHRA prohibits local agencies from requiring any setbacks or distance between the
+units (except as required by the CA Building Code). This prohibits enforcement of the
+encroachment plane requirement anywhere the dwelling units directly abut.
+● Maximum Lot Coverage: Projects in R1 Variation Zones are subject to a maximum lot
+coverage standard of 50 percent for lots up to 6,000 square feet. The SHRA does not
+explicitly preempt this standard, but a 50 percent maximum lot coverage requirement on
+new lots that don’t have to exceed 1,200 square feet may likely have the effect of imposing
+a FAR below 1.0 or 1.25 and prevent a housing development at the protected density
+permitted by GCS 65852.28(b)(2)(A).
+● Side Wall Offset/Plane Break: In R1 and R1 Variation Zones, the BMO requires all portions
+of a building with a side wall more than 14 feet in height and a continuous length greater
+than 45 feet must provide a plane break at least 5 feet in depth beyond the required side
+yard. This plane break must be at least 10 feet in length. The SHRA’s prohibition on
+imposing setbacks from the original side lot lines beyond four feet would preempt the plane
+break requirement along any portion of the required side lot line setback. The SHRA’s
+prohibition on applying setbacks between units would also preempt the plane break
+requirement anywhere the units directly abut.
+Q.5 Can a development proponent pursue a SHRA project following approval of a discretionary parcel or
+tract map entitlement? Can SHRA projects propose the merger & re-subdivision of lots?
+A. Yes, as long as the final map for the discretionary entitlement is recorded prior to the SHRA
+application. Consistent with the City’s existing parcel and tract map processes, SHRA projects
+may propose the merger and re-subdivision of lots in the same application.
+Q.6 What does ministerial approval mean?
+A. A ministerial approval process is non-discretionary and administrative in nature and shall be
+based on objective standards only (see below). For SHRA purposes, a ministerial project is not
+subject to discretionary review, a public hearing, CEQA, or the right to appeal.
+Q.7 What are objective standards?
+A. “Objective zoning standards”, “objective subdivision standards”, and “objective design standards”
+are standards that involve no personal or subjective judgment by a public official and are uniformly
+verifiable by reference to an external and uniform benchmark or criterion available and knowable
+by both the development applicant or proponent and the public official prior to submittal [see GCS
+66300(a)(7)]. Examples include numeric and fixed standards such as heights or setbacks, or
+design standards such as specific dimensions or materials. Subjective standards require
+judgment and can be reasonably interpreted in multiple ways.
+
+15
+Q.8 Will ADUs or JADUs be allowed in SHRA projects? Are there any restrictions?
+A. GCS 66499.41(g) permits local jurisdictions discretion in how and whether to permit ADUs or
+JADUs on parcels created pursuant to the SHRA. The City of Los Angeles will allow these projects
+to include ADUs and/or JADUs in multi-family zones, and only JADUs in single-family zones,
+subject to the restrictions noted below.
+In fee simple SHRA projects, only one attached ADU or JADU will be allowed on each new parcel.
+However, all normally applicable provisions of the City's ADU Ordinance or State ADU law will
+apply to multi-family SHRA projects.
+Q.9 What are the requirements for sites listed in the 2021-2029 Housing Element? If a site is listed, where
+can I find the number of projected units or lower income unit requirements?
+A. As previously noted, GCS 66499.41(a)(5) requires that all SHRA projects located on Housing
+Element Sites must result in at least as many units as projected for that site in the 2021-2029
+Housing Element. Projects located on Housing Element Sites identified to accommodate any
+portion of the City’s Regional Housing Needs Allocation (RHNA) for lower income households
+must also result in at least as many lower income units assigned to the parcel.
+The following paragraphs detail where unit projections and any lower income requirements can
+be found for each Housing Element site category.
+Inventory of Adequate Sites (Appendix 4.1 of the 2021-2029 Housing Element)
+The full list of sites in Appendix 4.1 can be found on the LACP website
+(https://planning.lacity.gov/plans-policies/housing-element). However, these sites are also noted
+in ZIMAS (https://zimas.lacity.org) by Zoning Information File 2512 (ZI-2512: Housing Element
+Sites) in the “Planning and Zoning” tab. The unit projection for the subject parcel can be found in
+the ZIMAS “Housing” tab next to “SB 166 Units”. If the projected units are listed as a fractional
+number, then the minimum number of units for that site would be rounded up to the next whole
+number. For example, if a site’s projected unit total is .45, then the development would need to
+result in at least one unit. If a housing element site is projected to host more than the number of
+proposed units (including ADU/JADUs), that parcel is ineligible for SHRA streamlining.
+Private and Public Development Pipeline Projects (Appendix 4.3 and 4.2 of the 2021-2029
+Housing Element)
+The full list of sites in Appendices 4.2 & 4.3 can also be found on the LACP web page linked
+above. These sites are also noted in ZIMAS by ZI-2512 and have corresponding unit projects in
+the “Housing” tab. To be listed in Appendix 4.3 a site must have a proposed housing development
+project with City Planning entitlements or building permit applications that are already approved
+or under review. If a housing development project on this list were revised and re-submitted
+pursuant to SB 684, the project would need to result in at least the number of units listed in the
+“Total Capacity” column for that parcel. The same rules apply to any eligible Public Development
+Pipeline Projects listed in Appendix 4.2. As with Appendix 4.1, any housing element site that is
+projected to host more than the number of proposed units (including ADU/JADUs) is ineligible for
+SHRA streamlining.
+
+16
+Additionally, if a parcel in Appendices 4.1, 4.2, or 4.3 was identified to accommodate any portion
+of the City’s RHNA for lower income households, the development must result in at least as many
+lower income units assigned to the parcel. This information is noted in the ZIMAS “Housing” tab.
+If these unit allocations are listed as fractional numbers, then the minimum number of units would
+be rounded up to the next whole number. These units shall be subject to a recorded affordability
+restriction of 99 years pursuant to the Resident Protections Ordinance (Ord No. 188,481). RHNA
+allocations for “moderate” and “above moderate” income units are not subject to any affordability
+requirements and can be treated as market-rate units.
+Q.10 Do the standards required as part of the Small Lot Subdivision (SLS) Ordinance apply if they are
+opted into as part of a SHRA Project?
+A. The SHRA requires that eligible housing development projects comply with all applicable objective
+zoning, subdivision, and design standards established by the city unless these standards are
+inconsistent with the legislation. Projects that opt into other city programs like the Small Lot
+Subdivision (SLS) Ordinance or affordable housing incentive programs, are choosing to subject
+themselves to the eligibility and other requirements that apply to that program for the benefits they
+provide. SLS is not a requirement for SHRA project approval, and is located in the exception
+section of the LAMC (12.22 C.27).
+Projects that are vested under the prior version of this memo are permitted to proceed under that
+policy (e.g. vested under the Housing Crisis Act, a vesting tentative tract map or having paid plan
+check fees with LADBS).
+Q.11 Can the City disapprove a SHRA project?
+A. Yes. Pursuant to GCS 65852.28, the City “...may disapprove a housing development project that
+meets the requirements of this section if it makes a written finding, based upon a preponderance
+of the evidence, that the proposed housing development project would have a specific, adverse
+impact, as defined and determined in paragraph (2) of subdivision (d) of Section 65589.5, upon
+public health and safety and for which there is no feasible method to satisfactorily mitigate or
+avoid the specific, adverse impact.”
+A "specific, adverse impact" means a significant, quantifiable, direct, and unavoidable impact,
+based on objective, identified written public health or safety standards, policies, or conditions as
+they existed on the date the application was deemed complete. The following shall not constitute
+a specific, adverse impact upon the public health or safety:
+● Inconsistency with the zoning ordinance or general plan land use designation.
+● The eligibility to claim a welfare exemption under subdivision (g) of Section 214 of the
+Revenue and Taxation Code.
+
+17
+Q.12 How does the SHRA work in the Coastal Zone?
+A. The SHRA applies in the Coastal Zone but does not supersede or in any way alter or lessen the
+effect or application of the California Coastal Act (Section 30000 of the Public Resources Code)
+or the current Coastal Development Permit procedures outlined in LAMC Section 13B.9.1 of
+Chapter 1A. Public Hearings will continue to be required. Applicants will be required to file for a
+Coastal Development Permit for any project that meets the “Development” definition (LAMC
+Section 13B.9.1. (Coastal Development Permit (Pre-Certification)) of Chapter 1A), including but
+not limited to the demolition, conversion, or new construction of dwelling units as well as
+subdivisions of land. A Coastal Development Permit should be filed with the application for the
+parcel or tract map.
+Q.13 How is “net habitable square feet” calculated?
+A. SB 1123 clarified this means the finished and heated floor area fully enclosed by the inside surface
+of walls, windows, doors, and partitions, and having a headroom of at least six and one-half feet,
+including working, living, eating, cooking, sleeping, stair, hall, service, and storage areas, but
+excluding garages, carports, parking spaces, cellars, half-stories, and unfinished attics and
+basements. ADUs and JADUs are not counted in the average total floorspace calculation.
+Q.14 How are demolitions and alterations defined?
+A. A demolition is the tearing down, razing or removal of a building or structure that requires a
+demolition permit. Physical alterations include any construction or renovation to an existing
+structure other than a repair or addition. Additions that also involve changes to the existing
+physical structure of the unit are considered an alteration.
+Q.15 How is car share defined for the purposes of parking waivers?
+A. Car share means a vehicle rental program designed for people to rent vehicles for short periods
+of time, such as a few hours, pay only for their usage, and access the car at any hour, not just
+during business hours. The vehicles may be commercially or personally owned. Commercial car
+share companies generally offer a fleet of vehicles which may be picked up and returned to a
+designated parking spot, or are picked up and returned to non-designated parking spots. Personal
+vehicle sharing (peer-to-peer car sharing) allows private car owners to make their vehicles
+available for rental. Some car share companies operating in Los Angeles include, but are not
+limited to: BlueLA, Zipcar, Ryde, Waive, Getaround, Transfr, PiTcarz, Maeve, Turo, Envoy, and
+Animo. For the purposes of determining the applicability of this parking exemption, pick-up and
+drop-off locations are provided by the applicant and verified online.
+Q.16 How will the City determine whether habitat for protected species exists on a parcel in order to
+determine compliance with GCS 66499.1 (a)(9)(I)?
+A. Properties located in Hillside Areas or the Coastal Zone have been assessed based on the
+potential presence of biological resources to assist in pre-screening parcels that may need further
+analysis to determine if habitat exists. Parcels flagged for further review in the SHRA Eligibility
+
+18
+Checklist in ZIMAS (under the Planning and Zoning tab) will require a completed Biologist's
+Statement of No Habitat (CP-3610) form to verify eligibility. However, SHRA applications on sites
+that are not flagged for further review will still require a completed Owner’s Declaration of No
+Habitat (CP-3608) form. In either instance, all building permits for SHRA projects will require a
+City Planning Clearance to demonstrate compliance with this provision.
+Q.17 Can existing Parcel or Tract Map applications utilize the SHRA?
+A. Yes, as long as all relevant SHRA project and site eligibility criteria are met. Applicants with
+eligible projects can work with their assigned project planner and/or the Development Services
+Center to modify their existing application and take advantage of SHRA streamlining. A revised
+map fee will be required.
+Q.18 Can a development proponent utilize the SHRA in conjunction with a discretionary entitlement such
+as an Adjustment or Variance? What about a Zone Change if a site is not located in an eligible zone?
+A. Yes, a development proponent can combine a SHRA application for a subdivision resulting in 10
+or fewer parcels with a Zoning Adjustment, Variance or Zone Change application. However,
+SHRAs ministerial processing requirements will no longer apply. If the Zone Change application
+is approved, it would be effectuated before recordation of the final Parcel or Tract Map.
+Q.19 Can the city require the formation of a homeowner’s association?
+A. No, except as required by the Davis-Stirling Common Interest Development Act for a
+condominium project. That said, the City may still require a mechanism to ensure maintenance of
+common space within the subdivision, including, but not limited to, a community maintenance
+agreement.
+Q.20 Are LADBS haul route approvals required?
+A. Yes, however they must be processed ministerially, meaning without CEQA, public hearing or
+application of non-objective standards.
+Q.21 May the City apply a Conditional Use Permit (CUP) for a SHRA project?
+A. No, per the HCD technical assistance letter to Oakland, a CUP shall not be required for a parcel
+map or a tentative and final map for a housing development project qualifying under GCS
+65852.28 and 66499.41. Rather, eligible projects are considered ministerial and shall not require
+a discretionary permit or hearing.
+Q.22 Can the SHRA be used to create condominiums? What about condo conversions?
+A. Condominiums and other for-sale multifamily projects are allowed, but only in zones where
+multifamily dwellings are permitted. SB 1123 also added language prohibiting any existing units
+from being alienable (sold) separate from the title to any other existing dwelling unit on the lot.
+This prevents an existing apartment building with a Certificate of Occupancy from being converted
+
+19
+using the law. Newly constructed buildings that have not yet received their Certificate of
+Occupancy may be permitted through a streamlined SHRA procedure, provided all applicable
+requirements are met.
+Q.23 AB 130 (2025) included a provision allowing SHRA projects to include one remainder parcel. How
+is this defined and how could this be utilized? Do minimum lot size or other local development standards
+apply?
+A. Remainder parcels are defined in the Subdivision Map Act (GCS 66424.6). AB 130 allows SHRA
+projects to utilize a remainder parcel that retains existing land uses and does not contain any new
+residential units. It must also not be exclusively dedicated to serving the housing development.
+This new allowance was intended to facilitate SHRA projects on lots with existing uses. For
+example, a property owner could designate an existing commercial structure, apartment building,
+or single-family home as a remainder parcel and pursue a SHRA project elsewhere on the lot.
+However, remainder parcels do not count towards the SHRA’s 10 parcel limitation or the law’s
+minimum density requirements for non-housing element sites. Local agencies cannot impose any
+minimum lot size, yard setback, or residential density standards on a designated remainder
+parcel. However, all applicable local zoning and development standards would be applied to any
+subsequent development project on a remainder parcel.
+Q.24 Should a SHRA project’s density be rounded up (or down) if the calculation yields a fractional
+number?
+A. This answer depends on which density standard is being calculated. We’ve provided a breakdown
+of the SHRA’s density standards below detailing when one should round up (or down) to the
+nearest whole number along with the page number(s) where each standard is described in the
+memo.
+● SHRA Minimum Density - Housing Element Sites: Round Up
+○ SHRA projects located on housing element sites must result in at least the number
+of units projected for the site. See p.2-3 and Q.9 above for more information.
+● SHRA Minimum Density - Non-Housing Element Sites: Round Down
+○ SHRA projects located on non-housing element sites must be built to 66% of: 1)
+the maximum local zoning density or 2) 30 units per acre, whichever is greater.
+Both density calculations would be rounded down to the next whole number,
+consistent with the LAMCs density calculations.
+● Pre-Subdivision Allowable Density: Round Down
+○ This standard determines the number of allowable lots and/or primary dwelling
+units as a factor of the SHRA’s minimum lot size requirements for multifamily zones
+(600 sf) or vacant single-family zoned sites (1,200 sf). Fractional numbers are
+rounded down to the nearest whole number because each new lot must be at least
+600 or 1,200 square feet. See p.5 for more information.
+
+20
+● Post-Subdivision Allowable Density: Round Up (if less than 1), Round Down (all other
+instances)
+○ LAMC density limits from the underlying zone are applied to each new SHRA
+parcel. *However, at least one primary dwelling unit must be allowed on each
+newly created parcel.* As such, post-subdivision allowable density calculations are
+rounded up if the calculation is less than one but are rounded down in all other
+instances. See p.5 for more information.
+● Protected Density: Round Down
+○ The SHRA prohibits local agencies from imposing certain standards that would
+physically preclude a project built to (or below) the site’s protected density, which
+is the greater of 30 units per acre or the maximum zoning density. See p.7 for more
+information.
+Q.25 Can SHRA applications be limited to the subdivision of land? If so, how would subsequent
+applications for the housing development be reviewed?
+A. Yes - a SHRA application can be limited to the subdivision of land for a future housing
+development. Prior to AB 130, GCS 66499.41(e) allowed local agencies to require concurrent
+approval of the subdivision and housing development by conditioning the approval and
+recordation of a SHRA subdivision upon the completion of all proposed dwellings. While the
+revised language in GCS 66499.41(e) generally prohibits the sale, lease, or financing of any new
+unimproved parcels separately from the other parcels (see p.12 for more information), it does not
+prohibit the sale of an entire unimproved subdivision. This revision, in conjunction with the ability
+to designate a remainder parcel, was intended to allow the subdivision and housing development
+to be conducted by different parties.
+Additionally, the parcel or tract map must include at least the number of parcels needed to meet
+the site’s applicable minimum density requirement and must be recorded before submitting an
+application for the housing development. Building permits for the subsequent housing
+development would be reviewed ministerially pursuant the provisions of GCS 65852.28.
+Q.26 Can the SHRA be utilized on adjacent parcels at the same time? Does it matter if the projects are
+proposed by the same property owner?
+A. Yes - the SHRA can be utilized on adjacent parcels at the same time by the same (or different)
+developers. However, a unique LACP application would be required for each distinct parcel
+proposed to be subdivided. Each application is also limited to up to 10 new lots and/or primary
+dwelling units (not including ADU/JADUs). Finally, the perimeter of the entire site where SHRA
+projects are proposed must be “substantially surrounded” by “qualified urban uses” as defined in
+GCS 66499.41(a)(2)(B).
+In this scenario, development proponents may submit SHRA applications concurrently or
+sequentially. Regardless, early coordination with LACP is strongly encouraged before any
+application(s) are submitted.

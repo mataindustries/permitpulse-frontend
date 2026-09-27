@@ -3,16 +3,17 @@
   "criterion_id": "la_shra.environmental-constraints",
   "source_id": "shra-2025-10-28",
   "additional_sources_needed": [
-    "Chaptered text of SB 684 (2023) and SB 1123 (2024) on leginfo.legislature.ca.gov, if the memo cross-references state requirements instead of restating them.",
-    "The map or record that defines each designation the text names."
+    "GCS 66499.41(a)(9), for the conditions on restricted categories. Chaptered text of the statute on leginfo.legislature.ca.gov. It cannot be captured as evidence until a statute source type exists; do not capture it as an adopted_ordinance.",
+    "The defining map for each designation: CAL FIRE Fire Hazard Severity Zones (state and local responsibility areas), the FEMA Flood Insurance Rate Map, and the Alquist-Priolo Earthquake Fault Zone map.",
+    "The LADBS Flood Hazard Management Ordinance Bulletin and Information Bulletins P/BC 2023-129 and P/BC 2023-044."
   ],
   "related_draft_source_ids": [],
-  "source_sha256": null,
-  "candidate_page": null,
-  "candidate_pinpoint": null,
-  "candidate_excerpt": null,
-  "locate_in_source": "Not yet located: the October 28, 2025 SHRA implementation memo (shra-2025-10-28) has not been captured, so no page or section has been read. Look for any list of excluded or restricted site conditions (hazard, environmental, or resource designations) and their exceptions. The criterion currently cites the City SHRA page (\"Filing checklists and implementation memo\"), not a memo pinpoint; a converted record must cite the memo pinpoint instead.",
-  "question_for_human_reviewer": "Which environmental site designations, if any, does the memo list as barring or conditioning an SHRA project, and with what exceptions? For each of the five designations this criterion reads (Very High Fire Hazard Severity Zone, hillside area, fault zone, landslide area, flood zone), record whether the text names it, the exact term used, the map or record that defines it, and any exception.",
+  "source_sha256": "f44574084091c51419d0475d4b8501d9a2c3577b3a16830fc6ecb2a88b20f6e2",
+  "candidate_page": 4,
+  "candidate_pinpoint": "Memo Part I, Environmental Criteria, page 4, prohibited category 3 and footnote 1",
+  "candidate_excerpt": "3) High or very high fire hazard severity zones, as referenced in GCS 51178 and Public Resources Code Section 42021.",
+  "locate_in_source": "Located in shra-2025-10-28: Part I, Environmental Criteria, page 4 (six prohibited and three restricted categories, footnote 1), continued on page 5 (GCS 66499.41(a)(9)). Hillside appears only on page 10 (a report requirement) and FAQ Q.16, page 17 (habitat pre-screen).",
+  "question_for_human_reviewer": "The memo (page 4) bars sites in High or Very High Fire Hazard Severity Zones (state and local responsibility areas) and lists special flood hazard areas, regulatory floodways, and earthquake fault zones as conditional, not barred. It names neither hillside nor landslide areas as site limits. Do you agree to split this criterion by designation: fire a one-way disqualifier until the fact records High as well as Very High, flood and fault requires_judgment when present, and hillside-area and landslide-area removed? Should the unlisted prohibited categories (farmland, wetlands, conservation land, habitat, easements) block a consistent SHRA result until they are checked?",
   "proposed_controlled_interpretation": {
     "fact_keys": [
       "very-high-fire-hazard-severity-zone",
@@ -21,18 +22,177 @@
       "landslide-area",
       "flood-zone"
     ],
-    "controlled_values_required": "Each fact is a yes/no designation. A rule needs each fact to mean exactly the designation the text names, such as one specific flood designation rather than any flood mapping.",
+    "controlled_values_required": "Fire needs a controlled fire-hazard-severity-zone (very_high | high | moderate | none) because the memo bars High as well as Very High. flood-zone must mean FEMA special flood hazard area or regulatory floodway; fault-zone must mean an Alquist-Priolo Earthquake Fault Zone. hillside-area and landslide-area have no SHRA rule.",
     "fact_narrowing_required": true,
-    "narrowing_note": "Split into one criterion per named designation. Drop any designation the text does not name. A designation with exceptions becomes a judgment criterion.",
-    "predicate_shape_if_reviewer_agrees": "For each designation D the reviewer finds as a bar without exceptions: D recorded true -> disqualifying_per_source; D recorded false from its defining record -> consistent_with_source. D with exceptions -> requires_judgment when true.",
+    "narrowing_note": "Split into la_shra.fire-hazard-severity-zone, la_shra.special-flood-hazard-area, la_shra.earthquake-fault-zone, and a judgment for the other prohibited categories. Remove hillside-area and landslide-area from this criterion.",
+    "predicate_shape_if_reviewer_agrees": "Fire: very_high or high -> disqualifying_per_source; moderate or none from the CAL FIRE map -> consistent_with_source (with today's Very-High-only fact, true -> disqualifying_per_source and false -> requires_judgment). Flood and fault: false from the defining map -> consistent_with_source; true -> requires_judgment.",
     "must_remain_unresolved_when": [
-      "the defining record conflicts with another source (the fictional fixture's fire-hazard conflict stays contested)",
-      "the exceptions depend on project facts",
-      "the designation comes only from a display that is not its defining record"
+      "the defining map conflicts with another source (the fictional fixture's fire-hazard conflict stays contested)",
+      "a restricted category applies and its GCS 66499.41(a)(9) conditions depend on project facts",
+      "the designation comes only from a display that is not its defining map",
+      "the other prohibited categories (farmland, wetlands, conservation land, habitat, easements) are unchecked"
     ],
-    "zimas_conflict_risk": "High. ZIMAS hazard displays and the defining hazard maps can disagree, as the fictional fixture's fire-hazard conflict models. A disagreement stays a conflict and the pathway stays contested."
+    "zimas_conflict_risk": "High. The memo tells users to consult the SHRA Eligibility Checklist in ZIMAS (page 4). ZIMAS hazard displays and the defining maps can disagree, as the fictional fixture's fire-hazard conflict models; a disagreement stays a conflict and the pathway stays contested."
   },
+  "candidate_components": [
+    {
+      "component_id": "la_shra.fire-hazard-severity-zone",
+      "label": "High or Very High Fire Hazard Severity Zone (state and local responsibility areas): prohibited",
+      "pinpoint": "Memo Part I, Environmental Criteria, page 4, prohibited category 3 and footnote 1",
+      "excerpts": [
+        {
+          "page": 4,
+          "text": "3) High or very high fire hazard severity zones, as referenced in GCS 51178 and Public Resources Code Section 42021."
+        },
+        {
+          "page": 4,
+          "text": "1 Please note this includes both state and local responsibility areas."
+        }
+      ],
+      "disposition": "partially_deterministic",
+      "reads_existing_fact_keys": [
+        "very-high-fire-hazard-severity-zone"
+      ],
+      "new_facts_needed": [
+        "fire-hazard-severity-zone: very_high | high | moderate | none, for state and local responsibility areas, from the CAL FIRE map."
+      ],
+      "controlled_value_encoding": "Today's fact records only Very High, so a false value does not show eligibility.",
+      "proposed_rule_if_reviewer_agrees": "With today's fact: very-high-fire-hazard-severity-zone true -> disqualifying_per_source; false -> requires_judgment (a High zone also bars). With the controlled fact: very_high or high -> disqualifying_per_source; moderate or none from the defining map -> consistent_with_source.",
+      "judgment_or_ambiguity": [
+        "The page image reads 'Public Resources Code Section 4202' followed by footnote marker 1; the text layer runs them together as '42021'. The excerpt keeps the text layer's form.",
+        "Both state and local responsibility area maps count (footnote 1)."
+      ]
+    },
+    {
+      "component_id": "la_shra.special-flood-hazard-area",
+      "label": "Special flood hazard areas and regulatory floodways: allowed only if conditions are met",
+      "pinpoint": "Memo Part I, Environmental Criteria, page 4, restricted category 2",
+      "excerpts": [
+        {
+          "page": 4,
+          "text": "The following site categories may only utilize SHRA streamlining if applicable conditions or standards have been met:"
+        },
+        {
+          "page": 4,
+          "text": "2) Special flood hazard areas and regulatory floodways (see LADBS Flood Hazard Management Ordinance Bulletin); and"
+        }
+      ],
+      "disposition": "partially_deterministic",
+      "reads_existing_fact_keys": [
+        "flood-zone"
+      ],
+      "new_facts_needed": [
+        "flood-zone narrowed to: in a FEMA special flood hazard area or regulatory floodway (yes/no), from the FIRM."
+      ],
+      "controlled_value_encoding": "flood-zone must mean exactly SFHA or regulatory floodway, not any flood mapping.",
+      "proposed_rule_if_reviewer_agrees": "false from the FIRM -> consistent_with_source; true -> requires_judgment (eligible only if the GCS 66499.41(a)(9) conditions are met). Never disqualifying_per_source from the flag alone.",
+      "judgment_or_ambiguity": [
+        "The conditions are in GCS 66499.41(a)(9) and the LADBS bulletin, neither captured."
+      ]
+    },
+    {
+      "component_id": "la_shra.earthquake-fault-zone",
+      "label": "Earthquake fault zones: allowed only if conditions are met",
+      "pinpoint": "Memo Part I, Environmental Criteria, page 4, restricted category 3",
+      "excerpts": [
+        {
+          "page": 4,
+          "text": "3) Earthquake fault zones (see LADBS Information Bulletins P/BC 2023-129 and P/BC 2023-044)."
+        }
+      ],
+      "disposition": "partially_deterministic",
+      "reads_existing_fact_keys": [
+        "fault-zone"
+      ],
+      "new_facts_needed": [
+        "fault-zone narrowed to: in an Alquist-Priolo Earthquake Fault Zone (yes/no), from the official zone map."
+      ],
+      "controlled_value_encoding": "fault-zone must mean the statutory earthquake fault zone.",
+      "proposed_rule_if_reviewer_agrees": "false from the zone map -> consistent_with_source; true -> requires_judgment. Never disqualifying_per_source from the flag alone.",
+      "judgment_or_ambiguity": [
+        "The memo does not name the defining map; the Alquist-Priolo zone is presumed. Confirm.",
+        "The conditions are in GCS 66499.41(a)(9) and the LADBS bulletins."
+      ]
+    },
+    {
+      "component_id": "la_shra.hillside-area",
+      "label": "Hillside Area: not an SHRA site limit in the memo",
+      "pinpoint": "Memo Part I, Environmental Criteria, page 4; Part III, page 10; FAQ Q.16, page 17",
+      "excerpts": [
+        {
+          "page": 4,
+          "text": "First, SHRA projects may not be located on the following site categories:"
+        },
+        {
+          "page": 10,
+          "text": "Please note that a Geologic and Soils Engineering Report is required in Hillside, Seismic, or Liquefaction Areas (see here)."
+        },
+        {
+          "page": 17,
+          "text": "Properties located in Hillside Areas or the Coastal Zone have been assessed based on the potential presence of biological resources to assist in pre-screening parcels that may need further analysis to determine if habitat exists."
+        }
+      ],
+      "disposition": "no_rule_in_source",
+      "reads_existing_fact_keys": [
+        "hillside-area"
+      ],
+      "new_facts_needed": [],
+      "controlled_value_encoding": "Remove hillside-area from this criterion.",
+      "proposed_rule_if_reviewer_agrees": null,
+      "judgment_or_ambiguity": [
+        "Hillside Areas appear only as a report requirement (page 10) and a habitat pre-screen (FAQ Q.16), neither of which is a site bar.",
+        "Low-Rise's Fire Restriction Area (Ordinance 188967) combines fire and hillside; do not carry that rule over to SHRA."
+      ]
+    },
+    {
+      "component_id": "la_shra.landslide-area",
+      "label": "Landslide area: not named in the memo",
+      "pinpoint": "Memo Part I, Environmental Criteria, page 4",
+      "excerpts": [
+        {
+          "page": 4,
+          "text": "The SHRA includes several provisions that either prohibit or restrict eligibility for sites located in environmentally sensitive areas."
+        }
+      ],
+      "disposition": "no_rule_in_source",
+      "reads_existing_fact_keys": [
+        "landslide-area"
+      ],
+      "new_facts_needed": [],
+      "controlled_value_encoding": "Remove landslide-area from this criterion.",
+      "proposed_rule_if_reviewer_agrees": null,
+      "judgment_or_ambiguity": [
+        "Neither list on page 4 names landslide areas, and the memo never uses the term; only a geologic report requirement for Hillside, Seismic, or Liquefaction Areas appears (page 10)."
+      ]
+    },
+    {
+      "component_id": "la_shra.other-prohibited-site-categories",
+      "label": "Farmland, wetlands, conservation-plan land, protected-species habitat, conservation easements, hazardous waste sites",
+      "pinpoint": "Memo Part I, Environmental Criteria, page 4, prohibited categories 1, 2, 4-6 and restricted category 1",
+      "excerpts": [
+        {
+          "page": 4,
+          "text": "1) Prime farmland or farmland of statewide importance;"
+        },
+        {
+          "page": 4,
+          "text": "5) Habitat for protected species; or"
+        }
+      ],
+      "disposition": "professional_judgment",
+      "reads_existing_fact_keys": [],
+      "new_facts_needed": [
+        "No fact exists for these categories; habitat uses the City's pre-screen and declaration forms (FAQ Q.16)."
+      ],
+      "controlled_value_encoding": "Not encodable from current facts.",
+      "proposed_rule_if_reviewer_agrees": null,
+      "judgment_or_ambiguity": [
+        "These bars are in the memo but no Program Screen fact covers them; a consistent SHRA result must not be implied while they are unchecked.",
+        "Hazardous waste sites are a conditional category (page 4)."
+      ]
+    }
+  ],
   "reviewer": null,
   "reviewed_at": null,
-  "status": "awaiting_source_capture"
+  "status": "awaiting_human_review"
 }

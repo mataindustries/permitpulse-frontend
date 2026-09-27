@@ -27,6 +27,19 @@ One directory per source document, written only by the capture tool:
 - **Register first.** Every source ID here must match an entry in
   `expectedOfficialSources` (`app/src/shared/program-screen/proposed-verification.ts`).
 
-This directory holds no captures yet: the capture environment could not reach
-the official hosts. See `docs/PROGRAM_SCREEN_CRITERION_VERIFICATION.md` for the
-manual download list, the capture commands, and the per-criterion ledger.
+Captured 2026-09-27 from PDFs the repository owner supplied (the official
+hosts were unreachable from the capture environment, so the bytes were not
+compared with the served files):
+
+| Source ID | Type | Status |
+| --- | --- | --- |
+| `ordinance-188967` | `adopted_ordinance` | `operative` |
+| `ordinance-188968` | `adopted_ordinance` | `operative` |
+| `shra-2025-10-28` | `official_memo` | `operative` |
+| `low-rise-draft-2026-09-24` | `proposed_draft` | `proposed_not_operative` |
+
+Both ordinances are scans with the City's OCR text layer, and the draft's
+substantive pages have no text layer at all. Read every excerpt against the
+page image. See `docs/PROGRAM_SCREEN_CRITERION_VERIFICATION.md` for the
+hashes, the capture commands, the adopted-versus-draft change report, and the
+per-criterion ledger.

@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, inject, it, vi } from "vitest";
 import verificationLedger from "../../docs/PROGRAM_SCREEN_CRITERION_VERIFICATION.md?raw";
 import fixtureJson from "../fixtures/program-screen/fictional-la-parcel.json";
 import type { CanonicalEvidenceRecord } from "../src/shared/build-week-integrity/types";
@@ -133,27 +133,65 @@ const testOnlyCaptures = loadCaptures(
   }) as Record<string, string>,
 );
 
-const officialCaptures = loadCaptures(
-  import.meta.glob("../fixtures/program-screen/official-sources/*/metadata.json", {
-    import: "default",
-    eager: true,
-  }),
-  import.meta.glob("../fixtures/program-screen/official-sources/*/original.pdf", {
-    query: "?inline",
-    import: "default",
-    eager: true,
-  }) as Record<string, string>,
-  import.meta.glob("../fixtures/program-screen/official-sources/*/extracted.txt", {
-    query: "?raw",
-    import: "default",
-    eager: true,
-  }) as Record<string, string>,
-);
+/** An official capture as loaded here: metadata and extracted text, not the PDF. */
+interface OfficialCapture {
+  directory: string;
+  metadata: OfficialSourceMetadata | null;
+  extracted: string | null;
+}
+
+/**
+ * Official PDFs are not inlined: Ordinance 188967 alone exceeds the 32 MiB
+ * module message limit between Vitest and workerd once base64-encoded.
+ * `program-screen-capture-bytes.global-setup.ts` re-hashes every original.pdf
+ * in Node on every run and provides the result as `officialByteChecks`.
+ */
+const officialCaptures: Record<string, OfficialCapture> = (() => {
+  const meta = byDirectory(
+    import.meta.glob("../fixtures/program-screen/official-sources/*/metadata.json", {
+      import: "default",
+      eager: true,
+    }) as Record<string, OfficialSourceMetadata>,
+    "metadata.json",
+  );
+  const texts = byDirectory(
+    import.meta.glob("../fixtures/program-screen/official-sources/*/extracted.txt", {
+      query: "?raw",
+      import: "default",
+      eager: true,
+    }) as Record<string, string>,
+    "extracted.txt",
+  );
+  const directories = [...new Set([...Object.keys(meta), ...Object.keys(texts)])].sort();
+  return Object.fromEntries(
+    directories.map((directory) => [
+      directory,
+      { directory, metadata: meta[directory] ?? null, extracted: texts[directory] ?? null },
+    ]),
+  );
+})();
+
+const officialByteChecks = inject("programScreenOfficialCaptureByteChecks");
+
+function completeOfficial(capture: OfficialCapture | undefined): { metadata: OfficialSourceMetadata; extracted: string } {
+  if (!capture?.metadata || capture.extracted === null) {
+    throw new Error(`Incomplete official capture: ${capture?.directory}`);
+  }
+  return { metadata: capture.metadata, extracted: capture.extracted };
+}
 
 /** Every file under official-sources/, without loading any (keys only). */
 const officialSourceFiles = Object.keys(
   import.meta.glob("../fixtures/program-screen/official-sources/**/*", { query: "?url" }),
 ).map((path) => path.replace("../fixtures/program-screen/official-sources/", ""));
+
+const OFFICIAL_DIR = "app/fixtures/program-screen/official-sources/";
+const CAPTURED_SOURCE_IDS = [
+  "low-rise-draft-2026-09-24",
+  "ordinance-188967",
+  "ordinance-188968",
+  "shra-2025-10-28",
+];
 
 const proposals = Object.fromEntries(
   Object.entries(
@@ -535,11 +573,13 @@ describe("Official source URL and type validation", () => {
 
 describe("Captured official sources (official-sources/)", () => {
   it("pins exactly which official sources have been captured", () => {
-    // Empty: on 2026-09-27 the capture environment could not reach
-    // cityclerk.lacity.org or planning.lacity.gov (egress policy 403), and no
-    // official file was supplied locally. See
-    // docs/PROGRAM_SCREEN_CRITERION_VERIFICATION.md, "Manual download list".
-    expect(Object.keys(officialCaptures)).toEqual([]);
+    // Captured 2026-09-27 from PDFs the repository owner supplied locally; the
+    // official hosts were still unreachable from the capture environment. See
+    // docs/PROGRAM_SCREEN_CRITERION_VERIFICATION.md, "Captured official sources".
+    const directories = CAPTURED_SOURCE_IDS.map((id) => `${OFFICIAL_DIR}${id}`);
+    expect(Object.keys(officialCaptures)).toEqual(directories);
+    // The Node-side byte check covered exactly the same directories.
+    expect(Object.keys(officialByteChecks).sort()).toEqual(directories);
   });
 
   it("holds only complete captures: no HTML, notes, or stray files", () => {
@@ -549,18 +589,113 @@ describe("Captured official sources (official-sources/)", () => {
     }
     for (const capture of Object.values(officialCaptures)) {
       expect(capture.metadata, capture.directory).not.toBeNull();
-      expect(capture.original, capture.directory).not.toBeNull();
       expect(capture.extracted, capture.directory).not.toBeNull();
+      const id = capture.directory.slice(OFFICIAL_DIR.length);
+      expect(officialSourceFiles, capture.directory).toContain(`${id}/original.pdf`);
+      expect(officialByteChecks[capture.directory]?.files).toEqual([
+        "extracted.txt",
+        "metadata.json",
+        "original.pdf",
+      ]);
     }
   });
 
   it("keeps every capture pinned, official, and matched to its expected source", async () => {
     for (const found of Object.values(officialCaptures)) {
-      expect(await officialSourceCaptureIssues(found), found.directory).toEqual([]);
-      const capture = complete(found);
-      expect(capture.metadata.test_only, capture.directory).toBe(false);
-      expect(expectedSourceIssues(capture.metadata), capture.directory).toEqual([]);
+      const capture = completeOfficial(found);
+      // Full check on the exact PDF bytes, run in Node (see the global setup).
+      expect(officialByteChecks[found.directory], found.directory).toEqual({
+        files: ["extracted.txt", "metadata.json", "original.pdf"],
+        sha256_original: capture.metadata.sha256_original,
+        bytes: capture.metadata.original.bytes,
+        is_pdf: true,
+        issues: [],
+      });
+      // The text pins again here, on the text this worker loaded.
+      expect(await sha256Hex(capture.extracted), found.directory).toBe(capture.metadata.sha256_extracted);
+      expect(isNormalizedExtraction(capture.extracted), found.directory).toBe(true);
+      expect(splitExtractedPages(capture.extracted)).toHaveLength(capture.metadata.extraction.page_count);
+      expect(officialSourceMetadataSchema.safeParse(capture.metadata).success, found.directory).toBe(true);
+      expect(capture.metadata.test_only, found.directory).toBe(false);
+      expect(capture.metadata.is_ai_generated, found.directory).toBe(false);
+      expect(expectedSourceIssues(capture.metadata), found.directory).toEqual([]);
     }
+  });
+
+  it("pins each official capture's bytes and text by SHA-256", () => {
+    // Pinned here as well, so a recapture is a visible, reviewed change.
+    const pins = Object.fromEntries(
+      Object.values(officialCaptures).map((found) => {
+        const { metadata } = completeOfficial(found);
+        return [metadata.source_id, [metadata.sha256_original, metadata.sha256_extracted]];
+      }),
+    );
+    expect(pins).toEqual({
+      "low-rise-draft-2026-09-24": [
+        "c451896908430f573206209c6c154c62c95b2c396ffdebe5a7e8505560a8d9a7",
+        "3f31319db3820b36cd3755f7e5572ef414181c283fb7659c0eea13f61dd4ec65",
+      ],
+      "ordinance-188967": [
+        "d03eda1a3b6d790d1e1331040118c5661b2d87f202e6389839982b9e5a2ed24f",
+        "279b3724eb25b8e9bee0efeedd1eb500089b993a5dd7af6925c05019db605e25",
+      ],
+      "ordinance-188968": [
+        "e355179f5e7dfb58626f596d2023549279a53b4a3431f691a599557b5f7519e3",
+        "91ea56cfb5db7b1d0f42bba4afef52179fd9052ef726d7a337fe35091410a588",
+      ],
+      "shra-2025-10-28": [
+        "c7063b881987dc855bb74a674f0d344233f7b7d2859544850c54176d347d8b5e",
+        "f44574084091c51419d0475d4b8501d9a2c3577b3a16830fc6ecb2a88b20f6e2",
+      ],
+    });
+  });
+
+  it("records the three operative sources as operative and the draft as proposed only", () => {
+    const summary = Object.values(officialCaptures).map((found) => {
+      const { metadata } = completeOfficial(found);
+      return {
+        id: metadata.source_id,
+        type: metadata.source_type,
+        status: metadata.operative_status,
+        may_change: metadata.may_change_source_ids,
+        supports_rule: canSupportCriterionRule(metadata),
+      };
+    });
+    expect(summary).toEqual([
+      {
+        id: "low-rise-draft-2026-09-24",
+        type: "proposed_draft",
+        status: "proposed_not_operative",
+        may_change: ["ordinance-188967"],
+        supports_rule: false,
+      },
+      { id: "ordinance-188967", type: "adopted_ordinance", status: "operative", may_change: [], supports_rule: true },
+      { id: "ordinance-188968", type: "adopted_ordinance", status: "operative", may_change: [], supports_rule: true },
+      { id: "shra-2025-10-28", type: "official_memo", status: "operative", may_change: [], supports_rule: true },
+    ]);
+  });
+
+  it("keeps the draft's scanned pages out of its extracted text", () => {
+    // Pages 1-2 of the draft (the amended table and severability clause) have
+    // no text layer. The capture records that; nothing may fill the gap.
+    const draftCapture = completeOfficial(officialCaptures[`${OFFICIAL_DIR}low-rise-draft-2026-09-24`]);
+    expect(draftCapture.metadata.extraction.pages_without_text).toEqual([1, 2]);
+    expect(splitExtractedPages(draftCapture.extracted).slice(0, 2)).toEqual(["", ""]);
+    expect(draftCapture.extracted).not.toMatch(/Table 12\.22|LR-1|stories/);
+  });
+
+  it("flags only the Low-Rise criterion for re-review from the captured draft", () => {
+    const metadata = Object.values(officialCaptures).map((found) => completeOfficial(found).metadata);
+    const parsed = Object.values(proposals).map((value) => proposedVerificationSchema.parse(value));
+    expect(draftChangeWarnings(metadata, parsed)).toEqual([
+      {
+        kind: "draft_change_warning",
+        draft_source_id: "low-rise-draft-2026-09-24",
+        affects_source_id: "ordinance-188967",
+        criterion_ids: ["la_low_rise.geographic-criteria"],
+        action: "human_re_review",
+      },
+    ]);
   });
 
   it("keeps the adopted ordinances and the draft distinguishable", () => {
@@ -777,8 +912,173 @@ describe("Proposed verification records", () => {
         expect(proposal.status, proposal.criterion_id).toBe("awaiting_source_capture");
         expect(proposal.candidate_excerpt).toBeNull();
       } else {
-        expect(proposalCaptureIssues(proposal, complete(found)), proposal.criterion_id).toEqual([]);
+        expect(proposal.status, proposal.criterion_id).toBe("awaiting_human_review");
+        expect(proposalCaptureIssues(proposal, completeOfficial(found)), proposal.criterion_id).toEqual([]);
       }
+    }
+  });
+
+  it("pins each proposal's source and how it proposes to split the criterion", () => {
+    // Changing a disposition changes what a reviewer is asked to approve.
+    const summary = Object.fromEntries(
+      Object.values(parsed).map((result) => {
+        const proposal = result.data as ProposedVerification;
+        return [
+          proposal.criterion_id,
+          [
+            proposal.source_id,
+            ...proposal.candidate_components.map((component) => `${component.component_id}:${component.disposition}`),
+          ],
+        ];
+      }),
+    );
+    expect(summary).toEqual({
+      "la_low_rise.geographic-criteria": [
+        "ordinance-188967",
+        "la_low_rise.incentive-area-map:partially_deterministic",
+        "la_low_rise.subarea-criteria:professional_judgment",
+        "la_low_rise.eligible-underlying-zones:partially_deterministic",
+        "la_low_rise.manufacturing-zone-exclusion:partially_deterministic",
+        "la_low_rise.single-family-zone-exclusion:partially_deterministic",
+        "la_low_rise.fire-coastal-sea-level-exclusion:partially_deterministic",
+        "la_low_rise.excluded-plan-areas:partially_deterministic",
+        "la_low_rise.historic-limits:professional_judgment",
+        "la_low_rise.general-plan-land-use:no_rule_in_source",
+      ],
+      "la_sb79.permanent-exclusion": [
+        "ordinance-188968",
+        "la_sb79.permanent-exemption-effect:partially_deterministic",
+        "la_sb79.permanent-exemption-walking-path:professional_judgment",
+        "la_sb79.permanent-exemption-industrial-hub:professional_judgment",
+        "la_sb79.exemption-map-record:professional_judgment",
+      ],
+      "la_sb79.site-and-overlay-standards": [
+        "ordinance-188968",
+        "la_sb79.historic-resource-exemption:partially_deterministic",
+        "la_sb79.zoning-capacity:professional_judgment",
+        "la_sb79.specific-plan-and-tod-plan:no_rule_in_source",
+        "la_sb79.existing-housing:no_rule_in_source",
+      ],
+      "la_sb79.temporary-exemption": [
+        "ordinance-188968",
+        "la_sb79.citywide-temporary-exemption:partially_deterministic",
+        "la_sb79.temporary-exemption-end:deterministic_candidate",
+        "la_sb79.temporary-exemption-criteria:professional_judgment",
+      ],
+      "la_shra.environmental-constraints": [
+        "shra-2025-10-28",
+        "la_shra.fire-hazard-severity-zone:partially_deterministic",
+        "la_shra.special-flood-hazard-area:partially_deterministic",
+        "la_shra.earthquake-fault-zone:partially_deterministic",
+        "la_shra.hillside-area:no_rule_in_source",
+        "la_shra.landslide-area:no_rule_in_source",
+        "la_shra.other-prohibited-site-categories:professional_judgment",
+      ],
+      "la_shra.existing-structures-and-occupancy": [
+        "shra-2025-10-28",
+        "la_shra.protected-housing-demolition:partially_deterministic",
+        "la_shra.ellis-act-withdrawal:deterministic_candidate",
+        "la_shra.existing-units-not-separated:professional_judgment",
+      ],
+      "la_shra.housing-element-site-status": [
+        "shra-2025-10-28",
+        "la_shra.housing-element-site-listing:deterministic_candidate",
+        "la_shra.housing-element-minimum-units:professional_judgment",
+        "la_shra.non-housing-element-minimum-density:professional_judgment",
+      ],
+      "la_shra.lot-area-and-zoning": [
+        "shra-2025-10-28",
+        "la_shra.lot-area-multifamily:deterministic_candidate",
+        "la_shra.lot-area-single-family:deterministic_candidate",
+        "la_shra.zone-category:partially_deterministic",
+        "la_shra.urban-uses-surround:professional_judgment",
+      ],
+      "la_shra.prior-subdivisions": [
+        "shra-2025-10-28",
+        "la_shra.prior-shra-or-sb9-lot:deterministic_candidate",
+        "la_shra.prior-ordinary-subdivision:partially_deterministic",
+        "la_shra.adjacent-parcels:no_rule_in_source",
+      ],
+    });
+  });
+
+  it("never proposes a component ID that is already a shipped criterion", () => {
+    for (const result of Object.values(parsed)) {
+      for (const component of (result.data as ProposedVerification).candidate_components) {
+        expect(shipped.has(component.component_id), component.component_id).toBe(false);
+      }
+    }
+  });
+
+  it("rejects a component excerpt that is off its page, invented, or taken from the draft", () => {
+    const base = proposals["la_low_rise.geographic-criteria.json"] as ProposedVerification;
+    const capture = completeOfficial(officialCaptures[`${OFFICIAL_DIR}ordinance-188967`]);
+    expect(proposalCaptureIssues(base, capture)).toEqual([]);
+
+    const [first, ...rest] = base.candidate_components;
+    const withExcerpt = (page: number, text: string) => ({
+      ...base,
+      candidate_components: [{ ...first, excerpts: [first.excerpts[0], { page, text }] }, ...rest],
+    });
+    // (c)(9) starts on page 6; the same words are not on page 7.
+    const cNine = rest.find((component) => component.component_id === "la_low_rise.excluded-plan-areas");
+    expect(cNine?.excerpts.map((excerpt) => excerpt.page)).toEqual([6, 7]);
+    expect(proposalCaptureIssues(withExcerpt(7, cNine?.excerpts[0].text ?? ""), capture)).toEqual([
+      "la_low_rise.incentive-area-map: an excerpt is not on page 7.",
+    ]);
+    expect(
+      proposalCaptureIssues(withExcerpt(7, "A project in LR-1 may build 11 units."), capture),
+    ).toEqual(["la_low_rise.incentive-area-map: an excerpt does not appear in the captured text."]);
+
+    // Checked against the draft capture, the same proposal cannot support a rule.
+    const draftCapture = completeOfficial(officialCaptures[`${OFFICIAL_DIR}low-rise-draft-2026-09-24`]);
+    expect(proposalCaptureIssues(base, draftCapture)).toEqual(
+      expect.arrayContaining([
+        "The capture is low-rise-draft-2026-09-24, not ordinance-188967.",
+        "A proposed_draft recorded as proposed_not_operative cannot support a rule.",
+      ]),
+    );
+  });
+
+  it("keeps components consistent with the headline candidate and the rule dispositions", () => {
+    const base = proposals["la_shra.lot-area-and-zoning.json"] as ProposedVerification;
+    expect(proposedVerificationSchema.safeParse(base).success).toBe(true);
+    const [first, ...rest] = base.candidate_components;
+    const variants: Array<[string, unknown]> = [
+      ["no components while awaiting review", { ...base, candidate_components: [] }],
+      ["components while awaiting capture", {
+        ...base,
+        status: "awaiting_source_capture",
+        source_sha256: null,
+        candidate_page: null,
+        candidate_pinpoint: null,
+        candidate_excerpt: null,
+      }],
+      ["a headline excerpt that is not the first component's", { ...base, candidate_page: 12 }],
+      ["duplicate component IDs", { ...base, candidate_components: [first, first, ...rest] }],
+      ["a component in another pathway", {
+        ...base,
+        candidate_components: [first, { ...rest[0], component_id: "la_sb79.lot-area" }],
+      }],
+      ["a deterministic component without a rule", {
+        ...base,
+        candidate_components: [{ ...first, proposed_rule_if_reviewer_agrees: null }, ...rest],
+      }],
+      ["a judgment component that proposes a rule", {
+        ...base,
+        candidate_components: [first, ...rest.slice(0, 2), { ...rest[2], proposed_rule_if_reviewer_agrees: "Always consistent." }],
+      }],
+      ["a judgment component without a reason", {
+        ...base,
+        candidate_components: [first, ...rest.slice(0, 2), { ...rest[2], judgment_or_ambiguity: [] }],
+      }],
+      ["an unknown disposition", {
+        ...base,
+        candidate_components: [{ ...first, disposition: "human_verified" }, ...rest],
+      }],
+    ];
+    for (const [name, value] of variants) {
+      expect(proposedVerificationSchema.safeParse(value).success, name).toBe(false);
     }
   });
 
@@ -809,8 +1109,22 @@ describe("Proposed verification records", () => {
     expect(
       proposedVerificationSchema.safeParse({ ...base, candidate_excerpt: "Invented ordinance wording." }).success,
     ).toBe(false);
+    const uncaptured = {
+      ...base,
+      source_sha256: null,
+      candidate_page: null,
+      candidate_pinpoint: null,
+      candidate_excerpt: null,
+      candidate_components: [],
+    };
+    expect(proposedVerificationSchema.safeParse({ ...uncaptured, status: "awaiting_source_capture" }).success).toBe(
+      true,
+    );
+    expect(proposedVerificationSchema.safeParse({ ...uncaptured, status: "awaiting_human_review" }).success).toBe(
+      false,
+    );
     expect(
-      proposedVerificationSchema.safeParse({ ...base, status: "awaiting_human_review" }).success,
+      proposedVerificationSchema.safeParse({ ...base, status: "awaiting_source_capture" }).success,
     ).toBe(false);
   });
 
@@ -845,6 +1159,7 @@ describe("Proposed verification records", () => {
       candidate_page: 2,
       candidate_pinpoint: "Sec. 2(a)",
       candidate_excerpt: ADOPTED_EXCERPT,
+      candidate_components: [],
       status: "awaiting_human_review" as const,
     };
     expect(proposalCaptureIssues(candidate, adopted)).toEqual([]);

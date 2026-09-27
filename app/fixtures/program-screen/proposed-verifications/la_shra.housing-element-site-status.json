@@ -3,30 +3,110 @@
   "criterion_id": "la_shra.housing-element-site-status",
   "source_id": "shra-2025-10-28",
   "additional_sources_needed": [
-    "The City's Housing Element sites inventory, if the memo names it as the record of site status."
+    "The 2021-2029 Housing Element, Chapter 4, Appendices 4.1-4.3 (sites, projected units, lower-income units).",
+    "GCS 66499.41(a)(5). Chaptered text of the statute on leginfo.legislature.ca.gov. It cannot be captured as evidence until a statute source type exists; do not capture it as an adopted_ordinance."
   ],
   "related_draft_source_ids": [],
-  "source_sha256": null,
-  "candidate_page": null,
-  "candidate_pinpoint": null,
-  "candidate_excerpt": null,
-  "locate_in_source": "Not yet located: the October 28, 2025 SHRA implementation memo (shra-2025-10-28) has not been captured, so no page or section has been read. Look for any reference to Housing Element inventory sites or rezoning-program sites. The criterion currently cites the City SHRA page (\"Filing checklists and implementation memo\"), not a memo pinpoint; a converted record must cite the memo pinpoint instead.",
-  "question_for_human_reviewer": "Does the memo make a parcel's Housing Element site status relevant to SHRA eligibility? If so, record which status values matter, their effect, and which record authoritatively shows the status. If the memo does not mention it, decide whether this criterion should be removed rather than encoded.",
+  "source_sha256": "f44574084091c51419d0475d4b8501d9a2c3577b3a16830fc6ecb2a88b20f6e2",
+  "candidate_page": 2,
+  "candidate_pinpoint": "Memo Part I, Minimum Density and Affordability Requirements for Housing Element Sites, pages 2-3",
+  "candidate_excerpt": "Pursuant to GCS 66499.41(a)(5), all SHRA development projects proposed on sites identified in the City’s 2021-2029 Housing Element must result in at least the number of units projected for that parcel.",
+  "locate_in_source": "Located in shra-2025-10-28: Part I, Minimum Density and Affordability Requirements for Housing Element Sites, pages 2-3, and FAQ Q.9, pages 15-16. Minimum density for other sites is page 3.",
+  "question_for_human_reviewer": "The memo (pages 2-3, FAQ Q.9) treats Housing Element site status as a minimum-unit condition, not a bar: projects on Appendix 4.1-4.3 sites must reach the projected units, and a site projected for more units than proposed is ineligible. Do you agree that this criterion should become a controlled appendix classification that returns requires_judgment for a listed site and consistent_with_source for a reviewed not-listed site, and never a disqualifier without a proposed unit count? Should the Housing Element appendices or ZIMAS ZI-2512 be the record?",
   "proposed_controlled_interpretation": {
     "fact_keys": [
       "housing-element-site-status"
     ],
-    "controlled_values_required": "housing-element-site-status is free text. A rule needs a controlled list matching the status values the text and its named record use.",
+    "controlled_values_required": "housing-element-site-status becomes controlled: appendix_4_1 | appendix_4_2 | appendix_4_3 | not_listed, with projected units and lower-income units as numbers from the same record. A site only on the February 2025 rezoning list (CF 21-1230-S6) is not_listed for SHRA.",
     "fact_narrowing_required": true,
-    "narrowing_note": "Convert to a controlled status fact, or remove the criterion if the text does not use it.",
-    "predicate_shape_if_reviewer_agrees": "If the reviewer finds that status S bars the project: status S -> disqualifying_per_source; a status outside S from the named record -> consistent_with_source; an unrecorded or uncontrolled status -> requires_judgment.",
+    "narrowing_note": "Convert the free-text status into the controlled appendix classification. The unit comparison needs a project fact and stays judgment.",
+    "predicate_shape_if_reviewer_agrees": "not_listed (reviewed) -> consistent_with_source; appendix_4_1, 4_2, or 4_3 -> requires_judgment (minimum units apply). Never disqualifying_per_source without a proposed unit count.",
     "must_remain_unresolved_when": [
-      "the status is free text or absent from the named record",
-      "the text sets conditions (for example, replacement or density requirements) instead of a bar"
+      "the status is free text, or absent from the appendices",
+      "the parcel is listed and the project's proposed unit count is unknown",
+      "the appendices and ZIMAS ZI-2512 disagree"
     ],
-    "zimas_conflict_risk": "Medium. A ZIMAS display of Housing Element status, if present, may differ from the inventory the text names; the named record governs and a difference stays a conflict."
+    "zimas_conflict_risk": "Medium. The memo says Housing Element sites are noted in ZIMAS by ZI-2512 with projected units in the Housing tab (FAQ Q.9, page 15). The appendices are the underlying record; a difference stays a conflict."
   },
+  "candidate_components": [
+    {
+      "component_id": "la_shra.housing-element-site-listing",
+      "label": "Whether the parcel is an Appendix 4.1, 4.2, or 4.3 Housing Element site",
+      "pinpoint": "Memo Part I, Minimum Density and Affordability Requirements for Housing Element Sites, pages 2-3",
+      "excerpts": [
+        {
+          "page": 2,
+          "text": "Pursuant to GCS 66499.41(a)(5), all SHRA development projects proposed on sites identified in the City’s 2021-2029 Housing Element must result in at least the number of units projected for that parcel."
+        },
+        {
+          "page": 2,
+          "text": "(i) Appendix 4.1 - Inventory of Adequate Sites, (ii) Appendix 4.2 - Public Development Pipeline Projects, and (iii) Appendix 4.3 - Private Development Pipeline Projects."
+        },
+        {
+          "page": 3,
+          "text": "In particular, this SHRA requirement does not apply to the rezoning sites list adopted by the City Council in February 2025 (Council File 21-1230-S6)."
+        }
+      ],
+      "disposition": "deterministic_candidate",
+      "reads_existing_fact_keys": [
+        "housing-element-site-status"
+      ],
+      "new_facts_needed": [
+        "housing-element-site-status as a controlled value (appendix_4_1 | appendix_4_2 | appendix_4_3 | not_listed).",
+        "housing-element-projected-units and housing-element-lower-income-units (numbers)."
+      ],
+      "controlled_value_encoding": "Controlled appendix classification from the 2021-2029 Housing Element.",
+      "proposed_rule_if_reviewer_agrees": "not_listed -> consistent_with_source (no Housing Element minimum; the non-Housing-Element minimum density still applies to the project). appendix_4_1, 4_2, or 4_3 -> requires_judgment (the project must reach the projected units and any lower-income units).",
+      "judgment_or_ambiguity": [
+        "The memo notes this is not the LAMC Sec. 16.70 B Housing Element Sites list.",
+        "ZI-2512 in ZIMAS is a display of the appendices; it stays observation-only unless designated."
+      ]
+    },
+    {
+      "component_id": "la_shra.housing-element-minimum-units",
+      "label": "A listed site projected for more units than the project proposes is ineligible",
+      "pinpoint": "Memo FAQ Q.9, page 15",
+      "excerpts": [
+        {
+          "page": 15,
+          "text": "If a housing element site is projected to host more than the number of proposed units (including ADU/JADUs), that parcel is ineligible for SHRA streamlining."
+        }
+      ],
+      "disposition": "professional_judgment",
+      "reads_existing_fact_keys": [
+        "housing-element-site-status"
+      ],
+      "new_facts_needed": [
+        "A proposed unit count, which is a project fact the Program Screen does not hold."
+      ],
+      "controlled_value_encoding": "Projected units round up (FAQ Q.9 and Q.24).",
+      "proposed_rule_if_reviewer_agrees": null,
+      "judgment_or_ambiguity": [
+        "The bar compares the projection with the project's proposed units, so a parcel screen cannot decide it.",
+        "Lower-income RHNA units must also be met, with a 99-year restriction (page 16)."
+      ]
+    },
+    {
+      "component_id": "la_shra.non-housing-element-minimum-density",
+      "label": "Minimum density for sites not listed in the Housing Element",
+      "pinpoint": "Memo Part I, Minimum Density Requirements for Non-Housing Element Sites, page 3",
+      "excerpts": [
+        {
+          "page": 3,
+          "text": "SHRA projects located on parcels not listed in the Housing Element appendices listed above are subject to the greater of the following minimum density requirements:"
+        }
+      ],
+      "disposition": "professional_judgment",
+      "reads_existing_fact_keys": [],
+      "new_facts_needed": [],
+      "controlled_value_encoding": "None at the parcel screen.",
+      "proposed_rule_if_reviewer_agrees": null,
+      "judgment_or_ambiguity": [
+        "A project density condition (66% of zoning density or 20 units per acre), not a site bar."
+      ]
+    }
+  ],
   "reviewer": null,
   "reviewed_at": null,
-  "status": "awaiting_source_capture"
+  "status": "awaiting_human_review"
 }

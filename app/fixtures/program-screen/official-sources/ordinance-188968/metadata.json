@@ -1,0 +1,31 @@
+{
+  "schema_version": "program-screen-official-source-v1",
+  "source_id": "ordinance-188968",
+  "title": "City of Los Angeles Ordinance No. 188968 (SB 79 Phased Implementation Ordinance)",
+  "official_url": "https://cityclerk.lacity.org/onlinedocs/2025/25-1083-S4_ord_188968_06-30-26.pdf",
+  "source_type": "adopted_ordinance",
+  "document_date": "2026-06-30",
+  "retrieved_at": "2026-09-27T16:19:20Z",
+  "sha256_original": "e355179f5e7dfb58626f596d2023549279a53b4a3431f691a599557b5f7519e3",
+  "sha256_extracted": "91ea56cfb5db7b1d0f42bba4afef52179fd9052ef726d7a337fe35091410a588",
+  "operative_status": "operative",
+  "notes": "Supplied to the capture session by the repository owner as a local file on 2026-09-27; retrieved_at is that upload time, because the original download time from the official host was not recorded. The capture environment could not reach the official host (egress 403), so these bytes were not compared with the file the host serves. Operative status declared by the repository owner. Page 8 prints: passed June 23, 2026 by a vote of not less than three-fourths; approved 06/26/2026; published 06/30/2026; effective 06/30/2026. Sec. 7 (urgency clause) makes it effective on publication. The Director of Planning's Charter Section 559 block records disapproval on behalf of the City Planning Commission. The text layer is the City's OCR (PDF producer ABBYY FineReader Server); extracted.txt reproduces it in content-stream order, so paragraphs can be out of reading order and OCR errors are preserved (for example, page 8 reads 'Approved 96/26/2026' where the image shows 06/26/2026). Check every excerpt against the page image.",
+  "may_change_source_ids": [],
+  "original": {
+    "file": "original.pdf",
+    "media_type": "application/pdf",
+    "bytes": 8296425
+  },
+  "extraction": {
+    "file": "extracted.txt",
+    "extractor": "pdfjs-dist",
+    "extractor_version": "6.3.289",
+    "normalization": "program-screen-text-v1",
+    "page_separator": "form_feed",
+    "page_count": 8,
+    "pages_without_text": []
+  },
+  "capture_tool": "app/scripts/capture-program-screen-source.ts",
+  "is_ai_generated": false,
+  "test_only": false
+}

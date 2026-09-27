@@ -1,0 +1,900 @@
+1
+The Low-Rise Ordinance amending Sections 12.03 and 12.22 A.38 of Article 2,
+Chapter I of the Los Angeles Municipal Code to locally implement Senate Bill 79, “The
+Abundant and Affordable Homes Near Transit Act" and update the Mixed Income
+Incentive Program.
+WHEREAS, the City proposes enactment of the Low-Rise Ordinance (Council
+File No. 25-1083-S3) and the Phased Implementation Ordinance (Council File No. 25-
+1083-S4) to facilitate compliance with SB 79, and does so without prejudice to, and
+shall not be construed as a waiver of the City’s ability to file a protest or pursue other
+rights, remedies, and legal proceeding to challenge SB 79;
+WHEREAS, SB 79 affords local jurisdictions the ability to select among several
+compliance approaches, and the City’s phased implementation approach to SB 79,
+described in the Phased Implementation Ordinance (Council File No. 25-1083-S4) and
+this instant Low-Rise Ordinance, is intended to ensure that the City’s local
+implementation of state law does not conflict with the City’s existing, local land use
+priorities, housing policies, City initiatives, and environmental concerns;
+WHEREAS, in the absence of this Low-Rise Ordinance, state law would
+automatically permit SB 79 incentives on qualifying sites per Government Code Section
+65192.157, undermining the City’s existing housing policies and ordinances that
+affirmatively further fair housing and promote sustainability strategies within a localized
+context;
+WHEREAS, Senate Bill 79 (SB 79), codified at Government Code, Title 7,
+Division 1, Chapter 4.1.5, specifically Government Code Sections 65912.155 through
+65912.162 and also known as “The Abundant and Affordable Homes Near Transit Act,”
+was signed into law in October 2025 with the stated purpose of addressing California’s
+housing crisis with incentives intended to permit additional density and development
+capacity in excess of local zoning regulations by increasing the capacity for housing
+within one-half mile of certain specified transit-oriented development stops referred to
+as transit-oriented development zones (TOD Zones);
+WHEREAS, the City’s adopted 2021-2029 Housing Element, the Citywide
+Housing Incentive Program (CHIP), and the Housing Element Rezoning Program
+(Council File Nos. 21-1230, 21-1230-S1,21-0934, 22-0617, 21-1230-S5, 21-1230-S6,
+and 21-1230-S8) are built upon years of public feedback from thousands of Angelenos,
+incorporate locally calibrated value capture tools, provide an abundance of incentive
+schemes for various housing typologies, and affirmatively further fair housing, as
+defined in California Government Code Section 8899.50, by facilitating the development
+of housing near strong infrastructure in Higher Opportunity Areas as defined by the
+California Tax Credit Allocation Committee (CTCAC);
+ORDINANCE NO. 188967
+
+WHEREAS, expanding access to the City’s MI IP, this ordinance in partnership
+with the Phased Implementation Ordinance protects sensitive sites as permitted by
+Government Code Section 65192.161(b), as well as Lower Opportunity Areas
+vulnerable to displacement that have suffered historic zoning injustice, those Very High
+Fire Hazard Severity Zones in Hillside Areas, and those industrial zones that provide
+WHEREAS, this Low-Rise Ordinance offers incentives beyond what is required
+by SB 79 in Government Code Section 65912.161(b)(1)(A), expands housing
+opportunities beyond the requirements of state law, and strategically phases in the
+capacity that will be required by “The Abundant and Affordable Homes Near Transit
+Act;”
+WHEREAS, this ordinance, as required by City Charter Section 558, protects the
+public peace, health, and safety, by (1) increasing development capacity through
+building on the success of the CHIP incentive programs and the Housing Element
+Rezoning Program that have jointly increased the City’s housing capacity by over half a
+million units, and by (2) continuing to address the housing crisis in a way that
+affirmatively furthers fair housing and advances sustainability objectives through the
+extension of Low-Rise density incentives on issues such as bonus density, parking,
+floor area ratio, and height, in a manner that facilitates missing middle housing
+typologies on low density and single family sites in TOD Zones that are primarily in
+Higher and Moderate Opportunity Areas (Opportunity Stations); and
+WHEREAS, proposed amendments to the MIIP will further facilitate the
+construction of diverse housing typologies for various income levels, allow flexibility to
+streamline the production of housing, and concentrate development density in areas
+with adequate ingress and egress outside of fire-prone hillsides;
+WHEREAS, the Low-Rise Ordinance’s proposed expansion of housing
+incentives in Opportunity Station Areas through the Mixed Income Incentive Program
+(MIIP), that was created by CHIP and the Housing Element Rezoning Program, is
+consistent with the 2021-2029 Housing Element, including its goals, objectives, policies,
+and programs such as Programs 103 (Missing Middle), 121 (RHNA Re-zoning), and
+124 (Affirmatively Furthering Fair Housing);
+WHEREAS, the Low-Rise Ordinance supports the Citywide phased
+implementation of SB 79, by adding residential capacity so the remaining ten percent of
+sites in the City’s TOD Zones will comply with the requirements of SB 79 in California
+Government Code Section 65912.161(b) and further the City’s efforts to create tailored
+local transit-oriented development alternative plans;
+WHEREAS, eligibility for the Low-Rise Ordinance is contingent on the availability
+of a final TOD Zone map that has not yet been produced and approved by the Southern
+California Association of Governments (SCAG), pursuant to California Government
+Code Section 65912.160(f), and in the absence of that map eligibility will be determined
+based on currently available information and data from SCAG;
+2
+
+3
+jobs to Angelenos but pose severe health risks when developed for residential uses
+without proper remediation and environmental review.
+HIGHER OPPORTUNITY AREA. An area designated as the highest resource or
+high resource on the most recently adopted version of the opportunity area maps
+published by the California Tax Credit Allocation Committee (TCAC) and
+California Department of Housing and Community Development (HCD).
+MODERATE OPPORTUNITY AREA. An area designated as moderate resource
+on the most recently adopted version of the opportunity area maps published by
+the CTCAC and the HCD.
+LOWER OPPORTUNITY AREA. An area designated as low resource on the
+most recently adopted version of the opportunity area maps published by the
+CTCAC and the HCD.
+Sec. 3. Section 12.22 A.38 of Article 2, Chapter I of the Los Angeles Municipal
+Code is amended by replacing the terms “Opportunity Corridor Transition Area
+Incentive” or “Opportunity Corridor Transition Incentive Area” with “Low-Rise Incentive
+Area.”
+Sec. 2. The following definition is amended in Section 12.03 of Article 2, Chapter
+I of the Los Angeles Municipal Code to read as follows:
+Section 1. The following definitions are added in alphabetical order to Section
+12.03 of Article 2, Chapter I of the Los Angeles Municipal Code to read as follows:
+THE PEOPLE OF THE CITY OF LOS ANGELES
+DO ORDAIN AS FOLLOWS:
+Sec. 4. Paragraph (a) of Subdivision 38 of Subsection A of Section 12.22 of
+Article 2, Chapter I of the Los Angeles Municipal Code is amended to read as follows:
+(a) Purpose. The purpose of this subdivision is to establish
+specific Incentives and procedures for the implementation of State Density
+Bonus requirements, as set forth in California Government Code Sections
+65915 through - 65918, and to increase the production of affordable
+housing near transit, in Higher Opportunity Areas, and on major corridors,
+and to ensure consistency with the Abundant and Affordable Homes Near
+Transit Act (Senate Bill 79) (California Government Code Sections
+65912.155, et. seq.). In conjunction with the Incentives granted by state
+law, this subdivision shall offer Incentives through the paragraphs of this
+subdivision, and Waivers as defined in Section 12.22 A.37. of this Code,
+for the purposes of increasing the feasibility of housing construction.
+NOW THEREFORE,
+
+Low-Rise Incentive Area Project. A project on a site located, in whole or
+in part, within a Low-Rise Incentive Area as set forth in the eligibility map
+pursuant to Section 12.22.A.38(i)(7) of this this Code, or determined to be eligible
+pursuant to Section 12.22 A.38(c)(10) of this Code, that involves the construction
+of, addition to, or remodeling of any building or buildings that result in the
+creation of five or more residential units.
+Tier 2 Transit-Oriented Development Stop (Tier 2 TOD Stop). A Tier 2
+transit-oriented development stop as defined in California Government Code
+Sections 65912.156(o) and 65912.156(p), as may be amended, and identified as
+eligible for Abundant and Affordable Homes Near Transit Act (2025)
+implementation by the Southern California Association of Governments,
+consistent with California Government Code Section 65912.160(f).
+Sec. 5. The definition of “Opportunity Corridor Transition Area Incentive Project”
+is deleted and the following definitions are added in alphabetical order to Paragraph (b)
+of Subdivision 38 of Subsection A of Section 12.22 of Article 2, Chapter I of the LAMC
+to read as follows:
+Tier 1 Transit-Oriented Development Stop (Tier 1 TOD Stop). A Tier 1
+transit-oriented development stop, as defined in California Government Code
+Sections 65912.156(n) and 65912.156(p), and identified as eligible for Abundant
+and Affordable Homes Near Transit Act (2025) implementation by the Southern
+California Association of Governments, consistent with California Government
+Code Section 65912.160(f). Where a Tier 1 TOD Stop intersects or is co-located
+with a Tier 2 TOD Stop, the stop shall be considered a Tier 1 TOD Stop.
+Opportunity Station Area. A one-half mile radius surrounding a Tier 1
+transit-oriented development stop (Tier 1 TOD Stop) or Tier 2 transit-oriented
+development stop (Tier 2 TOD Stop), as defined in Government Code Section
+65912.156, with a land area that is more than 50 percent designated as a
+Moderate Opportunity Area or Higher Opportunity Area, alone or combined,
+pursuant to the City’s five-year California Tax Credit Allocation
+Committee (TCAC) Opportunity Areas map, as may be amended.
+Fire Restriction Area. An area of land, in whole or part, that is located in
+both a Very High Fire Hazard Severity Zone and a Hillside Area, as these terms
+are defined in Section 12.03 of this Code.
+4
+
+1 unit1 unit
+5
+Footnotes
+1. If a project using LR-1 or LR-2 incentives consolidates lots, the project shall provide the same
+affordability as required per individual lot only if the project seeks the additional density granted per 12.22
+A.38.(g)(3)(vi) of this Code.
+Footnote
+1. See Section 12.22 A.26.(h)(1) of this Code for additional requirements associated with a Type I Unified
+Adaptive Reuse Project.
+Table 12.22 A.38.(c)(1)(i)
+Eligible Project Types and Total Units Required
+2. At minimum, a project in LR-1 shall provide 1 Moderate Income Unit for every 10 units proposed and a
+project in LR-2 shall provide either 1 Very Low Income unit, 1 Low Income unit, or 2 Moderate Income
+units for every 16 units proposed.
+Low-Rise
+Incentive Area
+Incentive Program
+Table 12.22 A.38.(c)(3)(v)
+Low-Rise Incentive Area Restricted Affordable Unit Requirements
+Sec. 7. Table 12.22 A.38.(c)(3)(v) of Subdivision 38 of Subsection A of Section
+12.22 of Article 2, Chapter I of the LAMC is amended as follows:
+Minimum Number of Total Units Provided as Restricted
+Affordable Units 1,2
+Sec. 8. Subparagraphs (4) through (8) are amended in their entirety
+and Subparagraphs (9) and (10) are added in Paragraph (c) of Subdivision 38 of
+Subsection A of Section 12.22 of Article 2, Chapter I of the Los Angeles Municipal Code
+to read as follows:
+Sec. 6. Table 12.22 A.38.(c)(1)(i) of Subdivision 38 of Subsection A of Section
+12.22 of Article 2, Chapter I of the Los Angeles Municipal Code is amended as follows:
+(4) The project site does not include any lots located in a
+manufacturing zone that does not allow multiple family residential
+uses (M1, M2,-M3, MR1, or MR2 Zone); or the CM zones where
+1
+ype I Unified Adaptive Reuse Project
+Project Type
+Transit Oriented Incentive Area Project
+Opportunity Corridor Incentive Area Project
+Low-Rise Incentive Area Project
+LR-1
+LR-2
+Income Level
+Lower Income
+Minimum Total Units Required
+Five or more
+Five or more
+Five or more
+Five or more
+Moderate Income
+1 unit
+2 units
+Very Low Income
+
+6
+residential uses are not permitted by right by any applicable
+planning overlay, “Q” condition, or “D” limitation.
+(8) A project involving a Designated Historic Resource shall
+be consistent with the Secretary of the Interior’s Standards for
+Rehabilitation, as supported by an expert study that has been
+accepted by the Office of Historic Resources or demonstrated by
+the project plans and accepted by the Office of Historic Resources,
+if consistent with the applicable adopted Implementation
+Memorandum, Guidelines or Technical Bulletins of the Director of
+City Planning.
+(9) A project shall not be located in the Boyle Heights
+Community Plan, the Harbor Gateway Community Plan, the
+(5) The project site does not include any lots located in a
+single family or more restrictive zone (RW1 and more restrictive),
+unless the project is a Low-Rise Incentive Area Project located
+within an Opportunity Station Area.
+(ii) Any Surveyed Historic Resource, eligible or
+architectural historic resource identified for any historic
+protection or special consideration or review by an
+applicable overlay or Specific Plan including sites located in:
+the South Los Angeles Community Plan Implementation
+Overlay (CPIO) Section 1-6.C.5.b; the Southeast Los
+Angeles CPIO Section 1-6.C.5.b; the West Adams CPIO
+Ch.1, Section 6.C.5.b; the San Pedro CPIO Ch.1, Section
+7.C.5.b; Westwood Village Specific Plan; Echo Park
+Community Design Overlay (CDO) District; or the North
+University Park Specific Plan.
+(7) The project would not require the demolition of any of
+the following, as demolition is defined in Section 13B.8.1.C of
+Chapter 1A of this Code.
+(6) The project site does not include any lots located
+within a Fire Restriction Area, the Coastal Zone, or a Sea Level
+Rise Area. Except that a project site that is located within a Fire
+Restriction Area or the Coastal Zone shall be eligible if properties
+that are abutting, across the street or alley, or have a common
+corner with the subject property, are not in a Fire Restriction Area
+or Coastal Zone, and are eligible for Incentives contained in this
+subdivision.
+(i) A Designated Historic Resource; or
+
+]), is a site that is eligible for the Low-
+(g) Low-Rise Incentive Area.
+Eligibility Subarea Based on Distance
+LR-1 LR-2
+Opportunity Corridor < 250 feet RD and R2
+Residential Zones1
+7
+Footnote
+1. Sites in whole or in part within a Transportation Qualifier’s eligibility subarea are part of the eligibility
+subarea indicated.
+Wilmington-Harbor City Community Plan, and/or the Cornfield
+Arroyo Seco Specific Plan.
+Transportation
+Qualifier1
+Table 12.22 A.38.(g)(1)(i)
+Low-Rise Incentive Area Subareas
+Rise Incentive Area Program if the project sets aside the amount of
+required restricted affordable units consistent with Government
+Code Section 65912.157(i) and Table 22.22.A.38.(c)(3)(v),
+whichever is greater.
+Eligible
+Underlying
+Project Zones
+Opportunity
+Station Areas
+(1) Eligibility. A project may seek Base Incentives by
+satisfying the eligibility criteria provided in Paragraph (c), and the
+below criteria for Low-Rise Incentive Area subareas, described in
+Table 12.22 A.38.(g)(1)(i), below.
+(10) Exceptions. Notwithstanding the eligibility criteria
+listed in Subparagraphs (4), (5), (6) and (9) of this paragraph, a site
+that meets the eligibility requirements of Government Code Section
+65912.157, and either does not meet any of the site or station level
+criteria specified in Government Code Section 65912.161(b), or is
+not exempt from Government Code Sections 65912.155 through
+65912.162 pursuant to the Phased Implementation Ordinance
+(ii) Property Line Measurement. Measurements from
+an Opportunity Corridor to determine an eligibility subarea should
+be based on the distance from the Rear Lot Line of the lot located
+Sec. 9. Paragraph (g) of Subdivision 38 of Subsection A of Section 12.22 of
+Article 2, Chapter I of the Los Angeles Municipal Code is amended to read as follows:
+Geographic
+Criteria
+Higher
+Opportunity
+Areas
+Tier 2 TOD Stop
+Tier 1 TOD Stop
+<1/4 mile
+< 1/2 mile
+250 - 750 feet
+1/4 mile -1/2
+mile
+(Ordinance No. f
+
+8
+within an Opportunity Corridor Incentive Area. Where a lot is a
+Reversed Corner Lot, distance shall be measured from the lot’s
+property line parallel to the Opportunity Corridor. In the case that
+lots are abutting or are consolidated, the buffer measurement will
+not be adjusted to accommodate the new Rear Lot Line of the
+consolidated site. In the case that lots are abutting or are
+consolidated, the buffer measurement will not be adjusted to
+accommodate the new Rear Lot Line of the consolidated site.
+(2) A Low-Rise Incentive Area Project is not eligible to
+request a Waiver, request Additional Incentives described in
+Paragraph (h) of this subdivision, request Public Benefit Options
+described in Paragraph (i) of this subdivision, or combine requests
+for Incentives either on or off any other Incentive menu. However,
+a project may request to use the Base Incentives from a lower
+eligibility subarea.
+a. A site with a Designated Historic Resource,
+or Non-Contributor is not eligible for LR-2 Incentives,
+and is limited to LR-1 Incentives; furthermore, in Tier
+1 or Tier 2 TOD Stop eligibility subareas, a parcel
+located within a Historic Preservation Overlay Zone,
+as prescribed in Division 13B.8. of Chapter 1A of this
+Code, or designated as a Historic Cultural Monument,
+in accordance with Section 22.171 of Article 1,
+Chapter 9, Division 22 of the Los Angeles
+Administrative Code, shall not be eligible for
+incentives in this paragraph, unless it is also located
+within an eligibility subarea based on distance from an
+Opportunity Corridor Transition eligibility subarea
+based on distance from an Opportunity Corridor.
+b. A project that meets the eligibility
+requirements of Government Code Section
+65912.157, and either is on a site that does not meet
+any of the site or station-level criteria specified in
+Government Code Section 65912.161(b)(1), or is not
+exempted from Government Code Sections
+65912.155 through 65912.162. pursuant to the
+Phased Implementation Ordinance (Ordinance No.
+[__________ ], is a project that is eligible for the base
+incentives in Table 12.22 A.38.(g)(3)(i) regardless of
+the site's underlying zoning or Opportunity Station
+Area status.
+(iii) Exceptions.
+
+Description
+2 stories4LR-1 5 units 1.30:1
+6 units 1.45:1
+3 stories47 units 1.60:1
+9
+Eligibility
+Subarea
+Density
+Bonus
+In each
+subarea, the
+maximum
+Density
+including
+bonus shall be
+as follows:
+Table 12.22 A.38.(g)(3)(i)
+Low-Rise Incentive Area Base Incentives
+(3) Base Incentives. A project shall be granted Base
+Incentives established in this paragraph, as defined in Table 12.22
+A.38.(g)(3)(i) below, in exchange for the required minimum number
+of Restricted Affordable Units established in Paragraph (c)(3) of this
+subdivision for the Low-Rise Incentive Area. The Base Incentives
+in Table 12.22 A.38.(g)(3)(i) are expressed as project site
+maximums and are in lieu of, not in addition to, a site’s underlying
+Development Standards. The Base Incentives also supersede any
+massing requirements for the building envelope that are otherwise
+applicable including but not limited to Section 12.08 C.5 of this
+Code, any side yard plane break requirements including but not
+limited to Section 12.08 C.2 of this Code, or any Development
+Standard that precludes the guaranteed building envelope
+Incentives granted by this subparagraph. The maximum density
+corresponds to a maximum Floor Area Ratio (FAR) and height in
+the table cell to the immediate right, and may not be mixed with
+greater FAR and height maximums unless utilizing the Base
+Incentive in Sub-subparagraph (iv) (Multi-Bedroom Units).
+However, nothing in Table 12.22 A.38.(g)(3)(i) is intended to
+prevent a project from voluntarily providing parking or using a lower
+maximum density, height, or FAR.
+Height
+(maximum
+permitted)
+In each subarea,
+the maximum
+allowable height
+permitted shall
+be as follows:3
+Required
+automobile parking
+for all residential
+units in a project
+(not just the
+restricted affordable
+units), inclusive of
+disabled and
+required guest
+parking, where
+applicable, shall be
+as follows:112
+No parking required.
+Floor Area Ratio
+(maximum
+permitted)
+For each subarea,
+the maximum FAR
+shall be equal to
+the following:
+Parking
+
+1.75:1
+9 units 1.90:1
+10 units 2.0:1
+11 units 2.15:1
+LR-2 12 units 2.30:1
+13 units 2.45:1
+14 units 2.60:1
+15 units 2.75:1
+16 units 2.90:1
+10
+4. The maximum permitted height for the LR-1 Eligibility Subarea is two stories for projects of 5 to 6 units,
+and three stories for projects of 7 to 16 units.
+2. Consistent with California Government Code Section 65915(p)(4), required parking spaces provided
+may be uncovered.
+3. Notwithstanding Section 12.21.1 of this Code, for a project where a rooftop deck is provided, roof
+structures for an elevator or stairway may exceed the building height by up to 17 feet, provided the
+proposed roof structure is set back from the roof perimeter by 5 feet, or as specified in the Vertical
+Circulation encroachment allowances in Section 2C.4.2.E.1 of Chapter 1A of this Code in accordance
+with the project’s built height (in lieu of the Form District).
+Footnotes:
+1. Pursuant to California Civil Code Section 1947.1, provided parking shall be sold or rented separately
+from the units in properties with 16 or more units, as verified by the Los Angeles Housing Department.
+a. Exceptions. Notwithstanding Table 12.22
+A.38.(g)(3)(i) above, a site in the Low-Rise Incentive
+Area is eligible for up to half the amount of units and
+floor area otherwise permitted by California
+Government Code Section 65912.157(a).
+Furthermore, projects located within 200 feet of a Tier
+1 or Tier 2 TOD Stop that cannot accommodate half
+the amount of units and floor area otherwise permitted
+by California Government Code Section 65912.157(a)
+shall be eligible for an additional story in height
+8 units
+
+d. Rear yard setback of eight feet.
+e. Alley setback of zero feet.
+11
+beyond the heights specified in Table 12.22
+A.38.(g)(3)(i) above.
+a. Front yard setbacks are limited to no more
+than the average of the yards along the same
+frontage of adjacent buildings along the same street
+frontage or 15 feet, whichever is less. Or, if a site is a
+corner lot or adjacent to a vacant lot, the front yard
+setback may align with the facade of an adjacent
+building along the same front lot line. Notwithstanding
+Section 12.22 C.20.(d) of this Code, balconies may
+extend into the required front yard up to five feet.
+c. Minimum Lot Access: A three-foot
+pedestrian access easement may be provided in lieu
+of vehicular access requirements.
+(ii) Lot Requirements. A project is eligible for a
+reduction of an otherwise required Lot standard as part of a
+subdivision as follows:
+a. Minimum Lot Area: 600 square feet
+c. No interior side yard setback shall be
+required for buildings that are part of the same
+development.
+b. Side yard setback of four feet for a three-
+story or higher structure, or three feet for a two-story
+or one-story structure.
+(iii) Yards. A project is eligible for a reduction of an
+otherwise required Yard standard to the following minimums:
+(iv) Multi-Bedroom Units. A project that includes a
+minimum 20% of Total Units as three-bedrooms or larger,
+shall be granted additional Floor Area up to 0.5 FAR and an
+additional story over the entire development site, regardless
+of the number of underlying height limits including
+transitional height or step back requirements. This requires
+that the applicant provide the City with a covenant in favor of
+b. Minimum Lot Width: 15 feet
+
+(v) Building Spacing and Passageways. A project
+does not need to meet zoning requirements related to
+spaces between buildings or passageways pursuant to
+Section 12.21 C.2 of this Code.
+the City that is recorded in the development site’s chain of
+title to guarantee that the qualifying multi-bedroom units will
+maintain the same bedroom count and will not be converted
+to additional residential units in the future.
+a. For example, if two LR-1 lots are
+consolidated into one project, the project is eligible for
+up to 20 units, with 2 Moderate Income units set aside
+as Restricted Affordable Units, a 2:1 FAR maximum
+and a height maximum of 2 or 3 stories; or if two LR-2
+lots are consolidated in one project, the project is
+eligible for up to 32 units, with 4 Moderate Income
+units set aside as Restricted Affordable Units, a 2.9:1
+FAR maximum and a height maximum of 3 stories.
+b. If a project consolidates two lots of differing
+incentive areas, for example LR-1 and LR-2, the
+incentives of the more intense incentive area shall be
+permitted on both lots.
+(vi) Consolidated Development. In the case that a
+Low-Rise Incentive Area Project consolidates multiple lots,
+the Density Bonuses established in Table 12.22
+A.38.(g)(3)(i) shall be available to each lot provided the
+project satisfies the affordability criteria of Section 12.22
+A.38.(c)(3)(v) of this Code. However, FAR and height
+bonuses shall not exceed the maximum permitted in Table
+12.22 A.38.(g)(3)(i) or Section 12.22 A.38.(g)(3)(iv) of this
+Code.
+(viii) Lot Coverage and Lot Utilization. A project
+does not need to meet zoning requirements or development
+standards related to lot coverage or lot utilization.
+(vii) Calculating Floor Area Ratio. In lieu of the
+calculation of Buildable Area or Residential Floor Area as
+defined in Section 12.03 of this Code, Floor Area Ratio or
+FAR shall be defined as the measurement of the total floor
+area of all buildings on a lot in relation to the size of the lot,
+inclusive of yards and setbacks.
+12
+
+a. Minimum Planting Area. Common
+Outdoor Open Space options provided to comply with
+open space standards shall comply with the
+provisions of Section 12.21 G.2.(a)(3) of this Code
+regarding minimum planting area, except that
+Common Outdoor Open Space provided on a Rooftop
+and Intermediate Roof Levels, as specified in Table
+12.22 A.38.(g)(4)(ii), shall meet the minimum planting
+area requirements by landscaping a minimum of 15
+percent of the Rooftop Common Outdoor Open Space
+area with live planting material, and meeting the tree
+requirements in Section 12.21 G.2.(a)(3).
+(i) Common Outdoor Open Space Standards. A
+project shall provide at-grade or rooftop Common Outdoor
+Open Space per Table 12.22 A.38.(g)(4)(ii) that is accessible
+to all the residential tenants of a project. The Common
+Outdoor Open Space shall be open to the sky and have no
+structures that project into the area, except for Outdoor
+Amenity Areas as described in Section 12.03 of this Code,
+and except for Projections into Yards as provided in Section
+12.22 C.20.(b) of this Code. Furthermore, projects pursuing
+subdivisions pursuant to Section 12.22 C.27 may provide
+Rooftop and Intermediate Roof Levels as private open space
+to meet this Common Outdoor Open Space Standard
+requirement. This common open space requirement shall
+supersede the per residential unit calculation of common
+open space in Section 12.21 G.2. of this Code. In lieu of the
+provisions of Section 12.21 G.2. of this Code, a project must
+meet at least one Common Outdoor Open Space typology
+from the menu listed in Table 12.22 A.38.(g)(4)(ii) below
+(4) Performance Standards. A project approved pursuant
+to this subdivision shall meet the following Performance Standards,
+and no deviations from these standards shall be granted, except
+that any project resulting from the conversion of, or an addition up
+to a maximum of 1,200 square feet to, an existing structure need
+not comply with these standards.
+13
+
+Paseo
+14
+Paseo depth (minimum): 60%
+of the lot depth.
+Size and Dimension
+Requirements (minimum)
+Table 12.22 A.38.(g)(4)(ii)
+Common Outdoor Open Space Types Menu
+Courtyard width (minimum):
+30% of lot width or 15 feet,
+whichever is greater.
+Paseo width (minimum): 10%
+of lot width or 10 feet wide,
+whichever is greater.
+Courtyard depth (minimum):
+40% of lot depth (minimum).
+Common
+Outdoor
+Open Space
+Typologies:
+Courtyard Placement of courtyard shall
+comply with at least one of the
+following standards:
+1. The courtyard shall be oriented
+so that it and an existing open
+space courtyard on an adjoining
+lot (unseparated by a street or
+alley) work together to create
+the effect of one large open
+space.
+2. The courtyard shall be
+contiguous with the minimum
+front yard setback creating a
+single deep combined courtyard
+that unites the minimum
+courtyard and front yard spaces.
+3. The courtyard shall be an
+internal courtyard, entirely
+contained onsite.___ ________
+A Paseo shall be located between
+residential structures, perpendicular
+to and beginning at the front lot line.
+A Paseo shall have a minimum four-
+foot wide unobstructed pedestrian
+pathway accessible from the Ground
+Floor Frontage. A Paseo may be
+covered by architectural projections,
+but no structures or habitable space
+shall encroach on the Paseo, and it
+shall be for pedestrian use only. The
+depth calculation may include the
+pathway accessible from the front lot
+line as part of the Paseo length,
+provided the pathway is adjacent to
+open space.____________________
+Standards
+
+Front or Rear
+Yard
+Front or Rear Yard width
+(minimum): 50% of lot width.
+Rooftop and
+Intermediate
+Roof Levels
+Located adjacent to the front or rear
+property lot line and open to the sky.
+Rooftop and Intermediate Roof
+Levels open space shall comply with
+the following standards:
+1. Rooftop open space on the
+uppermost story shall only be
+counted toward Common
+Outdoor Open Space
+Standards if a project is three
+or more stories.
+2. At least a three-foot setback
+shall apply to any rooftop
+perimeter edge that is within 10
+feet or less from a neighboring
+structure on adjacent property.
+If the nearest adjacent structure
+is ten feet or more from the
+edge of the rooftop perimeter,
+no setback shall be required.
+3. Rooftop open space shall
+comply with the vertical
+encroachment limitations based
+on a project’s built overall
+height in feet (in lieu of the
+Form District) as described in
+Sec. 2C.4.2.E.1 of Chapter 1A,
+except that a roof structure for
+an elevator or stairway may
+comply with Footnote 2 of
+Table 12.22 A.38.(g)(3)(i).
+a. Street-Facing Entrance. Each unit fronting
+a public street (provided there is no structure located
+between the lot line and unit) shall have an entrance
+facing the public street, or a building fronting a public
+street with no structure located between the lot line
+and unit shall have a shared entrance for every 50
+feet of frontage. All street-facing entrances to units
+(iii) Entrances.
+Front or Rear Yard depth
+(minimum): 10% of lot depth, or
+15 feet, whichever is greater.
+10% of total lot area or 600
+square feet, whichever is greater
+15
+
+Porch Forecourt
+16
+Recessed Entry
+2. Forecourt. A yard screened with a
+short wall, fence or hedge that provides
+significant privacy for tenants located on the
+ground story, near sidewalk grade. A forecourt
+shall have a minimum depth of 8 feet, a
+minimum width of 10 feet, required covered
+entrance, and a fence or wall height between 2
+feet and 6 inches, to 3 feet and 6 inches.
+(iv) Ground Floor External Entrances. A ground
+floor external entrance to units not located on a street
+fronting lot line, shall have an entrance oriented towards the
+open space when adjacent to the open space.
+3. Recessed Entry. A space set
+behind the building face plane providing
+sheltered access to a street-facing entrance. A
+recessed entry shall have a depth between 3 to
+15 feet minimum, and a maximum width of 5
+feet, and a required covered entrance.
+and all street-facing primary entrances shall have one
+of the following entry features:
+1. Porch. A wide, raised platform,
+projecting in front of a street-facing entrance,
+that is entirely covered but not enclosed. A
+porch shall have a minimum depth of 4-1/2
+feet, a minimum of 30% of the building width,
+and a finished floor elevation between 2 to 5
+feet.
+Figure 12.22 A.38(g)(4)(iii)a.4.
+
+a. Location.
+a. Maximum Allowable Residential Density;
+b. Density Bonus units;
+c. Number of Restricted Affordable Units;
+d. Number of Replacement Housing Units;
+e. Vehicular Parking; and
+17
+Sec. 10. Subparagraph (5) of Paragraph (j) of Subdivision 38 of Subsection A of
+Section 12.22 of Article 2 of Chapter I of the LAMC is amended to read as follows:
+f. Number of Multi-Bedroom Units provided
+pursuant to Sections 12.22 A.38.(i)(2) and 12.22
+A.38.(g)(3)(iv) of this Code.
+2. A new detached garages or carport
+shall be located behind the main building(s)
+facade, furthest from the Ground Floor
+Frontage Line.
+3. An attached parking area shall be
+located either underground (subterranean or
+semi-subterranean) or behind any main
+building.
+4. An access driveway shall be provided
+from an alley when present and determined
+feasible by the City’s Department of
+Transportation.
+1. No above-ground parking areas
+including parking structures and parking stalls,
+shall be allowed between a Ground Floor
+Frontage and public right-of-way.
+(i) Units. For the purposes of this subdivision,
+calculations for the following resulting in fractional numbers
+shall be rounded up to the next whole number:
+(5) Fractional Numbers.
+(v) Parking Areas, Garages, and Carports.
+
+c. The Director of Planning, or their designee,
+may issue map updates, as needed, to address
+technical corrections, additional guidance from the
+California Department of Housing and Community
+Development, or changes to implementation maps for
+California Government Code Sections 65912.155
+through 65912.162, as produced by the Southern
+California Association of Governments.
+Sec. 11. Subparagraph (7) of Paragraph (j) of Subdivision 38 of Subsection A of
+Section 12.22 of Article 2, Chapter I of the LAMC is amended to read as follows:
+b. Every five years beginning in 2026, in order
+to align the City’s five-year TCAC Opportunity
+eligibility maps associated with the housing incentive
+programs of this subdivision to reflect updates to
+resource areas as defined and identified by the
+TCAC.
+a. On an annual basis in order to align the
+programs of this subdivision with updated zoning and
+transit data, including-updates to the locations of
+Major Transit Stops.
+d. The Director of Planning, or their designee,
+shall notify the City Council when updates to the Low-
+Rise Incentive Area maps are published.
+(ii) Opportunity Station Area Identification. For
+purposes of determining the majority Opportunity Area (i.e.
+Lower, Moderate, Higher) within an Opportunity Station
+Area, consistent with the City's five-year TCAC Opportunity
+Map Area, TCAC land area calculations shall include all land
+within a one-half mile radius including land outside the City
+of Los Angeles. Land designated as having "Insufficient
+Data” shall be excluded from the area of the Opportunity
+Station Area as part of Opportunity Station Area mapping
+pursuant to Section 12.22 A.38.(j)(7)(i) of this Code.
+(i) The Director shall have the authority to issue and
+update eligibility maps of Transit Oriented Incentive Areas,
+Opportunity Corridor Incentive Areas, Low Rise Incentive
+Areas, City’s five-year TCAC Opportunity Areas, and
+Opportunity Station Areas as specified herein:
+(7) Update Frequency and Eligibility Mapping.
+18
+
+Sec. 14. A new Paragraph (m) is added to Subdivision 38 of Subsection A of
+Section 12.22 of Article 2, Chapter I of the Los Angeles Municipal Code to read as
+follows:
+(12) Rent Schedules and State Density Bonus
+Affordability Threshold. Restricted Affordable Units required as
+part of a project shall be sold or rented at rates that do not exceed
+those specified in California Health and Safety Code 50052.5 for
+for-sale units or California Health and Safety Code Section 50053
+for rental units. Restricted Affordable Units associated with One
+Hundred Percent Affordable Housing Projects shall comply with the
+Restricted Affordable Unit requirements set forth in Section 12.22
+A.39.(c) of this Code. All mixed income projects on sites with a
+Maximum Allowable Residential Density of greater than five units
+pursuing a program within this subdivision shall exceed at least one
+affordability income category consistent with the minimum
+affordability requirements of California Government Code Section
+65915(f)(1), 65915(f)(2), or 65915(f)(4), reserving at least either 16
+percent as Very Low Income (for rental), 25 percent Low Income
+(for rental), or 45 percent Moderate Income (for sale) of the
+project’s units (excluding units added by a Density Bonus),beyond
+at the schedules and costs specified in California Health and Safety
+Code 50052.5 for for-sale units or California Health and Safety
+Code Section 50053 for rental units.
+Sec. 13. A new Subparagraph (16) is added to Paragraph (j) of Subdivision 38 of
+Subsection A of Section 12.22 of Article 2, Chapter I of the LAMC to read as follows:
+Sec. 12. Subparagraph (12) of Paragraph (j) of Subdivision 38 of Subsection A
+of Section 12.22 of Article 2 of Chapter I of the LAMC is amended to read as follows:
+(m) Interpretations Consistent with Phased Implementation of
+the Abundant and Affordable Homes Near Transit Act (SB 79). This
+subdivision is intended to phase-in implementation and pause the
+immediate application of the Abundant and Affordable Homes Near
+Transit Act (2025) at California Government Code Sections 65912.155 to
+65912.162, pursuant to Government Code Section 65912.161(b). If at any
+time this subdivision becomes inconsistent with California Government
+Code Section 65912.161(b), as determined by the Director of Planning,
+the provisions of the Abundant and Affordable Homes Near Transit Act
+shall apply.
+(16) Residential Zones. For the purpose of determining
+an eligible project’s Incentives, Residential Zones must permit
+primarily residential uses as a main use by right and shall include
+but not be limited to R5 and more restrictive R and A zones, as well
+as R1P, R2P, R3P, R4P, and R5P zones.
+19
+
+Sec. 17. SEVERABILITY. If any provision of this ordinance is found to be
+unconstitutional or otherwise invalid by any court of competent jurisdiction, that invalidity
+shall not affect the remaining provisions of this ordinance, which can be implemented
+without the invalid provisions and, to this end, the provisions of this ordinance are
+declared to be severable. The City Council hereby declares that it would have adopted
+each and every provision and portion thereof not declared invalid or unconstitutional,
+without regard to whether any portion of the ordinance would be subsequently declared
+invalid or unconstitutional.
+Sec. 15. OPERATIVE DATE. This ordinance shall become operative at the
+same time it becomes effective upon publication pursuant to Charter Section 253 in
+advance of the July 1,2026 effective date of the Abundant and Affordable Homes Near
+Transit Act set forth in Government Code Section 65912.157. If prior to the operative
+date of this ordinance, the effect of Government Code Sections 65912.155 et seq, is
+suspended or extended by the State of California, such as by an emergency order of
+the Governor or legislative amendments by the California Legislature, the operative date
+of this ordinance shall be the day before any new deadline set by the State.
+Sec. 16. URGENCY CLAUSE. The City Council finds and declares that this
+ordinance is required for the immediate protection of the public peace, health and
+safety, and to affirm a pause in the application of SB 79 within the City by permanently
+or temporarily exempting and protecting sensitive sites, including those in low-resource
+neighborhoods as designated by the California Tax Credit Allocation Committee, Very
+High Fire Hazard Severity Zones, and those sites hosting or adjacent to industrial uses.
+The tailored approach to increased density near transit presented by this ordinance
+avoids the one-size-fits-all approach to increased residential capacity mandated by
+Government Code Section 65912.161(b)(1), which does not consider whether the
+increased density is in healthy, lower resource, or hazardous areas; does not take into
+account whether sites are within very high fire hazard severity zones or industrial areas;
+does not consider whether areas are subject to displacement pressures; nor whether an
+area has been subject to past zoning or environmental injustice. This ordinance makes
+the City compliant with state mandated requirements, continues to address the City of
+Los Angeles’ housing crisis, the City’s chosen planning and zoning policies, and
+improves housing access under affirmatively furthering fair housing principles by using
+the City’s own locally tailored value capture policies. For these reasons, this ordinance
+shall become effective upon publication pursuant to Section 253 of the Los Angeles City
+Charter when it is adopted by a minimum three-fourths vote of the City Council
+20
+
+HYDEE FELDSTEIN SOTO, City Attorney
+File No. 25-1083-S3
+"M:\Real Prop_Env_Land Use\Ordinances Active\Senate Bill 79\SB 79- Low-Rise Ordinance.docx"
+CITY CLERK MAYOR
+y— Kasa—(2-.—
+VINCENT P. BERTONI, AICP
+Director of Planning
+The Clerk of the City of Los Angeles
+hereby certifies that the foregoing
+ordinance was passed by the Council of
+the City of Los Angeles, by a vote of not
+less than three-fourths of all its
+members.
+Pursuant to Charter Section 559, I
+disapprove this ordinance on behalf
+of the City Planning Commission and
+recommend that it not be adopted.
+Sec. 18. The City Clerk shall certify to the passage of this ordinance and have it
+published in accordance with Council policy, either in a daily newspaper circulated in
+the City of Los Angeles or by posting for ten days in three public places in the City of
+Los Angeles: one copy on the bulletin board located at the Main Street entrance to the
+Los Angeles City Hall; one copy on the bulletin board located at the Main Street
+entrance to the Los Angeles City Hall East; and one copy on the bulletin board located
+at the Temple Street entrance to the Los Angeles County Hall of Records.
+Ordinance Passed June 23, 2026
+Ordinance Published: 06/30/2026
+Ordinance Effective Date: 06/30/2026
+Date _Sw2 (,2Z9
+06/26/2026
+Approved____________
+Date June 17, 2026
+By____ Z. Luca._____ -p-
+KIMBERLY HUANG FU
+Deputy City Attorney
+Approved as to Form and Legality

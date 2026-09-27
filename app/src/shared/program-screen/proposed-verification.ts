@@ -113,9 +113,71 @@ export const proposedVerificationStatuses = [
   "awaiting_human_review",
 ] as const;
 
+/**
+ * What the preparer thinks one part of a criterion could become. The human
+ * reviewer decides; none of these runs anything.
+ * - `deterministic_candidate`: both outcomes could be encoded once the named
+ *   facts are controlled and human-recorded.
+ * - `partially_deterministic`: only one direction is safe; the other must
+ *   stay unknown or judgment.
+ * - `professional_judgment`: must stay a Planning judgment.
+ * - `no_rule_in_source`: the source states no such rule; remove the fact or
+ *   find another official source.
+ */
+export const proposedComponentDispositions = [
+  "deterministic_candidate",
+  "partially_deterministic",
+  "professional_judgment",
+  "no_rule_in_source",
+] as const;
+
 const nonEmptyText = z.string().trim().min(1).max(1200);
 const hex64 = z.string().regex(/^[0-9a-f]{64}$/, "Expected a SHA-256 hex digest.");
 const expectedIds = new Map(expectedOfficialSources.map((source) => [source.source_id, source]));
+
+/**
+ * One part of a criterion as the source text divides it. A broad criterion
+ * whose facts one boolean cannot represent is proposed as several
+ * components, each with its own excerpt, encoding, and rule.
+ */
+export const proposedComponentSchema = z
+  .object({
+    /** A proposed criterion ID if the reviewer splits; not a shipped criterion. */
+    component_id: z
+      .string()
+      .regex(/^la_(?:shra|sb79|low_rise)\.[a-z0-9]+(?:-[a-z0-9]+)*$/, "Component IDs are <pathway>.<kebab-slug>."),
+    label: nonEmptyText,
+    pinpoint: nonEmptyText,
+    /** Each excerpt must appear, whitespace-normalized, on its page of the capture. */
+    excerpts: z
+      .array(z.object({ page: z.number().int().positive(), text: nonEmptyText }).strict())
+      .min(1),
+    disposition: z.enum(proposedComponentDispositions),
+    reads_existing_fact_keys: z.array(z.enum(programFactKeys)),
+    new_facts_needed: z.array(nonEmptyText),
+    controlled_value_encoding: nonEmptyText,
+    proposed_rule_if_reviewer_agrees: nonEmptyText.nullable(),
+    judgment_or_ambiguity: z.array(nonEmptyText),
+  })
+  .strict()
+  .superRefine((component, context) => {
+    const issue = (path: string, message: string) =>
+      context.addIssue({ code: "custom", path: [path], message });
+    const deterministic =
+      component.disposition === "deterministic_candidate" ||
+      component.disposition === "partially_deterministic";
+    if (deterministic && component.proposed_rule_if_reviewer_agrees === null) {
+      issue("proposed_rule_if_reviewer_agrees", "A deterministic candidate needs a proposed rule.");
+    }
+    if (!deterministic && component.proposed_rule_if_reviewer_agrees !== null) {
+      issue("proposed_rule_if_reviewer_agrees", "A judgment or no-rule component proposes no rule.");
+    }
+    if (component.disposition !== "deterministic_candidate" && component.judgment_or_ambiguity.length === 0) {
+      issue("judgment_or_ambiguity", "Say why this component is not fully deterministic.");
+    }
+  });
+
+export type ProposedComponent = z.infer<typeof proposedComponentSchema>;
 
 export const proposedVerificationSchema = z
   .object({
@@ -145,6 +207,8 @@ export const proposedVerificationSchema = z
         zimas_conflict_risk: nonEmptyText,
       })
       .strict(),
+    /** The criterion as the source divides it; empty until the source is captured. */
+    candidate_components: z.array(proposedComponentSchema),
     reviewer: z.null({ error: "A proposal never names a reviewer; human approval happens outside it." }),
     reviewed_at: z.null({ error: "A proposal is never marked reviewed." }),
     status: z.enum(proposedVerificationStatuses),
@@ -181,6 +245,34 @@ export const proposedVerificationSchema = z
     if (proposal.status === "awaiting_human_review" && candidate.some((value) => value === null)) {
       issue("status", "A proposal awaiting review needs a source hash, page, pinpoint, and excerpt.");
     }
+
+    const components = proposal.candidate_components;
+    if (proposal.status === "awaiting_source_capture" && components.length > 0) {
+      issue("candidate_components", "Without a capture, a proposal has no candidate components.");
+    }
+    if (proposal.status === "awaiting_human_review") {
+      if (components.length === 0) {
+        issue("candidate_components", "A proposal awaiting review needs at least one candidate component.");
+      } else {
+        // The headline candidate is the first component's first excerpt, so the two cannot drift.
+        const [first] = components;
+        if (
+          proposal.candidate_page !== first.excerpts[0].page ||
+          proposal.candidate_excerpt !== first.excerpts[0].text ||
+          proposal.candidate_pinpoint !== first.pinpoint
+        ) {
+          issue("candidate_excerpt", "The candidate page, pinpoint, and excerpt must be the first component's.");
+        }
+      }
+    }
+    const pathway = proposal.criterion_id.slice(0, proposal.criterion_id.indexOf("."));
+    const ids = components.map((component) => component.component_id);
+    if (new Set(ids).size !== ids.length) {
+      issue("candidate_components", "Component IDs must be unique.");
+    }
+    for (const id of ids) {
+      if (!id.startsWith(`${pathway}.`)) issue("candidate_components", `${id} is not in pathway ${pathway}.`);
+    }
   });
 
 export type ProposedVerification = z.infer<typeof proposedVerificationSchema>;
@@ -213,6 +305,15 @@ export function proposalCaptureIssues(
     issues.push("The candidate excerpt does not appear in the captured text.");
   } else if (!locateExcerptPages(excerpt, capture.extracted).includes(proposal.candidate_page ?? 0)) {
     issues.push("The candidate excerpt is not on the candidate page.");
+  }
+  for (const component of proposal.candidate_components) {
+    for (const { page, text } of component.excerpts) {
+      if (!excerptAppearsInCapture(text, capture.extracted)) {
+        issues.push(`${component.component_id}: an excerpt does not appear in the captured text.`);
+      } else if (!locateExcerptPages(text, capture.extracted).includes(page)) {
+        issues.push(`${component.component_id}: an excerpt is not on page ${page}.`);
+      }
+    }
   }
   return issues;
 }
