@@ -17,6 +17,7 @@ import {
 } from "./language";
 import { buildCriterionQuestion, buildFlagQuestion, buildReviewTasks } from "./questions";
 import {
+  criterionAwaitsHumanVerification,
   parseProgramPathwayPacks,
   parseProgramScreenEvidence,
   programIsoDateSchema,
@@ -76,7 +77,12 @@ function rollupClassification(rollup: PathwayRollup): EvidenceIntegrityClassific
 
 export function isCitationStale(criterion: ProgramCriterion, asOf: string): boolean {
   // The Paper Trail Loop marks a note stale once its review date arrives.
-  return asOf >= criterion.citation.next_review_at;
+  // A human verification record carries its own review date as well.
+  const record = criterion.human_verification;
+  return (
+    asOf >= criterion.citation.next_review_at ||
+    (record !== null && record !== undefined && asOf >= record.next_review_at)
+  );
 }
 
 /**
@@ -89,7 +95,9 @@ export function isCitationStale(criterion: ProgramCriterion, asOf: string): bool
  *    (a predicate may itself return `requires_judgment` -> professional)
  *
  * A predicate never runs on missing, conflicting, or unreviewed facts, and a
- * pending-human rule never runs at all.
+ * pending-human rule never runs at all. A criterion that needs human
+ * verification (formerly pending, or marked human_verified) counts as
+ * pending until it carries a complete human-verification record.
  */
 export function evaluateProgramCriterion(
   criterion: ProgramCriterion,
@@ -117,7 +125,7 @@ export function evaluateProgramCriterion(
   } else if (criterion.predicate === "professional_judgment") {
     status = "professional";
   } else {
-    if (criterion.verification === "pending_human" || criterion.predicate === "not_encoded") {
+    if (criterionAwaitsHumanVerification(criterion) || criterion.predicate === "not_encoded") {
       unreviewedReasons.push("criterion_pending_human");
     }
     if (facts.some((fact) => !fact.reviewed)) {
@@ -440,7 +448,7 @@ function evaluatePathway(
 
   const blockers: ReleaseBlocker[] = [];
   criteria.forEach((criterion, index) => {
-    if (criterion.verification === "pending_human") {
+    if (criterionAwaitsHumanVerification(criterion)) {
       blockers.push({
         code: "pending_human_criterion",
         pathway: pathway.id,

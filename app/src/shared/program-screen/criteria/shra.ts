@@ -13,7 +13,10 @@ import {
  * Encoded from repo source notes: which memo scope applies (Chapter 1 vs 1A)
  * and that "vacant" is a legal-definition judgment. SHRA site thresholds are
  * not stated in the repo, so each is `pending_human` with `not_encoded`; its
- * fact keys come from the guide's "Have ready" list.
+ * fact keys come from the guide's "Have ready" list. A pending criterion can
+ * run a rule only as `human_verified`, with a human-verification record whose
+ * excerpt appears in captured official-source text (see
+ * docs/PROGRAM_SCREEN_CRITERION_VERIFICATION.md).
  */
 const haveReady =
   "Pre-subdivision lot area and zoning; existing structures and occupancy history; proposed lots, units, and ownership structure; prior subdivisions; Housing Element site status; environmental constraints and access.";
@@ -37,13 +40,14 @@ function pendingShraCriterion(
     fact_keys: factKeys,
     predicate: "not_encoded",
     rule_summary:
-      "Rule not encoded. The repo source notes name these facts as SHRA review inputs but do not state the criterion; a PermitPulse reviewer must verify it against the City's current SHRA materials.",
+      "Rule not encoded. The repo source notes name these facts as SHRA review inputs but do not state the criterion; a PermitPulse reviewer must verify it against the City's current SHRA materials and record the reviewer, verification date, exact section, and exact supporting excerpt before this criterion can produce a result.",
     citation: cite("shraPage", "Filing checklists and implementation memo"),
     confirmer: "Los Angeles City Planning",
     question_if_unknown: questions.unknown,
     question_if_conflict: questions.conflict,
     question_if_judgment: null,
     verification: "pending_human",
+    human_verification: null,
     basis: pendingBasis,
   };
 }
@@ -77,6 +81,7 @@ export const shraCriteria: readonly ProgramCriterion[] = [
     question_if_judgment:
       "The City's October 28, 2025 SHRA implementation memo expressly covers Chapter 1. Which SHRA implementation guidance applies to this Chapter 1A parcel?",
     verification: "repo_sourced",
+    human_verification: null,
     basis: {
       repo_path: repoSourceNotes.housingProgramsGuide,
       excerpts: [
@@ -102,6 +107,7 @@ export const shraCriteria: readonly ProgramCriterion[] = [
     question_if_judgment:
       "Given the recorded structures and occupancy history, does this parcel meet the SHRA definition of a vacant site (implementation memo, FAQ 1)?",
     verification: "repo_sourced",
+    human_verification: null,
     basis: {
       repo_path: repoSourceNotes.housingProgramsGuide,
       excerpts: [

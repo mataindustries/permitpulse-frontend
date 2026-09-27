@@ -1,0 +1,13 @@
+TEST-ONLY FICTIONAL SOURCE. This text is invented for automated tests. It is
+not an ordinance, statute, memo, or any official record of any agency, and no
+Program Screen criterion shipped to clients may cite it.
+
+FICTIONAL ORDINANCE 000000
+
+Sec. 99. Synthetic Flood Exclusion.
+
+(a) A parcel mapped within a synthetic flood
+zone is excluded from the Synthetic Test Pathway.
+
+(b) This section exists only to exercise the Program Screen verification
+record in tests.

@@ -6,9 +6,11 @@ import { programFactSpecs } from "./facts";
 import {
   citationVolatilities,
   criterionVerifications,
+  humanVerificationRequiredCriterionIds,
   programConfirmers,
   programFactKeys,
   programPathwayIds,
+  sourceCaptureMethods,
   type CitationVolatility,
   type ProgramCriterion,
   type ProgramFactKey,
@@ -78,6 +80,94 @@ export const programCriterionCitationSchema = z
     }
   });
 
+export const programSourceCaptureSchema = z
+  .object({
+    repo_path: z
+      .string()
+      .regex(
+        /^app\/fixtures\/program-screen\/[a-z0-9-]+\/[a-z0-9-]+\.txt$/,
+        "Source captures must be plain-text files under app/fixtures/program-screen/.",
+      ),
+    retrieved_at: z.string().datetime({ offset: true }),
+    capture_method: z.enum(sourceCaptureMethods),
+    sha256: z.string().regex(/^[0-9a-f]{64}$/, "Source captures need a SHA-256 hex digest."),
+    is_ai_generated: z.literal(false),
+  })
+  .strict();
+
+export const programCriterionHumanVerificationSchema = z
+  .object({
+    reviewer: z
+      .object({
+        kind: z.literal("human"),
+        name: nonEmptyText,
+        role: nonEmptyText,
+      })
+      .strict(),
+    verified_at: programIsoDateSchema,
+    next_review_at: programIsoDateSchema,
+    source_title: nonEmptyText,
+    source_url: httpsUrl,
+    instrument: nonEmptyText,
+    pinpoint: nonEmptyText,
+    supporting_excerpt: nonEmptyText,
+    source_capture: programSourceCaptureSchema,
+  })
+  .strict()
+  .superRefine((record, context) => {
+    if (record.source_capture.retrieved_at.slice(0, 10) > record.verified_at) {
+      context.addIssue({
+        code: "custom",
+        message: "A source must be captured on or before the date it is verified.",
+        path: ["source_capture", "retrieved_at"],
+      });
+    }
+  });
+
+const humanVerificationRequired = new Set<string>(humanVerificationRequiredCriterionIds);
+
+/** Formerly pending criteria, and any marked human_verified, need a human record. */
+export function requiresHumanVerification(criterion: Pick<ProgramCriterion, "id" | "verification">): boolean {
+  return criterion.verification === "human_verified" || humanVerificationRequired.has(criterion.id);
+}
+
+/**
+ * The record matches the criterion citation field for field. Dates must match
+ * too, so the record's review date drives the same staleness gate.
+ */
+function humanVerificationMismatch(criterion: ProgramCriterion): string | null {
+  const record = criterion.human_verification;
+  if (record === null || record === undefined) return "is missing";
+  const citation = criterion.citation;
+  if (record.source_title !== citation?.title) return "source_title must match the citation title";
+  if (record.source_url !== citation?.url) return "source_url must match the citation URL";
+  if (record.pinpoint !== citation?.pinpoint) return "pinpoint must match the citation pinpoint";
+  if (record.verified_at !== citation?.verified_at) return "verified_at must match the citation";
+  if (record.next_review_at !== citation?.next_review_at) {
+    return "next_review_at must match the citation";
+  }
+  return null;
+}
+
+/**
+ * Defense in depth for callers that skip `parseProgramPathwayPacks`: a
+ * criterion that needs human verification runs its rule only with a complete,
+ * well-formed human record that matches its citation.
+ */
+export function hasCompleteHumanVerification(criterion: ProgramCriterion): boolean {
+  if (criterion.verification !== "human_verified") return false;
+  if (!programCriterionHumanVerificationSchema.safeParse(criterion.human_verification).success) {
+    return false;
+  }
+  return humanVerificationMismatch(criterion) === null;
+}
+
+/** True when the criterion's rule must not run and must block release. */
+export function criterionAwaitsHumanVerification(criterion: ProgramCriterion): boolean {
+  if (criterion.verification === "pending_human") return true;
+  return requiresHumanVerification(criterion) && !hasCompleteHumanVerification(criterion);
+}
+
 const parcelFactKeys = programFactKeys.filter(
   (key) => programFactSpecs[key].role === "parcel_fact",
 );
@@ -107,6 +197,7 @@ export const programCriterionSchema = z
     question_if_conflict: nonEmptyText,
     question_if_judgment: nonEmptyText.nullable(),
     verification: z.enum(criterionVerifications),
+    human_verification: programCriterionHumanVerificationSchema.nullable(),
     basis: z
       .object({
         repo_path: nonEmptyText,
@@ -137,6 +228,30 @@ export const programCriterionSchema = z
       context.addIssue({
         code: "custom",
         message: "A criterion without an encoded rule must remain pending human verification.",
+        path: ["verification"],
+      });
+    }
+    if (criterion.verification === "human_verified") {
+      const mismatch = humanVerificationMismatch(criterion as ProgramCriterion);
+      if (mismatch !== null) {
+        context.addIssue({
+          code: "custom",
+          message: `A human-verified criterion's verification record ${mismatch}.`,
+          path: ["human_verification"],
+        });
+      }
+    } else if (criterion.human_verification !== null) {
+      context.addIssue({
+        code: "custom",
+        message: "Only a human-verified criterion may carry a human-verification record.",
+        path: ["human_verification"],
+      });
+    }
+    if (humanVerificationRequired.has(criterion.id) && criterion.verification === "repo_sourced") {
+      context.addIssue({
+        code: "custom",
+        message:
+          "A criterion that was pending human verification can only leave that state as human_verified, with a verification record.",
         path: ["verification"],
       });
     }
