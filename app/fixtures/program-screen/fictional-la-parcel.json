@@ -1,0 +1,1307 @@
+{
+  "id": "program-screen-fictional-la-parcel-001",
+  "fictional": true,
+  "label": "FICTIONAL City of Los Angeles parcel — Program Screen core fixture",
+  "description": "FICTIONAL parcel with no real address, APN, owner, or occupant. Every value and source URL is invented for deterministic testing. It carries one official-source conflict (fire hazard, copied from the Case Integrity conflict fixture), one failed lookup that stays unknown, consistent anchor criteria, and SB 79 permanent-exclusion and temporary-exemption observations whose effects are not encoded, so the SB 79 pathway stays undetermined. It contains no verified disqualifier.",
+  "as_of": "2026-09-27",
+  "evidence_records": [
+    {
+      "id": "ps-parcel-match",
+      "subject": {
+        "case_id": "case-fictional-program-screen-001",
+        "property_id": "property-fictional-la-parcel-001"
+      },
+      "claim": {
+        "key": "parcel-match",
+        "label": "Address-to-parcel match",
+        "client_label": "whether the address matches a single City parcel record"
+      },
+      "source": {
+        "agency": "ZIMAS / City source",
+        "title": "City parcel profile observation",
+        "description": "FICTIONAL observation from a city property-information display, used only for deterministic Program Screen testing.",
+        "url": "https://records.example.test/program-screen/city/parcel-profile",
+        "authority": "official",
+        "retrieved_at": "2026-09-18T17:00:00.000Z"
+      },
+      "raw_observed_value": {
+        "kind": "text",
+        "value": "YES"
+      },
+      "normalized_value": {
+        "kind": "boolean",
+        "value": true
+      },
+      "evidence_type": "official_portal",
+      "classification": "verified_fact",
+      "confidence": 99,
+      "conflicts_with": [],
+      "review_status": "reviewed",
+      "notes": [
+        "FICTIONAL: the fixture records exactly what the fictionalized source displayed."
+      ],
+      "limitations": [
+        "FICTIONAL record; the parcel, values, and source URL do not identify a real property."
+      ],
+      "provenance": {
+        "source_record_id": "fixture-ps-parcel-match",
+        "capture_method": "manual_research",
+        "is_ai_generated": false
+      }
+    },
+    {
+      "id": "ps-jurisdiction",
+      "subject": {
+        "case_id": "case-fictional-program-screen-001",
+        "property_id": "property-fictional-la-parcel-001"
+      },
+      "claim": {
+        "key": "jurisdiction",
+        "label": "Land-use jurisdiction",
+        "client_label": "the parcel's land-use jurisdiction"
+      },
+      "source": {
+        "agency": "ZIMAS / City source",
+        "title": "City parcel profile observation",
+        "description": "FICTIONAL observation from a city property-information display, used only for deterministic Program Screen testing.",
+        "url": "https://records.example.test/program-screen/city/parcel-profile",
+        "authority": "official",
+        "retrieved_at": "2026-09-18T17:00:00.000Z"
+      },
+      "raw_observed_value": {
+        "kind": "text",
+        "value": "City of Los Angeles"
+      },
+      "normalized_value": {
+        "kind": "text",
+        "value": "City of Los Angeles"
+      },
+      "evidence_type": "official_portal",
+      "classification": "verified_fact",
+      "confidence": 99,
+      "conflicts_with": [],
+      "review_status": "reviewed",
+      "notes": [
+        "FICTIONAL: the fixture records exactly what the fictionalized source displayed."
+      ],
+      "limitations": [
+        "FICTIONAL record; the parcel, values, and source URL do not identify a real property."
+      ],
+      "provenance": {
+        "source_record_id": "fixture-ps-jurisdiction",
+        "capture_method": "manual_research",
+        "is_ai_generated": false
+      }
+    },
+    {
+      "id": "ps-zoning",
+      "subject": {
+        "case_id": "case-fictional-program-screen-001",
+        "property_id": "property-fictional-la-parcel-001"
+      },
+      "claim": {
+        "key": "zoning",
+        "label": "Zoning designation",
+        "client_label": "the parcel's full zoning designation"
+      },
+      "source": {
+        "agency": "ZIMAS / City source",
+        "title": "City parcel profile observation",
+        "description": "FICTIONAL observation from a city property-information display, used only for deterministic Program Screen testing.",
+        "url": "https://records.example.test/program-screen/city/parcel-profile",
+        "authority": "official",
+        "retrieved_at": "2026-09-18T17:00:00.000Z"
+      },
+      "raw_observed_value": {
+        "kind": "text",
+        "value": "Fictional zone A"
+      },
+      "normalized_value": {
+        "kind": "text",
+        "value": "Fictional zone A"
+      },
+      "evidence_type": "official_portal",
+      "classification": "source_observation",
+      "confidence": 99,
+      "conflicts_with": [],
+      "review_status": "reviewed",
+      "notes": [
+        "FICTIONAL: the fixture records exactly what the fictionalized source displayed."
+      ],
+      "limitations": [
+        "FICTIONAL record; the parcel, values, and source URL do not identify a real property."
+      ],
+      "provenance": {
+        "source_record_id": "fixture-ps-zoning",
+        "capture_method": "manual_research",
+        "is_ai_generated": false
+      }
+    },
+    {
+      "id": "ps-general-plan-land-use",
+      "subject": {
+        "case_id": "case-fictional-program-screen-001",
+        "property_id": "property-fictional-la-parcel-001"
+      },
+      "claim": {
+        "key": "general-plan-land-use",
+        "label": "General Plan land use",
+        "client_label": "the parcel's General Plan land-use designation"
+      },
+      "source": {
+        "agency": "ZIMAS / City source",
+        "title": "City parcel profile observation",
+        "description": "FICTIONAL observation from a city property-information display, used only for deterministic Program Screen testing.",
+        "url": "https://records.example.test/program-screen/city/parcel-profile",
+        "authority": "official",
+        "retrieved_at": "2026-09-18T17:00:00.000Z"
+      },
+      "raw_observed_value": {
+        "kind": "text",
+        "value": "Fictional land use A"
+      },
+      "normalized_value": {
+        "kind": "text",
+        "value": "Fictional land use A"
+      },
+      "evidence_type": "official_portal",
+      "classification": "source_observation",
+      "confidence": 99,
+      "conflicts_with": [],
+      "review_status": "reviewed",
+      "notes": [
+        "FICTIONAL: the fixture records exactly what the fictionalized source displayed."
+      ],
+      "limitations": [
+        "FICTIONAL record; the parcel, values, and source URL do not identify a real property."
+      ],
+      "provenance": {
+        "source_record_id": "fixture-ps-general-plan-land-use",
+        "capture_method": "manual_research",
+        "is_ai_generated": false
+      }
+    },
+    {
+      "id": "ps-specific-plan-area",
+      "subject": {
+        "case_id": "case-fictional-program-screen-001",
+        "property_id": "property-fictional-la-parcel-001"
+      },
+      "claim": {
+        "key": "specific-plan-area",
+        "label": "Specific Plan area",
+        "client_label": "whether the parcel is within a Specific Plan area"
+      },
+      "source": {
+        "agency": "ZIMAS / City source",
+        "title": "City parcel profile observation",
+        "description": "FICTIONAL observation from a city property-information display, used only for deterministic Program Screen testing.",
+        "url": "https://records.example.test/program-screen/city/parcel-profile",
+        "authority": "official",
+        "retrieved_at": "2026-09-18T17:00:00.000Z"
+      },
+      "raw_observed_value": {
+        "kind": "text",
+        "value": "NO"
+      },
+      "normalized_value": {
+        "kind": "boolean",
+        "value": false
+      },
+      "evidence_type": "official_portal",
+      "classification": "source_observation",
+      "confidence": 99,
+      "conflicts_with": [],
+      "review_status": "reviewed",
+      "notes": [
+        "FICTIONAL: the fixture records exactly what the fictionalized source displayed."
+      ],
+      "limitations": [
+        "FICTIONAL record; the parcel, values, and source URL do not identify a real property."
+      ],
+      "provenance": {
+        "source_record_id": "fixture-ps-specific-plan-area",
+        "capture_method": "manual_research",
+        "is_ai_generated": false
+      }
+    },
+    {
+      "id": "ps-hpoz",
+      "subject": {
+        "case_id": "case-fictional-program-screen-001",
+        "property_id": "property-fictional-la-parcel-001"
+      },
+      "claim": {
+        "key": "hpoz",
+        "label": "Historic Preservation Overlay Zone",
+        "client_label": "whether the parcel is within a Historic Preservation Overlay Zone"
+      },
+      "source": {
+        "agency": "ZIMAS / City source",
+        "title": "City parcel profile observation",
+        "description": "FICTIONAL observation from a city property-information display, used only for deterministic Program Screen testing.",
+        "url": "https://records.example.test/program-screen/city/parcel-profile",
+        "authority": "official",
+        "retrieved_at": "2026-09-18T17:00:00.000Z"
+      },
+      "raw_observed_value": {
+        "kind": "text",
+        "value": "NO"
+      },
+      "normalized_value": {
+        "kind": "boolean",
+        "value": false
+      },
+      "evidence_type": "official_portal",
+      "classification": "source_observation",
+      "confidence": 99,
+      "conflicts_with": [],
+      "review_status": "reviewed",
+      "notes": [
+        "FICTIONAL: the fixture records exactly what the fictionalized source displayed."
+      ],
+      "limitations": [
+        "FICTIONAL record; the parcel, values, and source URL do not identify a real property."
+      ],
+      "provenance": {
+        "source_record_id": "fixture-ps-hpoz",
+        "capture_method": "manual_research",
+        "is_ai_generated": false
+      }
+    },
+    {
+      "id": "ps-historic-designation",
+      "subject": {
+        "case_id": "case-fictional-program-screen-001",
+        "property_id": "property-fictional-la-parcel-001"
+      },
+      "claim": {
+        "key": "historic-designation",
+        "label": "Historic designation",
+        "client_label": "whether the parcel carries a historic designation"
+      },
+      "source": {
+        "agency": "ZIMAS / City source",
+        "title": "City parcel profile observation",
+        "description": "FICTIONAL observation from a city property-information display, used only for deterministic Program Screen testing.",
+        "url": "https://records.example.test/program-screen/city/parcel-profile",
+        "authority": "official",
+        "retrieved_at": "2026-09-18T17:00:00.000Z"
+      },
+      "raw_observed_value": {
+        "kind": "text",
+        "value": "NO"
+      },
+      "normalized_value": {
+        "kind": "boolean",
+        "value": false
+      },
+      "evidence_type": "official_portal",
+      "classification": "source_observation",
+      "confidence": 99,
+      "conflicts_with": [],
+      "review_status": "reviewed",
+      "notes": [
+        "FICTIONAL: the fixture records exactly what the fictionalized source displayed."
+      ],
+      "limitations": [
+        "FICTIONAL record; the parcel, values, and source URL do not identify a real property."
+      ],
+      "provenance": {
+        "source_record_id": "fixture-ps-historic-designation",
+        "capture_method": "manual_research",
+        "is_ai_generated": false
+      }
+    },
+    {
+      "id": "ps-zoning-code-chapter",
+      "subject": {
+        "case_id": "case-fictional-program-screen-001",
+        "property_id": "property-fictional-la-parcel-001"
+      },
+      "claim": {
+        "key": "zoning-code-chapter",
+        "label": "Zoning Code chapter",
+        "client_label": "whether Zoning Code Chapter 1 or Chapter 1A applies to the parcel"
+      },
+      "source": {
+        "agency": "ZIMAS / City source",
+        "title": "City parcel profile observation",
+        "description": "FICTIONAL observation from a city property-information display, used only for deterministic Program Screen testing.",
+        "url": "https://records.example.test/program-screen/city/parcel-profile",
+        "authority": "official",
+        "retrieved_at": "2026-09-18T17:00:00.000Z"
+      },
+      "raw_observed_value": {
+        "kind": "text",
+        "value": "Chapter 1"
+      },
+      "normalized_value": {
+        "kind": "text",
+        "value": "Chapter 1"
+      },
+      "evidence_type": "official_portal",
+      "classification": "source_observation",
+      "confidence": 99,
+      "conflicts_with": [],
+      "review_status": "reviewed",
+      "notes": [
+        "FICTIONAL: the fixture records exactly what the fictionalized source displayed."
+      ],
+      "limitations": [
+        "FICTIONAL record; the parcel, values, and source URL do not identify a real property."
+      ],
+      "provenance": {
+        "source_record_id": "fixture-ps-zoning-code-chapter",
+        "capture_method": "manual_research",
+        "is_ai_generated": false
+      }
+    },
+    {
+      "id": "ps-lot-area",
+      "subject": {
+        "case_id": "case-fictional-program-screen-001",
+        "property_id": "property-fictional-la-parcel-001"
+      },
+      "claim": {
+        "key": "lot-area",
+        "label": "Lot area",
+        "client_label": "the parcel's recorded lot area"
+      },
+      "source": {
+        "agency": "ZIMAS / City source",
+        "title": "City parcel profile observation",
+        "description": "FICTIONAL observation from a city property-information display, used only for deterministic Program Screen testing.",
+        "url": "https://records.example.test/program-screen/city/parcel-profile",
+        "authority": "official",
+        "retrieved_at": "2026-09-18T17:00:00.000Z"
+      },
+      "raw_observed_value": {
+        "kind": "number",
+        "value": 7500,
+        "unit": "sq ft"
+      },
+      "normalized_value": {
+        "kind": "number",
+        "value": 7500,
+        "unit": "sq ft"
+      },
+      "evidence_type": "official_portal",
+      "classification": "source_observation",
+      "confidence": 99,
+      "conflicts_with": [],
+      "review_status": "reviewed",
+      "notes": [
+        "FICTIONAL: the fixture records exactly what the fictionalized source displayed."
+      ],
+      "limitations": [
+        "FICTIONAL record; the parcel, values, and source URL do not identify a real property."
+      ],
+      "provenance": {
+        "source_record_id": "fixture-ps-lot-area",
+        "capture_method": "manual_research",
+        "is_ai_generated": false
+      }
+    },
+    {
+      "id": "ps-evidence-fire-cal-fire",
+      "subject": {
+        "case_id": "case-fictional-program-screen-001",
+        "property_id": "property-fictional-la-parcel-001"
+      },
+      "claim": {
+        "key": "very-high-fire-hazard-severity-zone",
+        "label": "Very High Fire Hazard Severity Zone",
+        "client_label": "the property's fire-hazard designation"
+      },
+      "source": {
+        "agency": "CAL FIRE",
+        "title": "Fire Hazard Severity Zone map observation",
+        "description": "Fictionalized observation from the state fire-hazard map used only for deterministic integrity testing.",
+        "url": "https://records.example.test/case-integrity/cal-fire/fire-hazard-map",
+        "authority": "official",
+        "retrieved_at": "2026-07-10T16:05:00.000Z"
+      },
+      "raw_observed_value": {
+        "kind": "text",
+        "value": "YES"
+      },
+      "normalized_value": {
+        "kind": "boolean",
+        "value": true
+      },
+      "evidence_type": "official_map",
+      "classification": "source_observation",
+      "confidence": 99,
+      "conflicts_with": [],
+      "review_status": "reviewed",
+      "notes": [
+        "The fixture records exactly what the fictionalized source displayed.",
+        "FICTIONAL: copied from the Case Integrity fire-hazard conflict fixture."
+      ],
+      "limitations": [
+        "The address and source URL are anonymized and do not identify a real property."
+      ],
+      "provenance": {
+        "source_record_id": "ps-fixture-cal-fire-map-record-001",
+        "capture_method": "manual_research",
+        "is_ai_generated": false
+      }
+    },
+    {
+      "id": "ps-evidence-fire-zimas-city",
+      "subject": {
+        "case_id": "case-fictional-program-screen-001",
+        "property_id": "property-fictional-la-parcel-001"
+      },
+      "claim": {
+        "key": "very-high-fire-hazard-severity-zone",
+        "label": "Very High Fire Hazard Severity Zone",
+        "client_label": "the property's fire-hazard designation"
+      },
+      "source": {
+        "agency": "ZIMAS / City source",
+        "title": "City parcel hazard-layer observation",
+        "description": "Fictionalized observation from a city property-information layer used only for deterministic integrity testing.",
+        "url": "https://records.example.test/case-integrity/city/property-hazard-layer",
+        "authority": "official",
+        "retrieved_at": "2026-07-10T16:12:00.000Z"
+      },
+      "raw_observed_value": {
+        "kind": "text",
+        "value": "NO"
+      },
+      "normalized_value": {
+        "kind": "boolean",
+        "value": false
+      },
+      "evidence_type": "official_portal",
+      "classification": "source_observation",
+      "confidence": 99,
+      "conflicts_with": [],
+      "review_status": "reviewed",
+      "notes": [
+        "The fixture records exactly what the fictionalized source displayed.",
+        "FICTIONAL: copied from the Case Integrity fire-hazard conflict fixture."
+      ],
+      "limitations": [
+        "The address and source URL are anonymized and do not identify a real property."
+      ],
+      "provenance": {
+        "source_record_id": "ps-fixture-city-hazard-layer-record-001",
+        "capture_method": "manual_research",
+        "is_ai_generated": false
+      }
+    },
+    {
+      "id": "ps-hillside-area",
+      "subject": {
+        "case_id": "case-fictional-program-screen-001",
+        "property_id": "property-fictional-la-parcel-001"
+      },
+      "claim": {
+        "key": "hillside-area",
+        "label": "Hillside area",
+        "client_label": "whether the parcel is mapped in a hillside area"
+      },
+      "source": {
+        "agency": "ZIMAS / City source",
+        "title": "City parcel hazard-layer observation",
+        "description": "FICTIONAL observation from a city property-information display, used only for deterministic Program Screen testing.",
+        "url": "https://records.example.test/program-screen/city/parcel-hazard-layers",
+        "authority": "official",
+        "retrieved_at": "2026-09-18T17:00:00.000Z"
+      },
+      "raw_observed_value": {
+        "kind": "text",
+        "value": "NO"
+      },
+      "normalized_value": {
+        "kind": "boolean",
+        "value": false
+      },
+      "evidence_type": "official_portal",
+      "classification": "source_observation",
+      "confidence": 99,
+      "conflicts_with": [],
+      "review_status": "reviewed",
+      "notes": [
+        "FICTIONAL: the fixture records exactly what the fictionalized source displayed."
+      ],
+      "limitations": [
+        "FICTIONAL record; the parcel, values, and source URL do not identify a real property."
+      ],
+      "provenance": {
+        "source_record_id": "fixture-ps-hillside-area",
+        "capture_method": "manual_research",
+        "is_ai_generated": false
+      }
+    },
+    {
+      "id": "ps-coastal-zone",
+      "subject": {
+        "case_id": "case-fictional-program-screen-001",
+        "property_id": "property-fictional-la-parcel-001"
+      },
+      "claim": {
+        "key": "coastal-zone",
+        "label": "Coastal zone",
+        "client_label": "whether the parcel is mapped in the coastal zone"
+      },
+      "source": {
+        "agency": "ZIMAS / City source",
+        "title": "City parcel hazard-layer observation",
+        "description": "FICTIONAL observation from a city property-information display, used only for deterministic Program Screen testing.",
+        "url": "https://records.example.test/program-screen/city/parcel-hazard-layers",
+        "authority": "official",
+        "retrieved_at": "2026-09-18T17:00:00.000Z"
+      },
+      "raw_observed_value": {
+        "kind": "text",
+        "value": "NO"
+      },
+      "normalized_value": {
+        "kind": "boolean",
+        "value": false
+      },
+      "evidence_type": "official_portal",
+      "classification": "source_observation",
+      "confidence": 99,
+      "conflicts_with": [],
+      "review_status": "reviewed",
+      "notes": [
+        "FICTIONAL: the fixture records exactly what the fictionalized source displayed."
+      ],
+      "limitations": [
+        "FICTIONAL record; the parcel, values, and source URL do not identify a real property."
+      ],
+      "provenance": {
+        "source_record_id": "fixture-ps-coastal-zone",
+        "capture_method": "manual_research",
+        "is_ai_generated": false
+      }
+    },
+    {
+      "id": "ps-fault-zone",
+      "subject": {
+        "case_id": "case-fictional-program-screen-001",
+        "property_id": "property-fictional-la-parcel-001"
+      },
+      "claim": {
+        "key": "fault-zone",
+        "label": "Fault zone",
+        "client_label": "whether the parcel is mapped in a fault zone"
+      },
+      "source": {
+        "agency": "ZIMAS / City source",
+        "title": "City parcel hazard-layer observation",
+        "description": "FICTIONAL observation from a city property-information display, used only for deterministic Program Screen testing.",
+        "url": "https://records.example.test/program-screen/city/parcel-hazard-layers",
+        "authority": "official",
+        "retrieved_at": "2026-09-18T17:00:00.000Z"
+      },
+      "raw_observed_value": {
+        "kind": "text",
+        "value": "NO"
+      },
+      "normalized_value": {
+        "kind": "boolean",
+        "value": false
+      },
+      "evidence_type": "official_portal",
+      "classification": "source_observation",
+      "confidence": 99,
+      "conflicts_with": [],
+      "review_status": "reviewed",
+      "notes": [
+        "FICTIONAL: the fixture records exactly what the fictionalized source displayed."
+      ],
+      "limitations": [
+        "FICTIONAL record; the parcel, values, and source URL do not identify a real property."
+      ],
+      "provenance": {
+        "source_record_id": "fixture-ps-fault-zone",
+        "capture_method": "manual_research",
+        "is_ai_generated": false
+      }
+    },
+    {
+      "id": "ps-landslide-area",
+      "subject": {
+        "case_id": "case-fictional-program-screen-001",
+        "property_id": "property-fictional-la-parcel-001"
+      },
+      "claim": {
+        "key": "landslide-area",
+        "label": "Landslide area",
+        "client_label": "whether the parcel is mapped in a landslide area"
+      },
+      "source": {
+        "agency": "ZIMAS / City source",
+        "title": "City parcel hazard-layer observation",
+        "description": "FICTIONAL observation from a city property-information display, used only for deterministic Program Screen testing.",
+        "url": "https://records.example.test/program-screen/city/parcel-hazard-layers",
+        "authority": "official",
+        "retrieved_at": "2026-09-18T17:00:00.000Z"
+      },
+      "raw_observed_value": {
+        "kind": "text",
+        "value": "NO"
+      },
+      "normalized_value": {
+        "kind": "boolean",
+        "value": false
+      },
+      "evidence_type": "official_portal",
+      "classification": "source_observation",
+      "confidence": 99,
+      "conflicts_with": [],
+      "review_status": "reviewed",
+      "notes": [
+        "FICTIONAL: the fixture records exactly what the fictionalized source displayed."
+      ],
+      "limitations": [
+        "FICTIONAL record; the parcel, values, and source URL do not identify a real property."
+      ],
+      "provenance": {
+        "source_record_id": "fixture-ps-landslide-area",
+        "capture_method": "manual_research",
+        "is_ai_generated": false
+      }
+    },
+    {
+      "id": "ps-flood-zone",
+      "subject": {
+        "case_id": "case-fictional-program-screen-001",
+        "property_id": "property-fictional-la-parcel-001"
+      },
+      "claim": {
+        "key": "flood-zone",
+        "label": "Flood zone",
+        "client_label": "whether the parcel is mapped in a flood zone"
+      },
+      "source": {
+        "agency": "ZIMAS / City source",
+        "title": "City parcel hazard-layer observation",
+        "description": "FICTIONAL observation from a city property-information display, used only for deterministic Program Screen testing.",
+        "url": "https://records.example.test/program-screen/city/parcel-hazard-layers",
+        "authority": "official",
+        "retrieved_at": "2026-09-18T17:00:00.000Z"
+      },
+      "raw_observed_value": {
+        "kind": "text",
+        "value": "NO"
+      },
+      "normalized_value": {
+        "kind": "boolean",
+        "value": false
+      },
+      "evidence_type": "official_portal",
+      "classification": "source_observation",
+      "confidence": 99,
+      "conflicts_with": [],
+      "review_status": "reviewed",
+      "notes": [
+        "FICTIONAL: the fixture records exactly what the fictionalized source displayed."
+      ],
+      "limitations": [
+        "FICTIONAL record; the parcel, values, and source URL do not identify a real property."
+      ],
+      "provenance": {
+        "source_record_id": "fixture-ps-flood-zone",
+        "capture_method": "manual_research",
+        "is_ai_generated": false
+      }
+    },
+    {
+      "id": "ps-existing-dwelling-units",
+      "subject": {
+        "case_id": "case-fictional-program-screen-001",
+        "property_id": "property-fictional-la-parcel-001"
+      },
+      "claim": {
+        "key": "existing-dwelling-units",
+        "label": "Existing dwelling units",
+        "client_label": "the number of existing dwelling units recorded on the parcel"
+      },
+      "source": {
+        "agency": "ZIMAS / City source",
+        "title": "City parcel profile observation",
+        "description": "FICTIONAL observation from a city property-information display, used only for deterministic Program Screen testing.",
+        "url": "https://records.example.test/program-screen/city/parcel-profile",
+        "authority": "official",
+        "retrieved_at": "2026-09-18T17:00:00.000Z"
+      },
+      "raw_observed_value": {
+        "kind": "number",
+        "value": 1,
+        "unit": "dwelling units"
+      },
+      "normalized_value": {
+        "kind": "number",
+        "value": 1,
+        "unit": "dwelling units"
+      },
+      "evidence_type": "official_portal",
+      "classification": "source_observation",
+      "confidence": 99,
+      "conflicts_with": [],
+      "review_status": "reviewed",
+      "notes": [
+        "FICTIONAL: the fixture records exactly what the fictionalized source displayed."
+      ],
+      "limitations": [
+        "FICTIONAL record; the parcel, values, and source URL do not identify a real property."
+      ],
+      "provenance": {
+        "source_record_id": "fixture-ps-existing-dwelling-units",
+        "capture_method": "manual_research",
+        "is_ai_generated": false
+      }
+    },
+    {
+      "id": "ps-existing-structures",
+      "subject": {
+        "case_id": "case-fictional-program-screen-001",
+        "property_id": "property-fictional-la-parcel-001"
+      },
+      "claim": {
+        "key": "existing-structures",
+        "label": "Existing structures",
+        "client_label": "the number of existing structures recorded on the parcel"
+      },
+      "source": {
+        "agency": "ZIMAS / City source",
+        "title": "City parcel profile observation",
+        "description": "FICTIONAL observation from a city property-information display, used only for deterministic Program Screen testing.",
+        "url": "https://records.example.test/program-screen/city/parcel-profile",
+        "authority": "official",
+        "retrieved_at": "2026-09-18T17:00:00.000Z"
+      },
+      "raw_observed_value": {
+        "kind": "number",
+        "value": 1,
+        "unit": "structures"
+      },
+      "normalized_value": {
+        "kind": "number",
+        "value": 1,
+        "unit": "structures"
+      },
+      "evidence_type": "official_portal",
+      "classification": "source_observation",
+      "confidence": 99,
+      "conflicts_with": [],
+      "review_status": "reviewed",
+      "notes": [
+        "FICTIONAL: the fixture records exactly what the fictionalized source displayed."
+      ],
+      "limitations": [
+        "FICTIONAL record; the parcel, values, and source URL do not identify a real property."
+      ],
+      "provenance": {
+        "source_record_id": "fixture-ps-existing-structures",
+        "capture_method": "manual_research",
+        "is_ai_generated": false
+      }
+    },
+    {
+      "id": "ps-occupancy-history-lookup",
+      "subject": {
+        "case_id": "case-fictional-program-screen-001",
+        "property_id": "property-fictional-la-parcel-001"
+      },
+      "claim": {
+        "key": "occupancy-history",
+        "label": "Residential occupancy history",
+        "client_label": "the parcel's residential occupancy history"
+      },
+      "source": {
+        "agency": "Fictional City Housing Records Division",
+        "title": "Official occupancy-record portal lookup attempt",
+        "description": "FICTIONAL lookup that ended before a complete result set could be verified.",
+        "url": "https://records.example.test/program-screen/city/occupancy-record-search",
+        "authority": "official",
+        "retrieved_at": "2026-09-18T17:40:00.000Z"
+      },
+      "raw_observed_value": {
+        "kind": "not_observed",
+        "value": null
+      },
+      "normalized_value": {
+        "kind": "unknown",
+        "value": null,
+        "reason": "retrieval_failed"
+      },
+      "evidence_type": "lookup_attempt",
+      "classification": "unknown",
+      "confidence": 100,
+      "conflicts_with": [],
+      "review_status": "review_required",
+      "notes": [
+        "FICTIONAL: the lookup failure is recorded; no absence conclusion is supported."
+      ],
+      "limitations": [
+        "A failed or incomplete lookup does not establish that no occupancy record exists."
+      ],
+      "provenance": {
+        "source_record_id": "fixture-ps-occupancy-lookup-attempt",
+        "capture_method": "provider_retrieval",
+        "is_ai_generated": false
+      }
+    },
+    {
+      "id": "ps-prior-subdivisions",
+      "subject": {
+        "case_id": "case-fictional-program-screen-001",
+        "property_id": "property-fictional-la-parcel-001"
+      },
+      "claim": {
+        "key": "prior-subdivisions",
+        "label": "Prior subdivisions",
+        "client_label": "whether a prior subdivision of the parcel is recorded"
+      },
+      "source": {
+        "agency": "ZIMAS / City source",
+        "title": "City parcel profile observation",
+        "description": "FICTIONAL observation from a city property-information display, used only for deterministic Program Screen testing.",
+        "url": "https://records.example.test/program-screen/city/parcel-profile",
+        "authority": "official",
+        "retrieved_at": "2026-09-18T17:00:00.000Z"
+      },
+      "raw_observed_value": {
+        "kind": "text",
+        "value": "NO"
+      },
+      "normalized_value": {
+        "kind": "boolean",
+        "value": false
+      },
+      "evidence_type": "official_portal",
+      "classification": "source_observation",
+      "confidence": 99,
+      "conflicts_with": [],
+      "review_status": "reviewed",
+      "notes": [
+        "FICTIONAL: the fixture records exactly what the fictionalized source displayed."
+      ],
+      "limitations": [
+        "FICTIONAL record; the parcel, values, and source URL do not identify a real property."
+      ],
+      "provenance": {
+        "source_record_id": "fixture-ps-prior-subdivisions",
+        "capture_method": "manual_research",
+        "is_ai_generated": false
+      }
+    },
+    {
+      "id": "ps-housing-element-site-status",
+      "subject": {
+        "case_id": "case-fictional-program-screen-001",
+        "property_id": "property-fictional-la-parcel-001"
+      },
+      "claim": {
+        "key": "housing-element-site-status",
+        "label": "Housing Element site status",
+        "client_label": "the parcel's Housing Element site status"
+      },
+      "source": {
+        "agency": "ZIMAS / City source",
+        "title": "City parcel profile observation",
+        "description": "FICTIONAL observation from a city property-information display, used only for deterministic Program Screen testing.",
+        "url": "https://records.example.test/program-screen/city/parcel-profile",
+        "authority": "official",
+        "retrieved_at": "2026-09-18T17:00:00.000Z"
+      },
+      "raw_observed_value": {
+        "kind": "text",
+        "value": "Fictional inventory status A"
+      },
+      "normalized_value": {
+        "kind": "text",
+        "value": "Fictional inventory status A"
+      },
+      "evidence_type": "official_portal",
+      "classification": "source_observation",
+      "confidence": 99,
+      "conflicts_with": [],
+      "review_status": "reviewed",
+      "notes": [
+        "FICTIONAL: the fixture records exactly what the fictionalized source displayed."
+      ],
+      "limitations": [
+        "FICTIONAL record; the parcel, values, and source URL do not identify a real property."
+      ],
+      "provenance": {
+        "source_record_id": "fixture-ps-housing-element-site-status",
+        "capture_method": "manual_research",
+        "is_ai_generated": false
+      }
+    },
+    {
+      "id": "ps-sb79-permanent-exclusion",
+      "subject": {
+        "case_id": "case-fictional-program-screen-001",
+        "property_id": "property-fictional-la-parcel-001"
+      },
+      "claim": {
+        "key": "sb79-permanent-exclusion",
+        "label": "SB 79 permanent exclusion in the adopted Phased Implementation record",
+        "client_label": "whether the adopted Phased Implementation record shows a permanent exclusion for the parcel"
+      },
+      "source": {
+        "agency": "Los Angeles City Planning",
+        "title": "Adopted Phased Implementation map observation (permanent exclusions)",
+        "description": "FICTIONAL observation from an adopted ordinance map set, used only for deterministic Program Screen testing.",
+        "url": "https://records.example.test/program-screen/city-planning/phased-implementation-map-permanent",
+        "authority": "official",
+        "retrieved_at": "2026-09-18T17:20:00.000Z"
+      },
+      "raw_observed_value": {
+        "kind": "text",
+        "value": "YES"
+      },
+      "normalized_value": {
+        "kind": "boolean",
+        "value": true
+      },
+      "evidence_type": "official_document",
+      "classification": "source_observation",
+      "confidence": 99,
+      "conflicts_with": [],
+      "review_status": "reviewed",
+      "notes": [
+        "FICTIONAL: the fixture records exactly what the fictionalized source displayed."
+      ],
+      "limitations": [
+        "FICTIONAL record; the parcel, values, and source URL do not identify a real property."
+      ],
+      "provenance": {
+        "source_record_id": "fixture-ps-sb79-permanent-exclusion",
+        "capture_method": "manual_research",
+        "is_ai_generated": false
+      }
+    },
+    {
+      "id": "ps-sb79-temporary-exemption",
+      "subject": {
+        "case_id": "case-fictional-program-screen-001",
+        "property_id": "property-fictional-la-parcel-001"
+      },
+      "claim": {
+        "key": "sb79-temporary-exemption",
+        "label": "SB 79 temporary exemption in the adopted Phased Implementation record",
+        "client_label": "whether the adopted Phased Implementation record shows a temporary exemption for the parcel"
+      },
+      "source": {
+        "agency": "Los Angeles City Planning",
+        "title": "Adopted Phased Implementation map observation (temporary exemptions)",
+        "description": "FICTIONAL observation from an adopted ordinance map set, used only for deterministic Program Screen testing.",
+        "url": "https://records.example.test/program-screen/city-planning/phased-implementation-map-temporary",
+        "authority": "official",
+        "retrieved_at": "2026-09-18T17:20:00.000Z"
+      },
+      "raw_observed_value": {
+        "kind": "text",
+        "value": "NO"
+      },
+      "normalized_value": {
+        "kind": "boolean",
+        "value": false
+      },
+      "evidence_type": "official_document",
+      "classification": "source_observation",
+      "confidence": 99,
+      "conflicts_with": [],
+      "review_status": "reviewed",
+      "notes": [
+        "FICTIONAL: the fixture records exactly what the fictionalized source displayed."
+      ],
+      "limitations": [
+        "FICTIONAL record; the parcel, values, and source URL do not identify a real property."
+      ],
+      "provenance": {
+        "source_record_id": "fixture-ps-sb79-temporary-exemption",
+        "capture_method": "manual_research",
+        "is_ai_generated": false
+      }
+    },
+    {
+      "id": "ps-zimas-shra-program-field",
+      "subject": {
+        "case_id": "case-fictional-program-screen-001",
+        "property_id": "property-fictional-la-parcel-001"
+      },
+      "claim": {
+        "key": "zimas-shra-program-field",
+        "label": "ZIMAS SHRA / SB 684 program field",
+        "client_label": "the ZIMAS SHRA / SB 684 program field as displayed"
+      },
+      "source": {
+        "agency": "ZIMAS / City source",
+        "title": "ZIMAS Planning and Zoning — SHRA / SB 684 Eligibility field observation",
+        "description": "FICTIONAL observation from a city property-information display, used only for deterministic Program Screen testing.",
+        "url": "https://records.example.test/program-screen/city/zimas-shra-field",
+        "authority": "official",
+        "retrieved_at": "2026-09-18T17:00:00.000Z"
+      },
+      "raw_observed_value": {
+        "kind": "text",
+        "value": "YES"
+      },
+      "normalized_value": {
+        "kind": "boolean",
+        "value": true
+      },
+      "evidence_type": "official_portal",
+      "classification": "source_observation",
+      "confidence": 99,
+      "conflicts_with": [],
+      "review_status": "reviewed",
+      "notes": [
+        "FICTIONAL: the fixture records exactly what the fictionalized source displayed."
+      ],
+      "limitations": [
+        "FICTIONAL record; the parcel, values, and source URL do not identify a real property."
+      ],
+      "provenance": {
+        "source_record_id": "fixture-ps-zimas-shra-program-field",
+        "capture_method": "manual_research",
+        "is_ai_generated": false
+      }
+    },
+    {
+      "id": "ps-zimas-sb79-category",
+      "subject": {
+        "case_id": "case-fictional-program-screen-001",
+        "property_id": "property-fictional-la-parcel-001"
+      },
+      "claim": {
+        "key": "zimas-sb79-category",
+        "label": "ZIMAS SB 79 category",
+        "client_label": "the SB 79 category displayed in ZIMAS"
+      },
+      "source": {
+        "agency": "ZIMAS / City source",
+        "title": "ZIMAS SB 79 information — category observation",
+        "description": "FICTIONAL observation from a city property-information display, used only for deterministic Program Screen testing.",
+        "url": "https://records.example.test/program-screen/city/zimas-sb79",
+        "authority": "official",
+        "retrieved_at": "2026-09-18T17:00:00.000Z"
+      },
+      "raw_observed_value": {
+        "kind": "text",
+        "value": "Fictional category A"
+      },
+      "normalized_value": {
+        "kind": "text",
+        "value": "Fictional category A"
+      },
+      "evidence_type": "official_portal",
+      "classification": "source_observation",
+      "confidence": 99,
+      "conflicts_with": [],
+      "review_status": "reviewed",
+      "notes": [
+        "FICTIONAL: the fixture records exactly what the fictionalized source displayed."
+      ],
+      "limitations": [
+        "FICTIONAL record; the parcel, values, and source URL do not identify a real property."
+      ],
+      "provenance": {
+        "source_record_id": "fixture-ps-zimas-sb79-category",
+        "capture_method": "manual_research",
+        "is_ai_generated": false
+      }
+    },
+    {
+      "id": "ps-zimas-sb79-tier",
+      "subject": {
+        "case_id": "case-fictional-program-screen-001",
+        "property_id": "property-fictional-la-parcel-001"
+      },
+      "claim": {
+        "key": "zimas-sb79-tier",
+        "label": "ZIMAS SB 79 tier",
+        "client_label": "the SB 79 tier displayed in ZIMAS"
+      },
+      "source": {
+        "agency": "ZIMAS / City source",
+        "title": "ZIMAS SB 79 information — tier observation",
+        "description": "FICTIONAL observation from a city property-information display, used only for deterministic Program Screen testing.",
+        "url": "https://records.example.test/program-screen/city/zimas-sb79",
+        "authority": "official",
+        "retrieved_at": "2026-09-18T17:00:00.000Z"
+      },
+      "raw_observed_value": {
+        "kind": "text",
+        "value": "Fictional tier 1"
+      },
+      "normalized_value": {
+        "kind": "text",
+        "value": "Fictional tier 1"
+      },
+      "evidence_type": "official_portal",
+      "classification": "source_observation",
+      "confidence": 99,
+      "conflicts_with": [],
+      "review_status": "reviewed",
+      "notes": [
+        "FICTIONAL: the fixture records exactly what the fictionalized source displayed."
+      ],
+      "limitations": [
+        "FICTIONAL record; the parcel, values, and source URL do not identify a real property."
+      ],
+      "provenance": {
+        "source_record_id": "fixture-ps-zimas-sb79-tier",
+        "capture_method": "manual_research",
+        "is_ai_generated": false
+      }
+    },
+    {
+      "id": "ps-zimas-sb79-exemption",
+      "subject": {
+        "case_id": "case-fictional-program-screen-001",
+        "property_id": "property-fictional-la-parcel-001"
+      },
+      "claim": {
+        "key": "zimas-sb79-exemption",
+        "label": "ZIMAS SB 79 exemption display",
+        "client_label": "whether ZIMAS displays an SB 79 exemption or exclusion for the parcel"
+      },
+      "source": {
+        "agency": "ZIMAS / City source",
+        "title": "ZIMAS SB 79 information — exemption observation",
+        "description": "FICTIONAL observation from a city property-information display, used only for deterministic Program Screen testing.",
+        "url": "https://records.example.test/program-screen/city/zimas-sb79",
+        "authority": "official",
+        "retrieved_at": "2026-09-18T17:00:00.000Z"
+      },
+      "raw_observed_value": {
+        "kind": "text",
+        "value": "YES"
+      },
+      "normalized_value": {
+        "kind": "boolean",
+        "value": true
+      },
+      "evidence_type": "official_portal",
+      "classification": "source_observation",
+      "confidence": 99,
+      "conflicts_with": [],
+      "review_status": "reviewed",
+      "notes": [
+        "FICTIONAL: the fixture records exactly what the fictionalized source displayed."
+      ],
+      "limitations": [
+        "FICTIONAL record; the parcel, values, and source URL do not identify a real property."
+      ],
+      "provenance": {
+        "source_record_id": "fixture-ps-zimas-sb79-exemption",
+        "capture_method": "manual_research",
+        "is_ai_generated": false
+      }
+    },
+    {
+      "id": "ps-zimas-low-rise-category",
+      "subject": {
+        "case_id": "case-fictional-program-screen-001",
+        "property_id": "property-fictional-la-parcel-001"
+      },
+      "claim": {
+        "key": "zimas-low-rise-category",
+        "label": "ZIMAS Low-Rise category",
+        "client_label": "the Low-Rise category displayed in ZIMAS"
+      },
+      "source": {
+        "agency": "ZIMAS / City source",
+        "title": "ZIMAS Low-Rise information — category observation",
+        "description": "FICTIONAL observation from a city property-information display, used only for deterministic Program Screen testing.",
+        "url": "https://records.example.test/program-screen/city/zimas-low-rise",
+        "authority": "official",
+        "retrieved_at": "2026-09-18T17:00:00.000Z"
+      },
+      "raw_observed_value": {
+        "kind": "text",
+        "value": "Fictional Low-Rise category A"
+      },
+      "normalized_value": {
+        "kind": "text",
+        "value": "Fictional Low-Rise category A"
+      },
+      "evidence_type": "official_portal",
+      "classification": "source_observation",
+      "confidence": 99,
+      "conflicts_with": [],
+      "review_status": "reviewed",
+      "notes": [
+        "FICTIONAL: the fixture records exactly what the fictionalized source displayed."
+      ],
+      "limitations": [
+        "FICTIONAL record; the parcel, values, and source URL do not identify a real property."
+      ],
+      "provenance": {
+        "source_record_id": "fixture-ps-zimas-low-rise-category",
+        "capture_method": "manual_research",
+        "is_ai_generated": false
+      }
+    }
+  ],
+  "expected": {
+    "fact_classifications": {
+      "parcel-match": "verified_fact",
+      "jurisdiction": "verified_fact",
+      "zoning": "source_observation",
+      "general-plan-land-use": "source_observation",
+      "specific-plan-area": "source_observation",
+      "hpoz": "source_observation",
+      "historic-designation": "source_observation",
+      "zoning-code-chapter": "source_observation",
+      "lot-area": "source_observation",
+      "very-high-fire-hazard-severity-zone": "conflict",
+      "hillside-area": "source_observation",
+      "coastal-zone": "source_observation",
+      "fault-zone": "source_observation",
+      "landslide-area": "source_observation",
+      "flood-zone": "source_observation",
+      "existing-dwelling-units": "source_observation",
+      "existing-structures": "source_observation",
+      "occupancy-history": "unknown",
+      "prior-subdivisions": "source_observation",
+      "housing-element-site-status": "source_observation",
+      "sb79-permanent-exclusion": "source_observation",
+      "sb79-temporary-exemption": "source_observation",
+      "zimas-shra-program-field": "source_observation",
+      "zimas-sb79-category": "source_observation",
+      "zimas-sb79-tier": "source_observation",
+      "zimas-sb79-exemption": "source_observation",
+      "zimas-low-rise-category": "source_observation"
+    },
+    "criterion_statuses": {
+      "la_shra.parcel-match": "consistent_with_source",
+      "la_shra.jurisdiction": "consistent_with_source",
+      "la_shra.implementation-memo-scope": "consistent_with_source",
+      "la_shra.vacant-site-definition": "unknown",
+      "la_shra.lot-area-and-zoning": "unreviewed",
+      "la_shra.existing-structures-and-occupancy": "unknown",
+      "la_shra.prior-subdivisions": "unreviewed",
+      "la_shra.housing-element-site-status": "unreviewed",
+      "la_shra.environmental-constraints": "conflict",
+      "la_sb79.parcel-match": "consistent_with_source",
+      "la_sb79.jurisdiction": "consistent_with_source",
+      "la_sb79.permanent-exclusion": "unreviewed",
+      "la_sb79.temporary-exemption": "unreviewed",
+      "la_sb79.site-and-overlay-standards": "unreviewed",
+      "la_low_rise.parcel-match": "consistent_with_source",
+      "la_low_rise.jurisdiction": "consistent_with_source",
+      "la_low_rise.overlay-review": "conflict",
+      "la_low_rise.geographic-criteria": "unreviewed"
+    },
+    "pathway_rollups": {
+      "la_shra": "contested",
+      "la_sb79": "undetermined",
+      "la_low_rise": "contested"
+    },
+    "client_releasable": false
+  }
+}
