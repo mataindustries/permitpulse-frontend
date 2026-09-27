@@ -1,0 +1,36 @@
+{
+  "schema_version": "program-screen-official-source-v1",
+  "source_id": "low-rise-draft-2026-09-24",
+  "title": "Council File 25-1083-S3: September 24, 2026 draft Low-Rise Ordinance (proposed)",
+  "official_url": "https://cityclerk.lacity.org/lacityclerkconnect/index.cfm?fa=ccfi.viewrecord&cfnumber=25-1083-S3",
+  "source_type": "proposed_draft",
+  "document_date": "2026-09-24",
+  "retrieved_at": "2026-09-27T16:19:20Z",
+  "sha256_original": "c451896908430f573206209c6c154c62c95b2c396ffdebe5a7e8505560a8d9a7",
+  "sha256_extracted": "3f31319db3820b36cd3755f7e5572ef414181c283fb7659c0eea13f61dd4ec65",
+  "operative_status": "proposed_not_operative",
+  "notes": "PROPOSED DRAFT, NOT OPERATIVE. It can prompt a human re-review of criteria resting on Ordinance 188967; it can never support a rule. Supplied to the capture session by the repository owner as a local file named 25-1083-s3_misc_9-24-26.pdf on 2026-09-27; retrieved_at is that upload time. official_url is the Council File 25-1083-S3 record page already recorded in the verification ledger; the attachment's own document URL was not recorded and was not guessed. document_date is the Council File attachment date (September 24, 2026) from the ledger and the file name; the signature blocks inside are dated September 17, 2026, and the ordinance number, passage, and approval blanks are empty. Scanned document (producer KONICA MINOLTA bizhub C360i): pages 1 and 2, which hold the amended Table 12.22 A.38(g)(3)(i) and Sec. 2, have no text layer, so their wording is NOT in extracted.txt and cannot be excerpt-checked; page 3's text layer holds only a date and a file path. Any comparison with Ordinance 188967 rests on reading the page images.",
+  "may_change_source_ids": [
+    "ordinance-188967"
+  ],
+  "original": {
+    "file": "original.pdf",
+    "media_type": "application/pdf",
+    "bytes": 255876
+  },
+  "extraction": {
+    "file": "extracted.txt",
+    "extractor": "pdfjs-dist",
+    "extractor_version": "6.3.289",
+    "normalization": "program-screen-text-v1",
+    "page_separator": "form_feed",
+    "page_count": 3,
+    "pages_without_text": [
+      1,
+      2
+    ]
+  },
+  "capture_tool": "app/scripts/capture-program-screen-source.ts",
+  "is_ai_generated": false,
+  "test_only": false
+}

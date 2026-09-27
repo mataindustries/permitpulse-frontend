@@ -1,0 +1,31 @@
+{
+  "schema_version": "program-screen-official-source-v1",
+  "source_id": "shra-2025-10-28",
+  "title": "Implementation of Senate Bills 1123 (2024) and 684 (2023) and Assembly Bill 130 (2025) - Starter Home Revitalization Act (interdepartmental memorandum, October 28, 2025)",
+  "official_url": "https://planning.lacity.gov/odocument/1b081b86-f735-43e8-bba6-c2d73a192db7/SB_684_1123_Memo_Update_ACP.pdf",
+  "source_type": "official_memo",
+  "document_date": "2025-10-28",
+  "retrieved_at": "2026-09-27T16:19:20Z",
+  "sha256_original": "c7063b881987dc855bb74a674f0d344233f7b7d2859544850c54176d347d8b5e",
+  "sha256_extracted": "f44574084091c51419d0475d4b8501d9a2c3577b3a16830fc6ecb2a88b20f6e2",
+  "operative_status": "operative",
+  "notes": "Supplied to the capture session by the repository owner as a local file on 2026-09-27; retrieved_at is that upload time, because the original download time from the official host was not recorded. The capture environment could not reach the official host (egress 403), so these bytes were not compared with the file the host serves. Operative status declared by the repository owner, subject to the memo's own stated limits (page 1): it pertains to Chapter 1 of the Zoning Code, with a Chapter 1A memo to follow; it summarizes key SHRA provisions for reference and does not include all applicable regulations; it reflects City Planning's current understanding and may be updated; it refers readers to Government Code Sections 65852.28, 65913.4.5, and 66499.41 for the full SHRA. It replaces the October 9, 2024 SB 684 memo. Whether a later memo has since replaced it was not checked (official host unreachable). Born-digital text layer (Acrobat PDFMaker).",
+  "may_change_source_ids": [],
+  "original": {
+    "file": "original.pdf",
+    "media_type": "application/pdf",
+    "bytes": 291094
+  },
+  "extraction": {
+    "file": "extracted.txt",
+    "extractor": "pdfjs-dist",
+    "extractor_version": "6.3.289",
+    "normalization": "program-screen-text-v1",
+    "page_separator": "form_feed",
+    "page_count": 20,
+    "pages_without_text": []
+  },
+  "capture_tool": "app/scripts/capture-program-screen-source.ts",
+  "is_ai_generated": false,
+  "test_only": false
+}

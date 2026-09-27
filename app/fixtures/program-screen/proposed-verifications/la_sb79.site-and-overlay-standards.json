@@ -3,16 +3,16 @@
   "criterion_id": "la_sb79.site-and-overlay-standards",
   "source_id": "ordinance-188968",
   "additional_sources_needed": [
-    "SB 79 (2025) chaptered text on leginfo.legislature.ca.gov: the reviewer should determine which zoning, overlay, and existing-housing standards come from state law and which from the ordinance.",
-    "The City SB 79 page and adoption maps (the current citation), if needed to apply the ordinance."
+    "SB 79 (GCS 65912.155-65912.162), for any zoning, overlay, or existing-housing standard. Chaptered text of the statute on leginfo.legislature.ca.gov. It cannot be captured as evidence until a statute source type exists; do not capture it as an adopted_ordinance.",
+    "The City's HCM list and HPOZ records with designation dates."
   ],
   "related_draft_source_ids": [],
-  "source_sha256": null,
-  "candidate_page": null,
-  "candidate_pinpoint": null,
-  "candidate_excerpt": null,
-  "locate_in_source": "Not yet located: Ordinance 188968 (ordinance-188968) has not been captured, so no page or section has been read. The criterion currently cites the City SB 79 page (\"Adoption status and current mapping links\"); a converted record must cite the operative instrument instead.",
-  "question_for_human_reviewer": "Which zoning designations, overlays (Specific Plan areas, Historic Preservation Overlay Zones), and existing-housing conditions does Ordinance 188968, read with SB 79, treat as making a parcel ineligible or subject to different standards?",
+  "source_sha256": "91ea56cfb5db7b1d0f42bba4afef52179fd9052ef726d7a337fe35091410a588",
+  "candidate_page": 5,
+  "candidate_pinpoint": "Ordinance 188968, Sec. 2.H, page 5, with the recital on page 3",
+  "candidate_excerpt": "H. A site with a historic resource designated as of January 1,2025, on a local register (Gov. Code Sec. 65912.161(b)(1)(F)).",
+  "locate_in_source": "Located in ordinance-188968: Sec. 2.A, E, and H, pages 4-5; recital on HCMs and HPOZs, page 3. The ordinance states no zoning, Specific Plan, or existing-housing standard; its site criteria are exemption criteria.",
+  "question_for_human_reviewer": "Ordinance 188968 sets no zoning, Specific Plan, or existing-housing standard of its own. Its site criteria are exemption criteria, including historic resources designated by January 1, 2025 (Sec. 2.H, which a recital reads as including HCMs and HPOZs). Do you agree to dissolve this criterion: move the historic-resource test into la_sb79.temporary-exemption, and drop zoning, specific-plan-area, and existing-dwelling-units unless SB 79's statute text is captured as its own source type?",
   "proposed_controlled_interpretation": {
     "fact_keys": [
       "zoning",
@@ -20,19 +20,113 @@
       "hpoz",
       "existing-dwelling-units"
     ],
-    "controlled_values_required": "zoning is free text; specific-plan-area and hpoz are yes/no; existing-dwelling-units is a count. A rule needs a controlled zone class and, for existing housing, a fact matching the exact condition the text names.",
+    "controlled_values_required": "hpoz (yes/no) carries no designation date; Sec. 2.H needs designation on or before January 1, 2025. zoning, specific-plan-area, and existing-dwelling-units have no rule in this ordinance.",
     "fact_narrowing_required": true,
-    "narrowing_note": "Split into zoning, overlay, and existing-housing criteria. Transit-stop proximity and tier are not encodable: no reviewed transit fact exists, and the ZIMAS tier and category fields stay observation-only.",
-    "predicate_shape_if_reviewer_agrees": "For each standard the reviewer finds: a listed disqualifying zone class, overlay, or existing-housing condition recorded true -> disqualifying_per_source; a complete, reviewed record showing none -> consistent_with_source; a standard that depends on transit tier or project facts -> requires_judgment.",
+    "narrowing_note": "Dissolve: move the historic-resource test into la_sb79.temporary-exemption with a dated hpoz-or-hcm-designated-by-2025-01-01 fact; drop the other facts unless SB 79's text is captured.",
+    "predicate_shape_if_reviewer_agrees": "HCM or HPOZ designated on or before January 1, 2025 -> temporarily exempt -> disqualifying_per_source during the exemption period. No other component produces a result from this ordinance.",
     "must_remain_unresolved_when": [
-      "transit-stop proximity or tier matters (not encodable)",
-      "zoning exists only as free text",
-      "overlay treatment has exceptions",
-      "existing-housing records conflict"
+      "a standard depends on SB 79's statute text, which is not captured",
+      "the HPOZ or HCM designation date is unknown",
+      "transit-stop proximity or tier matters (not encodable)"
     ],
     "zimas_conflict_risk": "High. zimas-sb79-category and zimas-sb79-tier stay observation-only and must never substitute for a standard read from the text."
   },
+  "candidate_components": [
+    {
+      "component_id": "la_sb79.historic-resource-exemption",
+      "label": "Historic resource designated on a local register as of January 1, 2025 (HCM or HPOZ)",
+      "pinpoint": "Ordinance 188968, Sec. 2.H, page 5, with the recital on page 3",
+      "excerpts": [
+        {
+          "page": 5,
+          "text": "H. A site with a historic resource designated as of January 1,2025, on a local register (Gov. Code Sec. 65912.161(b)(1)(F))."
+        },
+        {
+          "page": 3,
+          "text": "WHEREAS, for the purpose of phasing the implementation, sites with a historic resource designated as of January 1,2025 on a local register shall include Historic Cultural Monuments (HCM) and Historic Preservation Overlay Zones (HPOZ), consistent with Government Code Section 65912.161(b)(1)(F);"
+        }
+      ],
+      "disposition": "partially_deterministic",
+      "reads_existing_fact_keys": [
+        "hpoz",
+        "historic-designation"
+      ],
+      "new_facts_needed": [
+        "hpoz-or-hcm-designated-by-2025-01-01: yes/no with the designation date, from the City's HCM and HPOZ records."
+      ],
+      "controlled_value_encoding": "A dated designation fact; hpoz alone has no date.",
+      "proposed_rule_if_reviewer_agrees": "HCM or HPOZ designated on or before January 1, 2025 -> temporarily exempt (Sec. 2.H) -> disqualifying_per_source during the exemption period. Otherwise no result from this component (Sec. 4 may exempt the parcel anyway).",
+      "judgment_or_ambiguity": [
+        "The HCM and HPOZ reading comes from a recital, not an operative section.",
+        "This is a temporary-exemption criterion, so it belongs in la_sb79.temporary-exemption.",
+        "'Historic resource designated on a local register' may cover more than HCMs and HPOZs."
+      ]
+    },
+    {
+      "component_id": "la_sb79.zoning-capacity",
+      "label": "Zoning: only a capacity comparison with SB 79's standards",
+      "pinpoint": "Ordinance 188968, Sec. 2.A, page 4",
+      "excerpts": [
+        {
+          "page": 4,
+          "text": "A. A site that has been identified by the City which permits density and a residential floor area ratio at no less than 50 percent of the standards specified in subdivision (a) of Government Code Section 65912.157 (Gov. Code Sec. 65912.161(b)(1)(A))."
+        }
+      ],
+      "disposition": "professional_judgment",
+      "reads_existing_fact_keys": [
+        "zoning"
+      ],
+      "new_facts_needed": [],
+      "controlled_value_encoding": "A zone class cannot express it; it needs the City's capacity identification.",
+      "proposed_rule_if_reviewer_agrees": null,
+      "judgment_or_ambiguity": [
+        "The ordinance sets no zoning-designation standard. Its only zoning-related test compares permitted capacity with SB 79's standards, which are in state law (not captured)."
+      ]
+    },
+    {
+      "component_id": "la_sb79.specific-plan-and-tod-plan",
+      "label": "Specific Plans: not addressed; a TOD alternative plan is a different instrument",
+      "pinpoint": "Ordinance 188968, Sec. 2.E, page 5",
+      "excerpts": [
+        {
+          "page": 5,
+          "text": "E. A site that is covered by a local transit-oriented development alternative plan adopted by the City (Gov. Code Sec. 65912.161(b)(1)(C))."
+        }
+      ],
+      "disposition": "no_rule_in_source",
+      "reads_existing_fact_keys": [
+        "specific-plan-area"
+      ],
+      "new_facts_needed": [],
+      "controlled_value_encoding": "Remove specific-plan-area from this criterion.",
+      "proposed_rule_if_reviewer_agrees": null,
+      "judgment_or_ambiguity": [
+        "The ordinance does not mention Specific Plans. Sec. 4 also says a later TOD alternative plan will not affect the ordinance."
+      ]
+    },
+    {
+      "component_id": "la_sb79.existing-housing",
+      "label": "Existing housing: no criterion in the ordinance",
+      "pinpoint": "Ordinance 188968, Secs. 1-2, pages 4-5",
+      "excerpts": [
+        {
+          "page": 4,
+          "text": "This ordinance is adopted on eligible sites meeting any one of the criteria referenced below making the sites temporarily exempt from Government Code, Title 7, Division 1, Chapter 4.1.5:"
+        }
+      ],
+      "disposition": "no_rule_in_source",
+      "reads_existing_fact_keys": [
+        "existing-dwelling-units"
+      ],
+      "new_facts_needed": [],
+      "controlled_value_encoding": "Remove existing-dwelling-units unless SB 79's statute text is captured.",
+      "proposed_rule_if_reviewer_agrees": null,
+      "judgment_or_ambiguity": [
+        "No criterion in Sec. 1 or Sec. 2 refers to existing housing. Any existing-housing or demolition standard comes from SB 79 itself, which is not captured and has no statute source type yet."
+      ]
+    }
+  ],
   "reviewer": null,
   "reviewed_at": null,
-  "status": "awaiting_source_capture"
+  "status": "awaiting_human_review"
 }

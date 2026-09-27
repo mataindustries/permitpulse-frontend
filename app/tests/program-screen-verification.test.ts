@@ -581,8 +581,9 @@ describe("Shipped human-verified Program Screen criteria", () => {
   const verifiedCases: Record<string, Omit<VerifiedCriterionCase, "captures">> = {};
 
   it("pins exactly which shipped criteria have been human-verified", () => {
-    // Empty: no official text could be captured for review on 2026-09-27.
-    // See docs/PROGRAM_SCREEN_CRITERION_VERIFICATION.md.
+    // Empty: the official sources were captured on 2026-09-27, but no human
+    // reviewer has approved a proposal yet. See
+    // docs/PROGRAM_SCREEN_CRITERION_VERIFICATION.md.
     expect(verified.map((criterion) => criterion.id)).toEqual([]);
     expect(Object.keys(verifiedCases).sort()).toEqual(
       verified.map((criterion) => criterion.id).sort(),
