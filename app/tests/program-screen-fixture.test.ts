@@ -96,8 +96,8 @@ describe("Program Screen fictional LA parcel fixture", () => {
       conflict: 2,
       unknown: 2,
       professional: 0,
-      unreviewed: 6,
-      consistent_with_source: 8,
+      unreviewed: 7,
+      consistent_with_source: 7,
       disqualifying_per_source: 0,
     });
 
@@ -148,6 +148,7 @@ describe("Program Screen fictional LA parcel fixture", () => {
     }
     expect(result.pathways.find((pathway) => pathway.pathway === "la_sb79")?.decisive_criteria).toEqual([
       "la_sb79.permanent-exclusion",
+      "la_sb79.temporary-exemption",
       "la_sb79.site-and-overlay-standards",
     ]);
   });
@@ -214,6 +215,7 @@ describe("Program Screen criteria are sourced in this repository", () => {
       "la_shra.housing-element-site-status",
       "la_shra.environmental-constraints",
       "la_sb79.permanent-exclusion",
+      "la_sb79.temporary-exemption",
       "la_sb79.site-and-overlay-standards",
       "la_low_rise.geographic-criteria",
     ]);
@@ -241,7 +243,7 @@ describe("Program Screen public demo projection", () => {
       release: { client_releasable: false },
     });
     expect(first.disclosure).toContain("FICTIONAL");
-    expect(first.release.blocker_counts.pending_human_criterion).toBe(8);
+    expect(first.release.blocker_counts.pending_human_criterion).toBe(9);
     expect(first.pathways.map((pathway) => pathway.rollup)).toEqual(
       result.pathways.map((pathway) => pathway.rollup),
     );

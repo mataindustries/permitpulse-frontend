@@ -1,6 +1,5 @@
 import type { ProgramCriterion, ProgramPathwayPack } from "../types";
 import {
-  booleanFact,
   cite,
   jurisdictionCriterion,
   parcelMatchCriterion,
@@ -11,17 +10,17 @@ import {
  * SB 79 and Low-Rise are separate pathways: the repo source notes say they are
  * related but distinct and that an SB 79 result is not a Low-Rise result.
  *
- * Encoded: a documented temporary exemption needs Planning to explain its
- * effect; Low-Rise overlay review is judgment.
- * Not encoded (`pending_human`): what a documented permanent exclusion means
- * for the SB 79 pathway, which parcel conditions trigger an exclusion, SB 79
- * site standards, and Low-Rise geographic criteria.
+ * Encoded: Low-Rise overlay review is judgment.
+ * Not encoded (`pending_human`): what a documented permanent exclusion or
+ * temporary exemption means for the SB 79 pathway, which parcel conditions
+ * trigger either, SB 79 site standards, and Low-Rise geographic criteria.
  *
  * The repo notes establish only that Ordinance 188968 contains permanent
- * exclusion criteria. PermitPulse does not bridge "exclusion observed" to
- * "pathway blocked" itself: that criterion stays unencoded until a reviewer
- * verifies the ordinance and records the reviewer, verification date, exact
- * ordinance section, and exact supporting excerpt.
+ * exclusion criteria and a temporary-exemption approach. PermitPulse does not
+ * bridge "exclusion or exemption observed / not observed" to a pathway result
+ * itself: those criteria stay unencoded until a reviewer verifies the
+ * ordinance and records the reviewer, verification date, exact ordinance
+ * section, and exact supporting excerpt.
  */
 const phasedImplementationExcerpts = [
   "The adopted Phased Implementation Ordinance sets out a citywide temporary-exemption approach and permanent exclusion criteria.",
@@ -71,32 +70,28 @@ export const sb79Criteria: readonly ProgramCriterion[] = [
   {
     id: "la_sb79.temporary-exemption",
     pathway: "la_sb79",
-    label: "Temporary exemption under Ordinance 188968",
+    label: "Temporary exemption under Ordinance 188968 (effect not yet verified)",
     gating: false,
     fact_keys: ["sb79-temporary-exemption"],
-    predicate: (facts) =>
-      booleanFact(facts, "sb79-temporary-exemption")
-        ? "requires_judgment"
-        : "consistent_with_source",
+    predicate: "not_encoded",
     rule_summary:
-      "Consistent when the reviewed record shows no temporary exemption; a shown exemption needs Planning to explain its effect and period.",
+      "Rule not encoded. The repo source notes establish that Ordinance 188968 has a temporary-exemption approach tied to the City's next Housing Element revision, not what a shown or absent exemption means for this pathway. A reviewer must verify the ordinance and record the reviewer, verification date, exact section, and exact supporting excerpt before this criterion can produce a result.",
     citation: cite(
       "phasedImplementationOrdinance",
-      "Sections 1–6: temporary exemptions",
+      "Sections 1\u20136: temporary exemptions",
     ),
     confirmer: "Los Angeles City Planning",
     question_if_unknown:
       "Does the adopted Phased Implementation record show a temporary exemption for this parcel?",
     question_if_conflict:
       "Official records disagree on whether a temporary exemption applies to this parcel. Which record governs?",
-    question_if_judgment:
-      "How does phased implementation affect the displayed SB 79 result for this parcel, and how is the temporary-exemption period tied to the City's next Housing Element revision?",
-    verification: "repo_sourced",
+    question_if_judgment: null,
+    verification: "pending_human",
     basis: {
       repo_path: repoSourceNotes.sb79LowRiseGuide,
       excerpts: [
         ...phasedImplementationExcerpts,
-        "The temporary-exemption period is tied to adoption of the City’s next Housing Element revision; do not substitute a general implementation target for the applicable rule.",
+        "The temporary-exemption period is tied to adoption of the City\u2019s next Housing Element revision; do not substitute a general implementation target for the applicable rule.",
         "How does phased implementation affect the displayed SB 79 result?",
       ],
     },

@@ -755,16 +755,40 @@ describe("Program Screen documented disqualifiers fail closed", () => {
     );
   });
 
-  it("keeps the shipped criterion unencoded rather than repo-sourced", () => {
-    const criterion = programScreenPathwayPacks
-      .flatMap((pack) => pack.criteria)
-      .find((candidate) => candidate.id === "la_sb79.permanent-exclusion") as ProgramCriterion;
+  it.each(["la_sb79.permanent-exclusion", "la_sb79.temporary-exemption"])(
+    "keeps %s unencoded rather than repo-sourced",
+    (id) => {
+      const criterion = programScreenPathwayPacks
+        .flatMap((pack) => pack.criteria)
+        .find((candidate) => candidate.id === id) as ProgramCriterion;
 
-    expect(criterion.verification).toBe("pending_human");
-    expect(criterion.predicate).toBe("not_encoded");
-    expect(criterion.rule_summary).toContain(
-      "record the reviewer, verification date, exact section, and exact supporting excerpt",
-    );
+      expect(criterion.verification).toBe("pending_human");
+      expect(criterion.predicate).toBe("not_encoded");
+      expect(criterion.rule_summary).toContain(
+        "record the reviewer, verification date, exact section, and exact supporting excerpt",
+      );
+    },
+  );
+
+  it("draws no SB 79 result from a shown or absent temporary exemption", () => {
+    for (const shown of [true, false]) {
+      const records = fixtureRecords();
+      const exemption = records.find(
+        (record) => record.id === "ps-sb79-temporary-exemption",
+      ) as CanonicalEvidenceRecord;
+      exemption.raw_observed_value = { kind: "text", value: shown ? "YES" : "NO" };
+      exemption.normalized_value = { kind: "boolean", value: shown };
+
+      const result = evaluateFixture(records);
+      expect(criterionOf(result, "la_sb79.temporary-exemption")).toMatchObject({
+        status: "unreviewed",
+        unreviewed_reasons: ["criterion_pending_human"],
+      });
+      expect(pathwayOf(result, "la_sb79").rollup).toBe("undetermined");
+      expect(result.release.blockers).toContainEqual(
+        expect.objectContaining({ code: "pending_human_criterion", ref: "la_sb79.temporary-exemption" }),
+      );
+    }
   });
 
   it("pins exactly which shipped criteria may run an encoded rule", () => {
@@ -781,7 +805,6 @@ describe("Program Screen documented disqualifiers fail closed", () => {
       "la_shra.vacant-site-definition",
       "la_sb79.parcel-match",
       "la_sb79.jurisdiction",
-      "la_sb79.temporary-exemption",
       "la_low_rise.parcel-match",
       "la_low_rise.jurisdiction",
       "la_low_rise.overlay-review",

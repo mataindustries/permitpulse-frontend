@@ -2,7 +2,7 @@
   "id": "program-screen-fictional-la-parcel-001",
   "fictional": true,
   "label": "FICTIONAL City of Los Angeles parcel — Program Screen core fixture",
-  "description": "FICTIONAL parcel with no real address, APN, owner, or occupant. Every value and source URL is invented for deterministic testing. It carries one official-source conflict (fire hazard, copied from the Case Integrity conflict fixture), one failed lookup that stays unknown, consistent anchor criteria, and an SB 79 permanent-exclusion observation whose effect is not encoded, so the SB 79 pathway stays undetermined. It contains no verified disqualifier.",
+  "description": "FICTIONAL parcel with no real address, APN, owner, or occupant. Every value and source URL is invented for deterministic testing. It carries one official-source conflict (fire hazard, copied from the Case Integrity conflict fixture), one failed lookup that stays unknown, consistent anchor criteria, and SB 79 permanent-exclusion and temporary-exemption observations whose effects are not encoded, so the SB 79 pathway stays undetermined. It contains no verified disqualifier.",
   "as_of": "2026-09-27",
   "evidence_records": [
     {
@@ -1290,7 +1290,7 @@
       "la_sb79.parcel-match": "consistent_with_source",
       "la_sb79.jurisdiction": "consistent_with_source",
       "la_sb79.permanent-exclusion": "unreviewed",
-      "la_sb79.temporary-exemption": "consistent_with_source",
+      "la_sb79.temporary-exemption": "unreviewed",
       "la_sb79.site-and-overlay-standards": "unreviewed",
       "la_low_rise.parcel-match": "consistent_with_source",
       "la_low_rise.jurisdiction": "consistent_with_source",
