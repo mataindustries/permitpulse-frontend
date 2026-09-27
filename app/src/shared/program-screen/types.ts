@@ -26,31 +26,85 @@ export const programFactKeys = [
   "parcel-match",
   "jurisdiction",
   "zoning",
-  "general-plan-land-use",
-  "specific-plan-area",
   "hpoz",
   "historic-designation",
+  "historic-cultural-monument",
   "zoning-code-chapter",
   "lot-area",
+  "shra-zone-category",
   "very-high-fire-hazard-severity-zone",
+  "high-fire-hazard-severity-zone",
+  "state-responsibility-area",
   "hillside-area",
   "coastal-zone",
-  "fault-zone",
-  "landslide-area",
-  "flood-zone",
-  "existing-dwelling-units",
+  "sea-level-rise-area",
+  "sb79-sea-level-rise-vulnerability",
+  "prime-or-statewide-farmland",
+  "wetlands",
+  "nccp-conservation-land",
+  "conservation-easement",
+  "hazardous-waste-site",
+  "special-flood-hazard-area",
+  "regulatory-floodway",
+  "earthquake-fault-zone",
   "existing-structures",
   "rso-status",
   "occupancy-history",
-  "prior-subdivisions",
-  "housing-element-site-status",
-  "sb79-permanent-exclusion",
-  "sb79-temporary-exemption",
+  "affordability-restricted-housing",
+  "price-controlled-housing",
+  "ellis-act-withdrawal-recorded",
+  "prior-shra-or-sb9-map",
+  "housing-element-site-listing",
+  "sb79-permanent-exemption-shown",
+  "sb79-temporary-exemption-shown",
+  "seventh-housing-element-revision-adopted",
+  "tod-alternative-plan-area",
+  "hcm-or-hpoz-designated-by-2025-01-01",
+  "low-rise-incentive-area-map-subarea",
+  "low-rise-transportation-row",
+  "low-rise-zone-class",
+  "low-rise-manufacturing-zone-lot",
+  "low-rise-single-family-zone-lot",
+  "low-rise-excluded-plan-area",
   "zimas-shra-program-field",
   "zimas-sb79-category",
   "zimas-sb79-tier",
   "zimas-sb79-exemption",
   "zimas-low-rise-category",
+] as const;
+
+/**
+ * Fact keys removed when the nine broad criteria were split (see
+ * `retiredProgramFacts` in facts.ts for the reason and any replacement).
+ * Evidence for a retired key is rejected, never reinterpreted.
+ */
+export const retiredProgramFactKeys = [
+  "general-plan-land-use",
+  "specific-plan-area",
+  "landslide-area",
+  "flood-zone",
+  "fault-zone",
+  "existing-dwelling-units",
+  "prior-subdivisions",
+  "housing-element-site-status",
+  "sb79-permanent-exclusion",
+  "sb79-temporary-exemption",
+] as const;
+
+/**
+ * What a fact's value is, and so what may read it:
+ * - `controlled_value`: a boolean, a number with a unit, or one of a closed
+ *   list of values, recorded from a named record. Only these may feed a
+ *   predicate, now or after human verification.
+ * - `source_observation`: what a record displays, kept as recorded (a zoning
+ *   string, a ZIMAS program field). Never feeds a predicate.
+ * - `professional_input`: context for a professional-judgment criterion
+ *   (free-text history, a structure count). Never feeds a predicate.
+ */
+export const programFactDataClasses = [
+  "controlled_value",
+  "source_observation",
+  "professional_input",
 ] as const;
 
 export const criterionStatuses = [
@@ -79,11 +133,12 @@ export const pathwayRollups = [
 export const criterionVerifications = ["repo_sourced", "pending_human", "human_verified"] as const;
 
 /**
- * Criteria that were `pending_human` when the Program Screen core shipped.
- * Each may leave `pending_human` only as `human_verified`, with a complete
- * human-verification record; none may be relabeled `repo_sourced`.
+ * The nine broad criteria that were `pending_human` when the Program Screen
+ * core shipped. Each was split into the atomic criteria listed in
+ * `humanVerificationRequiredCriterionIds` (mapping: criteria/retired.ts).
+ * A retired ID can never be shipped again.
  */
-export const humanVerificationRequiredCriterionIds = [
+export const retiredProgramCriterionIds = [
   "la_shra.lot-area-and-zoning",
   "la_shra.existing-structures-and-occupancy",
   "la_shra.prior-subdivisions",
@@ -93,6 +148,62 @@ export const humanVerificationRequiredCriterionIds = [
   "la_sb79.temporary-exemption",
   "la_sb79.site-and-overlay-standards",
   "la_low_rise.geographic-criteria",
+] as const;
+
+/**
+ * Atomic criteria that replaced the nine broad pending criteria. Each rests on
+ * one proposition in a captured operative source and stays `pending_human`
+ * (rule not encoded, or professional judgment) until a named human reviewer
+ * verifies it. Each may leave `pending_human` only as `human_verified`, with a
+ * complete human-verification record; none may be relabeled `repo_sourced`.
+ */
+export const humanVerificationRequiredCriterionIds = [
+  "la_shra.zone-category",
+  "la_shra.multifamily-lot-area-threshold",
+  "la_shra.single-family-lot-area-threshold",
+  "la_shra.single-family-vacancy-condition",
+  "la_shra.ellis-act-withdrawal",
+  "la_shra.protected-housing-affordability-covenant",
+  "la_shra.protected-housing-price-control",
+  "la_shra.protected-housing-tenant-occupancy",
+  "la_shra.protected-housing-demolition-or-alteration",
+  "la_shra.prior-shra-or-sb9-map",
+  "la_shra.housing-element-projected-units",
+  "la_shra.housing-element-lower-income-units",
+  "la_shra.prime-or-statewide-farmland",
+  "la_shra.wetlands",
+  "la_shra.very-high-fire-hazard-severity-zone",
+  "la_shra.high-fire-hazard-severity-zone",
+  "la_shra.natural-community-conservation-plan-land",
+  "la_shra.protected-species-habitat",
+  "la_shra.conservation-easement",
+  "la_shra.hazardous-waste-site",
+  "la_shra.special-flood-hazard-area",
+  "la_shra.regulatory-floodway",
+  "la_shra.earthquake-fault-zone",
+  "la_sb79.permanent-exemption-shown",
+  "la_sb79.permanent-exemption-walking-path",
+  "la_sb79.permanent-exemption-industrial-hub",
+  "la_sb79.temporary-exemption-all-parcels",
+  "la_sb79.temporary-exemption-period",
+  "la_sb79.temporary-exemption-shown",
+  "la_sb79.temporary-exemption-capacity-criteria",
+  "la_sb79.temporary-exemption-tod-alternative-plan",
+  "la_sb79.temporary-exemption-fire-or-state-responsibility-area",
+  "la_sb79.temporary-exemption-sea-level-rise",
+  "la_sb79.temporary-exemption-historic-resource",
+  "la_low_rise.incentive-area-map-subarea",
+  "la_low_rise.subarea-distance-bands",
+  "la_low_rise.subarea-geographic-criteria",
+  "la_low_rise.underlying-zone",
+  "la_low_rise.manufacturing-zone-exclusion",
+  "la_low_rise.single-family-zone-exclusion",
+  "la_low_rise.fire-restriction-area-exclusion",
+  "la_low_rise.coastal-zone-exclusion",
+  "la_low_rise.sea-level-rise-area-exclusion",
+  "la_low_rise.excluded-plan-area",
+  "la_low_rise.c10-exception-path",
+  "la_low_rise.tod-subarea-historic-limit",
 ] as const;
 
 export const sourceCaptureMethods = [
@@ -162,6 +273,9 @@ export const reviewTaskKinds = [
 
 export type ProgramPathwayId = (typeof programPathwayIds)[number];
 export type ProgramFactKey = (typeof programFactKeys)[number];
+export type RetiredProgramFactKey = (typeof retiredProgramFactKeys)[number];
+export type ProgramFactDataClass = (typeof programFactDataClasses)[number];
+export type RetiredProgramCriterionId = (typeof retiredProgramCriterionIds)[number];
 export type CriterionStatus = (typeof criterionStatuses)[number];
 export type PathwayRollup = (typeof pathwayRollups)[number];
 export type CriterionVerification = (typeof criterionVerifications)[number];
@@ -200,6 +314,7 @@ export interface ProgramFactSpec {
   label: string;
   client_label: string;
   role: "parcel_fact" | "program_flag";
+  data_class: ProgramFactDataClass;
   value: ProgramFactValueSpec;
   allowed_evidence_types: readonly EvidenceIntegrityType[] | null;
   flag: ProgramFlagSpec | null;
@@ -238,10 +353,13 @@ export interface ProgramFactAssessment {
 
 /* --------------------------------------------------------------- criteria */
 
-export type PredicateOutcome =
-  | "consistent_with_source"
-  | "disqualifying_per_source"
-  | "requires_judgment";
+export const predicateOutcomes = [
+  "consistent_with_source",
+  "disqualifying_per_source",
+  "requires_judgment",
+] as const;
+
+export type PredicateOutcome = (typeof predicateOutcomes)[number];
 
 export type CriterionFactValues = Readonly<Record<string, KnownFactValue>>;
 
@@ -301,14 +419,35 @@ export interface ProgramCriterionBasis {
   excerpts: readonly string[];
 }
 
+/**
+ * A source exception that can override the criterion's blocking direction,
+ * such as Ordinance 188967 (c)(10) for the Low-Rise site exclusions. A
+ * criterion with an exception may permit `disqualifying_per_source` only when
+ * every exception names at least one fact and the criterion reads it; an
+ * exception with no modeled fact rules the blocking direction out.
+ */
+export interface ProgramCriterionException {
+  label: string;
+  pinpoint: string;
+  fact_keys: readonly ProgramFactKey[];
+}
+
 export interface ProgramCriterion {
   id: string;
   pathway: ProgramPathwayId;
   label: string;
   /** Screen anchor: must be consistent before any pathway result is drawn. */
   gating: boolean;
+  /** May be empty only for a professional-judgment criterion whose test no parcel fact records. */
   fact_keys: readonly ProgramFactKey[];
   predicate: CriterionPredicate | "professional_judgment" | "not_encoded";
+  /**
+   * The only outcomes the rule may ever return, now or once human-verified.
+   * Always includes `requires_judgment`; the evaluator rejects anything else.
+   * This is how a one-direction-only criterion stays one-direction.
+   */
+  permitted_outcomes: readonly PredicateOutcome[];
+  exception_paths: readonly ProgramCriterionException[];
   rule_summary: string;
   citation: ProgramCriterionCitation;
   confirmer: ProgramConfirmer;

@@ -2,8 +2,80 @@
   "id": "program-screen-fictional-la-parcel-001",
   "fictional": true,
   "label": "FICTIONAL City of Los Angeles parcel — Program Screen core fixture",
-  "description": "FICTIONAL parcel with no real address, APN, owner, or occupant. Every value and source URL is invented for deterministic testing. It carries one official-source conflict (fire hazard, copied from the Case Integrity conflict fixture), one failed lookup that stays unknown, consistent anchor criteria, and SB 79 permanent-exclusion and temporary-exemption observations whose effects are not encoded, so the SB 79 pathway stays undetermined. It contains no verified disqualifier.",
+  "description": "FICTIONAL parcel with no real address, APN, owner, or occupant. Every value and source URL is invented for deterministic testing. It carries one official-source conflict (fire hazard, copied from the Case Integrity conflict fixture), one failed lookup that stays unknown, consistent anchor criteria, and SB 79 permanent-exemption and temporary-exemption observations whose effects are not encoded. The migrations list records every change made when the broad criteria were split into atomic criteria: two records renamed with their values unchanged, eight dropped and never converted. New atomic facts have no record here, so they stay unknown. It contains no verified disqualifier.",
   "as_of": "2026-09-27",
+  "migrations": [
+    {
+      "evidence_id": "ps-sb79-permanent-exclusion",
+      "from_fact_key": "sb79-permanent-exclusion",
+      "action": "rename",
+      "to_fact_key": "sb79-permanent-exemption-shown",
+      "note": "Exclusion renamed exemption, as Ordinance 188968 Section 1 says. Evidence ID, source, raw value, and normalized value (YES) are unchanged."
+    },
+    {
+      "evidence_id": "ps-sb79-temporary-exemption",
+      "from_fact_key": "sb79-temporary-exemption",
+      "action": "rename",
+      "to_fact_key": "sb79-temporary-exemption-shown",
+      "note": "Renamed to say it records only an affirmative showing. Evidence ID, source, raw value, and normalized value (NO) are unchanged; NO is not read as not exempt."
+    },
+    {
+      "evidence_id": "ps-general-plan-land-use",
+      "from_fact_key": "general-plan-land-use",
+      "action": "drop",
+      "to_fact_key": null,
+      "note": "No captured source uses a General Plan land-use designation for any Program Screen criterion."
+    },
+    {
+      "evidence_id": "ps-specific-plan-area",
+      "from_fact_key": "specific-plan-area",
+      "action": "drop",
+      "to_fact_key": null,
+      "note": "A yes/no Specific Plan flag cannot name the one Specific Plan that Ordinance 188967 (c)(9) lists; low-rise-excluded-plan-area is not inferred from it."
+    },
+    {
+      "evidence_id": "ps-landslide-area",
+      "from_fact_key": "landslide-area",
+      "action": "drop",
+      "to_fact_key": null,
+      "note": "The SHRA memo names no landslide-area site limit."
+    },
+    {
+      "evidence_id": "ps-flood-zone",
+      "from_fact_key": "flood-zone",
+      "action": "drop",
+      "to_fact_key": null,
+      "note": "A generic flood-zone NO is not converted into special-flood-hazard-area or regulatory-floodway NO values; both stay unknown."
+    },
+    {
+      "evidence_id": "ps-fault-zone",
+      "from_fact_key": "fault-zone",
+      "action": "drop",
+      "to_fact_key": null,
+      "note": "A generic fault-zone NO is not converted into an earthquake-fault-zone NO value; it stays unknown."
+    },
+    {
+      "evidence_id": "ps-existing-dwelling-units",
+      "from_fact_key": "existing-dwelling-units",
+      "action": "drop",
+      "to_fact_key": null,
+      "note": "Ordinance 188968 states no existing-housing test."
+    },
+    {
+      "evidence_id": "ps-prior-subdivisions",
+      "from_fact_key": "prior-subdivisions",
+      "action": "drop",
+      "to_fact_key": null,
+      "note": "A NO for any prior subdivision is not converted into a prior-shra-or-sb9-map value; the lot's map history stays unknown."
+    },
+    {
+      "evidence_id": "ps-housing-element-site-status",
+      "from_fact_key": "housing-element-site-status",
+      "action": "drop",
+      "to_fact_key": null,
+      "note": "The free-text status is not converted into a controlled appendix listing; the listing stays unknown."
+    }
+  ],
   "evidence_records": [
     {
       "id": "ps-parcel-match",
@@ -133,94 +205,6 @@
       ],
       "provenance": {
         "source_record_id": "fixture-ps-zoning",
-        "capture_method": "manual_research",
-        "is_ai_generated": false
-      }
-    },
-    {
-      "id": "ps-general-plan-land-use",
-      "subject": {
-        "case_id": "case-fictional-program-screen-001",
-        "property_id": "property-fictional-la-parcel-001"
-      },
-      "claim": {
-        "key": "general-plan-land-use",
-        "label": "General Plan land use",
-        "client_label": "the parcel's General Plan land-use designation"
-      },
-      "source": {
-        "agency": "ZIMAS / City source",
-        "title": "City parcel profile observation",
-        "description": "FICTIONAL observation from a city property-information display, used only for deterministic Program Screen testing.",
-        "url": "https://records.example.test/program-screen/city/parcel-profile",
-        "authority": "official",
-        "retrieved_at": "2026-09-18T17:00:00.000Z"
-      },
-      "raw_observed_value": {
-        "kind": "text",
-        "value": "Fictional land use A"
-      },
-      "normalized_value": {
-        "kind": "text",
-        "value": "Fictional land use A"
-      },
-      "evidence_type": "official_portal",
-      "classification": "source_observation",
-      "confidence": 99,
-      "conflicts_with": [],
-      "review_status": "reviewed",
-      "notes": [
-        "FICTIONAL: the fixture records exactly what the fictionalized source displayed."
-      ],
-      "limitations": [
-        "FICTIONAL record; the parcel, values, and source URL do not identify a real property."
-      ],
-      "provenance": {
-        "source_record_id": "fixture-ps-general-plan-land-use",
-        "capture_method": "manual_research",
-        "is_ai_generated": false
-      }
-    },
-    {
-      "id": "ps-specific-plan-area",
-      "subject": {
-        "case_id": "case-fictional-program-screen-001",
-        "property_id": "property-fictional-la-parcel-001"
-      },
-      "claim": {
-        "key": "specific-plan-area",
-        "label": "Specific Plan area",
-        "client_label": "whether the parcel is within a Specific Plan area"
-      },
-      "source": {
-        "agency": "ZIMAS / City source",
-        "title": "City parcel profile observation",
-        "description": "FICTIONAL observation from a city property-information display, used only for deterministic Program Screen testing.",
-        "url": "https://records.example.test/program-screen/city/parcel-profile",
-        "authority": "official",
-        "retrieved_at": "2026-09-18T17:00:00.000Z"
-      },
-      "raw_observed_value": {
-        "kind": "text",
-        "value": "NO"
-      },
-      "normalized_value": {
-        "kind": "boolean",
-        "value": false
-      },
-      "evidence_type": "official_portal",
-      "classification": "source_observation",
-      "confidence": 99,
-      "conflicts_with": [],
-      "review_status": "reviewed",
-      "notes": [
-        "FICTIONAL: the fixture records exactly what the fictionalized source displayed."
-      ],
-      "limitations": [
-        "FICTIONAL record; the parcel, values, and source URL do not identify a real property."
-      ],
-      "provenance": {
-        "source_record_id": "fixture-ps-specific-plan-area",
         "capture_method": "manual_research",
         "is_ai_generated": false
       }
@@ -582,184 +566,6 @@
       }
     },
     {
-      "id": "ps-fault-zone",
-      "subject": {
-        "case_id": "case-fictional-program-screen-001",
-        "property_id": "property-fictional-la-parcel-001"
-      },
-      "claim": {
-        "key": "fault-zone",
-        "label": "Fault zone",
-        "client_label": "whether the parcel is mapped in a fault zone"
-      },
-      "source": {
-        "agency": "ZIMAS / City source",
-        "title": "City parcel hazard-layer observation",
-        "description": "FICTIONAL observation from a city property-information display, used only for deterministic Program Screen testing.",
-        "url": "https://records.example.test/program-screen/city/parcel-hazard-layers",
-        "authority": "official",
-        "retrieved_at": "2026-09-18T17:00:00.000Z"
-      },
-      "raw_observed_value": {
-        "kind": "text",
-        "value": "NO"
-      },
-      "normalized_value": {
-        "kind": "boolean",
-        "value": false
-      },
-      "evidence_type": "official_portal",
-      "classification": "source_observation",
-      "confidence": 99,
-      "conflicts_with": [],
-      "review_status": "reviewed",
-      "notes": [
-        "FICTIONAL: the fixture records exactly what the fictionalized source displayed."
-      ],
-      "limitations": [
-        "FICTIONAL record; the parcel, values, and source URL do not identify a real property."
-      ],
-      "provenance": {
-        "source_record_id": "fixture-ps-fault-zone",
-        "capture_method": "manual_research",
-        "is_ai_generated": false
-      }
-    },
-    {
-      "id": "ps-landslide-area",
-      "subject": {
-        "case_id": "case-fictional-program-screen-001",
-        "property_id": "property-fictional-la-parcel-001"
-      },
-      "claim": {
-        "key": "landslide-area",
-        "label": "Landslide area",
-        "client_label": "whether the parcel is mapped in a landslide area"
-      },
-      "source": {
-        "agency": "ZIMAS / City source",
-        "title": "City parcel hazard-layer observation",
-        "description": "FICTIONAL observation from a city property-information display, used only for deterministic Program Screen testing.",
-        "url": "https://records.example.test/program-screen/city/parcel-hazard-layers",
-        "authority": "official",
-        "retrieved_at": "2026-09-18T17:00:00.000Z"
-      },
-      "raw_observed_value": {
-        "kind": "text",
-        "value": "NO"
-      },
-      "normalized_value": {
-        "kind": "boolean",
-        "value": false
-      },
-      "evidence_type": "official_portal",
-      "classification": "source_observation",
-      "confidence": 99,
-      "conflicts_with": [],
-      "review_status": "reviewed",
-      "notes": [
-        "FICTIONAL: the fixture records exactly what the fictionalized source displayed."
-      ],
-      "limitations": [
-        "FICTIONAL record; the parcel, values, and source URL do not identify a real property."
-      ],
-      "provenance": {
-        "source_record_id": "fixture-ps-landslide-area",
-        "capture_method": "manual_research",
-        "is_ai_generated": false
-      }
-    },
-    {
-      "id": "ps-flood-zone",
-      "subject": {
-        "case_id": "case-fictional-program-screen-001",
-        "property_id": "property-fictional-la-parcel-001"
-      },
-      "claim": {
-        "key": "flood-zone",
-        "label": "Flood zone",
-        "client_label": "whether the parcel is mapped in a flood zone"
-      },
-      "source": {
-        "agency": "ZIMAS / City source",
-        "title": "City parcel hazard-layer observation",
-        "description": "FICTIONAL observation from a city property-information display, used only for deterministic Program Screen testing.",
-        "url": "https://records.example.test/program-screen/city/parcel-hazard-layers",
-        "authority": "official",
-        "retrieved_at": "2026-09-18T17:00:00.000Z"
-      },
-      "raw_observed_value": {
-        "kind": "text",
-        "value": "NO"
-      },
-      "normalized_value": {
-        "kind": "boolean",
-        "value": false
-      },
-      "evidence_type": "official_portal",
-      "classification": "source_observation",
-      "confidence": 99,
-      "conflicts_with": [],
-      "review_status": "reviewed",
-      "notes": [
-        "FICTIONAL: the fixture records exactly what the fictionalized source displayed."
-      ],
-      "limitations": [
-        "FICTIONAL record; the parcel, values, and source URL do not identify a real property."
-      ],
-      "provenance": {
-        "source_record_id": "fixture-ps-flood-zone",
-        "capture_method": "manual_research",
-        "is_ai_generated": false
-      }
-    },
-    {
-      "id": "ps-existing-dwelling-units",
-      "subject": {
-        "case_id": "case-fictional-program-screen-001",
-        "property_id": "property-fictional-la-parcel-001"
-      },
-      "claim": {
-        "key": "existing-dwelling-units",
-        "label": "Existing dwelling units",
-        "client_label": "the number of existing dwelling units recorded on the parcel"
-      },
-      "source": {
-        "agency": "ZIMAS / City source",
-        "title": "City parcel profile observation",
-        "description": "FICTIONAL observation from a city property-information display, used only for deterministic Program Screen testing.",
-        "url": "https://records.example.test/program-screen/city/parcel-profile",
-        "authority": "official",
-        "retrieved_at": "2026-09-18T17:00:00.000Z"
-      },
-      "raw_observed_value": {
-        "kind": "number",
-        "value": 1,
-        "unit": "dwelling units"
-      },
-      "normalized_value": {
-        "kind": "number",
-        "value": 1,
-        "unit": "dwelling units"
-      },
-      "evidence_type": "official_portal",
-      "classification": "source_observation",
-      "confidence": 99,
-      "conflicts_with": [],
-      "review_status": "reviewed",
-      "notes": [
-        "FICTIONAL: the fixture records exactly what the fictionalized source displayed."
-      ],
-      "limitations": [
-        "FICTIONAL record; the parcel, values, and source URL do not identify a real property."
-      ],
-      "provenance": {
-        "source_record_id": "fixture-ps-existing-dwelling-units",
-        "capture_method": "manual_research",
-        "is_ai_generated": false
-      }
-    },
-    {
       "id": "ps-existing-structures",
       "subject": {
         "case_id": "case-fictional-program-screen-001",
@@ -851,103 +657,15 @@
       }
     },
     {
-      "id": "ps-prior-subdivisions",
-      "subject": {
-        "case_id": "case-fictional-program-screen-001",
-        "property_id": "property-fictional-la-parcel-001"
-      },
-      "claim": {
-        "key": "prior-subdivisions",
-        "label": "Prior subdivisions",
-        "client_label": "whether a prior subdivision of the parcel is recorded"
-      },
-      "source": {
-        "agency": "ZIMAS / City source",
-        "title": "City parcel profile observation",
-        "description": "FICTIONAL observation from a city property-information display, used only for deterministic Program Screen testing.",
-        "url": "https://records.example.test/program-screen/city/parcel-profile",
-        "authority": "official",
-        "retrieved_at": "2026-09-18T17:00:00.000Z"
-      },
-      "raw_observed_value": {
-        "kind": "text",
-        "value": "NO"
-      },
-      "normalized_value": {
-        "kind": "boolean",
-        "value": false
-      },
-      "evidence_type": "official_portal",
-      "classification": "source_observation",
-      "confidence": 99,
-      "conflicts_with": [],
-      "review_status": "reviewed",
-      "notes": [
-        "FICTIONAL: the fixture records exactly what the fictionalized source displayed."
-      ],
-      "limitations": [
-        "FICTIONAL record; the parcel, values, and source URL do not identify a real property."
-      ],
-      "provenance": {
-        "source_record_id": "fixture-ps-prior-subdivisions",
-        "capture_method": "manual_research",
-        "is_ai_generated": false
-      }
-    },
-    {
-      "id": "ps-housing-element-site-status",
-      "subject": {
-        "case_id": "case-fictional-program-screen-001",
-        "property_id": "property-fictional-la-parcel-001"
-      },
-      "claim": {
-        "key": "housing-element-site-status",
-        "label": "Housing Element site status",
-        "client_label": "the parcel's Housing Element site status"
-      },
-      "source": {
-        "agency": "ZIMAS / City source",
-        "title": "City parcel profile observation",
-        "description": "FICTIONAL observation from a city property-information display, used only for deterministic Program Screen testing.",
-        "url": "https://records.example.test/program-screen/city/parcel-profile",
-        "authority": "official",
-        "retrieved_at": "2026-09-18T17:00:00.000Z"
-      },
-      "raw_observed_value": {
-        "kind": "text",
-        "value": "Fictional inventory status A"
-      },
-      "normalized_value": {
-        "kind": "text",
-        "value": "Fictional inventory status A"
-      },
-      "evidence_type": "official_portal",
-      "classification": "source_observation",
-      "confidence": 99,
-      "conflicts_with": [],
-      "review_status": "reviewed",
-      "notes": [
-        "FICTIONAL: the fixture records exactly what the fictionalized source displayed."
-      ],
-      "limitations": [
-        "FICTIONAL record; the parcel, values, and source URL do not identify a real property."
-      ],
-      "provenance": {
-        "source_record_id": "fixture-ps-housing-element-site-status",
-        "capture_method": "manual_research",
-        "is_ai_generated": false
-      }
-    },
-    {
       "id": "ps-sb79-permanent-exclusion",
       "subject": {
         "case_id": "case-fictional-program-screen-001",
         "property_id": "property-fictional-la-parcel-001"
       },
       "claim": {
-        "key": "sb79-permanent-exclusion",
-        "label": "SB 79 permanent exclusion in the adopted Phased Implementation record",
-        "client_label": "whether the adopted Phased Implementation record shows a permanent exclusion for the parcel"
+        "key": "sb79-permanent-exemption-shown",
+        "label": "SB 79 permanent exemption shown in the adopted Phased Implementation record",
+        "client_label": "whether the adopted Phased Implementation record affirmatively shows the parcel as permanently exempt"
       },
       "source": {
         "agency": "Los Angeles City Planning",
@@ -989,9 +707,9 @@
         "property_id": "property-fictional-la-parcel-001"
       },
       "claim": {
-        "key": "sb79-temporary-exemption",
-        "label": "SB 79 temporary exemption in the adopted Phased Implementation record",
-        "client_label": "whether the adopted Phased Implementation record shows a temporary exemption for the parcel"
+        "key": "sb79-temporary-exemption-shown",
+        "label": "SB 79 temporary exemption shown in the adopted Phased Implementation record",
+        "client_label": "whether the adopted Phased Implementation record affirmatively shows the parcel as temporarily exempt"
       },
       "source": {
         "agency": "Los Angeles City Planning",
@@ -1252,25 +970,45 @@
       "parcel-match": "verified_fact",
       "jurisdiction": "verified_fact",
       "zoning": "source_observation",
-      "general-plan-land-use": "source_observation",
-      "specific-plan-area": "source_observation",
       "hpoz": "source_observation",
       "historic-designation": "source_observation",
+      "historic-cultural-monument": "unknown",
       "zoning-code-chapter": "source_observation",
       "lot-area": "source_observation",
+      "shra-zone-category": "unknown",
       "very-high-fire-hazard-severity-zone": "conflict",
+      "high-fire-hazard-severity-zone": "unknown",
+      "state-responsibility-area": "unknown",
       "hillside-area": "source_observation",
       "coastal-zone": "source_observation",
-      "fault-zone": "source_observation",
-      "landslide-area": "source_observation",
-      "flood-zone": "source_observation",
-      "existing-dwelling-units": "source_observation",
+      "sea-level-rise-area": "unknown",
+      "sb79-sea-level-rise-vulnerability": "unknown",
+      "prime-or-statewide-farmland": "unknown",
+      "wetlands": "unknown",
+      "nccp-conservation-land": "unknown",
+      "conservation-easement": "unknown",
+      "hazardous-waste-site": "unknown",
+      "special-flood-hazard-area": "unknown",
+      "regulatory-floodway": "unknown",
+      "earthquake-fault-zone": "unknown",
       "existing-structures": "source_observation",
       "occupancy-history": "unknown",
-      "prior-subdivisions": "source_observation",
-      "housing-element-site-status": "source_observation",
-      "sb79-permanent-exclusion": "source_observation",
-      "sb79-temporary-exemption": "source_observation",
+      "affordability-restricted-housing": "unknown",
+      "price-controlled-housing": "unknown",
+      "ellis-act-withdrawal-recorded": "unknown",
+      "prior-shra-or-sb9-map": "unknown",
+      "housing-element-site-listing": "unknown",
+      "sb79-permanent-exemption-shown": "source_observation",
+      "sb79-temporary-exemption-shown": "source_observation",
+      "seventh-housing-element-revision-adopted": "unknown",
+      "tod-alternative-plan-area": "unknown",
+      "hcm-or-hpoz-designated-by-2025-01-01": "unknown",
+      "low-rise-incentive-area-map-subarea": "unknown",
+      "low-rise-transportation-row": "unknown",
+      "low-rise-zone-class": "unknown",
+      "low-rise-manufacturing-zone-lot": "unknown",
+      "low-rise-single-family-zone-lot": "unknown",
+      "low-rise-excluded-plan-area": "unknown",
       "zimas-shra-program-field": "source_observation",
       "zimas-sb79-category": "source_observation",
       "zimas-sb79-tier": "source_observation",
@@ -1282,24 +1020,61 @@
       "la_shra.jurisdiction": "consistent_with_source",
       "la_shra.implementation-memo-scope": "consistent_with_source",
       "la_shra.vacant-site-definition": "unknown",
-      "la_shra.lot-area-and-zoning": "unreviewed",
-      "la_shra.existing-structures-and-occupancy": "unknown",
-      "la_shra.prior-subdivisions": "unreviewed",
-      "la_shra.housing-element-site-status": "unreviewed",
-      "la_shra.environmental-constraints": "conflict",
+      "la_shra.zone-category": "unknown",
+      "la_shra.multifamily-lot-area-threshold": "unknown",
+      "la_shra.single-family-lot-area-threshold": "unknown",
+      "la_shra.single-family-vacancy-condition": "unknown",
+      "la_shra.ellis-act-withdrawal": "unknown",
+      "la_shra.protected-housing-affordability-covenant": "unknown",
+      "la_shra.protected-housing-price-control": "unknown",
+      "la_shra.protected-housing-tenant-occupancy": "unknown",
+      "la_shra.protected-housing-demolition-or-alteration": "professional",
+      "la_shra.prior-shra-or-sb9-map": "unknown",
+      "la_shra.housing-element-projected-units": "unknown",
+      "la_shra.housing-element-lower-income-units": "unknown",
+      "la_shra.prime-or-statewide-farmland": "unknown",
+      "la_shra.wetlands": "unknown",
+      "la_shra.very-high-fire-hazard-severity-zone": "conflict",
+      "la_shra.high-fire-hazard-severity-zone": "unknown",
+      "la_shra.natural-community-conservation-plan-land": "unknown",
+      "la_shra.protected-species-habitat": "professional",
+      "la_shra.conservation-easement": "unknown",
+      "la_shra.hazardous-waste-site": "unknown",
+      "la_shra.special-flood-hazard-area": "unknown",
+      "la_shra.regulatory-floodway": "unknown",
+      "la_shra.earthquake-fault-zone": "unknown",
       "la_sb79.parcel-match": "consistent_with_source",
       "la_sb79.jurisdiction": "consistent_with_source",
-      "la_sb79.permanent-exclusion": "unreviewed",
-      "la_sb79.temporary-exemption": "unreviewed",
-      "la_sb79.site-and-overlay-standards": "unreviewed",
+      "la_sb79.permanent-exemption-shown": "unreviewed",
+      "la_sb79.permanent-exemption-walking-path": "professional",
+      "la_sb79.permanent-exemption-industrial-hub": "professional",
+      "la_sb79.temporary-exemption-all-parcels": "unreviewed",
+      "la_sb79.temporary-exemption-period": "unknown",
+      "la_sb79.temporary-exemption-shown": "unreviewed",
+      "la_sb79.temporary-exemption-capacity-criteria": "professional",
+      "la_sb79.temporary-exemption-tod-alternative-plan": "unknown",
+      "la_sb79.temporary-exemption-fire-or-state-responsibility-area": "conflict",
+      "la_sb79.temporary-exemption-sea-level-rise": "unknown",
+      "la_sb79.temporary-exemption-historic-resource": "unknown",
       "la_low_rise.parcel-match": "consistent_with_source",
       "la_low_rise.jurisdiction": "consistent_with_source",
       "la_low_rise.overlay-review": "conflict",
-      "la_low_rise.geographic-criteria": "unreviewed"
+      "la_low_rise.incentive-area-map-subarea": "unknown",
+      "la_low_rise.subarea-distance-bands": "professional",
+      "la_low_rise.subarea-geographic-criteria": "professional",
+      "la_low_rise.underlying-zone": "unknown",
+      "la_low_rise.manufacturing-zone-exclusion": "unknown",
+      "la_low_rise.single-family-zone-exclusion": "unknown",
+      "la_low_rise.fire-restriction-area-exclusion": "conflict",
+      "la_low_rise.coastal-zone-exclusion": "unreviewed",
+      "la_low_rise.sea-level-rise-area-exclusion": "unknown",
+      "la_low_rise.excluded-plan-area": "unknown",
+      "la_low_rise.c10-exception-path": "professional",
+      "la_low_rise.tod-subarea-historic-limit": "unknown"
     },
     "pathway_rollups": {
       "la_shra": "contested",
-      "la_sb79": "undetermined",
+      "la_sb79": "contested",
       "la_low_rise": "contested"
     },
     "client_releasable": false

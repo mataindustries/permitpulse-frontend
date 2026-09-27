@@ -1,6 +1,7 @@
 {
   "record_kind": "proposed_verification",
-  "criterion_id": "la_low_rise.geographic-criteria",
+  "schema_version": "program-screen-proposal-v2",
+  "retired_criterion_id": "la_low_rise.geographic-criteria",
   "source_id": "ordinance-188967",
   "additional_sources_needed": [
     "The Director's Low-Rise eligibility map (LAMC 12.22 A.38(j)(7)) with its publication date.",
@@ -15,21 +16,21 @@
   "candidate_pinpoint": "Ordinance 188967, Sec. 5 (Low-Rise Incentive Area Project), page 4; Sec. 11, LAMC 12.22 A.38(j)(7)(i), page 18",
   "candidate_excerpt": "Low-Rise Incentive Area Project. A project on a site located, in whole or in part, within a Low-Rise Incentive Area as set forth in the eligibility map pursuant to Section 12.22.A.38(i)(7) of this this Code, or determined to be eligible pursuant to Section 12.22 A.38(c)(10) of this Code, that involves the construction of, addition to, or remodeling of any building or buildings that result in the creation of five or more residential units.",
   "locate_in_source": "Located in ordinance-188967 (21 pages, City OCR text layer in content-stream order): Sec. 5 definitions, page 4; Sec. 8, LAMC 12.22 A.38(c)(4)-(10), pages 5-7; Sec. 9, (g)(1) and Table 12.22 A.38.(g)(1)(i), pages 7-8; Sec. 11, (j)(7), page 18; Sec. 13, (j)(16), page 19. The table's cells are scattered in the text layer; read it from the page image.",
-  "question_for_human_reviewer": "Ordinance 188967 defines Low-Rise geography through the Director's eligibility map (Sec. 5, LAMC 12.22 A.38(j)(7)), subarea distances and zones in Table 12.22 A.38.(g)(1)(i), and site exclusions in (c)(4), (5), (6), and (9), all subject to the (c)(10) exception. It never uses General Plan land use. Do you agree to split this criterion into the components proposed, to record the LR subarea from the Director's map rather than derive it, and to drop general-plan-land-use? Should every exclusion stay requires_judgment until a reviewed fact rules out the (c)(10) exception? Separately: does the September 24, 2026 draft in Council File 25-1083-S3 propose changes to these provisions? A draft change only triggers a re-review; it cannot change the rule.",
+  "question_for_human_reviewer": "Ordinance 188967 defines Low-Rise geography through the Director's map (Sec. 5, LAMC 12.22 A.38(j)(7)), distance bands, zones, and location tests in Table 12.22 A.38.(g)(1)(i), and site exclusions in (c)(4), (5), (6), and (9), all subject to the (c)(10) path. It never uses General Plan land use. Do you agree with splitting the retired criterion into the twelve atomic criteria shown, with every exclusion unable to block while its exceptions are unmodeled, and with general-plan-land-use removed? Separately, does the September 24, 2026 draft in Council File 25-1083-S3 propose changes to these provisions? A draft change only triggers a re-review; it cannot change a rule.",
   "proposed_controlled_interpretation": {
-    "fact_keys": [
+    "fact_keys_before_split": [
       "zoning",
       "general-plan-land-use",
       "specific-plan-area"
     ],
-    "controlled_values_required": "zoning is free text: add a human-recorded zone-class from a controlled LAMC list. general-plan-land-use has no rule. specific-plan-area (yes/no) cannot name the one excluded plan; add community-plan-area and specific-plan-name. Add low-rise-eligibility-subarea (LR-1 | LR-2 | not_mapped | not_retrieved) from the Director's map, sb79-eligible-site for (c)(10), and sea-level-rise-area.",
+    "controlled_values_required": "low-rise-incentive-area-map-subarea (lr_1 | lr_2 | not_mapped), low-rise-transportation-row, low-rise-zone-class, low-rise-manufacturing-zone-lot, low-rise-single-family-zone-lot, sea-level-rise-area, low-rise-excluded-plan-area, historic-cultural-monument. The zoning string is never parsed.",
     "fact_narrowing_required": true,
-    "narrowing_note": "Split into the nine components proposed (map, subarea criteria, eligible zones, four exclusions, historic limits, and General Plan). Drop general-plan-land-use. Decide with la_low_rise.overlay-review which criterion owns (c)(6) and the historic limits.",
-    "predicate_shape_if_reviewer_agrees": "Mapped LR-1 or LR-2 with no exclusion triggered -> consistent_with_source. An exclusion triggered -> disqualifying_per_source only if sb79-eligible-site is recorded false; otherwise requires_judgment. Fire Restriction Area or Coastal Zone -> requires_judgment (neighboring-properties exception). Not mapped -> requires_judgment.",
+    "narrowing_note": "Split on 2026-09-27 into twelve atomic criteria, all pending human verification. general-plan-land-use and specific-plan-area are retired and their fixture records dropped; zoning (free text) no longer feeds Low-Rise. Overlaps la_low_rise.overlay-review (repo-sourced judgment on coastal, fire, hillside, and historic) for a reviewer to reconcile.",
+    "predicate_shape_if_reviewer_agrees": "No component may block while its exceptions are unmodeled: the map and zone criteria and every exclusion can only be consistent or route to judgment; distance, location, (c)(10), and the TOD-stop historic limit stay professional judgment.",
     "must_remain_unresolved_when": [
       "zoning exists only as free text",
-      "the Director's eligibility map was not retrieved, or the SCAG final TOD map is still pending",
-      "an exclusion is triggered and the (c)(10) exception has not been ruled out",
+      "the Director's Low-Rise Incentive Area map was not retrieved, or the SCAG final TOD map is still pending",
+      "an exclusion is triggered and the (c)(10) path has not been ruled out",
       "a Fire Restriction Area or Coastal Zone site depends on neighboring properties",
       "the September 24, 2026 draft, or any other amendment of 12.22 A.38, is adopted: capture the adopted instrument and re-review before any rule changes"
     ],
@@ -37,8 +38,8 @@
   },
   "candidate_components": [
     {
-      "component_id": "la_low_rise.incentive-area-map",
-      "label": "Site within a Low-Rise Incentive Area on the Director's eligibility map",
+      "component_id": "la_low_rise.incentive-area-map-subarea",
+      "label": "Low-Rise Incentive Area map: LR-1 or LR-2 subarea",
       "pinpoint": "Ordinance 188967, Sec. 5 (Low-Rise Incentive Area Project), page 4; Sec. 11, LAMC 12.22 A.38(j)(7)(i), page 18",
       "excerpts": [
         {
@@ -51,77 +52,117 @@
         }
       ],
       "disposition": "partially_deterministic",
-      "reads_existing_fact_keys": [],
-      "new_facts_needed": [
-        "low-rise-eligibility-subarea: LR-1 | LR-2 | not_mapped | not_retrieved, human-recorded from the Director's map with its publication date."
+      "reads_existing_fact_keys": [
+        "low-rise-incentive-area-map-subarea"
       ],
-      "controlled_value_encoding": "The map, not the zoning string, places a site in an LR subarea.",
-      "proposed_rule_if_reviewer_agrees": "LR-1 or LR-2 -> consistent_with_source for the mapping requirement (exclusions still apply). not_mapped -> requires_judgment ((c)(10) may still apply, and the map is provisional). not_retrieved -> unknown.",
+      "removed_fact_keys": [],
+      "new_facts_needed": [
+        "The map's publication date as a dated fact."
+      ],
+      "controlled_value_encoding": "low-rise-incentive-area-map-subarea: lr_1 | lr_2 | not_mapped, recorded from the Director's map with its date. Never derived from distances or zoning.",
+      "proposed_rule_if_reviewer_agrees": "lr_1 or lr_2 -> consistent_with_source for the mapping requirement (exclusions still apply). not_mapped -> requires_judgment ((c)(10) may apply, and the map is provisional). Never disqualifying_per_source.",
       "judgment_or_ambiguity": [
-        "The definition cites 'Section 12.22.A.38(i)(7)' but the mapping authority the ordinance amends is 12.22 A.38(j)(7) (Sec. 11); it also reads 'this this Code'. Likely drafting errors; confirm against the codified LAMC.",
-        "A recital (page 2) says eligibility depends on a final SCAG TOD Zone map not yet produced."
-      ]
+        "The definition cites 'Section 12.22.A.38(i)(7) of this this Code', but the mapping authority the ordinance amends is 12.22 A.38(j)(7) (Sec. 11). Likely drafting errors.",
+        "A recital in Ordinance 188968 says eligibility depends on a SCAG final map not yet produced."
+      ],
+      "reviewer_question": "Do you agree that the Director's Low-Rise Incentive Area map is the record for LR-1 and LR-2, and that a site not mapped must stay a judgment because of the (c)(10) path?"
     },
     {
-      "component_id": "la_low_rise.subarea-criteria",
-      "label": "Table 12.22 A.38.(g)(1)(i): distances, transit qualifiers, and geographic criteria",
-      "pinpoint": "Ordinance 188967, Sec. 9, LAMC 12.22 A.38(g)(1) and Table 12.22 A.38.(g)(1)(i), page 7",
+      "component_id": "la_low_rise.subarea-distance-bands",
+      "label": "Low-Rise subarea distance bands from a corridor or TOD stop",
+      "pinpoint": "Ordinance 188967, Sec. 9, Table 12.22 A.38.(g)(1)(i) and LAMC 12.22 A.38(g)(1)(ii), pages 7-8",
       "excerpts": [
         {
           "page": 7,
-          "text": "(1) Eligibility. A project may seek Base Incentives by satisfying the eligibility criteria provided in Paragraph (c), and the below criteria for Low-Rise Incentive Area subareas, described in Table 12.22 A.38.(g)(1)(i), below."
+          "text": "Eligibility Subarea Based on Distance LR-1 LR-2 Opportunity Corridor < 250 feet RD and R2"
         },
         {
           "page": 7,
-          "text": "Geographic Criteria Higher Opportunity Areas Tier 2 TOD Stop Tier 1 TOD Stop"
+          "text": "Tier 2 TOD Stop Tier 1 TOD Stop <1/4 mile < 1/2 mile 250 - 750 feet 1/4 mile -1/2 mile"
+        },
+        {
+          "page": 7,
+          "text": "(ii) Property Line Measurement. Measurements from an Opportunity Corridor to determine an eligibility subarea should be based on the distance from the Rear Lot Line of the lot located"
         }
       ],
       "disposition": "professional_judgment",
-      "reads_existing_fact_keys": [
-        "zoning"
-      ],
+      "reads_existing_fact_keys": [],
+      "removed_fact_keys": [],
       "new_facts_needed": [],
-      "controlled_value_encoding": "Distances, TOD stops, TCAC opportunity areas, and Opportunity Station Areas are map computations the screen does not hold; use la_low_rise.incentive-area-map.",
+      "controlled_value_encoding": "No parcel fact: distance bands are map computations; use la_low_rise.incentive-area-map-subarea.",
       "proposed_rule_if_reviewer_agrees": null,
       "judgment_or_ambiguity": [
-        "The page image shows: Opportunity Corridor, LR-1 250-750 feet, LR-2 < 250 feet, zones RD and R2, Higher Opportunity Areas; Tier 2 TOD Stop, LR-1 1/4-1/2 mile, LR-2 < 1/4 mile; Tier 1 TOD Stop, LR-2 < 1/2 mile; TOD rows, Residential Zones and Opportunity Station Areas. The text layer scatters these cells, so only fragments can be quoted.",
-        "Corridor distances run from the rear lot line ((g)(1)(ii), pages 7-8)."
-      ]
+        "The page image shows: Opportunity Corridor, LR-1 250-750 feet, LR-2 < 250 feet; Tier 2 TOD Stop, LR-1 1/4-1/2 mile, LR-2 < 1/4 mile; Tier 1 TOD Stop, LR-2 < 1/2 mile. The text layer scatters these cells.",
+        "Corridor distances run from the rear lot line ((g)(1)(ii)); the ordinance prints that sentence about consolidated lots twice (page 8).",
+        "Footnote 1: sites in whole or in part within a subarea are part of it."
+      ],
+      "reviewer_question": "Should Low-Rise distance bands stay a mapping determination read only from the Director's map, never computed by PermitPulse?"
     },
     {
-      "component_id": "la_low_rise.eligible-underlying-zones",
-      "label": "Eligible underlying zones: RD and R2 (corridor); Residential Zones (TOD stops)",
-      "pinpoint": "Ordinance 188967, Table 12.22 A.38.(g)(1)(i), page 7; Sec. 13, LAMC 12.22 A.38(j)(16), page 19",
+      "component_id": "la_low_rise.subarea-geographic-criteria",
+      "label": "Low-Rise subarea location tests: Higher Opportunity Areas and Opportunity Station Areas",
+      "pinpoint": "Ordinance 188967, Table 12.22 A.38.(g)(1)(i), page 7; Sec. 5 (Opportunity Station Area), page 4",
       "excerpts": [
         {
-          "page": 19,
-          "text": "Residential Zones must permit primarily residential uses as a main use by right and shall include but not be limited to R5 and more restrictive R and A zones, as well as R1P, R2P, R3P, R4P, and R5P zones."
+          "page": 7,
+          "text": "Geographic Criteria Higher Opportunity Areas Tier 2 TOD Stop Tier 1 TOD Stop"
         },
         {
           "page": 7,
+          "text": "Eligible Underlying Project Zones Opportunity Station Areas"
+        },
+        {
+          "page": 4,
+          "text": "Opportunity Station Area. A one-half mile radius surrounding a Tier 1 transit-oriented development stop (Tier 1 TOD Stop) or Tier 2 transit-oriented development stop (Tier 2 TOD Stop), as defined in Government Code Section 65912.156, with a land area that is more than 50 percent designated as a Moderate Opportunity Area or Higher Opportunity Area, alone or combined, pursuant to the City’s five-year California Tax Credit Allocation Committee (TCAC) Opportunity Areas map, as may be amended."
+        }
+      ],
+      "disposition": "professional_judgment",
+      "reads_existing_fact_keys": [],
+      "removed_fact_keys": [],
+      "new_facts_needed": [],
+      "controlled_value_encoding": "No parcel fact: Higher Opportunity Areas and Opportunity Station Areas are TCAC land-area computations ((j)(7)(ii)).",
+      "proposed_rule_if_reviewer_agrees": null,
+      "judgment_or_ambiguity": [
+        "Opportunity Station Area land-area calculations include land outside the City and exclude 'Insufficient Data' land ((j)(7)(ii), page 18).",
+        "The TCAC maps update every five years ((j)(7)(i)b)."
+      ],
+      "reviewer_question": "Should the Higher Opportunity Area and Opportunity Station Area tests stay a mapping determination read only from the Director's maps?"
+    },
+    {
+      "component_id": "la_low_rise.underlying-zone",
+      "label": "Low-Rise underlying zone for the subarea's table row",
+      "pinpoint": "Ordinance 188967, Table 12.22 A.38.(g)(1)(i), page 7; Sec. 13, LAMC 12.22 A.38(j)(16), page 19",
+      "excerpts": [
+        {
+          "page": 7,
           "text": "Opportunity Corridor < 250 feet RD and R2"
+        },
+        {
+          "page": 19,
+          "text": "Residential Zones must permit primarily residential uses as a main use by right and shall include but not be limited to R5 and more restrictive R and A zones, as well as R1P, R2P, R3P, R4P, and R5P zones."
         }
       ],
       "disposition": "partially_deterministic",
       "reads_existing_fact_keys": [
-        "zoning"
+        "low-rise-transportation-row",
+        "low-rise-zone-class"
       ],
+      "removed_fact_keys": [],
       "new_facts_needed": [
-        "zone-class: a human-recorded base zone from a controlled list of LAMC zones, for every lot in the site.",
-        "low-rise-transportation-qualifier: opportunity_corridor | tier_1_tod | tier_2_tod, from the eligibility map."
+        "A fact for the (g)(1)(iii)b regardless-of-zoning path."
       ],
-      "controlled_value_encoding": "Corridor subareas: RD or R2. TOD subareas: Residential Zones per (j)(16), a non-exhaustive definition.",
-      "proposed_rule_if_reviewer_agrees": "Opportunity Corridor subarea: zone class RD or R2 -> consistent_with_source; any other zone -> disqualifying_per_source for that subarea. TOD subareas: R5 or a more restrictive R or A zone, or R1P-R5P -> consistent_with_source; any other zone -> requires_judgment.",
+      "controlled_value_encoding": "low-rise-transportation-row: opportunity_corridor | tier_2_tod_stop | tier_1_tod_stop. low-rise-zone-class: rd_or_r2 | other_listed_residential_zone | zone_not_listed, placed by a person using the LAMC zone order (not captured).",
+      "proposed_rule_if_reviewer_agrees": "opportunity_corridor and rd_or_r2 -> consistent_with_source. tier_1_tod_stop or tier_2_tod_stop and (rd_or_r2 or other_listed_residential_zone) -> consistent_with_source. Any other combination -> requires_judgment ((j)(16) is not exhaustive, and (g)(1)(iii)b reaches some SB 79 sites regardless of zoning). Never disqualifying_per_source while (g)(1)(iii)b is unmodeled.",
       "judgment_or_ambiguity": [
         "'More restrictive' needs the LAMC zone hierarchy, which the ordinance does not list.",
         "Whether 'RD' covers every RD density zone (RD1.5, RD2, and so on) is not stated.",
-        "Single-family zones are within 'R5 and more restrictive' but (c)(5) excludes them outside Opportunity Station Areas; apply both.",
-        "(g)(1)(iii)b makes some SB 79-eligible projects eligible regardless of underlying zoning."
-      ]
+        "Single-family zones are within 'R5 and more restrictive' but (c)(5) excludes them outside Opportunity Station Areas; apply both."
+      ],
+      "reviewer_question": "Do you agree that RD and R2 satisfy the corridor row, that the (j)(16) list satisfies the TOD-stop rows, and that a zone outside either list stays a judgment because (j)(16) is not exhaustive and (g)(1)(iii)b may apply?"
     },
     {
       "component_id": "la_low_rise.manufacturing-zone-exclusion",
-      "label": "(c)(4): no lot in M1, M2, M3, MR1, or MR2, or in CM without by-right residential use",
+      "label": "Low-Rise site exclusion (c)(4): manufacturing and CM zone lots",
       "pinpoint": "Ordinance 188967, Sec. 8, LAMC 12.22 A.38(c)(4), pages 5-6",
       "excerpts": [
         {
@@ -135,22 +176,23 @@
       ],
       "disposition": "partially_deterministic",
       "reads_existing_fact_keys": [
-        "zoning"
+        "low-rise-manufacturing-zone-lot"
       ],
+      "removed_fact_keys": [],
       "new_facts_needed": [
-        "zone-class: a human-recorded base zone from a controlled list of LAMC zones, for every lot in the site.",
-        "sb79-eligible-site: yes/no, human-recorded, whether the site meets GCS 65912.157; needed to rule out the (c)(10) exception."
+        "A controlled (c)(10) determination; for CM lots, the overlay, Q, and D record."
       ],
-      "controlled_value_encoding": "M1, M2, M3, MR1, MR2 as controlled values; CM needs the overlay, Q, and D record.",
-      "proposed_rule_if_reviewer_agrees": "Any lot zoned M1, M2, M3, MR1, or MR2 -> disqualifying_per_source only if sb79-eligible-site is recorded false, otherwise requires_judgment. CM -> requires_judgment. No such lot (reviewed zone classes for every lot) -> consistent_with_source.",
+      "controlled_value_encoding": "low-rise-manufacturing-zone-lot: m1_m2_m3_mr1_or_mr2_lot | cm_lot | no_m_mr_or_cm_lot, for every lot in the site.",
+      "proposed_rule_if_reviewer_agrees": "no_m_mr_or_cm_lot -> consistent_with_source. m1_m2_m3_mr1_or_mr2_lot -> requires_judgment ((c)(10) may apply). cm_lot -> requires_judgment (overlay, Q, and D record, and (c)(10)). Never disqualifying_per_source while (c)(10) is unmodeled.",
       "judgment_or_ambiguity": [
         "The list prints 'M2,-M3' in the image and the text layer; presumed M2 and M3.",
-        "(c)(10) lets a site that meets GCS 65912.157 and either meets none of the 65912.161(b) criteria or is not exempt under the Phased Implementation Ordinance qualify notwithstanding (c)(4), (5), (6), and (9); the adopted text leaves that ordinance's number blank."
-      ]
+        "Ordinance 188967 (c)(10) overrides exclusions (4), (5), (6), and (9) for an SB 79 site not exempt under the Phased Implementation Ordinance; the adopted text leaves that ordinance's number blank, and la_low_rise.c10-exception-path keeps it a judgment."
+      ],
+      "reviewer_question": "Do you agree that an M1, M2, M3, MR1, or MR2 lot, or a CM lot whose residential use is restricted, excludes the site unless (c)(10) applies, and what fact should record the (c)(10) determination before this exclusion may block?"
     },
     {
       "component_id": "la_low_rise.single-family-zone-exclusion",
-      "label": "(c)(5): no lot in a single-family or more restrictive zone unless within an Opportunity Station Area",
+      "label": "Low-Rise site exclusion (c)(5): single-family or more restrictive zone lots",
       "pinpoint": "Ordinance 188967, Sec. 8, LAMC 12.22 A.38(c)(5), page 6",
       "excerpts": [
         {
@@ -160,24 +202,24 @@
       ],
       "disposition": "partially_deterministic",
       "reads_existing_fact_keys": [
-        "zoning"
+        "low-rise-single-family-zone-lot"
       ],
+      "removed_fact_keys": [],
       "new_facts_needed": [
-        "zone-class: a human-recorded base zone from a controlled list of LAMC zones, for every lot in the site.",
-        "opportunity-station-area: yes/no from the Director's map.",
-        "sb79-eligible-site: yes/no, human-recorded, whether the site meets GCS 65912.157; needed to rule out the (c)(10) exception."
+        "opportunity-station-area (yes/no from the Director's map) and a controlled (c)(10) determination."
       ],
-      "controlled_value_encoding": "A controlled list of the zones that are 'RW1 and more restrictive'.",
-      "proposed_rule_if_reviewer_agrees": "Any lot in a single-family or more restrictive zone: within an Opportunity Station Area -> consistent_with_source for this component; outside -> disqualifying_per_source only if sb79-eligible-site is recorded false, otherwise requires_judgment. No such lot -> consistent_with_source.",
+      "controlled_value_encoding": "low-rise-single-family-zone-lot: yes/no for any lot in RW1 or a more restrictive zone.",
+      "proposed_rule_if_reviewer_agrees": "false -> consistent_with_source. true -> requires_judgment (the Opportunity Station Area exception and (c)(10) may apply). Never disqualifying_per_source while either exception is unmodeled.",
       "judgment_or_ambiguity": [
         "The ordinance does not list which zones are 'RW1 and more restrictive'; that ordering is in the LAMC.",
-        "Opportunity Station Area status needs a TCAC land-area computation (pages 4 and 18); take it from the map.",
-        "(c)(10) lets a site that meets GCS 65912.157 and either meets none of the 65912.161(b) criteria or is not exempt under the Phased Implementation Ordinance qualify notwithstanding (c)(4), (5), (6), and (9); the adopted text leaves that ordinance's number blank."
-      ]
+        "Opportunity Station Area status needs a TCAC land-area computation (pages 4 and 18).",
+        "Ordinance 188967 (c)(10) overrides exclusions (4), (5), (6), and (9) for an SB 79 site not exempt under the Phased Implementation Ordinance; the adopted text leaves that ordinance's number blank, and la_low_rise.c10-exception-path keeps it a judgment."
+      ],
+      "reviewer_question": "Do you agree that a lot in RW1 or a more restrictive zone excludes the site only outside an Opportunity Station Area and absent (c)(10), and should both exceptions be recorded as facts before this exclusion may block?"
     },
     {
-      "component_id": "la_low_rise.fire-coastal-sea-level-exclusion",
-      "label": "(c)(6): Fire Restriction Area, Coastal Zone, or Sea Level Rise Area",
+      "component_id": "la_low_rise.fire-restriction-area-exclusion",
+      "label": "Low-Rise site exclusion (c)(6): Fire Restriction Area",
       "pinpoint": "Ordinance 188967, Sec. 8, LAMC 12.22 A.38(c)(6), page 6; Sec. 5 (Fire Restriction Area), page 4",
       "excerpts": [
         {
@@ -192,25 +234,79 @@
       "disposition": "partially_deterministic",
       "reads_existing_fact_keys": [
         "very-high-fire-hazard-severity-zone",
-        "hillside-area",
-        "coastal-zone"
+        "hillside-area"
       ],
+      "removed_fact_keys": [],
       "new_facts_needed": [
-        "sea-level-rise-area: yes/no from the record the LAMC defines.",
-        "sb79-eligible-site: yes/no, human-recorded, whether the site meets GCS 65912.157; needed to rule out the (c)(10) exception."
+        "A same-land Fire Restriction Area record, neighboring-property facts, and a controlled (c)(10) determination."
       ],
-      "controlled_value_encoding": "Fire Restriction Area = very-high-fire-hazard-severity-zone AND hillside-area on the same land.",
-      "proposed_rule_if_reviewer_agrees": "All three recorded false from defining records -> consistent_with_source. Fire Restriction Area or Coastal Zone -> requires_judgment (the neighboring-properties exception needs facts about adjacent parcels). Sea Level Rise Area -> disqualifying_per_source only if sb79-eligible-site is recorded false, otherwise requires_judgment.",
+      "controlled_value_encoding": "Fire Restriction Area = very-high-fire-hazard-severity-zone and hillside-area on the same land (Sec. 5).",
+      "proposed_rule_if_reviewer_agrees": "Either false -> consistent_with_source. Both true -> requires_judgment (the neighboring-properties exception and (c)(10) may apply, and two parcel-level records cannot show the zones overlap). Never disqualifying_per_source while either exception is unmodeled.",
       "judgment_or_ambiguity": [
-        "Sea Level Rise Area is not defined in the captured text.",
-        "'In whole or part': two parcel-level booleans cannot confirm that the fire zone and the Hillside Area overlap the same land when each covers only part of the parcel.",
-        "Overlaps la_low_rise.overlay-review (a repo-sourced judgment criterion on coastal, fire, and hillside); decide which criterion owns (c)(6).",
-        "(c)(10) lets a site that meets GCS 65912.157 and either meets none of the 65912.161(b) criteria or is not exempt under the Phased Implementation Ordinance qualify notwithstanding (c)(4), (5), (6), and (9); the adopted text leaves that ordinance's number blank."
-      ]
+        "'In whole or part': two parcel-level booleans cannot confirm the fire zone and the Hillside Area overlap the same land.",
+        "The terms are defined in LAMC 12.03, not captured; confirm the shared Very High fact uses the City's map.",
+        "Overlaps la_low_rise.overlay-review (repo-sourced judgment).",
+        "Ordinance 188967 (c)(10) overrides exclusions (4), (5), (6), and (9) for an SB 79 site not exempt under the Phased Implementation Ordinance; the adopted text leaves that ordinance's number blank, and la_low_rise.c10-exception-path keeps it a judgment."
+      ],
+      "reviewer_question": "Do you agree that a Fire Restriction Area needs the Very High zone and the Hillside Area on the same land, and what records should establish the neighboring-properties exception before this exclusion may block?"
     },
     {
-      "component_id": "la_low_rise.excluded-plan-areas",
-      "label": "(c)(9): Boyle Heights, Harbor Gateway, Wilmington-Harbor City Community Plans; Cornfield Arroyo Seco Specific Plan",
+      "component_id": "la_low_rise.coastal-zone-exclusion",
+      "label": "Low-Rise site exclusion (c)(6): Coastal Zone",
+      "pinpoint": "Ordinance 188967, Sec. 8, LAMC 12.22 A.38(c)(6), page 6",
+      "excerpts": [
+        {
+          "page": 6,
+          "text": "(6) The project site does not include any lots located within a Fire Restriction Area, the Coastal Zone, or a Sea Level Rise Area. Except that a project site that is located within a Fire Restriction Area or the Coastal Zone shall be eligible if properties that are abutting, across the street or alley, or have a common corner with the subject property, are not in a Fire Restriction Area or Coastal Zone, and are eligible for Incentives contained in this subdivision."
+        }
+      ],
+      "disposition": "partially_deterministic",
+      "reads_existing_fact_keys": [
+        "coastal-zone"
+      ],
+      "removed_fact_keys": [],
+      "new_facts_needed": [
+        "Neighboring-property facts and a controlled (c)(10) determination."
+      ],
+      "controlled_value_encoding": "coastal-zone: yes/no for any lot in the site.",
+      "proposed_rule_if_reviewer_agrees": "false -> consistent_with_source. true -> requires_judgment (neighboring properties and (c)(10)). Never disqualifying_per_source while either exception is unmodeled.",
+      "judgment_or_ambiguity": [
+        "The neighboring-properties exception needs facts about abutting, across-the-street, and corner properties.",
+        "Overlaps la_low_rise.overlay-review.",
+        "Ordinance 188967 (c)(10) overrides exclusions (4), (5), (6), and (9) for an SB 79 site not exempt under the Phased Implementation Ordinance; the adopted text leaves that ordinance's number blank, and la_low_rise.c10-exception-path keeps it a judgment."
+      ],
+      "reviewer_question": "Do you agree that a Coastal Zone lot excludes the site only when the neighboring-properties exception and (c)(10) do not apply, and what records should establish them?"
+    },
+    {
+      "component_id": "la_low_rise.sea-level-rise-area-exclusion",
+      "label": "Low-Rise site exclusion (c)(6): Sea Level Rise Area",
+      "pinpoint": "Ordinance 188967, Sec. 8, LAMC 12.22 A.38(c)(6), page 6",
+      "excerpts": [
+        {
+          "page": 6,
+          "text": "(6) The project site does not include any lots located within a Fire Restriction Area, the Coastal Zone, or a Sea Level Rise Area. Except that a project site that is located within a Fire Restriction Area or the Coastal Zone shall be eligible if properties that are abutting, across the street or alley, or have a common corner with the subject property, are not in a Fire Restriction Area or Coastal Zone, and are eligible for Incentives contained in this subdivision."
+        }
+      ],
+      "disposition": "partially_deterministic",
+      "reads_existing_fact_keys": [
+        "sea-level-rise-area"
+      ],
+      "removed_fact_keys": [],
+      "new_facts_needed": [
+        "A controlled (c)(10) determination."
+      ],
+      "controlled_value_encoding": "sea-level-rise-area: yes/no from the record the LAMC defines.",
+      "proposed_rule_if_reviewer_agrees": "false -> consistent_with_source. true -> requires_judgment ((c)(10) may apply). Never disqualifying_per_source while (c)(10) is unmodeled.",
+      "judgment_or_ambiguity": [
+        "Sea Level Rise Area is not defined in the captured text.",
+        "Not the same test as Ordinance 188968 Sec. 2.G.",
+        "Ordinance 188967 (c)(10) overrides exclusions (4), (5), (6), and (9) for an SB 79 site not exempt under the Phased Implementation Ordinance; the adopted text leaves that ordinance's number blank, and la_low_rise.c10-exception-path keeps it a judgment."
+      ],
+      "reviewer_question": "Which record defines a Sea Level Rise Area for (c)(6), and do you agree the neighboring-properties exception does not reach it?"
+    },
+    {
+      "component_id": "la_low_rise.excluded-plan-area",
+      "label": "Low-Rise site exclusion (c)(9): listed community plan and specific plan areas",
       "pinpoint": "Ordinance 188967, Sec. 8, LAMC 12.22 A.38(c)(9), pages 6-7",
       "excerpts": [
         {
@@ -224,24 +320,55 @@
       ],
       "disposition": "partially_deterministic",
       "reads_existing_fact_keys": [
-        "specific-plan-area"
+        "low-rise-excluded-plan-area"
       ],
+      "removed_fact_keys": [],
       "new_facts_needed": [
-        "community-plan-area: controlled list of the City's community plan areas.",
-        "specific-plan-name: controlled list, or none.",
-        "sb79-eligible-site: yes/no, human-recorded, whether the site meets GCS 65912.157; needed to rule out the (c)(10) exception."
+        "A controlled (c)(10) determination."
       ],
-      "controlled_value_encoding": "specific-plan-area (yes/no) cannot express this; only the Cornfield Arroyo Seco Specific Plan is named.",
-      "proposed_rule_if_reviewer_agrees": "In the Boyle Heights, Harbor Gateway, or Wilmington-Harbor City Community Plan area, or the Cornfield Arroyo Seco Specific Plan -> disqualifying_per_source only if sb79-eligible-site is recorded false, otherwise requires_judgment. Any other plan area -> consistent_with_source for this component.",
+      "controlled_value_encoding": "low-rise-excluded-plan-area: boyle_heights_community_plan | harbor_gateway_community_plan | wilmington_harbor_city_community_plan | cornfield_arroyo_seco_specific_plan | none_of_these. Replaces the retired specific-plan-area yes/no.",
+      "proposed_rule_if_reviewer_agrees": "none_of_these -> consistent_with_source. Any listed area -> requires_judgment ((c)(10) may apply). Never disqualifying_per_source while (c)(10) is unmodeled.",
       "judgment_or_ambiguity": [
         "The list runs across pages 6 and 7.",
-        "Other Specific Plans matter only through the historic-resource provisions ((c)(7)(ii)), which are project facts.",
-        "(c)(10) lets a site that meets GCS 65912.157 and either meets none of the 65912.161(b) criteria or is not exempt under the Phased Implementation Ordinance qualify notwithstanding (c)(4), (5), (6), and (9); the adopted text leaves that ordinance's number blank."
-      ]
+        "Other Specific Plans matter only through the historic-resource demolition provisions ((c)(7)(ii)), which are project facts.",
+        "Ordinance 188967 (c)(10) overrides exclusions (4), (5), (6), and (9) for an SB 79 site not exempt under the Phased Implementation Ordinance; the adopted text leaves that ordinance's number blank, and la_low_rise.c10-exception-path keeps it a judgment."
+      ],
+      "reviewer_question": "Do you agree the (c)(9) list is exhaustive (three Community Plan areas and one Specific Plan), and what fact should record the (c)(10) determination before this exclusion may block?"
     },
     {
-      "component_id": "la_low_rise.historic-limits",
-      "label": "(g)(1)(iii)a: historic resources limited to LR-1; HPOZ or HCM parcels ineligible in TOD subareas",
+      "component_id": "la_low_rise.c10-exception-path",
+      "label": "Low-Rise (c)(10) path for SB 79 sites not exempt under the Phased Implementation Ordinance",
+      "pinpoint": "Ordinance 188967, Sec. 8, LAMC 12.22 A.38(c)(10), page 7; LAMC 12.22 A.38(g)(1)(iii)b, page 8",
+      "excerpts": [
+        {
+          "page": 7,
+          "text": "(10) Exceptions. Notwithstanding the eligibility criteria listed in Subparagraphs (4), (5), (6) and (9) of this paragraph, a site that meets the eligibility requirements of Government Code Section 65912.157, and either does not meet any of the site or station level criteria specified in Government Code Section 65912.161(b), or is not exempt from Government Code Sections 65912.155 through 65912.162 pursuant to the Phased Implementation Ordinance"
+        },
+        {
+          "page": 7,
+          "text": "Rise Incentive Area Program if the project sets aside the amount of required restricted affordable units consistent with Government Code Section 65912.157(i) and Table 22.22.A.38.(c)(3)(v), whichever is greater."
+        },
+        {
+          "page": 8,
+          "text": "is a project that is eligible for the base incentives in Table 12.22 A.38.(g)(3)(i) regardless of the site's underlying zoning or Opportunity Station Area status."
+        }
+      ],
+      "disposition": "professional_judgment",
+      "reads_existing_fact_keys": [],
+      "removed_fact_keys": [],
+      "new_facts_needed": [],
+      "controlled_value_encoding": "No parcel fact: GCS 65912.157 (not captured), the GCS 65912.161(b) criteria, and the Phased Implementation Ordinance's exemption.",
+      "proposed_rule_if_reviewer_agrees": null,
+      "judgment_or_ambiguity": [
+        "The adopted text leaves the Phased Implementation Ordinance's number blank in (c)(10) and (g)(1)(iii)b.",
+        "Whether any site is 'not exempt' under Ordinance 188968 turns on the unresolved reading of its Sec. 4.",
+        "The affordable set-aside is a project condition."
+      ],
+      "reviewer_question": "Can any site currently take the (c)(10) path given Ordinance 188968 Sec. 4, and what controlled determination should record it so the Low-Rise exclusions can account for it?"
+    },
+    {
+      "component_id": "la_low_rise.tod-subarea-historic-limit",
+      "label": "Low-Rise historic limit in TOD-stop subareas: HPOZ or Historic Cultural Monument",
       "pinpoint": "Ordinance 188967, Sec. 9, LAMC 12.22 A.38(g)(1)(iii)a, page 8",
       "excerpts": [
         {
@@ -250,25 +377,49 @@
         },
         {
           "page": 8,
-          "text": "in Tier 1 or Tier 2 TOD Stop eligibility subareas, a parcel located within a Historic Preservation Overlay Zone,"
+          "text": "furthermore, in Tier 1 or Tier 2 TOD Stop eligibility subareas, a parcel located within a Historic Preservation Overlay Zone, as prescribed in Division 13B.8. of Chapter 1A of this Code, or designated as a Historic Cultural Monument, in accordance with Section 22.171 of Article 1, Chapter 9, Division 22 of the Los Angeles Administrative Code, shall not be eligible for incentives in this paragraph, unless it is also located within an eligibility subarea based on distance from an Opportunity Corridor Transition eligibility subarea based on distance from an Opportunity Corridor."
         }
       ],
       "disposition": "professional_judgment",
       "reads_existing_fact_keys": [
         "hpoz",
-        "historic-designation"
+        "historic-cultural-monument"
       ],
+      "removed_fact_keys": [],
       "new_facts_needed": [],
-      "controlled_value_encoding": "Handled today by la_low_rise.overlay-review (judgment).",
+      "controlled_value_encoding": "hpoz and historic-cultural-monument: yes/no each, as context for Planning.",
       "proposed_rule_if_reviewer_agrees": null,
       "judgment_or_ambiguity": [
         "The unless-clause repeats itself ('Opportunity Corridor Transition eligibility subarea based on distance from an Opportunity Corridor'), apparently a drafting error.",
-        "Designated Historic Resource and Non-Contributor status need historic records; the (c)(7)-(8) demolition and Secretary of the Interior provisions are project facts."
-      ]
+        "The first clause (a Designated Historic Resource or Non-Contributor limited to LR-1) is an incentive-tier limit, recorded as outside the screen.",
+        "Overlaps la_low_rise.overlay-review."
+      ],
+      "reviewer_question": "How should the repeated unless-clause in LAMC 12.22 A.38(g)(1)(iii)a be read, and should the TOD-stop historic limit stay a Planning judgment until it is clarified?"
+    },
+    {
+      "component_id": "la_low_rise.historic-resource-lr1-limit",
+      "label": "Designated Historic Resource or Non-Contributor limited to LR-1 incentives",
+      "pinpoint": "Ordinance 188967, Sec. 9, LAMC 12.22 A.38(g)(1)(iii)a, page 8",
+      "excerpts": [
+        {
+          "page": 8,
+          "text": "a. A site with a Designated Historic Resource, or Non-Contributor is not eligible for LR-2 Incentives, and is limited to LR-1 Incentives;"
+        }
+      ],
+      "disposition": "outside_screen",
+      "reads_existing_fact_keys": [],
+      "removed_fact_keys": [],
+      "new_facts_needed": [],
+      "controlled_value_encoding": "No criterion ships; an incentive-tier limit, not a test of whether the pathway applies.",
+      "proposed_rule_if_reviewer_agrees": null,
+      "judgment_or_ambiguity": [
+        "Designated Historic Resource and Non-Contributor status need historic records."
+      ],
+      "reviewer_question": "Do you agree the LR-1 limit for a Designated Historic Resource or Non-Contributor is an incentive-tier condition the parcel screen should not evaluate?"
     },
     {
       "component_id": "la_low_rise.general-plan-land-use",
-      "label": "General Plan land use: not an eligibility criterion",
+      "label": "General Plan land use (no Low-Rise geographic rule)",
       "pinpoint": "Ordinance 188967, Table 12.22 A.38.(g)(1)(i), page 7",
       "excerpts": [
         {
@@ -277,15 +428,17 @@
         }
       ],
       "disposition": "no_rule_in_source",
-      "reads_existing_fact_keys": [
+      "reads_existing_fact_keys": [],
+      "removed_fact_keys": [
         "general-plan-land-use"
       ],
       "new_facts_needed": [],
-      "controlled_value_encoding": "Remove general-plan-land-use from this criterion.",
+      "controlled_value_encoding": "general-plan-land-use is retired.",
       "proposed_rule_if_reviewer_agrees": null,
       "judgment_or_ambiguity": [
         "The ordinance's geographic criteria are TCAC opportunity areas and Opportunity Station Areas; no eligibility provision uses a General Plan land-use designation, and the phrase 'General Plan' does not appear in the captured text."
-      ]
+      ],
+      "reviewer_question": "Do you agree Ordinance 188967 uses no General Plan land-use designation for Low-Rise geography, so the fact can be retired?"
     }
   ],
   "reviewer": null,

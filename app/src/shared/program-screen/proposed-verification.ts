@@ -8,6 +8,8 @@ import {
 import {
   humanVerificationRequiredCriterionIds,
   programFactKeys,
+  retiredProgramCriterionIds,
+  retiredProgramFactKeys,
   type OfficialSourceType,
 } from "./types";
 
@@ -22,8 +24,10 @@ import {
  * rejects it. The evaluator never imports this module or reads
  * `app/fixtures/program-screen/proposed-verifications/`; a test enforces both.
  *
- * Only a later change, made after a named human reviewer approves a
- * proposal, may convert a criterion to `human_verified`.
+ * Since 2026-09-27 each proposal is the source review of one retired broad
+ * criterion, and each of its components is one shipped atomic criterion (or a
+ * documented removal). Only a later change, made after a named human reviewer
+ * approves a component, may convert that atomic criterion to `human_verified`.
  */
 export const PROPOSED_VERIFICATION_DIR = "app/fixtures/program-screen/proposed-verifications/";
 
@@ -50,7 +54,7 @@ export const expectedOfficialSources: readonly ExpectedOfficialSource[] = [
     official_url: "https://cityclerk.lacity.org/onlinedocs/2025/25-1083-S3_ord_188967_06-30-26.pdf",
     source_type: "adopted_ordinance",
     may_change_source_ids: [],
-    role: "Operative source for the Low-Rise geographic criteria.",
+    role: "Operative source for the Low-Rise atomic criteria.",
   },
   {
     source_id: "ordinance-188968",
@@ -58,7 +62,7 @@ export const expectedOfficialSources: readonly ExpectedOfficialSource[] = [
     official_url: "https://cityclerk.lacity.org/onlinedocs/2025/25-1083-S4_ord_188968_06-30-26.pdf",
     source_type: "adopted_ordinance",
     may_change_source_ids: [],
-    role: "Operative source for the SB 79 exclusion, exemption, and site criteria.",
+    role: "Operative source for the SB 79 permanent- and temporary-exemption atomic criteria.",
   },
   {
     source_id: "shra-2025-10-28",
@@ -68,7 +72,7 @@ export const expectedOfficialSources: readonly ExpectedOfficialSource[] = [
       "https://planning.lacity.gov/odocument/1b081b86-f735-43e8-bba6-c2d73a192db7/SB_684_1123_Memo_Update_ACP.pdf",
     source_type: "official_memo",
     may_change_source_ids: [],
-    role: "City implementation guidance for the SHRA criteria.",
+    role: "City implementation guidance for the SHRA atomic criteria.",
   },
   {
     source_id: "low-rise-draft-2026-09-24",
@@ -114,35 +118,53 @@ export const proposedVerificationStatuses = [
 ] as const;
 
 /**
- * What the preparer thinks one part of a criterion could become. The human
- * reviewer decides; none of these runs anything.
+ * What the preparer thinks one part of a source review could become. The
+ * human reviewer decides; none of these runs anything.
  * - `deterministic_candidate`: both outcomes could be encoded once the named
  *   facts are controlled and human-recorded.
  * - `partially_deterministic`: only one direction is safe; the other must
  *   stay unknown or judgment.
+ * - `interpretation_unresolved`: the source's reading must first be resolved
+ *   (and reconciled with other official sources); only judgment is safe.
  * - `professional_judgment`: must stay a Planning judgment.
- * - `no_rule_in_source`: the source states no such rule; remove the fact or
- *   find another official source.
+ * - `no_rule_in_source`: the source states no such rule; the fact was removed.
+ * - `outside_screen`: the source states a condition the parcel screen does not
+ *   evaluate (a project or application condition); no criterion ships.
  */
 export const proposedComponentDispositions = [
   "deterministic_candidate",
   "partially_deterministic",
+  "interpretation_unresolved",
   "professional_judgment",
   "no_rule_in_source",
+  "outside_screen",
 ] as const;
+
+/** Dispositions that correspond to a shipped atomic criterion. */
+export const shippedComponentDispositions = [
+  "deterministic_candidate",
+  "partially_deterministic",
+  "interpretation_unresolved",
+  "professional_judgment",
+] as const;
+
+export const PROPOSAL_SCHEMA_VERSION = "program-screen-proposal-v2" as const;
 
 const nonEmptyText = z.string().trim().min(1).max(1200);
 const hex64 = z.string().regex(/^[0-9a-f]{64}$/, "Expected a SHA-256 hex digest.");
 const expectedIds = new Map(expectedOfficialSources.map((source) => [source.source_id, source]));
+const atomicCriterionIds = new Set<string>(humanVerificationRequiredCriterionIds);
+const shipped = new Set<string>(shippedComponentDispositions);
+/** Current and retired fact keys: a proposal may name either when it records a removal. */
+const anyFactKey = z.enum([...programFactKeys, ...retiredProgramFactKeys]);
 
 /**
- * One part of a criterion as the source text divides it. A broad criterion
- * whose facts one boolean cannot represent is proposed as several
- * components, each with its own excerpt, encoding, and rule.
+ * One part of a retired criterion as the source text divides it. A shipped
+ * component's ID is the atomic criterion that now carries it; the tests
+ * require its label, pinpoint, facts, and excerpts to match that criterion.
  */
 export const proposedComponentSchema = z
   .object({
-    /** A proposed criterion ID if the reviewer splits; not a shipped criterion. */
     component_id: z
       .string()
       .regex(/^la_(?:shra|sb79|low_rise)\.[a-z0-9]+(?:-[a-z0-9]+)*$/, "Component IDs are <pathway>.<kebab-slug>."),
@@ -153,11 +175,17 @@ export const proposedComponentSchema = z
       .array(z.object({ page: z.number().int().positive(), text: nonEmptyText }).strict())
       .min(1),
     disposition: z.enum(proposedComponentDispositions),
+    /** The shipped criterion's facts, exactly; empty for a removal or an unscreened condition. */
     reads_existing_fact_keys: z.array(z.enum(programFactKeys)),
+    /** Facts this component removed from the retired criterion (no_rule_in_source only). */
+    removed_fact_keys: z.array(anyFactKey),
+    /** Facts still not modeled that a deterministic rule would need. */
     new_facts_needed: z.array(nonEmptyText),
     controlled_value_encoding: nonEmptyText,
     proposed_rule_if_reviewer_agrees: nonEmptyText.nullable(),
     judgment_or_ambiguity: z.array(nonEmptyText),
+    /** The specific question a named human reviewer must answer for this component. */
+    reviewer_question: nonEmptyText.refine((value) => value.includes("?"), "A reviewer question asks something."),
   })
   .strict()
   .superRefine((component, context) => {
@@ -170,10 +198,23 @@ export const proposedComponentSchema = z
       issue("proposed_rule_if_reviewer_agrees", "A deterministic candidate needs a proposed rule.");
     }
     if (!deterministic && component.proposed_rule_if_reviewer_agrees !== null) {
-      issue("proposed_rule_if_reviewer_agrees", "A judgment or no-rule component proposes no rule.");
+      issue("proposed_rule_if_reviewer_agrees", "Only a deterministic candidate proposes a rule.");
     }
     if (component.disposition !== "deterministic_candidate" && component.judgment_or_ambiguity.length === 0) {
       issue("judgment_or_ambiguity", "Say why this component is not fully deterministic.");
+    }
+    const isShipped = shipped.has(component.disposition);
+    if (isShipped && !atomicCriterionIds.has(component.component_id)) {
+      issue("component_id", `${component.component_id} is not a shipped atomic criterion.`);
+    }
+    if (!isShipped && atomicCriterionIds.has(component.component_id)) {
+      issue("component_id", `${component.component_id} is shipped; it cannot be recorded as ${component.disposition}.`);
+    }
+    if (!isShipped && component.reads_existing_fact_keys.length > 0) {
+      issue("reads_existing_fact_keys", "A removal or an unscreened condition reads no fact.");
+    }
+    if (component.disposition !== "no_rule_in_source" && component.removed_fact_keys.length > 0) {
+      issue("removed_fact_keys", "Only a no-rule component records removed facts.");
     }
   });
 
@@ -182,7 +223,9 @@ export type ProposedComponent = z.infer<typeof proposedComponentSchema>;
 export const proposedVerificationSchema = z
   .object({
     record_kind: z.literal("proposed_verification"),
-    criterion_id: z.enum(humanVerificationRequiredCriterionIds),
+    schema_version: z.literal(PROPOSAL_SCHEMA_VERSION),
+    /** The broad criterion this source review split; it can never ship again. */
+    retired_criterion_id: z.enum(retiredProgramCriterionIds),
     source_id: z.string(),
     /** Other official documents the reviewer may also need to read. */
     additional_sources_needed: z.array(nonEmptyText),
@@ -193,12 +236,14 @@ export const proposedVerificationSchema = z
     candidate_page: z.number().int().positive().nullable(),
     candidate_pinpoint: nonEmptyText.nullable(),
     candidate_excerpt: nonEmptyText.nullable(),
-    /** Where to look. Taken from the repository's existing citation; not located in source text. */
+    /** Where to look in the source. */
     locate_in_source: nonEmptyText,
+    /** Whether the reviewer accepts the split as a whole; each component has its own question. */
     question_for_human_reviewer: nonEmptyText,
     proposed_controlled_interpretation: z
       .object({
-        fact_keys: z.array(z.enum(programFactKeys)).min(1),
+        /** The retired criterion's facts, some of them now retired keys. */
+        fact_keys_before_split: z.array(anyFactKey).min(1),
         controlled_values_required: nonEmptyText,
         fact_narrowing_required: z.boolean(),
         narrowing_note: nonEmptyText.nullable(),
@@ -207,7 +252,7 @@ export const proposedVerificationSchema = z
         zimas_conflict_risk: nonEmptyText,
       })
       .strict(),
-    /** The criterion as the source divides it; empty until the source is captured. */
+    /** The retired criterion as the source divides it; empty until the source is captured. */
     candidate_components: z.array(proposedComponentSchema),
     reviewer: z.null({ error: "A proposal never names a reviewer; human approval happens outside it." }),
     reviewed_at: z.null({ error: "A proposal is never marked reviewed." }),
@@ -265,7 +310,7 @@ export const proposedVerificationSchema = z
         }
       }
     }
-    const pathway = proposal.criterion_id.slice(0, proposal.criterion_id.indexOf("."));
+    const pathway = proposal.retired_criterion_id.slice(0, proposal.retired_criterion_id.indexOf("."));
     const ids = components.map((component) => component.component_id);
     if (new Set(ids).size !== ids.length) {
       issue("candidate_components", "Component IDs must be unique.");
@@ -322,13 +367,14 @@ export interface DraftChangeWarning {
   kind: "draft_change_warning";
   draft_source_id: string;
   affects_source_id: string;
+  /** The shipped atomic criteria whose source the draft would change. */
   criterion_ids: string[];
   action: "human_re_review";
 }
 
 /**
- * A captured draft never changes a criterion result. It only flags the
- * criteria whose proposed source it would change, for human re-review.
+ * A captured draft never changes a criterion result. It only flags the atomic
+ * criteria whose source it would change, for human re-review.
  */
 export function draftChangeWarnings(
   captures: readonly OfficialSourceMetadata[],
@@ -343,7 +389,9 @@ export function draftChangeWarnings(
         affects_source_id: affected,
         criterion_ids: proposals
           .filter((proposal) => proposal.source_id === affected)
-          .map((proposal) => proposal.criterion_id),
+          .flatMap((proposal) => proposal.candidate_components)
+          .filter((component) => shipped.has(component.disposition))
+          .map((component) => component.component_id),
         action: "human_re_review" as const,
       })),
     );

@@ -1,6 +1,7 @@
 {
   "record_kind": "proposed_verification",
-  "criterion_id": "la_shra.lot-area-and-zoning",
+  "schema_version": "program-screen-proposal-v2",
+  "retired_criterion_id": "la_shra.lot-area-and-zoning",
   "source_id": "shra-2025-10-28",
   "additional_sources_needed": [
     "GCS 66499.41, to define multifamily-zoned lots and the qualified-urban-uses test. Chaptered text of the statute on leginfo.legislature.ca.gov. It cannot be captured as evidence until a statute source type exists; do not capture it as an adopted_ordinance.",
@@ -9,19 +10,19 @@
   "related_draft_source_ids": [],
   "source_sha256": "f44574084091c51419d0475d4b8501d9a2c3577b3a16830fc6ecb2a88b20f6e2",
   "candidate_page": 2,
-  "candidate_pinpoint": "Memo Part I, SHRA Property Eligibility Criteria, page 2 (lot-size paragraph)",
+  "candidate_pinpoint": "Memo Part I (property criteria), page 2 (lot-size paragraph)",
   "candidate_excerpt": "To qualify, multifamily-zoned lots must be less than 5 acres, and single-family zoned lots must be under 1.5 acres and \"vacant.\" (See FAQ Section, Q.1.)",
-  "locate_in_source": "Located in shra-2025-10-28 (20 pages, born-digital text). Part I, SHRA Property Eligibility Criteria, page 2, states the lot-size limits and the qualified-urban-uses test. FAQ Q.1, page 12, defines the single-family zones. Page 1 limits the memo to Chapter 1 and describes it as a summary of the SHRA.",
-  "question_for_human_reviewer": "The memo (page 2) states that multifamily-zoned lots must be less than 5 acres and single-family-zoned lots under 1.5 acres and vacant, and FAQ Q.1 (page 12) lists the single-family zones. Do you agree that each limit is a strict less-than on the pre-subdivision lot area, that the single-family zone list is exhaustive, and that this criterion should be split into a zone-category criterion and one lot-area criterion per path? Which official source defines multifamily-zoned lots, given that the memo does not list those zones?",
+  "locate_in_source": "Located in shra-2025-10-28 (20 pages, born-digital text). Part I, page 2, states the lot-size limits and the qualified-urban-uses test. FAQ Q.1, page 12, lists the single-family zones and defines vacant. Page 1 limits the memo to Chapter 1 and describes it as a summary of the SHRA.",
+  "question_for_human_reviewer": "The memo (page 2) limits multifamily-zoned lots to less than 5 acres and single-family-zoned lots to under 1.5 acres and vacant, and FAQ Q.1 (page 12) lists the single-family zones but no multifamily zones. Do you agree with splitting the retired lot-area-and-zoning criterion into a zone-category criterion, one lot-area criterion per path, and a vacancy-condition criterion, with the multifamily path unable to block until an official source classifies multifamily zones?",
   "proposed_controlled_interpretation": {
-    "fact_keys": [
+    "fact_keys_before_split": [
       "lot-area",
       "zoning"
     ],
-    "controlled_values_required": "lot-area is already sq ft. zoning is free text and cannot drive the rule; add a human-recorded shra-zone-category (single_family_listed | multifamily | neither | undetermined). Limits in sq ft: 217,800 (5 acres) and 65,340 (1.5 acres), at 43,560 sq ft per acre.",
+    "controlled_values_required": "shra-zone-category (single_family_listed_zone | zone_not_on_single_family_list), recorded by a person, never parsed from the zoning string. lot-area stays a number in sq ft. Limits: 217,800 sq ft (5 acres) and 65,340 sq ft (1.5 acres).",
     "fact_narrowing_required": true,
-    "narrowing_note": "Split into la_shra.zone-category, la_shra.lot-area-multifamily, and la_shra.lot-area-single-family (see candidate_components). Vacancy stays in la_shra.vacant-site-definition. The qualified-urban-uses test is a separate judgment the current facts do not cover.",
-    "predicate_shape_if_reviewer_agrees": "Multifamily: lot-area < 217,800 sq ft -> consistent_with_source, otherwise disqualifying_per_source. Single-family (listed zones): lot-area < 65,340 sq ft -> consistent_with_source for the area limit, otherwise disqualifying_per_source; vacancy stays requires_judgment. Zone category undetermined -> requires_judgment.",
+    "narrowing_note": "Split on 2026-09-27 into la_shra.multifamily-lot-area-threshold, la_shra.single-family-lot-area-threshold, la_shra.zone-category, and la_shra.single-family-vacancy-condition, all pending human verification. The free-text zoning fact no longer feeds any SHRA criterion. The qualified-urban-uses test is recorded as outside the screen.",
+    "predicate_shape_if_reviewer_agrees": "Only the single-family area limit may block after review. The zone category, the multifamily limit, and the vacancy condition can only be consistent or route to judgment.",
     "must_remain_unresolved_when": [
       "lot area is missing, unreviewed, or conflicting between sources",
       "the recorded lot area may not be the pre-subdivision lot area",
@@ -33,99 +34,141 @@
   },
   "candidate_components": [
     {
-      "component_id": "la_shra.lot-area-multifamily",
-      "label": "Lot area limit for a multifamily-zoned lot: less than 5 acres",
-      "pinpoint": "Memo Part I, SHRA Property Eligibility Criteria, page 2 (lot-size paragraph)",
+      "component_id": "la_shra.multifamily-lot-area-threshold",
+      "label": "SHRA multifamily-zoned lot area: less than 5 acres",
+      "pinpoint": "Memo Part I (property criteria), page 2 (lot-size paragraph)",
       "excerpts": [
         {
           "page": 2,
           "text": "To qualify, multifamily-zoned lots must be less than 5 acres, and single-family zoned lots must be under 1.5 acres and \"vacant.\" (See FAQ Section, Q.1.)"
-        }
-      ],
-      "disposition": "deterministic_candidate",
-      "reads_existing_fact_keys": [
-        "lot-area"
-      ],
-      "new_facts_needed": [
-        "shra-zone-category, recorded by a human (see la_shra.zone-category)."
-      ],
-      "controlled_value_encoding": "lot-area stays a number in sq ft and must be the area of the lot to be subdivided, from a reviewed record. 5 acres = 217,800 sq ft.",
-      "proposed_rule_if_reviewer_agrees": "If shra-zone-category is multifamily: lot-area < 217,800 sq ft -> consistent_with_source; lot-area >= 217,800 sq ft -> disqualifying_per_source. Missing or conflicting lot area -> unknown or conflict. Any other zone category: this component does not apply.",
-      "judgment_or_ambiguity": [
-        "'Less than 5 acres' is read as strictly less than; confirm against GCS 66499.41.",
-        "The memo does not say whether a designated remainder parcel (AB 130, FAQ Q.23) counts toward the lot area.",
-        "The acre-to-square-foot conversion is not stated in the memo."
-      ]
-    },
-    {
-      "component_id": "la_shra.lot-area-single-family",
-      "label": "Lot area limit for a single-family-zoned lot: under 1.5 acres (vacancy stays separate)",
-      "pinpoint": "Memo Part I, SHRA Property Eligibility Criteria, page 2 (lot-size paragraph)",
-      "excerpts": [
-        {
-          "page": 2,
-          "text": "To qualify, multifamily-zoned lots must be less than 5 acres, and single-family zoned lots must be under 1.5 acres and \"vacant.\" (See FAQ Section, Q.1.)"
-        }
-      ],
-      "disposition": "deterministic_candidate",
-      "reads_existing_fact_keys": [
-        "lot-area"
-      ],
-      "new_facts_needed": [
-        "shra-zone-category, recorded by a human (see la_shra.zone-category)."
-      ],
-      "controlled_value_encoding": "lot-area in sq ft of the lot to be subdivided. 1.5 acres = 65,340 sq ft.",
-      "proposed_rule_if_reviewer_agrees": "If shra-zone-category is single_family_listed: lot-area < 65,340 sq ft -> consistent_with_source for the area limit only; lot-area >= 65,340 sq ft -> disqualifying_per_source. The same sentence requires the lot to be vacant; that stays requires_judgment under la_shra.vacant-site-definition.",
-      "judgment_or_ambiguity": [
-        "'Under 1.5 acres' is read as strictly less than.",
-        "Vacancy is a legal definition (FAQ Q.1, page 12). A consistent area result says nothing about vacancy and must never be inferred from structure counts."
-      ]
-    },
-    {
-      "component_id": "la_shra.zone-category",
-      "label": "SHRA zone category: the memo's single-family zone list versus multifamily-zoned",
-      "pinpoint": "Memo FAQ Q.1, page 12 (definition of zoned for single-family residential development)",
-      "excerpts": [
-        {
-          "page": 12,
-          "text": "Zoned for single-family residential development means sites in the following zones: A1, A2, RA, RE, RS, R1, RU, RZ, and RW1."
         }
       ],
       "disposition": "partially_deterministic",
       "reads_existing_fact_keys": [
-        "zoning"
+        "shra-zone-category",
+        "lot-area"
       ],
+      "removed_fact_keys": [],
       "new_facts_needed": [
-        "shra-zone-category: controlled, human-recorded; never parsed from the free-text zoning string."
+        "A multifamily-zone classification from an official source."
       ],
-      "controlled_value_encoding": "single_family_listed: base zone is A1, A2, RA, RE, RS, R1, RU, RZ, or RW1. multifamily: a human records that the base zone permits multifamily residential development. neither: it permits neither. undetermined: otherwise.",
-      "proposed_rule_if_reviewer_agrees": "single_family_listed -> the single-family path (1.5-acre limit plus the vacancy judgment). multifamily -> the multifamily path (5-acre limit). neither -> disqualifying_per_source only if the reviewer confirms the two categories are exhaustive. undetermined -> requires_judgment.",
+      "controlled_value_encoding": "lot-area in sq ft of the lot to be subdivided, from a reviewed record. 5 acres = 217,800 sq ft (43,560 sq ft per acre; the conversion is not stated in the memo).",
+      "proposed_rule_if_reviewer_agrees": "shra-zone-category single_family_listed_zone -> consistent_with_source (this limit does not apply). zone_not_on_single_family_list and lot-area < 217,800 sq ft -> consistent_with_source (below the limit whatever the path). zone_not_on_single_family_list and lot-area >= 217,800 sq ft -> requires_judgment (blocks only if the lot is multifamily-zoned, which no captured source can show).",
       "judgment_or_ambiguity": [
-        "The single-family list is a definition ('means'), so it reads as exhaustive. The memo gives no list for multifamily-zoned lots.",
+        "'Less than 5 acres' is read as strictly less than; confirm against GCS 66499.41.",
+        "The memo does not say whether a designated remainder parcel (AB 130, FAQ Q.23) counts toward the lot area.",
+        "Until an official source classifies multifamily zones, this limit can never block."
+      ],
+      "reviewer_question": "Do you agree the 5-acre limit is a strict less-than on the pre-subdivision lot area, and that it must stay non-blocking until an official source defines which zones are multifamily-zoned?"
+    },
+    {
+      "component_id": "la_shra.single-family-lot-area-threshold",
+      "label": "SHRA single-family-zoned lot area: under 1.5 acres",
+      "pinpoint": "Memo Part I (property criteria), page 2 (lot-size paragraph)",
+      "excerpts": [
+        {
+          "page": 2,
+          "text": "To qualify, multifamily-zoned lots must be less than 5 acres, and single-family zoned lots must be under 1.5 acres and \"vacant.\" (See FAQ Section, Q.1.)"
+        }
+      ],
+      "disposition": "deterministic_candidate",
+      "reads_existing_fact_keys": [
+        "shra-zone-category",
+        "lot-area"
+      ],
+      "removed_fact_keys": [],
+      "new_facts_needed": [],
+      "controlled_value_encoding": "lot-area in sq ft of the lot to be subdivided, from a reviewed record. 1.5 acres = 65,340 sq ft.",
+      "proposed_rule_if_reviewer_agrees": "shra-zone-category single_family_listed_zone and lot-area < 65,340 sq ft -> consistent_with_source for the area limit only. single_family_listed_zone and lot-area >= 65,340 sq ft -> disqualifying_per_source. zone_not_on_single_family_list -> consistent_with_source (this limit does not apply). Missing or conflicting lot area -> unknown or conflict.",
+      "judgment_or_ambiguity": [
+        "'Under 1.5 acres' is read as strictly less than.",
+        "The recorded lot area must be the pre-subdivision area of the lot to be subdivided.",
+        "A consistent area result says nothing about vacancy (la_shra.single-family-vacancy-condition)."
+      ],
+      "reviewer_question": "Do you agree that a lot on the FAQ Q.1 single-family list with a recorded pre-subdivision area of 65,340 sq ft or more is barred by the memo's 1.5-acre limit, regardless of vacancy?"
+    },
+    {
+      "component_id": "la_shra.zone-category",
+      "label": "SHRA zone category: the memo's single-family zone list",
+      "pinpoint": "Memo FAQ Q.1, page 12 (zones for single-family residential development); Part I, page 2 (lot-size paragraph)",
+      "excerpts": [
+        {
+          "page": 12,
+          "text": "Zoned for single-family residential development means sites in the following zones: A1, A2, RA, RE, RS, R1, RU, RZ, and RW1."
+        },
+        {
+          "page": 2,
+          "text": "To qualify, multifamily-zoned lots must be less than 5 acres, and single-family zoned lots must be under 1.5 acres and \"vacant.\" (See FAQ Section, Q.1.)"
+        }
+      ],
+      "disposition": "partially_deterministic",
+      "reads_existing_fact_keys": [
+        "shra-zone-category"
+      ],
+      "removed_fact_keys": [],
+      "new_facts_needed": [
+        "A multifamily-zone classification from an official source, if one exists; none is captured."
+      ],
+      "controlled_value_encoding": "shra-zone-category: single_family_listed_zone (base zone is A1, A2, RA, RE, RS, R1, RU, RZ, or RW1) | zone_not_on_single_family_list. Recorded by a person from the zoning record; the free-text zoning string is never parsed. No value claims multifamily-zoned.",
+      "proposed_rule_if_reviewer_agrees": "single_family_listed_zone -> consistent_with_source (the memo's single-family path applies). zone_not_on_single_family_list -> requires_judgment (whether the lot is multifamily-zoned is unresolved by the captured memo). Never disqualifying_per_source.",
+      "judgment_or_ambiguity": [
+        "The single-family list is a definition ('means'), so it reads as exhaustive; the memo gives no list of multifamily zones.",
         "Whether R2, RD, and commercial zones that permit housing count as multifamily-zoned is not stated.",
-        "Zone variations and suffixes (R1 variation zones, Q conditions, D limitations) need a human classification.",
-        "The memo pertains to Chapter 1 of the Zoning Code only (page 1); a Chapter 1A parcel stays with la_shra.implementation-memo-scope."
-      ]
+        "Zone variations and suffixes (R1 variation zones, Q conditions, D limitations) need a person to classify the base zone.",
+        "The memo covers Chapter 1 only (page 1); a Chapter 1A parcel stays with la_shra.implementation-memo-scope."
+      ],
+      "reviewer_question": "Do you agree that the FAQ Q.1 list (A1, A2, RA, RE, RS, R1, RU, RZ, RW1) is exhaustive for the single-family path, and which official source, if any, should classify a zone off that list as multifamily-zoned?"
+    },
+    {
+      "component_id": "la_shra.single-family-vacancy-condition",
+      "label": "SHRA single-family-zoned lot must also be vacant",
+      "pinpoint": "Memo Part I, page 2 (lot-size paragraph); FAQ Q.1, page 12 (definition of vacant)",
+      "excerpts": [
+        {
+          "page": 2,
+          "text": "To qualify, multifamily-zoned lots must be less than 5 acres, and single-family zoned lots must be under 1.5 acres and \"vacant.\" (See FAQ Section, Q.1.)"
+        },
+        {
+          "page": 12,
+          "text": "The SHRA defines “vacant” as a site that has no permanent structure at the time of application, unless the existing structure is abandoned and uninhabitable."
+        }
+      ],
+      "disposition": "partially_deterministic",
+      "reads_existing_fact_keys": [
+        "shra-zone-category"
+      ],
+      "removed_fact_keys": [],
+      "new_facts_needed": [],
+      "controlled_value_encoding": "Reads only shra-zone-category. Vacancy itself stays with la_shra.vacant-site-definition (repo-sourced judgment).",
+      "proposed_rule_if_reviewer_agrees": "zone_not_on_single_family_list -> consistent_with_source (the memo attaches vacancy to single-family-zoned lots only). single_family_listed_zone -> requires_judgment (vacant is a legal definition). Never disqualifying_per_source, and never decided from a structure count.",
+      "judgment_or_ambiguity": [
+        "FAQ Q.1: a site is vacant if it has no permanent structure at application, unless the structure is abandoned and uninhabitable; documentation lists are non-exhaustive.",
+        "Protected housing (page 3) is never vacant.",
+        "Overlaps la_shra.vacant-site-definition, which is repo-sourced and applies to every parcel; decide whether that criterion should be scoped to the single-family path."
+      ],
+      "reviewer_question": "Do you agree that the memo's vacancy condition attaches only to lots zoned for single-family residential development, so that a zone off the FAQ Q.1 list is consistent with this condition?"
     },
     {
       "component_id": "la_shra.urban-uses-surround",
       "label": "Site substantially surrounded by qualified urban uses",
-      "pinpoint": "Memo Part I, SHRA Property Eligibility Criteria, page 2",
+      "pinpoint": "Memo Part I (property criteria), page 2",
       "excerpts": [
         {
           "page": 2,
           "text": "Eligible sites must be substantially surrounded by qualified urban uses, as defined in GCS 66499.41(a)(2)(B)."
         }
       ],
-      "disposition": "professional_judgment",
+      "disposition": "outside_screen",
       "reads_existing_fact_keys": [],
+      "removed_fact_keys": [],
       "new_facts_needed": [],
-      "controlled_value_encoding": "No fact exists. It would need a human determination against the statutory definition.",
+      "controlled_value_encoding": "No criterion ships; no fact records the site's perimeter uses.",
       "proposed_rule_if_reviewer_agrees": null,
       "judgment_or_ambiguity": [
         "The memo defers to GCS 66499.41(a)(2)(B), which is not captured.",
-        "A perimeter test needs parcel-context analysis. It is outside this criterion's current facts; the reviewer should decide whether to add it as its own judgment criterion."
-      ]
+        "A perimeter test needs parcel-context analysis. While it is unscreened, no SHRA result may be read as covering it."
+      ],
+      "reviewer_question": "Should the qualified-urban-uses test become its own professional-judgment criterion, and which record would a reviewer use?"
     }
   ],
   "reviewer": null,

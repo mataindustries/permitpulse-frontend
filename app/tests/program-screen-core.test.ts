@@ -126,6 +126,11 @@ function testCriterion(
     label: "Synthetic test criterion",
     gating: false,
     predicate: () => "consistent_with_source",
+    permitted_outcomes:
+      overrides.predicate === "professional_judgment"
+        ? ["requires_judgment"]
+        : ["consistent_with_source", "disqualifying_per_source", "requires_judgment"],
+    exception_paths: [],
     rule_summary: "Synthetic rule used only in tests.",
     citation: {
       title: "Synthetic test citation",
@@ -170,10 +175,10 @@ function testOnlyBlocker(): ProgramCriterion {
     id: "la_sb79.test-only-blocker",
     pathway: "la_sb79",
     label: "TEST-ONLY synthetic blocking criterion",
-    fact_keys: ["sb79-permanent-exclusion"],
+    fact_keys: ["sb79-permanent-exemption-shown"],
     predicate: (facts) =>
-      facts["sb79-permanent-exclusion"]?.kind === "boolean" &&
-      facts["sb79-permanent-exclusion"].value
+      facts["sb79-permanent-exemption-shown"]?.kind === "boolean" &&
+      facts["sb79-permanent-exemption-shown"].value
         ? "disqualifying_per_source"
         : "consistent_with_source",
   });
@@ -182,7 +187,7 @@ function testOnlyBlocker(): ProgramCriterion {
 function testOnlyBlockerEvidence(zimasExemptionShown: boolean): CanonicalEvidenceRecord[] {
   return [
     ...anchorEvidence(),
-    evidence("x", "sb79-permanent-exclusion", true, { evidenceType: "official_document" }),
+    evidence("x", "sb79-permanent-exemption-shown", true, { evidenceType: "official_document" }),
     evidence("z", "zimas-sb79-exemption", zimasExemptionShown),
   ];
 }
@@ -237,10 +242,10 @@ describe("Program Screen criterion status precedence", () => {
             evidence("a-2", "hillside-area", false, { reviewStatus, agency: "Second source" }),
           ]
         : [evidence("a-1", "hillside-area", true, { reviewStatus })];
-      if (!row.missing) records.push(evidence("b-1", "fault-zone", false));
+      if (!row.missing) records.push(evidence("b-1", "coastal-zone", false));
 
       const facts = new Map(
-        assessProgramFacts(records, ["hillside-area", "fault-zone"]).map((fact) => [
+        assessProgramFacts(records, ["hillside-area", "coastal-zone"]).map((fact) => [
           fact.key,
           fact,
         ]),
@@ -248,7 +253,7 @@ describe("Program Screen criterion status precedence", () => {
       const predicate = vi.fn(() => "disqualifying_per_source" as const);
       const criterion = testCriterion({
         id: "la_shra.truth-table",
-        fact_keys: ["hillside-area", "fault-zone"],
+        fact_keys: ["hillside-area", "coastal-zone"],
         predicate: row.professional ? "professional_judgment" : predicate,
         verification: row.pending ? "pending_human" : "repo_sourced",
       });
@@ -290,7 +295,7 @@ describe("Program Screen criterion status precedence", () => {
 
   it("lets a conflict outrank an unverified rule on the same fact", () => {
     const records = fixtureRecords();
-    // Two reviewed official records disagree on the SB 79 exclusion itself.
+    // Two reviewed official records disagree on the SB 79 permanent exemption itself.
     const second = structuredClone(
       records.find((record) => record.id === "ps-sb79-permanent-exclusion"),
     ) as CanonicalEvidenceRecord;
@@ -302,10 +307,10 @@ describe("Program Screen criterion status precedence", () => {
 
     const result = evaluateFixture(records);
 
-    expect(criterionOf(result, "la_sb79.permanent-exclusion").status).toBe("conflict");
+    expect(criterionOf(result, "la_sb79.permanent-exemption-shown").status).toBe("conflict");
     expect(pathwayOf(result, "la_sb79").rollup).toBe("contested");
     expect(
-      result.facts.find((fact) => fact.key === "sb79-permanent-exclusion"),
+      result.facts.find((fact) => fact.key === "sb79-permanent-exemption-shown"),
     ).toMatchObject({
       classification: "conflict",
       normalized_value: { kind: "unresolved", value: null, reason: "conflicting_evidence" },
@@ -391,34 +396,41 @@ describe("Program Screen unknown is never false", () => {
       classification: "unknown",
       normalized_value: { kind: "unknown", value: null, reason: "retrieval_failed" },
     });
-    for (const id of ["la_shra.vacant-site-definition", "la_shra.existing-structures-and-occupancy"]) {
+    const readers = programScreenPathwayPacks
+      .flatMap((pack) => pack.criteria)
+      .filter((criterion) => criterion.fact_keys.includes("occupancy-history"))
+      .map((criterion) => criterion.id);
+    expect(readers).toEqual(["la_shra.vacant-site-definition", "la_shra.protected-housing-tenant-occupancy"]);
+    for (const id of readers) {
       const criterion = criterionOf(result, id);
       expect(criterion.status).toBe("unknown");
       expect(criterion.statement).toContain("missing evidence is not treated as a no");
     }
   });
 
-  it("does not turn a missing SB 79 exclusion record into either a blocker or a clear result", () => {
+  it("does not turn a missing SB 79 permanent-exemption record into either a blocker or a clear result", () => {
     const records = fixtureRecords().filter(
-      (record) => record.claim.key !== "sb79-permanent-exclusion",
+      (record) => record.claim.key !== "sb79-permanent-exemption-shown",
     );
     const result = evaluateFixture(records);
     const sb79 = pathwayOf(result, "la_sb79");
 
-    expect(criterionOf(result, "la_sb79.permanent-exclusion").status).toBe("unknown");
-    expect(sb79.rollup).toBe("undetermined");
-    expect(sb79.planning_questions).toEqual([
+    expect(criterionOf(result, "la_sb79.permanent-exemption-shown").status).toBe("unknown");
+    expect(["documented_disqualifier", "no_disqualifier_found_in_reviewed_sources"]).not.toContain(sb79.rollup);
+    expect(sb79.planning_questions).toContainEqual(
       expect.objectContaining({
         trigger: "unknown",
-        criterion_ids: ["la_sb79.permanent-exclusion"],
+        criterion_ids: ["la_sb79.permanent-exemption-shown"],
         why_confirmation_needed: expect.stringContaining("No source record was supplied."),
       }),
-      // The ZIMAS exemption display is not promoted to a blocker; it is asked about.
+    );
+    // The ZIMAS exemption display is not promoted to a blocker; it is asked about.
+    expect(sb79.planning_questions).toContainEqual(
       expect.objectContaining({
         trigger: "program_flag_unexplained",
         id: "la_sb79:zimas-sb79-exemption:program_flag_unexplained",
       }),
-    ]);
+    );
   });
 
   it("does not read a missing program flag as a negative display", () => {
@@ -432,14 +444,14 @@ describe("Program Screen unknown is never false", () => {
 
   it("treats inference-only evidence as unknown rather than an established fact", () => {
     const records = fixtureRecords();
-    const exclusion = records.find(
+    const exemption = records.find(
       (record) => record.id === "ps-sb79-permanent-exclusion",
     ) as CanonicalEvidenceRecord;
-    exclusion.classification = "inference";
+    exemption.classification = "inference";
 
     const result = evaluateFixture(records);
-    expect(criterionOf(result, "la_sb79.permanent-exclusion").status).toBe("unknown");
-    expect(pathwayOf(result, "la_sb79").rollup).toBe("undetermined");
+    expect(criterionOf(result, "la_sb79.permanent-exemption-shown").status).toBe("unknown");
+    expect(pathwayOf(result, "la_sb79").rollup).not.toBe("documented_disqualifier");
   });
 });
 
@@ -582,7 +594,7 @@ describe("Program Screen release gates", () => {
       .filter((blocker) => blocker.code === "stale_criterion")
       .map((blocker) => blocker.ref);
 
-    expect(staleRefs).toContain("la_sb79.permanent-exclusion");
+    expect(staleRefs).toContain("la_sb79.permanent-exemption-shown");
     expect(staleRefs).toContain("la_shra.implementation-memo-scope");
     expect(staleRefs).not.toContain("la_shra.jurisdiction");
   });
@@ -598,7 +610,9 @@ describe("Program Screen release gates", () => {
       status: "unreviewed",
       unreviewed_reasons: ["evidence_unreviewed"],
     });
-    expect(pathwayOf(result, "la_sb79")).toMatchObject({ rollup: "undetermined", anchored: false });
+    // Unanchored, so no pathway result; the fire-hazard conflict (Sec. 2.F) keeps it contested.
+    expect(pathwayOf(result, "la_sb79")).toMatchObject({ rollup: "contested", anchored: false });
+    expect(pathwayOf(result, "la_sb79").statement).toContain("draws no pathway result");
     expect(result.release.blockers).toContainEqual(
       expect.objectContaining({ code: "unreviewed_gating_fact", ref: "jurisdiction", pathway: "la_sb79" }),
     );
@@ -725,38 +739,43 @@ describe("Program Screen criterion citations", () => {
 });
 
 describe("Program Screen documented disqualifiers fail closed", () => {
-  it("never turns the unverified SB 79 exclusion rule into a documented disqualifier", () => {
+  it("never turns the unverified SB 79 permanent-exemption rule into a documented disqualifier", () => {
     const result = evaluateFixture();
-    const exclusionFact = result.facts.find((fact) => fact.key === "sb79-permanent-exclusion");
+    const exemptionFact = result.facts.find((fact) => fact.key === "sb79-permanent-exemption-shown");
     const sb79 = pathwayOf(result, "la_sb79");
 
     // The observation is kept and reviewed, but its effect is not concluded.
-    expect(exclusionFact).toMatchObject({
+    expect(exemptionFact).toMatchObject({
       classification: "source_observation",
       reviewed: true,
       normalized_value: { kind: "boolean", value: true },
     });
-    expect(criterionOf(result, "la_sb79.permanent-exclusion")).toMatchObject({
+    expect(criterionOf(result, "la_sb79.permanent-exemption-shown")).toMatchObject({
       verification: "pending_human",
       rule_kind: "not_encoded",
       status: "unreviewed",
       unreviewed_reasons: ["criterion_pending_human"],
     });
-    expect(sb79.rollup).toBe("undetermined");
+    expect(sb79.rollup).not.toBe("documented_disqualifier");
     expect(result.pathways.map((pathway) => pathway.rollup)).not.toContain("documented_disqualifier");
     expect(result.counts.criteria.disqualifying_per_source).toBe(0);
     expect(result.release.blockers).toContainEqual(
-      expect.objectContaining({ code: "pending_human_criterion", ref: "la_sb79.permanent-exclusion" }),
+      expect.objectContaining({ code: "pending_human_criterion", ref: "la_sb79.permanent-exemption-shown" }),
     );
     expect(result.review_tasks).toContainEqual(
       expect.objectContaining({
         kind: "verify_criterion_rule",
-        criterion_id: "la_sb79.permanent-exclusion",
+        criterion_id: "la_sb79.permanent-exemption-shown",
       }),
     );
   });
 
-  it.each(["la_sb79.permanent-exclusion", "la_sb79.temporary-exemption"])(
+  it.each([
+    "la_sb79.permanent-exemption-shown",
+    "la_sb79.temporary-exemption-all-parcels",
+    "la_sb79.temporary-exemption-period",
+    "la_sb79.temporary-exemption-shown",
+  ])(
     "keeps %s unencoded rather than repo-sourced",
     (id) => {
       const criterion = programScreenPathwayPacks
@@ -781,13 +800,13 @@ describe("Program Screen documented disqualifiers fail closed", () => {
       exemption.normalized_value = { kind: "boolean", value: shown };
 
       const result = evaluateFixture(records);
-      expect(criterionOf(result, "la_sb79.temporary-exemption")).toMatchObject({
+      expect(criterionOf(result, "la_sb79.temporary-exemption-shown")).toMatchObject({
         status: "unreviewed",
         unreviewed_reasons: ["criterion_pending_human"],
       });
-      expect(pathwayOf(result, "la_sb79").rollup).toBe("undetermined");
+      expect(pathwayOf(result, "la_sb79").rollup).not.toBe("documented_disqualifier");
       expect(result.release.blockers).toContainEqual(
-        expect.objectContaining({ code: "pending_human_criterion", ref: "la_sb79.temporary-exemption" }),
+        expect.objectContaining({ code: "pending_human_criterion", ref: "la_sb79.temporary-exemption-shown" }),
       );
     }
   });
@@ -954,7 +973,7 @@ describe("Program Screen determinism", () => {
 
     expect(JSON.stringify(second)).toBe(JSON.stringify(first));
     expect(reversed).toEqual(first);
-    expect(first.screen_id).toBe("program-screen-e3c651404405ca40");
+    expect(first.screen_id).toBe("program-screen-3b829b017eb2036c");
   });
 
   it("requires an explicit evaluation date rather than reading a clock", () => {
@@ -974,7 +993,7 @@ describe("Program Screen determinism", () => {
     expectValidationCode(() => evaluateFixture(mixed), "INVALID_PROGRAM_SCREEN_EVIDENCE");
   });
 
-  it("only accepts the adopted-record evidence type for the SB 79 exclusion fact", () => {
+  it("only accepts the adopted-record evidence type for the SB 79 permanent-exemption fact", () => {
     const records = fixtureRecords();
     const exclusion = records.find((record) => record.id === "ps-sb79-permanent-exclusion") as CanonicalEvidenceRecord;
     exclusion.evidence_type = "official_portal";

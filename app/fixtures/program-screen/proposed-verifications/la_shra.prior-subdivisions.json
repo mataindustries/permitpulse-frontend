@@ -1,6 +1,7 @@
 {
   "record_kind": "proposed_verification",
-  "criterion_id": "la_shra.prior-subdivisions",
+  "schema_version": "program-screen-proposal-v2",
+  "retired_criterion_id": "la_shra.prior-subdivisions",
   "source_id": "shra-2025-10-28",
   "additional_sources_needed": [
     "GCS 66499.41, for the exact prior-map restriction. Chaptered text of the statute on leginfo.legislature.ca.gov. It cannot be captured as evidence until a statute source type exists; do not capture it as an adopted_ordinance.",
@@ -9,18 +10,18 @@
   "related_draft_source_ids": [],
   "source_sha256": "f44574084091c51419d0475d4b8501d9a2c3577b3a16830fc6ecb2a88b20f6e2",
   "candidate_page": 2,
-  "candidate_pinpoint": "Memo Part I, SHRA Property Eligibility Criteria, page 2",
+  "candidate_pinpoint": "Memo Part I (property criteria), page 2 (prior SHRA or SB 9 lots)",
   "candidate_excerpt": "Lots previously recorded pursuant to the SHRA or SB 9 (2021) are ineligible. However, this particular eligibility restriction does not apply if the tentative map has not been recorded.",
   "locate_in_source": "Located in shra-2025-10-28: Part I, page 2 (lots previously recorded under the SHRA or SB 9). FAQ Q.5, page 14 (after a discretionary map) and FAQ Q.26, page 20 (adjacent parcels).",
-  "question_for_human_reviewer": "The memo (page 2) makes lots previously recorded under the SHRA or SB 9 (2021) ineligible, except where the tentative map has not been recorded, and (FAQ Q.5, Q.26) allows SHRA after a recorded discretionary map and on adjacent parcels. Do you agree that the yes/no prior-subdivisions fact should be replaced by a controlled record of which statute the lot's map was recorded under, and that ordinary subdivisions and adjacency are not bars? Does 'recorded pursuant to SB 9' include SB 9 two-unit projects without a lot split?",
+  "question_for_human_reviewer": "The memo (page 2) restricts lots previously recorded under the SHRA or SB 9 (2021), unless the tentative map has not been recorded, and (FAQ Q.5, Q.26) allows SHRA after a recorded discretionary map and on adjacent parcels. Do you agree with replacing the retired yes/no prior-subdivisions fact by a controlled record of whether an SHRA or SB 9 map was recorded, with an incomplete map history staying unknown and adjacency removed?",
   "proposed_controlled_interpretation": {
-    "fact_keys": [
+    "fact_keys_before_split": [
       "prior-subdivisions"
     ],
-    "controlled_values_required": "prior-subdivisions (yes/no for any prior subdivision) is too broad. Proposed: prior-shra-or-sb9-map, controlled recorded_shra | recorded_sb9 | tentative_only | none | incomplete_history, human-recorded from the recorded maps.",
+    "controlled_values_required": "prior-shra-or-sb9-map: shra_map_recorded | sb9_map_recorded | shra_or_sb9_tentative_map_not_recorded | other_basis_map_recorded | no_map_recorded. Unknown statute or incomplete history is unknown, never a value.",
     "fact_narrowing_required": true,
-    "narrowing_note": "Replace the yes/no with prior-shra-or-sb9-map. Drop adjacency and ownership facts; the memo imposes no such restriction.",
-    "predicate_shape_if_reviewer_agrees": "recorded_shra or recorded_sb9 -> disqualifying_per_source; tentative_only or none (complete, reviewed history) -> consistent_with_source; incomplete_history -> unknown. A discretionary map approved but not recorded -> requires_judgment.",
+    "narrowing_note": "Split on 2026-09-27 into la_shra.prior-shra-or-sb9-map, pending human verification. prior-subdivisions (yes/no) is retired and its fixture record dropped, not converted. Adjacency is recorded as having no rule in the source; FAQ Q.5 is recorded as outside the screen.",
+    "predicate_shape_if_reviewer_agrees": "A recorded SHRA or SB 9 map may block after review; every other recorded history is consistent; an incomplete history stays unknown.",
     "must_remain_unresolved_when": [
       "the lot's map history is incomplete or comes from a single display",
       "the statute a prior map was recorded under is unknown",
@@ -30,9 +31,9 @@
   },
   "candidate_components": [
     {
-      "component_id": "la_shra.prior-shra-or-sb9-lot",
-      "label": "Lot previously recorded under the SHRA or SB 9 (2021)",
-      "pinpoint": "Memo Part I, SHRA Property Eligibility Criteria, page 2",
+      "component_id": "la_shra.prior-shra-or-sb9-map",
+      "label": "SHRA prior map: lot previously recorded under the SHRA or SB 9 (2021)",
+      "pinpoint": "Memo Part I (property criteria), page 2 (prior SHRA or SB 9 lots)",
       "excerpts": [
         {
           "page": 2,
@@ -41,21 +42,22 @@
       ],
       "disposition": "deterministic_candidate",
       "reads_existing_fact_keys": [
-        "prior-subdivisions"
+        "prior-shra-or-sb9-map"
       ],
-      "new_facts_needed": [
-        "prior-shra-or-sb9-map: recorded_shra | recorded_sb9 | tentative_only | none | incomplete_history."
-      ],
-      "controlled_value_encoding": "The statute the lot's map was recorded under, and whether it was recorded.",
-      "proposed_rule_if_reviewer_agrees": "recorded_shra or recorded_sb9 -> disqualifying_per_source; tentative_only or none -> consistent_with_source; incomplete_history -> unknown.",
+      "removed_fact_keys": [],
+      "new_facts_needed": [],
+      "controlled_value_encoding": "prior-shra-or-sb9-map: shra_map_recorded | sb9_map_recorded | shra_or_sb9_tentative_map_not_recorded | other_basis_map_recorded | no_map_recorded, recorded from the recorded maps (first value that applies). A recorded map with an unknown statute, or an incomplete history, stays unknown.",
+      "proposed_rule_if_reviewer_agrees": "shra_map_recorded or sb9_map_recorded -> disqualifying_per_source. shra_or_sb9_tentative_map_not_recorded, other_basis_map_recorded, or no_map_recorded -> consistent_with_source. Unknown or incomplete history -> unknown.",
       "judgment_or_ambiguity": [
-        "Whether SB 9 here means only an urban lot split (GCS 66411.7) or also a two-unit project (GCS 65852.21) without a split is not stated; read GCS 66499.41.",
-        "SB 9 lot splits use parcel maps; the memo's 'tentative map' wording needs confirming."
-      ]
+        "Whether SB 9 here means only an urban lot split (GCS 66411.7) or also a two-unit project without a split is not stated; read GCS 66499.41.",
+        "SB 9 lot splits use parcel maps; the memo's 'tentative map' wording needs confirming.",
+        "FAQ Q.5 lets SHRA follow a discretionary map only once its final map is recorded; that timing condition is recorded as outside the screen."
+      ],
+      "reviewer_question": "Do you agree that only a recorded SHRA or SB 9 (2021) map bars the lot, that an unrecorded SHRA or SB 9 tentative map and maps under any other statute do not, and does 'recorded pursuant to SB 9' include SB 9 two-unit projects without a lot split?"
     },
     {
-      "component_id": "la_shra.prior-ordinary-subdivision",
-      "label": "A prior discretionary parcel or tract map is not a bar once recorded",
+      "component_id": "la_shra.discretionary-map-recorded-first",
+      "label": "SHRA after a discretionary map: final map recorded before the SHRA application",
       "pinpoint": "Memo FAQ Q.5, page 14",
       "excerpts": [
         {
@@ -63,22 +65,21 @@
           "text": "Yes, as long as the final map for the discretionary entitlement is recorded prior to the SHRA application."
         }
       ],
-      "disposition": "partially_deterministic",
-      "reads_existing_fact_keys": [
-        "prior-subdivisions"
-      ],
-      "new_facts_needed": [
-        "A pending, unrecorded discretionary map needs its own status value in prior-shra-or-sb9-map."
-      ],
-      "controlled_value_encoding": "Ordinary recorded subdivisions are not a bar.",
-      "proposed_rule_if_reviewer_agrees": "A recorded ordinary parcel or tract map -> consistent_with_source for this criterion. A discretionary map approved but not recorded -> requires_judgment.",
+      "disposition": "outside_screen",
+      "reads_existing_fact_keys": [],
+      "removed_fact_keys": [],
+      "new_facts_needed": [],
+      "controlled_value_encoding": "No criterion ships; this is an application-timing condition.",
+      "proposed_rule_if_reviewer_agrees": null,
       "judgment_or_ambiguity": [
-        "FAQ Q.5 is City guidance on timing, not a restatement of the statute."
-      ]
+        "FAQ Q.5 is City guidance on sequencing, not a site bar.",
+        "A pending, unrecorded discretionary map would need its own fact if it were screened."
+      ],
+      "reviewer_question": "Do you agree FAQ Q.5 is an application-timing condition the parcel screen should not evaluate, and that an ordinary recorded map does not restrict the lot?"
     },
     {
       "component_id": "la_shra.adjacent-parcels",
-      "label": "No adjacency or common-ownership restriction",
+      "label": "Adjacent parcels",
       "pinpoint": "Memo FAQ Q.26, page 20",
       "excerpts": [
         {
@@ -88,12 +89,14 @@
       ],
       "disposition": "no_rule_in_source",
       "reads_existing_fact_keys": [],
+      "removed_fact_keys": [],
       "new_facts_needed": [],
-      "controlled_value_encoding": "None. Do not add adjacency or ownership facts for this criterion.",
+      "controlled_value_encoding": "No adjacency or ownership fact; none is added.",
       "proposed_rule_if_reviewer_agrees": null,
       "judgment_or_ambiguity": [
         "Each parcel needs its own application within the 10-unit limit, and the combined perimeter must be substantially surrounded by qualified urban uses (FAQ Q.26). Confirm GCS 66499.41 adds no adjacency limit."
-      ]
+      ],
+      "reviewer_question": "Do you agree the memo sets no adjacency or common-ownership limit, so adjacency must not be screened?"
     }
   ],
   "reviewer": null,

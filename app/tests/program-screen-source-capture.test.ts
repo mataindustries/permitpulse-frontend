@@ -19,6 +19,7 @@ import {
   expectedSourceIssues,
   proposalCaptureIssues,
   proposedVerificationSchema,
+  shippedComponentDispositions,
   type ProposedVerification,
 } from "../src/shared/program-screen/proposed-verification";
 import { buildProgramScreenPublicDemoPayload } from "../src/shared/program-screen/public-demo";
@@ -48,6 +49,7 @@ import {
 } from "../src/shared/program-screen/source-capture";
 import {
   humanVerificationRequiredCriterionIds,
+  retiredProgramCriterionIds,
   type ProgramCriterion,
   type ProgramCriterionHumanVerification,
   type ProgramFactKey,
@@ -307,7 +309,7 @@ function syntheticCriterion(
   capture: LoadedCapture,
   excerpt: string,
   predicate: ProgramCriterion["predicate"] = (facts) =>
-    facts["flood-zone"]?.kind === "boolean" && facts["flood-zone"].value
+    facts["special-flood-hazard-area"]?.kind === "boolean" && facts["special-flood-hazard-area"].value
       ? "disqualifying_per_source"
       : "consistent_with_source",
   declared: Partial<ProgramCriterionHumanVerification["source_capture"]> = {},
@@ -345,8 +347,10 @@ function syntheticCriterion(
     pathway: "la_shra",
     label: "TEST-ONLY synthetic criterion on a captured source",
     gating: false,
-    fact_keys: ["flood-zone"],
+    fact_keys: ["special-flood-hazard-area"],
     predicate,
+    permitted_outcomes: ["consistent_with_source", "disqualifying_per_source", "requires_judgment"],
+    exception_paths: [],
     rule_summary: "TEST-ONLY synthetic rule: a mapped synthetic flood zone blocks the synthetic pathway.",
     citation,
     confirmer: "Los Angeles City Planning",
@@ -684,7 +688,7 @@ describe("Captured official sources (official-sources/)", () => {
     expect(draftCapture.extracted).not.toMatch(/Table 12\.22|LR-1|stories/);
   });
 
-  it("flags only the Low-Rise criterion for re-review from the captured draft", () => {
+  it("flags only the Low-Rise atomic criteria for re-review from the captured draft", () => {
     const metadata = Object.values(officialCaptures).map((found) => completeOfficial(found).metadata);
     const parsed = Object.values(proposals).map((value) => proposedVerificationSchema.parse(value));
     expect(draftChangeWarnings(metadata, parsed)).toEqual([
@@ -692,7 +696,20 @@ describe("Captured official sources (official-sources/)", () => {
         kind: "draft_change_warning",
         draft_source_id: "low-rise-draft-2026-09-24",
         affects_source_id: "ordinance-188967",
-        criterion_ids: ["la_low_rise.geographic-criteria"],
+        criterion_ids: [
+        "la_low_rise.incentive-area-map-subarea",
+        "la_low_rise.subarea-distance-bands",
+        "la_low_rise.subarea-geographic-criteria",
+        "la_low_rise.underlying-zone",
+        "la_low_rise.manufacturing-zone-exclusion",
+        "la_low_rise.single-family-zone-exclusion",
+        "la_low_rise.fire-restriction-area-exclusion",
+        "la_low_rise.coastal-zone-exclusion",
+        "la_low_rise.sea-level-rise-area-exclusion",
+        "la_low_rise.excluded-plan-area",
+        "la_low_rise.c10-exception-path",
+        "la_low_rise.tod-subarea-historic-limit",
+        ],
         action: "human_re_review",
       },
     ]);
@@ -763,10 +780,10 @@ describe("Draft sources never become operative law", () => {
     expect(
       humanRecordCaptureIssues(criterion.human_verification as ProgramCriterionHumanVerification, adopted),
     ).toEqual([]);
-    expect(screen(criterion, [evidence("f", "flood-zone", true)]).pathway.rollup).toBe(
+    expect(screen(criterion, [evidence("f", "special-flood-hazard-area", true)]).pathway.rollup).toBe(
       "documented_disqualifier",
     );
-    const clear = screen(criterion, [evidence("f", "flood-zone", false)]);
+    const clear = screen(criterion, [evidence("f", "special-flood-hazard-area", false)]);
     expect(clear.pathway.rollup).toBe("no_disqualifier_found_in_reviewed_sources");
     expect(clear.result.release.client_releasable).toBe(true);
   });
@@ -787,14 +804,14 @@ describe("Draft sources never become operative law", () => {
     expect(hasCompleteHumanVerification(criterion)).toBe(false);
     expect(criterionAwaitsHumanVerification(criterion)).toBe(true);
     expectValidationCode(
-      () => screen(criterion, [evidence("f", "flood-zone", true)]),
+      () => screen(criterion, [evidence("f", "special-flood-hazard-area", true)]),
       "INVALID_PROGRAM_CRITERION",
     );
 
     // A caller that skips pack validation still gets no result from the rule.
     for (const flooded of [true, false]) {
       const facts = new Map(
-        assessProgramFacts([evidence("f", "flood-zone", flooded)], ["flood-zone"]).map((fact) => [
+        assessProgramFacts([evidence("f", "special-flood-hazard-area", flooded)], ["special-flood-hazard-area"]).map((fact) => [
           fact.key,
           fact,
         ]),
@@ -852,7 +869,7 @@ describe("Draft sources never become operative law", () => {
     ]);
     expect(draftChangeWarnings([adopted.metadata], [])).toEqual([]);
 
-    // With the real proposals, the Low-Rise draft flags only the Low-Rise criterion.
+    // With the real proposals, the Low-Rise draft flags only the Low-Rise atomic criteria.
     const lowRiseDraft = parseLikeCapture({
       ...officialMetadata(),
       source_id: "low-rise-draft-2026-09-24",
@@ -866,7 +883,20 @@ describe("Draft sources never become operative law", () => {
         kind: "draft_change_warning",
         draft_source_id: "low-rise-draft-2026-09-24",
         affects_source_id: "ordinance-188967",
-        criterion_ids: ["la_low_rise.geographic-criteria"],
+        criterion_ids: [
+          "la_low_rise.incentive-area-map-subarea",
+          "la_low_rise.subarea-distance-bands",
+          "la_low_rise.subarea-geographic-criteria",
+          "la_low_rise.underlying-zone",
+          "la_low_rise.manufacturing-zone-exclusion",
+          "la_low_rise.single-family-zone-exclusion",
+          "la_low_rise.fire-restriction-area-exclusion",
+          "la_low_rise.coastal-zone-exclusion",
+          "la_low_rise.sea-level-rise-area-exclusion",
+          "la_low_rise.excluded-plan-area",
+          "la_low_rise.c10-exception-path",
+          "la_low_rise.tod-subarea-historic-limit",
+        ],
         action: "human_re_review",
       },
     ]);
@@ -880,25 +910,67 @@ describe("Proposed verification records", () => {
   const parsed = Object.fromEntries(
     Object.entries(proposals).map(([file, value]) => [file, proposedVerificationSchema.safeParse(value)]),
   );
+  const components = () =>
+    Object.values(parsed).flatMap((result) => (result.data as ProposedVerification).candidate_components);
 
-  it("has exactly one proposal per pending criterion, named for it", () => {
+  it("has exactly one proposal per retired broad criterion, named for it", () => {
     expect(Object.keys(proposals).sort()).toEqual(
-      [...humanVerificationRequiredCriterionIds].map((id) => `${id}.json`).sort(),
+      [...retiredProgramCriterionIds].map((id) => `${id}.json`).sort(),
     );
     for (const [file, result] of Object.entries(parsed)) {
       expect(result.success, `${file}: ${JSON.stringify(result.error?.issues)}`).toBe(true);
-      expect(`${result.data?.criterion_id}.json`).toBe(file);
+      expect(`${result.data?.retired_criterion_id}.json`).toBe(file);
+      expect(result.data?.schema_version).toBe("program-screen-proposal-v2");
     }
   });
 
-  it("reads exactly the shipped criterion's facts and rests on a non-draft source", () => {
-    for (const result of Object.values(parsed)) {
-      const proposal = result.data as ProposedVerification;
-      const criterion = shipped.get(proposal.criterion_id) as ProgramCriterion;
-      expect(proposal.proposed_controlled_interpretation.fact_keys).toEqual([...criterion.fact_keys]);
-      const source = expectedOfficialSources.find((candidate) => candidate.source_id === proposal.source_id);
-      expect(source?.source_type, proposal.criterion_id).not.toBe("proposed_draft");
-      expect(proposal.question_for_human_reviewer).toMatch(/\?/);
+  it("records each retired criterion's facts before the split and rests on a non-draft source", () => {
+    const before = Object.fromEntries(
+      Object.values(parsed).map((result) => {
+        const proposal = result.data as ProposedVerification;
+        const source = expectedOfficialSources.find((candidate) => candidate.source_id === proposal.source_id);
+        expect(source?.source_type, proposal.retired_criterion_id).not.toBe("proposed_draft");
+        expect(proposal.question_for_human_reviewer).toMatch(/\?/);
+        return [proposal.retired_criterion_id, proposal.proposed_controlled_interpretation.fact_keys_before_split];
+      }),
+    );
+    // The broad criteria's facts as shipped in PR #15; several keys are now retired.
+    expect(before).toEqual({
+      "la_shra.lot-area-and-zoning": ["lot-area", "zoning"],
+      "la_shra.existing-structures-and-occupancy": ["existing-structures", "occupancy-history"],
+      "la_shra.prior-subdivisions": ["prior-subdivisions"],
+      "la_shra.housing-element-site-status": ["housing-element-site-status"],
+      "la_shra.environmental-constraints": [
+        "very-high-fire-hazard-severity-zone",
+        "hillside-area",
+        "fault-zone",
+        "landslide-area",
+        "flood-zone",
+      ],
+      "la_sb79.permanent-exclusion": ["sb79-permanent-exclusion"],
+      "la_sb79.temporary-exemption": ["sb79-temporary-exemption"],
+      "la_sb79.site-and-overlay-standards": ["zoning", "specific-plan-area", "hpoz", "existing-dwelling-units"],
+      "la_low_rise.geographic-criteria": ["zoning", "general-plan-land-use", "specific-plan-area"],
+    });
+  });
+
+  it("matches every shipped component to exactly one atomic criterion, field for field", () => {
+    const shippedComponents = components().filter((component) =>
+      (shippedComponentDispositions as readonly string[]).includes(component.disposition),
+    );
+    expect(shippedComponents.map((component) => component.component_id).sort()).toEqual(
+      [...humanVerificationRequiredCriterionIds].sort(),
+    );
+    for (const component of shippedComponents) {
+      const criterion = shipped.get(component.component_id) as ProgramCriterion;
+      expect(criterion, component.component_id).toBeDefined();
+      expect(component.label).toBe(criterion.label);
+      expect(component.pinpoint).toBe(criterion.citation.pinpoint);
+      expect(component.reads_existing_fact_keys).toEqual([...criterion.fact_keys]);
+      expect(component.excerpts.map((excerpt) => excerpt.text)).toEqual([...criterion.basis.excerpts]);
+    }
+    for (const component of components().filter((candidate) => !shippedComponents.includes(candidate))) {
+      expect(shipped.has(component.component_id), component.component_id).toBe(false);
     }
   });
 
@@ -909,22 +981,22 @@ describe("Proposed verification records", () => {
         (candidate) => candidate.metadata?.source_id === proposal.source_id,
       );
       if (found === undefined) {
-        expect(proposal.status, proposal.criterion_id).toBe("awaiting_source_capture");
+        expect(proposal.status, proposal.retired_criterion_id).toBe("awaiting_source_capture");
         expect(proposal.candidate_excerpt).toBeNull();
       } else {
-        expect(proposal.status, proposal.criterion_id).toBe("awaiting_human_review");
-        expect(proposalCaptureIssues(proposal, completeOfficial(found)), proposal.criterion_id).toEqual([]);
+        expect(proposal.status, proposal.retired_criterion_id).toBe("awaiting_human_review");
+        expect(proposalCaptureIssues(proposal, completeOfficial(found)), proposal.retired_criterion_id).toEqual([]);
       }
     }
   });
 
-  it("pins each proposal's source and how it proposes to split the criterion", () => {
+  it("pins each proposal's source and how it splits the retired criterion", () => {
     // Changing a disposition changes what a reviewer is asked to approve.
     const summary = Object.fromEntries(
       Object.values(parsed).map((result) => {
         const proposal = result.data as ProposedVerification;
         return [
-          proposal.criterion_id,
+          proposal.retired_criterion_id,
           [
             proposal.source_id,
             ...proposal.candidate_components.map((component) => `${component.component_id}:${component.disposition}`),
@@ -935,79 +1007,122 @@ describe("Proposed verification records", () => {
     expect(summary).toEqual({
       "la_low_rise.geographic-criteria": [
         "ordinance-188967",
-        "la_low_rise.incentive-area-map:partially_deterministic",
-        "la_low_rise.subarea-criteria:professional_judgment",
-        "la_low_rise.eligible-underlying-zones:partially_deterministic",
+        "la_low_rise.incentive-area-map-subarea:partially_deterministic",
+        "la_low_rise.subarea-distance-bands:professional_judgment",
+        "la_low_rise.subarea-geographic-criteria:professional_judgment",
+        "la_low_rise.underlying-zone:partially_deterministic",
         "la_low_rise.manufacturing-zone-exclusion:partially_deterministic",
         "la_low_rise.single-family-zone-exclusion:partially_deterministic",
-        "la_low_rise.fire-coastal-sea-level-exclusion:partially_deterministic",
-        "la_low_rise.excluded-plan-areas:partially_deterministic",
-        "la_low_rise.historic-limits:professional_judgment",
+        "la_low_rise.fire-restriction-area-exclusion:partially_deterministic",
+        "la_low_rise.coastal-zone-exclusion:partially_deterministic",
+        "la_low_rise.sea-level-rise-area-exclusion:partially_deterministic",
+        "la_low_rise.excluded-plan-area:partially_deterministic",
+        "la_low_rise.c10-exception-path:professional_judgment",
+        "la_low_rise.tod-subarea-historic-limit:professional_judgment",
+        "la_low_rise.historic-resource-lr1-limit:outside_screen",
         "la_low_rise.general-plan-land-use:no_rule_in_source",
       ],
       "la_sb79.permanent-exclusion": [
         "ordinance-188968",
-        "la_sb79.permanent-exemption-effect:partially_deterministic",
+        "la_sb79.permanent-exemption-shown:partially_deterministic",
         "la_sb79.permanent-exemption-walking-path:professional_judgment",
         "la_sb79.permanent-exemption-industrial-hub:professional_judgment",
-        "la_sb79.exemption-map-record:professional_judgment",
       ],
       "la_sb79.site-and-overlay-standards": [
         "ordinance-188968",
-        "la_sb79.historic-resource-exemption:partially_deterministic",
-        "la_sb79.zoning-capacity:professional_judgment",
+        "la_sb79.temporary-exemption-historic-resource:partially_deterministic",
+        "la_sb79.zoning-standard:no_rule_in_source",
         "la_sb79.specific-plan-and-tod-plan:no_rule_in_source",
         "la_sb79.existing-housing:no_rule_in_source",
       ],
       "la_sb79.temporary-exemption": [
         "ordinance-188968",
-        "la_sb79.citywide-temporary-exemption:partially_deterministic",
-        "la_sb79.temporary-exemption-end:deterministic_candidate",
-        "la_sb79.temporary-exemption-criteria:professional_judgment",
+        "la_sb79.temporary-exemption-all-parcels:interpretation_unresolved",
+        "la_sb79.temporary-exemption-period:partially_deterministic",
+        "la_sb79.temporary-exemption-shown:interpretation_unresolved",
+        "la_sb79.temporary-exemption-capacity-criteria:professional_judgment",
+        "la_sb79.temporary-exemption-tod-alternative-plan:partially_deterministic",
+        "la_sb79.temporary-exemption-fire-or-state-responsibility-area:partially_deterministic",
+        "la_sb79.temporary-exemption-sea-level-rise:partially_deterministic",
       ],
       "la_shra.environmental-constraints": [
         "shra-2025-10-28",
-        "la_shra.fire-hazard-severity-zone:partially_deterministic",
+        "la_shra.very-high-fire-hazard-severity-zone:deterministic_candidate",
+        "la_shra.high-fire-hazard-severity-zone:deterministic_candidate",
+        "la_shra.prime-or-statewide-farmland:deterministic_candidate",
+        "la_shra.wetlands:partially_deterministic",
+        "la_shra.natural-community-conservation-plan-land:deterministic_candidate",
+        "la_shra.protected-species-habitat:professional_judgment",
+        "la_shra.conservation-easement:deterministic_candidate",
+        "la_shra.hazardous-waste-site:partially_deterministic",
         "la_shra.special-flood-hazard-area:partially_deterministic",
+        "la_shra.regulatory-floodway:partially_deterministic",
         "la_shra.earthquake-fault-zone:partially_deterministic",
         "la_shra.hillside-area:no_rule_in_source",
         "la_shra.landslide-area:no_rule_in_source",
-        "la_shra.other-prohibited-site-categories:professional_judgment",
       ],
       "la_shra.existing-structures-and-occupancy": [
         "shra-2025-10-28",
-        "la_shra.protected-housing-demolition:partially_deterministic",
-        "la_shra.ellis-act-withdrawal:deterministic_candidate",
-        "la_shra.existing-units-not-separated:professional_judgment",
+        "la_shra.protected-housing-demolition-or-alteration:professional_judgment",
+        "la_shra.protected-housing-affordability-covenant:partially_deterministic",
+        "la_shra.protected-housing-price-control:partially_deterministic",
+        "la_shra.protected-housing-tenant-occupancy:professional_judgment",
+        "la_shra.ellis-act-withdrawal:partially_deterministic",
+        "la_shra.existing-units-not-separated:outside_screen",
       ],
       "la_shra.housing-element-site-status": [
         "shra-2025-10-28",
-        "la_shra.housing-element-site-listing:deterministic_candidate",
-        "la_shra.housing-element-minimum-units:professional_judgment",
-        "la_shra.non-housing-element-minimum-density:professional_judgment",
+        "la_shra.housing-element-projected-units:partially_deterministic",
+        "la_shra.housing-element-lower-income-units:partially_deterministic",
+        "la_shra.non-housing-element-minimum-density:outside_screen",
       ],
       "la_shra.lot-area-and-zoning": [
         "shra-2025-10-28",
-        "la_shra.lot-area-multifamily:deterministic_candidate",
-        "la_shra.lot-area-single-family:deterministic_candidate",
+        "la_shra.multifamily-lot-area-threshold:partially_deterministic",
+        "la_shra.single-family-lot-area-threshold:deterministic_candidate",
         "la_shra.zone-category:partially_deterministic",
-        "la_shra.urban-uses-surround:professional_judgment",
+        "la_shra.single-family-vacancy-condition:partially_deterministic",
+        "la_shra.urban-uses-surround:outside_screen",
       ],
       "la_shra.prior-subdivisions": [
         "shra-2025-10-28",
-        "la_shra.prior-shra-or-sb9-lot:deterministic_candidate",
-        "la_shra.prior-ordinary-subdivision:partially_deterministic",
+        "la_shra.prior-shra-or-sb9-map:deterministic_candidate",
+        "la_shra.discretionary-map-recorded-first:outside_screen",
         "la_shra.adjacent-parcels:no_rule_in_source",
       ],
     });
   });
 
-  it("never proposes a component ID that is already a shipped criterion", () => {
-    for (const result of Object.values(parsed)) {
-      for (const component of (result.data as ProposedVerification).candidate_components) {
-        expect(shipped.has(component.component_id), component.component_id).toBe(false);
-      }
+  it("matches each disposition to the atomic criterion's kind and outcome ceiling", () => {
+    for (const component of components()) {
+      const criterion = shipped.get(component.component_id);
+      if (criterion === undefined) continue;
+      const may = (outcome: string) => (criterion.permitted_outcomes as readonly string[]).includes(outcome);
+      const directions = [may("consistent_with_source"), may("disqualifying_per_source")].filter(Boolean).length;
+      const expected: Record<string, [ProgramCriterion["predicate"], number]> = {
+        deterministic_candidate: ["not_encoded", 2],
+        partially_deterministic: ["not_encoded", 1],
+        interpretation_unresolved: ["not_encoded", 0],
+        professional_judgment: ["professional_judgment", 0],
+      };
+      const [predicate, count] = expected[component.disposition];
+      expect([criterion.predicate, directions], component.component_id).toEqual([predicate, count]);
     }
+  });
+
+  it("records removed facts only on no-rule components, and never a shipped criterion as removed", () => {
+    const removed = components()
+      .filter((component) => component.disposition === "no_rule_in_source")
+      .flatMap((component) => component.removed_fact_keys)
+      .sort();
+    expect(removed).toEqual([
+      "existing-dwelling-units",
+      "general-plan-land-use",
+      "hillside-area",
+      "landslide-area",
+      "specific-plan-area",
+      "zoning",
+    ]);
   });
 
   it("rejects a component excerpt that is off its page, invented, or taken from the draft", () => {
@@ -1021,14 +1136,14 @@ describe("Proposed verification records", () => {
       candidate_components: [{ ...first, excerpts: [first.excerpts[0], { page, text }] }, ...rest],
     });
     // (c)(9) starts on page 6; the same words are not on page 7.
-    const cNine = rest.find((component) => component.component_id === "la_low_rise.excluded-plan-areas");
+    const cNine = rest.find((component) => component.component_id === "la_low_rise.excluded-plan-area");
     expect(cNine?.excerpts.map((excerpt) => excerpt.page)).toEqual([6, 7]);
     expect(proposalCaptureIssues(withExcerpt(7, cNine?.excerpts[0].text ?? ""), capture)).toEqual([
-      "la_low_rise.incentive-area-map: an excerpt is not on page 7.",
+      "la_low_rise.incentive-area-map-subarea: an excerpt is not on page 7.",
     ]);
     expect(
       proposalCaptureIssues(withExcerpt(7, "A project in LR-1 may build 11 units."), capture),
-    ).toEqual(["la_low_rise.incentive-area-map: an excerpt does not appear in the captured text."]);
+    ).toEqual(["la_low_rise.incentive-area-map-subarea: an excerpt does not appear in the captured text."]);
 
     // Checked against the draft capture, the same proposal cannot support a rule.
     const draftCapture = completeOfficial(officialCaptures[`${OFFICIAL_DIR}low-rise-draft-2026-09-24`]);
@@ -1044,6 +1159,8 @@ describe("Proposed verification records", () => {
     const base = proposals["la_shra.lot-area-and-zoning.json"] as ProposedVerification;
     expect(proposedVerificationSchema.safeParse(base).success).toBe(true);
     const [first, ...rest] = base.candidate_components;
+    const unscreened = rest[3];
+    expect(unscreened.disposition).toBe("outside_screen");
     const variants: Array<[string, unknown]> = [
       ["no components while awaiting review", { ...base, candidate_components: [] }],
       ["components while awaiting capture", {
@@ -1064,14 +1181,35 @@ describe("Proposed verification records", () => {
         ...base,
         candidate_components: [{ ...first, proposed_rule_if_reviewer_agrees: null }, ...rest],
       }],
-      ["a judgment component that proposes a rule", {
+      ["an unscreened component that proposes a rule", {
         ...base,
-        candidate_components: [first, ...rest.slice(0, 2), { ...rest[2], proposed_rule_if_reviewer_agrees: "Always consistent." }],
+        candidate_components: [first, ...rest.slice(0, 3), { ...unscreened, proposed_rule_if_reviewer_agrees: "Always consistent." }],
       }],
-      ["a judgment component without a reason", {
+      ["an unscreened component without a reason", {
         ...base,
-        candidate_components: [first, ...rest.slice(0, 2), { ...rest[2], judgment_or_ambiguity: [] }],
+        candidate_components: [first, ...rest.slice(0, 3), { ...unscreened, judgment_or_ambiguity: [] }],
       }],
+      ["an unscreened component that reads a fact", {
+        ...base,
+        candidate_components: [first, ...rest.slice(0, 3), { ...unscreened, reads_existing_fact_keys: ["lot-area"] }],
+      }],
+      ["a shipped disposition on an ID that is not an atomic criterion", {
+        ...base,
+        candidate_components: [first, ...rest.slice(0, 3), { ...unscreened, disposition: "professional_judgment" }],
+      }],
+      ["an atomic criterion recorded as not shipped", {
+        ...base,
+        candidate_components: [{ ...first, disposition: "outside_screen", proposed_rule_if_reviewer_agrees: null, reads_existing_fact_keys: [] }, ...rest],
+      }],
+      ["removed facts on a shipped component", {
+        ...base,
+        candidate_components: [{ ...first, removed_fact_keys: ["zoning"] }, ...rest],
+      }],
+      ["a component without a reviewer question", {
+        ...base,
+        candidate_components: [{ ...first, reviewer_question: "Review this." }, ...rest],
+      }],
+      ["a retired criterion ID that is not one of the nine", { ...base, retired_criterion_id: "la_shra.zone-category" }],
       ["an unknown disposition", {
         ...base,
         candidate_components: [{ ...first, disposition: "human_verified" }, ...rest],
@@ -1134,7 +1272,10 @@ describe("Proposed verification records", () => {
       expect(programCriterionHumanVerificationSchema.safeParse(proposal).success).toBe(false);
 
       const spy = vi.fn(() => "disqualifying_per_source" as const);
-      const original = shipped.get(proposal.criterion_id) as ProgramCriterion;
+      const [firstShipped] = proposal.candidate_components.filter((component) =>
+        shipped.has(component.component_id),
+      );
+      const original = shipped.get(firstShipped.component_id) as ProgramCriterion;
       const promoted = {
         ...original,
         predicate: spy,
@@ -1142,7 +1283,7 @@ describe("Proposed verification records", () => {
         verification: "human_verified" as const,
         human_verification: proposal as unknown as ProgramCriterionHumanVerification,
       };
-      expect(programCriterionSchema.safeParse(promoted).success, proposal.criterion_id).toBe(false);
+      expect(programCriterionSchema.safeParse(promoted).success, original.id).toBe(false);
       expect(hasCompleteHumanVerification(promoted)).toBe(false);
       expect(criterionAwaitsHumanVerification(promoted)).toBe(true);
       const facts = new Map(assessProgramFacts([], promoted.fact_keys).map((fact) => [fact.key, fact]));
@@ -1187,11 +1328,16 @@ describe("Proposed verification records", () => {
     const ledger = normalizeSourceText(verificationLedger);
     for (const value of Object.values(proposals)) {
       const proposal = value as ProposedVerification;
-      expect(ledger).toContain(`#### \`${proposal.criterion_id}\``);
-      expect(ledger, proposal.criterion_id).toContain(
+      expect(ledger).toContain(`#### \`${proposal.retired_criterion_id}\` (retired)`);
+      expect(ledger, proposal.retired_criterion_id).toContain(
         normalizeSourceText(proposal.question_for_human_reviewer),
       );
       expect(ledger).toContain(`(status \`${proposal.status}\`)`);
+      for (const component of proposal.candidate_components) {
+        expect(ledger, component.component_id).toContain(
+          normalizeSourceText(`\`${component.component_id}\`: ${component.reviewer_question}`),
+        );
+      }
     }
   });
 
@@ -1207,28 +1353,29 @@ describe("Fail-closed behavior after this capture pass", () => {
   const shipped = programScreenPathwayPacks.flatMap((pack) => pack.criteria);
   const fixture = parseProgramScreenFixture(fixtureJson);
 
-  it("keeps all nine criteria pending_human, unencoded, and without a record", () => {
+  it("keeps all 46 atomic criteria pending_human, without a rule or a record", () => {
+    expect(humanVerificationRequiredCriterionIds).toHaveLength(46);
     for (const id of humanVerificationRequiredCriterionIds) {
       const criterion = shipped.find((candidate) => candidate.id === id);
-      expect(criterion, id).toMatchObject({
-        verification: "pending_human",
-        predicate: "not_encoded",
-        human_verification: null,
-      });
+      expect(criterion, id).toMatchObject({ verification: "pending_human", human_verification: null });
+      expect(typeof criterion?.predicate, id).not.toBe("function");
       expect(criterionAwaitsHumanVerification(criterion as ProgramCriterion)).toBe(true);
+    }
+    for (const id of retiredProgramCriterionIds) {
+      expect(shipped.find((candidate) => candidate.id === id), id).toBeUndefined();
     }
     expect(shipped.filter((criterion) => criterion.verification === "human_verified")).toEqual([]);
   });
 
   it("still blocks a TEST-ONLY verified rule once its citation is due for review", () => {
     const criterion = syntheticCriterion(adopted, ADOPTED_EXCERPT);
-    const due = screen(criterion, [evidence("f", "flood-zone", false)], "2026-10-20");
+    const due = screen(criterion, [evidence("f", "special-flood-hazard-area", false)], "2026-10-20");
     expect(due.criterion.stale).toBe(true);
     expect(due.result.release.client_releasable).toBe(false);
     expect(due.result.release.blockers).toContainEqual(
       expect.objectContaining({ code: "stale_criterion", ref: criterion.id }),
     );
-    expect(screen(criterion, [evidence("f", "flood-zone", false)], "2026-10-19").criterion.stale).toBe(false);
+    expect(screen(criterion, [evidence("f", "special-flood-hazard-area", false)], "2026-10-19").criterion.stale).toBe(false);
   });
 
   it("leaves the fictional fixture's results unchanged", () => {
@@ -1244,9 +1391,9 @@ describe("Fail-closed behavior after this capture pass", () => {
     expect(result.release.client_releasable).toBe(false);
   });
 
-  it("keeps the public demo non-releasable with nine pending criteria", () => {
+  it("keeps the public demo non-releasable with 46 pending criteria", () => {
     const payload = buildProgramScreenPublicDemoPayload(fixtureJson, { as_of: fixture.as_of });
     expect(payload.release.client_releasable).toBe(false);
-    expect(payload.release.blocker_counts.pending_human_criterion).toBe(9);
+    expect(payload.release.blocker_counts.pending_human_criterion).toBe(46);
   });
 });

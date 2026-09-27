@@ -92,7 +92,8 @@ export function isCitationStale(criterion: ProgramCriterion, asOf: string): bool
  * 3. professional judgment criterion          -> professional
  * 4. rule pending human or evidence unreviewed -> unreviewed
  * 5. pure predicate over reviewed, established facts
- *    (a predicate may itself return `requires_judgment` -> professional)
+ *    (a predicate may itself return `requires_judgment` -> professional;
+ *    an outcome outside `permitted_outcomes` is rejected)
  *
  * A predicate never runs on missing, conflicting, or unreviewed facts, and a
  * pending-human rule never runs at all. A criterion that needs human
@@ -145,6 +146,14 @@ export function evaluateProgramCriterion(
         throw new IntegrityValidationError(
           "INVALID_PREDICATE_OUTCOME",
           `Criterion ${criterion.id} returned an unsupported outcome.`,
+        );
+      }
+      // The criterion's outcome ceiling holds even for callers that skip pack
+      // validation: a one-direction criterion can never return the other.
+      if (!Array.isArray(criterion.permitted_outcomes) || !criterion.permitted_outcomes.includes(outcome)) {
+        throw new IntegrityValidationError(
+          "PREDICATE_OUTCOME_NOT_PERMITTED",
+          `Criterion ${criterion.id} returned ${outcome}, which it does not permit.`,
         );
       }
       status = outcome === "requires_judgment" ? "professional" : outcome;
