@@ -1,0 +1,33 @@
+{
+  "record_kind": "proposed_verification",
+  "criterion_id": "la_sb79.temporary-exemption",
+  "source_id": "ordinance-188968",
+  "additional_sources_needed": [
+    "The City's Housing Element adoption record, if the exemption ends on that event."
+  ],
+  "related_draft_source_ids": [],
+  "source_sha256": null,
+  "candidate_page": null,
+  "candidate_pinpoint": null,
+  "candidate_excerpt": null,
+  "locate_in_source": "Not yet located: Ordinance 188968 (ordinance-188968) has not been captured, so no page or section has been read. The repository's current citation pointer is \"Sections 1-6: temporary exemptions\", taken from repository notes, not from the ordinance text.",
+  "question_for_human_reviewer": "Which parcels does Ordinance 188968 temporarily exempt, what is the effect during the exemption, and exactly when, or on what event, does the exemption end? Can the end condition be recorded as a dated fact?",
+  "proposed_controlled_interpretation": {
+    "fact_keys": [
+      "sb79-temporary-exemption"
+    ],
+    "controlled_values_required": "sb79-temporary-exemption is a yes/no. A time-bounded rule also needs a human-recorded end condition: a date, or a recorded event with its date.",
+    "fact_narrowing_required": true,
+    "narrowing_note": "Add an end-condition fact (a date, or a dated event) and compare it with the screen's as_of date. A yes/no alone cannot express a time-bounded rule.",
+    "predicate_shape_if_reviewer_agrees": "If the reviewer finds that an exemption makes SB 79 inapplicable until end condition E: exempt and E not reached as of as_of -> disqualifying_per_source; E reached per a dated record -> consistent_with_source; E not recorded -> requires_judgment.",
+    "must_remain_unresolved_when": [
+      "the end condition is an event with no recorded date",
+      "the parcel's exemption record is missing or conflicting",
+      "the effect during the exemption is partial rather than a full bar"
+    ],
+    "zimas_conflict_risk": "High. zimas-sb79-exemption records one display for exemption or exclusion, so it cannot tell the two apart; it stays observation-only."
+  },
+  "reviewer": null,
+  "reviewed_at": null,
+  "status": "awaiting_source_capture"
+}

@@ -1,0 +1,36 @@
+{
+  "record_kind": "proposed_verification",
+  "criterion_id": "la_shra.existing-structures-and-occupancy",
+  "source_id": "shra-2025-10-28",
+  "additional_sources_needed": [
+    "Chaptered text of SB 684 (2023) and SB 1123 (2024) on leginfo.legislature.ca.gov, if the memo cross-references state requirements instead of restating them.",
+    "Los Angeles Housing Department records, if the reviewer finds Rent Stabilization Ordinance status relevant (rso-status fact)."
+  ],
+  "related_draft_source_ids": [],
+  "source_sha256": null,
+  "candidate_page": null,
+  "candidate_pinpoint": null,
+  "candidate_excerpt": null,
+  "locate_in_source": "Not yet located: the October 28, 2025 SHRA implementation memo (shra-2025-10-28) has not been captured, so no page or section has been read. Look for provisions on existing housing, demolition, tenant occupancy, or protected units, and any look-back period. The criterion currently cites the City SHRA page (\"Filing checklists and implementation memo\"), not a memo pinpoint; a converted record must cite the memo pinpoint instead.",
+  "question_for_human_reviewer": "Which existing-structure or residential-occupancy conditions, if any, does the memo treat as barring or conditioning an SHRA project? For each, record the exact condition, any look-back period and how it is measured, and whether it is a bar or a condition the project can satisfy (for example, by replacement).",
+  "proposed_controlled_interpretation": {
+    "fact_keys": [
+      "existing-structures",
+      "occupancy-history"
+    ],
+    "controlled_values_required": "existing-structures is a count of structures and may not express the condition the text uses. occupancy-history is free text and cannot drive a rule. A rule needs a structured, human-recorded fact for exactly the condition the text names, such as a yes/no for that condition within the stated period.",
+    "fact_narrowing_required": true,
+    "narrowing_note": "Replace or supplement the bundle with facts that mirror each condition the reviewer finds. Keep vacancy out of this criterion; it stays professional under la_shra.vacant-site-definition.",
+    "predicate_shape_if_reviewer_agrees": "If the reviewer finds bar B: B recorded true -> disqualifying_per_source; B recorded false from a record the text makes authoritative -> consistent_with_source; otherwise -> requires_judgment. A condition the project can satisfy -> requires_judgment.",
+    "must_remain_unresolved_when": [
+      "occupancy history exists only as free text",
+      "the look-back period cannot be established from the record",
+      "the condition has exceptions or can be satisfied by the project",
+      "structure or occupancy records conflict"
+    ],
+    "zimas_conflict_risk": "Low to medium. The reviewer should determine which record authoritatively shows occupancy history; a parcel display alone does not show it. Structure counts from different records can differ; a difference stays a conflict."
+  },
+  "reviewer": null,
+  "reviewed_at": null,
+  "status": "awaiting_source_capture"
+}

@@ -1,0 +1,38 @@
+{
+  "record_kind": "proposed_verification",
+  "criterion_id": "la_sb79.site-and-overlay-standards",
+  "source_id": "ordinance-188968",
+  "additional_sources_needed": [
+    "SB 79 (2025) chaptered text on leginfo.legislature.ca.gov: the reviewer should determine which zoning, overlay, and existing-housing standards come from state law and which from the ordinance.",
+    "The City SB 79 page and adoption maps (the current citation), if needed to apply the ordinance."
+  ],
+  "related_draft_source_ids": [],
+  "source_sha256": null,
+  "candidate_page": null,
+  "candidate_pinpoint": null,
+  "candidate_excerpt": null,
+  "locate_in_source": "Not yet located: Ordinance 188968 (ordinance-188968) has not been captured, so no page or section has been read. The criterion currently cites the City SB 79 page (\"Adoption status and current mapping links\"); a converted record must cite the operative instrument instead.",
+  "question_for_human_reviewer": "Which zoning designations, overlays (Specific Plan areas, Historic Preservation Overlay Zones), and existing-housing conditions does Ordinance 188968, read with SB 79, treat as making a parcel ineligible or subject to different standards?",
+  "proposed_controlled_interpretation": {
+    "fact_keys": [
+      "zoning",
+      "specific-plan-area",
+      "hpoz",
+      "existing-dwelling-units"
+    ],
+    "controlled_values_required": "zoning is free text; specific-plan-area and hpoz are yes/no; existing-dwelling-units is a count. A rule needs a controlled zone class and, for existing housing, a fact matching the exact condition the text names.",
+    "fact_narrowing_required": true,
+    "narrowing_note": "Split into zoning, overlay, and existing-housing criteria. Transit-stop proximity and tier are not encodable: no reviewed transit fact exists, and the ZIMAS tier and category fields stay observation-only.",
+    "predicate_shape_if_reviewer_agrees": "For each standard the reviewer finds: a listed disqualifying zone class, overlay, or existing-housing condition recorded true -> disqualifying_per_source; a complete, reviewed record showing none -> consistent_with_source; a standard that depends on transit tier or project facts -> requires_judgment.",
+    "must_remain_unresolved_when": [
+      "transit-stop proximity or tier matters (not encodable)",
+      "zoning exists only as free text",
+      "overlay treatment has exceptions",
+      "existing-housing records conflict"
+    ],
+    "zimas_conflict_risk": "High. zimas-sb79-category and zimas-sb79-tier stay observation-only and must never substitute for a standard read from the text."
+  },
+  "reviewer": null,
+  "reviewed_at": null,
+  "status": "awaiting_source_capture"
+}

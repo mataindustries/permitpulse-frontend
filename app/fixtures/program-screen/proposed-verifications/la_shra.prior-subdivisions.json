@@ -1,0 +1,33 @@
+{
+  "record_kind": "proposed_verification",
+  "criterion_id": "la_shra.prior-subdivisions",
+  "source_id": "shra-2025-10-28",
+  "additional_sources_needed": [
+    "Chaptered text of SB 684 (2023) and SB 1123 (2024) on leginfo.legislature.ca.gov, if the memo cross-references state requirements instead of restating them."
+  ],
+  "related_draft_source_ids": [],
+  "source_sha256": null,
+  "candidate_page": null,
+  "candidate_pinpoint": null,
+  "candidate_excerpt": null,
+  "locate_in_source": "Not yet located: the October 28, 2025 SHRA implementation memo (shra-2025-10-28) has not been captured, so no page or section has been read. Look for any restriction tied to prior subdivision of the parcel or of adjacent parcels. The criterion currently cites the City SHRA page (\"Filing checklists and implementation memo\"), not a memo pinpoint; a converted record must cite the memo pinpoint instead.",
+  "question_for_human_reviewer": "Does the memo restrict SHRA projects based on a prior subdivision of the parcel or of adjacent parcels? If so, record which kinds of prior subdivision (statute or map type), any date window, and whether adjacency or common ownership matters.",
+  "proposed_controlled_interpretation": {
+    "fact_keys": [
+      "prior-subdivisions"
+    ],
+    "controlled_values_required": "prior-subdivisions is a yes/no for any recorded prior subdivision. A rule needs the subdivision type from a controlled list the text names and its recording date, and possibly adjacency and ownership facts.",
+    "fact_narrowing_required": true,
+    "narrowing_note": "Replace the yes/no with structured facts for exactly the subdivision types, dates, and relationships the text names.",
+    "predicate_shape_if_reviewer_agrees": "If the reviewer finds a restriction on subdivision types T within window W: a recorded subdivision of type T within W -> disqualifying_per_source; a complete, reviewed subdivision history with none -> consistent_with_source; an incomplete history -> requires_judgment.",
+    "must_remain_unresolved_when": [
+      "the subdivision history is incomplete or comes from a single display",
+      "the subdivision type or date is unknown",
+      "the text involves adjacency or ownership facts that are not recorded"
+    ],
+    "zimas_conflict_risk": "Medium. A parcel display that shows no subdivision history does not prove none exists (PROJECT_LAWS law 4). Map references need the recorded map itself."
+  },
+  "reviewer": null,
+  "reviewed_at": null,
+  "status": "awaiting_source_capture"
+}

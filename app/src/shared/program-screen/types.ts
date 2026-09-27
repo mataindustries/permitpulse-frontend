@@ -100,6 +100,24 @@ export const sourceCaptureMethods = [
   "html_text_extraction",
   "manual_transcription",
 ] as const;
+
+/**
+ * What a captured official document is. A `proposed_draft` is never law: it
+ * can prompt a human re-review but can never support a criterion rule.
+ */
+export const officialSourceTypes = ["adopted_ordinance", "official_memo", "proposed_draft"] as const;
+/** Source types that can support a human-verified criterion rule. */
+export const operativeSourceTypes = ["adopted_ordinance", "official_memo"] as const;
+/**
+ * Operative status recorded by the person who captured the document.
+ * `status_unconfirmed`: adoption or effect was not established at capture.
+ */
+export const sourceOperativeStatuses = [
+  "operative",
+  "proposed_not_operative",
+  "status_unconfirmed",
+  "superseded",
+] as const;
 export const citationVolatilities = ["high", "medium", "low"] as const;
 export const programConfirmers = ["Los Angeles City Planning"] as const;
 
@@ -155,6 +173,9 @@ export type ReleaseBlockerCode = (typeof releaseBlockerCodes)[number];
 export type PlanningQuestionTrigger = (typeof planningQuestionTriggers)[number];
 export type ReviewTaskKind = (typeof reviewTaskKinds)[number];
 export type SourceCaptureMethod = (typeof sourceCaptureMethods)[number];
+export type OfficialSourceType = (typeof officialSourceTypes)[number];
+export type OperativeSourceType = (typeof operativeSourceTypes)[number];
+export type SourceOperativeStatus = (typeof sourceOperativeStatuses)[number];
 
 /* ------------------------------------------------------------------ facts */
 
@@ -247,6 +268,9 @@ export interface ProgramSourceCapture {
   capture_method: SourceCaptureMethod;
   sha256: string;
   is_ai_generated: false;
+  /** A proposed draft can never support a rule; see `operativeSourceTypes`. */
+  source_type: OperativeSourceType;
+  operative_status: "operative";
 }
 
 /**
