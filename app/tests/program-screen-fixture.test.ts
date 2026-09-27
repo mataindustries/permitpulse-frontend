@@ -4,14 +4,29 @@ import sb79LowRiseGuide from "../../dist/resources/does-sb79-low-rise-apply-los-
 import fireConflictFixture from "../fixtures/case-integrity/fire-hazard-official-source-conflict.json";
 import fixtureJson from "../fixtures/program-screen/fictional-la-parcel.json";
 import { IntegrityValidationError } from "../src/shared/build-week-integrity/validation";
-import { repoSourceNotes } from "../src/shared/program-screen/criteria/common";
+import { capturedOperativeSources, repoSourceNotes } from "../src/shared/program-screen/criteria/common";
 import {
   evaluateProgramScreen,
   programScreenPathwayPacks,
 } from "../src/shared/program-screen/evaluate";
 import { buildProgramScreenPublicDemoPayload } from "../src/shared/program-screen/public-demo";
 import { parseProgramScreenFixture } from "../src/shared/program-screen/schema";
-import type { ProgramCriterion } from "../src/shared/program-screen/types";
+import {
+  humanVerificationRequiredCriterionIds,
+  type ProgramCriterion,
+} from "../src/shared/program-screen/types";
+import { excerptAppearsInCapture } from "../src/shared/program-screen/source-capture";
+
+/** Captured operative source text, keyed by repo path ("app/fixtures/..."). */
+const captures: Record<string, string> = Object.fromEntries(
+  Object.entries(
+    import.meta.glob("../fixtures/program-screen/official-sources/*/extracted.txt", {
+      query: "?raw",
+      import: "default",
+      eager: true,
+    }) as Record<string, string>,
+  ).map(([path, text]) => [path.replace(/^\.\.\//, "app/"), text]),
+);
 
 const fixture = parseProgramScreenFixture(fixtureJson);
 
@@ -69,17 +84,25 @@ describe("Program Screen fictional LA parcel fixture", () => {
     expectValidationCode(() => parseProgramScreenFixture(realUrl), "INVALID_PROGRAM_SCREEN_FIXTURE");
   });
 
-  it("produces one conflict, one unknown, consistent anchors, and no verified disqualifier", () => {
+  it("produces one conflict, one failed lookup, consistent anchors, and no verified disqualifier", () => {
     const result = evaluate();
 
-    // Fact level: one canonical official-source conflict and one unknown.
-    expect(result.counts.facts).toMatchObject({ conflict: 1, unknown: 1 });
+    // Fact level: one canonical official-source conflict and one failed lookup.
+    // Every other unknown fact is one the fixture never supplied (a new atomic
+    // fact); none is inferred from a retired fixture field.
+    expect(result.counts.facts).toMatchObject({ conflict: 1, unknown: 29 });
     expect(result.facts.filter((fact) => fact.classification === "conflict").map((fact) => fact.key)).toEqual([
       "very-high-fire-hazard-severity-zone",
     ]);
-    expect(result.facts.filter((fact) => fact.classification === "unknown").map((fact) => fact.key)).toEqual([
-      "occupancy-history",
-    ]);
+    expect(
+      result.facts.filter((fact) => fact.supplied && fact.classification === "unknown").map((fact) => fact.key),
+    ).toEqual(["occupancy-history"]);
+    for (const fact of result.facts.filter((candidate) => !candidate.supplied)) {
+      expect(fact, fact.key).toMatchObject({
+        classification: "unknown",
+        normalized_value: { kind: "unknown", value: null, reason: "not_observed" },
+      });
+    }
     expect(
       Object.fromEntries(result.facts.map((fact) => [fact.key, fact.classification])),
     ).toEqual(fixture.expected.fact_classifications);
@@ -93,10 +116,10 @@ describe("Program Screen fictional LA parcel fixture", () => {
       ),
     ).toEqual(fixture.expected.criterion_statuses);
     expect(result.counts.criteria).toEqual({
-      conflict: 2,
-      unknown: 2,
-      professional: 0,
-      unreviewed: 7,
+      conflict: 4,
+      unknown: 32,
+      professional: 8,
+      unreviewed: 4,
       consistent_with_source: 7,
       disqualifying_per_source: 0,
     });
@@ -107,8 +130,8 @@ describe("Program Screen fictional LA parcel fixture", () => {
     ).toEqual(fixture.expected.pathway_rollups);
     expect(result.counts.pathways).toEqual({
       documented_disqualifier: 0,
-      contested: 2,
-      undetermined: 1,
+      contested: 3,
+      undetermined: 0,
       no_disqualifier_found_in_reviewed_sources: 0,
     });
     for (const pathway of result.pathways) {
@@ -146,10 +169,9 @@ describe("Program Screen fictional LA parcel fixture", () => {
         expect(criterion.citation.url).toMatch(/^https:\/\//);
       }
     }
+    // The copied fire-hazard conflict now reaches SB 79 through Ordinance 188968 Sec. 2.F.
     expect(result.pathways.find((pathway) => pathway.pathway === "la_sb79")?.decisive_criteria).toEqual([
-      "la_sb79.permanent-exclusion",
-      "la_sb79.temporary-exemption",
-      "la_sb79.site-and-overlay-standards",
+      "la_sb79.temporary-exemption-fire-or-state-responsibility-area",
     ]);
   });
 
@@ -158,17 +180,67 @@ describe("Program Screen fictional LA parcel fixture", () => {
 
     expect(questions.map((question) => question.id)).toEqual([
       "la_shra:la_shra.vacant-site-definition:unknown",
-      "la_shra:la_shra.existing-structures-and-occupancy:unknown",
-      "la_shra:la_shra.environmental-constraints:conflict",
+      "la_shra:la_shra.zone-category:unknown",
+      "la_shra:la_shra.multifamily-lot-area-threshold:unknown",
+      "la_shra:la_shra.single-family-lot-area-threshold:unknown",
+      "la_shra:la_shra.single-family-vacancy-condition:unknown",
+      "la_shra:la_shra.ellis-act-withdrawal:unknown",
+      "la_shra:la_shra.protected-housing-affordability-covenant:unknown",
+      "la_shra:la_shra.protected-housing-price-control:unknown",
+      "la_shra:la_shra.protected-housing-tenant-occupancy:unknown",
+      "la_shra:la_shra.protected-housing-demolition-or-alteration:professional",
+      "la_shra:la_shra.prior-shra-or-sb9-map:unknown",
+      "la_shra:la_shra.housing-element-projected-units:unknown",
+      "la_shra:la_shra.housing-element-lower-income-units:unknown",
+      "la_shra:la_shra.prime-or-statewide-farmland:unknown",
+      "la_shra:la_shra.wetlands:unknown",
+      "la_shra:la_shra.very-high-fire-hazard-severity-zone:conflict",
+      "la_shra:la_shra.high-fire-hazard-severity-zone:unknown",
+      "la_shra:la_shra.natural-community-conservation-plan-land:unknown",
+      "la_shra:la_shra.protected-species-habitat:professional",
+      "la_shra:la_shra.conservation-easement:unknown",
+      "la_shra:la_shra.hazardous-waste-site:unknown",
+      "la_shra:la_shra.special-flood-hazard-area:unknown",
+      "la_shra:la_shra.regulatory-floodway:unknown",
+      "la_shra:la_shra.earthquake-fault-zone:unknown",
+      "la_sb79:la_sb79.permanent-exemption-walking-path:professional",
+      "la_sb79:la_sb79.permanent-exemption-industrial-hub:professional",
+      "la_sb79:la_sb79.temporary-exemption-period:unknown",
+      "la_sb79:la_sb79.temporary-exemption-capacity-criteria:professional",
+      "la_sb79:la_sb79.temporary-exemption-tod-alternative-plan:unknown",
+      "la_sb79:la_sb79.temporary-exemption-fire-or-state-responsibility-area:conflict",
+      "la_sb79:la_sb79.temporary-exemption-sea-level-rise:unknown",
+      "la_sb79:la_sb79.temporary-exemption-historic-resource:unknown",
       "la_sb79:zimas-sb79-exemption:program_flag_unexplained",
       "la_low_rise:la_low_rise.overlay-review:conflict",
+      "la_low_rise:la_low_rise.incentive-area-map-subarea:unknown",
+      "la_low_rise:la_low_rise.subarea-distance-bands:professional",
+      "la_low_rise:la_low_rise.subarea-geographic-criteria:professional",
+      "la_low_rise:la_low_rise.underlying-zone:unknown",
+      "la_low_rise:la_low_rise.manufacturing-zone-exclusion:unknown",
+      "la_low_rise:la_low_rise.single-family-zone-exclusion:unknown",
+      "la_low_rise:la_low_rise.fire-restriction-area-exclusion:conflict",
+      "la_low_rise:la_low_rise.sea-level-rise-area-exclusion:unknown",
+      "la_low_rise:la_low_rise.excluded-plan-area:unknown",
+      "la_low_rise:la_low_rise.c10-exception-path:professional",
+      "la_low_rise:la_low_rise.tod-subarea-historic-limit:unknown",
     ]);
+    const criteria = new Map(
+      programScreenPathwayPacks.flatMap((pack) => pack.criteria).map((criterion) => [criterion.id, criterion]),
+    );
     for (const question of questions) {
       expect(question.directed_to).toBe("Los Angeles City Planning");
       expect(question.criterion_ids.length).toBeGreaterThan(0);
       expect(question.citations.length).toBe(question.criterion_ids.length);
-      expect(question.sources.length).toBeGreaterThan(0);
       expect(question.why_confirmation_needed.length).toBeGreaterThan(0);
+      if (question.trigger === "conflict") expect(question.sources.length).toBeGreaterThan(1);
+      if (question.trigger === "unknown" && question.sources.length === 0) {
+        expect(question.why_confirmation_needed).toContain("No source record was supplied.");
+      }
+      if (question.trigger === "professional" && question.sources.length === 0) {
+        // Only a professional-judgment criterion with no parcel fact asks without a source.
+        expect(criteria.get(question.criterion_ids[0])?.fact_keys).toEqual([]);
+      }
     }
     const fire = questions.find((question) => question.trigger === "conflict");
     expect(fire?.sources.map((source) => source.observed_display_value)).toEqual(["YES", "NO"]);
@@ -182,13 +254,39 @@ describe("Program Screen criteria are sourced in this repository", () => {
     [repoSourceNotes.housingProgramsGuide]: visibleText(housingProgramsGuide),
   };
 
-  // Human-verified criteria quote captured official text instead; see
-  // program-screen-verification.test.ts.
-  const repoNoteCriteria = programScreenPathwayPacks
-    .flatMap((pack) => pack.criteria)
-    .filter((criterion) => criterion.verification !== "human_verified");
+  // Atomic criteria quote captured official text instead (checked below and,
+  // page by page, in program-screen-atomic.test.ts); human-verified criteria
+  // are checked in program-screen-verification.test.ts.
+  const criteria = programScreenPathwayPacks.flatMap((pack) => pack.criteria);
+  const capturedPaths = new Set<string>(Object.values(capturedOperativeSources));
+  const repoNoteCriteria = criteria.filter(
+    (criterion) => criterion.verification !== "human_verified" && !capturedPaths.has(criterion.basis.repo_path),
+  );
 
-  it("quotes every criterion basis verbatim from a reviewed repo source note", () => {
+  it("quotes every atomic criterion basis verbatim from a captured operative source", () => {
+    const atomic = criteria.filter((criterion) => capturedPaths.has(criterion.basis.repo_path));
+    expect(atomic.map((criterion) => criterion.id)).toEqual([...humanVerificationRequiredCriterionIds]);
+    for (const criterion of atomic) {
+      const text = captures[criterion.basis.repo_path];
+      expect(text, criterion.id).toBeDefined();
+      for (const excerpt of criterion.basis.excerpts) {
+        expect(excerptAppearsInCapture(excerpt, text), `${criterion.id}: ${excerpt}`).toBe(true);
+      }
+    }
+  });
+
+  it("quotes every other criterion basis verbatim from a reviewed repo source note", () => {
+    expect(repoNoteCriteria.map((criterion) => criterion.id)).toEqual([
+      "la_shra.parcel-match",
+      "la_shra.jurisdiction",
+      "la_shra.implementation-memo-scope",
+      "la_shra.vacant-site-definition",
+      "la_sb79.parcel-match",
+      "la_sb79.jurisdiction",
+      "la_low_rise.parcel-match",
+      "la_low_rise.jurisdiction",
+      "la_low_rise.overlay-review",
+    ]);
     for (const criterion of repoNoteCriteria) {
       const text = notes[criterion.basis.repo_path];
       expect(text, criterion.id).toBeDefined();
@@ -199,7 +297,7 @@ describe("Program Screen criteria are sourced in this repository", () => {
   });
 
   it("links criterion citations only to official sources listed in those notes", () => {
-    for (const criterion of repoNoteCriteria) {
+    for (const criterion of criteria.filter((candidate) => candidate.verification !== "human_verified")) {
       const listed =
         sb79LowRiseGuide.includes(`href="${criterion.citation.url}"`) ||
         housingProgramsGuide.includes(`href="${criterion.citation.url}"`);
@@ -208,23 +306,12 @@ describe("Program Screen criteria are sourced in this repository", () => {
   });
 
   it("marks every criterion without an encoded rule as pending human verification", () => {
-    const criteria = programScreenPathwayPacks.flatMap((pack) => pack.criteria);
     for (const criterion of criteria.filter((candidate) => candidate.predicate === "not_encoded")) {
       expect(criterion.verification).toBe("pending_human");
     }
     expect(
       criteria.filter((criterion) => criterion.verification === "pending_human").map((criterion) => criterion.id),
-    ).toEqual([
-      "la_shra.lot-area-and-zoning",
-      "la_shra.existing-structures-and-occupancy",
-      "la_shra.prior-subdivisions",
-      "la_shra.housing-element-site-status",
-      "la_shra.environmental-constraints",
-      "la_sb79.permanent-exclusion",
-      "la_sb79.temporary-exemption",
-      "la_sb79.site-and-overlay-standards",
-      "la_low_rise.geographic-criteria",
-    ]);
+    ).toEqual([...humanVerificationRequiredCriterionIds]);
   });
 });
 
@@ -249,7 +336,7 @@ describe("Program Screen public demo projection", () => {
       release: { client_releasable: false },
     });
     expect(first.disclosure).toContain("FICTIONAL");
-    expect(first.release.blocker_counts.pending_human_criterion).toBe(9);
+    expect(first.release.blocker_counts.pending_human_criterion).toBe(46);
     expect(first.pathways.map((pathway) => pathway.rollup)).toEqual(
       result.pathways.map((pathway) => pathway.rollup),
     );

@@ -1,6 +1,7 @@
 {
   "record_kind": "proposed_verification",
-  "criterion_id": "la_sb79.site-and-overlay-standards",
+  "schema_version": "program-screen-proposal-v2",
+  "retired_criterion_id": "la_sb79.site-and-overlay-standards",
   "source_id": "ordinance-188968",
   "additional_sources_needed": [
     "SB 79 (GCS 65912.155-65912.162), for any zoning, overlay, or existing-housing standard. Chaptered text of the statute on leginfo.legislature.ca.gov. It cannot be captured as evidence until a statute source type exists; do not capture it as an adopted_ordinance.",
@@ -12,18 +13,18 @@
   "candidate_pinpoint": "Ordinance 188968, Sec. 2.H, page 5, with the recital on page 3",
   "candidate_excerpt": "H. A site with a historic resource designated as of January 1,2025, on a local register (Gov. Code Sec. 65912.161(b)(1)(F)).",
   "locate_in_source": "Located in ordinance-188968: Sec. 2.A, E, and H, pages 4-5; recital on HCMs and HPOZs, page 3. The ordinance states no zoning, Specific Plan, or existing-housing standard; its site criteria are exemption criteria.",
-  "question_for_human_reviewer": "Ordinance 188968 sets no zoning, Specific Plan, or existing-housing standard of its own. Its site criteria are exemption criteria, including historic resources designated by January 1, 2025 (Sec. 2.H, which a recital reads as including HCMs and HPOZs). Do you agree to dissolve this criterion: move the historic-resource test into la_sb79.temporary-exemption, and drop zoning, specific-plan-area, and existing-dwelling-units unless SB 79's statute text is captured as its own source type?",
+  "question_for_human_reviewer": "Ordinance 188968 sets no zoning, Specific Plan, overlay, or existing-housing standard of its own; its site criteria are exemption criteria, including historic resources designated by January 1, 2025 (Sec. 2.H). Do you agree with dissolving the retired site-and-overlay criterion, moving the historic-resource test to the temporary-exemption provision with a dated designation fact, and removing zoning, specific-plan-area, and existing-dwelling-units from SB 79?",
   "proposed_controlled_interpretation": {
-    "fact_keys": [
+    "fact_keys_before_split": [
       "zoning",
       "specific-plan-area",
       "hpoz",
       "existing-dwelling-units"
     ],
-    "controlled_values_required": "hpoz (yes/no) carries no designation date; Sec. 2.H needs designation on or before January 1, 2025. zoning, specific-plan-area, and existing-dwelling-units have no rule in this ordinance.",
+    "controlled_values_required": "hcm-or-hpoz-designated-by-2025-01-01: yes/no with the designation date. The undated hpoz fact no longer feeds SB 79.",
     "fact_narrowing_required": true,
-    "narrowing_note": "Dissolve: move the historic-resource test into la_sb79.temporary-exemption with a dated hpoz-or-hcm-designated-by-2025-01-01 fact; drop the other facts unless SB 79's text is captured.",
-    "predicate_shape_if_reviewer_agrees": "HCM or HPOZ designated on or before January 1, 2025 -> temporarily exempt -> disqualifying_per_source during the exemption period. No other component produces a result from this ordinance.",
+    "narrowing_note": "Dissolved on 2026-09-27. The historic-resource test is la_sb79.temporary-exemption-historic-resource (pending human verification). zoning no longer feeds SB 79; specific-plan-area and existing-dwelling-units are retired and their fixture records dropped.",
+    "predicate_shape_if_reviewer_agrees": "Criterion H can only be consistent or route to judgment (no temporary-exemption criterion may block). No other component produces a result.",
     "must_remain_unresolved_when": [
       "a standard depends on SB 79's statute text, which is not captured",
       "the HPOZ or HCM designation date is unknown",
@@ -33,8 +34,8 @@
   },
   "candidate_components": [
     {
-      "component_id": "la_sb79.historic-resource-exemption",
-      "label": "Historic resource designated on a local register as of January 1, 2025 (HCM or HPOZ)",
+      "component_id": "la_sb79.temporary-exemption-historic-resource",
+      "label": "SB 79 temporary exemption criterion H: historic resource designated by January 1, 2025",
       "pinpoint": "Ordinance 188968, Sec. 2.H, page 5, with the recital on page 3",
       "excerpts": [
         {
@@ -48,23 +49,22 @@
       ],
       "disposition": "partially_deterministic",
       "reads_existing_fact_keys": [
-        "hpoz",
-        "historic-designation"
+        "hcm-or-hpoz-designated-by-2025-01-01"
       ],
-      "new_facts_needed": [
-        "hpoz-or-hcm-designated-by-2025-01-01: yes/no with the designation date, from the City's HCM and HPOZ records."
-      ],
-      "controlled_value_encoding": "A dated designation fact; hpoz alone has no date.",
-      "proposed_rule_if_reviewer_agrees": "HCM or HPOZ designated on or before January 1, 2025 -> temporarily exempt (Sec. 2.H) -> disqualifying_per_source during the exemption period. Otherwise no result from this component (Sec. 4 may exempt the parcel anyway).",
+      "removed_fact_keys": [],
+      "new_facts_needed": [],
+      "controlled_value_encoding": "hcm-or-hpoz-designated-by-2025-01-01: yes/no with the designation date from the City's HCM and HPOZ records. The undated hpoz fact cannot stand in.",
+      "proposed_rule_if_reviewer_agrees": "false -> consistent_with_source for criterion H only. true -> requires_judgment (temporarily exempt, but no temporary-exemption criterion may block in this branch).",
       "judgment_or_ambiguity": [
         "The HCM and HPOZ reading comes from a recital, not an operative section.",
-        "This is a temporary-exemption criterion, so it belongs in la_sb79.temporary-exemption.",
-        "'Historic resource designated on a local register' may cover more than HCMs and HPOZs."
-      ]
+        "'Historic resource designated on a local register' may cover more than HCMs and HPOZs.",
+        "Moved here from the dissolved la_sb79.site-and-overlay-standards."
+      ],
+      "reviewer_question": "Do you agree that criterion H covers HCMs and HPOZs designated on or before January 1, 2025, and does it also cover any other local-register resource?"
     },
     {
-      "component_id": "la_sb79.zoning-capacity",
-      "label": "Zoning: only a capacity comparison with SB 79's standards",
+      "component_id": "la_sb79.zoning-standard",
+      "label": "SB 79 zoning standard (none in the ordinance)",
       "pinpoint": "Ordinance 188968, Sec. 2.A, page 4",
       "excerpts": [
         {
@@ -72,20 +72,22 @@
           "text": "A. A site that has been identified by the City which permits density and a residential floor area ratio at no less than 50 percent of the standards specified in subdivision (a) of Government Code Section 65912.157 (Gov. Code Sec. 65912.161(b)(1)(A))."
         }
       ],
-      "disposition": "professional_judgment",
-      "reads_existing_fact_keys": [
+      "disposition": "no_rule_in_source",
+      "reads_existing_fact_keys": [],
+      "removed_fact_keys": [
         "zoning"
       ],
       "new_facts_needed": [],
-      "controlled_value_encoding": "A zone class cannot express it; it needs the City's capacity identification.",
+      "controlled_value_encoding": "zoning (free text) no longer feeds any SB 79 criterion. The capacity test in Sec. 2.A is la_sb79.temporary-exemption-capacity-criteria.",
       "proposed_rule_if_reviewer_agrees": null,
       "judgment_or_ambiguity": [
         "The ordinance sets no zoning-designation standard. Its only zoning-related test compares permitted capacity with SB 79's standards, which are in state law (not captured)."
-      ]
+      ],
+      "reviewer_question": "Do you agree Ordinance 188968 states no zoning-designation standard, so the zoning string must not feed any SB 79 criterion?"
     },
     {
       "component_id": "la_sb79.specific-plan-and-tod-plan",
-      "label": "Specific Plans: not addressed; a TOD alternative plan is a different instrument",
+      "label": "Specific Plans (none in the ordinance)",
       "pinpoint": "Ordinance 188968, Sec. 2.E, page 5",
       "excerpts": [
         {
@@ -94,19 +96,21 @@
         }
       ],
       "disposition": "no_rule_in_source",
-      "reads_existing_fact_keys": [
+      "reads_existing_fact_keys": [],
+      "removed_fact_keys": [
         "specific-plan-area"
       ],
       "new_facts_needed": [],
-      "controlled_value_encoding": "Remove specific-plan-area from this criterion.",
+      "controlled_value_encoding": "specific-plan-area is retired. A TOD alternative plan is its own criterion (la_sb79.temporary-exemption-tod-alternative-plan).",
       "proposed_rule_if_reviewer_agrees": null,
       "judgment_or_ambiguity": [
         "The ordinance does not mention Specific Plans. Sec. 4 also says a later TOD alternative plan will not affect the ordinance."
-      ]
+      ],
+      "reviewer_question": "Do you agree Ordinance 188968 states no Specific Plan test, so specific-plan-area can be retired?"
     },
     {
       "component_id": "la_sb79.existing-housing",
-      "label": "Existing housing: no criterion in the ordinance",
+      "label": "Existing housing (none in the ordinance)",
       "pinpoint": "Ordinance 188968, Secs. 1-2, pages 4-5",
       "excerpts": [
         {
@@ -115,15 +119,17 @@
         }
       ],
       "disposition": "no_rule_in_source",
-      "reads_existing_fact_keys": [
+      "reads_existing_fact_keys": [],
+      "removed_fact_keys": [
         "existing-dwelling-units"
       ],
       "new_facts_needed": [],
-      "controlled_value_encoding": "Remove existing-dwelling-units unless SB 79's statute text is captured.",
+      "controlled_value_encoding": "existing-dwelling-units is retired.",
       "proposed_rule_if_reviewer_agrees": null,
       "judgment_or_ambiguity": [
         "No criterion in Sec. 1 or Sec. 2 refers to existing housing. Any existing-housing or demolition standard comes from SB 79 itself, which is not captured and has no statute source type yet."
-      ]
+      ],
+      "reviewer_question": "Do you agree Ordinance 188968 states no existing-housing test, so existing-dwelling-units can be retired unless SB 79's own text is captured?"
     }
   ],
   "reviewer": null,

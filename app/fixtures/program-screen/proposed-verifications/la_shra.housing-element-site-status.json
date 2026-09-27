@@ -1,6 +1,7 @@
 {
   "record_kind": "proposed_verification",
-  "criterion_id": "la_shra.housing-element-site-status",
+  "schema_version": "program-screen-proposal-v2",
+  "retired_criterion_id": "la_shra.housing-element-site-status",
   "source_id": "shra-2025-10-28",
   "additional_sources_needed": [
     "The 2021-2029 Housing Element, Chapter 4, Appendices 4.1-4.3 (sites, projected units, lower-income units).",
@@ -9,20 +10,20 @@
   "related_draft_source_ids": [],
   "source_sha256": "f44574084091c51419d0475d4b8501d9a2c3577b3a16830fc6ecb2a88b20f6e2",
   "candidate_page": 2,
-  "candidate_pinpoint": "Memo Part I, Minimum Density and Affordability Requirements for Housing Element Sites, pages 2-3",
+  "candidate_pinpoint": "Memo Part I, Minimum Density and Affordability Requirements for Housing Element Sites, pages 2-3; FAQ Q.9, page 15",
   "candidate_excerpt": "Pursuant to GCS 66499.41(a)(5), all SHRA development projects proposed on sites identified in the City’s 2021-2029 Housing Element must result in at least the number of units projected for that parcel.",
   "locate_in_source": "Located in shra-2025-10-28: Part I, Minimum Density and Affordability Requirements for Housing Element Sites, pages 2-3, and FAQ Q.9, pages 15-16. Minimum density for other sites is page 3.",
-  "question_for_human_reviewer": "The memo (pages 2-3, FAQ Q.9) treats Housing Element site status as a minimum-unit condition, not a bar: projects on Appendix 4.1-4.3 sites must reach the projected units, and a site projected for more units than proposed is ineligible. Do you agree that this criterion should become a controlled appendix classification that returns requires_judgment for a listed site and consistent_with_source for a reviewed not-listed site, and never a disqualifier without a proposed unit count? Should the Housing Element appendices or ZIMAS ZI-2512 be the record?",
+  "question_for_human_reviewer": "The memo (pages 2-3, FAQ Q.9) treats Housing Element site status as a unit-count condition: projects on Appendix 4.1-4.3 sites must reach the projected units and any assigned lower-income units. Do you agree with replacing the retired free-text status by a controlled appendix listing, split into a projected-unit criterion and a lower-income-unit criterion, neither able to block without a proposed unit count the screen does not hold?",
   "proposed_controlled_interpretation": {
-    "fact_keys": [
+    "fact_keys_before_split": [
       "housing-element-site-status"
     ],
-    "controlled_values_required": "housing-element-site-status becomes controlled: appendix_4_1 | appendix_4_2 | appendix_4_3 | not_listed, with projected units and lower-income units as numbers from the same record. A site only on the February 2025 rezoning list (CF 21-1230-S6) is not_listed for SHRA.",
+    "controlled_values_required": "housing-element-site-listing: appendix_4_1 | appendix_4_2 | appendix_4_3 | not_listed. Projected and lower-income unit counts, and the project's proposed units, are not modeled.",
     "fact_narrowing_required": true,
-    "narrowing_note": "Convert the free-text status into the controlled appendix classification. The unit comparison needs a project fact and stays judgment.",
-    "predicate_shape_if_reviewer_agrees": "not_listed (reviewed) -> consistent_with_source; appendix_4_1, 4_2, or 4_3 -> requires_judgment (minimum units apply). Never disqualifying_per_source without a proposed unit count.",
+    "narrowing_note": "Split on 2026-09-27 into la_shra.housing-element-projected-units and la_shra.housing-element-lower-income-units, both pending human verification. housing-element-site-status (free text) is retired and its fixture record dropped, not converted.",
+    "predicate_shape_if_reviewer_agrees": "A listing can only route to judgment; not_listed is consistent. Neither component may ever block from the listing alone.",
     "must_remain_unresolved_when": [
-      "the status is free text, or absent from the appendices",
+      "the listing is not a human-recorded controlled value",
       "the parcel is listed and the project's proposed unit count is unknown",
       "the appendices and ZIMAS ZI-2512 disagree"
     ],
@@ -30,9 +31,9 @@
   },
   "candidate_components": [
     {
-      "component_id": "la_shra.housing-element-site-listing",
-      "label": "Whether the parcel is an Appendix 4.1, 4.2, or 4.3 Housing Element site",
-      "pinpoint": "Memo Part I, Minimum Density and Affordability Requirements for Housing Element Sites, pages 2-3",
+      "component_id": "la_shra.housing-element-projected-units",
+      "label": "SHRA Housing Element site: projected-unit minimum",
+      "pinpoint": "Memo Part I, Minimum Density and Affordability Requirements for Housing Element Sites, pages 2-3; FAQ Q.9, page 15",
       "excerpts": [
         {
           "page": 2,
@@ -45,50 +46,62 @@
         {
           "page": 3,
           "text": "In particular, this SHRA requirement does not apply to the rezoning sites list adopted by the City Council in February 2025 (Council File 21-1230-S6)."
-        }
-      ],
-      "disposition": "deterministic_candidate",
-      "reads_existing_fact_keys": [
-        "housing-element-site-status"
-      ],
-      "new_facts_needed": [
-        "housing-element-site-status as a controlled value (appendix_4_1 | appendix_4_2 | appendix_4_3 | not_listed).",
-        "housing-element-projected-units and housing-element-lower-income-units (numbers)."
-      ],
-      "controlled_value_encoding": "Controlled appendix classification from the 2021-2029 Housing Element.",
-      "proposed_rule_if_reviewer_agrees": "not_listed -> consistent_with_source (no Housing Element minimum; the non-Housing-Element minimum density still applies to the project). appendix_4_1, 4_2, or 4_3 -> requires_judgment (the project must reach the projected units and any lower-income units).",
-      "judgment_or_ambiguity": [
-        "The memo notes this is not the LAMC Sec. 16.70 B Housing Element Sites list.",
-        "ZI-2512 in ZIMAS is a display of the appendices; it stays observation-only unless designated."
-      ]
-    },
-    {
-      "component_id": "la_shra.housing-element-minimum-units",
-      "label": "A listed site projected for more units than the project proposes is ineligible",
-      "pinpoint": "Memo FAQ Q.9, page 15",
-      "excerpts": [
+        },
         {
           "page": 15,
           "text": "If a housing element site is projected to host more than the number of proposed units (including ADU/JADUs), that parcel is ineligible for SHRA streamlining."
         }
       ],
-      "disposition": "professional_judgment",
+      "disposition": "partially_deterministic",
       "reads_existing_fact_keys": [
-        "housing-element-site-status"
+        "housing-element-site-listing"
       ],
+      "removed_fact_keys": [],
       "new_facts_needed": [
-        "A proposed unit count, which is a project fact the Program Screen does not hold."
+        "A proposed unit count (a project fact) and housing-element-projected-units from the same record."
       ],
-      "controlled_value_encoding": "Projected units round up (FAQ Q.9 and Q.24).",
-      "proposed_rule_if_reviewer_agrees": null,
+      "controlled_value_encoding": "housing-element-site-listing: appendix_4_1 | appendix_4_2 | appendix_4_3 | not_listed, from the 2021-2029 Housing Element appendices. The February 2025 rezoning list (CF 21-1230-S6) is not_listed for this purpose.",
+      "proposed_rule_if_reviewer_agrees": "not_listed -> consistent_with_source (no Housing Element projected-unit minimum). appendix_4_1, appendix_4_2, or appendix_4_3 -> requires_judgment (the project must reach the projected units). Never disqualifying_per_source without a proposed unit count.",
       "judgment_or_ambiguity": [
-        "The bar compares the projection with the project's proposed units, so a parcel screen cannot decide it.",
-        "Lower-income RHNA units must also be met, with a 99-year restriction (page 16)."
-      ]
+        "The bar compares the projection with the project's proposed units (FAQ Q.9), which the screen does not hold.",
+        "Projected units round up (FAQ Q.9 and Q.24).",
+        "The memo notes this is not the LAMC Sec. 16.70 B Housing Element Sites list; ZI-2512 in ZIMAS is a display of the appendices."
+      ],
+      "reviewer_question": "Do you agree that a Housing Element listing is a condition and never a blocker by itself, and should the appendices or ZIMAS ZI-2512 be the record for the listing?"
+    },
+    {
+      "component_id": "la_shra.housing-element-lower-income-units",
+      "label": "SHRA Housing Element site: lower-income unit minimum",
+      "pinpoint": "Memo Part I, page 3; FAQ Q.9, page 16",
+      "excerpts": [
+        {
+          "page": 3,
+          "text": "If a parcel in Appendices 4.1 - 4.3 is identified to accommodate any portion of the City’s Regional Housing Needs Allocation (RHNA) for lower income households, the project must include at least the number of lower income units projected for that site."
+        },
+        {
+          "page": 16,
+          "text": "Additionally, if a parcel in Appendices 4.1, 4.2, or 4.3 was identified to accommodate any portion of the City’s RHNA for lower income households, the development must result in at least as many lower income units assigned to the parcel."
+        }
+      ],
+      "disposition": "partially_deterministic",
+      "reads_existing_fact_keys": [
+        "housing-element-site-listing"
+      ],
+      "removed_fact_keys": [],
+      "new_facts_needed": [
+        "housing-element-lower-income-units and a proposed lower-income unit count."
+      ],
+      "controlled_value_encoding": "Reads housing-element-site-listing only. Lower-income unit allocations are in the ZIMAS Housing tab and the appendices; not modeled.",
+      "proposed_rule_if_reviewer_agrees": "not_listed -> consistent_with_source (no lower-income unit minimum). appendix_4_1, appendix_4_2, or appendix_4_3 -> requires_judgment (whether lower-income units are assigned and the project includes them). Never disqualifying_per_source.",
+      "judgment_or_ambiguity": [
+        "Lower-income units carry a 99-year restriction (FAQ Q.9, page 16).",
+        "Moderate and above-moderate RHNA allocations carry no affordability requirement."
+      ],
+      "reviewer_question": "Do you agree that the lower-income unit minimum is a project condition that a listing alone can never turn into a blocker?"
     },
     {
       "component_id": "la_shra.non-housing-element-minimum-density",
-      "label": "Minimum density for sites not listed in the Housing Element",
+      "label": "Minimum density for sites not in the Housing Element appendices",
       "pinpoint": "Memo Part I, Minimum Density Requirements for Non-Housing Element Sites, page 3",
       "excerpts": [
         {
@@ -96,14 +109,16 @@
           "text": "SHRA projects located on parcels not listed in the Housing Element appendices listed above are subject to the greater of the following minimum density requirements:"
         }
       ],
-      "disposition": "professional_judgment",
+      "disposition": "outside_screen",
       "reads_existing_fact_keys": [],
+      "removed_fact_keys": [],
       "new_facts_needed": [],
-      "controlled_value_encoding": "None at the parcel screen.",
+      "controlled_value_encoding": "No criterion ships; a project density condition (66% of zoning density or 20 units per acre).",
       "proposed_rule_if_reviewer_agrees": null,
       "judgment_or_ambiguity": [
-        "A project density condition (66% of zoning density or 20 units per acre), not a site bar."
-      ]
+        "A condition on the project's density, not a site bar."
+      ],
+      "reviewer_question": "Do you agree the non-Housing-Element minimum density is a project condition the parcel screen should not evaluate?"
     }
   ],
   "reviewer": null,

@@ -194,7 +194,7 @@ function syntheticVerification(): ProgramCriterionHumanVerification {
  */
 function syntheticVerifiedCriterion(
   predicate: ProgramCriterion["predicate"] = (facts) =>
-    facts["flood-zone"]?.kind === "boolean" && facts["flood-zone"].value
+    facts["special-flood-hazard-area"]?.kind === "boolean" && facts["special-flood-hazard-area"].value
       ? "disqualifying_per_source"
       : "consistent_with_source",
 ): ProgramCriterion {
@@ -203,8 +203,10 @@ function syntheticVerifiedCriterion(
     pathway: "la_shra",
     label: "TEST-ONLY synthetic human-verified criterion",
     gating: false,
-    fact_keys: ["flood-zone"],
+    fact_keys: ["special-flood-hazard-area"],
     predicate,
+    permitted_outcomes: ["consistent_with_source", "disqualifying_per_source", "requires_judgment"],
+    exception_paths: [],
     rule_summary: "TEST-ONLY synthetic rule: a mapped synthetic flood zone blocks the synthetic pathway.",
     citation: { ...syntheticCitation },
     confirmer: "Los Angeles City Planning",
@@ -395,8 +397,8 @@ function exerciseVerifiedCriterion(
 
 describe("Program Screen human-verified criterion (TEST-ONLY synthetic)", () => {
   exerciseVerifiedCriterion(syntheticVerifiedCriterion, {
-    positive: () => [evidence("f", "flood-zone", false)],
-    blocking: () => [evidence("f", "flood-zone", true)],
+    positive: () => [evidence("f", "special-flood-hazard-area", false)],
+    blocking: () => [evidence("f", "special-flood-hazard-area", true)],
     captures: { [SYNTHETIC_CAPTURE_PATH]: syntheticCapture },
   });
 
@@ -409,7 +411,7 @@ describe("Program Screen human-verified criterion (TEST-ONLY synthetic)", () => 
     };
     expect(programCriterionSchema.safeParse(early).success).toBe(false);
     const facts = new Map(
-      assessProgramFacts([evidence("f", "flood-zone", false)], ["flood-zone"]).map((fact) => [
+      assessProgramFacts([evidence("f", "special-flood-hazard-area", false)], ["special-flood-hazard-area"]).map((fact) => [
         fact.key,
         fact,
       ]),
@@ -459,14 +461,14 @@ describe("Program Screen human-verified criterion (TEST-ONLY synthetic)", () => 
     expectValidationCode(
       () =>
         evaluateProgramScreen({
-          evidence_records: [...anchorEvidence(), evidence("f", "flood-zone", false)],
+          evidence_records: [...anchorEvidence(), evidence("f", "special-flood-hazard-area", false)],
           as_of: AS_OF,
           packs: [packFor(criterion)],
         }),
       "INVALID_PROGRAM_CRITERION",
     );
     const facts = new Map(
-      assessProgramFacts([evidence("f", "flood-zone", false)], ["flood-zone"]).map((fact) => [
+      assessProgramFacts([evidence("f", "special-flood-hazard-area", false)], ["special-flood-hazard-area"]).map((fact) => [
         fact.key,
         fact,
       ]),
@@ -508,11 +510,9 @@ describe("Program Screen criteria awaiting human verification", () => {
         expect(hasCompleteHumanVerification(criterion), id).toBe(true);
         continue;
       }
-      expect(criterion).toMatchObject({
-        verification: "pending_human",
-        predicate: "not_encoded",
-        human_verification: null,
-      });
+      expect(criterion).toMatchObject({ verification: "pending_human", human_verification: null });
+      // A pending atomic criterion either has no rule or routes to professional judgment.
+      expect(["not_encoded", "professional_judgment"]).toContain(criterion.predicate);
       expect(criterionAwaitsHumanVerification(criterion)).toBe(true);
       expect(criterion.rule_summary).toContain(
         "record the reviewer, verification date, exact section, and exact supporting excerpt",
@@ -529,6 +529,7 @@ describe("Program Screen criteria awaiting human verification", () => {
         ...original,
         predicate: spy,
         question_if_judgment: "How does Planning apply this criterion?",
+        permitted_outcomes: ["consistent_with_source", "disqualifying_per_source", "requires_judgment"] as const,
         verification: "repo_sourced" as const,
       };
       const unrecorded = { ...relabeled, verification: "human_verified" as const };
@@ -565,7 +566,7 @@ describe("Program Screen criteria awaiting human verification", () => {
 
   it("never ships a draft predicate on a pending criterion", () => {
     for (const criterion of shipped.filter((candidate) => candidate.verification === "pending_human")) {
-      expect(criterion.predicate, criterion.id).toBe("not_encoded");
+      expect(typeof criterion.predicate, criterion.id).not.toBe("function");
     }
   });
 });

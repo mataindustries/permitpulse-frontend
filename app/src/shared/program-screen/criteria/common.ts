@@ -1,8 +1,10 @@
 import { IntegrityValidationError } from "../../build-week-integrity/validation";
 import type {
   CriterionFactValues,
+  PredicateOutcome,
   ProgramCriterion,
   ProgramCriterionCitation,
+  ProgramCriterionException,
   ProgramFactKey,
   ProgramPathwayId,
 } from "../types";
@@ -78,6 +80,91 @@ export function cite(
   return { ...officialSources[source], pinpoint };
 }
 
+/**
+ * Operative official sources captured under
+ * app/fixtures/program-screen/official-sources/. The atomic criteria quote
+ * these files exactly; the tests re-check every excerpt against them. The
+ * September 24, 2026 Low-Rise draft is deliberately absent: a proposed draft
+ * can never be a criterion basis.
+ */
+export const capturedOperativeSources = {
+  shraMemo: "app/fixtures/program-screen/official-sources/shra-2025-10-28/extracted.txt",
+  phasedImplementationOrdinance:
+    "app/fixtures/program-screen/official-sources/ordinance-188968/extracted.txt",
+  lowRiseOrdinance: "app/fixtures/program-screen/official-sources/ordinance-188967/extracted.txt",
+} as const satisfies Partial<Record<keyof typeof officialSources, string>>;
+
+const verificationStillRequired =
+  "record the reviewer, verification date, exact section, and exact supporting excerpt";
+
+/** One proposition in one captured operative source. */
+export interface AtomicCriterionSpec {
+  id: string;
+  pathway: ProgramPathwayId;
+  label: string;
+  fact_keys: readonly ProgramFactKey[];
+  source: keyof typeof capturedOperativeSources;
+  pinpoint: string;
+  /** Exact text from the capture; the proposal pins each excerpt to its page. */
+  excerpts: readonly string[];
+  /** What the source says and why the criterion cannot yet decide more. No conclusions. */
+  summary: string;
+  permitted_outcomes: readonly PredicateOutcome[];
+  exception_paths?: readonly ProgramCriterionException[];
+  question_if_unknown: string;
+  question_if_conflict: string;
+}
+
+function atomicBase(spec: AtomicCriterionSpec) {
+  return {
+    id: spec.id,
+    pathway: spec.pathway,
+    label: spec.label,
+    gating: false,
+    fact_keys: spec.fact_keys,
+    permitted_outcomes: spec.permitted_outcomes,
+    exception_paths: spec.exception_paths ?? [],
+    citation: cite(spec.source, spec.pinpoint),
+    confirmer: "Los Angeles City Planning" as const,
+    question_if_unknown: spec.question_if_unknown,
+    question_if_conflict: spec.question_if_conflict,
+    verification: "pending_human" as const,
+    human_verification: null,
+    basis: { repo_path: capturedOperativeSources[spec.source], excerpts: spec.excerpts },
+  };
+}
+
+/**
+ * An atomic criterion whose rule might be encoded once a named human reviewer
+ * verifies it. It never runs in this state: status `unreviewed`, release
+ * blocked. `permitted_outcomes` caps what a verified rule could ever return.
+ */
+export function pendingAtomicCriterion(spec: AtomicCriterionSpec): ProgramCriterion {
+  return {
+    ...atomicBase(spec),
+    predicate: "not_encoded",
+    rule_summary: `Rule not encoded. ${spec.summary} A PermitPulse reviewer must verify it against the captured source and ${verificationStillRequired} before this criterion can produce a result.`,
+    question_if_judgment: null,
+  };
+}
+
+/**
+ * An atomic criterion the source leaves to agency or professional judgment
+ * (project scope, site analysis, or a legal definition). It routes to
+ * Planning and never resolves; it also stays release-blocking until a human
+ * reviewer confirms the reading.
+ */
+export function professionalAtomicCriterion(
+  spec: Omit<AtomicCriterionSpec, "permitted_outcomes"> & { question_if_judgment: string },
+): ProgramCriterion {
+  return {
+    ...atomicBase({ ...spec, permitted_outcomes: ["requires_judgment"] }),
+    predicate: "professional_judgment",
+    rule_summary: `Not a mechanical test: ${spec.summary} Planning makes this determination. The reading is unverified; a PermitPulse reviewer must still ${verificationStillRequired}.`,
+    question_if_judgment: spec.question_if_judgment,
+  };
+}
+
 /* ------------------------------------------------------ predicate helpers */
 
 function factValue(facts: CriterionFactValues, key: ProgramFactKey) {
@@ -135,6 +222,8 @@ export function parcelMatchCriterion(pathway: ProgramPathwayId): ProgramCriterio
     fact_keys: ["parcel-match"],
     predicate: (facts) =>
       booleanFact(facts, "parcel-match") ? "consistent_with_source" : "requires_judgment",
+    permitted_outcomes: ["consistent_with_source", "requires_judgment"],
+    exception_paths: [],
     rule_summary:
       "Consistent when a reviewed record matches the address to one parcel record; an unmatched address stops the screen for confirmation.",
     citation: cite("zimas", "Parcel search: parcel identifier and boundary"),
@@ -162,6 +251,8 @@ export function jurisdictionCriterion(pathway: ProgramPathwayId): ProgramCriteri
       textFact(facts, "jurisdiction") === "City of Los Angeles"
         ? "consistent_with_source"
         : "disqualifying_per_source",
+    permitted_outcomes: ["consistent_with_source", "disqualifying_per_source", "requires_judgment"],
+    exception_paths: [],
     rule_summary:
       "Consistent when the matched parcel is recorded in the City of Los Angeles; another recorded jurisdiction is outside this City pathway.",
     citation: cite("zimas", "Matched parcel: jurisdiction"),

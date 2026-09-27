@@ -2,20 +2,24 @@ import { z } from "zod";
 import { canonicalEvidenceRecordsSchema } from "../build-week-integrity/schema";
 import type { CanonicalEvidenceRecord } from "../build-week-integrity/types";
 import { IntegrityValidationError } from "../build-week-integrity/validation";
-import { programFactSpecs } from "./facts";
+import { programFactSpecs, retiredProgramFacts } from "./facts";
 import {
   citationVolatilities,
   criterionVerifications,
   humanVerificationRequiredCriterionIds,
   operativeSourceTypes,
+  predicateOutcomes,
   programConfirmers,
   programFactKeys,
   programPathwayIds,
+  retiredProgramCriterionIds,
+  retiredProgramFactKeys,
   sourceCaptureMethods,
   type CitationVolatility,
   type ProgramCriterion,
   type ProgramFactKey,
   type ProgramPathwayPack,
+  type RetiredProgramFactKey,
 } from "./types";
 
 /**
@@ -186,6 +190,15 @@ export function criterionAwaitsHumanVerification(criterion: ProgramCriterion): b
 const parcelFactKeys = programFactKeys.filter(
   (key) => programFactSpecs[key].role === "parcel_fact",
 );
+const retiredCriterionIds = new Set<string>(retiredProgramCriterionIds);
+
+export const programCriterionExceptionSchema = z
+  .object({
+    label: nonEmptyText,
+    pinpoint: nonEmptyText,
+    fact_keys: z.array(z.enum(programFactKeys)),
+  })
+  .strict();
 
 export const programCriterionSchema = z
   .object({
@@ -195,7 +208,6 @@ export const programCriterionSchema = z
     gating: z.boolean(),
     fact_keys: z
       .array(z.enum(programFactKeys))
-      .min(1)
       .refine((keys) => new Set(keys).size === keys.length, "Fact keys must be unique."),
     predicate: z.union([
       z.literal("professional_judgment"),
@@ -205,6 +217,14 @@ export const programCriterionSchema = z
         "Predicates must be functions.",
       ),
     ]),
+    permitted_outcomes: z
+      .array(z.enum(predicateOutcomes))
+      .refine((outcomes) => new Set(outcomes).size === outcomes.length, "Permitted outcomes must be unique.")
+      .refine(
+        (outcomes) => outcomes.includes("requires_judgment"),
+        "Every criterion may route to judgment; requires_judgment must be permitted.",
+      ),
+    exception_paths: z.array(programCriterionExceptionSchema),
     rule_summary: nonEmptyText,
     citation: programCriterionCitationSchema,
     confirmer: z.enum(programConfirmers),
@@ -229,6 +249,20 @@ export const programCriterionSchema = z
         path: ["id"],
       });
     }
+    if (retiredCriterionIds.has(criterion.id)) {
+      context.addIssue({
+        code: "custom",
+        message: `${criterion.id} is a retired broad criterion; ship its atomic replacements instead.`,
+        path: ["id"],
+      });
+    }
+    if (criterion.fact_keys.length === 0 && criterion.predicate !== "professional_judgment") {
+      context.addIssue({
+        code: "custom",
+        message: "Only a professional-judgment criterion may have no fact inputs.",
+        path: ["fact_keys"],
+      });
+    }
     const flagKeys = criterion.fact_keys.filter(
       (key) => !(parcelFactKeys as readonly string[]).includes(key),
     );
@@ -238,6 +272,42 @@ export const programCriterionSchema = z
         message: `Program flags are observations and cannot be criterion inputs: ${flagKeys.join(", ")}.`,
         path: ["fact_keys"],
       });
+    }
+    // A rule, encoded now or after verification, reads controlled values only:
+    // never a free-text observation or a professional-judgment input.
+    if (criterion.predicate !== "professional_judgment") {
+      const uncontrolled = criterion.fact_keys.filter(
+        (key) => programFactSpecs[key].data_class !== "controlled_value",
+      );
+      if (uncontrolled.length > 0) {
+        context.addIssue({
+          code: "custom",
+          message: `A rule may read only controlled values; ${uncontrolled.join(", ")} can inform only a professional judgment.`,
+          path: ["fact_keys"],
+        });
+      }
+    }
+    if (
+      criterion.predicate === "professional_judgment" &&
+      (criterion.permitted_outcomes.length !== 1 || criterion.permitted_outcomes[0] !== "requires_judgment")
+    ) {
+      context.addIssue({
+        code: "custom",
+        message: "A professional-judgment criterion may only route to judgment.",
+        path: ["permitted_outcomes"],
+      });
+    }
+    if (criterion.permitted_outcomes.includes("disqualifying_per_source")) {
+      for (const exception of criterion.exception_paths) {
+        const unread = exception.fact_keys.filter((key) => !criterion.fact_keys.includes(key));
+        if (exception.fact_keys.length === 0 || unread.length > 0) {
+          context.addIssue({
+            code: "custom",
+            message: `A criterion cannot block without reading its exception (${exception.label}).`,
+            path: ["permitted_outcomes"],
+          });
+        }
+      }
     }
     if (criterion.predicate === "not_encoded" && criterion.verification !== "pending_human") {
       context.addIssue({
@@ -368,6 +438,15 @@ export const programScreenEvidenceRecordsSchema = canonicalEvidenceRecordsSchema
           path: [index, "subject"],
         });
       }
+      if ((retiredProgramFactKeys as readonly string[]).includes(record.claim.key)) {
+        const retired = retiredProgramFacts[record.claim.key as RetiredProgramFactKey];
+        context.addIssue({
+          code: "custom",
+          message: `Fact key ${retired.key} is retired: ${retired.reason}`,
+          path: [index, "claim", "key"],
+        });
+        return;
+      }
       if (!(programFactKeys as readonly string[]).includes(record.claim.key)) {
         context.addIssue({
           code: "custom",
@@ -422,6 +501,21 @@ export function parseProgramScreenEvidence(value: unknown): CanonicalEvidenceRec
   return parsed.data as CanonicalEvidenceRecord[];
 }
 
+/**
+ * An explicit change to a fictional fixture record when a fact key was
+ * retired. `rename` keeps the evidence ID, source, and value under the
+ * replacement key; `drop` removes the record. Nothing else is migrated.
+ */
+export const programScreenFixtureMigrationSchema = z
+  .object({
+    evidence_id: z.string().trim().min(1),
+    from_fact_key: z.enum(retiredProgramFactKeys),
+    action: z.enum(["rename", "drop"]),
+    to_fact_key: z.enum(programFactKeys).nullable(),
+    note: z.string().trim().min(1).max(600),
+  })
+  .strict();
+
 const fictionalUrl = z
   .string()
   .nullable()
@@ -441,6 +535,7 @@ export const programScreenFixtureSchema = z
       message: "Fixture descriptions must say FICTIONAL.",
     }),
     as_of: programIsoDateSchema,
+    migrations: z.array(programScreenFixtureMigrationSchema).optional(),
     evidence_records: programScreenEvidenceRecordsSchema,
     expected: z
       .object({
@@ -453,6 +548,26 @@ export const programScreenFixtureSchema = z
   })
   .strict()
   .superRefine((fixture, context) => {
+    (fixture.migrations ?? []).forEach((migration, index) => {
+      const issue = (message: string) =>
+        context.addIssue({ code: "custom", message, path: ["migrations", index] });
+      const retired = retiredProgramFacts[migration.from_fact_key];
+      const record = fixture.evidence_records.find((candidate) => candidate.id === migration.evidence_id);
+      if (migration.action !== retired.migration) {
+        issue(`${migration.from_fact_key} is retired as a ${retired.migration}, not a ${migration.action}.`);
+      }
+      if (migration.action === "drop") {
+        if (migration.to_fact_key !== null) issue("A dropped record has no replacement key.");
+        if (record !== undefined) issue(`Dropped record ${migration.evidence_id} is still present.`);
+      } else {
+        if (migration.to_fact_key !== retired.replaced_by[0]) {
+          issue(`${migration.from_fact_key} is renamed to ${retired.replaced_by[0]}.`);
+        }
+        if (record?.claim.key !== migration.to_fact_key) {
+          issue(`Renamed record ${migration.evidence_id} must carry ${migration.to_fact_key}.`);
+        }
+      }
+    });
     fixture.evidence_records.forEach((record, index) => {
       if (!fictionalUrl.safeParse(record.source.url).success) {
         context.addIssue({
@@ -480,6 +595,7 @@ export interface ProgramScreenFixture {
   label: string;
   description: string;
   as_of: string;
+  migrations?: Array<z.infer<typeof programScreenFixtureMigrationSchema>>;
   evidence_records: CanonicalEvidenceRecord[];
   expected: {
     fact_classifications: Record<string, string>;
