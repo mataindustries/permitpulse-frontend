@@ -1,0 +1,31 @@
+{
+  "schema_version": "program-screen-official-source-v1",
+  "source_id": "test-only-adopted-ordinance-000001",
+  "title": "TEST-ONLY Fictional Ordinance 000001",
+  "official_url": "https://records.example.test/program-screen-capture/fictional-ordinance-000001.pdf",
+  "source_type": "adopted_ordinance",
+  "document_date": "2026-01-01",
+  "retrieved_at": "2026-09-19T17:00:00.000Z",
+  "sha256_original": "2e57f8f2ffdfbd25ed47d0fa2c336019d488ae15b5ce206b960ce600d4bc6d0f",
+  "sha256_extracted": "fa6aabb2b8648d63488280ecda66c6b0b432534a3fc3d085d00ad611050f942f",
+  "operative_status": "operative",
+  "notes": "TEST-ONLY synthetic PDF generated with pdf-lib for automated tests. Not an official source.",
+  "may_change_source_ids": [],
+  "original": {
+    "file": "original.pdf",
+    "media_type": "application/pdf",
+    "bytes": 2538
+  },
+  "extraction": {
+    "file": "extracted.txt",
+    "extractor": "pdfjs-dist",
+    "extractor_version": "6.3.289",
+    "normalization": "program-screen-text-v1",
+    "page_separator": "form_feed",
+    "page_count": 2,
+    "pages_without_text": []
+  },
+  "capture_tool": "app/scripts/capture-program-screen-source.ts",
+  "is_ai_generated": false,
+  "test_only": true
+}

@@ -1,0 +1,36 @@
+{
+  "record_kind": "proposed_verification",
+  "criterion_id": "la_shra.lot-area-and-zoning",
+  "source_id": "shra-2025-10-28",
+  "additional_sources_needed": [
+    "Chaptered text of SB 684 (2023) and SB 1123 (2024) on leginfo.legislature.ca.gov, if the memo cross-references state requirements instead of restating them."
+  ],
+  "related_draft_source_ids": [],
+  "source_sha256": null,
+  "candidate_page": null,
+  "candidate_pinpoint": null,
+  "candidate_excerpt": null,
+  "locate_in_source": "Not yet located: the October 28, 2025 SHRA implementation memo (shra-2025-10-28) has not been captured, so no page or section has been read. Look for the memo's discussion of lot size and eligible zones. The criterion currently cites the City SHRA page (\"Filing checklists and implementation memo\"), not a memo pinpoint; a converted record must cite the memo pinpoint instead.",
+  "question_for_human_reviewer": "Does the memo state a lot-area limit or a list of eligible zones for SHRA projects? If so, record: the exact numeric limit and unit; whether the comparison is inclusive or exclusive; whether it applies to the lot before subdivision; whether the vacant single-family-zoned path and the other path use different limits or zone lists; and whether each zone list is exhaustive.",
+  "proposed_controlled_interpretation": {
+    "fact_keys": [
+      "lot-area",
+      "zoning"
+    ],
+    "controlled_values_required": "lot-area is already a number in sq ft. zoning is free text; a rule needs a human-recorded zone-class value from a controlled list of the classes the memo names, plus a controlled value for which SHRA path the project uses.",
+    "fact_narrowing_required": true,
+    "narrowing_note": "Split into a lot-area criterion (one per path if the paths differ) and a zone-class criterion. Never parse free-text zoning into a zone class.",
+    "predicate_shape_if_reviewer_agrees": "If the reviewer finds limit L with comparator C for path P: lot-area C L -> consistent_with_source; otherwise -> disqualifying_per_source; path not recorded -> requires_judgment. If the reviewer finds an exhaustive zone list Z: zone class in Z -> consistent_with_source; not in Z -> disqualifying_per_source. A non-exhaustive list -> requires_judgment when the zone class is not in Z.",
+    "must_remain_unresolved_when": [
+      "lot area is missing, unreviewed, or in conflict between sources",
+      "the recorded lot area may not be the pre-subdivision lot area",
+      "the zone class is not a value from the controlled list",
+      "the SHRA path is undetermined; vacancy stays professional under la_shra.vacant-site-definition",
+      "the parcel is Chapter 1A, which la_shra.implementation-memo-scope leaves to Planning"
+    ],
+    "zimas_conflict_risk": "Medium. Lot area from ZIMAS and from other records can differ; a difference stays a conflict. The ZIMAS SHRA program field stays observation-only and can only raise a divergence blocker."
+  },
+  "reviewer": null,
+  "reviewed_at": null,
+  "status": "awaiting_source_capture"
+}

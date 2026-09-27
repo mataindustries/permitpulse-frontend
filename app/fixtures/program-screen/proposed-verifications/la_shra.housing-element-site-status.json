@@ -1,0 +1,32 @@
+{
+  "record_kind": "proposed_verification",
+  "criterion_id": "la_shra.housing-element-site-status",
+  "source_id": "shra-2025-10-28",
+  "additional_sources_needed": [
+    "The City's Housing Element sites inventory, if the memo names it as the record of site status."
+  ],
+  "related_draft_source_ids": [],
+  "source_sha256": null,
+  "candidate_page": null,
+  "candidate_pinpoint": null,
+  "candidate_excerpt": null,
+  "locate_in_source": "Not yet located: the October 28, 2025 SHRA implementation memo (shra-2025-10-28) has not been captured, so no page or section has been read. Look for any reference to Housing Element inventory sites or rezoning-program sites. The criterion currently cites the City SHRA page (\"Filing checklists and implementation memo\"), not a memo pinpoint; a converted record must cite the memo pinpoint instead.",
+  "question_for_human_reviewer": "Does the memo make a parcel's Housing Element site status relevant to SHRA eligibility? If so, record which status values matter, their effect, and which record authoritatively shows the status. If the memo does not mention it, decide whether this criterion should be removed rather than encoded.",
+  "proposed_controlled_interpretation": {
+    "fact_keys": [
+      "housing-element-site-status"
+    ],
+    "controlled_values_required": "housing-element-site-status is free text. A rule needs a controlled list matching the status values the text and its named record use.",
+    "fact_narrowing_required": true,
+    "narrowing_note": "Convert to a controlled status fact, or remove the criterion if the text does not use it.",
+    "predicate_shape_if_reviewer_agrees": "If the reviewer finds that status S bars the project: status S -> disqualifying_per_source; a status outside S from the named record -> consistent_with_source; an unrecorded or uncontrolled status -> requires_judgment.",
+    "must_remain_unresolved_when": [
+      "the status is free text or absent from the named record",
+      "the text sets conditions (for example, replacement or density requirements) instead of a bar"
+    ],
+    "zimas_conflict_risk": "Medium. A ZIMAS display of Housing Element status, if present, may differ from the inventory the text names; the named record governs and a difference stays a conflict."
+  },
+  "reviewer": null,
+  "reviewed_at": null,
+  "status": "awaiting_source_capture"
+}

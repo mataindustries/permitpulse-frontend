@@ -1,0 +1,7 @@
+TEST-ONLY FICTIONAL SOURCE. This document is invented for automated tests.
+It is not an ordinance, statute, memo, or official record of any agency,
+and no Program Screen criterion shipped to clients may cite it.
+FICTIONAL DRAFT AMENDMENT TO ORDINANCE 000001 (PROPOSED, NOT ADOPTED)
+Sec. 2. Synthetic Flood Exclusion.
+(a) A parcel mapped within a synthetic flood zone is excluded from the
+Synthetic Test Pathway unless the synthetic flood zone is removed.

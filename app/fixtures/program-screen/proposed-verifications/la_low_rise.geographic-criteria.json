@@ -1,0 +1,37 @@
+{
+  "record_kind": "proposed_verification",
+  "criterion_id": "la_low_rise.geographic-criteria",
+  "source_id": "ordinance-188967",
+  "additional_sources_needed": [
+    "Any map or exhibit Ordinance 188967 incorporates for geographic applicability."
+  ],
+  "related_draft_source_ids": [
+    "low-rise-draft-2026-09-24"
+  ],
+  "source_sha256": null,
+  "candidate_page": null,
+  "candidate_pinpoint": null,
+  "candidate_excerpt": null,
+  "locate_in_source": "Not yet located: Ordinance 188967 (ordinance-188967) has not been captured, so no page or section has been read. The repository's current citation pointer is \"Sections 5-9: geographic criteria\", taken from repository notes, not from the ordinance text.",
+  "question_for_human_reviewer": "Which zones, General Plan land-use designations, and geographies does Ordinance 188967 place within the Low-Rise program? How are Specific Plan areas treated? Does the ordinance distinguish Zoning Code Chapter 1 from Chapter 1A? What exclusions apply? Separately: does the September 24, 2026 draft in Council File 25-1083-S3 propose changes to these provisions? A draft change only triggers a re-review; it cannot change the rule.",
+  "proposed_controlled_interpretation": {
+    "fact_keys": [
+      "zoning",
+      "general-plan-land-use",
+      "specific-plan-area"
+    ],
+    "controlled_values_required": "zoning and general-plan-land-use are free text; specific-plan-area is yes/no. A rule needs controlled zone-class and General Plan values matching the ordinance's lists, and possibly zoning-code-chapter (already controlled: Chapter 1 or Chapter 1A).",
+    "fact_narrowing_required": true,
+    "narrowing_note": "Replace free-text zoning and General Plan facts with controlled values from the ordinance's lists. Add zoning-code-chapter only if the ordinance distinguishes the chapters.",
+    "predicate_shape_if_reviewer_agrees": "If the reviewer finds exhaustive lists: zone class and General Plan designation within the lists, and no exclusion recorded -> consistent_with_source; outside an exhaustive list, or an exclusion recorded -> disqualifying_per_source; a Specific Plan area with case-by-case treatment -> requires_judgment.",
+    "must_remain_unresolved_when": [
+      "zoning or General Plan values are free text or conflicting",
+      "a Specific Plan applies and the ordinance defers to it",
+      "the September 24, 2026 draft is adopted: the adopted instrument must be captured and re-reviewed before any rule changes"
+    ],
+    "zimas_conflict_risk": "Medium. zimas-low-rise-category stays observation-only; a divergence raises the existing blocker. ZIMAS zoning strings must never be parsed into zone classes."
+  },
+  "reviewer": null,
+  "reviewed_at": null,
+  "status": "awaiting_source_capture"
+}

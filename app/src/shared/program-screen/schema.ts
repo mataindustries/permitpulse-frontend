@@ -7,6 +7,7 @@ import {
   citationVolatilities,
   criterionVerifications,
   humanVerificationRequiredCriterionIds,
+  operativeSourceTypes,
   programConfirmers,
   programFactKeys,
   programPathwayIds,
@@ -80,18 +81,32 @@ export const programCriterionCitationSchema = z
     }
   });
 
+/**
+ * Official captures: `official-sources/<source-id>/extracted.txt`. Test-only
+ * captures: `test-only-sources/<name>.txt` or
+ * `test-only-sources/test-only-<name>/extracted.txt`.
+ */
+const sourceCaptureRepoPath =
+  /^app\/fixtures\/program-screen\/(?:official-sources\/[a-z0-9]+(?:-[a-z0-9]+)*\/extracted\.txt|test-only-sources\/(?:[a-z0-9-]+\.txt|test-only-[a-z0-9]+(?:-[a-z0-9]+)*\/extracted\.txt))$/;
+
 export const programSourceCaptureSchema = z
   .object({
     repo_path: z
       .string()
       .regex(
-        /^app\/fixtures\/program-screen\/[a-z0-9-]+\/[a-z0-9-]+\.txt$/,
-        "Source captures must be plain-text files under app/fixtures/program-screen/.",
+        sourceCaptureRepoPath,
+        "Source captures must be extracted text under app/fixtures/program-screen/official-sources/<source-id>/.",
       ),
     retrieved_at: z.string().datetime({ offset: true }),
     capture_method: z.enum(sourceCaptureMethods),
     sha256: z.string().regex(/^[0-9a-f]{64}$/, "Source captures need a SHA-256 hex digest."),
     is_ai_generated: z.literal(false),
+    source_type: z.enum(operativeSourceTypes, {
+      error: "Only an adopted ordinance or official memo can support a rule; a proposed draft cannot.",
+    }),
+    operative_status: z.literal("operative", {
+      error: "Only an operative source can support a rule.",
+    }),
   })
   .strict();
 

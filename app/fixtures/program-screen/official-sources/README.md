@@ -1,22 +1,32 @@
-# Captured official-source text
+# Captured official sources
 
 A Program Screen criterion can leave `pending_human` only as `human_verified`.
-Its human-verification record must point to a plain-text capture of the
-official source in this directory. Tests re-check each record against its
-capture.
+Its human-verification record must point to text captured from an official
+source in this directory. The tests re-check every record against its capture
+and every capture against its hashes.
 
-One `.txt` file per source document, holding the source text only:
+One directory per source document, written only by the capture tool:
 
-- **Official sources only.** Use City Clerk, City Planning, or California
-  Legislative Information text. Never capture a secondary summary, search
-  result, or AI output (`PROJECT_LAWS.md`, laws 7 and 14).
-- **Exact text.** Extract text from the official PDF or HTML page, or
-  transcribe it by hand. Record which method you used in `capture_method`.
-  Whitespace may differ; every other character must match the source.
-- **Pinned.** Put the file's SHA-256 in `source_capture.sha256`. Any later
-  edit to the file fails the tests until a human re-verifies it.
-- **File names.** Lowercase kebab-case, e.g. `ordinance-188968.txt`.
+```
+<source-id>/original.pdf     the downloaded official PDF, byte for byte
+<source-id>/extracted.txt    deterministic text extraction of that file
+<source-id>/metadata.json    official URL, source type, operative status,
+                             dates, and SHA-256 of both files
+```
 
-This directory holds no captures yet: no criterion has been human-verified.
-See `docs/PROGRAM_SCREEN_CRITERION_VERIFICATION.md` for the per-criterion
-verification ledger.
+- **Official sources only.** Download from the City Clerk, City Planning, or
+  California Legislative Information yourself. Never capture a secondary
+  site, a search result, browser-generated HTML, or AI output
+  (`PROJECT_LAWS.md`, laws 7 and 14).
+- **Never edit these files.** Recapture with
+  `npm run program-screen:capture -- ... --replace` instead. Any edit fails
+  the tests until the source is recaptured and re-reviewed.
+- **Drafts are not law.** A proposed draft is captured with
+  `--type proposed_draft --operative-status proposed_not_operative`. It can
+  prompt a re-review; it can never support a rule.
+- **Register first.** Every source ID here must match an entry in
+  `expectedOfficialSources` (`app/src/shared/program-screen/proposed-verification.ts`).
+
+This directory holds no captures yet: the capture environment could not reach
+the official hosts. See `docs/PROGRAM_SCREEN_CRITERION_VERIFICATION.md` for the
+manual download list, the capture commands, and the per-criterion ledger.

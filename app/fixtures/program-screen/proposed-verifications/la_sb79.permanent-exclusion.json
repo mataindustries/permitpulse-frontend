@@ -1,0 +1,34 @@
+{
+  "record_kind": "proposed_verification",
+  "criterion_id": "la_sb79.permanent-exclusion",
+  "source_id": "ordinance-188968",
+  "additional_sources_needed": [
+    "Any adoption map or exhibit the ordinance incorporates, if exclusions are shown by map rather than by text.",
+    "SB 79 (2025) chaptered text on leginfo.legislature.ca.gov, if the ordinance relies on state-defined exclusions."
+  ],
+  "related_draft_source_ids": [],
+  "source_sha256": null,
+  "candidate_page": null,
+  "candidate_pinpoint": null,
+  "candidate_excerpt": null,
+  "locate_in_source": "Not yet located: Ordinance 188968 (ordinance-188968) has not been captured, so no page or section has been read. The repository's current citation pointer is \"Sections 1-6: permanent exclusions and mapping provisions\", taken from repository notes, not from the ordinance text.",
+  "question_for_human_reviewer": "Which categories of parcels does Ordinance 188968 permanently exclude, and what legal effect does an exclusion have on SB 79 applicability for the parcel? Which record (ordinance text, map, exhibit, or ZIMAS field) authoritatively shows whether a given parcel is excluded? Does absence from that record establish that a parcel is not excluded?",
+  "proposed_controlled_interpretation": {
+    "fact_keys": [
+      "sb79-permanent-exclusion"
+    ],
+    "controlled_values_required": "sb79-permanent-exclusion is a yes/no: the adopted record shows a permanent exclusion for the parcel. The reviewer should determine whether yes/no is enough, or whether the exclusion category must be recorded because categories have different effects.",
+    "fact_narrowing_required": false,
+    "narrowing_note": null,
+    "predicate_shape_if_reviewer_agrees": "If the reviewer finds that a permanent exclusion makes SB 79 inapplicable: shown -> disqualifying_per_source. Not shown -> consistent_with_source only if the reviewer determines the named record is exhaustive; otherwise -> requires_judgment.",
+    "must_remain_unresolved_when": [
+      "the parcel's exclusion record is missing or was not retrieved; a failed lookup is not a no",
+      "the ordinance record and a ZIMAS display disagree",
+      "the exclusion's effect differs by category and the category is not recorded"
+    ],
+    "zimas_conflict_risk": "High. zimas-sb79-exemption stays observation-only; if it disagrees with the criterion result, the existing program_flag_divergence blocker applies. It never settles the criterion."
+  },
+  "reviewer": null,
+  "reviewed_at": null,
+  "status": "awaiting_source_capture"
+}

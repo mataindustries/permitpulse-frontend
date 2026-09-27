@@ -1,0 +1,38 @@
+{
+  "record_kind": "proposed_verification",
+  "criterion_id": "la_shra.environmental-constraints",
+  "source_id": "shra-2025-10-28",
+  "additional_sources_needed": [
+    "Chaptered text of SB 684 (2023) and SB 1123 (2024) on leginfo.legislature.ca.gov, if the memo cross-references state requirements instead of restating them.",
+    "The map or record that defines each designation the text names."
+  ],
+  "related_draft_source_ids": [],
+  "source_sha256": null,
+  "candidate_page": null,
+  "candidate_pinpoint": null,
+  "candidate_excerpt": null,
+  "locate_in_source": "Not yet located: the October 28, 2025 SHRA implementation memo (shra-2025-10-28) has not been captured, so no page or section has been read. Look for any list of excluded or restricted site conditions (hazard, environmental, or resource designations) and their exceptions. The criterion currently cites the City SHRA page (\"Filing checklists and implementation memo\"), not a memo pinpoint; a converted record must cite the memo pinpoint instead.",
+  "question_for_human_reviewer": "Which environmental site designations, if any, does the memo list as barring or conditioning an SHRA project, and with what exceptions? For each of the five designations this criterion reads (Very High Fire Hazard Severity Zone, hillside area, fault zone, landslide area, flood zone), record whether the text names it, the exact term used, the map or record that defines it, and any exception.",
+  "proposed_controlled_interpretation": {
+    "fact_keys": [
+      "very-high-fire-hazard-severity-zone",
+      "hillside-area",
+      "fault-zone",
+      "landslide-area",
+      "flood-zone"
+    ],
+    "controlled_values_required": "Each fact is a yes/no designation. A rule needs each fact to mean exactly the designation the text names, such as one specific flood designation rather than any flood mapping.",
+    "fact_narrowing_required": true,
+    "narrowing_note": "Split into one criterion per named designation. Drop any designation the text does not name. A designation with exceptions becomes a judgment criterion.",
+    "predicate_shape_if_reviewer_agrees": "For each designation D the reviewer finds as a bar without exceptions: D recorded true -> disqualifying_per_source; D recorded false from its defining record -> consistent_with_source. D with exceptions -> requires_judgment when true.",
+    "must_remain_unresolved_when": [
+      "the defining record conflicts with another source (the fictional fixture's fire-hazard conflict stays contested)",
+      "the exceptions depend on project facts",
+      "the designation comes only from a display that is not its defining record"
+    ],
+    "zimas_conflict_risk": "High. ZIMAS hazard displays and the defining hazard maps can disagree, as the fictional fixture's fire-hazard conflict models. A disagreement stays a conflict and the pathway stays contested."
+  },
+  "reviewer": null,
+  "reviewed_at": null,
+  "status": "awaiting_source_capture"
+}

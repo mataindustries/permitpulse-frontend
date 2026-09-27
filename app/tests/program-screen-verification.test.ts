@@ -19,8 +19,10 @@ import {
 } from "../src/shared/program-screen/schema";
 import {
   excerptAppearsInCapture,
+  humanRecordCaptureIssues,
   OFFICIAL_SOURCE_CAPTURE_DIR,
   sha256Hex,
+  type OfficialSourceMetadata,
 } from "../src/shared/program-screen/source-capture";
 import {
   humanVerificationRequiredCriterionIds,
@@ -39,12 +41,25 @@ const SUBJECT = {
 /** Captured official-source text, keyed by repo path ("app/fixtures/..."). */
 const officialCaptures: Record<string, string> = Object.fromEntries(
   Object.entries(
-    import.meta.glob("../fixtures/program-screen/official-sources/*.txt", {
+    import.meta.glob("../fixtures/program-screen/official-sources/*/extracted.txt", {
       query: "?raw",
       import: "default",
       eager: true,
     }) as Record<string, string>,
   ).map(([path, text]) => [path.replace(/^\.\.\//, "app/"), text]),
+);
+
+/** Capture metadata, keyed by the repo path of the capture's extracted text. */
+const officialCaptureMetadata: Record<string, OfficialSourceMetadata> = Object.fromEntries(
+  Object.entries(
+    import.meta.glob("../fixtures/program-screen/official-sources/*/metadata.json", {
+      import: "default",
+      eager: true,
+    }) as Record<string, OfficialSourceMetadata>,
+  ).map(([path, metadata]) => [
+    path.replace(/^\.\.\//, "app/").replace(/metadata\.json$/, "extracted.txt"),
+    metadata,
+  ]),
 );
 
 /** Hosts whose text a shipped human-verified criterion may cite. */
@@ -167,6 +182,8 @@ function syntheticVerification(): ProgramCriterionHumanVerification {
       capture_method: "manual_transcription",
       sha256: SYNTHETIC_CAPTURE_SHA256,
       is_ai_generated: false,
+      source_type: "adopted_ordinance",
+      operative_status: "operative",
     },
   };
 }
@@ -422,6 +439,13 @@ describe("Program Screen human-verified criterion (TEST-ONLY synthetic)", () => 
     ["a capture outside the fixture directory", (record) => ({ ...record, source_capture: { ...record.source_capture, repo_path: "dist/resources/notes.txt" } })],
     ["a capture retrieved after verification", (record) => ({ ...record, source_capture: { ...record.source_capture, retrieved_at: "2026-09-21T00:00:00.000Z" } })],
     ["an unknown capture method", (record) => ({ ...record, source_capture: { ...record.source_capture, capture_method: "search_summary" } })],
+    ["a proposed-draft source", (record) => ({ ...record, source_capture: { ...record.source_capture, source_type: "proposed_draft" } })],
+    ["a proposed draft recorded as not operative", (record) => ({ ...record, source_capture: { ...record.source_capture, source_type: "proposed_draft", operative_status: "proposed_not_operative" } })],
+    ["a source whose operative status is unconfirmed", (record) => ({ ...record, source_capture: { ...record.source_capture, operative_status: "status_unconfirmed" } })],
+    ["a superseded source", (record) => ({ ...record, source_capture: { ...record.source_capture, operative_status: "superseded" } })],
+    ["a source without a declared type", (record) => ({ ...record, source_capture: { ...record.source_capture, source_type: undefined } })],
+    ["a capture in a flat official-sources file", (record) => ({ ...record, source_capture: { ...record.source_capture, repo_path: "app/fixtures/program-screen/official-sources/ordinance-188968.txt" } })],
+    ["a capture pointing at a proposed verification", (record) => ({ ...record, source_capture: { ...record.source_capture, repo_path: "app/fixtures/program-screen/proposed-verifications/la_sb79.permanent-exclusion.txt" } })],
     ["an extra field", (record) => ({ ...record, confidence: "high" })],
   ])("rejects a verification record with %s", (_name, mutate) => {
     const spy = vi.fn(() => "consistent_with_source" as const);
@@ -594,12 +618,20 @@ describe("Shipped human-verified Program Screen criteria", () => {
     }
   });
 
-  it("leaves no captured source unreferenced", () => {
-    const referenced = new Set(
-      verified.map((criterion) => criterion.human_verification?.source_capture.repo_path),
-    );
-    for (const path of Object.keys(officialCaptures)) {
-      expect(referenced.has(path), path).toBe(true);
+  it("rests every record on an operative capture whose metadata it matches", () => {
+    // Capture integrity (hashes, layout, registry) is checked in
+    // program-screen-source-capture.test.ts; this ties each record to it.
+    for (const criterion of verified) {
+      const record = criterion.human_verification as ProgramCriterionHumanVerification;
+      const metadata = officialCaptureMetadata[record.source_capture.repo_path];
+      expect(metadata, record.source_capture.repo_path).toBeDefined();
+      expect(
+        humanRecordCaptureIssues(record, {
+          metadata,
+          extracted: officialCaptures[record.source_capture.repo_path],
+        }),
+        criterion.id,
+      ).toEqual([]);
     }
   });
 

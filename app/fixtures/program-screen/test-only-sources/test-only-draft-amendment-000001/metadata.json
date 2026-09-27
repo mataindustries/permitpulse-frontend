@@ -1,0 +1,33 @@
+{
+  "schema_version": "program-screen-official-source-v1",
+  "source_id": "test-only-draft-amendment-000001",
+  "title": "TEST-ONLY Fictional Draft Amendment to Ordinance 000001",
+  "official_url": "https://records.example.test/program-screen-capture/fictional-draft-amendment-000001.pdf",
+  "source_type": "proposed_draft",
+  "document_date": "2026-09-01",
+  "retrieved_at": "2026-09-19T17:05:00.000Z",
+  "sha256_original": "0fd59e9c0f3b89f6c13565dd8667c699657c7c5bd91dc0fb68713b1bf4837a13",
+  "sha256_extracted": "63e7e9c3db9179f2d24ac3c6ae6caacca985320469a8f339da43b0e370abe279",
+  "operative_status": "proposed_not_operative",
+  "notes": "TEST-ONLY synthetic draft generated with pdf-lib for automated tests. Proposed, not adopted, not an official source.",
+  "may_change_source_ids": [
+    "test-only-adopted-ordinance-000001"
+  ],
+  "original": {
+    "file": "original.pdf",
+    "media_type": "application/pdf",
+    "bytes": 1985
+  },
+  "extraction": {
+    "file": "extracted.txt",
+    "extractor": "pdfjs-dist",
+    "extractor_version": "6.3.289",
+    "normalization": "program-screen-text-v1",
+    "page_separator": "form_feed",
+    "page_count": 1,
+    "pages_without_text": []
+  },
+  "capture_tool": "app/scripts/capture-program-screen-source.ts",
+  "is_ai_generated": false,
+  "test_only": true
+}
