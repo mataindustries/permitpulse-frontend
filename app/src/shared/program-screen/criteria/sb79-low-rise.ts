@@ -20,7 +20,8 @@ import {
  * bridge "exclusion or exemption observed / not observed" to a pathway result
  * itself: those criteria stay unencoded until a reviewer verifies the
  * ordinance and records the reviewer, verification date, exact ordinance
- * section, and exact supporting excerpt.
+ * section, and exact supporting excerpt, as a `human_verified` criterion
+ * whose excerpt appears in captured official-source text.
  */
 const phasedImplementationExcerpts = [
   "The adopted Phased Implementation Ordinance sets out a citywide temporary-exemption approach and permanent exclusion criteria.",
@@ -62,6 +63,7 @@ export const sb79Criteria: readonly ProgramCriterion[] = [
       "Official records disagree on whether Ordinance 188968 shows a permanent exclusion for this parcel. Which record governs?",
     question_if_judgment: null,
     verification: "pending_human",
+    human_verification: null,
     basis: {
       repo_path: repoSourceNotes.sb79LowRiseGuide,
       excerpts: phasedImplementationExcerpts,
@@ -87,6 +89,7 @@ export const sb79Criteria: readonly ProgramCriterion[] = [
       "Official records disagree on whether a temporary exemption applies to this parcel. Which record governs?",
     question_if_judgment: null,
     verification: "pending_human",
+    human_verification: null,
     basis: {
       repo_path: repoSourceNotes.sb79LowRiseGuide,
       excerpts: [
@@ -104,7 +107,7 @@ export const sb79Criteria: readonly ProgramCriterion[] = [
     fact_keys: ["zoning", "specific-plan-area", "hpoz", "existing-dwelling-units"],
     predicate: "not_encoded",
     rule_summary:
-      "Rule not encoded. The repo source notes list these facts as SB 79 review inputs but do not state the criteria; a PermitPulse reviewer must verify them against Ordinance 188968 and the City's SB 79 materials.",
+      "Rule not encoded. The repo source notes list these facts as SB 79 review inputs but do not state the criteria; a PermitPulse reviewer must verify them against Ordinance 188968 and the City's SB 79 materials and record the reviewer, verification date, exact section, and exact supporting excerpt before this criterion can produce a result.",
     citation: cite("sb79Hub", "Adoption status and current mapping links"),
     confirmer: "Los Angeles City Planning",
     question_if_unknown:
@@ -113,6 +116,7 @@ export const sb79Criteria: readonly ProgramCriterion[] = [
       "Official records disagree on the parcel's zoning, overlays, or existing housing. Which record governs for SB 79 review?",
     question_if_judgment: null,
     verification: "pending_human",
+    human_verification: null,
     basis: {
       repo_path: repoSourceNotes.housingProgramsGuide,
       excerpts: [
@@ -149,6 +153,7 @@ export const lowRiseCriteria: readonly ProgramCriterion[] = [
     question_if_judgment:
       "Which Low-Rise criteria or exceptions apply given the historic, coastal, fire-hazard, and hillside designations recorded for this parcel?",
     verification: "repo_sourced",
+    human_verification: null,
     basis: {
       repo_path: repoSourceNotes.sb79LowRiseGuide,
       excerpts: [
@@ -165,7 +170,7 @@ export const lowRiseCriteria: readonly ProgramCriterion[] = [
     fact_keys: ["zoning", "general-plan-land-use", "specific-plan-area"],
     predicate: "not_encoded",
     rule_summary:
-      "Rule not encoded. The repo source notes say Low-Rise has geographic criteria but do not state them; a PermitPulse reviewer must verify them against Ordinance 188967.",
+      "Rule not encoded. The repo source notes say Low-Rise has geographic criteria but do not state them; a PermitPulse reviewer must verify them against Ordinance 188967 and record the reviewer, verification date, exact section, and exact supporting excerpt before this criterion can produce a result.",
     citation: cite("lowRiseOrdinance", "Sections 5–9: geographic criteria"),
     confirmer: "Los Angeles City Planning",
     question_if_unknown:
@@ -174,6 +179,7 @@ export const lowRiseCriteria: readonly ProgramCriterion[] = [
       "Official records disagree on the parcel's zoning, General Plan land use, or Specific Plan context. Which record governs for Low-Rise review?",
     question_if_judgment: null,
     verification: "pending_human",
+    human_verification: null,
     basis: {
       repo_path: repoSourceNotes.sb79LowRiseGuide,
       excerpts: [

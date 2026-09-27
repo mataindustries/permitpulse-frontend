@@ -1,4 +1,5 @@
 import { quote } from "./language";
+import { criterionAwaitsHumanVerification } from "./schema";
 import type {
   ProgramCriterion,
   ProgramCriterionResult,
@@ -178,14 +179,14 @@ export function buildReviewTasks(input: {
 
   input.criteria.forEach((criterion, index) => {
     const result = input.results[index];
-    if (criterion.verification === "pending_human") {
+    if (criterionAwaitsHumanVerification(criterion)) {
       tasks.push({
         id: `${pathway}:verify_criterion_rule:${criterion.id}`,
         pathway,
         kind: "verify_criterion_rule",
         criterion_id: criterion.id,
         fact_key: null,
-        instruction: `Verify the rule for this criterion against ${quote(criterion.citation.title)}, ${criterion.citation.pinpoint}, and record the verification before any client conclusion.`,
+        instruction: `Verify the rule for this criterion against ${quote(criterion.citation.title)}, ${criterion.citation.pinpoint}, and record a human verification (reviewer, date, instrument, exact pinpoint, supporting excerpt, and captured source text) before any client conclusion.`,
       });
     }
     if (result.stale) {

@@ -146,6 +146,7 @@ export function parcelMatchCriterion(pathway: ProgramPathwayId): ProgramCriterio
     question_if_judgment:
       "The address could not be matched to a single parcel record. Which parcel record, if any, corresponds to this address?",
     verification: "repo_sourced",
+    human_verification: null,
     basis: anchorBasis,
   };
 }
@@ -170,6 +171,7 @@ export function jurisdictionCriterion(pathway: ProgramPathwayId): ProgramCriteri
       "Official records disagree on the matched parcel's land-use jurisdiction. Which agency's record governs?",
     question_if_judgment: "Which agency has land-use jurisdiction over the matched parcel?",
     verification: "repo_sourced",
+    human_verification: null,
     basis: anchorBasis,
   };
 }

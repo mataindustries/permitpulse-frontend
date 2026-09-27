@@ -182,8 +182,14 @@ describe("Program Screen criteria are sourced in this repository", () => {
     [repoSourceNotes.housingProgramsGuide]: visibleText(housingProgramsGuide),
   };
 
+  // Human-verified criteria quote captured official text instead; see
+  // program-screen-verification.test.ts.
+  const repoNoteCriteria = programScreenPathwayPacks
+    .flatMap((pack) => pack.criteria)
+    .filter((criterion) => criterion.verification !== "human_verified");
+
   it("quotes every criterion basis verbatim from a reviewed repo source note", () => {
-    for (const criterion of programScreenPathwayPacks.flatMap((pack) => pack.criteria)) {
+    for (const criterion of repoNoteCriteria) {
       const text = notes[criterion.basis.repo_path];
       expect(text, criterion.id).toBeDefined();
       for (const excerpt of criterion.basis.excerpts) {
@@ -193,7 +199,7 @@ describe("Program Screen criteria are sourced in this repository", () => {
   });
 
   it("links criterion citations only to official sources listed in those notes", () => {
-    for (const criterion of programScreenPathwayPacks.flatMap((pack) => pack.criteria)) {
+    for (const criterion of repoNoteCriteria) {
       const listed =
         sb79LowRiseGuide.includes(`href="${criterion.citation.url}"`) ||
         housingProgramsGuide.includes(`href="${criterion.citation.url}"`);

@@ -140,6 +140,7 @@ function testCriterion(
     question_if_conflict: "Which record governs for the parcel?",
     question_if_judgment: "How does Planning apply this criterion to the parcel?",
     verification: "repo_sourced",
+    human_verification: null,
     basis: { repo_path: "app/tests/program-screen-core.test.ts", excerpts: ["Synthetic."] },
     ...overrides,
   };

@@ -70,7 +70,36 @@ export const pathwayRollups = [
   "no_disqualifier_found_in_reviewed_sources",
 ] as const;
 
-export const criterionVerifications = ["repo_sourced", "pending_human"] as const;
+/**
+ * - `repo_sourced`: rule stated in this repository's reviewed source notes.
+ * - `pending_human`: rule not verified; it never runs.
+ * - `human_verified`: a named human reviewer checked the rule against captured
+ *   official-source text and recorded a `ProgramCriterionHumanVerification`.
+ */
+export const criterionVerifications = ["repo_sourced", "pending_human", "human_verified"] as const;
+
+/**
+ * Criteria that were `pending_human` when the Program Screen core shipped.
+ * Each may leave `pending_human` only as `human_verified`, with a complete
+ * human-verification record; none may be relabeled `repo_sourced`.
+ */
+export const humanVerificationRequiredCriterionIds = [
+  "la_shra.lot-area-and-zoning",
+  "la_shra.existing-structures-and-occupancy",
+  "la_shra.prior-subdivisions",
+  "la_shra.housing-element-site-status",
+  "la_shra.environmental-constraints",
+  "la_sb79.permanent-exclusion",
+  "la_sb79.temporary-exemption",
+  "la_sb79.site-and-overlay-standards",
+  "la_low_rise.geographic-criteria",
+] as const;
+
+export const sourceCaptureMethods = [
+  "pdf_text_extraction",
+  "html_text_extraction",
+  "manual_transcription",
+] as const;
 export const citationVolatilities = ["high", "medium", "low"] as const;
 export const programConfirmers = ["Los Angeles City Planning"] as const;
 
@@ -125,6 +154,7 @@ export type ProgramFlagCrosscheck = (typeof programFlagCrosschecks)[number];
 export type ReleaseBlockerCode = (typeof releaseBlockerCodes)[number];
 export type PlanningQuestionTrigger = (typeof planningQuestionTriggers)[number];
 export type ReviewTaskKind = (typeof reviewTaskKinds)[number];
+export type SourceCaptureMethod = (typeof sourceCaptureMethods)[number];
 
 /* ------------------------------------------------------------------ facts */
 
@@ -206,6 +236,41 @@ export interface ProgramCriterionCitation {
   next_review_at: string;
 }
 
+/**
+ * Official-source text captured into this repository so a verified excerpt
+ * can be re-checked deterministically. The file holds source text only; its
+ * SHA-256 pins it to what the reviewer read. AI output is never a capture.
+ */
+export interface ProgramSourceCapture {
+  repo_path: string;
+  retrieved_at: string;
+  capture_method: SourceCaptureMethod;
+  sha256: string;
+  is_ai_generated: false;
+}
+
+/**
+ * A named human reviewer's record that the criterion's rule is stated by the
+ * cited official source. Title, URL, pinpoint, and dates must match the
+ * criterion citation; the excerpt must appear in the captured source text.
+ */
+export interface ProgramCriterionHumanVerification {
+  reviewer: {
+    kind: "human";
+    name: string;
+    role: string;
+  };
+  verified_at: string;
+  next_review_at: string;
+  source_title: string;
+  source_url: string;
+  /** Ordinance, statute, or memo identifier, e.g. "Ordinance 188968". */
+  instrument: string;
+  pinpoint: string;
+  supporting_excerpt: string;
+  source_capture: ProgramSourceCapture;
+}
+
 /** Where in this repository the criterion's rule or dependency is stated. */
 export interface ProgramCriterionBasis {
   repo_path: string;
@@ -227,6 +292,8 @@ export interface ProgramCriterion {
   question_if_conflict: string;
   question_if_judgment: string | null;
   verification: CriterionVerification;
+  /** Required for `human_verified`; must be null otherwise. */
+  human_verification: ProgramCriterionHumanVerification | null;
   basis: ProgramCriterionBasis;
 }
 
