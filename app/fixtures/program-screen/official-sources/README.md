@@ -54,3 +54,15 @@ substantive pages have no text layer at all. Read every excerpt against the
 page image. See `docs/PROGRAM_SCREEN_CRITERION_VERIFICATION.md` for the
 hashes, the capture commands, the adopted-versus-draft change report, and the
 per-criterion ledger.
+
+Captured 2026-09-28 (Phase 3A) from the exact HTML leginfo served, which the
+repository owner downloaded with curl (the official host was unreachable from
+the capture environment; the upload matched the owner's SHA-256 and size):
+
+| Source ID | Type | Status |
+| --- | --- | --- |
+| `gcs-66499-41` | `statute` (metadata v2, served HTML) | `operative` (per its history note) |
+
+It is a capture only. It fires the Round 1 re-review trigger for c-g and
+registers no authority. See
+`docs/PROGRAM_SCREEN_PHASE_3A_GCS_66499_41_A_9_REVIEW.md`.
