@@ -3,6 +3,7 @@ import { resolve } from "node:path";
 import type { TestProject } from "vitest/node";
 import {
   captureFileNames,
+  declaredOriginalFile,
   isPdf,
   OFFICIAL_SOURCE_CAPTURE_DIR,
   officialSourceCaptureIssues,
@@ -17,9 +18,11 @@ import {
  * capped at 32 MiB. An official PDF inlined as base64 can exceed that cap
  * (Ordinance 188967 is 16.7 MB), so program-screen-source-capture.test.ts
  * cannot load original.pdf itself. This setup reads the exact bytes of each
- * capture's files, runs the same `officialSourceCaptureIssues` check the
- * capture CLI uses, and provides the results; the test fails on any issue
- * and on any capture directory this setup did not check.
+ * capture's files (the original its metadata declares: original.pdf, or
+ * original.html for a served statute page), runs the same
+ * `officialSourceCaptureIssues` check the capture CLI uses, and provides the
+ * results; the test fails on any issue and on any capture directory this
+ * setup did not check.
  */
 export interface OfficialCaptureByteCheck {
   files: string[];
@@ -51,7 +54,6 @@ export default async function setup(project: TestProject): Promise<void> {
   for (const entry of entries.filter((candidate) => candidate.isDirectory())) {
     const directory = `${OFFICIAL_SOURCE_CAPTURE_DIR}${entry.name}`;
     const absolute = resolve(repoRoot, directory);
-    const original = await readIfPresent(resolve(absolute, captureFileNames.original));
     const extracted = await readIfPresent(resolve(absolute, captureFileNames.extracted));
     const metadataBytes = await readIfPresent(resolve(absolute, captureFileNames.metadata));
     let metadata: unknown = null;
@@ -61,6 +63,7 @@ export default async function setup(project: TestProject): Promise<void> {
     } catch {
       parseIssue = "metadata.json is not valid JSON.";
     }
+    const original = await readIfPresent(resolve(absolute, declaredOriginalFile(metadata)));
     const bytes = original === null ? null : new Uint8Array(original);
     checks[directory] = {
       files: (await readdir(absolute)).sort(),

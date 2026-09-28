@@ -241,8 +241,17 @@ export const sourceCaptureMethods = [
 /**
  * What a captured official document is. A `proposed_draft` is never law: it
  * can prompt a human re-review but can never support a criterion rule.
+ * `agency_map` and `statute` (Phase 2b) are captured for later reviewed use:
+ * a map through the authority registries, a statute for human re-review.
+ * Neither can support a criterion rule.
  */
-export const officialSourceTypes = ["adopted_ordinance", "official_memo", "proposed_draft"] as const;
+export const officialSourceTypes = [
+  "adopted_ordinance",
+  "official_memo",
+  "proposed_draft",
+  "agency_map",
+  "statute",
+] as const;
 /** Source types that can support a human-verified criterion rule. */
 export const operativeSourceTypes = ["adopted_ordinance", "official_memo"] as const;
 /**

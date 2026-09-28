@@ -1,0 +1,56 @@
+{
+  "schema_version": "program-screen-official-source-v2",
+  "source_id": "test-only-statute-000001",
+  "title": "TEST-ONLY Fictional Code TST Section 1.1",
+  "official_url": "https://leginfo.example.test/faces/codes_displaySection.xhtml?lawCode=TST&sectionNum=1.1.",
+  "source_type": "statute",
+  "document_date": "2026-01-01",
+  "retrieved_at": "2026-09-28T17:05:00.000Z",
+  "sha256_original": "ae6066bdb6d4ef3284024482010d8e20e07a5cee2a73288756ed9d6cc8c43717",
+  "sha256_extracted": "4b0814edf5af6843de90416e0cea9891bd912c7f99fa8106f4848f9fa27afd8b",
+  "operative_status": "operative",
+  "notes": "TEST-ONLY synthetic statute page written by hand for automated tests, standing in for exact served HTML. Not California law or an official source.",
+  "may_change_source_ids": [],
+  "original": {
+    "file": "original.html",
+    "media_type": "text/html",
+    "bytes": 1390
+  },
+  "extraction": {
+    "file": "extracted.txt",
+    "extractor": "program-screen-html-text",
+    "extractor_version": "1.0.0",
+    "normalization": "program-screen-text-v1",
+    "page_separator": "form_feed",
+    "page_count": 1,
+    "pages_without_text": []
+  },
+  "host_basis": "test_only_host",
+  "agency_map": null,
+  "statute": {
+    "jurisdiction": "CA",
+    "code": "TST",
+    "section": "1.1",
+    "form": "code_section_page",
+    "section_heading": {
+      "page": 1,
+      "text": "1.1."
+    },
+    "pinpoints": [
+      {
+        "pinpoint": "(a)(9)",
+        "excerpt": {
+          "page": 1,
+          "text": "(9) The fictional site is not on a fictional site category listed in this paragraph, unless the fictional conditions & standards in this paragraph are met."
+        }
+      }
+    ],
+    "status_as_published": {
+      "page": 1,
+      "text": "(Added by Fictional Stats. 2026, Ch. 1, Sec. 1. Effective January 1, 2026.)"
+    }
+  },
+  "capture_tool": "app/scripts/capture-program-screen-source.ts",
+  "is_ai_generated": false,
+  "test_only": true
+}

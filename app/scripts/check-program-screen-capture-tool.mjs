@@ -61,10 +61,48 @@ function expectRefusal(name, args, message, createdDir = null) {
   );
 }
 
-function sameAsFixture(directory) {
-  return ["original.pdf", "extracted.txt", "metadata.json"].every((file) =>
-    readFileSync(join(directory, file)).equals(readFileSync(join(fixture, file))),
+function sameAsFixture(directory, source = fixture) {
+  const original = JSON.parse(readFileSync(join(source, "metadata.json"), "utf8")).original.file;
+  return [original, "extracted.txt", "metadata.json"].every((file) =>
+    readFileSync(join(directory, file)).equals(readFileSync(join(source, file))),
   );
+}
+
+/* ----------------------------- metadata v2: agency map and statute (Phase 2b) */
+
+const v2Fixtures = Object.fromEntries(
+  ["test-only-agency-map-000001", "test-only-statute-000001", "test-only-statute-pdf-000001"].map((id) => {
+    const directory = resolve(appRoot, "fixtures/program-screen/test-only-sources", id);
+    const meta = JSON.parse(readFileSync(join(directory, "metadata.json"), "utf8"));
+    return [id, { directory, meta, original: join(directory, meta.original.file) }];
+  }),
+);
+
+/** Writes a --context file holding the fixture's context block, optionally edited. */
+function contextFile(id, edit = (block) => block) {
+  const { meta } = v2Fixtures[id];
+  const block = structuredClone(meta.source_type === "agency_map" ? meta.agency_map : meta.statute);
+  const path = join(temp, `${id}-${Math.random().toString(36).slice(2)}.context.json`);
+  writeFileSync(path, JSON.stringify(edit(block)));
+  return path;
+}
+
+function v2Args(id, overrides = {}) {
+  const { meta, original } = v2Fixtures[id];
+  const flags = {
+    file: original,
+    "source-id": meta.source_id,
+    title: meta.title,
+    url: meta.official_url,
+    type: meta.source_type,
+    "document-date": meta.document_date,
+    "operative-status": meta.operative_status,
+    "retrieved-at": meta.retrieved_at,
+    notes: meta.notes,
+    context: contextFile(id),
+    ...overrides,
+  };
+  return Object.entries(flags).flatMap(([name, value]) => (value === null ? [] : [`--${name}`, value]));
 }
 
 try {
@@ -127,8 +165,162 @@ try {
     join(captureRoot, "test-only-sources", "test-only-date-check"),
   );
 
+  for (const id of Object.keys(v2Fixtures)) {
+    result = run(v2Args(id));
+    check(`captures ${id}`, result.status === 0, result.output);
+    check(`reproduces ${id} byte for byte`, sameAsFixture(join(captureRoot, "test-only-sources", id), v2Fixtures[id].directory));
+  }
+  result = run(v2Args("test-only-agency-map-000001", { replace: null }));
+  check("never overwrites a v2 capture without --replace", result.status === 1 && result.output.includes("already exists"), result.output);
+  check(
+    "notes that a map capture registers nothing",
+    run([...v2Args("test-only-agency-map-000001"), "--replace"]).output.includes("registers no issuer or authority source"),
+  );
+
+  const mapId = "test-only-agency-map-000001";
+  const htmlId = "test-only-statute-000001";
+  const pdfStatuteId = "test-only-statute-pdf-000001";
+  const testOnly = (name) => join(captureRoot, "test-only-sources", name);
+  expectRefusal("refuses an agency map without --context", v2Args(mapId, { context: null }), "--context is required");
+  expectRefusal(
+    "refuses --context for an ordinance",
+    [...captureArgs({ "source-id": "test-only-context-check" }), "--context", contextFile(mapId)],
+    "--context applies only",
+    testOnly("test-only-context-check"),
+  );
+  expectRefusal(
+    "refuses an agency map on a host no reviewed exception covers",
+    v2Args(mapId, { "source-id": "fire-map-000000", url: "https://hazard-maps.agency.example/maps/fire-map-000000.pdf" }),
+    "no reviewed host exception covers source fire-map-000000",
+    join(captureRoot, "official-sources", "fire-map-000000"),
+  );
+  expectRefusal(
+    "refuses a statute on a host no reviewed exception covers",
+    v2Args(pdfStatuteId, { "source-id": "statute-000000", url: "https://statutes.agency.example/tst-2-1.pdf" }),
+    "is not an official source host",
+    join(captureRoot, "official-sources", "statute-000000"),
+  );
+  expectRefusal(
+    "refuses a statute page whose URL requests another section",
+    v2Args(htmlId, {
+      "source-id": "test-only-section-check",
+      url: "https://leginfo.example.test/faces/codes_displaySection.xhtml?lawCode=TST&sectionNum=1.10",
+    }),
+    "sectionNum=1.10, not TST 1.1",
+    testOnly("test-only-section-check"),
+  );
+  expectRefusal(
+    "refuses a statute page whose URL requests another code",
+    v2Args(htmlId, {
+      "source-id": "test-only-code-check",
+      url: "https://leginfo.example.test/faces/codes_displaySection.xhtml?lawCode=GOV&sectionNum=1.1",
+    }),
+    "lawCode=GOV",
+    testOnly("test-only-code-check"),
+  );
+  expectRefusal(
+    "refuses a pinpoint excerpt that is not in the statute",
+    v2Args(htmlId, {
+      "source-id": "test-only-pinpoint-check",
+      context: contextFile(htmlId, (block) => {
+        block.pinpoints[0].excerpt.text = "(9) An invented paragraph nine.";
+        return block;
+      }),
+    }),
+    "does not match the extracted text",
+    testOnly("test-only-pinpoint-check"),
+  );
+  expectRefusal(
+    "refuses a legend excerpt placed on the wrong page",
+    v2Args(mapId, {
+      "source-id": "test-only-legend-page-check",
+      context: contextFile(mapId, (block) => {
+        block.responsibility_areas[0].excerpts[0].page = 1;
+        return block;
+      }),
+    }),
+    "is not on page 1",
+    testOnly("test-only-legend-page-check"),
+  );
+  expectRefusal(
+    "refuses an operative map without an edition date",
+    v2Args(mapId, {
+      "source-id": "test-only-edition-check",
+      context: contextFile(mapId, (block) => {
+        block.edition = { label: null, date: null, date_kind: null, excerpt: null };
+        return block;
+      }),
+    }),
+    "An operative map has an established edition date",
+    testOnly("test-only-edition-check"),
+  );
+  expectRefusal(
+    "refuses an HTML file for an agency map",
+    v2Args(mapId, { "source-id": "test-only-map-html-check", file: v2Fixtures[htmlId].original }),
+    "not a PDF",
+    testOnly("test-only-map-html-check"),
+  );
+  const browserCopy = join(temp, "browser-saved.html");
+  writeFileSync(
+    browserCopy,
+    readFileSync(v2Fixtures[htmlId].original, "utf8").replace(
+      "<html",
+      "<!-- saved from url=(0080)https://leginfo.example.test/faces/codes_displaySection.xhtml -->\n<html",
+    ),
+  );
+  expectRefusal(
+    "refuses a browser-saved copy of a statute page",
+    v2Args(htmlId, { "source-id": "test-only-browser-copy-check", file: browserCopy }),
+    "save-page marker",
+    testOnly("test-only-browser-copy-check"),
+  );
+  expectRefusal(
+    "refuses a statute recorded as proposed",
+    v2Args(htmlId, { "source-id": "test-only-proposed-statute-check", "operative-status": "proposed_not_operative" }),
+    "cannot be recorded as proposed_not_operative",
+    testOnly("test-only-proposed-statute-check"),
+  );
+  expectRefusal(
+    "refuses an operative statute without its history note",
+    v2Args(htmlId, {
+      "source-id": "test-only-status-note-check",
+      context: contextFile(htmlId, (block) => ({ ...block, status_as_published: null })),
+    }),
+    "history or effective-date note",
+    testOnly("test-only-status-note-check"),
+  );
+  expectRefusal(
+    "refuses an agency map that names sources it may change",
+    v2Args(mapId, { "source-id": "test-only-may-change-check", "may-change": "test-only-adopted-ordinance-000001" }),
+    "Only a proposed draft records sources it may change",
+    testOnly("test-only-may-change-check"),
+  );
+  result = run(v2Args(mapId, { "source-id": "test-only-proposed-map-check", "operative-status": "proposed_not_operative" }));
+  check(
+    "captures a recommended map as proposed_not_operative, noting it can never be registered",
+    result.status === 0 && result.output.includes("can never be registered or establish a fact"),
+    result.output,
+  );
+
   result = run(["--verify"]);
   check("verifies an intact capture", result.status === 0 && result.output.includes("ok"), result.output);
+
+  const htmlCapture = testOnly(htmlId);
+  const servedPath = join(htmlCapture, "original.html");
+  const served = readFileSync(servedPath);
+  writeFileSync(servedPath, Buffer.from(served.toString("utf8").replace("fictional parcel", "fictional lot")));
+  result = run(["--verify"]);
+  check(
+    "detects an edited original.html",
+    result.status === 1 && result.output.includes("original.html does not match sha256_original"),
+    result.output,
+  );
+  writeFileSync(servedPath, served);
+  writeFileSync(join(htmlCapture, "original.pdf"), readFileSync(sourcePdf));
+  result = run(["--verify"]);
+  check("detects a stray file in a capture", result.status === 1 && result.output.includes("unexpected files original.pdf"), result.output);
+  rmSync(join(htmlCapture, "original.pdf"));
+  check("verifies v2 captures again once restored", run(["--verify"]).status === 0);
 
   const extractedPath = join(testOnlyDir, "extracted.txt");
   const extracted = readFileSync(extractedPath);

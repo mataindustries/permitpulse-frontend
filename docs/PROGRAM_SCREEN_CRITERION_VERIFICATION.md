@@ -236,7 +236,7 @@ npm run program-screen:capture -- --file <upload>/25-1083-s3_misc_9-24-26.pdf \
   --document-date 2026-09-24 --retrieved-at 2026-09-27T16:19:20Z --notes "..."
 ```
 
-`npm run program-screen:capture:verify` reports `ok` for all four official captures and both TEST-ONLY captures, and `npm run program-screen:capture:selftest` passes all 18 checks. Each capture matches its `expectedOfficialSources` entry (URL, type, `may_change_source_ids`), and only the three operative sources satisfy `canSupportCriterionRule`.
+`npm run program-screen:capture:verify` reports `ok` for all four official captures and all five TEST-ONLY captures (the two v1 synthetic captures and the three Phase 2b agency-map and statute captures), and `npm run program-screen:capture:selftest` passes every check. Each capture matches its `expectedOfficialSources` entry (URL, type, `may_change_source_ids`), and only the three operative sources satisfy `canSupportCriterionRule`.
 
 ## Capture format and tool
 
@@ -256,7 +256,16 @@ Each source is one directory under `app/fixtures/program-screen/official-sources
 - refuses to overwrite an existing capture unless `--replace` is passed;
 - re-verifies what it wrote before reporting success.
 
-`npm run program-screen:capture:verify` re-hashes every capture and re-extracts every PDF. It fails if any file changed, or if the installed `pdfjs-dist` would extract different text. `npm run program-screen:capture:selftest` runs the tool against the TEST-ONLY synthetic PDF in a temporary directory and checks every refusal above.
+`npm run program-screen:capture:verify` re-hashes every capture and re-extracts every PDF. It fails if any file changed, if a capture directory holds any other file, or if the installed `pdfjs-dist` would extract different text. `npm run program-screen:capture:selftest` runs the tool against the TEST-ONLY synthetic captures in a temporary directory and checks every refusal above.
+
+Phase 2b (`docs/PROGRAM_SCREEN_SOURCE_CAPTURE_2B.md`) adds metadata v2 for two more source types:
+
+- `agency_map`: a PDF, with its issuing agency, edition, responsibility areas, legend classes, and supersession statement each pinned to text on its page.
+- `statute`: a code-section page captured as the exact HTML the official host served, or an official PDF. The code, section, and pinpoint are pinned by the URL, a whole-line heading, and excerpts.
+
+A v2 capture takes `--context <json>`. v1 metadata, and the four captures above, are unchanged.
+
+A non-allowlisted host needs a reviewed, source-specific exception. None is shipped. No map or statute capture can support a criterion rule, and none is an authority source until a separate, reviewed registration.
 
 `app/tests/program-screen-source-capture.test.ts` re-checks every capture on every test run. The tests run inside workerd, which receives each module over a WebSocket capped at 32 MiB, and Ordinance 188967's PDF alone exceeds that once inlined as base64. So `app/tests/program-screen-capture-bytes.global-setup.ts` reads every official capture's exact bytes in Node, runs the same `officialSourceCaptureIssues` check, and provides the result; the test fails on any issue, on any capture directory the setup did not check, and on any hash that differs from the pins in the test. The extracted text is loaded and re-hashed inside the worker as well. The test also requires every official capture to match its entry in `expectedOfficialSources`, and it rejects any other file in `official-sources/` (HTML, notes, or loose text).
 
@@ -729,7 +738,7 @@ Every atomic criterion's decision is still **B: keep `pending_human`** until a h
 - **ZIMAS may become the City's designated display.** Ordinance 188968 Sec. 6 directs the Director to show in ZIMAS which sites are and are not covered by SB 79, and the SHRA memo sends users to the ZIMAS SHRA Eligibility Checklist. The ZIMAS program fields stay observation-only; making any of them a criterion input would be a design change for a separate review.
 - **Drafting issues in the adopted text.** Ordinance 188967 leaves the Phased Implementation Ordinance's number blank in (c)(10) and (g)(1)(iii)b; cites the eligibility map "pursuant to Section 12.22.A.38(i)(7) of this this Code" where the mapping authority it amends is (j)(7); prints "M2,-M3"; and repeats a clause in (g)(1)(iii)a. The memo repeats "including, including" (page 3).
 - **Fire-hazard conflict.** In the fixture, the fire-hazard conflict (CAL FIRE yes, ZIMAS no) now makes three atomic criteria contested: `la_shra.very-high-fire-hazard-severity-zone`, `la_sb79.temporary-exemption-fire-or-state-responsibility-area`, and `la_low_rise.fire-restriction-area-exclusion` (plus the repo-sourced overlay review). Each rests on the captured text; none is verified.
-- **State statute text has no source type yet.** Several components defer to GCS 66499.41 or to SB 79 (GCS 65912.155-65912.162). The capture tool accepts `leginfo.legislature.ca.gov`, but `source_type` has no statute value. Add one in a later branch; do not capture a statute as an `adopted_ordinance`.
+- **State statute text now has a source type (Phase 2b), but nothing is captured yet.** Several components defer to GCS 66499.41 or to SB 79 (GCS 65912.155-65912.162). Phase 2b added the `statute` source type (metadata v2; see `docs/PROGRAM_SCREEN_SOURCE_CAPTURE_2B.md`), so the "cannot be captured as evidence until a statute source type exists" notes above, which quote the proposal records, describe the state before Phase 2b. Capturing a statute is still its own reviewed step. A statute capture can never support a criterion rule, and it is never recorded as an `adopted_ordinance`.
 - **`clkrep.lacity.org` is allowed as a City Clerk host.** Council File attachments are often served from it. Remove it from `officialSourceHosts` if you do not want it treated as official.
 - **Image-only pages.** The draft's substantive pages have no text layer. A future draft or ordinance whose operative text is image-only needs an official text-layer version or a separately designed human transcription path before it can support anything.
 

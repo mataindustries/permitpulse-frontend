@@ -1,0 +1,78 @@
+{
+  "schema_version": "program-screen-official-source-v2",
+  "source_id": "test-only-agency-map-000001",
+  "title": "TEST-ONLY Fictional Fire Hazard Severity Zones Map 000001",
+  "official_url": "https://maps.example.test/program-screen-capture/fictional-fhsz-map-000001.pdf",
+  "source_type": "agency_map",
+  "document_date": "2026-01-15",
+  "retrieved_at": "2026-09-28T17:00:00.000Z",
+  "sha256_original": "45626fcec28e3ce7bb93705444e7852f6c971b5a9739ba0845681d4bab1536b9",
+  "sha256_extracted": "131c695d73202667caac9c43d1a42c99dac733363334649942de312ceadaa058",
+  "operative_status": "operative",
+  "notes": "TEST-ONLY synthetic map generated with pdf-lib for automated tests. Not a fire hazard map or official source of any agency.",
+  "may_change_source_ids": [],
+  "original": {
+    "file": "original.pdf",
+    "media_type": "application/pdf",
+    "bytes": 2491
+  },
+  "extraction": {
+    "file": "extracted.txt",
+    "extractor": "pdfjs-dist",
+    "extractor_version": "6.3.289",
+    "normalization": "program-screen-text-v1",
+    "page_separator": "form_feed",
+    "page_count": 2,
+    "pages_without_text": []
+  },
+  "host_basis": "test_only_host",
+  "agency_map": {
+    "issuing_agency": {
+      "name": "TEST-ONLY Fictional Fire Agency 000001",
+      "excerpt": {
+        "page": 1,
+        "text": "Issued by the TEST-ONLY Fictional Fire Agency 000001"
+      }
+    },
+    "edition": {
+      "label": "Edition 000001",
+      "date": "2026-01-15",
+      "date_kind": "effective",
+      "excerpt": {
+        "page": 1,
+        "text": "Edition 000001, effective January 15, 2026"
+      }
+    },
+    "responsibility_areas": [
+      {
+        "area": "local",
+        "legend_classes": [
+          "very_high",
+          "high",
+          "moderate"
+        ],
+        "excerpts": [
+          {
+            "page": 2,
+            "text": "Fictional Fire Hazard Severity Zones in the Local Responsibility Area: Very High Fire Hazard Severity Zone High Fire Hazard Severity Zone Moderate Fire Hazard Severity Zone"
+          },
+          {
+            "page": 2,
+            "text": "This map shows the Local Responsibility Area only."
+          }
+        ]
+      }
+    ],
+    "supersession": {
+      "statement": "stated_current",
+      "excerpt": {
+        "page": 2,
+        "text": "This is the current fictional edition; it supersedes no earlier edition."
+      }
+    }
+  },
+  "statute": null,
+  "capture_tool": "app/scripts/capture-program-screen-source.ts",
+  "is_ai_generated": false,
+  "test_only": true
+}
