@@ -89,6 +89,16 @@ export const expectedOfficialSources: readonly ExpectedOfficialSource[] = [
     may_change_source_ids: ["ordinance-188967"],
     role: "Proposed change only. It can prompt a human re-review; it cannot support a rule.",
   },
+  {
+    source_id: "gcs-66499-41",
+    title: "California Government Code Section 66499.41 (Starter Home Revitalization Act of 2021), code section page",
+    official_url:
+      "https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=GOV&sectionNum=66499.41.",
+    source_type: "statute",
+    may_change_source_ids: [],
+    role:
+      "Statute capture only (Phase 3A). It fires the Round 1 re-review trigger gcs_66499_41_a_9_captured; it cannot support a rule, and it registers no issuer or authority source.",
+  },
 ];
 
 /**

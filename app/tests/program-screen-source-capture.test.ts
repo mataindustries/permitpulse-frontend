@@ -189,6 +189,7 @@ const officialSourceFiles = Object.keys(
 
 const OFFICIAL_DIR = "app/fixtures/program-screen/official-sources/";
 const CAPTURED_SOURCE_IDS = [
+  "gcs-66499-41",
   "low-rise-draft-2026-09-24",
   "ordinance-188967",
   "ordinance-188968",
@@ -645,6 +646,11 @@ describe("Captured official sources (official-sources/)", () => {
       }),
     );
     expect(pins).toEqual({
+      // Phase 3A: the served leginfo page for GOV 66499.41 (docs/PROGRAM_SCREEN_PHASE_3A_GCS_66499_41_A_9_REVIEW.md).
+      "gcs-66499-41": [
+        "3521eb92f68d966461eb0c7b60ebffad8371b487eff2f014417cd74fc077ec72",
+        "48815c8e2a892ca8e3aa523c6d3237d9c014fc556b3e332e31f0894f5bcf0759",
+      ],
       "low-rise-draft-2026-09-24": [
         "c451896908430f573206209c6c154c62c95b2c396ffdebe5a7e8505560a8d9a7",
         "3f31319db3820b36cd3755f7e5572ef414181c283fb7659c0eea13f61dd4ec65",
@@ -664,7 +670,7 @@ describe("Captured official sources (official-sources/)", () => {
     });
   });
 
-  it("records the three operative sources as operative and the draft as proposed only", () => {
+  it("records the operative sources as operative, the draft as proposed only, and the statute as no rule source", () => {
     const summary = Object.values(officialCaptures).map((found) => {
       const { metadata } = completeOfficial(found);
       return {
@@ -676,6 +682,8 @@ describe("Captured official sources (official-sources/)", () => {
       };
     });
     expect(summary).toEqual([
+      // A statute capture never supports a rule (Phase 2b B4), even when operative.
+      { id: "gcs-66499-41", type: "statute", status: "operative", may_change: [], supports_rule: false },
       {
         id: "low-rise-draft-2026-09-24",
         type: "proposed_draft",
@@ -732,6 +740,7 @@ describe("Captured official sources (official-sources/)", () => {
       "ordinance-188968",
       "shra-2025-10-28",
       "low-rise-draft-2026-09-24",
+      "gcs-66499-41",
     ]);
     const drafts = expectedOfficialSources.filter((source) => source.source_type === "proposed_draft");
     expect(drafts.map((source) => source.source_id)).toEqual(["low-rise-draft-2026-09-24"]);

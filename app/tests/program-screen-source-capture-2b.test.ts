@@ -272,9 +272,15 @@ describe("1. v1 metadata is frozen and the four existing captures are unchanged"
     ],
   };
 
-  it("keeps exactly the four official captures on v1, byte-valid and pinned", async () => {
-    expect(Object.keys(officialMetadata).sort()).toEqual(Object.keys(PINS).map((id) => `${OFFICIAL_DIR}${id}`));
-    for (const capture of officialCaptures) {
+  it("keeps exactly the four existing official captures on v1, byte-valid and pinned", async () => {
+    // Phase 3A adds one v2 statute capture, gcs-66499-41, pinned in
+    // program-screen-statute-capture-3a.test.ts. The four v1 captures are unchanged.
+    expect(Object.keys(officialMetadata).sort()).toEqual(
+      [...Object.keys(PINS), "gcs-66499-41"].sort().map((id) => `${OFFICIAL_DIR}${id}`),
+    );
+    const v1Captures = officialCaptures.filter((capture) => capture.metadata.schema_version === OFFICIAL_SOURCE_METADATA_VERSION);
+    expect(v1Captures.map((capture) => capture.metadata.source_id)).toEqual(Object.keys(PINS));
+    for (const capture of v1Captures) {
       const { metadata, extracted } = capture;
       const directory = `${OFFICIAL_DIR}${metadata.source_id}`;
       expect(metadata.schema_version, directory).toBe(OFFICIAL_SOURCE_METADATA_VERSION);
@@ -864,8 +870,24 @@ describe("8. The GCS 66499.41(a)(9) re-review trigger stays limited to decisions
     ]);
   });
 
-  it("fires for nothing today: no statute is captured (B3)", () => {
-    expect(statuteRereviewWarnings(officialCaptures.map((capture) => capture.metadata), [decisions])).toEqual([]);
+  it("fires once over the shipped captures, for the Phase 3A statute capture only", () => {
+    // Before Phase 3A no statute was captured (B3) and this fired for nothing.
+    expect(statuteRereviewWarnings(officialCaptures.map((capture) => capture.metadata), [decisions])).toEqual([
+      {
+        kind: "statute_rereview_warning",
+        trigger: TRIGGER,
+        statute_source_id: "gcs-66499-41",
+        operative_status: "operative",
+        criterion_ids: [
+          "la_shra.very-high-fire-hazard-severity-zone",
+          "la_shra.high-fire-hazard-severity-zone",
+          "la_shra.prime-or-statewide-farmland",
+          "la_shra.natural-community-conservation-plan-land",
+          "la_shra.conservation-easement",
+        ],
+        action: "human_re_review",
+      },
+    ]);
     expect(statuteRereviewWarnings(v2Captures.map((capture) => capture.metadata), [decisions])).toEqual([]);
   });
 
@@ -969,12 +991,14 @@ describe("9. A map or statute capture never becomes a rule source, review eviden
     );
   });
 
-  it("is not an expected official source: no real map or statute is captured in Phase 2b (B3)", () => {
+  it("registers no real map, and only the Phase 3A statute, as an expected official source", () => {
+    // Phase 2b captured nothing real (B3). Phase 3A adds GOV 66499.41 as a capture only.
     expect(expectedOfficialSources.map((source) => [source.source_id, source.source_type])).toEqual([
       ["ordinance-188967", "adopted_ordinance"],
       ["ordinance-188968", "adopted_ordinance"],
       ["shra-2025-10-28", "official_memo"],
       ["low-rise-draft-2026-09-24", "proposed_draft"],
+      ["gcs-66499-41", "statute"],
     ]);
   });
 });

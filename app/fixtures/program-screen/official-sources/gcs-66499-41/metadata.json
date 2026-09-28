@@ -1,0 +1,63 @@
+{
+  "schema_version": "program-screen-official-source-v2",
+  "source_id": "gcs-66499-41",
+  "title": "California Government Code Section 66499.41 (Starter Home Revitalization Act of 2021), code section page",
+  "official_url": "https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=GOV&sectionNum=66499.41.",
+  "source_type": "statute",
+  "document_date": "2025-06-30",
+  "retrieved_at": "2026-09-28T21:46:59Z",
+  "sha256_original": "3521eb92f68d966461eb0c7b60ebffad8371b487eff2f014417cd74fc077ec72",
+  "sha256_extracted": "48815c8e2a892ca8e3aa523c6d3237d9c014fc556b3e332e31f0894f5bcf0759",
+  "operative_status": "operative",
+  "notes": "Exact HTTP response body served by leginfo.legislature.ca.gov (HTTP/2 200, content-type text/html; charset=UTF-8, Date Mon, 28 Sep 2026 21:46:59 GMT; retrieved_at is that Date header). The repository owner downloaded it with curl from the official URL in the Phase 3A download instructions (the page does not echo its own URL) and supplied it to the capture session as a local file; its SHA-256 and byte size matched the owner's pre-upload values. The capture environment could not reach the official host, so the bytes were not re-fetched here. document_date and operative status rest only on the page's own history note (Effective June 30, 2025); the page prints no currency statement. Statute capture only: it registers no issuer or authority source, supports no criterion rule, and establishes no parcel fact.",
+  "may_change_source_ids": [],
+  "original": {
+    "file": "original.html",
+    "media_type": "text/html",
+    "bytes": 186734
+  },
+  "extraction": {
+    "file": "extracted.txt",
+    "extractor": "program-screen-html-text",
+    "extractor_version": "1.0.0",
+    "normalization": "program-screen-text-v1",
+    "page_separator": "form_feed",
+    "page_count": 1,
+    "pages_without_text": []
+  },
+  "host_basis": "global_allowlist",
+  "agency_map": null,
+  "statute": {
+    "jurisdiction": "CA",
+    "code": "GOV",
+    "section": "66499.41",
+    "form": "code_section_page",
+    "section_heading": {
+      "page": 1,
+      "text": "66499.41."
+    },
+    "pinpoints": [
+      {
+        "pinpoint": "(a)",
+        "excerpt": {
+          "page": 1,
+          "text": "(a) A local agency shall ministerially consider, without discretionary review or a hearing, a parcel map or a tentative and final map for a housing development project that meets all of the following requirements:"
+        }
+      },
+      {
+        "pinpoint": "(a)(9)",
+        "excerpt": {
+          "page": 1,
+          "text": "(9) The lot proposed to be subdivided is not located on a site that is any of the following:"
+        }
+      }
+    ],
+    "status_as_published": {
+      "page": 1,
+      "text": "(Amended (as amended by Stats. 2024, Ch. 294, Sec. 3) by Stats. 2025, Ch. 22, Sec. 28. (AB 130) Effective June 30, 2025.)"
+    }
+  },
+  "capture_tool": "app/scripts/capture-program-screen-source.ts",
+  "is_ai_generated": false,
+  "test_only": false
+}
