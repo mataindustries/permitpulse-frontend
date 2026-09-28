@@ -7,10 +7,13 @@ import {
 } from "./source-capture";
 import {
   humanVerificationRequiredCriterionIds,
+  predicateOutcomes,
+  programFactDataClasses,
   programFactKeys,
   retiredProgramCriterionIds,
   retiredProgramFactKeys,
   type OfficialSourceType,
+  type PredicateOutcome,
 } from "./types";
 
 /**
@@ -395,4 +398,346 @@ export function draftChangeWarnings(
         action: "human_re_review" as const,
       })),
     );
+}
+
+/* ------------------------------------------------------ human review rounds */
+
+/**
+ * A human review round: a small set of atomic criteria prepared for a named
+ * human reviewer to check against the captured official text, with one exact
+ * candidate rule each. Like a proposal, it is preparation only. It never names
+ * a reviewer, records a decision, or marks anything verified (the schema has
+ * no field for any of them), and no production module reads it. Promoting a
+ * criterion stays a separate, later change that fills in the criterion's own
+ * human-verification record.
+ */
+export const HUMAN_REVIEW_ROUND_DIR = "app/fixtures/program-screen/human-review-rounds/";
+export const HUMAN_REVIEW_ROUND_SCHEMA_VERSION = "program-screen-human-review-round-v1" as const;
+
+/**
+ * What the captured source safely supports, from a controlled parcel fact:
+ * - `both_directions_safe`: a consistent result and a documented disqualifier.
+ * - `block_only`: a disqualifier when the condition is affirmatively shown;
+ *   absence does not establish consistency.
+ * - `clear_only`: consistency in one direction; presence needs judgment.
+ * - `professional_judgment`: nothing the screen can decide deterministically.
+ * - `not_supported`: the captured source does not support the criterion.
+ */
+export const humanReviewClassifications = [
+  "both_directions_safe",
+  "block_only",
+  "clear_only",
+  "professional_judgment",
+  "not_supported",
+] as const;
+
+/** The preparer's view of timing only; the reviewer's decision is recorded elsewhere. */
+export const humanReviewPreparerRecommendations = [
+  "ready_for_decision",
+  "decide_after_open_questions",
+  "keep_pending_recommended",
+] as const;
+
+export const humanReviewFactAnswers = ["yes", "no", "with_recording_instruction"] as const;
+export const humanReviewNotFoundAnswers = [
+  "distinct",
+  "not_distinct",
+  "distinct_only_with_recording_instruction",
+] as const;
+
+/** Round candidates never include the unresolved SB 79 temporary exemption. */
+const EXCLUDED_CANDIDATE_PREFIX = "la_sb79.temporary-exemption";
+
+const reviewText = z.string().trim().min(1).max(2000);
+const question = reviewText.refine((value) => value.trim().endsWith("?"), "A review question asks something.");
+const outcome = z.enum(predicateOutcomes);
+const factKey = z.enum(programFactKeys);
+
+const pagedExcerpt = z.object({ page: z.number().int().positive(), text: reviewText }).strict();
+
+/** One condition on one fact's established value. Numbers compare in the fact's own unit. */
+export const humanReviewRuleConditionSchema = z.union([
+  z.object({ fact_key: factKey, equals: z.union([z.boolean(), reviewText]) }).strict(),
+  z.object({ fact_key: factKey, in: z.array(reviewText).min(1) }).strict(),
+  z.object({ fact_key: factKey, less_than: z.number().positive() }).strict(),
+  z.object({ fact_key: factKey, at_least: z.number().positive() }).strict(),
+]);
+
+export type HumanReviewRuleCondition = z.infer<typeof humanReviewRuleConditionSchema>;
+
+const ruleCaseSchema = z
+  .object({ when: z.array(humanReviewRuleConditionSchema).min(1), outcome })
+  .strict();
+
+export const humanReviewCandidateRuleSchema = z
+  .object({
+    plain_english: reviewText,
+    pseudocode: reviewText,
+    /** Mutually exclusive; every established value combination must match exactly one case. */
+    cases: z.array(ruleCaseSchema).min(1),
+  })
+  .strict();
+
+export type HumanReviewCandidateRule = z.infer<typeof humanReviewCandidateRuleSchema>;
+
+const factReviewSchema = z
+  .object({
+    fact_key: factKey,
+    data_class: z.enum(programFactDataClasses),
+    value: z.union([
+      z.object({ kind: z.literal("boolean") }).strict(),
+      z.object({ kind: z.literal("number"), unit: reviewText }).strict(),
+      z.object({ kind: z.literal("text"), allowed: z.array(reviewText).nullable() }).strict(),
+    ]),
+    record_source: reviewText,
+    recordable_without_free_text_interpretation: z.enum(humanReviewFactAnswers),
+    not_found_distinct_from_no: z.enum(humanReviewNotFoundAnswers),
+    date_dependency: reviewText,
+    narrowing_required: z.boolean(),
+    smallest_correction: reviewText.nullable(),
+  })
+  .strict()
+  .superRefine((fact, context) => {
+    if (fact.narrowing_required !== (fact.smallest_correction !== null)) {
+      context.addIssue({
+        code: "custom",
+        path: ["smallest_correction"],
+        message: "A smallest correction is required exactly when narrowing is required.",
+      });
+    }
+  });
+
+const directionSchema = z.object({ safe: z.boolean(), reasoning: reviewText }).strict();
+
+export const humanReviewCandidateSchema = z
+  .object({
+    criterion_id: z.enum(humanVerificationRequiredCriterionIds),
+    concept: reviewText,
+    /** The v2 proposal file whose component carries this criterion. */
+    proposal_file: z.string().regex(/^la_(?:shra|sb79|low_rise)\.[a-z0-9-]+\.json$/),
+    source: z
+      .object({
+        source_id: z.string(),
+        source_type: z.enum(["adopted_ordinance", "official_memo"]),
+        operative_status: z.literal("operative"),
+        /** `sha256_extracted` of the capture every excerpt was taken from. */
+        source_sha256: hex64,
+        text_layer: z.enum(["born_digital_text", "city_ocr_of_scan"]),
+      })
+      .strict(),
+    pdf_pages: z.array(z.number().int().positive()).min(1),
+    printed_page_note: reviewText,
+    section: reviewText,
+    /** The shipped criterion's citation pinpoint, unchanged. */
+    current_pinpoint: reviewText,
+    /** The rule text, exact from the capture. */
+    excerpts: z.array(pagedExcerpt).min(1),
+    basis_excerpt_changes: reviewText.nullable(),
+    /** Neighboring or cross-source text a reviewer needs; exact from an operative capture. */
+    context_excerpts: z.array(
+      z.object({ source_id: z.string(), page: z.number().int().positive(), text: reviewText, why: reviewText }).strict(),
+    ),
+    text_layer_check: z
+      .object({
+        pages_compared_with_image: z.array(z.number().int().positive()).min(1),
+        discrepancies: z.array(
+          z
+            .object({
+              page: z.number().int().positive(),
+              text_layer_reads: reviewText,
+              page_image_reads: reviewText,
+              in_rule_excerpt: z.boolean(),
+            })
+            .strict(),
+        ),
+        note: reviewText,
+      })
+      .strict(),
+    exceptions: z.array(reviewText).min(1),
+    cross_references: z
+      .array(z.object({ reference: reviewText, captured: z.boolean(), why_it_matters: reviewText }).strict())
+      .min(1),
+    direction_safety: z.object({ blocking: directionSchema, consistent: directionSchema }).strict(),
+    classification: z.enum(humanReviewClassifications),
+    classification_reasoning: reviewText,
+    facts: z.array(factReviewSchema).min(1),
+    /** The shipped criterion's `permitted_outcomes`, unchanged by this round. */
+    current_outcome_ceiling: z.array(outcome).min(1),
+    /** What the candidate rule can return: never wider than the current ceiling. */
+    proposed_outcome_ceiling: z.array(outcome).min(1),
+    candidate_rule: humanReviewCandidateRuleSchema,
+    changes_from_v2_proposal: reviewText.nullable(),
+    why_this_appears_safe: z.array(reviewText).min(1),
+    what_could_make_it_wrong: z.array(reviewText).min(1),
+    review_questions: z.array(question).min(1),
+    preparer_recommendation: z.enum(humanReviewPreparerRecommendations),
+  })
+  .strict()
+  .superRefine((candidate, context) => {
+    const issue = (path: string, message: string) =>
+      context.addIssue({ code: "custom", path: [path], message });
+
+    if (candidate.criterion_id.startsWith(EXCLUDED_CANDIDATE_PREFIX)) {
+      issue("criterion_id", "The SB 79 temporary-exemption criteria are unresolved and cannot be a review-round candidate.");
+    }
+    const source = expectedIds.get(candidate.source.source_id);
+    if (source === undefined || source.source_type === "proposed_draft") {
+      issue("source", "A review candidate must rest on an expected operative source, never a draft.");
+    } else if (source.source_type !== candidate.source.source_type) {
+      issue("source", `${candidate.source.source_id} is recorded as ${source.source_type}.`);
+    }
+    for (const excerpt of candidate.context_excerpts) {
+      const quotedSource = expectedIds.get(excerpt.source_id);
+      if (quotedSource === undefined || quotedSource.source_type === "proposed_draft") {
+        issue("context_excerpts", "Context may be quoted only from an expected operative source, never a draft.");
+      }
+    }
+    if (!candidate.proposal_file.startsWith(candidate.criterion_id.slice(0, candidate.criterion_id.indexOf(".") + 1))) {
+      issue("proposal_file", "The proposal file must belong to the candidate's pathway.");
+    }
+
+    const current = new Set<string>(candidate.current_outcome_ceiling);
+    const proposed = new Set<string>(candidate.proposed_outcome_ceiling);
+    if (proposed.size !== candidate.proposed_outcome_ceiling.length) {
+      issue("proposed_outcome_ceiling", "Outcomes must be unique.");
+    }
+    if (!proposed.has("requires_judgment")) {
+      issue("proposed_outcome_ceiling", "Every candidate must be able to route to judgment.");
+    }
+    for (const value of proposed) {
+      if (!current.has(value)) issue("proposed_outcome_ceiling", `${value} is outside the current ceiling.`);
+    }
+    const used = new Set<string>(["requires_judgment", ...candidate.candidate_rule.cases.map((ruleCase) => ruleCase.outcome)]);
+    if ([...used].sort().join() !== [...proposed].sort().join()) {
+      issue("proposed_outcome_ceiling", "The proposed ceiling must be exactly the outcomes the rule uses, plus requires_judgment.");
+    }
+
+    const blocking = proposed.has("disqualifying_per_source");
+    const clearing = proposed.has("consistent_with_source");
+    const expected: Record<(typeof humanReviewClassifications)[number], [boolean, boolean]> = {
+      both_directions_safe: [true, true],
+      block_only: [true, false],
+      clear_only: [false, true],
+      professional_judgment: [false, false],
+      not_supported: [false, false],
+    };
+    const [mayBlock, mayClear] = expected[candidate.classification];
+    if (blocking !== mayBlock || clearing !== mayClear) {
+      issue("classification", `A ${candidate.classification} candidate cannot propose that ceiling.`);
+    }
+    if (candidate.direction_safety.blocking.safe !== mayBlock || candidate.direction_safety.consistent.safe !== mayClear) {
+      issue("direction_safety", `Direction safety must match the ${candidate.classification} classification.`);
+    }
+
+    const read = new Set(candidate.facts.map((fact) => fact.fact_key));
+    if (read.size !== candidate.facts.length) issue("facts", "Each fact is reviewed once.");
+    for (const ruleCase of candidate.candidate_rule.cases) {
+      for (const condition of ruleCase.when) {
+        if (!read.has(condition.fact_key)) {
+          issue("candidate_rule", `The rule reads ${condition.fact_key}, which the fact review does not cover.`);
+        }
+      }
+    }
+    for (const fact of candidate.facts) {
+      if (fact.data_class !== "controlled_value" && candidate.candidate_rule.cases.length > 0) {
+        issue("facts", `${fact.fact_key} is not a controlled value; a rule cannot read it.`);
+      }
+    }
+  });
+
+export type HumanReviewCandidate = z.infer<typeof humanReviewCandidateSchema>;
+
+export const humanReviewRoundSchema = z
+  .object({
+    record_kind: z.literal("human_review_round"),
+    schema_version: z.literal(HUMAN_REVIEW_ROUND_SCHEMA_VERSION),
+    round: z.number().int().positive(),
+    /** A round never records a decision: approval happens in a later, separate change. */
+    status: z.literal("awaiting_human_review"),
+    prepared_on: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+    packet: z.string().regex(/^docs\/PROGRAM_SCREEN_HUMAN_REVIEW_ROUND_\d+\.md$/),
+    preparation_note: reviewText,
+    not_in_this_round: z.array(z.object({ topic: reviewText, reason: reviewText }).strict()).min(1),
+    candidates: z.array(humanReviewCandidateSchema).min(1),
+  })
+  .strict()
+  .superRefine((round, context) => {
+    const ids = round.candidates.map((candidate) => candidate.criterion_id);
+    if (new Set(ids).size !== ids.length) {
+      context.addIssue({ code: "custom", path: ["candidates"], message: "Each criterion appears once per round." });
+    }
+  });
+
+export type HumanReviewRound = z.infer<typeof humanReviewRoundSchema>;
+
+/**
+ * Every reason a candidate's quoted text does not hold against the captures:
+ * a wrong or non-operative source, a hash that does not pin the captured text,
+ * or an excerpt that is not on its stated page.
+ */
+export function humanReviewCaptureIssues(
+  candidate: HumanReviewCandidate,
+  captures: Readonly<Record<string, { metadata: OfficialSourceMetadata; extracted: string }>>,
+): string[] {
+  const issues: string[] = [];
+  const own = captures[candidate.source.source_id];
+  if (own === undefined) return [`${candidate.source.source_id} is not captured.`];
+  if (!canSupportCriterionRule(own.metadata)) {
+    issues.push(`A ${own.metadata.source_type} recorded as ${own.metadata.operative_status} cannot support a rule.`);
+  }
+  if (own.metadata.source_type !== candidate.source.source_type) {
+    issues.push("The recorded source type differs from the capture metadata.");
+  }
+  if (own.metadata.operative_status !== candidate.source.operative_status) {
+    issues.push("The recorded operative status differs from the capture metadata.");
+  }
+  if (candidate.source.source_sha256 !== own.metadata.sha256_extracted) {
+    issues.push("source_sha256 does not pin the captured extracted text.");
+  }
+  const quoted = [
+    ...candidate.excerpts.map((excerpt) => ({ ...excerpt, source_id: candidate.source.source_id })),
+    ...candidate.context_excerpts,
+  ];
+  for (const { source_id: sourceId, page, text } of quoted) {
+    const capture = captures[sourceId];
+    if (capture === undefined) {
+      issues.push(`${sourceId} is not captured.`);
+    } else if (!canSupportCriterionRule(capture.metadata)) {
+      issues.push(`${sourceId} cannot support a rule; it cannot be quoted as review context.`);
+    } else if (!excerptAppearsInCapture(text, capture.extracted)) {
+      issues.push(`An excerpt does not appear in ${sourceId}.`);
+    } else if (!locateExcerptPages(text, capture.extracted).includes(page)) {
+      issues.push(`An excerpt is not on page ${page} of ${sourceId}.`);
+    }
+  }
+  return issues;
+}
+
+function conditionHolds(
+  condition: HumanReviewRuleCondition,
+  values: Readonly<Record<string, boolean | number | string>>,
+): boolean {
+  const value = values[condition.fact_key];
+  if (value === undefined) return false;
+  if ("equals" in condition) return value === condition.equals;
+  if ("in" in condition) return typeof value === "string" && condition.in.includes(value);
+  if (typeof value !== "number") return false;
+  return "less_than" in condition ? value < condition.less_than : value >= condition.at_least;
+}
+
+/**
+ * TEST-ONLY interpreter for a candidate rule, so tests can exercise the exact
+ * rule a reviewer is asked to accept. Throws unless exactly one case matches.
+ * Production never calls it: a promoted rule is written as its criterion's own
+ * predicate in a later, reviewed change.
+ */
+export function candidateRuleOutcome(
+  rule: HumanReviewCandidateRule,
+  values: Readonly<Record<string, boolean | number | string>>,
+): PredicateOutcome {
+  const matches = rule.cases.filter((ruleCase) => ruleCase.when.every((condition) => conditionHolds(condition, values)));
+  if (matches.length !== 1) {
+    throw new Error(`A candidate rule must match exactly one case; ${matches.length} matched.`);
+  }
+  return matches[0].outcome;
 }

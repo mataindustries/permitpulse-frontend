@@ -1,0 +1,1481 @@
+{
+  "record_kind": "human_review_round",
+  "schema_version": "program-screen-human-review-round-v1",
+  "round": 1,
+  "status": "awaiting_human_review",
+  "prepared_on": "2026-09-28",
+  "packet": "docs/PROGRAM_SCREEN_HUMAN_REVIEW_ROUND_1.md",
+  "preparation_note": "Prepared with AI assistance from the captured official files only. The page-image comparisons under text_layer_check were made during preparation by rendering each original.pdf page; the human reviewer must repeat them. This manifest proposes rules for review. It records no reviewer and no decision, verifies nothing, and no production module reads it.",
+  "not_in_this_round": [
+    {
+      "topic": "la_sb79.temporary-exemption-all-parcels and the other SB 79 temporary-exemption criteria",
+      "reason": "The Sec. 4 reading is unresolved. Round 1 does not read, change, or rely on it, and every temporary-exemption ceiling still excludes disqualifying_per_source."
+    },
+    {
+      "topic": "The other 38 atomic criteria",
+      "reason": "Not selected for Round 1. They stay pending_human, unchanged."
+    },
+    {
+      "topic": "low-rise-draft-2026-09-24",
+      "reason": "Proposed, not operative. No Round 1 rule or excerpt rests on it."
+    }
+  ],
+  "candidates": [
+    {
+      "criterion_id": "la_shra.single-family-lot-area-threshold",
+      "concept": "SHRA single-family lot-area threshold",
+      "proposal_file": "la_shra.lot-area-and-zoning.json",
+      "source": {
+        "source_id": "shra-2025-10-28",
+        "source_type": "official_memo",
+        "operative_status": "operative",
+        "source_sha256": "f44574084091c51419d0475d4b8501d9a2c3577b3a16830fc6ecb2a88b20f6e2",
+        "text_layer": "born_digital_text"
+      },
+      "pdf_pages": [
+        2,
+        12
+      ],
+      "printed_page_note": "The memo prints the same page numbers as the PDF at the foot of each page (page 1 carries no number).",
+      "section": "Part I (property criteria), third paragraph, first sentence, page 2; FAQ Q.1 answer, last paragraph (single-family zone list), page 12",
+      "current_pinpoint": "Memo Part I (property criteria), page 2 (lot-size paragraph)",
+      "excerpts": [
+        {
+          "page": 2,
+          "text": "To qualify, multifamily-zoned lots must be less than 5 acres, and single-family zoned lots must be under 1.5 acres and \"vacant.\" (See FAQ Section, Q.1.)"
+        },
+        {
+          "page": 12,
+          "text": "Zoned for single-family residential development means sites in the following zones: A1, A2, RA, RE, RS, R1, RU, RZ, and RW1."
+        }
+      ],
+      "basis_excerpt_changes": "Adds the FAQ Q.1 zone list (page 12). The shipped criterion quotes only the page 2 sentence, but its rule reads shra-zone-category, which the page 12 list defines. The shipped criterion is not changed.",
+      "context_excerpts": [
+        {
+          "source_id": "shra-2025-10-28",
+          "page": 1,
+          "text": "This memo pertains to Chapter 1 of the Zoning Code. A subsequent memo specific to Chapter 1A of the Zoning Code will follow.",
+          "why": "The zone list is written for Chapter 1 zones; a Chapter 1A parcel is outside the memo's stated scope."
+        },
+        {
+          "source_id": "shra-2025-10-28",
+          "page": 1,
+          "text": "This memo summarizes key SHRA provisions for reference and does not include all applicable planning, building, or other departmental/agency regulations.",
+          "why": "The memo is a summary of the statute, not the statute."
+        },
+        {
+          "source_id": "shra-2025-10-28",
+          "page": 1,
+          "text": "Please refer to California Government Code Sections (GCS) 65852.28, 65913.4.5, and 66499.41 for the full SHRA.",
+          "why": "The memo summarizes the SHRA and sends readers to the statute for the full text (page 1). The statute is not captured, so nothing here relies on it."
+        },
+        {
+          "source_id": "shra-2025-10-28",
+          "page": 14,
+          "text": "Consistent with the City’s existing parcel and tract map processes, SHRA projects may propose the merger and re-subdivision of lots in the same application.",
+          "why": "A merger in the same application can change which lot area is tested; the screen reads one recorded parcel."
+        },
+        {
+          "source_id": "shra-2025-10-28",
+          "page": 19,
+          "text": "However, remainder parcels do not count towards the SHRA’s 10 parcel limitation or the law’s minimum density requirements for non-housing element sites.",
+          "why": "The memo lists what a remainder parcel is left out of; the lot-area limit is not on that list."
+        },
+        {
+          "source_id": "shra-2025-10-28",
+          "page": 14,
+          "text": "Maximum Lot Coverage: Projects in R1 Variation Zones are subject to a maximum lot coverage standard of 50 percent for lots up to 6,000 square feet.",
+          "why": "The memo names R1 Variation Zones separately from R1, and the page 12 list does not name them, so recording them needs a ruling."
+        }
+      ],
+      "text_layer_check": {
+        "pages_compared_with_image": [
+          1,
+          2,
+          12,
+          14,
+          19
+        ],
+        "discrepancies": [],
+        "note": "Born-digital text layer (Acrobat PDFMaker), not OCR. Each quoted sentence was compared with the rendered page image and reads the same, except where a discrepancy is listed."
+      },
+      "exceptions": [
+        "None stated for the 1.5-acre limit in the captured memo.",
+        "The same sentence adds a vacancy condition for single-family zoned lots. That is la_shra.single-family-vacancy-condition and la_shra.vacant-site-definition, not this rule."
+      ],
+      "cross_references": [
+        {
+          "reference": "GCS 66499.41 (the SHRA subdivision statute)",
+          "captured": false,
+          "why_it_matters": "How the statute measures the lot (for example with a designated remainder parcel, or lots merged in the same application) is not in any captured source."
+        },
+        {
+          "reference": "Memo FAQ Q.1, page 12",
+          "captured": true,
+          "why_it_matters": "Defines which zones are single-family zoned for the memo."
+        }
+      ],
+      "direction_safety": {
+        "blocking": {
+          "safe": true,
+          "reasoning": "Page 2 says “single-family zoned lots must be under 1.5 acres”. A lot on the page 12 list whose recorded area is 65,340 sq ft (1.5 x 43,560) or more is not under 1.5 acres."
+        },
+        "consistent": {
+          "safe": true,
+          "reasoning": "A lot on the page 12 list whose recorded area is less than 65,340 sq ft meets this limit. That result covers the area limit only, not vacancy or any other criterion."
+        }
+      },
+      "classification": "both_directions_safe",
+      "classification_reasoning": "Both results come from one sentence and one definitional list, reading a number and a two-value zone category. The rule decides only for zones on the list; a zone recorded as off the list routes to judgment, so this criterion never has to classify a zone the memo does not list.",
+      "facts": [
+        {
+          "fact_key": "shra-zone-category",
+          "data_class": "controlled_value",
+          "value": {
+            "kind": "text",
+            "allowed": [
+              "single_family_listed_zone",
+              "zone_not_on_single_family_list"
+            ]
+          },
+          "record_source": "The parcel's base zone on the City zoning record, matched by a person against the nine zones on memo page 12. The zoning string is never parsed.",
+          "recordable_without_free_text_interpretation": "with_recording_instruction",
+          "not_found_distinct_from_no": "distinct",
+          "date_dependency": "Screen date. The memo tests the lot at application; the application date is not modeled.",
+          "narrowing_required": true,
+          "smallest_correction": "Recording instruction only, no new value: record single_family_listed_zone when the base zone is one of the nine listed zones on a Chapter 1 parcel. Record unknown (reason insufficient_evidence) when the base zone starts with a listed name but carries a variation or number (the memo names R1 Variation Zones separately, page 14), or when the parcel is under Chapter 1A, until the reviewer rules on those forms."
+        },
+        {
+          "fact_key": "lot-area",
+          "data_class": "controlled_value",
+          "value": {
+            "kind": "number",
+            "unit": "sq ft"
+          },
+          "record_source": "The recorded area of the whole legal lot that would be subdivided, from a named City or County record. A calculated parcel area on a property profile is not necessarily the legal lot area.",
+          "recordable_without_free_text_interpretation": "yes",
+          "not_found_distinct_from_no": "distinct",
+          "date_dependency": "Screen date. The memo tests the lot at application; a merger or lot line change before then changes the answer.",
+          "narrowing_required": true,
+          "smallest_correction": "Recording instruction only, no new fact: record lot-area only when the named record gives the area of the whole legal lot as recorded before any subdivision. Record unknown when the parcel record and the legal lot may differ (tied lots, a lot spread over several parcel numbers, a pending merger)."
+        }
+      ],
+      "current_outcome_ceiling": [
+        "consistent_with_source",
+        "disqualifying_per_source",
+        "requires_judgment"
+      ],
+      "proposed_outcome_ceiling": [
+        "consistent_with_source",
+        "disqualifying_per_source",
+        "requires_judgment"
+      ],
+      "candidate_rule": {
+        "plain_english": "If the parcel's base zone is recorded as on the memo's single-family zone list and its recorded lot area is 65,340 sq ft or more, the criterion returns disqualifying_per_source. If the zone is on the list and the area is less than 65,340 sq ft, it returns consistent_with_source for the area limit only. If the zone is recorded as not on the list, it returns requires_judgment.",
+        "pseudocode": "IF shra-zone-category == single_family_listed_zone AND lot-area >= 65340 sq ft\n  THEN disqualifying_per_source   (pathway roll-up: documented_disqualifier)\nIF shra-zone-category == single_family_listed_zone AND lot-area < 65340 sq ft\n  THEN consistent_with_source   (1.5-acre limit only; says nothing about vacancy)\nIF shra-zone-category == zone_not_on_single_family_list\n  THEN requires_judgment\nMissing, unreviewed, or conflicting evidence: the evaluator returns unknown, unreviewed, or conflict and the rule does not run.",
+        "cases": [
+          {
+            "when": [
+              {
+                "fact_key": "shra-zone-category",
+                "equals": "single_family_listed_zone"
+              },
+              {
+                "fact_key": "lot-area",
+                "at_least": 65340
+              }
+            ],
+            "outcome": "disqualifying_per_source"
+          },
+          {
+            "when": [
+              {
+                "fact_key": "shra-zone-category",
+                "equals": "single_family_listed_zone"
+              },
+              {
+                "fact_key": "lot-area",
+                "less_than": 65340
+              }
+            ],
+            "outcome": "consistent_with_source"
+          },
+          {
+            "when": [
+              {
+                "fact_key": "shra-zone-category",
+                "equals": "zone_not_on_single_family_list"
+              }
+            ],
+            "outcome": "requires_judgment"
+          }
+        ]
+      },
+      "changes_from_v2_proposal": "The v2 proposal returned consistent_with_source for a zone off the list (the limit does not apply). Round 1 returns requires_judgment instead, so this criterion can never clear a lot whose zone form the memo does not list. Under its own v2 proposal, la_shra.zone-category routes the same parcels to judgment, so the SHRA pathway result would be the same either way.",
+      "why_this_appears_safe": [
+        "The limit is one number in an operative City memo, and 1.5 acres converts exactly to 65,340 sq ft.",
+        "Both inputs are controlled values a person records; the zoning string is never parsed.",
+        "A zone off the list never reaches a result from this criterion.",
+        "The rule covers the area limit only; vacancy stays with its own criteria."
+      ],
+      "what_could_make_it_wrong": [
+        "The recorded parcel area is not the legal lot area the memo tests (tied lots, a lot split across parcel numbers, or a calculated area close to 65,340 sq ft).",
+        "GCS 66499.41, which the memo only summarizes, measures the lot differently, for example leaving out a designated remainder parcel (FAQ Q.23) or measuring after a merger in the same application (FAQ Q.5). No captured source says so, but the statute is not captured.",
+        "A zone form with a variation or number is recorded as on the list without a ruling.",
+        "The parcel is under Chapter 1A, for which the memo says a separate memo will follow.",
+        "A later City memo replaces this one. The capture notes say the official host was unreachable, so whether that has happened was not checked."
+      ],
+      "review_questions": [
+        "Do you agree that a lot recorded on the page 12 single-family list with an area of 65,340 sq ft or more returns disqualifying_per_source, whatever its vacancy?",
+        "Should a lot area within a stated margin of 65,340 sq ft (for example a calculated parcel area) be recorded as unknown rather than as a number?",
+        "Does anything in the captured memo tell you that a designated remainder parcel (FAQ Q.23) or a merger in the same application (FAQ Q.5) changes which area is tested? If you are unsure, should the blocking direction wait for the statute?",
+        "How should an R1 Variation Zone, or a listed zone written with a number, be recorded: as single_family_listed_zone, or as unknown until you rule?",
+        "Do you accept that a zone recorded as off the list returns requires_judgment here, rather than consistent_with_source as the v2 proposal said?"
+      ],
+      "preparer_recommendation": "ready_for_decision"
+    },
+    {
+      "criterion_id": "la_shra.prior-shra-or-sb9-map",
+      "concept": "SHRA prior recorded SHRA or SB 9 map",
+      "proposal_file": "la_shra.prior-subdivisions.json",
+      "source": {
+        "source_id": "shra-2025-10-28",
+        "source_type": "official_memo",
+        "operative_status": "operative",
+        "source_sha256": "f44574084091c51419d0475d4b8501d9a2c3577b3a16830fc6ecb2a88b20f6e2",
+        "text_layer": "born_digital_text"
+      },
+      "pdf_pages": [
+        2
+      ],
+      "printed_page_note": "The memo prints the same page numbers as the PDF at the foot of each page (page 1 carries no number).",
+      "section": "Part I (property criteria), fourth paragraph, second and third sentences, page 2",
+      "current_pinpoint": "Memo Part I (property criteria), page 2 (prior SHRA or SB 9 lots)",
+      "excerpts": [
+        {
+          "page": 2,
+          "text": "Lots previously recorded pursuant to the SHRA or SB 9 (2021) are ineligible. However, this particular eligibility restriction does not apply if the tentative map has not been recorded."
+        }
+      ],
+      "basis_excerpt_changes": null,
+      "context_excerpts": [
+        {
+          "source_id": "shra-2025-10-28",
+          "page": 14,
+          "text": "Yes, as long as the final map for the discretionary entitlement is recorded prior to the SHRA application.",
+          "why": "A lot mapped under another process is not restricted once that map is recorded; the timing condition is outside the screen."
+        },
+        {
+          "source_id": "shra-2025-10-28",
+          "page": 20,
+          "text": "Yes - the SHRA can be utilized on adjacent parcels at the same time by the same (or different) developers.",
+          "why": "The memo sets no adjacency limit, so no adjacency fact is read."
+        },
+        {
+          "source_id": "shra-2025-10-28",
+          "page": 1,
+          "text": "Please refer to California Government Code Sections (GCS) 65852.28, 65913.4.5, and 66499.41 for the full SHRA.",
+          "why": "The memo summarizes the SHRA and sends readers to the statute for the full text (page 1). The statute is not captured, so nothing here relies on it."
+        }
+      ],
+      "text_layer_check": {
+        "pages_compared_with_image": [
+          1,
+          2,
+          14,
+          20
+        ],
+        "discrepancies": [],
+        "note": "Born-digital text layer (Acrobat PDFMaker), not OCR. Each quoted sentence was compared with the rendered page image and reads the same, except where a discrepancy is listed."
+      },
+      "exceptions": [
+        "Stated in the same passage: “this particular eligibility restriction does not apply if the tentative map has not been recorded”. The value shra_or_sb9_tentative_map_not_recorded carries it."
+      ],
+      "cross_references": [
+        {
+          "reference": "GCS 66499.41",
+          "captured": false,
+          "why_it_matters": "The statute's own wording of the restriction, and whether it reaches a lot whose earlier history includes an SHRA or SB 9 map."
+        },
+        {
+          "reference": "SB 9 (2021)",
+          "captured": false,
+          "why_it_matters": "The memo names the bill without a code section, so which maps count as recorded pursuant to it is not stated in a captured source."
+        }
+      ],
+      "direction_safety": {
+        "blocking": {
+          "safe": true,
+          "reasoning": "The memo bars “Lots previously recorded pursuant to the SHRA or SB 9 (2021)”. A lot whose current boundaries were created by a recorded SHRA or SB 9 map is such a lot."
+        },
+        "consistent": {
+          "safe": true,
+          "reasoning": "A lot created by a map recorded under another statute, or without a recorded map, is outside that sentence, and an SHRA or SB 9 tentative map that was never recorded is expressly excepted."
+        }
+      },
+      "classification": "both_directions_safe",
+      "classification_reasoning": "The fact names the statute the lot's creating map was recorded under: a positive identification from recorded maps, not proof of a negative. Every allowed value maps to one result, and an unknown statute or an incomplete history has no value, so it stays unknown.",
+      "facts": [
+        {
+          "fact_key": "prior-shra-or-sb9-map",
+          "data_class": "controlled_value",
+          "value": {
+            "kind": "text",
+            "allowed": [
+              "shra_map_recorded",
+              "sb9_map_recorded",
+              "shra_or_sb9_tentative_map_not_recorded",
+              "other_basis_map_recorded",
+              "no_map_recorded"
+            ]
+          },
+          "record_source": "The recorded parcel or tract maps for the lot and the City case record for each map, which state the statute the map was filed under.",
+          "recordable_without_free_text_interpretation": "with_recording_instruction",
+          "not_found_distinct_from_no": "distinct_only_with_recording_instruction",
+          "date_dependency": "Screen date. A map recorded after the screen date is not seen.",
+          "narrowing_required": true,
+          "smallest_correction": "Recording instruction only, no new value: (1) record shra_map_recorded or sb9_map_recorded only when the map that created the lot's current boundaries was recorded under that statute; if an SHRA or SB 9 map appears only earlier in the lot's history, record unknown. (2) Record other_basis_map_recorded or no_map_recorded only after the lot's full recorded-map history has been read back past the dates the SHRA and SB 9 took effect (those dates are not in a captured source); a single display or a partial search is unknown."
+        }
+      ],
+      "current_outcome_ceiling": [
+        "consistent_with_source",
+        "disqualifying_per_source",
+        "requires_judgment"
+      ],
+      "proposed_outcome_ceiling": [
+        "consistent_with_source",
+        "disqualifying_per_source",
+        "requires_judgment"
+      ],
+      "candidate_rule": {
+        "plain_english": "If the map that created the lot was recorded under the SHRA or SB 9 (2021), the criterion returns disqualifying_per_source. If the only SHRA or SB 9 map is a tentative map that was never recorded, or the lot's map was recorded under another statute, or no map was recorded, it returns consistent_with_source.",
+        "pseudocode": "IF prior-shra-or-sb9-map IN {shra_map_recorded, sb9_map_recorded}\n  THEN disqualifying_per_source   (pathway roll-up: documented_disqualifier)\nIF prior-shra-or-sb9-map IN {shra_or_sb9_tentative_map_not_recorded, other_basis_map_recorded, no_map_recorded}\n  THEN consistent_with_source\nMissing, unreviewed, or conflicting evidence (including an incomplete history): the evaluator returns unknown, unreviewed, or conflict and the rule does not run.",
+        "cases": [
+          {
+            "when": [
+              {
+                "fact_key": "prior-shra-or-sb9-map",
+                "in": [
+                  "shra_map_recorded",
+                  "sb9_map_recorded"
+                ]
+              }
+            ],
+            "outcome": "disqualifying_per_source"
+          },
+          {
+            "when": [
+              {
+                "fact_key": "prior-shra-or-sb9-map",
+                "in": [
+                  "shra_or_sb9_tentative_map_not_recorded",
+                  "other_basis_map_recorded",
+                  "no_map_recorded"
+                ]
+              }
+            ],
+            "outcome": "consistent_with_source"
+          }
+        ]
+      },
+      "changes_from_v2_proposal": "Same outcomes as v2. Round 1 adds the recording instruction that ties the SHRA and SB 9 values to the map that created the current lot and requires a full history before a clearing value.",
+      "why_this_appears_safe": [
+        "The restriction and its one exception are two adjacent sentences with no other condition.",
+        "Five controlled values cover every recorded history; an incomplete history has no value and stays unknown.",
+        "The memo sets no adjacency limit (FAQ Q.26), so nothing else is read."
+      ],
+      "what_could_make_it_wrong": [
+        "GCS 66499.41 (not captured) words the restriction differently, for example reaching a lot whose earlier history includes an SHRA or SB 9 map.",
+        "Planning reads SB 9 (2021) as reaching a two-unit project that recorded no lot; the memo's words are “Lots previously recorded”, which point to recorded lots only.",
+        "The memo's wording “the tentative map has not been recorded” may not fit every SB 9 map process; which unrecorded SB 9 maps the tentative-map value covers needs confirming.",
+        "A person records no_map_recorded or other_basis_map_recorded from an incomplete search.",
+        "A later City memo replaces this one. The capture notes say the official host was unreachable, so whether that has happened was not checked."
+      ],
+      "review_questions": [
+        "Do you agree that a lot whose current boundaries were created by a recorded SHRA or SB 9 (2021) map returns disqualifying_per_source?",
+        "If an SHRA or SB 9 map appears only earlier in the lot's history (the lot was later re-created by another map), should the value stay unknown as proposed?",
+        "Does “Lots previously recorded pursuant to the SHRA or SB 9 (2021)” reach anything other than a map that created lots, such as an SB 9 two-unit project with no lot split?",
+        "What search must a person complete before recording no_map_recorded or other_basis_map_recorded?"
+      ],
+      "preparer_recommendation": "ready_for_decision"
+    },
+    {
+      "criterion_id": "la_shra.very-high-fire-hazard-severity-zone",
+      "concept": "SHRA Very High Fire Hazard Severity Zone",
+      "proposal_file": "la_shra.environmental-constraints.json",
+      "source": {
+        "source_id": "shra-2025-10-28",
+        "source_type": "official_memo",
+        "operative_status": "operative",
+        "source_sha256": "f44574084091c51419d0475d4b8501d9a2c3577b3a16830fc6ecb2a88b20f6e2",
+        "text_layer": "born_digital_text"
+      },
+      "pdf_pages": [
+        4,
+        5
+      ],
+      "printed_page_note": "The memo prints the same page numbers as the PDF at the foot of each page (page 1 carries no number).",
+      "section": "Part I, Environmental Criteria, first list (site categories where SHRA projects may not be located), item 3, with footnote 1; page 4",
+      "current_pinpoint": "Memo Part I, Environmental Criteria, page 4, prohibited category 3 and footnote 1",
+      "excerpts": [
+        {
+          "page": 4,
+          "text": "First, SHRA projects may not be located on the following site categories:"
+        },
+        {
+          "page": 4,
+          "text": "3) High or very high fire hazard severity zones, as referenced in GCS 51178 and Public Resources Code Section 42021."
+        },
+        {
+          "page": 4,
+          "text": "1 Please note this includes both state and local responsibility areas."
+        }
+      ],
+      "basis_excerpt_changes": null,
+      "context_excerpts": [
+        {
+          "source_id": "shra-2025-10-28",
+          "page": 4,
+          "text": "The following site categories may only utilize SHRA streamlining if applicable conditions or standards have been met:",
+          "why": "The memo keeps a separate list of categories that may proceed if conditions are met. This category is on the other list, which states no condition."
+        },
+        {
+          "source_id": "shra-2025-10-28",
+          "page": 5,
+          "text": "Please see GCS 66499.41(a)(9) for more information about these site limitations as well as any specific conditions or standards needed to verify eligibility.",
+          "why": "This pointer follows both lists. If “these site limitations” includes the first list, the uncaptured statute may attach conditions to this category too; the memo does not say."
+        },
+        {
+          "source_id": "shra-2025-10-28",
+          "page": 4,
+          "text": "Please consult the SHRA Eligibility Checklist in ZIMAS to determine if a site is located in any of the following prohibited and/or restricted areas.",
+          "why": "The City's own pointer for finding the designation. In the Program Screen, ZIMAS displays are observation-only program flags and never feed a rule."
+        },
+        {
+          "source_id": "shra-2025-10-28",
+          "page": 1,
+          "text": "Please refer to California Government Code Sections (GCS) 65852.28, 65913.4.5, and 66499.41 for the full SHRA.",
+          "why": "The memo summarizes the SHRA and sends readers to the statute for the full text (page 1). The statute is not captured, so nothing here relies on it."
+        },
+        {
+          "source_id": "ordinance-188968",
+          "page": 5,
+          "text": "F. A site within a very high fire hazard severity zone, as determined by the Department of Forestry and Fire Protection pursuant to Government Code Section 51178, or within the state responsibility area, as defined in Public Resources Code Section 4102 (Gov. Code Sec. 65912.161(b)(1)(D)).",
+          "why": "Identifies the Department of Forestry and Fire Protection as the agency that determines Very High zones under GCS 51178. Quoted for that only."
+        }
+      ],
+      "text_layer_check": {
+        "pages_compared_with_image": [
+          4,
+          5
+        ],
+        "discrepancies": [
+          {
+            "page": 4,
+            "text_layer_reads": "Public Resources Code Section 42021.",
+            "page_image_reads": "Public Resources Code Section 4202, then a superscript footnote marker 1, then the period. Footnote 1 attaches to item 3.",
+            "in_rule_excerpt": true
+          }
+        ],
+        "note": "Born-digital text layer (Acrobat PDFMaker), not OCR. The text layer turns the superscript footnote marker into an ordinary digit, so item 3 reads 42021. The excerpt is kept exactly as captured (the tests match it to extracted.txt); the statute the page cites is Public Resources Code Section 4202. The page also sets the word not in bold italics in the list's lead-in; formatting is not captured. Every other quoted sentence reads the same on the page image."
+      },
+      "exceptions": [
+        "None stated on the page 4 list; the conditional categories and their conditions are a separate list.",
+        "Unresolved: the page 5 pointer to GCS 66499.41(a)(9) may reach this list (see cross-references)."
+      ],
+      "cross_references": [
+        {
+          "reference": "GCS 66499.41(a)(9)",
+          "captured": false,
+          "why_it_matters": "The memo's page 5 pointer names it for “these site limitations as well as any specific conditions or standards”. Whether it conditions any category on the first list is unknown until it is captured."
+        },
+        {
+          "reference": "Memo Part I, Environmental Criteria, second list (page 4) and page 5",
+          "captured": true,
+          "why_it_matters": "The conditional categories; this category is not among them."
+        },
+        {
+          "reference": "GCS 51178 and Public Resources Code Section 4202",
+          "captured": false,
+          "why_it_matters": "The statutes the memo cites for the zones. Neither is captured."
+        },
+        {
+          "reference": "Ordinance 188968, Sec. 2.F, page 5",
+          "captured": true,
+          "why_it_matters": "The only captured text that names who determines a Very High zone under GCS 51178: the Department of Forestry and Fire Protection. It is quoted here only to identify the mapping agency; the SB 79 temporary exemption is not part of this round."
+        }
+      ],
+      "direction_safety": {
+        "blocking": {
+          "safe": true,
+          "reasoning": "SHRA projects “may not be located on” item 3, which names Very High zones, and footnote 1 covers “both state and local responsibility areas”. A parcel wholly in a Very High zone is in that category."
+        },
+        "consistent": {
+          "safe": true,
+          "reasoning": "A parcel that the current zone map places in no Very High zone is not in this category for the Very High designation. A NO here says nothing about a High zone, which is la_shra.high-fire-hazard-severity-zone."
+        }
+      },
+      "classification": "both_directions_safe",
+      "classification_reasoning": "A map-based designation recorded as yes or no. A zone map either includes a location or does not, so a NO read from the current map is a finding, while a failed or partial lookup is recorded as unknown. A NO here says nothing about a High zone, which is la_shra.high-fire-hazard-severity-zone.",
+      "facts": [
+        {
+          "fact_key": "very-high-fire-hazard-severity-zone",
+          "data_class": "controlled_value",
+          "value": {
+            "kind": "boolean"
+          },
+          "record_source": "The current fire hazard severity zone map covering the parcel, for state and local responsibility areas, or a City hazard display that reproduces it. The evidence names the map and its date.",
+          "recordable_without_free_text_interpretation": "yes",
+          "not_found_distinct_from_no": "distinct",
+          "date_dependency": "The map edition in force on the screen date; zone maps are revised.",
+          "narrowing_required": true,
+          "smallest_correction": "Recording instruction only, no new value: YES when the whole parcel is in a Very High zone in a state or a local responsibility area (footnote 1); NO when no part of the parcel is in a Very High zone on the current map; unknown (reason insufficient_evidence) when the zone covers only part of the parcel or the map edition is not stated. A later change should also make the fact's client label, now `the property's fire-hazard designation`, name Very High in state or local responsibility areas; that label change also touches the fictional fixture and is not made here."
+        }
+      ],
+      "current_outcome_ceiling": [
+        "consistent_with_source",
+        "disqualifying_per_source",
+        "requires_judgment"
+      ],
+      "proposed_outcome_ceiling": [
+        "consistent_with_source",
+        "disqualifying_per_source",
+        "requires_judgment"
+      ],
+      "candidate_rule": {
+        "plain_english": "If the parcel is recorded as mapped in a Very High Fire Hazard Severity Zone (state or local responsibility area), the criterion returns disqualifying_per_source. If it is recorded as not mapped in a Very High zone, it returns consistent_with_source for the Very High designation only.",
+        "pseudocode": "IF very-high-fire-hazard-severity-zone == true\n  THEN disqualifying_per_source   (pathway roll-up: documented_disqualifier)\nIF very-high-fire-hazard-severity-zone == false\n  THEN consistent_with_source   (Very High only; A NO here says nothing about a High zone, which is la_shra.high-fire-hazard-severity-zone)\nMissing, unreviewed, or conflicting evidence: the evaluator returns unknown, unreviewed, or conflict and the rule does not run.",
+        "cases": [
+          {
+            "when": [
+              {
+                "fact_key": "very-high-fire-hazard-severity-zone",
+                "equals": true
+              }
+            ],
+            "outcome": "disqualifying_per_source"
+          },
+          {
+            "when": [
+              {
+                "fact_key": "very-high-fire-hazard-severity-zone",
+                "equals": false
+              }
+            ],
+            "outcome": "consistent_with_source"
+          }
+        ]
+      },
+      "changes_from_v2_proposal": "Same outcomes as v2. Round 1 adds the partial-parcel and map-edition recording instruction and records the 42021 text-layer discrepancy.",
+      "why_this_appears_safe": [
+        "The category is on the memo's first list, which states no condition, and not on the conditional list.",
+        "Footnote 1 settles the state-versus-local responsibility area question.",
+        "High and Very High are separate facts and separate criteria; one never stands in for the other (existing tests).",
+        "The fictional fixture's Very High conflict (a CAL FIRE record of YES, a City display of NO) stays a conflict; the rule never runs on it."
+      ],
+      "what_could_make_it_wrong": [
+        "The page 5 pointer to GCS 66499.41(a)(9) reaches the first list and the statute attaches a condition to this category. No captured text says so, but the statute is not captured.",
+        "The map edition recorded is out of date.",
+        "The zone covers part of the parcel and a person records YES or NO anyway.",
+        "A reader relies on the text layer's “Public Resources Code Section 42021” and looks up a section the memo does not cite.",
+        "A later City memo replaces this one. The capture notes say the official host was unreachable, so whether that has happened was not checked."
+      ],
+      "review_questions": [
+        "Do you agree that a parcel wholly within a Very High Fire Hazard Severity Zone, in a state or local responsibility area, returns disqualifying_per_source, and that a parcel in no Very High zone on the current map returns consistent_with_source for Very High only?",
+        "Which map, and which edition, is the record for this fact?",
+        "Do you read the page 5 sentence (“Please see GCS 66499.41(a)(9) for more information about these site limitations”) as reaching the page 4 list of categories where projects may not be located? If so, should the blocking direction wait until the statute is captured?",
+        "Do you accept unknown for a parcel only partly inside the zone?"
+      ],
+      "preparer_recommendation": "ready_for_decision"
+    },
+    {
+      "criterion_id": "la_shra.high-fire-hazard-severity-zone",
+      "concept": "SHRA High Fire Hazard Severity Zone",
+      "proposal_file": "la_shra.environmental-constraints.json",
+      "source": {
+        "source_id": "shra-2025-10-28",
+        "source_type": "official_memo",
+        "operative_status": "operative",
+        "source_sha256": "f44574084091c51419d0475d4b8501d9a2c3577b3a16830fc6ecb2a88b20f6e2",
+        "text_layer": "born_digital_text"
+      },
+      "pdf_pages": [
+        4,
+        5
+      ],
+      "printed_page_note": "The memo prints the same page numbers as the PDF at the foot of each page (page 1 carries no number).",
+      "section": "Part I, Environmental Criteria, first list (site categories where SHRA projects may not be located), item 3, with footnote 1; page 4",
+      "current_pinpoint": "Memo Part I, Environmental Criteria, page 4, prohibited category 3 and footnote 1",
+      "excerpts": [
+        {
+          "page": 4,
+          "text": "First, SHRA projects may not be located on the following site categories:"
+        },
+        {
+          "page": 4,
+          "text": "3) High or very high fire hazard severity zones, as referenced in GCS 51178 and Public Resources Code Section 42021."
+        },
+        {
+          "page": 4,
+          "text": "1 Please note this includes both state and local responsibility areas."
+        }
+      ],
+      "basis_excerpt_changes": null,
+      "context_excerpts": [
+        {
+          "source_id": "shra-2025-10-28",
+          "page": 4,
+          "text": "The following site categories may only utilize SHRA streamlining if applicable conditions or standards have been met:",
+          "why": "The memo keeps a separate list of categories that may proceed if conditions are met. This category is on the other list, which states no condition."
+        },
+        {
+          "source_id": "shra-2025-10-28",
+          "page": 5,
+          "text": "Please see GCS 66499.41(a)(9) for more information about these site limitations as well as any specific conditions or standards needed to verify eligibility.",
+          "why": "This pointer follows both lists. If “these site limitations” includes the first list, the uncaptured statute may attach conditions to this category too; the memo does not say."
+        },
+        {
+          "source_id": "shra-2025-10-28",
+          "page": 4,
+          "text": "Please consult the SHRA Eligibility Checklist in ZIMAS to determine if a site is located in any of the following prohibited and/or restricted areas.",
+          "why": "The City's own pointer for finding the designation. In the Program Screen, ZIMAS displays are observation-only program flags and never feed a rule."
+        },
+        {
+          "source_id": "shra-2025-10-28",
+          "page": 1,
+          "text": "Please refer to California Government Code Sections (GCS) 65852.28, 65913.4.5, and 66499.41 for the full SHRA.",
+          "why": "The memo summarizes the SHRA and sends readers to the statute for the full text (page 1). The statute is not captured, so nothing here relies on it."
+        },
+        {
+          "source_id": "ordinance-188968",
+          "page": 5,
+          "text": "F. A site within a very high fire hazard severity zone, as determined by the Department of Forestry and Fire Protection pursuant to Government Code Section 51178, or within the state responsibility area, as defined in Public Resources Code Section 4102 (Gov. Code Sec. 65912.161(b)(1)(D)).",
+          "why": "Identifies the Department of Forestry and Fire Protection as the agency that determines Very High zones under GCS 51178. Quoted for that only."
+        }
+      ],
+      "text_layer_check": {
+        "pages_compared_with_image": [
+          4,
+          5
+        ],
+        "discrepancies": [
+          {
+            "page": 4,
+            "text_layer_reads": "Public Resources Code Section 42021.",
+            "page_image_reads": "Public Resources Code Section 4202, then a superscript footnote marker 1, then the period. Footnote 1 attaches to item 3.",
+            "in_rule_excerpt": true
+          }
+        ],
+        "note": "Born-digital text layer (Acrobat PDFMaker), not OCR. The text layer turns the superscript footnote marker into an ordinary digit, so item 3 reads 42021. The excerpt is kept exactly as captured (the tests match it to extracted.txt); the statute the page cites is Public Resources Code Section 4202. The page also sets the word not in bold italics in the list's lead-in; formatting is not captured. Every other quoted sentence reads the same on the page image."
+      },
+      "exceptions": [
+        "None stated on the page 4 list; the conditional categories and their conditions are a separate list.",
+        "Unresolved: the page 5 pointer to GCS 66499.41(a)(9) may reach this list (see cross-references)."
+      ],
+      "cross_references": [
+        {
+          "reference": "GCS 66499.41(a)(9)",
+          "captured": false,
+          "why_it_matters": "The memo's page 5 pointer names it for “these site limitations as well as any specific conditions or standards”. Whether it conditions any category on the first list is unknown until it is captured."
+        },
+        {
+          "reference": "Memo Part I, Environmental Criteria, second list (page 4) and page 5",
+          "captured": true,
+          "why_it_matters": "The conditional categories; this category is not among them."
+        },
+        {
+          "reference": "GCS 51178 and Public Resources Code Section 4202",
+          "captured": false,
+          "why_it_matters": "The statutes the memo cites for the zones. Neither is captured."
+        },
+        {
+          "reference": "Ordinance 188968, Sec. 2.F, page 5",
+          "captured": true,
+          "why_it_matters": "The only captured text that names who determines a Very High zone under GCS 51178: the Department of Forestry and Fire Protection. It is quoted here only to identify the mapping agency; the SB 79 temporary exemption is not part of this round."
+        }
+      ],
+      "direction_safety": {
+        "blocking": {
+          "safe": true,
+          "reasoning": "SHRA projects “may not be located on” item 3, which names High zones, and footnote 1 covers “both state and local responsibility areas”. A parcel wholly in a High zone is in that category."
+        },
+        "consistent": {
+          "safe": true,
+          "reasoning": "A parcel that the current zone map places in no High zone is not in this category for the High designation. The Very High record never stands in for this fact."
+        }
+      },
+      "classification": "both_directions_safe",
+      "classification_reasoning": "A map-based designation recorded as yes or no. A zone map either includes a location or does not, so a NO read from the current map is a finding, while a failed or partial lookup is recorded as unknown. The Very High record never stands in for this fact.",
+      "facts": [
+        {
+          "fact_key": "high-fire-hazard-severity-zone",
+          "data_class": "controlled_value",
+          "value": {
+            "kind": "boolean"
+          },
+          "record_source": "The current fire hazard severity zone map covering the parcel, for state and local responsibility areas, or a City hazard display that reproduces it. The evidence names the map and its date.",
+          "recordable_without_free_text_interpretation": "yes",
+          "not_found_distinct_from_no": "distinct",
+          "date_dependency": "The map edition in force on the screen date; zone maps are revised.",
+          "narrowing_required": true,
+          "smallest_correction": "Recording instruction only, no new value: YES when the whole parcel is in a High zone in a state or local responsibility area; NO only from a map edition that assigns a High class in the parcel's responsibility area and places no part of the parcel in it; unknown (reason insufficient_evidence) when the zone covers part of the parcel, or when the map consulted does not show whether it assigns a High class for that responsibility area. Never inferred from the Very High record."
+        }
+      ],
+      "current_outcome_ceiling": [
+        "consistent_with_source",
+        "disqualifying_per_source",
+        "requires_judgment"
+      ],
+      "proposed_outcome_ceiling": [
+        "consistent_with_source",
+        "disqualifying_per_source",
+        "requires_judgment"
+      ],
+      "candidate_rule": {
+        "plain_english": "If the parcel is recorded as mapped in a High Fire Hazard Severity Zone (state or local responsibility area), the criterion returns disqualifying_per_source. If it is recorded as not mapped in a High zone, it returns consistent_with_source for the High designation only.",
+        "pseudocode": "IF high-fire-hazard-severity-zone == true\n  THEN disqualifying_per_source   (pathway roll-up: documented_disqualifier)\nIF high-fire-hazard-severity-zone == false\n  THEN consistent_with_source   (High only; The Very High record never stands in for this fact)\nMissing, unreviewed, or conflicting evidence: the evaluator returns unknown, unreviewed, or conflict and the rule does not run.",
+        "cases": [
+          {
+            "when": [
+              {
+                "fact_key": "high-fire-hazard-severity-zone",
+                "equals": true
+              }
+            ],
+            "outcome": "disqualifying_per_source"
+          },
+          {
+            "when": [
+              {
+                "fact_key": "high-fire-hazard-severity-zone",
+                "equals": false
+              }
+            ],
+            "outcome": "consistent_with_source"
+          }
+        ]
+      },
+      "changes_from_v2_proposal": "Same outcomes as v2. Round 1 adds the partial-parcel and map-edition recording instruction and records the 42021 text-layer discrepancy.",
+      "why_this_appears_safe": [
+        "The category is on the memo's first list, which states no condition, and not on the conditional list.",
+        "Footnote 1 settles the state-versus-local responsibility area question.",
+        "High and Very High are separate facts and separate criteria; one never stands in for the other (existing tests).",
+        "The fictional fixture's Very High conflict (a CAL FIRE record of YES, a City display of NO) stays a conflict; the rule never runs on it."
+      ],
+      "what_could_make_it_wrong": [
+        "The page 5 pointer to GCS 66499.41(a)(9) reaches the first list and the statute attaches a condition to this category. No captured text says so, but the statute is not captured.",
+        "The map edition recorded is out of date.",
+        "The zone covers part of the parcel and a person records YES or NO anyway.",
+        "A reader relies on the text layer's “Public Resources Code Section 42021” and looks up a section the memo does not cite.",
+        "The map consulted does not assign a High class in the parcel's responsibility area, so a NO read from it means nothing. The recording instruction records unknown in that case; nothing in code can check it.",
+        "A later City memo replaces this one. The capture notes say the official host was unreachable, so whether that has happened was not checked."
+      ],
+      "review_questions": [
+        "Do you agree that a parcel wholly within a High Fire Hazard Severity Zone, in a state or local responsibility area, returns disqualifying_per_source on the same terms as Very High, and that a NO read from a map that assigns High classes returns consistent_with_source for High only?",
+        "Which map edition is the record for a High zone in a local responsibility area, and which for a state responsibility area?",
+        "Do you read the page 5 sentence (“Please see GCS 66499.41(a)(9) for more information about these site limitations”) as reaching the page 4 list of categories where projects may not be located? If so, should the blocking direction wait until the statute is captured?",
+        "Do you accept unknown for a parcel only partly inside the zone?"
+      ],
+      "preparer_recommendation": "ready_for_decision"
+    },
+    {
+      "criterion_id": "la_shra.prime-or-statewide-farmland",
+      "concept": "SHRA prime or statewide farmland",
+      "proposal_file": "la_shra.environmental-constraints.json",
+      "source": {
+        "source_id": "shra-2025-10-28",
+        "source_type": "official_memo",
+        "operative_status": "operative",
+        "source_sha256": "f44574084091c51419d0475d4b8501d9a2c3577b3a16830fc6ecb2a88b20f6e2",
+        "text_layer": "born_digital_text"
+      },
+      "pdf_pages": [
+        4,
+        5
+      ],
+      "printed_page_note": "The memo prints the same page numbers as the PDF at the foot of each page (page 1 carries no number).",
+      "section": "Part I, Environmental Criteria, first list (site categories where SHRA projects may not be located), item 1; page 4",
+      "current_pinpoint": "Memo Part I, Environmental Criteria, page 4, prohibited category 1",
+      "excerpts": [
+        {
+          "page": 4,
+          "text": "First, SHRA projects may not be located on the following site categories:"
+        },
+        {
+          "page": 4,
+          "text": "1) Prime farmland or farmland of statewide importance;"
+        }
+      ],
+      "basis_excerpt_changes": null,
+      "context_excerpts": [
+        {
+          "source_id": "shra-2025-10-28",
+          "page": 4,
+          "text": "The following site categories may only utilize SHRA streamlining if applicable conditions or standards have been met:",
+          "why": "The memo keeps a separate list of categories that may proceed if conditions are met. This category is on the other list, which states no condition."
+        },
+        {
+          "source_id": "shra-2025-10-28",
+          "page": 5,
+          "text": "Please see GCS 66499.41(a)(9) for more information about these site limitations as well as any specific conditions or standards needed to verify eligibility.",
+          "why": "This pointer follows both lists. If “these site limitations” includes the first list, the uncaptured statute may attach conditions to this category too; the memo does not say."
+        },
+        {
+          "source_id": "shra-2025-10-28",
+          "page": 4,
+          "text": "Please consult the SHRA Eligibility Checklist in ZIMAS to determine if a site is located in any of the following prohibited and/or restricted areas.",
+          "why": "The City's own pointer for finding the designation. In the Program Screen, ZIMAS displays are observation-only program flags and never feed a rule."
+        },
+        {
+          "source_id": "shra-2025-10-28",
+          "page": 1,
+          "text": "Please refer to California Government Code Sections (GCS) 65852.28, 65913.4.5, and 66499.41 for the full SHRA.",
+          "why": "The memo summarizes the SHRA and sends readers to the statute for the full text (page 1). The statute is not captured, so nothing here relies on it."
+        }
+      ],
+      "text_layer_check": {
+        "pages_compared_with_image": [
+          4,
+          5
+        ],
+        "discrepancies": [],
+        "note": "Born-digital text layer (Acrobat PDFMaker), not OCR. The quoted item and lead-in read the same on the page image; the page sets the word not in bold italics in the lead-in, and formatting is not captured."
+      },
+      "exceptions": [
+        "None stated on the page 4 list.",
+        "Unresolved: the page 5 pointer to GCS 66499.41(a)(9) may reach this list (see cross-references)."
+      ],
+      "cross_references": [
+        {
+          "reference": "GCS 66499.41(a)(9)",
+          "captured": false,
+          "why_it_matters": "The memo's page 5 pointer names it for “these site limitations as well as any specific conditions or standards”. Whether it conditions any category on the first list is unknown until it is captured."
+        },
+        {
+          "reference": "Memo Part I, Environmental Criteria, second list (page 4) and page 5",
+          "captured": true,
+          "why_it_matters": "The conditional categories; this category is not among them."
+        },
+        {
+          "reference": "The defining farmland map",
+          "captured": false,
+          "why_it_matters": "No captured source names it. Until one is named from a captured source, a NO cannot clear."
+        }
+      ],
+      "direction_safety": {
+        "blocking": {
+          "safe": true,
+          "reasoning": "The memo bars item 1, “Prime farmland or farmland of statewide importance”. An official designation of the parcel with either term puts it in that category."
+        },
+        "consistent": {
+          "safe": false,
+          "reasoning": "The memo names no defining map. A record showing no farmland designation cannot show that no official designation exists, because the captured sources do not say which record is complete."
+        }
+      },
+      "classification": "block_only",
+      "classification_reasoning": "The blocking direction needs only an affirmative designation using the memo's words. The clearing direction needs a named, complete defining map, and no captured source names one.",
+      "facts": [
+        {
+          "fact_key": "prime-or-statewide-farmland",
+          "data_class": "controlled_value",
+          "value": {
+            "kind": "boolean"
+          },
+          "record_source": "Not named in the captured memo. A YES comes only from an official map or record that designates the parcel with one of the memo's two terms: prime farmland, or farmland of statewide importance.",
+          "recordable_without_free_text_interpretation": "with_recording_instruction",
+          "not_found_distinct_from_no": "not_distinct",
+          "date_dependency": "The designation or instrument in force on the screen date.",
+          "narrowing_required": true,
+          "smallest_correction": "Recording instruction only, no new value: YES only from an official record that designates the whole parcel with one of the memo's two terms; a designation covering part of the parcel, or using different words, is unknown. A NO may be recorded but never clears (the rule routes it to judgment)."
+        }
+      ],
+      "current_outcome_ceiling": [
+        "consistent_with_source",
+        "disqualifying_per_source",
+        "requires_judgment"
+      ],
+      "proposed_outcome_ceiling": [
+        "disqualifying_per_source",
+        "requires_judgment"
+      ],
+      "candidate_rule": {
+        "plain_english": "If an official record designates the parcel as prime farmland or farmland of statewide importance, the criterion returns disqualifying_per_source. If the fact is recorded as NO, it returns requires_judgment (never consistent_with_source: a NO cannot show the category is absent).",
+        "pseudocode": "IF prime-or-statewide-farmland == true\n  THEN disqualifying_per_source   (pathway roll-up: documented_disqualifier)\nIF prime-or-statewide-farmland == false\n  THEN requires_judgment (never consistent_with_source: a NO cannot show the category is absent)\nMissing, unreviewed, or conflicting evidence: the evaluator returns unknown, unreviewed, or conflict and the rule does not run.",
+        "cases": [
+          {
+            "when": [
+              {
+                "fact_key": "prime-or-statewide-farmland",
+                "equals": true
+              }
+            ],
+            "outcome": "disqualifying_per_source"
+          },
+          {
+            "when": [
+              {
+                "fact_key": "prime-or-statewide-farmland",
+                "equals": false
+              }
+            ],
+            "outcome": "requires_judgment"
+          }
+        ]
+      },
+      "changes_from_v2_proposal": "v2 proposed consistent_with_source for a NO read from a designated defining map. No captured source designates that map, so Round 1 drops the clearing direction. The shipped ceiling is unchanged; the proposed rule simply never uses consistent_with_source.",
+      "why_this_appears_safe": [
+        "Only an affirmative record using the memo's own category can block.",
+        "A NO never clears, so a missing, partial, or incomplete lookup cannot produce a false consistent result.",
+        "The proposed ceiling is narrower than the shipped ceiling; nothing is widened."
+      ],
+      "what_could_make_it_wrong": [
+        "The page 5 pointer to GCS 66499.41(a)(9) reaches the first list and the statute attaches a condition to this category. No captured text says so, but the statute is not captured.",
+        "A map uses similar words for a different classification and a person records YES from it.",
+        "The designation covers only part of the parcel.",
+        "A later City memo replaces this one. The capture notes say the official host was unreachable, so whether that has happened was not checked."
+      ],
+      "review_questions": [
+        "Do you agree that an official designation of the whole parcel as prime farmland or farmland of statewide importance returns disqualifying_per_source?",
+        "Which official record should be the source of a YES?",
+        "Do you accept that a NO returns requires_judgment until a defining map is captured and named?",
+        "Do you read the page 5 sentence (“Please see GCS 66499.41(a)(9) for more information about these site limitations”) as reaching the page 4 list of categories where projects may not be located? If so, should the blocking direction wait until the statute is captured?"
+      ],
+      "preparer_recommendation": "ready_for_decision"
+    },
+    {
+      "criterion_id": "la_shra.natural-community-conservation-plan-land",
+      "concept": "SHRA natural community conservation plan land",
+      "proposal_file": "la_shra.environmental-constraints.json",
+      "source": {
+        "source_id": "shra-2025-10-28",
+        "source_type": "official_memo",
+        "operative_status": "operative",
+        "source_sha256": "f44574084091c51419d0475d4b8501d9a2c3577b3a16830fc6ecb2a88b20f6e2",
+        "text_layer": "born_digital_text"
+      },
+      "pdf_pages": [
+        4,
+        5
+      ],
+      "printed_page_note": "The memo prints the same page numbers as the PDF at the foot of each page (page 1 carries no number).",
+      "section": "Part I, Environmental Criteria, first list (site categories where SHRA projects may not be located), item 4; page 4",
+      "current_pinpoint": "Memo Part I, Environmental Criteria, page 4, prohibited category 4",
+      "excerpts": [
+        {
+          "page": 4,
+          "text": "First, SHRA projects may not be located on the following site categories:"
+        },
+        {
+          "page": 4,
+          "text": "4) Land identified for conservation in an adopted natural community conservation plan;"
+        }
+      ],
+      "basis_excerpt_changes": null,
+      "context_excerpts": [
+        {
+          "source_id": "shra-2025-10-28",
+          "page": 4,
+          "text": "The following site categories may only utilize SHRA streamlining if applicable conditions or standards have been met:",
+          "why": "The memo keeps a separate list of categories that may proceed if conditions are met. This category is on the other list, which states no condition."
+        },
+        {
+          "source_id": "shra-2025-10-28",
+          "page": 5,
+          "text": "Please see GCS 66499.41(a)(9) for more information about these site limitations as well as any specific conditions or standards needed to verify eligibility.",
+          "why": "This pointer follows both lists. If “these site limitations” includes the first list, the uncaptured statute may attach conditions to this category too; the memo does not say."
+        },
+        {
+          "source_id": "shra-2025-10-28",
+          "page": 4,
+          "text": "Please consult the SHRA Eligibility Checklist in ZIMAS to determine if a site is located in any of the following prohibited and/or restricted areas.",
+          "why": "The City's own pointer for finding the designation. In the Program Screen, ZIMAS displays are observation-only program flags and never feed a rule."
+        },
+        {
+          "source_id": "shra-2025-10-28",
+          "page": 1,
+          "text": "Please refer to California Government Code Sections (GCS) 65852.28, 65913.4.5, and 66499.41 for the full SHRA.",
+          "why": "The memo summarizes the SHRA and sends readers to the statute for the full text (page 1). The statute is not captured, so nothing here relies on it."
+        }
+      ],
+      "text_layer_check": {
+        "pages_compared_with_image": [
+          4,
+          5
+        ],
+        "discrepancies": [],
+        "note": "Born-digital text layer (Acrobat PDFMaker), not OCR. The quoted item and lead-in read the same on the page image; the page sets the word not in bold italics in the lead-in, and formatting is not captured."
+      },
+      "exceptions": [
+        "None stated on the page 4 list.",
+        "Unresolved: the page 5 pointer to GCS 66499.41(a)(9) may reach this list (see cross-references)."
+      ],
+      "cross_references": [
+        {
+          "reference": "GCS 66499.41(a)(9)",
+          "captured": false,
+          "why_it_matters": "The memo's page 5 pointer names it for “these site limitations as well as any specific conditions or standards”. Whether it conditions any category on the first list is unknown until it is captured."
+        },
+        {
+          "reference": "Memo Part I, Environmental Criteria, second list (page 4) and page 5",
+          "captured": true,
+          "why_it_matters": "The conditional categories; this category is not among them."
+        },
+        {
+          "reference": "The adopted natural community conservation plans covering City parcels",
+          "captured": false,
+          "why_it_matters": "No captured source lists them, so a NO cannot clear."
+        }
+      ],
+      "direction_safety": {
+        "blocking": {
+          "safe": true,
+          "reasoning": "The memo bars item 4, “Land identified for conservation in an adopted natural community conservation plan”. The adopted plan's own identification of the parcel is that showing."
+        },
+        "consistent": {
+          "safe": false,
+          "reasoning": "The memo names no plan. Showing that no adopted plan identifies the parcel needs a complete list of adopted plans covering City parcels, which no captured source gives."
+        }
+      },
+      "classification": "block_only",
+      "classification_reasoning": "Presence is a positive record in one adopted plan. Absence would need every adopted plan covering the parcel, and no captured source lists them.",
+      "facts": [
+        {
+          "fact_key": "nccp-conservation-land",
+          "data_class": "controlled_value",
+          "value": {
+            "kind": "boolean"
+          },
+          "record_source": "An adopted natural community conservation plan's own map or text that identifies the parcel for conservation. The memo names no plan.",
+          "recordable_without_free_text_interpretation": "with_recording_instruction",
+          "not_found_distinct_from_no": "not_distinct",
+          "date_dependency": "The designation or instrument in force on the screen date.",
+          "narrowing_required": true,
+          "smallest_correction": "Recording instruction only, no new value: YES only when an adopted plan's own map or text identifies the whole parcel for conservation; a draft or proposed plan is never a YES; identification of part of the parcel is unknown. A NO may be recorded but never clears."
+        }
+      ],
+      "current_outcome_ceiling": [
+        "consistent_with_source",
+        "disqualifying_per_source",
+        "requires_judgment"
+      ],
+      "proposed_outcome_ceiling": [
+        "disqualifying_per_source",
+        "requires_judgment"
+      ],
+      "candidate_rule": {
+        "plain_english": "If an adopted natural community conservation plan identifies the parcel for conservation, the criterion returns disqualifying_per_source. If the fact is recorded as NO, it returns requires_judgment (never consistent_with_source: a NO cannot show the category is absent).",
+        "pseudocode": "IF nccp-conservation-land == true\n  THEN disqualifying_per_source   (pathway roll-up: documented_disqualifier)\nIF nccp-conservation-land == false\n  THEN requires_judgment (never consistent_with_source: a NO cannot show the category is absent)\nMissing, unreviewed, or conflicting evidence: the evaluator returns unknown, unreviewed, or conflict and the rule does not run.",
+        "cases": [
+          {
+            "when": [
+              {
+                "fact_key": "nccp-conservation-land",
+                "equals": true
+              }
+            ],
+            "outcome": "disqualifying_per_source"
+          },
+          {
+            "when": [
+              {
+                "fact_key": "nccp-conservation-land",
+                "equals": false
+              }
+            ],
+            "outcome": "requires_judgment"
+          }
+        ]
+      },
+      "changes_from_v2_proposal": "v2 proposed consistent_with_source for a NO read from the adopted plan maps. No captured source lists those plans, so Round 1 drops the clearing direction. The shipped ceiling is unchanged; the proposed rule simply never uses consistent_with_source.",
+      "why_this_appears_safe": [
+        "Only an affirmative record using the memo's own category can block.",
+        "A NO never clears, so a missing, partial, or incomplete lookup cannot produce a false consistent result.",
+        "The proposed ceiling is narrower than the shipped ceiling; nothing is widened."
+      ],
+      "what_could_make_it_wrong": [
+        "The page 5 pointer to GCS 66499.41(a)(9) reaches the first list and the statute attaches a condition to this category. No captured text says so, but the statute is not captured.",
+        "The plan is not adopted, or identifies the land for something other than conservation.",
+        "The plan's conservation designation covers only part of the parcel.",
+        "A later City memo replaces this one. The capture notes say the official host was unreachable, so whether that has happened was not checked."
+      ],
+      "review_questions": [
+        "Do you agree that land an adopted natural community conservation plan identifies for conservation returns disqualifying_per_source?",
+        "Do you accept that a NO returns requires_judgment, because no captured source lists the adopted plans covering City parcels?",
+        "Should land identified only in a plan that is not yet adopted be recorded as unknown?",
+        "Do you read the page 5 sentence (“Please see GCS 66499.41(a)(9) for more information about these site limitations”) as reaching the page 4 list of categories where projects may not be located? If so, should the blocking direction wait until the statute is captured?"
+      ],
+      "preparer_recommendation": "ready_for_decision"
+    },
+    {
+      "criterion_id": "la_shra.conservation-easement",
+      "concept": "SHRA conservation easement",
+      "proposal_file": "la_shra.environmental-constraints.json",
+      "source": {
+        "source_id": "shra-2025-10-28",
+        "source_type": "official_memo",
+        "operative_status": "operative",
+        "source_sha256": "f44574084091c51419d0475d4b8501d9a2c3577b3a16830fc6ecb2a88b20f6e2",
+        "text_layer": "born_digital_text"
+      },
+      "pdf_pages": [
+        4,
+        5
+      ],
+      "printed_page_note": "The memo prints the same page numbers as the PDF at the foot of each page (page 1 carries no number).",
+      "section": "Part I, Environmental Criteria, first list (site categories where SHRA projects may not be located), item 6; page 4",
+      "current_pinpoint": "Memo Part I, Environmental Criteria, page 4, prohibited category 6",
+      "excerpts": [
+        {
+          "page": 4,
+          "text": "First, SHRA projects may not be located on the following site categories:"
+        },
+        {
+          "page": 4,
+          "text": "6) Lands under a conservation easement."
+        }
+      ],
+      "basis_excerpt_changes": null,
+      "context_excerpts": [
+        {
+          "source_id": "shra-2025-10-28",
+          "page": 4,
+          "text": "The following site categories may only utilize SHRA streamlining if applicable conditions or standards have been met:",
+          "why": "The memo keeps a separate list of categories that may proceed if conditions are met. This category is on the other list, which states no condition."
+        },
+        {
+          "source_id": "shra-2025-10-28",
+          "page": 5,
+          "text": "Please see GCS 66499.41(a)(9) for more information about these site limitations as well as any specific conditions or standards needed to verify eligibility.",
+          "why": "This pointer follows both lists. If “these site limitations” includes the first list, the uncaptured statute may attach conditions to this category too; the memo does not say."
+        },
+        {
+          "source_id": "shra-2025-10-28",
+          "page": 4,
+          "text": "Please consult the SHRA Eligibility Checklist in ZIMAS to determine if a site is located in any of the following prohibited and/or restricted areas.",
+          "why": "The City's own pointer for finding the designation. In the Program Screen, ZIMAS displays are observation-only program flags and never feed a rule."
+        },
+        {
+          "source_id": "shra-2025-10-28",
+          "page": 1,
+          "text": "Please refer to California Government Code Sections (GCS) 65852.28, 65913.4.5, and 66499.41 for the full SHRA.",
+          "why": "The memo summarizes the SHRA and sends readers to the statute for the full text (page 1). The statute is not captured, so nothing here relies on it."
+        }
+      ],
+      "text_layer_check": {
+        "pages_compared_with_image": [
+          4,
+          5
+        ],
+        "discrepancies": [],
+        "note": "Born-digital text layer (Acrobat PDFMaker), not OCR. The quoted item and lead-in read the same on the page image; the page sets the word not in bold italics in the lead-in, and formatting is not captured."
+      },
+      "exceptions": [
+        "None stated on the page 4 list.",
+        "Unresolved: the page 5 pointer to GCS 66499.41(a)(9) may reach this list (see cross-references)."
+      ],
+      "cross_references": [
+        {
+          "reference": "GCS 66499.41(a)(9)",
+          "captured": false,
+          "why_it_matters": "The memo's page 5 pointer names it for “these site limitations as well as any specific conditions or standards”. Whether it conditions any category on the first list is unknown until it is captured."
+        },
+        {
+          "reference": "Memo Part I, Environmental Criteria, second list (page 4) and page 5",
+          "captured": true,
+          "why_it_matters": "The conditional categories; this category is not among them."
+        },
+        {
+          "reference": "The parcel's recorded title history",
+          "captured": false,
+          "why_it_matters": "The only place a conservation easement is found; its completeness cannot be shown by the fact."
+        }
+      ],
+      "direction_safety": {
+        "blocking": {
+          "safe": true,
+          "reasoning": "The memo bars item 6, “Lands under a conservation easement”. A recorded conservation easement over the parcel puts it in that category."
+        },
+        "consistent": {
+          "safe": false,
+          "reasoning": "An easement is found by searching title. A search that finds none is a finding only if the search was complete, and the fact cannot record whether it was."
+        }
+      },
+      "classification": "block_only",
+      "classification_reasoning": "Presence is a recorded instrument. Absence is a negative across the whole title history, and the yes/no fact cannot show the search was complete.",
+      "facts": [
+        {
+          "fact_key": "conservation-easement",
+          "data_class": "controlled_value",
+          "value": {
+            "kind": "boolean"
+          },
+          "record_source": "A recorded instrument that creates a conservation easement over the parcel, found in the parcel's title records.",
+          "recordable_without_free_text_interpretation": "with_recording_instruction",
+          "not_found_distinct_from_no": "not_distinct",
+          "date_dependency": "The designation or instrument in force on the screen date.",
+          "narrowing_required": true,
+          "smallest_correction": "Recording instruction only, no new value: YES only from a recorded instrument that creates a conservation easement over the whole parcel; an easement over part of the parcel, an easement of another kind whose purpose must be interpreted, or a released easement is unknown. A NO may be recorded but never clears."
+        }
+      ],
+      "current_outcome_ceiling": [
+        "consistent_with_source",
+        "disqualifying_per_source",
+        "requires_judgment"
+      ],
+      "proposed_outcome_ceiling": [
+        "disqualifying_per_source",
+        "requires_judgment"
+      ],
+      "candidate_rule": {
+        "plain_english": "If a recorded conservation easement covers the parcel, the criterion returns disqualifying_per_source. If the fact is recorded as NO, it returns requires_judgment (never consistent_with_source: a NO cannot show the category is absent).",
+        "pseudocode": "IF conservation-easement == true\n  THEN disqualifying_per_source   (pathway roll-up: documented_disqualifier)\nIF conservation-easement == false\n  THEN requires_judgment (never consistent_with_source: a NO cannot show the category is absent)\nMissing, unreviewed, or conflicting evidence: the evaluator returns unknown, unreviewed, or conflict and the rule does not run.",
+        "cases": [
+          {
+            "when": [
+              {
+                "fact_key": "conservation-easement",
+                "equals": true
+              }
+            ],
+            "outcome": "disqualifying_per_source"
+          },
+          {
+            "when": [
+              {
+                "fact_key": "conservation-easement",
+                "equals": false
+              }
+            ],
+            "outcome": "requires_judgment"
+          }
+        ]
+      },
+      "changes_from_v2_proposal": "v2 proposed consistent_with_source for a NO from a complete title search. The fact cannot record whether a search was complete, so Round 1 drops the clearing direction. The shipped ceiling is unchanged; the proposed rule simply never uses consistent_with_source.",
+      "why_this_appears_safe": [
+        "Only an affirmative record using the memo's own category can block.",
+        "A NO never clears, so a missing, partial, or incomplete lookup cannot produce a false consistent result.",
+        "The proposed ceiling is narrower than the shipped ceiling; nothing is widened."
+      ],
+      "what_could_make_it_wrong": [
+        "The page 5 pointer to GCS 66499.41(a)(9) reaches the first list and the statute attaches a condition to this category. No captured text says so, but the statute is not captured.",
+        "The easement covers only a strip of the parcel.",
+        "The easement was released or extinguished and the release was not found.",
+        "A later City memo replaces this one. The capture notes say the official host was unreachable, so whether that has happened was not checked."
+      ],
+      "review_questions": [
+        "Do you agree that a recorded conservation easement over the whole parcel returns disqualifying_per_source?",
+        "Do you accept that a NO returns requires_judgment, since the fact cannot show a complete title search?",
+        "How should an easement over part of the parcel be handled: unknown, as proposed, or something else?",
+        "Do you read the page 5 sentence (“Please see GCS 66499.41(a)(9) for more information about these site limitations”) as reaching the page 4 list of categories where projects may not be located? If so, should the blocking direction wait until the statute is captured?"
+      ],
+      "preparer_recommendation": "ready_for_decision"
+    },
+    {
+      "criterion_id": "la_sb79.permanent-exemption-shown",
+      "concept": "SB 79 permanent exemption shown (affirmative showing only)",
+      "proposal_file": "la_sb79.permanent-exclusion.json",
+      "source": {
+        "source_id": "ordinance-188968",
+        "source_type": "adopted_ordinance",
+        "operative_status": "operative",
+        "source_sha256": "91ea56cfb5db7b1d0f42bba4afef52179fd9052ef726d7a337fe35091410a588",
+        "text_layer": "city_ocr_of_scan"
+      },
+      "pdf_pages": [
+        3,
+        4,
+        5,
+        6
+      ],
+      "printed_page_note": "The scanned pages carry no printed page numbers; every page number here is the PDF page.",
+      "section": "Section 1 lead-in and criteria A and B, page 4; Sec. 3 (Director's maps), page 5; recitals, page 3; Sec. 6(1), page 6",
+      "current_pinpoint": "Ordinance 188968, Section 1, page 4; Sec. 3, page 5; recital, page 3",
+      "excerpts": [
+        {
+          "page": 4,
+          "text": "Section 1. Pursuant to California Government Code Section 65912.160(e), the City Council adopts this ordinance on eligible sites meeting one of the criteria referenced below, making the sites permanently exempt from Senate Bill 79, codified at Government Code, Title 7, Division 1, Chapter 4.1.5 (Senate Bill 79):"
+        },
+        {
+          "page": 5,
+          "text": "By enacting this ordinance, the City Council grants the Director of Planning with the power and duty, consistent with City Charter Section 553, to issue and update maps with eligible transit-oriented development sites meeting the criteria for permanent or temporarily exempt status"
+        },
+        {
+          "page": 3,
+          "text": "WHEREAS, eligibility for the Phased Implementation Ordinance is contingent on the availability of a final map which has not yet been produced and approved by the Southern California Association of Governments"
+        }
+      ],
+      "basis_excerpt_changes": null,
+      "context_excerpts": [
+        {
+          "source_id": "ordinance-188968",
+          "page": 3,
+          "text": "WHEREAS, eligibility for the Phased Implementation Ordinance is contingent on the availability of a final map which has not yet been produced and approved by the Southern California Association of Governments, pursuant to California Government Code Section 65912.160(f), and in the absence of that map, eligibility has been determined based on currently available information and data;",
+          "why": "The full recital: until SCAG's final map exists, the City's determinations rest on currently available data, so a showing can change when that map is produced."
+        },
+        {
+          "source_id": "ordinance-188968",
+          "page": 3,
+          "text": "WHEREAS, the City conducted an in-depth assessment of TOD Zones through mapping and modeling analyses, to evaluate sites within the City that are eligible for permanent and temporary exemption, and based on this information, the City released a draft map identifying all of the City as eligible for permanent and temporary exemption;",
+          "why": "The recital's draft map identified the whole City as “eligible for permanent and temporary exemption”. A layer using that wording is not a showing that a parcel is permanently exempt; recording YES from it would block SB 79 citywide."
+        },
+        {
+          "source_id": "ordinance-188968",
+          "page": 3,
+          "text": "WHEREAS, pursuant to California Government Code Section 65912.160(e), a local agency may declare that parcels in transit-oriented development zones are permanently exempt from SB 79’s provisions, if the local agency makes findings, supported by substantial evidence, that: (1) there exists no walking path of less than one mile between that parcel and the transit-oriented development stop; or (2) the parcel is part of an industrial employment hub, as defined in Government Code Section 65912.160(e)(2);",
+          "why": "Under the cited state law a permanent exemption rests on findings about the walking path or an industrial employment hub. Those are Section 1.A and 1.B, which stay professional-judgment criteria."
+        },
+        {
+          "source_id": "ordinance-188968",
+          "page": 4,
+          "text": "A. A site for which there exists no walking path of less than one mile from that location to the transit-oriented development stop (Gov. Code Sec. 65912.160(e)(1));",
+          "why": "The first ground for a permanent exemption."
+        },
+        {
+          "source_id": "ordinance-188968",
+          "page": 4,
+          "text": "B. A site designated as an industrial employment hub if the City has at least 15 transit-oriented development stops.",
+          "why": "The second ground, available only if the City has at least 15 TOD stops."
+        },
+        {
+          "source_id": "ordinance-188968",
+          "page": 4,
+          "text": "An industrial employment hub shall be a contiguous area of at least 250 acres designated in the City’s General Plan on or before January 1, 2025, as an employment lands area;",
+          "why": "Defines the industrial employment hub for 1.B."
+        },
+        {
+          "source_id": "ordinance-188968",
+          "page": 5,
+          "text": "meeting the criteria for permanent or temporarily exempt status pursuant to Government Code Sections 65912.160(e)(1 )-(2), 65912.161 (b)(1 )(A) - 65912.161 (b) 1 )(F), and 65912.161 (b)(2),",
+          "why": "The same map power covers temporary exemption, so a showing must say permanent. The citation list is damaged by OCR (see text_layer_check)."
+        },
+        {
+          "source_id": "ordinance-188968",
+          "page": 5,
+          "text": "to ensure consistency with the most current transit-oriented development zones map published by the Southern California Association of Governments or additional guidance from the California Department of Housing and Community Development.",
+          "why": "The Director's maps are updated as SCAG and HCD maps change, so the map's date matters."
+        },
+        {
+          "source_id": "ordinance-188968",
+          "page": 6,
+          "text": "(1) indicate on its public facing zoning map in the Zone Information and Map Access System (ZIMAS), which sites or transit-oriented development zones are and are not covered by Senate Bill 79’s provisions;",
+          "why": "ZIMAS is directed to show which sites are and are not covered by SB 79. The Program Screen treats that display as observation only (zimas-sb79-exemption), and this fact accepts only an official document or a lookup attempt."
+        }
+      ],
+      "text_layer_check": {
+        "pages_compared_with_image": [
+          3,
+          4,
+          5,
+          6
+        ],
+        "discrepancies": [
+          {
+            "page": 5,
+            "text_layer_reads": "65912.160(e)(1 )-(2), 65912.161 (b)(1 )(A) - 65912.161 (b) 1 )(F), and 65912.161 (b)(2),",
+            "page_image_reads": "65912.160(e)(1)-(2), 65912.161(b)(1)(A) - 65912.161(b)(1)(F), and 65912.161(b)(2),",
+            "in_rule_excerpt": false
+          }
+        ],
+        "note": "City OCR of a scan (ABBYY FineReader Server), reproduced in content-stream order. On page 4 the text layer runs Section 1's lead-in, then the end of the page 3 recital, then Sec. 2.A and 2.B, then Section 1.A and 1.B, then Sec. 2's lead-in; the page image reads the recital's end, Section 1's lead-in, 1.A, 1.B, Sec. 2's lead-in, 2.A, 2.B. On page 6 the text layer puts Secs. 4 to 6 after Sec. 8; the image starts with Sec. 4. Every quoted sentence reads the same on the image, but text next to an excerpt in extracted.txt is not always next to it on the page. The rule excerpt from Sec. 3 stops before the OCR-damaged citations."
+      },
+      "exceptions": [
+        "None for the permanent exemption itself. Section 1 has two alternative grounds: A, no walking path of less than one mile to the TOD stop; B, an industrial employment hub, if the City has at least 15 TOD stops."
+      ],
+      "cross_references": [
+        {
+          "reference": "GCS 65912.160(e) and 65912.160(f)",
+          "captured": false,
+          "why_it_matters": "The state authority for Section 1 and for SCAG's TOD maps. Neither is captured."
+        },
+        {
+          "reference": "The Director's exemption map issued under Sec. 3",
+          "captured": false,
+          "why_it_matters": "The record this fact is read from. It has not been captured or inspected, so what a showing looks like on it is not yet known."
+        },
+        {
+          "reference": "Ordinance 188968 Sec. 4 and the SB 79 temporary-exemption criteria",
+          "captured": true,
+          "why_it_matters": "Separately unresolved and not part of Round 1. This rule neither reads nor resolves them."
+        }
+      ],
+      "direction_safety": {
+        "blocking": {
+          "safe": true,
+          "reasoning": "Section 1 makes sites meeting its criteria “permanently exempt from Senate Bill 79”, and Sec. 3 gives the Director the duty to map them. A parcel that the Director's issued map shows as permanently exempt is exempt from SB 79."
+        },
+        "consistent": {
+          "safe": false,
+          "reasoning": "Section 1 attaches the exemption to sites that meet its criteria, not to sites the map shows; the recital says SCAG's final map has not been produced; and no captured text says the Director's map is complete or that a parcel it omits is not exempt. Not shown is not a finding."
+        }
+      },
+      "classification": "block_only",
+      "classification_reasoning": "An affirmative showing on the adopted record supports a documented disqualifier. The ordinance does not make the map exhaustive or authoritative for the opposite conclusion, so not shown can only route to judgment.",
+      "facts": [
+        {
+          "fact_key": "sb79-permanent-exemption-shown",
+          "data_class": "controlled_value",
+          "value": {
+            "kind": "boolean"
+          },
+          "record_source": "The Director of Planning's exemption map issued under Sec. 3, as issued, with its title and date named in the evidence. The fact accepts only an official document or a lookup attempt, so a ZIMAS display alone cannot be its source.",
+          "recordable_without_free_text_interpretation": "with_recording_instruction",
+          "not_found_distinct_from_no": "not_distinct",
+          "date_dependency": "The map version in force on the screen date; Sec. 3 maps are updated as SCAG and HCD maps change.",
+          "narrowing_required": true,
+          "smallest_correction": "Recording instruction only, no new value: YES only when the Director's issued Sec. 3 map shows this parcel as permanently exempt under Section 1 (ground A or B). Record unknown, never YES, when the record describes the parcel only in words like the recital's draft map (“eligible for permanent and temporary exemption”) rather than as permanently exempt, shows an area or the whole City without a parcel-level permanent designation, does not separate permanent from temporary exemption, or is the draft map described in the page 3 recital. NO means only that the issued map does not show it."
+        }
+      ],
+      "current_outcome_ceiling": [
+        "disqualifying_per_source",
+        "requires_judgment"
+      ],
+      "proposed_outcome_ceiling": [
+        "disqualifying_per_source",
+        "requires_judgment"
+      ],
+      "candidate_rule": {
+        "plain_english": "If the Director's issued Phased Implementation map affirmatively shows the parcel as permanently exempt under Section 1 of Ordinance 188968, the criterion returns disqualifying_per_source for the SB 79 pathway. If the parcel is not shown that way, it returns requires_judgment. It never returns consistent_with_source.",
+        "pseudocode": "IF sb79-permanent-exemption-shown == true\n  THEN disqualifying_per_source   (pathway roll-up: documented_disqualifier)\nIF sb79-permanent-exemption-shown == false   (not shown)\n  THEN requires_judgment   (never consistent_with_source)\nMissing, unreviewed, or conflicting evidence: the evaluator returns unknown, unreviewed, or conflict and the rule does not run.",
+        "cases": [
+          {
+            "when": [
+              {
+                "fact_key": "sb79-permanent-exemption-shown",
+                "equals": true
+              }
+            ],
+            "outcome": "disqualifying_per_source"
+          },
+          {
+            "when": [
+              {
+                "fact_key": "sb79-permanent-exemption-shown",
+                "equals": false
+              }
+            ],
+            "outcome": "requires_judgment"
+          }
+        ]
+      },
+      "changes_from_v2_proposal": "Same outcomes as v2. Round 1 narrows what counts as shown: a parcel described only as “eligible for permanent and temporary exemption” is not shown as exempt, no area-wide or draft layer counts, and the showing must be of permanent exemption.",
+      "why_this_appears_safe": [
+        "Section 1 is direct: sites meeting its criteria are made “permanently exempt from Senate Bill 79”.",
+        "The rule reads only an affirmative showing. The shipped ceiling already excludes consistent_with_source, and the evaluator rejects any other outcome.",
+        "A ZIMAS display that disagrees makes the pathway contested (program-flag divergence), not settled."
+      ],
+      "what_could_make_it_wrong": [
+        "The Director's map describes parcels in the draft map's words (“eligible for permanent and temporary exemption”) rather than as permanently exempt, or repeats the draft map that covered the whole City, and a person records YES from it. The recording instruction forbids that; nothing in code can check it.",
+        "The map is replaced after SCAG's final map and the recorded showing is stale.",
+        "The cited state law requires findings supported by substantial evidence (page 3 recital); whether the map rests on them is outside the screen.",
+        "The Director's map has not been captured or inspected in this branch."
+      ],
+      "review_questions": [
+        "If the Director's issued Sec. 3 map affirmatively shows a parcel as permanently exempt under Section 1, do you agree the SB 79 pathway should return documented_disqualifier?",
+        "Have you seen the Director's Sec. 3 map? Does it show parcel-level permanent exemptions, or only areas described like the recital's draft map (“eligible for permanent and temporary exemption”)?",
+        "Do you agree that a record describing a parcel only as “eligible for permanent and temporary exemption”, or the draft map in the page 3 recital, must be recorded as unknown rather than YES?",
+        "Do you agree that not shown must stay requires_judgment and never clear the pathway?"
+      ],
+      "preparer_recommendation": "decide_after_open_questions"
+    }
+  ]
+}

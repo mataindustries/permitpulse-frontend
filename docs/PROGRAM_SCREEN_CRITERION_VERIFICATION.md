@@ -348,6 +348,10 @@ A verified rule is still bounded by its criterion's `permitted_outcomes` and `ex
 
 Only a later branch, after a named human reviewer approves a component, may convert its atomic criterion to `human_verified`.
 
+### Human review rounds
+
+A review round narrows the pending criteria to a few a reviewer can check in one sitting. Round 1 (eight criteria) is `docs/PROGRAM_SCREEN_HUMAN_REVIEW_ROUND_1.md`, with its manifest at `app/fixtures/program-screen/human-review-rounds/round-1.json` (`humanReviewRoundSchema` in `proposed-verification.ts`). A round, like a proposal, is preparation only: it has no field for a reviewer, a decision, or a verification status; each candidate rule must stay inside its criterion's shipped ceiling; and no production module imports it. `app/tests/program-screen-human-review-round-1.test.ts` enforces all of this.
+
 ### Converting a criterion (human reviewer checklist)
 
 1. Read the proposal's excerpts against the original PDF's page images (both ordinances are OCR scans).
