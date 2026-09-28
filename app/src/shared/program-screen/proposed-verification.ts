@@ -741,3 +741,124 @@ export function candidateRuleOutcome(
   }
   return matches[0].outcome;
 }
+
+/* ---------------------------------------------------- human review decisions */
+
+/**
+ * The named human reviewer's decisions on a review round, kept apart from the
+ * round's preparation manifest (which can never name a reviewer or record a
+ * decision). A decisions record promotes nothing: every criterion it covers
+ * stays `pending_human`, and each decision lists the gates that must be met
+ * before a later, separate change may make the criterion `human_verified`.
+ * No production module reads it.
+ */
+export const HUMAN_REVIEW_DECISIONS_SCHEMA_VERSION = "program-screen-human-review-decisions-v1" as const;
+
+export const humanReviewDecisionValues = ["approve_as_written", "approve_with_revision", "keep_pending"] as const;
+
+/** The first line of a verbatim decision text names the decision. */
+export const humanReviewDecisionLabels: Readonly<Record<(typeof humanReviewDecisionValues)[number], string>> = {
+  approve_as_written: "APPROVE AS WRITTEN",
+  approve_with_revision: "APPROVE WITH REVISION",
+  keep_pending: "KEEP PENDING",
+};
+
+/**
+ * - `gated_on_enforcement`: a decided rule that stays pending until its gates
+ *   can be enforced in code or fail closed.
+ * - `pending_source_capture`: no rule until a missing official record is
+ *   captured and reviewed.
+ */
+export const humanReviewDecisionTiers = ["gated_on_enforcement", "pending_source_capture"] as const;
+
+export const humanReviewPromotionGates = [
+  "lot_area_precision_fails_closed",
+  "legal_lot_identity_fails_closed",
+  "r1_variation_zone_fails_closed",
+  "chapter_1a_fails_closed",
+  "map_history_completeness_fails_closed",
+  "search_completeness_fails_closed",
+  "applicable_law_fails_closed",
+  "evidence_provenance_enforced_or_fails_closed",
+  "map_identity_and_edition_recorded",
+  "responsibility_area_and_legend_recorded",
+  "adopted_plan_identity_adoption_and_map_date_recorded",
+  "instrument_identity_in_force_status_and_coverage_recorded",
+  "defining_official_source_captured",
+  "directors_section_3_map_captured",
+  "reviewer_confirms_encoded_rule",
+  "human_verification_record",
+] as const;
+
+const snakeToken = z.string().regex(/^[a-z0-9]+(?:_[a-z0-9]+)*$/);
+const verbatimText = z.string().min(1).max(8000);
+
+export const humanReviewDecisionSchema = z
+  .object({
+    letter: z.string().regex(/^[a-z]$/),
+    criterion_id: z.enum(humanVerificationRequiredCriterionIds),
+    decision: z.enum(humanReviewDecisionValues),
+    /** The reviewer's decision text exactly as given. */
+    reviewer_text_verbatim: verbatimText,
+    /** The reviewer's later decision on the criterion's promotion tier, exactly as given. */
+    promotion_tier_text_verbatim: verbatimText.nullable(),
+    source_proposition_accepted: z.boolean(),
+    tier: z.enum(humanReviewDecisionTiers),
+    /** A decisions record never promotes a criterion. */
+    status_after_review: z.literal("pending_human"),
+    outcome_ceiling_changed: z.literal(false),
+    promotion_gates: z.array(z.enum(humanReviewPromotionGates)).min(1),
+    rereview_triggers: z.array(snakeToken),
+    deferred_changes: z.array(snakeToken),
+    completed_in_this_change: z.array(snakeToken),
+  })
+  .strict()
+  .superRefine((entry, context) => {
+    const issue = (path: string, message: string) =>
+      context.addIssue({ code: "custom", path: [path], message });
+    if (entry.reviewer_text_verbatim.split("\n", 1)[0] !== humanReviewDecisionLabels[entry.decision]) {
+      issue("reviewer_text_verbatim", "The verbatim text must open with the decision it records.");
+    }
+    if (new Set(entry.promotion_gates).size !== entry.promotion_gates.length) {
+      issue("promotion_gates", "Gates must be unique.");
+    }
+    for (const gate of ["reviewer_confirms_encoded_rule", "human_verification_record"] as const) {
+      if (!entry.promotion_gates.includes(gate)) {
+        issue("promotion_gates", `Every decision keeps the ${gate} gate; approval of a rule never promotes it.`);
+      }
+    }
+    const expectedTier = entry.decision === "keep_pending" ? "pending_source_capture" : "gated_on_enforcement";
+    if (entry.tier !== expectedTier) {
+      issue("tier", `A ${entry.decision} decision is recorded as ${expectedTier}.`);
+    }
+  });
+
+export type HumanReviewDecision = z.infer<typeof humanReviewDecisionSchema>;
+
+export const humanReviewDecisionsSchema = z
+  .object({
+    record_kind: z.literal("human_review_decisions"),
+    schema_version: z.literal(HUMAN_REVIEW_DECISIONS_SCHEMA_VERSION),
+    round: z.number().int().positive(),
+    manifest: z.string().regex(/^app\/fixtures\/program-screen\/human-review-rounds\/round-\d+\.json$/),
+    packet: z.string().regex(/^docs\/PROGRAM_SCREEN_HUMAN_REVIEW_ROUND_\d+\.md$/),
+    decisions_doc: z.string().regex(/^docs\/PROGRAM_SCREEN_HUMAN_REVIEW_ROUND_\d+_DECISIONS\.md$/),
+    reviewer: z
+      .object({ kind: z.literal("human"), name: reviewText, role: reviewText })
+      .strict(),
+    decided_on: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+    /** Promotion happens only in a later change to the criterion itself. */
+    promoted_in_this_round: z.array(z.string()).max(0),
+    phase_constraints_verbatim: verbatimText,
+    decisions: z.array(humanReviewDecisionSchema).min(1),
+  })
+  .strict()
+  .superRefine((record, context) => {
+    const ids = record.decisions.map((entry) => entry.criterion_id);
+    const letters = record.decisions.map((entry) => entry.letter);
+    if (new Set(ids).size !== ids.length || new Set(letters).size !== letters.length) {
+      context.addIssue({ code: "custom", path: ["decisions"], message: "Each criterion and letter appears once." });
+    }
+  });
+
+export type HumanReviewDecisions = z.infer<typeof humanReviewDecisionsSchema>;

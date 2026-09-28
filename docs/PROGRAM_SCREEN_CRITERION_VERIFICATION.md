@@ -352,6 +352,8 @@ Only a later branch, after a named human reviewer approves a component, may conv
 
 A review round narrows the pending criteria to a few a reviewer can check in one sitting. Round 1 (eight criteria) is `docs/PROGRAM_SCREEN_HUMAN_REVIEW_ROUND_1.md`, with its manifest at `app/fixtures/program-screen/human-review-rounds/round-1.json` (`humanReviewRoundSchema` in `proposed-verification.ts`). A round, like a proposal, is preparation only: it has no field for a reviewer, a decision, or a verification status; each candidate rule must stay inside its criterion's shipped ceiling; and no production module imports it. `app/tests/program-screen-human-review-round-1.test.ts` enforces all of this.
 
+Round 1 was decided on 2026-09-27 by Sergio Mata (Project Owner / Human Reviewer). Six criteria were decided APPROVE WITH REVISION (a, b, c, d, f, g) and two KEEP PENDING (e, h). **None was promoted.** All eight stay `pending_human`: a, b, c, d, f, and g are gated until the conditions in their decisions can be enforced in code or fail closed, and e and h wait for an official record to be captured. The decisions are recorded verbatim in `docs/PROGRAM_SCREEN_HUMAN_REVIEW_ROUND_1_DECISIONS.md` and `app/fixtures/program-screen/human-review-rounds/round-1-decisions.json` (`humanReviewDecisionsSchema`). A decisions record, like the manifest, is never read by a production module and can never promote a criterion.
+
 ### Converting a criterion (human reviewer checklist)
 
 1. Read the proposal's excerpts against the original PDF's page images (both ordinances are OCR scans).

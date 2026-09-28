@@ -2,6 +2,8 @@
 
 Prepared 2026-09-28 on branch `feature/program-screen-human-review-round-1`. Machine-readable twin: `app/fixtures/program-screen/human-review-rounds/round-1.json`.
 
+**Review status: completed 2026-09-27** by Sergio Mata, Project Owner / Human Reviewer. Six criteria were decided APPROVE WITH REVISION (ticked below as APPROVE WITH EDIT) and two KEEP PENDING. No criterion is promoted: all eight stay `pending_human`, with the conditions for promotion recorded in `docs/PROGRAM_SCREEN_HUMAN_REVIEW_ROUND_1_DECISIONS.md` (verbatim decision texts) and `app/fixtures/program-screen/human-review-rounds/round-1-decisions.json`. Where they differ from the proposals below, those decisions govern. Apart from this line, the ticked boxes, and the reviewer notes, the packet is unchanged from what was reviewed. The preparation date above is in UTC; in Los Angeles time the packet was prepared and decided on 2026-09-27.
+
 This packet asks one person, the named human reviewer, to check eight atomic Program Screen criteria against the captured official documents and decide each one. It is preparation only:
 
 - **No criterion changes in this branch.** All eight stay `pending_human` with no encoded rule. `human_verified` stays at 0 of 46; `pending_human` stays at 46.
@@ -183,13 +185,13 @@ Missing, unreviewed, or conflicting evidence: the evaluator returns unknown, unr
 **REVIEWER DECISION:**
 
 - [ ] APPROVE EXACTLY AS WRITTEN
-- [ ] APPROVE WITH EDIT
+- [x] APPROVE WITH EDIT
 - [ ] KEEP PENDING
 - [ ] REMOVE
 
 **Reviewer note:**
 
-____________________________
+Decided 2026-09-27 by Sergio Mata: APPROVE WITH REVISION; gated: stays pending_human until its implementation gates can be enforced or fail closed. Full decision text: `docs/PROGRAM_SCREEN_HUMAN_REVIEW_ROUND_1_DECISIONS.md`, section a.
 
 ### 2. `la_shra.prior-shra-or-sb9-map`: SHRA prior recorded SHRA or SB 9 map
 
@@ -282,13 +284,13 @@ Missing, unreviewed, or conflicting evidence (including an incomplete history): 
 **REVIEWER DECISION:**
 
 - [ ] APPROVE EXACTLY AS WRITTEN
-- [ ] APPROVE WITH EDIT
+- [x] APPROVE WITH EDIT
 - [ ] KEEP PENDING
 - [ ] REMOVE
 
 **Reviewer note:**
 
-____________________________
+Decided 2026-09-27 by Sergio Mata: APPROVE WITH REVISION; gated: stays pending_human until its implementation gates can be enforced or fail closed. Full decision text: `docs/PROGRAM_SCREEN_HUMAN_REVIEW_ROUND_1_DECISIONS.md`, section b.
 
 ### 3. `la_shra.very-high-fire-hazard-severity-zone`: SHRA Very High Fire Hazard Severity Zone
 
@@ -402,13 +404,13 @@ Missing, unreviewed, or conflicting evidence: the evaluator returns unknown, unr
 **REVIEWER DECISION:**
 
 - [ ] APPROVE EXACTLY AS WRITTEN
-- [ ] APPROVE WITH EDIT
+- [x] APPROVE WITH EDIT
 - [ ] KEEP PENDING
 - [ ] REMOVE
 
 **Reviewer note:**
 
-____________________________
+Decided 2026-09-27 by Sergio Mata: APPROVE WITH REVISION; gated: stays pending_human until its implementation gates can be enforced or fail closed. Full decision text: `docs/PROGRAM_SCREEN_HUMAN_REVIEW_ROUND_1_DECISIONS.md`, section c.
 
 ### 4. `la_shra.high-fire-hazard-severity-zone`: SHRA High Fire Hazard Severity Zone
 
@@ -523,13 +525,13 @@ Missing, unreviewed, or conflicting evidence: the evaluator returns unknown, unr
 **REVIEWER DECISION:**
 
 - [ ] APPROVE EXACTLY AS WRITTEN
-- [ ] APPROVE WITH EDIT
+- [x] APPROVE WITH EDIT
 - [ ] KEEP PENDING
 - [ ] REMOVE
 
 **Reviewer note:**
 
-____________________________
+Decided 2026-09-27 by Sergio Mata: APPROVE WITH REVISION; gated: stays pending_human until its implementation gates can be enforced or fail closed. Full decision text: `docs/PROGRAM_SCREEN_HUMAN_REVIEW_ROUND_1_DECISIONS.md`, section d.
 
 ### 5. `la_shra.prime-or-statewide-farmland`: SHRA prime or statewide farmland
 
@@ -633,12 +635,12 @@ Missing, unreviewed, or conflicting evidence: the evaluator returns unknown, unr
 
 - [ ] APPROVE EXACTLY AS WRITTEN
 - [ ] APPROVE WITH EDIT
-- [ ] KEEP PENDING
+- [x] KEEP PENDING
 - [ ] REMOVE
 
 **Reviewer note:**
 
-____________________________
+Decided 2026-09-27 by Sergio Mata: KEEP PENDING; stays pending_human until the missing official record is captured and reviewed. Full decision text: `docs/PROGRAM_SCREEN_HUMAN_REVIEW_ROUND_1_DECISIONS.md`, section e.
 
 ### 6. `la_shra.natural-community-conservation-plan-land`: SHRA natural community conservation plan land
 
@@ -741,13 +743,13 @@ Missing, unreviewed, or conflicting evidence: the evaluator returns unknown, unr
 **REVIEWER DECISION:**
 
 - [ ] APPROVE EXACTLY AS WRITTEN
-- [ ] APPROVE WITH EDIT
+- [x] APPROVE WITH EDIT
 - [ ] KEEP PENDING
 - [ ] REMOVE
 
 **Reviewer note:**
 
-____________________________
+Decided 2026-09-27 by Sergio Mata: APPROVE WITH REVISION; gated: stays pending_human until its implementation gates can be enforced or fail closed. Full decision text: `docs/PROGRAM_SCREEN_HUMAN_REVIEW_ROUND_1_DECISIONS.md`, section f.
 
 ### 7. `la_shra.conservation-easement`: SHRA conservation easement
 
@@ -850,13 +852,13 @@ Missing, unreviewed, or conflicting evidence: the evaluator returns unknown, unr
 **REVIEWER DECISION:**
 
 - [ ] APPROVE EXACTLY AS WRITTEN
-- [ ] APPROVE WITH EDIT
+- [x] APPROVE WITH EDIT
 - [ ] KEEP PENDING
 - [ ] REMOVE
 
 **Reviewer note:**
 
-____________________________
+Decided 2026-09-27 by Sergio Mata: APPROVE WITH REVISION; gated: stays pending_human until its implementation gates can be enforced or fail closed. Full decision text: `docs/PROGRAM_SCREEN_HUMAN_REVIEW_ROUND_1_DECISIONS.md`, section g.
 
 ### 8. `la_sb79.permanent-exemption-shown`: SB 79 permanent exemption shown (affirmative showing only)
 
@@ -983,12 +985,12 @@ Missing, unreviewed, or conflicting evidence: the evaluator returns unknown, unr
 
 - [ ] APPROVE EXACTLY AS WRITTEN
 - [ ] APPROVE WITH EDIT
-- [ ] KEEP PENDING
+- [x] KEEP PENDING
 - [ ] REMOVE
 
 **Reviewer note:**
 
-____________________________
+Decided 2026-09-27 by Sergio Mata: KEEP PENDING; stays pending_human until the missing official record is captured and reviewed. Full decision text: `docs/PROGRAM_SCREEN_HUMAN_REVIEW_ROUND_1_DECISIONS.md`, section h.
 
 ## Fact-model corrections recommended first
 

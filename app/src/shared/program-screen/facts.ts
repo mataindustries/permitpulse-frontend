@@ -304,9 +304,21 @@ export const programFactSpecs: Readonly<Record<ProgramFactKey, ProgramFactSpec>>
     booleanValue,
   ),
   /**
-   * The map that created the lot, recorded from the recorded maps: the first
-   * value that applies, in list order. A recorded map whose statute is not
-   * known, or an incomplete map history, stays unknown.
+   * Which recorded map, if any, puts the legal lot being screened under the
+   * memo's prior-map restriction (Round 1 human review, decision b). A value
+   * is recorded only when the reviewed record establishes it for this lot:
+   * - shra_map_recorded / sb9_map_recorded: the legal lot was recorded
+   *   pursuant to that law. An SHRA or SB 9 map found only earlier in the
+   *   lot's lineage (the lot later merged, reconfigured, or re-recorded under
+   *   another authority) is not a value: record unknown.
+   * - other_basis_map_recorded / no_map_recorded: only after a complete
+   *   reviewed map history shows no recorded SHRA or SB 9 map applies. One
+   *   portal result or a partial search is unknown.
+   * - shra_or_sb9_tentative_map_not_recorded: only when reviewed evidence
+   *   shows the relevant tentative map was never recorded and no separate
+   *   recorded SHRA or SB 9 map applies.
+   * Uncertain law, lot identity, lineage, recording status, or search
+   * completeness is unknown. No value is inferred from list order.
    */
   "prior-shra-or-sb9-map": parcelFact(
     "prior-shra-or-sb9-map",

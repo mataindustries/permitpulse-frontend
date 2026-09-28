@@ -1,7 +1,9 @@
 import { describe, expect, it, vi } from "vitest";
 import packet from "../../docs/PROGRAM_SCREEN_HUMAN_REVIEW_ROUND_1.md?raw";
+import decisionsDoc from "../../docs/PROGRAM_SCREEN_HUMAN_REVIEW_ROUND_1_DECISIONS.md?raw";
 import fixtureJson from "../fixtures/program-screen/fictional-la-parcel.json";
 import roundJson from "../fixtures/program-screen/human-review-rounds/round-1.json";
+import decisionsJson from "../fixtures/program-screen/human-review-rounds/round-1-decisions.json";
 import type { CanonicalEvidenceRecord } from "../src/shared/build-week-integrity/types";
 import { IntegrityValidationError } from "../src/shared/build-week-integrity/validation";
 import { jurisdictionCriterion, parcelMatchCriterion } from "../src/shared/program-screen/criteria/common";
@@ -15,9 +17,12 @@ import {
 } from "../src/shared/program-screen/evaluate";
 import { assessProgramFacts, programFactSpecs } from "../src/shared/program-screen/facts";
 import { findProhibitedClientLanguage } from "../src/shared/program-screen/language";
+import { buildProgramScreenPublicDemoPayload } from "../src/shared/program-screen/public-demo";
 import {
   candidateRuleOutcome,
   humanReviewCaptureIssues,
+  humanReviewDecisionLabels,
+  humanReviewDecisionsSchema,
   humanReviewRoundSchema,
   proposedVerificationSchema,
   type HumanReviewCandidate,
@@ -70,6 +75,7 @@ const ROUND_1_IDS = [
 const SB79_PERMANENT = "la_sb79.permanent-exemption-shown";
 
 const round = humanReviewRoundSchema.parse(roundJson);
+const decisions = humanReviewDecisionsSchema.parse(decisionsJson);
 const candidates = round.candidates;
 const candidateFor = (id: string) => candidates.find((candidate) => candidate.criterion_id === id) as HumanReviewCandidate;
 
@@ -406,12 +412,24 @@ describe("1. No Round 1 criterion becomes human_verified because this packet exi
     expect(humanVerificationRequiredCriterionIds).toHaveLength(46);
   });
 
-  it("ships the packet with every decision box empty", () => {
-    expect(packet.match(/^- \[ \] /gm)).toHaveLength(4 * ROUND_1_IDS.length);
-    expect(packet).not.toMatch(/\[[xX]\]/);
-    for (const decision of ["APPROVE EXACTLY AS WRITTEN", "APPROVE WITH EDIT", "KEEP PENDING", "REMOVE"]) {
-      expect(packet.match(new RegExp(`^- \\[ \\] ${decision}$`, "gm")), decision).toHaveLength(ROUND_1_IDS.length);
-    }
+  it("ticks exactly one decision per candidate in the packet, matching the decisions record", () => {
+    const boxLabel: Record<string, string> = {
+      approve_as_written: "APPROVE EXACTLY AS WRITTEN",
+      approve_with_revision: "APPROVE WITH EDIT",
+      keep_pending: "KEEP PENDING",
+    };
+    expect(packet.match(/^- \[x\] /gm)).toHaveLength(ROUND_1_IDS.length);
+    expect(packet.match(/^- \[ \] /gm)).toHaveLength(3 * ROUND_1_IDS.length);
+    expect(packet).not.toMatch(/\[X\]/);
+    const sections = packet.split(/^(?=### \d+\. `)/m).slice(1);
+    expect(sections).toHaveLength(ROUND_1_IDS.length);
+    decisions.decisions.forEach((entry, index) => {
+      const section = sections[index];
+      expect(section.split("\n", 1)[0], entry.criterion_id).toContain(`\`${entry.criterion_id}\``);
+      expect(section.match(/^- \[x\] (.+)$/gm), entry.criterion_id).toEqual([`- [x] ${boxLabel[entry.decision]}`]);
+      expect(section).toContain(`section ${entry.letter}.`);
+      expect(section).not.toContain("____________________________");
+    });
   });
 });
 
@@ -521,7 +539,7 @@ describe("3. Review manifests are never imported by the evaluator", () => {
     for (const [path, source] of Object.entries(sourceFiles)) {
       if (path.endsWith("/program-screen/proposed-verification.ts")) continue;
       expect(source, path).not.toMatch(
-        /human-review-rounds|round-1\.json|HUMAN_REVIEW_ROUND|humanReviewRound|candidateRuleOutcome|PROGRAM_SCREEN_HUMAN_REVIEW/,
+        /human-review-rounds|round-1\.json|round-1-decisions|HUMAN_REVIEW_ROUND|HUMAN_REVIEW_DECISIONS|humanReviewRound|humanReviewDecision|candidateRuleOutcome|PROGRAM_SCREEN_HUMAN_REVIEW/,
       );
       expect(source, path).not.toMatch(/proposed-verification/);
     }
@@ -920,5 +938,142 @@ describe("12. No retired broad criterion is reintroduced", () => {
       const reused = { ...criterionFor(lot.criterion_id), id, pathway: id.split(".")[0] };
       expect(programCriterionSchema.safeParse(reused).success, id).toBe(false);
     }
+  });
+});
+
+/* --------------------------------------------------------- Round 1 decisions */
+
+/** The decisions document with every fenced verbatim block removed. */
+const decisionsProse = decisionsDoc.replace(/^```text\n[\s\S]*?\n```$/gm, "");
+
+describe("Round 1 decisions record", () => {
+  const LETTERS = ["a", "b", "c", "d", "e", "f", "g", "h"];
+  const byLetter = new Map(decisions.decisions.map((entry) => [entry.letter, entry]));
+
+  it("records the reviewer, the date, and one decision per Round 1 candidate, in packet order", () => {
+    expect(humanReviewDecisionsSchema.safeParse(decisionsJson).success).toBe(true);
+    expect(decisions).toMatchObject({
+      round: 1,
+      manifest: "app/fixtures/program-screen/human-review-rounds/round-1.json",
+      packet: "docs/PROGRAM_SCREEN_HUMAN_REVIEW_ROUND_1.md",
+      decisions_doc: "docs/PROGRAM_SCREEN_HUMAN_REVIEW_ROUND_1_DECISIONS.md",
+      reviewer: { kind: "human", name: "Sergio Mata", role: "Project Owner / Human Reviewer" },
+      decided_on: "2026-09-27",
+      promoted_in_this_round: [],
+    });
+    expect(decisions.decisions.map((entry) => entry.letter)).toEqual(LETTERS);
+    expect(decisions.decisions.map((entry) => entry.criterion_id)).toEqual(ROUND_1_IDS);
+  });
+
+  it("pins the eight decisions and their tiers exactly as decided", () => {
+    expect(Object.fromEntries(decisions.decisions.map((entry) => [entry.letter, [entry.decision, entry.tier]]))).toEqual({
+      a: ["approve_with_revision", "gated_on_enforcement"],
+      b: ["approve_with_revision", "gated_on_enforcement"],
+      c: ["approve_with_revision", "gated_on_enforcement"],
+      d: ["approve_with_revision", "gated_on_enforcement"],
+      e: ["keep_pending", "pending_source_capture"],
+      f: ["approve_with_revision", "gated_on_enforcement"],
+      g: ["approve_with_revision", "gated_on_enforcement"],
+      h: ["keep_pending", "pending_source_capture"],
+    });
+    for (const entry of decisions.decisions) {
+      expect(entry.reviewer_text_verbatim.split("\n", 1)[0], entry.letter).toBe(humanReviewDecisionLabels[entry.decision]);
+      expect(entry.source_proposition_accepted, entry.letter).toBe(true);
+    }
+    // a and b were moved to the gated tier by a separate decision, recorded verbatim.
+    expect(decisions.decisions.filter((entry) => entry.promotion_tier_text_verbatim !== null).map((entry) => entry.letter)).toEqual([
+      "a",
+      "b",
+    ]);
+    expect(byLetter.get("a")?.promotion_tier_text_verbatim).toContain("Do not promote it in Round 1.");
+    expect(byLetter.get("b")?.promotion_tier_text_verbatim).toContain("Confirm Tier 2 / gated.");
+  });
+
+  it("pins every gate that must be met before any Round 1 criterion can become human_verified", () => {
+    const base = ["reviewer_confirms_encoded_rule", "human_verification_record"];
+    const provenance = "evidence_provenance_enforced_or_fails_closed";
+    expect(Object.fromEntries(decisions.decisions.map((entry) => [entry.letter, entry.promotion_gates]))).toEqual({
+      a: ["lot_area_precision_fails_closed", "legal_lot_identity_fails_closed", "r1_variation_zone_fails_closed", "chapter_1a_fails_closed", provenance, ...base],
+      b: ["map_history_completeness_fails_closed", "legal_lot_identity_fails_closed", "applicable_law_fails_closed", "search_completeness_fails_closed", ...base],
+      c: [provenance, "map_identity_and_edition_recorded", ...base],
+      d: [provenance, "map_identity_and_edition_recorded", "responsibility_area_and_legend_recorded", ...base],
+      e: ["defining_official_source_captured", provenance, ...base],
+      f: [provenance, "adopted_plan_identity_adoption_and_map_date_recorded", ...base],
+      g: [provenance, "instrument_identity_in_force_status_and_coverage_recorded", ...base],
+      h: ["directors_section_3_map_captured", ...base],
+    });
+    for (const letter of ["c", "d", "f", "g"]) expect(byLetter.get(letter)?.promotion_gates, letter).toContain(provenance);
+    expect(byLetter.get("b")?.completed_in_this_change).toEqual(["prior_shra_or_sb9_map_fact_comment_rewritten"]);
+  });
+
+  it("promotes nothing: every Round 1 criterion stays pending_human, without a rule, at the same ceiling", () => {
+    for (const entry of decisions.decisions) {
+      const criterion = criterionFor(entry.criterion_id);
+      expect(entry, entry.letter).toMatchObject({ status_after_review: "pending_human", outcome_ceiling_changed: false });
+      expect(criterion, entry.letter).toMatchObject({ verification: "pending_human", human_verification: null, predicate: "not_encoded" });
+      expect(criterion.permitted_outcomes, entry.letter).toEqual(candidateFor(entry.criterion_id).current_outcome_ceiling);
+    }
+    expect(shipped.filter((criterion) => criterion.verification === "human_verified")).toEqual([]);
+    expect(shipped.filter((criterion) => criterion.verification === "pending_human")).toHaveLength(46);
+  });
+
+  it("keeps the reviewer's texts verbatim in the decisions document", () => {
+    for (const entry of decisions.decisions) {
+      expect(decisionsDoc, entry.letter).toContain(`\`\`\`text\n${entry.reviewer_text_verbatim}\n\`\`\``);
+      if (entry.promotion_tier_text_verbatim !== null) {
+        expect(decisionsDoc, entry.letter).toContain(`\`\`\`text\n${entry.promotion_tier_text_verbatim}\n\`\`\``);
+      }
+      expect(decisionsDoc).toContain(`## ${entry.letter}. \`${entry.criterion_id}\`: ${humanReviewDecisionLabels[entry.decision]}`);
+    }
+    expect(decisionsDoc).toContain(`\`\`\`text\n${decisions.phase_constraints_verbatim}\n\`\`\``);
+    expect(decisions.phase_constraints_verbatim).toContain("human_verified must remain 0");
+  });
+
+  it("names the reviewer only as recorded, and uses no conclusion language outside the verbatim texts", () => {
+    expect(decisionsDoc).toContain("Decided 2026-09-27 by **Sergio Mata, Project Owner / Human Reviewer**.");
+    for (const text of [decisionsProse, packetProse]) {
+      expect(text).not.toMatch(/\b(?:attorney|counsel|lawyer|planner|subject[- ]matter expert)\b/i);
+    }
+    for (const segment of quotedSegments(decisionsProse)) {
+      expect(operativeCaptures.some((capture) => excerptAppearsInCapture(segment, capture.extracted)), segment).toBe(true);
+    }
+    expect(findProhibitedClientLanguage(decisionsProse, quotedSegments(decisionsProse))).toEqual([]);
+  });
+
+  it("rejects a decisions record that promotes, drops a gate, or misstates a decision", () => {
+    const [first, ...rest] = decisionsJson.decisions;
+    const withEntry = (entry: unknown) => ({ ...decisionsJson, decisions: [entry, ...rest] });
+    const variants: Array<[string, unknown]> = [
+      ["a promoted criterion", { ...decisionsJson, promoted_in_this_round: [first.criterion_id] }],
+      ["a human_verified status", withEntry({ ...first, status_after_review: "human_verified" })],
+      ["a verification field", withEntry({ ...first, verification: "human_verified" })],
+      ["a changed ceiling", withEntry({ ...first, outcome_ceiling_changed: true })],
+      ["a dropped reviewer-confirmation gate", withEntry({ ...first, promotion_gates: first.promotion_gates.filter((gate) => gate !== "reviewer_confirms_encoded_rule") })],
+      ["a dropped human-verification gate", withEntry({ ...first, promotion_gates: first.promotion_gates.filter((gate) => gate !== "human_verification_record") })],
+      ["an unknown gate", withEntry({ ...first, promotion_gates: [...first.promotion_gates, "reviewer_said_so"] })],
+      ["a text that opens with another decision", withEntry({ ...first, decision: "approve_as_written" })],
+      ["a kept-pending criterion in the gated tier", withEntry({ ...first, decision: "keep_pending", reviewer_text_verbatim: `KEEP PENDING\n${first.reviewer_text_verbatim}` })],
+      ["an AI reviewer", { ...decisionsJson, reviewer: { kind: "ai", name: "Claude", role: "Preparer" } }],
+      ["a duplicated criterion", { ...decisionsJson, decisions: [first, first, ...rest] }],
+    ];
+    for (const [name, value] of variants) {
+      expect(humanReviewDecisionsSchema.safeParse(value).success, name).toBe(false);
+    }
+  });
+});
+
+/* -------------------------------------------------- no production output change */
+
+describe("Round 1 leaves production output byte-identical", () => {
+  // SHA-256 of the full JSON output before Round 1 (main at 4a4a092). A later,
+  // separately reviewed promotion must update these pins deliberately.
+  const EVALUATOR_OUTPUT_SHA256 = "2b0c6ea651dfc55191090ab0c6129a8c22692a28bfdce3f046425437e1acecca";
+  const PUBLIC_DEMO_OUTPUT_SHA256 = "d00a74d195a2749da877775c0204a3435820fd13189f2ae05880b744ab45f57f";
+
+  it("produces the same evaluator and public-demo output for the fictional fixture", async () => {
+    const result = evaluateProgramScreen({ evidence_records: fixtureJson.evidence_records, as_of: fixtureJson.as_of });
+    const demo = buildProgramScreenPublicDemoPayload(fixtureJson, { as_of: fixtureJson.as_of });
+    expect(await sha256Hex(JSON.stringify(result))).toBe(EVALUATOR_OUTPUT_SHA256);
+    expect(await sha256Hex(JSON.stringify(demo))).toBe(PUBLIC_DEMO_OUTPUT_SHA256);
   });
 });
