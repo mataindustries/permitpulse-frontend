@@ -1,4 +1,6 @@
 import { prohibitedIntegrityLanguage } from "../build-week-integrity/validation";
+import type { ProgramCriterionAuthorityResult } from "./evidence-authority";
+import { programFactSpecs } from "./facts";
 import type {
   CriterionStatus,
   PathwayRollup,
@@ -94,12 +96,56 @@ function joinLabels(labels: readonly string[]): string {
   return `${labels.slice(0, -1).join(", ")}, and ${labels[labels.length - 1]}`;
 }
 
+/** Labels of the facts an unmet authority requirement names, in reading order. */
+export function authorityShortfallLabels(authority: ProgramCriterionAuthorityResult): {
+  unestablished: string[];
+  unread: string[];
+  outOfScope: string[];
+} {
+  const labelsFor = (code: "requirement_fact_not_read" | "scope_precondition_not_met") =>
+    authority.criterion_failures
+      .filter((failure) => failure.code === code)
+      .map((failure) => programFactSpecs[failure.fact_key].label);
+  return {
+    unestablished: authority.facts
+      .filter((fact) => !fact.established)
+      .map((fact) => programFactSpecs[fact.key].label),
+    unread: labelsFor("requirement_fact_not_read"),
+    outOfScope: labelsFor("scope_precondition_not_met"),
+  };
+}
+
+function authorityUnknownStatement(authority: ProgramCriterionAuthorityResult): string {
+  const { unestablished, unread, outOfScope } = authorityShortfallLabels(authority);
+  const parts: string[] = [];
+  if (unestablished.length > 0) {
+    parts.push(
+      `No record that this criterion accepts as authoritative establishes the recorded ${joinLabels(unestablished)}.`,
+    );
+  }
+  if (unread.length > 0) {
+    parts.push(`The criterion's authority requirement names ${joinLabels(unread)}, which the criterion does not yet read.`);
+  }
+  if (outOfScope.length > 0) {
+    parts.push(`The recorded ${joinLabels(outOfScope)} is outside the scope the criterion's authority requirement covers.`);
+  }
+  parts.push(
+    "This criterion stays unknown. A record that is not a registered, reviewed authority can conflict with other records but cannot establish a fact, and missing authority is not treated as a no.",
+  );
+  return parts.join(" ");
+}
+
 export function criterionStatement(input: {
   status: CriterionStatus;
   facts: readonly ProgramFactAssessment[];
   unreviewedReasons: readonly UnreviewedReason[];
+  /** Set only when the evidence-authority gate ran. */
+  authority?: ProgramCriterionAuthorityResult;
 }): string {
   const factLabels = joinLabels(input.facts.map((fact) => fact.label));
+  if (input.status === "unknown" && input.authority !== undefined && !input.authority.established) {
+    return authorityUnknownStatement(input.authority);
+  }
   switch (input.status) {
     case "conflict":
       return `${input.facts

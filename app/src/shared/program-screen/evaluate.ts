@@ -1,5 +1,11 @@
 import type { EvidenceIntegrityClassification } from "../build-week-integrity/types";
 import { IntegrityValidationError } from "../build-week-integrity/validation";
+import { evaluateCriterionAuthority, type ProgramAuthorityContext } from "./authority-gate";
+import {
+  parseProgramAuthorityRegistries,
+  programAuthorityRegistries,
+  type ProgramAuthorityRegistries,
+} from "./authority-policy";
 import { shraPack } from "./criteria/shra";
 import { lowRisePack, sb79Pack } from "./criteria/sb79-low-rise";
 import {
@@ -15,6 +21,7 @@ import {
   flagStatement,
   pathwayStatement,
 } from "./language";
+import { parseProgramEvidenceAuthority, type ProgramCriterionAuthorityResult } from "./evidence-authority";
 import { buildCriterionQuestion, buildFlagQuestion, buildReviewTasks } from "./questions";
 import {
   criterionAwaitsHumanVerification,
@@ -85,25 +92,37 @@ export function isCitationStale(criterion: ProgramCriterion, asOf: string): bool
   );
 }
 
+const shippedAuthorityContext: ProgramAuthorityContext = {
+  registries: programAuthorityRegistries,
+  blocks: new Map(),
+  records: [],
+};
+
 /**
  * Criterion status precedence:
  * 1. any required fact in conflict            -> conflict
  * 2. any required fact unknown / inference    -> unknown
  * 3. professional judgment criterion          -> professional
  * 4. rule pending human or evidence unreviewed -> unreviewed
- * 5. pure predicate over reviewed, established facts
+ * 5. enforced authority requirement not met   -> unknown
+ * 6. pure predicate over reviewed, established facts
  *    (a predicate may itself return `requires_judgment` -> professional;
  *    an outcome outside `permitted_outcomes` is rejected)
  *
  * A predicate never runs on missing, conflicting, or unreviewed facts, and a
  * pending-human rule never runs at all. A criterion that needs human
  * verification (formerly pending, or marked human_verified) counts as
- * pending until it carries a complete human-verification record.
+ * pending until it carries a complete human-verification record and, for an
+ * atomic criterion, every promotion gate is met. Step 5 runs only after
+ * steps 1-4 pass, so it can only turn a would-be result into `unknown`; it
+ * never touches a conflict or an unknown fact. Without a context, the
+ * shipped deny-by-default registries apply and every record is unattested.
  */
 export function evaluateProgramCriterion(
   criterion: ProgramCriterion,
   factIndex: ProgramFactIndex,
   asOf: string,
+  authorityContext: ProgramAuthorityContext = shippedAuthorityContext,
 ): ProgramCriterionResult {
   const facts = criterion.fact_keys.map((key) => {
     const fact = factIndex.get(key);
@@ -118,6 +137,7 @@ export function evaluateProgramCriterion(
 
   let status: CriterionStatus;
   const unreviewedReasons: UnreviewedReason[] = [];
+  let authority: ProgramCriterionAuthorityResult | undefined;
 
   if (facts.some((fact) => fact.classification === "conflict")) {
     status = "conflict";
@@ -126,15 +146,35 @@ export function evaluateProgramCriterion(
   } else if (criterion.predicate === "professional_judgment") {
     status = "professional";
   } else {
-    if (criterionAwaitsHumanVerification(criterion) || criterion.predicate === "not_encoded") {
+    if (
+      criterionAwaitsHumanVerification(criterion, authorityContext.registries) ||
+      criterion.predicate === "not_encoded"
+    ) {
       unreviewedReasons.push("criterion_pending_human");
     }
     if (facts.some((fact) => !fact.reviewed)) {
       unreviewedReasons.push("evidence_unreviewed");
     }
 
+    const requirement = authorityContext.registries.criterion_requirements[criterion.id];
+    if (
+      unreviewedReasons.length === 0 &&
+      typeof criterion.predicate === "function" &&
+      requirement?.applicability === "enforced"
+    ) {
+      authority = evaluateCriterionAuthority({
+        criterion,
+        requirement,
+        facts,
+        context: authorityContext,
+        asOf,
+      });
+    }
+
     if (unreviewedReasons.length > 0 || typeof criterion.predicate !== "function") {
       status = "unreviewed";
+    } else if (authority !== undefined && !authority.established) {
+      status = "unknown";
     } else {
       const values: CriterionFactValues = Object.freeze(
         Object.fromEntries(
@@ -170,7 +210,7 @@ export function evaluateProgramCriterion(
     rule_summary: criterion.rule_summary,
     status,
     classification: statusClassification(status),
-    statement: criterionStatement({ status, facts, unreviewedReasons }),
+    statement: criterionStatement({ status, facts, unreviewedReasons, authority }),
     unreviewed_reasons: unreviewedReasons,
     facts: facts.map((fact) => ({
       key: fact.key,
@@ -182,6 +222,8 @@ export function evaluateProgramCriterion(
     citation: criterion.citation,
     stale: isCitationStale(criterion, asOf),
     confirmer: criterion.confirmer,
+    // Appended only when the gate ran, so every other result is unchanged.
+    ...(authority === undefined ? {} : { authority }),
   };
 }
 
@@ -398,10 +440,11 @@ function evaluatePathway(
   factIndex: ProgramFactIndex,
   asOf: string,
   quotations: ReadonlySet<string>,
+  authorityContext: ProgramAuthorityContext,
 ): ProgramPathwayResult {
   const { pathway, criteria } = pack;
   const results = criteria.map((criterion) =>
-    evaluateProgramCriterion(criterion, factIndex, asOf),
+    evaluateProgramCriterion(criterion, factIndex, asOf, authorityContext),
   );
 
   const flagFacts = programFlagKeysFor(pathway.id).map((key) => {
@@ -445,6 +488,7 @@ function evaluatePathway(
     results,
     facts: factIndex,
     flags,
+    registries: authorityContext.registries,
   });
 
   const statement = pathwayStatement({
@@ -457,7 +501,7 @@ function evaluatePathway(
 
   const blockers: ReleaseBlocker[] = [];
   criteria.forEach((criterion, index) => {
-    if (criterionAwaitsHumanVerification(criterion)) {
+    if (criterionAwaitsHumanVerification(criterion, authorityContext.registries)) {
       blockers.push({
         code: "pending_human_criterion",
         pathway: pathway.id,
@@ -555,6 +599,16 @@ export interface ProgramScreenInput {
   /** Evaluation date (YYYY-MM-DD). Required: the core never reads a clock. */
   as_of: string;
   packs?: readonly ProgramPathwayPack[];
+  /**
+   * Evidence-authority sidecar: blocks keyed by evidence_id. Omitted, every
+   * record is unattested. Malformed or falsely linked blocks throw.
+   */
+  evidence_authority?: unknown;
+  /**
+   * TEST-ONLY registries, passed like `packs`. Omitted, the shipped
+   * deny-by-default registries apply.
+   */
+  authority_registries?: ProgramAuthorityRegistries;
 }
 
 /**
@@ -571,6 +625,11 @@ export function evaluateProgramScreen(input: ProgramScreenInput): ProgramScreenR
   }
   const records = parseProgramScreenEvidence(input.evidence_records);
   const packs = parseProgramPathwayPacks(input.packs ?? programScreenPathwayPacks);
+  const registries = parseProgramAuthorityRegistries(
+    input.authority_registries ?? programAuthorityRegistries,
+  );
+  const blocks = parseProgramEvidenceAuthority(input.evidence_authority, records);
+  const authorityContext: ProgramAuthorityContext = { registries, blocks, records };
 
   const keys = new Set<ProgramFactKey>();
   for (const pack of packs) {
@@ -582,7 +641,7 @@ export function evaluateProgramScreen(input: ProgramScreenInput): ProgramScreenR
   const quotations = sourceQuotations(facts, packs);
 
   const pathways = packs.map((pack) =>
-    evaluatePathway(pack, factIndex, input.as_of, quotations),
+    evaluatePathway(pack, factIndex, input.as_of, quotations, authorityContext),
   );
 
   const factLanguageBlockers: ReleaseBlocker[] = facts.flatMap((fact) =>
@@ -616,12 +675,21 @@ export function evaluateProgramScreen(input: ProgramScreenInput): ProgramScreenR
   });
 
   const subject = records[0].subject;
-  const screenSeed = JSON.stringify([
+  const seedParts: unknown[] = [
     subject,
     input.as_of,
     records.map((record) => record.id).sort(),
     packs.flatMap((pack) => pack.criteria.map((criterion) => criterion.id)),
-  ]);
+  ];
+  // Authority inputs join the seed only when supplied, so a screen without
+  // them keeps its existing ID.
+  if (blocks.size > 0 || input.authority_registries !== undefined) {
+    seedParts.push([
+      [...blocks.values()].sort((left, right) => left.evidence_id.localeCompare(right.evidence_id)),
+      input.authority_registries ?? null,
+    ]);
+  }
+  const screenSeed = JSON.stringify(seedParts);
 
   return {
     schema_version: PROGRAM_SCREEN_SCHEMA_VERSION,
