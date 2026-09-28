@@ -387,8 +387,16 @@ const officialMetadata = () =>
 /* ------------------------------------------------------------------ tests */
 
 describe("Official source capture pins (TEST-ONLY synthetic captures)", () => {
-  it("loads both synthetic captures from the per-source layout", () => {
-    expect(Object.keys(testOnlyCaptures)).toEqual([ADOPTED_DIR, DRAFT_DIR]);
+  it("loads the synthetic captures from the per-source layout", () => {
+    // The agency-map and statute captures (metadata v2, Phase 2b) are checked
+    // in program-screen-source-capture-2b.test.ts.
+    expect(Object.keys(testOnlyCaptures)).toEqual([
+      ADOPTED_DIR,
+      "app/fixtures/program-screen/test-only-sources/test-only-agency-map-000001",
+      DRAFT_DIR,
+      "app/fixtures/program-screen/test-only-sources/test-only-statute-000001",
+      "app/fixtures/program-screen/test-only-sources/test-only-statute-pdf-000001",
+    ]);
     expect(adopted.metadata).toMatchObject({ test_only: true, source_type: "adopted_ordinance" });
     expect(draft.metadata).toMatchObject({
       test_only: true,
@@ -589,18 +597,20 @@ describe("Captured official sources (official-sources/)", () => {
   it("holds only complete captures: no HTML, notes, or stray files", () => {
     expect(officialSourceFiles).toContain("README.md");
     for (const path of officialSourceFiles) {
-      expect(path, path).toMatch(/^(?:README\.md|[a-z0-9]+(?:-[a-z0-9]+)*\/(?:original\.pdf|extracted\.txt|metadata\.json))$/);
+      expect(path, path).toMatch(
+        /^(?:README\.md|[a-z0-9]+(?:-[a-z0-9]+)*\/(?:original\.pdf|original\.html|extracted\.txt|metadata\.json))$/,
+      );
     }
     for (const capture of Object.values(officialCaptures)) {
       expect(capture.metadata, capture.directory).not.toBeNull();
       expect(capture.extracted, capture.directory).not.toBeNull();
       const id = capture.directory.slice(OFFICIAL_DIR.length);
-      expect(officialSourceFiles, capture.directory).toContain(`${id}/original.pdf`);
-      expect(officialByteChecks[capture.directory]?.files).toEqual([
-        "extracted.txt",
-        "metadata.json",
-        "original.pdf",
-      ]);
+      // original.pdf, or original.html for a served statute page (metadata v2).
+      const original = capture.metadata?.original.file ?? "original.pdf";
+      expect(officialSourceFiles, capture.directory).toContain(`${id}/${original}`);
+      expect(officialByteChecks[capture.directory]?.files).toEqual(
+        ["extracted.txt", "metadata.json", original].sort(),
+      );
     }
   });
 
@@ -609,10 +619,10 @@ describe("Captured official sources (official-sources/)", () => {
       const capture = completeOfficial(found);
       // Full check on the exact PDF bytes, run in Node (see the global setup).
       expect(officialByteChecks[found.directory], found.directory).toEqual({
-        files: ["extracted.txt", "metadata.json", "original.pdf"],
+        files: ["extracted.txt", "metadata.json", capture.metadata.original.file].sort(),
         sha256_original: capture.metadata.sha256_original,
         bytes: capture.metadata.original.bytes,
-        is_pdf: true,
+        is_pdf: capture.metadata.original.media_type === "application/pdf",
         issues: [],
       });
       // The text pins again here, on the text this worker loaded.

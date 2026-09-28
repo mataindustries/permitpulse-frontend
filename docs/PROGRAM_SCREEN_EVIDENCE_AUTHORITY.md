@@ -209,7 +209,7 @@ Today every gate of every Round 1 criterion is unmet, and the 38 other atomic cr
 
 ## Unlocking a criterion later (Phase 3, one reviewed change each)
 
-1. Capture and review the authority source (Phase 2b capture extensions; D11 host exceptions per source).
+1. Capture and review the authority source (Phase 2b capture extensions, `docs/PROGRAM_SCREEN_SOURCE_CAPTURE_2B.md`; D11 host exceptions per source). `authoritySourceCaptureIssues` must report nothing for the capture before it is registered.
 2. Register the issuer and source, and populate the fact policy, in a reviewed change.
 3. Encode the predicate the decision approved, inside the unchanged outcome ceiling.
 4. Add a human-verification record whose `decision_ref` matches the requirement.
@@ -217,7 +217,7 @@ Today every gate of every Round 1 criterion is unmet, and the 38 other atomic cr
 
 ## Not in Phase 2
 
-- Source-capture extensions: agency maps, adopted plans, recorded instruments, Director-issued maps, non-City hosts through per-source exceptions (D11), and a statute source type for GCS 66499.41(a)(9).
+- Source-capture extensions. Phase 2b (`docs/PROGRAM_SCREEN_SOURCE_CAPTURE_2B.md`) since added agency maps, a statute source type for GCS 66499.41(a)(9), and per-source host exceptions (D11, shipped empty). Adopted plans, recorded instruments, and Director-issued maps remain later phases.
 - The case-scoped private evidence store for real parcel instruments and maps (D10).
 - Explicit split-zoning behavior (D9).
 - The numeric precision acceptable beyond an exact area (D5).

@@ -1,0 +1,16 @@
+TEST-ONLY FICTIONAL MAP. This map is invented for automated tests.
+It is not a fire hazard map, official record, or publication of any agency.
+TEST-ONLY Fictional Fire Hazard Severity Zones Map 000001
+Synthetic County 000001
+Issued by the TEST-ONLY Fictional Fire Agency 000001
+Edition 000001, effective January 15, 2026
+[Map panel: no parcel data is shown.]
+
+LEGEND
+Fictional Fire Hazard Severity Zones in the Local Responsibility Area:
+Very High Fire Hazard Severity Zone
+High Fire Hazard Severity Zone
+Moderate Fire Hazard Severity Zone
+This map shows the Local Responsibility Area only. It does not show the
+State Responsibility Area or the Federal Responsibility Area.
+This is the current fictional edition; it supersedes no earlier edition.

@@ -1,0 +1,7 @@
+TEST-ONLY FICTIONAL STATUTE. This document is invented for automated tests.
+It is not California law, a statute, or an official record of any agency.
+FICTIONAL CODE TST
+2.1.
+(a) A fictional agency applies this fictional section only in automated tests.
+(9) A fictional paragraph nine, for pinpoint tests only.
+(Added by Fictional Stats. 2026, Ch. 2, Sec. 1. Effective February 1, 2026.)

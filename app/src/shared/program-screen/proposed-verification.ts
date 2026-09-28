@@ -3,11 +3,13 @@ import {
   canSupportCriterionRule,
   excerptAppearsInCapture,
   locateExcerptPages,
+  OFFICIAL_SOURCE_METADATA_V2_VERSION,
   type OfficialSourceMetadata,
 } from "./source-capture";
 import {
   criterionPromotionGates,
   humanVerificationRequiredCriterionIds,
+  operativeSourceTypes,
   predicateOutcomes,
   programFactDataClasses,
   programFactKeys,
@@ -15,6 +17,7 @@ import {
   retiredProgramFactKeys,
   type OfficialSourceType,
   type PredicateOutcome,
+  type SourceOperativeStatus,
 } from "./types";
 
 /**
@@ -157,6 +160,8 @@ export const PROPOSAL_SCHEMA_VERSION = "program-screen-proposal-v2" as const;
 const nonEmptyText = z.string().trim().min(1).max(1200);
 const hex64 = z.string().regex(/^[0-9a-f]{64}$/, "Expected a SHA-256 hex digest.");
 const expectedIds = new Map(expectedOfficialSources.map((source) => [source.source_id, source]));
+/** An ordinance or memo; never a draft, and never an agency map or statute capture (B4). */
+const isRuleSourceType = (type: OfficialSourceType) => (operativeSourceTypes as readonly string[]).includes(type);
 const atomicCriterionIds = new Set<string>(humanVerificationRequiredCriterionIds);
 const shipped = new Set<string>(shippedComponentDispositions);
 /** Current and retired fact keys: a proposal may name either when it records a removal. */
@@ -272,6 +277,8 @@ export const proposedVerificationSchema = z
       issue("source_id", "A proposal must cite an expected official source.");
     } else if (source.source_type === "proposed_draft") {
       issue("source_id", "A proposal cannot rest on a proposed draft.");
+    } else if (!isRuleSourceType(source.source_type)) {
+      issue("source_id", `A proposal cannot rest on a ${source.source_type} capture.`);
     }
     for (const id of proposal.related_draft_source_ids) {
       if (expectedIds.get(id)?.source_type !== "proposed_draft") {
@@ -582,15 +589,15 @@ export const humanReviewCandidateSchema = z
       issue("criterion_id", "The SB 79 temporary-exemption criteria are unresolved and cannot be a review-round candidate.");
     }
     const source = expectedIds.get(candidate.source.source_id);
-    if (source === undefined || source.source_type === "proposed_draft") {
-      issue("source", "A review candidate must rest on an expected operative source, never a draft.");
+    if (source === undefined || !isRuleSourceType(source.source_type)) {
+      issue("source", "A review candidate must rest on an expected ordinance or memo, never a draft, map, or statute capture.");
     } else if (source.source_type !== candidate.source.source_type) {
       issue("source", `${candidate.source.source_id} is recorded as ${source.source_type}.`);
     }
     for (const excerpt of candidate.context_excerpts) {
       const quotedSource = expectedIds.get(excerpt.source_id);
-      if (quotedSource === undefined || quotedSource.source_type === "proposed_draft") {
-        issue("context_excerpts", "Context may be quoted only from an expected operative source, never a draft.");
+      if (quotedSource === undefined || !isRuleSourceType(quotedSource.source_type)) {
+        issue("context_excerpts", "Context may be quoted only from an expected ordinance or memo, never a draft, map, or statute capture.");
       }
     }
     if (!candidate.proposal_file.startsWith(candidate.criterion_id.slice(0, candidate.criterion_id.indexOf(".") + 1))) {
@@ -847,3 +854,74 @@ export const humanReviewDecisionsSchema = z
   });
 
 export type HumanReviewDecisions = z.infer<typeof humanReviewDecisionsSchema>;
+
+/* ------------------------------------------------ statute re-review triggers */
+
+/**
+ * Round 1 re-review triggers that fire when an official statute capture holds
+ * a named pinpoint. A warning flags only the decisions that list the trigger
+ * (Phase 2b decision B8): for `gcs_66499_41_a_9_captured`, decisions c, d, e,
+ * f, and g. Other criteria that cite the same statute are never added here;
+ * whether they join a review round is a separate human decision made after
+ * the captured statute is read.
+ */
+export const statuteRereviewTriggers = {
+  gcs_66499_41_a_9_captured: { code: "GOV", section: "66499.41", pinpoint: "(a)(9)" },
+} as const satisfies Readonly<Record<string, StatuteRereviewTarget>>;
+
+export interface StatuteRereviewTarget {
+  code: string;
+  section: string;
+  pinpoint: string;
+}
+
+export interface StatuteRereviewWarning {
+  kind: "statute_rereview_warning";
+  trigger: string;
+  statute_source_id: string;
+  operative_status: SourceOperativeStatus;
+  /** The criteria of every decision that lists the trigger, in decision order. */
+  criterion_ids: string[];
+  action: "human_re_review";
+}
+
+/**
+ * Like a draft, a captured statute never changes a criterion result. It only
+ * flags, for human re-review, the decisions whose trigger names its section
+ * and pinpoint. A test-only capture never fires a trigger.
+ */
+export function statuteRereviewWarnings(
+  captures: readonly OfficialSourceMetadata[],
+  decisions: readonly HumanReviewDecisions[],
+  triggers: Readonly<Record<string, StatuteRereviewTarget>> = statuteRereviewTriggers,
+): StatuteRereviewWarning[] {
+  return captures.flatMap((metadata) => {
+    if (
+      metadata.test_only ||
+      metadata.schema_version !== OFFICIAL_SOURCE_METADATA_V2_VERSION ||
+      metadata.source_type !== "statute" ||
+      metadata.statute === null
+    ) {
+      return [];
+    }
+    const statute = metadata.statute;
+    return Object.entries(triggers)
+      .filter(
+        ([, target]) =>
+          statute.code === target.code &&
+          statute.section === target.section &&
+          statute.pinpoints.some((pinpoint) => pinpoint.pinpoint === target.pinpoint),
+      )
+      .map(([trigger]) => ({
+        kind: "statute_rereview_warning" as const,
+        trigger,
+        statute_source_id: metadata.source_id,
+        operative_status: metadata.operative_status,
+        criterion_ids: decisions
+          .flatMap((record) => record.decisions)
+          .filter((entry) => entry.rereview_triggers.includes(trigger))
+          .map((entry) => entry.criterion_id),
+        action: "human_re_review" as const,
+      }));
+  });
+}

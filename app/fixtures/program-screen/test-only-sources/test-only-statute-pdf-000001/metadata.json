@@ -1,0 +1,56 @@
+{
+  "schema_version": "program-screen-official-source-v2",
+  "source_id": "test-only-statute-pdf-000001",
+  "title": "TEST-ONLY Fictional Code TST Section 2.1",
+  "official_url": "https://statutes.example.test/program-screen-capture/fictional-code-tst-2-1.pdf",
+  "source_type": "statute",
+  "document_date": "2026-02-01",
+  "retrieved_at": "2026-09-28T17:10:00.000Z",
+  "sha256_original": "885c2b4040063d37af4572622c410a6b632e09cc98390cc9a025969501b3fed2",
+  "sha256_extracted": "f74586b7e3b5567a1968e5b271caa4d8d4eb8c19b6b4c5d6c0df864a876ba24a",
+  "operative_status": "operative",
+  "notes": "TEST-ONLY synthetic statute PDF generated with pdf-lib for automated tests. Not California law or an official source.",
+  "may_change_source_ids": [],
+  "original": {
+    "file": "original.pdf",
+    "media_type": "application/pdf",
+    "bytes": 1546
+  },
+  "extraction": {
+    "file": "extracted.txt",
+    "extractor": "pdfjs-dist",
+    "extractor_version": "6.3.289",
+    "normalization": "program-screen-text-v1",
+    "page_separator": "form_feed",
+    "page_count": 1,
+    "pages_without_text": []
+  },
+  "host_basis": "test_only_host",
+  "agency_map": null,
+  "statute": {
+    "jurisdiction": "CA",
+    "code": "TST",
+    "section": "2.1",
+    "form": "official_pdf",
+    "section_heading": {
+      "page": 1,
+      "text": "2.1."
+    },
+    "pinpoints": [
+      {
+        "pinpoint": "(a)(9)",
+        "excerpt": {
+          "page": 1,
+          "text": "(9) A fictional paragraph nine, for pinpoint tests only."
+        }
+      }
+    ],
+    "status_as_published": {
+      "page": 1,
+      "text": "(Added by Fictional Stats. 2026, Ch. 2, Sec. 1. Effective February 1, 2026.)"
+    }
+  },
+  "capture_tool": "app/scripts/capture-program-screen-source.ts",
+  "is_ai_generated": false,
+  "test_only": true
+}
