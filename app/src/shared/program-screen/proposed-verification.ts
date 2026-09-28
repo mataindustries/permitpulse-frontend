@@ -6,6 +6,7 @@ import {
   type OfficialSourceMetadata,
 } from "./source-capture";
 import {
+  criterionPromotionGates,
   humanVerificationRequiredCriterionIds,
   predicateOutcomes,
   programFactDataClasses,
@@ -771,24 +772,8 @@ export const humanReviewDecisionLabels: Readonly<Record<(typeof humanReviewDecis
  */
 export const humanReviewDecisionTiers = ["gated_on_enforcement", "pending_source_capture"] as const;
 
-export const humanReviewPromotionGates = [
-  "lot_area_precision_fails_closed",
-  "legal_lot_identity_fails_closed",
-  "r1_variation_zone_fails_closed",
-  "chapter_1a_fails_closed",
-  "map_history_completeness_fails_closed",
-  "search_completeness_fails_closed",
-  "applicable_law_fails_closed",
-  "evidence_provenance_enforced_or_fails_closed",
-  "map_identity_and_edition_recorded",
-  "responsibility_area_and_legend_recorded",
-  "adopted_plan_identity_adoption_and_map_date_recorded",
-  "instrument_identity_in_force_status_and_coverage_recorded",
-  "defining_official_source_captured",
-  "directors_section_3_map_captured",
-  "reviewer_confirms_encoded_rule",
-  "human_verification_record",
-] as const;
+/** Defined in types.ts so the evaluator can compute promotion blockers without importing this module. */
+export const humanReviewPromotionGates = criterionPromotionGates;
 
 const snakeToken = z.string().regex(/^[a-z0-9]+(?:_[a-z0-9]+)*$/);
 const verbatimText = z.string().min(1).max(8000);

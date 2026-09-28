@@ -1,4 +1,5 @@
-import { quote } from "./language";
+import type { ProgramAuthorityRegistries } from "./authority-policy";
+import { authorityShortfallLabels, quote } from "./language";
 import { criterionAwaitsHumanVerification } from "./schema";
 import type {
   ProgramCriterion,
@@ -73,6 +74,19 @@ export function buildCriterionQuestion(
       trigger: "conflict",
       question: criterion.question_if_conflict,
       why_confirmation_needed: `${conflicting.map((fact) => fact.statement).join(" ")} Recorded values: ${recordedValues(sources)}. PermitPulse keeps every record and does not choose between sources; ${criterion.confirmer} must confirm which governs.`,
+      sources,
+    };
+  }
+
+  if (result.status === "unknown" && result.authority !== undefined && !result.authority.established) {
+    // Every fact is recorded; none is established by a record the criterion
+    // accepts as authoritative. The statement already says so.
+    const sources = questionSources(facts);
+    return {
+      ...base,
+      trigger: "unknown",
+      question: criterion.question_if_unknown,
+      why_confirmation_needed: `${result.statement} Recorded values: ${recordedValues(sources)}.`,
       sources,
     };
   }
@@ -173,13 +187,14 @@ export function buildReviewTasks(input: {
   results: readonly ProgramCriterionResult[];
   facts: ReadonlyMap<ProgramFactKey, ProgramFactAssessment>;
   flags: readonly ProgramFlagResult[];
+  registries?: ProgramAuthorityRegistries;
 }): ProgramReviewTask[] {
   const pathway = input.pathway.id;
   const tasks: ProgramReviewTask[] = [];
 
   input.criteria.forEach((criterion, index) => {
     const result = input.results[index];
-    if (criterionAwaitsHumanVerification(criterion)) {
+    if (criterionAwaitsHumanVerification(criterion, input.registries)) {
       tasks.push({
         id: `${pathway}:verify_criterion_rule:${criterion.id}`,
         pathway,
@@ -197,6 +212,18 @@ export function buildReviewTasks(input: {
         criterion_id: criterion.id,
         fact_key: null,
         instruction: `Reopen ${quote(criterion.citation.title)} and reverify ${criterion.citation.pinpoint}; the citation was due for review on ${criterion.citation.next_review_at}.`,
+      });
+    }
+    if (result.authority !== undefined && !result.authority.established) {
+      const { unestablished, unread, outOfScope } = authorityShortfallLabels(result.authority);
+      const named = [...new Set([...unestablished, ...unread, ...outOfScope])];
+      tasks.push({
+        id: `${pathway}:review_evidence_authority:${criterion.id}`,
+        pathway,
+        kind: "review_evidence_authority",
+        criterion_id: criterion.id,
+        fact_key: null,
+        instruction: `Record the issuing agency, record kind, edition and its date, parcel relationship, and coverage for the evidence behind ${named.join(", ")}, have a named person review it, and confirm the record is a registered, reviewed authority for the fact before this criterion can produce a result.`,
       });
     }
   });

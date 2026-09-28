@@ -2,6 +2,13 @@ import { z } from "zod";
 import { canonicalEvidenceRecordsSchema } from "../build-week-integrity/schema";
 import type { CanonicalEvidenceRecord } from "../build-week-integrity/types";
 import { IntegrityValidationError } from "../build-week-integrity/validation";
+import {
+  authorityPromotionBlockers,
+  programAuthorityRegistries,
+  promotionGuardedCriterionIds,
+  type ProgramAuthorityRegistries,
+  type ProgramPromotionBlocker,
+} from "./authority-policy";
 import { programFactSpecs, retiredProgramFacts } from "./facts";
 import {
   citationVolatilities,
@@ -131,6 +138,10 @@ export const programCriterionHumanVerificationSchema = z
     pinpoint: nonEmptyText,
     supporting_excerpt: nonEmptyText,
     source_capture: programSourceCaptureSchema,
+    decision_ref: z
+      .object({ round: z.number().int().positive(), letter: z.string().regex(/^[a-z]$/) })
+      .strict()
+      .optional(),
   })
   .strict()
   .superRefine((record, context) => {
@@ -181,10 +192,32 @@ export function hasCompleteHumanVerification(criterion: ProgramCriterion): boole
   return humanVerificationMismatch(criterion) === null;
 }
 
-/** True when the criterion's rule must not run and must block release. */
-export function criterionAwaitsHumanVerification(criterion: ProgramCriterion): boolean {
+/**
+ * The promotion gates still unmet for one of the 46 atomic criteria (D7):
+ * computed from the evidence-authority registries and the criterion, never
+ * from a note. Empty for any other criterion.
+ */
+export function criterionPromotionBlockers(
+  criterion: ProgramCriterion,
+  registries: ProgramAuthorityRegistries = programAuthorityRegistries,
+): ProgramPromotionBlocker[] {
+  if (!promotionGuardedCriterionIds.has(criterion.id)) return [];
+  return authorityPromotionBlockers(criterion, registries, hasCompleteHumanVerification(criterion));
+}
+
+/**
+ * True when the criterion's rule must not run and must block release. An
+ * atomic criterion with a complete human record still waits while any
+ * promotion gate is unmet, including a missing authority requirement.
+ */
+export function criterionAwaitsHumanVerification(
+  criterion: ProgramCriterion,
+  registries: ProgramAuthorityRegistries = programAuthorityRegistries,
+): boolean {
   if (criterion.verification === "pending_human") return true;
-  return requiresHumanVerification(criterion) && !hasCompleteHumanVerification(criterion);
+  if (!requiresHumanVerification(criterion)) return false;
+  if (!hasCompleteHumanVerification(criterion)) return true;
+  return criterionPromotionBlockers(criterion, registries).length > 0;
 }
 
 const parcelFactKeys = programFactKeys.filter(

@@ -7,6 +7,7 @@ import type {
   IntegrityEvidenceProvenanceCitation,
   IntegrityEvidenceSubject,
 } from "../build-week-integrity/types";
+import type { ProgramCriterionAuthorityResult } from "./evidence-authority";
 
 /**
  * LA Parcel Program Screen core types.
@@ -206,6 +207,31 @@ export const humanVerificationRequiredCriterionIds = [
   "la_low_rise.tod-subarea-historic-limit",
 ] as const;
 
+/**
+ * Conditions a named human reviewer set before a criterion may become
+ * `human_verified`. Each maps to a check computed from code registries
+ * (`authorityPromotionBlockers` in authority-policy.ts), so no condition is
+ * met because someone wrote a note saying so.
+ */
+export const criterionPromotionGates = [
+  "lot_area_precision_fails_closed",
+  "legal_lot_identity_fails_closed",
+  "r1_variation_zone_fails_closed",
+  "chapter_1a_fails_closed",
+  "map_history_completeness_fails_closed",
+  "search_completeness_fails_closed",
+  "applicable_law_fails_closed",
+  "evidence_provenance_enforced_or_fails_closed",
+  "map_identity_and_edition_recorded",
+  "responsibility_area_and_legend_recorded",
+  "adopted_plan_identity_adoption_and_map_date_recorded",
+  "instrument_identity_in_force_status_and_coverage_recorded",
+  "defining_official_source_captured",
+  "directors_section_3_map_captured",
+  "reviewer_confirms_encoded_rule",
+  "human_verification_record",
+] as const;
+
 export const sourceCaptureMethods = [
   "pdf_text_extraction",
   "html_text_extraction",
@@ -269,6 +295,7 @@ export const reviewTaskKinds = [
   "review_evidence",
   "reverify_stale_citation",
   "record_program_flag",
+  "review_evidence_authority",
 ] as const;
 
 export type ProgramPathwayId = (typeof programPathwayIds)[number];
@@ -290,6 +317,13 @@ export type SourceCaptureMethod = (typeof sourceCaptureMethods)[number];
 export type OfficialSourceType = (typeof officialSourceTypes)[number];
 export type OperativeSourceType = (typeof operativeSourceTypes)[number];
 export type SourceOperativeStatus = (typeof sourceOperativeStatuses)[number];
+export type CriterionPromotionGate = (typeof criterionPromotionGates)[number];
+
+/** A named human reviewer's decision, by review round and letter. */
+export interface ProgramDecisionRef {
+  round: number;
+  letter: string;
+}
 
 /* ------------------------------------------------------------------ facts */
 
@@ -411,6 +445,11 @@ export interface ProgramCriterionHumanVerification {
   pinpoint: string;
   supporting_excerpt: string;
   source_capture: ProgramSourceCapture;
+  /**
+   * The review decision whose encoded rule the reviewer confirmed. Required
+   * for the `reviewer_confirms_encoded_rule` promotion gate.
+   */
+  decision_ref?: ProgramDecisionRef;
 }
 
 /** Where in this repository the criterion's rule or dependency is stated. */
@@ -500,6 +539,13 @@ export interface ProgramCriterionResult {
   citation: ProgramCriterionCitation;
   stale: boolean;
   confirmer: ProgramConfirmer;
+  /**
+   * Present only when the evidence-authority gate ran: the criterion has an
+   * enforced authority requirement and reached it (every earlier status check
+   * passed). Absent otherwise, so criteria the gate never reaches keep their
+   * exact output.
+   */
+  authority?: ProgramCriterionAuthorityResult;
 }
 
 export interface ProgramFlagResult {
