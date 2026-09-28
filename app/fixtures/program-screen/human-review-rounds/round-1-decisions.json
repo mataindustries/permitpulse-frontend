@@ -1,0 +1,205 @@
+{
+  "record_kind": "human_review_decisions",
+  "schema_version": "program-screen-human-review-decisions-v1",
+  "round": 1,
+  "manifest": "app/fixtures/program-screen/human-review-rounds/round-1.json",
+  "packet": "docs/PROGRAM_SCREEN_HUMAN_REVIEW_ROUND_1.md",
+  "decisions_doc": "docs/PROGRAM_SCREEN_HUMAN_REVIEW_ROUND_1_DECISIONS.md",
+  "reviewer": {
+    "kind": "human",
+    "name": "Sergio Mata",
+    "role": "Project Owner / Human Reviewer"
+  },
+  "decided_on": "2026-09-27",
+  "promoted_in_this_round": [],
+  "phase_constraints_verbatim": "Therefore, after Phase 1:\nhuman_verified must remain 0\npending_human must remain 46\nproduction evaluator behavior must remain byte-identical\nevaluator/demo hashes must remain unchanged\nno outcome ceiling changes\nno fact-model additions\nno provenance-schema changes yet\nDo not implement Phase 2 or Phase 3 in this branch.\nPhase 2 should become a separate design/review branch for the evidence-authority/provenance model. Once that design is reviewed, we can promote the criteria whose approved rules can actually be enforced.",
+  "decisions": [
+    {
+      "letter": "a",
+      "criterion_id": "la_shra.single-family-lot-area-threshold",
+      "decision": "approve_with_revision",
+      "reviewer_text_verbatim": "APPROVE WITH REVISION\nI approve the single-family lot-area rule and the proposed outcome ceiling.\nRevisions:\nKeep the authoritative threshold expressed as 1.5 acres because that is what the official memo states. The implementation may normalize it to 65,340 sq ft, but record that as a mathematical conversion, not quoted source language.\nconsistent_with_source requires a listed Chapter 1 single-family zone and a reliably established lot area below the threshold.\ndisqualifying_per_source requires a listed Chapter 1 single-family zone and a reliably established lot area at or above the threshold.\nIf the available lot-area record is rounded or otherwise too imprecise to determine which side of 1.5 acres the lot falls on, return unknown rather than applying an invented tolerance.\nIf APN boundaries, legal-lot boundaries, tied lots, a pending merger, or proposed merger/re-subdivision make it unclear which lot the 1.5-acre test applies to, return unknown / requires human review rather than calculating through the ambiguity.\nKeep R1 Variation Zones and Chapter 1A parcels unknown until separately sourced.\nKeep a zone outside the nine-item Q.1 list from producing a clearing result. It may route to judgment or another separately reviewed SHRA pathway.\nI accept the reading that page 2's “single-family zoned lots” uses the Q.1 definition it expressly cross-references.",
+      "promotion_tier_text_verbatim": "Move a to Tier 2 / gated as well. Do not promote it in Round 1.\nI do not want one production criterion becoming human_verified while important parts of its approved rule still rely only on recording instructions that the evaluator cannot enforce.\nSpecifically, a must remain gated until the implementation can fail closed on:\nimprecise / rounded lot area near the 1.5-acre boundary;\nunclear legal-lot identity, tied lots, pending merger or re-subdivision;\nR1 Variation Zone handling;\nChapter 1A handling;\nwhatever provenance requirements we ultimately adopt for lot-area evidence.\nThe proposed zoning-code-chapter code backstop is useful, but it does not resolve the other recording-only conditions.",
+      "source_proposition_accepted": true,
+      "tier": "gated_on_enforcement",
+      "status_after_review": "pending_human",
+      "outcome_ceiling_changed": false,
+      "promotion_gates": [
+        "lot_area_precision_fails_closed",
+        "legal_lot_identity_fails_closed",
+        "r1_variation_zone_fails_closed",
+        "chapter_1a_fails_closed",
+        "evidence_provenance_enforced_or_fails_closed",
+        "reviewer_confirms_encoded_rule",
+        "human_verification_record"
+      ],
+      "rereview_triggers": [],
+      "deferred_changes": [],
+      "completed_in_this_change": []
+    },
+    {
+      "letter": "b",
+      "criterion_id": "la_shra.prior-shra-or-sb9-map",
+      "decision": "approve_with_revision",
+      "reviewer_text_verbatim": "APPROVE WITH REVISION\nI approve the source-backed rule that a lot recorded pursuant to SHRA or SB 9 is a documented disqualifier, and I accept the memo’s explicit exception when the relevant tentative map was never recorded.\nRevise the fact semantics and clearing logic as follows:\nDo not limit the blocking rule to “the map that created the lot’s current boundaries.” The captured memo does not say that. A recorded SHRA or SB 9 map associated with the lot’s history may matter.\nshra_map_recorded or sb9_map_recorded may produce disqualifying_per_source only when the reviewed record clearly establishes that the legal lot being screened was recorded pursuant to that law.\nIf an SHRA or SB 9 map appears earlier in the parcel/lot lineage but the lot was later merged, reconfigured, or re-recorded under another authority, return requires_judgment / unknown rather than assuming either that the old restriction survives or disappears.\nother_basis_map_recorded may produce consistent_with_source only after a complete reviewed map history establishes that no recorded SHRA or SB 9 map applies to the legal lot being screened.\nno_map_recorded may produce consistent_with_source only after a sufficiently complete reviewed history supports that absence. A single portal result or partial search is not enough.\nshra_or_sb9_tentative_map_not_recorded may produce consistent_with_source only when the reviewed evidence establishes that the relevant SHRA/SB 9 tentative map was never recorded and there is no separate recorded SHRA/SB 9 map creating the ambiguity.\nIf the applicable law, legal-lot identity, map lineage, recording status, or completeness of the search is uncertain, fail closed to unknown or requires_judgment.\nKeep adjacency out of this criterion. The cited FAQ does not establish an adjacency restriction.\nUpdate the existing “first value that applies” code comment so it cannot turn any historical SHRA/SB 9 reference into an automatic blocker without the required lot/map relationship being established.\nThe outcome ceiling stays unchanged.\nI am not deciding from this memo alone whether an older SHRA/SB 9 map remains disqualifying after a later merger or re-subdivision. That remains a human-review case until the controlling statute or another official source answers it.",
+      "promotion_tier_text_verbatim": "Confirm Tier 2 / gated.\nDo not promote b based only on recorder discipline. The requirements around complete map history, legal-lot identity, applicable law, and search completeness are material to the result and are not currently enforceable.",
+      "source_proposition_accepted": true,
+      "tier": "gated_on_enforcement",
+      "status_after_review": "pending_human",
+      "outcome_ceiling_changed": false,
+      "promotion_gates": [
+        "map_history_completeness_fails_closed",
+        "legal_lot_identity_fails_closed",
+        "applicable_law_fails_closed",
+        "search_completeness_fails_closed",
+        "reviewer_confirms_encoded_rule",
+        "human_verification_record"
+      ],
+      "rereview_triggers": [
+        "controlling_statute_or_official_source_on_lot_lineage_captured"
+      ],
+      "deferred_changes": [],
+      "completed_in_this_change": [
+        "prior_shra_or_sb9_map_fact_comment_rewritten"
+      ]
+    },
+    {
+      "letter": "c",
+      "criterion_id": "la_shra.very-high-fire-hazard-severity-zone",
+      "decision": "approve_with_revision",
+      "reviewer_text_verbatim": "APPROVE WITH REVISION\nI approve the source-backed reading that the memo places High and Very High Fire Hazard Severity Zones on the first, prohibited-site list, while fire zones do not appear on the second conditional list. I also accept the page-image reading that 42021 in the extracted text is PRC §4202 plus footnote marker 1, not section 42021.\nRevise the criterion as follows:\nKeep this criterion limited to Very High. High Fire Hazard Severity Zone remains criterion d.\nDo not treat any City display as independently authoritative for YES or NO. Prefer the current official fire-hazard map/designation from the responsible agency. A City/ZIMAS display may corroborate it, but if the two disagree the result must be conflict, as in the fictional fixture.\nYES → disqualifying_per_source only when the reviewed authoritative record clearly establishes that the relevant project site is within a Very High Fire Hazard Severity Zone.\nBecause this is currently a parcel screen rather than a project-footprint screen:\nif the entire parcel is inside the Very High zone, YES may safely block;\nif only part of the parcel is inside the zone, return unknown / requires_judgment, not a disqualifier, because the memo speaks about where the project is located and the project footprint is not modeled;\ndo not invent an overlap percentage or tolerance.\nNO → consistent_with_source only when the authoritative current map establishes that no part of the parcel is in a Very High zone. A ZIMAS “No” by itself is not enough for a clearing result if the authoritative hazard map has not been reviewed.\nRequire the evidence to record the map/source identity and edition/effective date. If those are unclear, return unknown.\nFootnote 1 is accepted as applying to item 3, so the criterion covers both state and local responsibility areas.\nKeep the page 5 statutory-reference issue documented, but do not change the outcome ceiling from this memo alone. The memo expressly puts High and Very High fire zones in the “may not be located” list. When GCS 66499.41(a)(9) is captured, re-review this criterion for any statutory exception or condition.\nUpdate the client-facing fact label later so it explicitly says Very High Fire Hazard Severity Zone, rather than the vague “fire-hazard designation.”\nOutcome ceiling remains unchanged.\nI am not approving a rule that a partial-parcel overlap automatically disqualifies the parcel, and I am not approving a City/ZIMAS display by itself as sufficient proof of absence.",
+      "promotion_tier_text_verbatim": null,
+      "source_proposition_accepted": true,
+      "tier": "gated_on_enforcement",
+      "status_after_review": "pending_human",
+      "outcome_ceiling_changed": false,
+      "promotion_gates": [
+        "evidence_provenance_enforced_or_fails_closed",
+        "map_identity_and_edition_recorded",
+        "reviewer_confirms_encoded_rule",
+        "human_verification_record"
+      ],
+      "rereview_triggers": [
+        "gcs_66499_41_a_9_captured"
+      ],
+      "deferred_changes": [
+        "very_high_fire_client_label"
+      ],
+      "completed_in_this_change": []
+    },
+    {
+      "letter": "d",
+      "criterion_id": "la_shra.high-fire-hazard-severity-zone",
+      "decision": "approve_with_revision",
+      "reviewer_text_verbatim": "APPROVE WITH REVISION\nI approve the source-backed reading that the memo treats High or Very High Fire Hazard Severity Zones as part of the prohibited-site list, and that criterion d should remain separate from criterion c.\nRevise criterion d as follows:\nScope stays High only. Very High remains criterion c. Never infer High from the Very High fact, in either direction.\nAuthoritative source: use the responsible agency’s current official fire-hazard map/designation. A City/ZIMAS display may corroborate it, but cannot independently establish YES or NO. If they disagree, return conflict.\nYES → disqualifying_per_source only when the reviewed authoritative record shows the whole parcel is inside a High Fire Hazard Severity Zone.\nPartial overlap → unknown / requires_judgment, never a blocker. Do not invent an overlap threshold.\nNO → consistent_with_source only if the authoritative map actually uses a High classification for that parcel’s applicable responsibility area and clearly shows no part of the parcel in that High class.\nIf the map or legend does not assign a High class for that responsibility area, do not interpret absence of a High polygon as NO. Return unknown. We should not manufacture a negative result from a classification scheme that may not contain that class.\nRequire the evidence to record the map/source identity, edition/effective date, responsibility area, and enough legend/context to establish whether High is a class used by that map. If any of those are unclear, return unknown.\nFootnote 1 is accepted as applying to item 3, so the memo intends the restriction to reach both state and local responsibility areas. That does not by itself prove that every current map uses the same High/Very High classification scheme.\nKeep the page 5 GCS 66499.41(a)(9) issue documented and re-review after the statute is captured. Do not widen the rule based on uncaptured law.\nKeep the outcome ceiling unchanged.\nRecord as a future fact-model issue that the memo states one combined category, “High or very high fire hazard severity zones.” With separate c/d facts, a parcel partially High and partially Very High could leave both criteria unknown even if the whole parcel lies within the combined prohibited category. Do not solve that by inference in this review round. If it matters in real cases, add a separately reviewed combined-coverage fact or criterion later.\nThe same implementation gap identified in criterion c remains: the evaluator currently cannot distinguish an authoritative hazard map from a ZIMAS-only record. Do not mark this rule human_verified until that provenance restriction is enforceable in code or otherwise fails closed.",
+      "promotion_tier_text_verbatim": null,
+      "source_proposition_accepted": true,
+      "tier": "gated_on_enforcement",
+      "status_after_review": "pending_human",
+      "outcome_ceiling_changed": false,
+      "promotion_gates": [
+        "evidence_provenance_enforced_or_fails_closed",
+        "map_identity_and_edition_recorded",
+        "responsibility_area_and_legend_recorded",
+        "reviewer_confirms_encoded_rule",
+        "human_verification_record"
+      ],
+      "rereview_triggers": [
+        "gcs_66499_41_a_9_captured"
+      ],
+      "deferred_changes": [
+        "combined_high_or_very_high_coverage_fact_if_needed"
+      ],
+      "completed_in_this_change": []
+    },
+    {
+      "letter": "e",
+      "criterion_id": "la_shra.prime-or-statewide-farmland",
+      "decision": "keep_pending",
+      "reviewer_text_verbatim": "KEEP PENDING\nI accept the source proposition that the SHRA memo places Prime Farmland and Farmland of Statewide Importance on the first prohibited-site list.\nI am not approving a deterministic parcel rule yet.\nReasons:\nThe captured memo does not identify the authoritative agency, map, dataset, edition, or statutory definition that establishes whether a parcel is in either category.\nBecause the authoritative record has not been captured and approved, even the proposed YES → disqualifying_per_source direction is not ready to become human_verified. We know what the memo says about the category, but not yet what evidence PermitPulse may safely rely on to establish the category for a parcel.\nDo not allow a ZIMAS field, generic GIS layer, search result, or manually chosen farmland map to create the blocking result merely because its terminology looks similar.\nKeep partial-parcel coverage unknown / requires judgment. Do not invent an overlap threshold.\nNO must never produce consistent_with_source from the current evidence model.\nKeep the current block-only proposal as a candidate design, but leave the criterion pending_human until we capture and review an official source that:\ndefines Prime Farmland and Farmland of Statewide Importance;\nidentifies or supports the authoritative parcel-level record/map;\nlets us determine what map edition/date should be used; and\nclarifies, if necessary, how site/parcel overlap is treated.\nRe-review the page 5 GCS 66499.41(a)(9) reference when the statute is captured, because it may add conditions or definitions relevant to this criterion.\nDo not widen the outcome ceiling or remove the criterion. The memo itself supports keeping it in the model; the unresolved issue is how the parcel fact is established.\nSo the distinction is:\nSource proposition: accepted.\nDeterministic evidence rule: not approved yet.\nStatus: KEEP PENDING.",
+      "promotion_tier_text_verbatim": null,
+      "source_proposition_accepted": true,
+      "tier": "pending_source_capture",
+      "status_after_review": "pending_human",
+      "outcome_ceiling_changed": false,
+      "promotion_gates": [
+        "defining_official_source_captured",
+        "evidence_provenance_enforced_or_fails_closed",
+        "reviewer_confirms_encoded_rule",
+        "human_verification_record"
+      ],
+      "rereview_triggers": [
+        "gcs_66499_41_a_9_captured"
+      ],
+      "deferred_changes": [],
+      "completed_in_this_change": []
+    },
+    {
+      "letter": "f",
+      "criterion_id": "la_shra.natural-community-conservation-plan-land",
+      "decision": "approve_with_revision",
+      "reviewer_text_verbatim": "APPROVE WITH REVISION\nI approve the source-backed proposition and the block-only design for la_shra.natural-community-conservation-plan-land, subject to the following revisions and implementation gate.\nThe authoritative record is the adopted natural community conservation plan itself, including its official adopted maps, exhibits, or text. A City/ZIMAS display may corroborate the plan but cannot establish the fact independently.\nYES → disqualifying_per_source only when reviewed evidence establishes all of the following:\nthe document is an adopted natural community conservation plan;\nits adoption status is established;\nthe applicable map/text is identified and dated;\nthe plan itself identifies the relevant land for conservation; and\nthe whole parcel being screened is within that identified land.\nIf only part of the parcel is identified for conservation, return unknown / requires_judgment. The memo speaks to where the project is located, while the Program Screen currently models the parcel rather than the project footprint. Do not invent an overlap threshold.\nIf determining whether a plan label means “identified for conservation” requires interpretation rather than explicit plan language or mapping, return unknown / requires judgment.\nA draft, proposed, pending, expired, superseded, or otherwise unconfirmed plan cannot produce a blocking result. If current adoption status cannot be established, return unknown.\nNO must not produce consistent_with_source at this stage. Absence can only be used as a clearing result after we have an approved method for establishing that all applicable adopted NCCPs covering the parcel were checked.\nDo not require that PermitPulse already contain a master list of every NCCP before this rule can exist. The memo itself identifies the controlling record type. However, an actual parcel result cannot block unless the particular adopted plan and its applicable map/text have been captured and reviewed.\nKeep the page 5 GCS 66499.41(a)(9) issue documented and re-review after that statute is captured.\nKeep the outcome ceiling unchanged.\nImplementation gate: do not mark this criterion human_verified until the evaluator can enforce, or otherwise fail closed on, provenance showing that YES came from the adopted plan itself rather than from a ZIMAS field, generic GIS layer, or unsupported secondary source.\nThis differs from criterion e: farmland stays pending because the captured source does not identify the defining record at all. Here, the memo expressly identifies an adopted natural community conservation plan as the relevant record, so the blocking direction is reviewable once provenance is enforced.",
+      "promotion_tier_text_verbatim": null,
+      "source_proposition_accepted": true,
+      "tier": "gated_on_enforcement",
+      "status_after_review": "pending_human",
+      "outcome_ceiling_changed": false,
+      "promotion_gates": [
+        "evidence_provenance_enforced_or_fails_closed",
+        "adopted_plan_identity_adoption_and_map_date_recorded",
+        "reviewer_confirms_encoded_rule",
+        "human_verification_record"
+      ],
+      "rereview_triggers": [
+        "gcs_66499_41_a_9_captured"
+      ],
+      "deferred_changes": [],
+      "completed_in_this_change": []
+    },
+    {
+      "letter": "g",
+      "criterion_id": "la_shra.conservation-easement",
+      "decision": "approve_with_revision",
+      "reviewer_text_verbatim": "APPROVE WITH REVISION\nI approve the source-backed proposition and a block-only design for la_shra.conservation-easement, subject to these revisions:\nPreserve the source proposition exactly as “lands under a conservation easement.” Do not rewrite the legal/source rule as requiring a “recorded” conservation easement, because the memo does not use that word.\nFor PermitPulse’s deterministic evidence rule, an explicit recorded instrument may be used as a conservative sufficient basis for YES. That is an evidence standard, not a claim that only recorded easements can satisfy the memo.\nYES → disqualifying_per_source only when reviewed evidence establishes all of the following:\nan identifiable instrument expressly creates or establishes a conservation easement;\nthe instrument applies to the parcel being screened;\nthe easement is still in force, with no reviewed release/extinguishment that defeats it;\nthe whole parcel is covered by the easement.\nIf deciding whether an instrument is actually a conservation easement requires interpretation, rather than explicit language, return unknown / requires_judgment.\nIf only part of the parcel is covered, return unknown / requires judgment. The memo speaks about where the project is located, while the Program Screen currently models the parcel rather than the project footprint. Do not invent an overlap threshold.\nIf release, termination, extinguishment, parcel identity, instrument identity, or coverage cannot be established, return unknown.\nA ZIMAS field, title summary, GIS layer, or other secondary source may corroborate the instrument but cannot independently establish YES.\nNO must never produce consistent_with_source under the current fact model. A negative result would require a reviewed method for establishing that the relevant title/easement history was sufficiently complete.\nChange the client-facing label later so it does not imply that “recorded” is part of the memo’s legal standard. Something like “whether the parcel is under a conservation easement” is closer to the source.\nKeep the page 5 GCS 66499.41(a)(9) issue documented and re-review when that statute is captured.\nKeep the outcome ceiling unchanged.\nImplementation gate: do not mark this criterion human_verified until provenance can be enforced, or otherwise fails closed, so that a blocking YES cannot come from ZIMAS or another unsupported secondary record.\nThis approval is deliberately one-directional: an explicit, reviewed, in-force conservation easement can support a blocker; absence of such evidence cannot clear the parcel.",
+      "promotion_tier_text_verbatim": null,
+      "source_proposition_accepted": true,
+      "tier": "gated_on_enforcement",
+      "status_after_review": "pending_human",
+      "outcome_ceiling_changed": false,
+      "promotion_gates": [
+        "evidence_provenance_enforced_or_fails_closed",
+        "instrument_identity_in_force_status_and_coverage_recorded",
+        "reviewer_confirms_encoded_rule",
+        "human_verification_record"
+      ],
+      "rereview_triggers": [
+        "gcs_66499_41_a_9_captured"
+      ],
+      "deferred_changes": [
+        "conservation_easement_client_label"
+      ],
+      "completed_in_this_change": []
+    },
+    {
+      "letter": "h",
+      "criterion_id": "la_sb79.permanent-exemption-shown",
+      "decision": "keep_pending",
+      "reviewer_text_verbatim": "KEEP PENDING\nI accept the source proposition that Ordinance 188968 creates permanent SB 79 exemptions under Section 1 and authorizes the Director of Planning under Section 3 to issue and update maps showing permanent or temporary exemption status.\nI am not approving a deterministic parcel rule yet.\nReasons:\nThe Director’s issued §3 map is not captured in the repo.\nOrdinance 188968 itself contains no parcel-level map, exhibit, schedule, or parcel list, so the ordinance alone cannot establish that a specific parcel is permanently exempt.\nThe page 3 recital describing a draft map that identified all of the City as “eligible for permanent and temporary exemption” is not sufficient evidence of permanent exemption for a parcel.\nA combined map or layer that does not distinguish permanent from temporary exemption cannot produce a YES for this criterion.\nA real YES → disqualifying_per_source may only be considered after the Director’s issued map is captured and reviewed and it affirmatively identifies the parcel as permanently exempt under Section 1.\nNO must never produce consistent_with_source under the current evidence. Failure to appear on a map does not establish that the parcel is not permanently exempt.\nA ZIMAS “covered / not covered” display is not enough because the captured ordinance does not establish that this display independently distinguishes permanent exemption from temporary exemption.\nKeep the existing outcome ceiling:\ndisqualifying_per_source\nrequires_judgment\nnever consistent_with_source\nKeep the criterion pending_human until we have captured and reviewed:\nthe Director’s actual issued §3 map;\nits publication/version date;\nits legend;\nwhether it distinguishes permanent from temporary status;\nwhether it identifies permanent exemption parcel by parcel.\nDo not use the fictional fixture ps-sb79-permanent-exclusion as evidence for a real parcel. It remains test data only.\nIf the eventual map uses wording such as “eligible for exemption” rather than affirmatively “permanently exempt,” re-review the rule before allowing it to block.\nStatus: KEEP PENDING.\nThe source proposition is accepted; the missing piece is the parcel-level authoritative record.",
+      "promotion_tier_text_verbatim": null,
+      "source_proposition_accepted": true,
+      "tier": "pending_source_capture",
+      "status_after_review": "pending_human",
+      "outcome_ceiling_changed": false,
+      "promotion_gates": [
+        "directors_section_3_map_captured",
+        "reviewer_confirms_encoded_rule",
+        "human_verification_record"
+      ],
+      "rereview_triggers": [
+        "directors_map_wording_not_permanently_exempt"
+      ],
+      "deferred_changes": [],
+      "completed_in_this_change": []
+    }
+  ]
+}

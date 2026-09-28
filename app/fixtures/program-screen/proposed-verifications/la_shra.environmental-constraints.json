@@ -96,6 +96,7 @@
       "proposed_rule_if_reviewer_agrees": "true -> disqualifying_per_source. false -> consistent_with_source for the High designation only.",
       "judgment_or_ambiguity": [
         "High and Very High are distinct CAL FIRE classes; the memo bars both.",
+        "The page image reads 'Public Resources Code Section 4202' followed by footnote marker 1; the text layer runs them together as '42021'.",
         "No record in the fictional fixture: stays unknown."
       ],
       "reviewer_question": "Do you agree that a parcel mapped in a High Fire Hazard Severity Zone (state or local responsibility area) is barred on the same terms as Very High, and which CAL FIRE map edition should be the record?"
