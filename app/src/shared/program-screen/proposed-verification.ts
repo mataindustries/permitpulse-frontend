@@ -13,9 +13,11 @@ import {
   predicateOutcomes,
   programFactDataClasses,
   programFactKeys,
+  programPathwayIds,
   retiredProgramCriterionIds,
   retiredProgramFactKeys,
   type OfficialSourceType,
+  type PathwayRollup,
   type PredicateOutcome,
   type SourceOperativeStatus,
 } from "./types";
@@ -864,6 +866,186 @@ export const humanReviewDecisionsSchema = z
   });
 
 export type HumanReviewDecisions = z.infer<typeof humanReviewDecisionsSchema>;
+
+/* ------------------------------------------ statute re-review decisions (3B) */
+
+/**
+ * The named human reviewer's decisions on a statute-triggered re-review. Each
+ * decision supersedes the rule text of one earlier round's decision (same
+ * letter and criterion); the earlier record is kept unedited as history. Like
+ * a round's decisions record, it promotes nothing and no production module
+ * reads it.
+ *
+ * Gates are recorded here before they are wired. `gates_not_yet_wired` lists
+ * the gates the authority registry does not yet require for the criterion,
+ * and `gates_retained_until_replacement_wired` lists earlier gates the
+ * registry keeps until their replacement is wired, so the registry never
+ * requires less than the decided gates. A test holds the registry to exactly
+ * that set.
+ */
+export const HUMAN_REREVIEW_DECISIONS_SCHEMA_VERSION = "program-screen-human-rereview-decisions-v1" as const;
+
+export const humanRereviewDecisionValues = ["approve_revised_rule", "keep_pending"] as const;
+
+/** The first line of a verbatim re-review decision text opens with the decision it records. */
+export const humanRereviewDecisionLabels: Readonly<Record<(typeof humanRereviewDecisionValues)[number], string>> = {
+  approve_revised_rule: "APPROVE REVISED RULE",
+  keep_pending: "KEEP PENDING",
+};
+
+const kebabToken = z.string().regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/);
+const decidedText = z.string().trim().min(1).max(2000);
+
+export const humanRereviewDecisionSchema = z
+  .object({
+    letter: z.string().regex(/^[a-z]$/),
+    criterion_id: z.enum(humanVerificationRequiredCriterionIds),
+    supersedes: z.object({ round: z.number().int().positive(), letter: z.string().regex(/^[a-z]$/) }).strict(),
+    decision: z.enum(humanRereviewDecisionValues),
+    /** The reviewer's decision text exactly as given. */
+    reviewer_text_verbatim: verbatimText,
+    /** The rule as decided: the reviewed proposal with the reviewer's corrections applied. */
+    rule_as_decided: z.array(decidedText).min(1),
+    tier: z.enum(humanReviewDecisionTiers),
+    status_after_review: z.literal("pending_human"),
+    outcome_ceiling_changed: z.literal(false),
+    promotion_gates: z.array(snakeToken).min(1),
+    gates_not_yet_wired: z.array(snakeToken),
+    gates_retained_until_replacement_wired: z
+      .array(z.object({ gate: z.enum(humanReviewPromotionGates), replaced_by: snakeToken }).strict()),
+    restated_gates: z.array(z.object({ gate: snakeToken, restated_as: decidedText }).strict()),
+    deferred_changes: z.array(snakeToken),
+    pathway_blockers_referenced: z.array(z.string().regex(/^G\d+$/)),
+    resolves_rereview_triggers: z.array(snakeToken).min(1),
+  })
+  .strict()
+  .superRefine((entry, context) => {
+    const issue = (path: string, message: string) =>
+      context.addIssue({ code: "custom", path: [path], message });
+    if (!entry.reviewer_text_verbatim.split("\n", 1)[0].startsWith(humanRereviewDecisionLabels[entry.decision])) {
+      issue("reviewer_text_verbatim", "The verbatim text must open with the decision it records.");
+    }
+    if (entry.supersedes.letter !== entry.letter) {
+      issue("supersedes", "A re-review decision supersedes the earlier decision with the same letter.");
+    }
+    const gates = new Set(entry.promotion_gates);
+    if (gates.size !== entry.promotion_gates.length) issue("promotion_gates", "Gates must be unique.");
+    for (const gate of ["reviewer_confirms_encoded_rule", "human_verification_record"] as const) {
+      if (!gates.has(gate)) {
+        issue("promotion_gates", `Every decision keeps the ${gate} gate; approval of a rule never promotes it.`);
+      }
+    }
+    if (new Set(entry.gates_not_yet_wired).size !== entry.gates_not_yet_wired.length) {
+      issue("gates_not_yet_wired", "Gates must be unique.");
+    }
+    for (const gate of entry.gates_not_yet_wired) {
+      if (!gates.has(gate)) issue("gates_not_yet_wired", `${gate} is not one of this decision's promotion gates.`);
+    }
+    for (const retained of entry.gates_retained_until_replacement_wired) {
+      if (gates.has(retained.gate)) {
+        issue("gates_retained_until_replacement_wired", `${retained.gate} is a decided gate, not a retained one.`);
+      }
+      if (!entry.gates_not_yet_wired.includes(retained.replaced_by)) {
+        issue("gates_retained_until_replacement_wired", `${retained.gate} is retained only while ${retained.replaced_by} is not yet wired.`);
+      }
+    }
+    for (const restated of entry.restated_gates) {
+      if (!gates.has(restated.gate)) issue("restated_gates", `${restated.gate} is not one of this decision's promotion gates.`);
+    }
+    if (entry.decision === "keep_pending" && entry.tier !== "pending_source_capture") {
+      issue("tier", "A keep_pending decision is recorded as pending_source_capture.");
+    }
+  });
+
+export type HumanRereviewDecision = z.infer<typeof humanRereviewDecisionSchema>;
+
+/**
+ * A statutory category the pathway's criteria do not model. While it is open,
+ * passing the related criterion never implies the statutory subparagraph as a
+ * whole is met, and the pathway must not roll up to `blocks_rollup`.
+ */
+export const pathwayCompletenessBlockerSchema = z
+  .object({
+    id: z.string().regex(/^G\d+$/),
+    key: snakeToken,
+    pathway: z.enum(programPathwayIds),
+    statute_source_id: kebabToken,
+    statute_pinpoint: z.string().regex(/^(?:\([a-zA-Z0-9]+\))+$/),
+    /** The category's words exactly as the captured statute states them. */
+    category_text: decidedText,
+    related_criterion_id: z.enum(humanVerificationRequiredCriterionIds),
+    status: z.literal("open"),
+    blocks_rollup: z.literal("no_disqualifier_found_in_reviewed_sources" satisfies PathwayRollup),
+    resolution_requires_one_of: z.array(decidedText).min(1),
+    /** The reviewer's words that created the blocker, exactly as given. */
+    reviewer_text_verbatim: verbatimText,
+  })
+  .strict();
+
+export type PathwayCompletenessBlocker = z.infer<typeof pathwayCompletenessBlockerSchema>;
+
+export const humanRereviewDecisionsSchema = z
+  .object({
+    record_kind: z.literal("human_rereview_decisions"),
+    schema_version: z.literal(HUMAN_REREVIEW_DECISIONS_SCHEMA_VERSION),
+    phase: z.string().regex(/^\d+[A-Z]?$/),
+    decisions_doc: z.string().regex(/^docs\/PROGRAM_SCREEN_PHASE_\d+[A-Z]?_[A-Z0-9_]+\.md$/),
+    preparation_memo: z.string().regex(/^docs\/PROGRAM_SCREEN_PHASE_\d+[A-Z]?_[A-Z0-9_]+\.md$/),
+    supersedes_record: z.string().regex(/^app\/fixtures\/program-screen\/human-review-rounds\/round-\d+-decisions\.json$/),
+    reviewer: z
+      .object({ kind: z.literal("human"), name: reviewText, role: reviewText })
+      .strict(),
+    decided_on: z.string().regex(/^\d{4}-\d{2}-\d{2}$/),
+    /** Promotion happens only in a later change to the criterion itself. */
+    promoted_in_this_review: z.array(z.string()).max(0),
+    trigger: z
+      .object({ id: snakeToken, statute_source_id: kebabToken, sha256_original: hex64, sha256_extracted: hex64 })
+      .strict(),
+    source_basis: z.array(kebabToken).min(1),
+    /** The reviewer's confirmations on the consolidated record, exactly as given. */
+    confirmations_verbatim: verbatimText,
+    /** Terms every rule in this record uses. */
+    common_terms: z.array(decidedText).min(1),
+    /** Gates this record introduces; each is recorded here before it is wired. */
+    gate_definitions: z.record(snakeToken, decidedText),
+    pathway_completeness_blockers: z.array(pathwayCompletenessBlockerSchema),
+    decisions: z.array(humanRereviewDecisionSchema).min(1),
+  })
+  .strict()
+  .superRefine((record, context) => {
+    const issue = (path: string, message: string) =>
+      context.addIssue({ code: "custom", path: [path], message });
+    const ids = record.decisions.map((entry) => entry.criterion_id);
+    const letters = record.decisions.map((entry) => entry.letter);
+    if (new Set(ids).size !== ids.length || new Set(letters).size !== letters.length) {
+      issue("decisions", "Each criterion and letter appears once.");
+    }
+    const knownGates = new Set<string>(humanReviewPromotionGates);
+    const defined = Object.keys(record.gate_definitions);
+    for (const gate of defined) {
+      if (knownGates.has(gate)) issue("gate_definitions", `${gate} is an existing gate; only new gates are defined here.`);
+      if (!record.decisions.some((entry) => entry.promotion_gates.includes(gate))) {
+        issue("gate_definitions", `${gate} is defined but no decision requires it.`);
+      }
+    }
+    const blockerIds = record.pathway_completeness_blockers.map((blocker) => blocker.id);
+    if (new Set(blockerIds).size !== blockerIds.length) issue("pathway_completeness_blockers", "Each blocker appears once.");
+    for (const entry of record.decisions) {
+      for (const gate of entry.promotion_gates) {
+        if (!knownGates.has(gate) && !defined.includes(gate)) {
+          issue("decisions", `${entry.letter}: ${gate} is neither an existing gate nor defined in this record.`);
+        }
+      }
+      if (!entry.resolves_rereview_triggers.includes(record.trigger.id)) {
+        issue("decisions", `${entry.letter}: every decision answers the record's trigger.`);
+      }
+      for (const blocker of entry.pathway_blockers_referenced) {
+        if (!blockerIds.includes(blocker)) issue("decisions", `${entry.letter}: ${blocker} is not a recorded blocker.`);
+      }
+    }
+  });
+
+export type HumanRereviewDecisions = z.infer<typeof humanRereviewDecisionsSchema>;
 
 /* ------------------------------------------------ statute re-review triggers */
 
