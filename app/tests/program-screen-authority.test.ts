@@ -49,6 +49,7 @@ import {
   type ProgramFactKey,
   type ProgramPathwayPack,
 } from "../src/shared/program-screen/types";
+import { syntheticLotOverlay } from "./program-screen-overlay-helpers";
 
 /**
  * Phase 2: evidence authority and provenance infrastructure.
@@ -71,6 +72,8 @@ const VH: ProgramFactKey = "very-high-fire-hazard-severity-zone";
 const HIGH: ProgramFactKey = "high-fire-hazard-severity-zone";
 const REVIEWER = { kind: "human", name: "TEST-ONLY Reviewer", role: "Synthetic reviewer" } as const;
 const TEST_CAPTURE = { source_id: testOnlyCapture.source_id, sha256_extracted: testOnlyCapture.sha256_extracted };
+// Phase 3E: the TEST-ONLY package's overlay dataset and TEST-ONLY lots; the gate computes every overlay.
+const overlay = await syntheticLotOverlay(TEST_CAPTURE);
 
 const ROUND_1_LETTERS: Readonly<Record<string, string>> = Object.fromEntries(
   decisionsJson.decisions.map((entry) => [entry.criterion_id, entry.letter]),
@@ -82,7 +85,8 @@ const PHASE_3B_GATES: Readonly<Record<string, readonly string[]>> = Object.fromE
 /** Phase 3D: the gates still unmet for c and d once the CAL FIRE SRA package is registered. */
 const PHASE_3D_UNMET: Readonly<Record<string, readonly string[]>> = {
   "la_shra.very-high-fire-hazard-severity-zone": ["statutory_route_recorded", "reviewer_confirms_encoded_rule", "human_verification_record"],
-  "la_shra.high-fire-hazard-severity-zone": ["reviewer_confirms_encoded_rule", "human_verification_record"],
+  // Updated in Phase 3E: d is human-verified, so no gate of d is unmet.
+  "la_shra.high-fire-hazard-severity-zone": [],
 };
 const refToken = (ref: { round?: number; phase?: string; letter: string }) =>
   ref.phase === undefined ? `${ref.round}${ref.letter}` : `${ref.phase}${ref.letter}`;
@@ -287,16 +291,16 @@ function qualifiersFor(key: ProgramFactKey, value: CanonicalEvidenceRecord["norm
 }
 
 /**
- * Phase 3D: the TEST-ONLY overlay of a lot on the package's dataset. A YES
- * lies wholly in the fact's class; a NO lies in Moderate only.
+ * Phase 3D: the TEST-ONLY overlay of a lot on the package's dataset. Updated
+ * in Phase 3E: the block names a TEST-ONLY lot and the gate computes the
+ * overlay. A YES lot lies wholly in the fact's class; a NO lot in Moderate only.
  */
 function testOnlyLotOverlay(hazardClass: string | null, value: CanonicalEvidenceRecord["normalized_value"]) {
-  const label = hazardClass === "very_high" ? "Very High" : "High";
+  const yesLot = hazardClass === "very_high" ? "in-very-high" : "in-high";
   return {
     method: "deterministic_spatial_overlay" as const,
     dataset: TEST_CAPTURE,
-    lot_geometry: { store: "case_evidence_file" as const, file_id: "TEST-ONLY-lot-geometry-0001", sha256: "0".repeat(64) },
-    classes_on_lot: value.kind === "boolean" ? (value.value ? [label] : ["Moderate"]) : [],
+    lot_geometry: overlay.lots[value.kind === "boolean" ? (value.value ? yesLot : "in-moderate") : "high-and-moderate"],
   };
 }
 
@@ -571,6 +575,7 @@ function screen(
     packs: [packFor(criterion)],
     evidence_authority: options.blocks,
     authority_registries: options.registries,
+    lot_overlay: overlay.inputs,
   });
   return { result, pathway: result.pathways[0], criterion: result.pathways[0].criteria[2] };
 }
@@ -896,7 +901,8 @@ describe("6. The gate can only downgrade", () => {
     ["a superseded edition", (evidence) => edit(completeBlock(evidence), (draft) => (draft.edition.currency = "superseded"))],
     ["an unregistered issuer", (evidence) => edit(completeBlock(evidence), (draft) => (draft.issuer.issuer_id = "test-only-unknown-agency"))],
     ["an address-only match", (evidence) => edit(completeBlock(evidence), (draft) => (draft.parcel_relationship.matched_by = "address_only"))],
-    ["a map that does not cover the lot", (evidence) => edit(completeBlock(evidence), (draft) => (draft.qualifiers.map_covers_lot = "no"))],
+    // Updated in Phase 3E: coverage is computed from the lot, not read from map_covers_lot.
+    ["a lot only partly inside the dataset's features", (evidence) => edit(completeBlock(evidence), (draft) => (draft.qualifiers.lot_overlay.lot_geometry = overlay.lots["very-high-and-outside"]))],
   ];
   const displays = ["absent", "agrees", "disagrees"] as const;
   const registrySets: Array<[string, ProgramAuthorityRegistries]> = [
@@ -1121,9 +1127,10 @@ describe("7. Criterion-specific checks under TEST-ONLY registries", () => {
       }
     });
 
+    // Updated in Phase 3E: lot coverage is computed by the gate's lot overlay; map_covers_lot is context only.
     it.each([
-      ["a map that does not cover the lot", (draft: Record<string, any>) => (draft.qualifiers.map_covers_lot = "no")],
-      ["an unestablished map coverage", (draft: Record<string, any>) => (draft.qualifiers.map_covers_lot = "not_established")],
+      ["a lot only partly inside the dataset's features", (draft: Record<string, any>) => (draft.qualifiers.lot_overlay.lot_geometry = overlay.lots["very-high-and-outside"])],
+      ["a lot outside every feature", (draft: Record<string, any>) => (draft.qualifiers.lot_overlay.lot_geometry = overlay.lots.outside)],
     ])("leaves the Very High fact unknown for %s", (_name, change) => {
       const result = runFact(VH, true, change);
       expect(result.status).toBe("unknown");
@@ -1433,11 +1440,12 @@ describe("9. The promotion guard protects all 46 atomic criteria", () => {
       const promoted = promote(original, spy);
       expect(hasCompleteHumanVerification(promoted), id).toBe(true);
       if (id === "la_shra.high-fire-hazard-severity-zone") {
-        // Phase 3D: the package meets every gate of d but the human record itself, so d now waits
-        // only on an explicit human promotion step. The shipped d has no record and stays pending.
+        // Phase 3D: the package meets every gate of d but the human record itself.
+        // Updated in Phase 3E: the reviewer promoted d; the shipped d carries its record and runs.
         expect(criterionPromotionBlockers(promoted), id).toEqual([]);
-        expect(original.verification, id).toBe("pending_human");
-        expect(criterionAwaitsHumanVerification(original), id).toBe(true);
+        expect(original.verification, id).toBe("human_verified");
+        expect(criterionPromotionBlockers(original), id).toEqual([]);
+        expect(criterionAwaitsHumanVerification(original), id).toBe(false);
         continue;
       }
       expect(criterionAwaitsHumanVerification(promoted), id).toBe(true);
@@ -1509,8 +1517,10 @@ describe("10. Production output is unchanged while every affected criterion stay
   // Phase 3C moved these pins for the three reviewed client-label changes only
   // (c, d, g; docs/PROGRAM_SCREEN_PHASE_3C_PROMOTION_GATES.md). Every status,
   // roll-up, and release decision is unchanged.
-  const EVALUATOR_OUTPUT_SHA256 = "68341529825b41e7dcd3b25a5daec94385fe6641e07cc03d29003c94c256b45a";
-  const PUBLIC_DEMO_OUTPUT_SHA256 = "11081860902438dd881cb743c98de30f4b4c3c425675a6e0eb2b6d41474a84a1";
+  // Updated in Phase 3E: d is human-verified (its verification, rule kind, rule summary, citation dates,
+  // and its own pending_human_criterion blocker and review task). Every status and roll-up is unchanged.
+  const EVALUATOR_OUTPUT_SHA256 = "156dd1f41964ab5beebcf3882e0a0d653cc5d778939033bf2b752dba1e86afbc";
+  const PUBLIC_DEMO_OUTPUT_SHA256 = "4dd2735bab875ad40b123fec72020e16442737bc6b5052eb55c5fba374b9a8a5";
   const shipped = programScreenPathwayPacks.flatMap((pack) => pack.criteria);
 
   it("keeps the evaluator and public-demo output byte-identical", async () => {
@@ -1526,9 +1536,12 @@ describe("10. Production output is unchanged while every affected criterion stay
     expect(JSON.stringify(withEmptySidecar)).toBe(JSON.stringify(result));
   });
 
-  it("promotes nothing and never runs the gate on the shipped screen", () => {
-    expect(shipped.filter((criterion) => criterion.verification === "human_verified")).toEqual([]);
-    expect(shipped.filter((criterion) => criterion.verification === "pending_human")).toHaveLength(46);
+  // Updated in Phase 3E: d alone is promoted; the fixture holds no High record, so its gate still never runs.
+  it("promotes only d and never runs the gate on the shipped screen", () => {
+    expect(shipped.filter((criterion) => criterion.verification === "human_verified").map((criterion) => criterion.id)).toEqual([
+      "la_shra.high-fire-hazard-severity-zone",
+    ]);
+    expect(shipped.filter((criterion) => criterion.verification === "pending_human")).toHaveLength(45);
     const result = evaluateProgramScreen({ evidence_records: fixtureJson.evidence_records, as_of: fixtureJson.as_of });
     expect(JSON.stringify(result)).not.toContain('"authority"');
     const statuses = new Map(result.pathways.flatMap((pathway) => pathway.criteria).map((criterion) => [criterion.criterion_id, criterion.status]));

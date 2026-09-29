@@ -16,6 +16,14 @@ import {
   type ProgramEvidenceAuthority,
   type ProgramFactAuthorityResult,
 } from "./evidence-authority";
+import { computeLotOverlay, isVerifiedLotGeometry, type ReviewedLotGeometry } from "./lot-overlay";
+import {
+  isVerifiedOverlayDatasetView,
+  overlayIndexPinFor,
+  overlayIndexPins,
+  type OverlayDatasetView,
+  type OverlayIndexPin,
+} from "./overlay-dataset";
 import type {
   FireHazardStatutoryRoute,
   KnownFactValue,
@@ -46,6 +54,23 @@ export interface ProgramAuthorityContext {
   /** Authority blocks keyed by evidence_id. A record without one is unattested. */
   blocks: ReadonlyMap<string, ProgramEvidenceAuthority>;
   records: readonly CanonicalEvidenceRecord[];
+  /**
+   * Phase 3E: the verified inputs of every lot overlay. Absent: no overlay can
+   * be computed, so no hazard record establishes anything.
+   */
+  overlay?: ProgramLotOverlayInputs;
+}
+
+/**
+ * The inputs the gate computes lot overlays from (Phase 3E). Each dataset and
+ * lot geometry must come from its verifying loader (`loadOverlayDatasetView`,
+ * `loadReviewedLotGeometry`); nothing else is accepted.
+ */
+export interface ProgramLotOverlayInputs {
+  datasets: readonly OverlayDatasetView[];
+  lot_geometries: readonly ReviewedLotGeometry[];
+  /** TEST-ONLY index pins, passed like registries. Omitted, the shipped pins apply. */
+  index_pins?: readonly OverlayIndexPin[];
 }
 
 /**
@@ -150,40 +175,64 @@ function identityFailures(
 }
 
 /**
- * Phase 3D: a hazard result for a lot is a reviewed legal-lot geometry
- * compared deterministically with the registered package's pinned overlay
- * dataset. The package never determines a lot by itself. Checks against the
- * package run only once the block names a registered source.
+ * Phase 3D, 3E: a hazard result for a lot rests on the overlay of a reviewed
+ * legal-lot geometry on the registered package's pinned dataset, which this
+ * gate computes itself (lot-overlay.ts). The package proves what the dataset
+ * is; the overlay proves how the lot intersects it. A YES needs the whole lot
+ * inside the dataset's features, all of the fact's class; a NO needs the whole
+ * lot inside them with none of the fact's class, and the package must define
+ * that class. Nothing the block records about coverage or classes is read.
+ * Checks against the package run only once the block names a registered source.
  */
 function lotOverlayFailures(
   block: ProgramEvidenceAuthority,
   hazardClass: string,
   value: KnownFactValue,
   source: ReviewedAuthoritySource | undefined,
+  overlay: ProgramLotOverlayInputs | undefined,
 ): AuthorityRecordFailureCode[] {
   const qualifiers = block.qualifiers;
   if (qualifiers?.family !== "hazard_map") return [];
-  const overlay = qualifiers.lot_overlay ?? null;
-  const lot = block.parcel_relationship;
+  const request = qualifiers.lot_overlay ?? null;
   if (
-    overlay === null ||
-    overlay.method !== "deterministic_spatial_overlay" ||
-    overlay.dataset === null ||
-    overlay.lot_geometry === null ||
-    lot.matched_by !== "spatial_overlay"
+    request === null ||
+    request.method !== "deterministic_spatial_overlay" ||
+    request.dataset === null ||
+    request.lot_geometry === null ||
+    block.parcel_relationship.matched_by !== "spatial_overlay"
   ) {
     return ["lot_overlay_not_established"];
   }
   if (source === undefined) return [];
   const pack = source.package;
   const pinned = pack?.members.overlay_dataset;
-  if (pack === undefined || pinned === undefined || overlay.dataset.source_id !== pinned.source_id || overlay.dataset.sha256_extracted !== pinned.sha256_extracted) {
+  if (pack === undefined || pinned === undefined || request.dataset.source_id !== pinned.source_id || request.dataset.sha256_extracted !== pinned.sha256_extracted) {
     return ["lot_overlay_not_established"];
   }
+  // The dataset view and the lot geometry must be the verified ones the block names.
+  const indexPin = overlayIndexPinFor(pinned, overlay?.index_pins ?? overlayIndexPins);
+  const view = overlay?.datasets.find(
+    (candidate) =>
+      isVerifiedOverlayDatasetView(candidate) &&
+      candidate.dataset.source_id === pinned.source_id &&
+      candidate.dataset.sha256_extracted === pinned.sha256_extracted &&
+      candidate.index_sha256 === indexPin?.index_sha256 &&
+      candidate.class_field === pack.overlay.class_field,
+  );
+  const { file_id: fileId, sha256 } = request.lot_geometry;
+  const lot = overlay?.lot_geometries.find(
+    (candidate) => isVerifiedLotGeometry(candidate) && candidate.file_id === fileId && candidate.sha256 === sha256,
+  );
+  if (indexPin === undefined || view === undefined || lot === undefined) return ["lot_overlay_not_established"];
+  const computed = computeLotOverlay(view, lot);
+  if (computed.lot_within_features === "not_established") return ["lot_overlay_not_established"];
+  if (computed.lot_within_features !== "whole_lot") return ["hazard_area_not_covered"];
   // The dataset's own labels, mapped by the package: never a numeric code.
-  const classes = overlay.classes_on_lot.map((label) => pack.overlay.class_labels[label]);
+  const classes = computed.classes_on_lot.map((label) => pack.overlay.class_labels[label]);
+  const defined = Object.values(pack.overlay.class_labels).includes(hazardClass as never);
   const token = valueToken(value);
   const supported =
+    defined &&
     classes.length > 0 &&
     classes.every((cls) => cls !== undefined) &&
     (token === "true" ? classes.every((cls) => cls === hazardClass) : token === "false" ? !classes.includes(hazardClass as never) : false);
@@ -198,6 +247,7 @@ function familyFailures(
   source: ReviewedAuthoritySource | undefined,
   asOf: string,
   route: FireHazardStatutoryRoute | undefined,
+  overlay: ProgramLotOverlayInputs | undefined,
 ): AuthorityRecordFailureCode[] {
   const qualifiers = block.qualifiers;
   const family = policy.family_policy;
@@ -286,11 +336,12 @@ function familyFailures(
     if (basis === "prc_4202" && (qualifiers.adoption_status !== "adopted" || (source !== undefined && pack?.adoption.status !== "adopted"))) {
       failures.push("hazard_map_adoption_not_established");
     }
-    if (qualifiers.map_covers_lot !== "yes") failures.push("hazard_area_not_covered");
+    // Phase 3E: whether the map covers the lot is computed by the lot overlay,
+    // never read from the block (map_covers_lot is context only).
     if (family.require_legend_class && qualifiers.legend_defines_class_for_lot !== "yes") {
       failures.push("hazard_legend_class_not_defined");
     }
-    failures.push(...lotOverlayFailures(block, family.hazard_class, value, source));
+    failures.push(...lotOverlayFailures(block, family.hazard_class, value, source, overlay));
   }
 
   if (family.family === "farmland_map" && qualifiers.family === "farmland_map") {
@@ -374,8 +425,9 @@ function recordAuthorityFailures(input: {
   registries: ProgramAuthorityRegistries;
   asOf: string;
   route: FireHazardStatutoryRoute | undefined;
+  overlay: ProgramLotOverlayInputs | undefined;
 }): AuthorityRecordFailureCode[] {
-  const { key, value, record, block, policy, registries, asOf, route } = input;
+  const { key, value, record, block, policy, registries, asOf, route, overlay } = input;
   if (block === undefined) return ["no_authority_block"];
   const failures = new Set<AuthorityRecordFailureCode>();
   const token = valueToken(value);
@@ -437,7 +489,7 @@ function recordAuthorityFailures(input: {
     failures.add("legal_lot_identity_not_established");
   }
   if (policy !== undefined) {
-    familyFailures(policy, block, value, matched, matchedSource, asOf, route).forEach((failure) => failures.add(failure));
+    familyFailures(policy, block, value, matched, matchedSource, asOf, route, overlay).forEach((failure) => failures.add(failure));
   }
   return authorityRecordFailureCodes.filter((code) => failures.has(code));
 }
@@ -479,6 +531,7 @@ function factAuthority(
       registries: context.registries,
       asOf,
       route: route?.route,
+      overlay: context.overlay,
     });
     if (failures.length === 0) establishing.push(record.id);
     else nonEstablishing.push({ evidence_id: record.id, failures });

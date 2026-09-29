@@ -922,7 +922,8 @@ function gateMet(
     }
     case "prc_4202_map_coverage_and_legend_class_recorded":
       // The gate code requires the PRC §4202 map to cover the lot and its legend
-      // to define High there; responsibility area is context only.
+      // to define High there; responsibility area is context only. Phase 3E:
+      // lot coverage is computed by the lot overlay, never read from the record.
       return reads.some((key) => {
         const family = hazardFamily(key);
         return (

@@ -393,23 +393,29 @@ const qualifiersSchema = z.discriminatedUnion("family", [
       adoption_status: z.enum(hazardMapAdoptionStatuses),
       /** The agency the record names as determining or adopting the zone. */
       named_agency: z.enum(hazardNamedAgencies),
-      /** Whether the map covers the lot proposed to be subdivided. */
+      /**
+       * Context only (Phase 3E): the reviewer's reading of whether the map
+       * covers the lot. No check reads it. Whether the registered dataset's
+       * features cover the whole lot is computed by the lot overlay.
+       */
       map_covers_lot: z.enum(["yes", "no", "not_established"]),
       /** Whether the map's legend defines the fact's class for the area containing the lot. */
       legend_defines_class_for_lot: z.enum(["yes", "no", "not_established"]),
       /** Context only; never picks or rules out a route (Phase 3B c point 7, d point 6). */
       responsibility_area_as_stated: z.enum(responsibilityAreasAsStated),
       /**
-       * Phase 3D: how the lot was compared with the registered package's
-       * overlay dataset. A map or package never determines a lot by itself:
-       * a result needs a reviewed legal-lot geometry compared deterministically
-       * with the pinned dataset. Absent or null: no overlay, so nothing can be
+       * Phase 3D: which reviewed legal-lot geometry is to be compared with the
+       * registered package's overlay dataset. A map or package never
+       * determines a lot by itself. Phase 3E: the block names the inputs only;
+       * the authority gate computes the overlay itself (lot-overlay.ts), so no
+       * overlay result (whole-lot coverage or the classes on the lot) is ever
+       * recorded here. Absent or null: no overlay, so nothing can be
        * established.
        */
       lot_overlay: z
         .object({
           method: z.enum(lotOverlayMethods),
-          /** The pinned dataset capture the lot was compared with. */
+          /** The pinned dataset capture the lot is compared with. */
           dataset: z.object({ source_id: kebabId, sha256_extracted: hex64 }).strict().nullable(),
           /**
            * The reviewed geometry of the legal lot, in the case-scoped evidence
@@ -417,15 +423,6 @@ const qualifiersSchema = z.discriminatedUnion("family", [
            * no check compares free text.
            */
           lot_geometry: z.object({ store: z.literal("case_evidence_file"), file_id: shortText, sha256: hex64 }).strict().nullable(),
-          /**
-           * The dataset's class labels (as its class field prints them, never a
-           * numeric code) of every feature the lot intersects, each once.
-           * Empty: the lot intersects no feature.
-           */
-          classes_on_lot: z
-            .array(z.string().trim().min(1).max(60))
-            .max(10)
-            .refine((labels) => new Set(labels).size === labels.length, "Each class label is recorded once."),
         })
         .strict()
         .nullable()
@@ -703,9 +700,12 @@ export const authorityRecordFailureCodes = [
   "statutory_route_record_kind_undefined",
   "statutory_agency_not_recorded",
   "hazard_map_adoption_not_established",
+  /** Phase 3E: the computed lot overlay shows the registered dataset's features do not cover the whole lot. */
   "hazard_area_not_covered",
   "hazard_legend_class_not_defined",
+  /** No verified overlay could be computed: inputs missing, unverified, invalid, or incomplete. */
   "lot_overlay_not_established",
+  /** The whole lot lies in the dataset's features, but their classes do not support the recorded value. */
   "lot_overlay_classes_do_not_support_value",
   "farmland_map_program_not_established",
   "farmland_designation_not_established",

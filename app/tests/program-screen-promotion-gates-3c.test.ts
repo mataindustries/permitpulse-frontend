@@ -56,6 +56,7 @@ import {
   type ProgramDecisionRef,
   type ProgramFactKey,
 } from "../src/shared/program-screen/types";
+import { syntheticLotOverlay } from "./program-screen-overlay-helpers";
 
 /**
  * Phase 3C: the Phase 3B promotion gates and the fact-model changes they need
@@ -74,6 +75,8 @@ const EDITION_DATE = "2026-01-15";
 const SUBJECT = { case_id: "case-fictional-phase-3c-test", property_id: "property-fictional-phase-3c-test" };
 const REVIEWER = { kind: "human", name: "TEST-ONLY Reviewer", role: "Synthetic reviewer" } as const;
 const TEST_CAPTURE = { source_id: testOnlyCapture.source_id, sha256_extracted: testOnlyCapture.sha256_extracted };
+// Phase 3E: the TEST-ONLY package's overlay dataset, with TEST-ONLY lots; the gate computes every overlay.
+const overlay = await syntheticLotOverlay(TEST_CAPTURE);
 
 const VH: ProgramFactKey = "very-high-fire-hazard-severity-zone";
 const HIGH: ProgramFactKey = "high-fire-hazard-severity-zone";
@@ -178,12 +181,14 @@ function qualifiersFor(key: ProgramFactKey, value: boolean | null, route: string
         legend_defines_class_for_lot: "yes",
         responsibility_area_as_stated: "not_stated",
         // Phase 3D: a reviewed lot geometry compared with the package's pinned overlay dataset.
-        // A YES lies wholly in the fact's class; a NO lies in Moderate only.
+        // Phase 3E: the gate computes the overlay; a YES lot lies wholly in the fact's class, a NO lot in Moderate only.
         lot_overlay: {
           method: "deterministic_spatial_overlay",
           dataset: TEST_CAPTURE,
-          lot_geometry: { store: "case_evidence_file", file_id: "TEST-ONLY-lot-geometry-0001", sha256: "0".repeat(64) },
-          classes_on_lot: value === true ? [authorityFactProfiles[key].hazard_class === "very_high" ? "Very High" : "High"] : value === false ? ["Moderate"] : [],
+          lot_geometry:
+            overlay.lots[
+              value === true ? (authorityFactProfiles[key].hazard_class === "very_high" ? "in-very-high" : "in-high") : value === false ? "in-moderate" : "high-and-moderate"
+            ],
         },
       };
     case "farmland_map":
@@ -444,6 +449,7 @@ function screen(
     packs: [{ pathway: shraPathway, criteria: [parcelMatchCriterion("la_shra"), jurisdictionCriterion("la_shra"), criterion] }],
     evidence_authority: options.blocks,
     authority_registries: options.registries,
+    lot_overlay: overlay.inputs,
   });
   return { result, pathway: result.pathways[0], criterion: result.pathways[0].criteria[2] };
 }
@@ -659,7 +665,8 @@ describe("2. c: route authority fails closed and never manufactures conflict", (
     ["another named agency", (draft: Record<string, any>) => (draft.qualifiers.named_agency = "other_agency"), "statutory_agency_not_recorded"],
     ["no named agency", (draft: Record<string, any>) => (draft.qualifiers.named_agency = "not_established"), "statutory_agency_not_recorded"],
     ["a map whose adopted status is not established", (draft: Record<string, any>) => (draft.qualifiers.adoption_status = "not_established"), "hazard_map_adoption_not_established"],
-    ["a map that does not cover the lot", (draft: Record<string, any>) => (draft.qualifiers.map_covers_lot = "no"), "hazard_area_not_covered"],
+    // Updated in Phase 3E: coverage is computed from the lot geometry, never read from map_covers_lot.
+    ["a lot only partly inside the dataset's features", (draft: Record<string, any>) => (draft.qualifiers.lot_overlay.lot_geometry = overlay.lots["very-high-and-outside"]), "hazard_area_not_covered"],
   ])("leaves c unknown for %s", (_name, change, code) => {
     const evidence = record("vh-4202", VH, true);
     const { criterion } = gatedRoutes([evidence], [edit(block(evidence), change)]);
@@ -725,12 +732,18 @@ describe("3. d: the PRC §4202 route only, decided by lot coverage and the legen
     }
   });
 
-  it.each(["no", "not_established"])("stays unknown when the map's coverage of the lot is %s", (coverage) => {
-    for (const value of [true, false]) {
-      const result = run(value, (draft) => (draft.qualifiers.map_covers_lot = coverage));
+  // Updated in Phase 3E: whether the map covers the lot is computed by the lot overlay; the block's
+  // map_covers_lot is context only and can neither create nor remove coverage.
+  it.each(["yes", "no", "not_established"])("stays unknown for a lot only partly covered, whatever map_covers_lot says (%s)", (coverage) => {
+    for (const [value, lot] of [[true, "high-and-outside"], [false, "moderate-and-outside"]] as const) {
+      const result = run(value, (draft) => {
+        draft.qualifiers.map_covers_lot = coverage;
+        draft.qualifiers.lot_overlay.lot_geometry = overlay.lots[lot];
+      });
       expect(result.status).toBe("unknown");
       expect(failureCodes(result)).toContain("hazard_area_not_covered");
     }
+    expect(run(true, (draft) => (draft.qualifiers.map_covers_lot = coverage)).status).toBe("disqualifying_per_source");
   });
 
   it("stays unknown when the legend does not define a High class for the lot's area", () => {
@@ -1033,7 +1046,14 @@ describe("7. The Phase 3B promotion gates are wired", () => {
     // Updated in Phase 3D: the registered PRC §4202 package meets every non-reviewer gate of d,
     // and every gate of c but statutory_route_recorded (GOV §51178 has no record kind).
     const reviewer = ["reviewer_confirms_encoded_rule", "human_verification_record"];
-    const unmet: Record<string, readonly string[]> = { ...decidedGates, [C]: ["statutory_route_recorded", ...reviewer], [D]: reviewer };
+    // Updated in Phase 3E: the shipped d carries a human record citing the Phase 3B d decision, so only the
+    // record-completeness flag passed here (false) is unmet; with its real record, no gate of d is unmet.
+    const unmet: Record<string, readonly string[]> = {
+      ...decidedGates,
+      [C]: ["statutory_route_recorded", ...reviewer],
+      [D]: ["human_verification_record"],
+    };
+    expect(authorityPromotionBlockers(shippedCriterion(D), programAuthorityRegistries, true)).toEqual([]);
     for (const id of C_TO_G) {
       const requirement = programAuthorityRegistries.criterion_requirements[id];
       expect(requirement.decision_ref, id).toEqual({ phase: "3B", letter: LETTER[id] });
@@ -1050,7 +1070,10 @@ describe("7. The Phase 3B promotion gates are wired", () => {
     const blockers = (id: string, criterion = shippedCriterion(id)) => authorityPromotionBlockers(criterion, registries, false);
     const reviewer = ["reviewer_confirms_encoded_rule", "human_verification_record"];
     expect(blockers(C)).toEqual(["statutory_route_recorded", ...reviewer]);
-    for (const id of [D, E, F, G]) expect(blockers(id), id).toEqual(reviewer);
+    for (const id of [E, F, G]) expect(blockers(id), id).toEqual(reviewer);
+    // Updated in Phase 3E: d's shipped record cites the Phase 3B d decision.
+    expect(blockers(D, { ...shippedCriterion(D), human_verification: null })).toEqual(reviewer);
+    expect(blockers(D)).toEqual(["human_verification_record"]);
     // Without route-separated assessment, c could not meet its route gate.
     const unrouted: ProgramCriterion = { ...shippedCriterion(C) };
     delete unrouted.statutory_routes;
@@ -1082,9 +1105,10 @@ describe("7. The Phase 3B promotion gates are wired", () => {
       const promoted = promote(shippedCriterion(id), spy, { phase: "3B", letter: LETTER[id] });
       if (id === D) {
         // Phase 3D: the package meets every other gate of d, so only an explicit human
-        // verification record could promote it. The shipped d has none and stays pending.
+        // verification record could promote it. Updated in Phase 3E: the reviewer supplied it.
         expect(authorityPromotionBlockers(promoted, programAuthorityRegistries, true), id).toEqual([]);
-        expect(shippedCriterion(id)).toMatchObject({ verification: "pending_human", human_verification: null });
+        expect(shippedCriterion(id)).toMatchObject({ verification: "human_verified", human_verification: { decision_ref: { phase: "3B", letter: "d" } } });
+        expect(criterionAwaitsHumanVerification(shippedCriterion(id)), id).toBe(false);
         continue;
       }
       expect(criterionAwaitsHumanVerification(promoted), id).toBe(true);
@@ -1174,15 +1198,20 @@ describe("9. Invariants", () => {
   // The same pins as the Round 1, Phase 2, Phase 2b, Phase 3A, and Phase 3B tests.
   const EVALUATOR_OUTPUT_SHA256 = "68341529825b41e7dcd3b25a5daec94385fe6641e07cc03d29003c94c256b45a";
   const PUBLIC_DEMO_OUTPUT_SHA256 = "11081860902438dd881cb743c98de30f4b4c3c425675a6e0eb2b6d41474a84a1";
+  // Updated in Phase 3E: the reviewed promotion of d moved the output pins (the Phase 3C record keeps the ones above).
+  const PHASE_3E_EVALUATOR_OUTPUT_SHA256 = "156dd1f41964ab5beebcf3882e0a0d653cc5d778939033bf2b752dba1e86afbc";
+  const PHASE_3E_PUBLIC_DEMO_OUTPUT_SHA256 = "4dd2735bab875ad40b123fec72020e16442737bc6b5052eb55c5fba374b9a8a5";
 
-  it("promotes nothing: human_verified is 0 and pending_human is 46, every guarded criterion blocked", () => {
-    expect(shipped.filter((criterion) => criterion.verification === "human_verified")).toEqual([]);
-    expect(shipped.filter((criterion) => criterion.verification === "pending_human")).toHaveLength(46);
+  // Updated in Phase 3E: d alone is human-verified; every other guarded criterion is blocked.
+  it("promotes only d: human_verified is 1 and pending_human is 45, every other guarded criterion blocked", () => {
+    expect(shipped.filter((criterion) => criterion.verification === "human_verified").map((criterion) => criterion.id)).toEqual([D]);
+    expect(shipped.filter((criterion) => criterion.verification === "pending_human")).toHaveLength(45);
     const guarded = shipped.filter((criterion) => promotionGuardedCriterionIds.has(criterion.id));
     expect(guarded).toHaveLength(46);
-    for (const criterion of guarded) {
+    for (const criterion of guarded.filter((candidate) => candidate.id !== D)) {
       expect(authorityPromotionBlockers(criterion, programAuthorityRegistries, false).length, criterion.id).toBeGreaterThan(0);
     }
+    expect(authorityPromotionBlockers(shippedCriterion(D), programAuthorityRegistries, true)).toEqual([]);
   });
 
   // Updated in Phase 3D, which registered the CAL FIRE SRA package and nothing else.
@@ -1195,7 +1224,7 @@ describe("9. Invariants", () => {
     expect(sourceHostExceptions).toHaveLength(3);
   });
 
-  it("keeps every fixture status and roll-up; output changes only by the reviewed labels", async () => {
+  it("keeps every fixture status and roll-up; output changes only by the reviewed labels and the reviewed promotion of d", async () => {
     const result = evaluateProgramScreen({ evidence_records: fixtureJson.evidence_records, as_of: fixtureJson.as_of });
     const statuses = Object.fromEntries(result.pathways.flatMap((pathway) => pathway.criteria).map((criterion) => [criterion.criterion_id, criterion.status]));
     expect(statuses).toEqual(fixtureJson.expected.criterion_statuses);
@@ -1203,8 +1232,8 @@ describe("9. Invariants", () => {
     const json = JSON.stringify(result);
     for (const key of ['"authority"', '"statutory_routes"', '"open_completeness_blockers"']) expect(json).not.toContain(key);
     const demo = buildProgramScreenPublicDemoPayload(fixtureJson, { as_of: fixtureJson.as_of });
-    expect(await sha256Hex(json)).toBe(EVALUATOR_OUTPUT_SHA256);
-    expect(await sha256Hex(JSON.stringify(demo))).toBe(PUBLIC_DEMO_OUTPUT_SHA256);
+    expect(await sha256Hex(json)).toBe(PHASE_3E_EVALUATOR_OUTPUT_SHA256);
+    expect(await sha256Hex(JSON.stringify(demo))).toBe(PHASE_3E_PUBLIC_DEMO_OUTPUT_SHA256);
   });
 
   it("makes exactly the three deferred label changes, client-safe and without the retired conditions", () => {
