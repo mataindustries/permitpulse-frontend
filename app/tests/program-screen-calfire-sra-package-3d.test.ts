@@ -56,6 +56,7 @@ import {
   type ProgramCriterionResult,
   type ProgramFactKey,
 } from "../src/shared/program-screen/types";
+import { realLotOverlay, type RealLotName } from "./program-screen-overlay-helpers";
 
 /**
  * Phase 3D: the first real authority, CAL FIRE / OSFM's PRC §4202 State
@@ -94,6 +95,8 @@ const registeredSource = programAuthorityRegistries.sources.find((source) => sou
 if (registeredSource?.package === undefined) throw new Error("The Phase 3D package is not registered.");
 const pack = registeredSource.package;
 const officialByteChecks = inject("programScreenOfficialCaptureByteChecks");
+// Phase 3E: every lot result is computed by the gate from a TEST-ONLY lot placed on the real dataset.
+const overlay = await realLotOverlay();
 
 function packageCaptures(change: (captures: Map<string, PackageCapture>) => void = () => {}): Map<string, PackageCapture> {
   const captures = new Map<string, PackageCapture>([
@@ -160,18 +163,19 @@ function anchors(): CanonicalEvidenceRecord[] {
 }
 
 /**
- * A reviewed block for a fictional lot compared with the registered package:
- * `classes` are the dataset's FHSZ_Descr labels of every feature the lot
- * intersects; `covered` is whether SRA features cover the whole lot.
+ * A reviewed block for a fictional lot on the registered package. Updated in
+ * Phase 3E: the block names a TEST-ONLY lot geometry; the gate computes the
+ * overlay with the pinned dataset (by default, a lot whose overlay supports
+ * the recorded value). `attested` is the reviewer's own coverage reading,
+ * context only.
  */
 function block(
   evidence: CanonicalEvidenceRecord,
-  options: { classes?: string[]; covered?: "yes" | "no" | "not_established"; basis?: string } = {},
+  options: { lot?: RealLotName; attested?: "yes" | "no" | "not_established"; basis?: string } = {},
 ): ProgramEvidenceAuthority {
   const key = evidence.claim.key as ProgramFactKey;
   const value = evidence.normalized_value.kind === "boolean" ? evidence.normalized_value.value : null;
-  const own = key === VH ? "Very High" : "High";
-  const other = key === VH ? "High" : "Very High";
+  const lot: RealLotName = options.lot ?? (value === null ? "high-moderate" : !value ? "whole-moderate" : key === VH ? "whole-very-high" : "whole-high");
   return {
     schema_version: PROGRAM_EVIDENCE_AUTHORITY_VERSION,
     evidence_id: evidence.id,
@@ -204,14 +208,13 @@ function block(
       statutory_basis: (options.basis ?? "prc_4202") as "prc_4202",
       adoption_status: "adopted",
       named_agency: "department_of_forestry_and_fire_protection",
-      map_covers_lot: options.covered ?? "yes",
+      map_covers_lot: options.attested ?? "yes",
       legend_defines_class_for_lot: "yes",
       responsibility_area_as_stated: "state",
       lot_overlay: {
         method: "deterministic_spatial_overlay",
         dataset: { source_id: DATASET_ID, sha256_extracted: datasetMetadata.sha256_extracted },
-        lot_geometry: { store: "case_evidence_file", file_id: "TEST-ONLY-lot-geometry-3d", sha256: "a".repeat(64) },
-        classes_on_lot: options.classes ?? (value === true ? [own] : value === false ? ["Moderate", other] : [own, "Moderate"]),
+        lot_geometry: overlay.lots[lot],
       },
     },
     authority_review: { status: "reviewed", reviewer: REVIEWER, reviewed_on: REVIEWED_ON },
@@ -289,6 +292,7 @@ function screen(criterion: ProgramCriterion, records: CanonicalEvidenceRecord[],
     packs: [{ pathway: shraPathway, criteria: [parcelMatchCriterion("la_shra"), jurisdictionCriterion("la_shra"), criterion] }],
     evidence_authority: blocks,
     authority_registries: registries,
+    lot_overlay: overlay.inputs,
   });
   return result.pathways[0].criteria[2];
 }
@@ -727,16 +731,17 @@ describe("5. d: YES and NO through the package, and only with lot coverage and t
   });
 
   it("establishes NO when SRA features cover the lot and none of it is High", () => {
-    for (const classes of [["Very High"], ["Moderate"], ["Very High", "Moderate"]]) {
-      expect(dResult(false, { classes }), classes.join("+")).toMatchObject({ status: "consistent_with_source", authority: { established: true } });
+    for (const lot of ["whole-very-high", "whole-moderate", "very-high-moderate"] as const) {
+      expect(dResult(false, { lot }), lot).toMatchObject({ status: "consistent_with_source", authority: { established: true } });
     }
   });
 
+  // Updated in Phase 3E: lot coverage is computed from the lot geometry, never read from the block.
   it("stays unknown without lot coverage or the legend class", () => {
-    for (const covered of ["no", "not_established"] as const) {
-      const result = dResult(false, { covered });
-      expect(result.status, covered).toBe("unknown");
-      expect(failureCodes(result), covered).toContain("hazard_area_not_covered");
+    for (const attested of ["yes", "no", "not_established"] as const) {
+      const result = dResult(false, { lot: "part-moderate-outside-sra", attested });
+      expect(result.status, attested).toBe("unknown");
+      expect(failureCodes(result), attested).toContain("hazard_area_not_covered");
     }
     for (const legend of ["no", "not_established"]) {
       const result = dResult(false, {}, (draft) => (draft.qualifiers.legend_defines_class_for_lot = legend));
@@ -764,32 +769,31 @@ describe("5. d: YES and NO through the package, and only with lot coverage and t
     }
   });
 
+  // Updated in Phase 3E: the classes on the lot are computed; a numeric FHSZ code never reaches the gate
+  // (the overlay index carries only FHSZ_Descr labels; see the Phase 3E tests).
   it("never establishes a value the overlay's classes do not support", () => {
-    const cases: Array<[boolean, string[]]> = [
-      [true, ["High", "Moderate"]],
-      [true, ["Very High"]],
-      [true, []],
-      [false, ["High"]],
-      [false, ["Moderate", "High"]],
-      [false, []],
-      // A numeric FHSZ code is never a class.
-      [true, ["2"]],
-      [false, ["3"]],
+    const cases: Array<[boolean, RealLotName]> = [
+      [true, "high-moderate"],
+      [true, "whole-very-high"],
+      [true, "high-very-high"],
+      [false, "whole-high"],
+      [false, "high-moderate"],
+      [false, "high-very-high"],
     ];
-    for (const [value, classes] of cases) {
-      const result = dResult(value, { classes });
-      expect(result.status, `${value} ${classes.join("+")}`).toBe("unknown");
-      expect(failureCodes(result), `${value} ${classes.join("+")}`).toContain("lot_overlay_classes_do_not_support_value");
+    for (const [value, lot] of cases) {
+      const result = dResult(value, { lot });
+      expect(result.status, `${value} ${lot}`).toBe("unknown");
+      expect(failureCodes(result), `${value} ${lot}`).toContain("lot_overlay_classes_do_not_support_value");
     }
   });
 
   it("stays unknown for FRA or LRA land: no SRA feature is never a NO", () => {
-    // The lot intersects no SRA feature, so SRA features do not cover it.
-    const noFeature = dResult(false, { classes: [], covered: "no" });
-    expect(noFeature.status).toBe("unknown");
-    expect(failureCodes(noFeature)).toEqual(expect.arrayContaining(["hazard_area_not_covered", "lot_overlay_classes_do_not_support_value"]));
-    // Even a record that claims coverage cannot make an empty overlay a NO.
-    expect(dResult(false, { classes: [], covered: "yes" }).status).toBe("unknown");
+    // The lot intersects no SRA feature, so SRA features do not cover it, whatever the block attests.
+    for (const attested of ["yes", "no"] as const) {
+      const noFeature = dResult(false, { lot: "outside-sra-near-features", attested });
+      expect(noFeature.status, attested).toBe("unknown");
+      expect(failureCodes(noFeature), attested).toContain("hazard_area_not_covered");
+    }
     expect(manifest.assertions.unclassified_areas.value).toBe("no_feature_is_not_a_negative_result");
   });
 
@@ -799,7 +803,7 @@ describe("5. d: YES and NO through the package, and only with lot coverage and t
     expect(partial.status).toBe("unknown");
     expect(partial.authority).toBeUndefined();
     // A NO for a lot only partly covered by SRA features is not established.
-    const partlySra = dResult(false, { classes: ["Moderate"], covered: "no" });
+    const partlySra = dResult(false, { lot: "part-moderate-outside-sra" });
     expect(partlySra.status).toBe("unknown");
     expect(failureCodes(partlySra)).toContain("hazard_area_not_covered");
   });

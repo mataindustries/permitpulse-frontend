@@ -3,6 +3,7 @@ import { IntegrityValidationError } from "../build-week-integrity/validation";
 import {
   evaluateCriterionAuthority,
   type ProgramAuthorityContext,
+  type ProgramLotOverlayInputs,
   type ProgramRouteAuthorityInput,
 } from "./authority-gate";
 import {
@@ -27,6 +28,8 @@ import {
   statutoryRouteLabels,
 } from "./language";
 import { parseProgramEvidenceAuthority, type ProgramCriterionAuthorityResult } from "./evidence-authority";
+import { isVerifiedLotGeometry } from "./lot-overlay";
+import { isVerifiedOverlayDatasetView } from "./overlay-dataset";
 import { buildCriterionQuestion, buildFlagQuestion, buildReviewTasks } from "./questions";
 import {
   criterionAwaitsHumanVerification,
@@ -804,6 +807,24 @@ export interface ProgramScreenInput {
    * deny-by-default registries apply.
    */
   authority_registries?: ProgramAuthorityRegistries;
+  /**
+   * Phase 3E: verified lot geometries and overlay dataset views, from their
+   * loaders. The authority gate computes every lot overlay from them. Omitted,
+   * no overlay can be computed and no hazard record establishes anything.
+   */
+  lot_overlay?: ProgramLotOverlayInputs;
+}
+
+/** Refuses any overlay input that did not come from its verifying loader. */
+function parseLotOverlayInputs(value: ProgramLotOverlayInputs | undefined): ProgramLotOverlayInputs | undefined {
+  if (value === undefined) return undefined;
+  if (!value.datasets.every(isVerifiedOverlayDatasetView) || !value.lot_geometries.every(isVerifiedLotGeometry)) {
+    throw new IntegrityValidationError(
+      "INVALID_PROGRAM_LOT_OVERLAY",
+      "Lot overlay inputs must come from loadOverlayDatasetView and loadReviewedLotGeometry; typed values are never accepted.",
+    );
+  }
+  return value;
 }
 
 /**
@@ -824,7 +845,8 @@ export function evaluateProgramScreen(input: ProgramScreenInput): ProgramScreenR
     input.authority_registries ?? programAuthorityRegistries,
   );
   const blocks = parseProgramEvidenceAuthority(input.evidence_authority, records);
-  const authorityContext: ProgramAuthorityContext = { registries, blocks, records };
+  const overlay = parseLotOverlayInputs(input.lot_overlay);
+  const authorityContext: ProgramAuthorityContext = { registries, blocks, records, ...(overlay === undefined ? {} : { overlay }) };
 
   const keys = new Set<ProgramFactKey>();
   for (const pack of packs) {
@@ -882,6 +904,14 @@ export function evaluateProgramScreen(input: ProgramScreenInput): ProgramScreenR
     seedParts.push([
       [...blocks.values()].sort((left, right) => left.evidence_id.localeCompare(right.evidence_id)),
       input.authority_registries ?? null,
+    ]);
+  }
+  // Overlay inputs join it the same way, by what pins them.
+  if (overlay !== undefined) {
+    seedParts.push([
+      overlay.datasets.map((view) => [view.dataset, view.index_sha256, view.recordNumbers()]),
+      overlay.lot_geometries.map((lot) => [lot.file_id, lot.sha256]),
+      overlay.index_pins ?? null,
     ]);
   }
   const screenSeed = JSON.stringify(seedParts);
