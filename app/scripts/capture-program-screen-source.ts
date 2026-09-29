@@ -13,6 +13,7 @@ import {
   decodeUtf8Strict,
   EXTRACTED_TEXT_NORMALIZATION,
   extractHtmlPages,
+  undatedSourceTypes,
   HTML_TEXT_EXTRACTOR,
   HTML_TEXT_EXTRACTOR_VERSION,
   htmlCaptureIssue,
@@ -31,6 +32,13 @@ import {
   v2SourceTypes,
   type OfficialSourceMetadata,
 } from "../src/shared/program-screen/source-capture";
+import {
+  DatasetArchiveError,
+  extractDatasetArchivePages,
+  isZip,
+  ZIP_MANIFEST_EXTRACTOR,
+  ZIP_MANIFEST_EXTRACTOR_VERSION,
+} from "../src/shared/program-screen/dataset-archive";
 
 /**
  * Ingests a LOCAL copy of an official source document into
@@ -62,6 +70,13 @@ import {
  *     --url <official URL> --type statute --operative-status operative \
  *     --document-date <YYYY-MM-DD> --retrieved-at <ISO time> \
  *     --context <statute-context.json> --notes "<who downloaded it, how>"
+ *
+ * An adopted regulation's text (--type regulation) is its official PDF. A GIS
+ * data archive (--type dataset_archive) is the exact ZIP the official host
+ * served; it is stored byte for byte as original.zip, never extracted to disk
+ * or re-zipped, and its extracted.txt is the deterministic
+ * program-screen-zip-manifest text. A document that prints no date of its own
+ * takes --document-date none (regulations and data archives only).
  *
  * A capture never registers an issuer or authority source, and never
  * supports a criterion rule. Registration is a separate reviewed change.
@@ -145,8 +160,9 @@ async function verifyDirectory(directory: string): Promise<string[]> {
   if (unexpected.length > 0) issues.push(`unexpected files ${unexpected.sort().join(", ")}.`);
   if (issues.length > 0 || original === null || extracted === null) return issues;
 
-  // Served HTML was already re-extracted by officialSourceCaptureIssues.
-  if ((metadata as OfficialSourceMetadata).original.media_type === captureOriginals.html.media_type) return issues;
+  // Served HTML and data archives were already re-extracted by officialSourceCaptureIssues.
+  const mediaType = (metadata as OfficialSourceMetadata).original.media_type;
+  if (mediaType === captureOriginals.html.media_type || mediaType === captureOriginals.zip.media_type) return issues;
 
   // Re-extract: a different pdfjs-dist version or rule change must not pass silently.
   const reextracted = joinExtractedPages(await extractPages(new Uint8Array(original)));
@@ -213,15 +229,23 @@ async function capture(values: Record<string, string | boolean | string[] | unde
 
   const v2 = (v2SourceTypes as readonly string[]).includes(text("type"));
   if (v2 && typeof values.context !== "string") {
-    fail("--context is required for --type agency_map and --type statute.");
+    fail(`--context is required for --type ${v2SourceTypes.join(", --type ")}.`);
   }
-  if (!v2 && values.context !== undefined) fail("--context applies only to --type agency_map and --type statute.");
+  if (!v2 && values.context !== undefined) fail(`--context applies only to --type ${v2SourceTypes.join(", --type ")}.`);
+  const undated = text("document-date") === "none";
+  if (undated && !(undatedSourceTypes as readonly string[]).includes(text("type"))) {
+    fail(`--document-date none applies only to --type ${undatedSourceTypes.join(", --type ")}.`);
+  }
 
   const inputPath = resolve(process.cwd(), text("file"));
   const input = await readFile(inputPath).catch(() => fail(`cannot read ${inputPath}.`));
   const bytes = new Uint8Array(input);
-  let served: "pdf" | "html" = "pdf";
-  if (!isPdf(bytes)) {
+  let served: "pdf" | "html" | "zip" = "pdf";
+  if (text("type") === "dataset_archive") {
+    if (!isZip(bytes)) fail("the input is not a ZIP. Capture the exact archive the official host served.");
+    served = "zip";
+  } else if (!isPdf(bytes)) {
+    if (isZip(bytes)) fail("the input is a ZIP; only --type dataset_archive captures an archive.");
     if (text("type") !== "statute") fail("the input is not a PDF. Capture the official PDF itself.");
     const htmlIssue = htmlCaptureIssue(bytes);
     if (htmlIssue !== null) {
@@ -230,7 +254,17 @@ async function capture(values: Record<string, string | boolean | string[] | unde
     served = "html";
   }
 
-  const pages = served === "pdf" ? await extractPages(bytes) : extractHtmlPages(decodeUtf8Strict(bytes) as string);
+  let pages: string[];
+  if (served === "zip") {
+    try {
+      pages = await extractDatasetArchivePages(bytes);
+    } catch (error) {
+      if (!(error instanceof DatasetArchiveError)) throw error;
+      fail(`the archive cannot be read: ${error.message}.`);
+    }
+  } else {
+    pages = served === "pdf" ? await extractPages(bytes) : extractHtmlPages(decodeUtf8Strict(bytes) as string);
+  }
   const extracted = joinExtractedPages(pages);
   const normalizedPages = splitExtractedPages(extracted);
   const pagesWithoutText = normalizedPages.flatMap((page, index) => (page === "" ? [index + 1] : []));
@@ -252,7 +286,7 @@ async function capture(values: Record<string, string | boolean | string[] | unde
     title: text("title"),
     official_url: text("url"),
     source_type: text("type"),
-    document_date: text("document-date"),
+    document_date: undated ? null : text("document-date"),
     retrieved_at: text("retrieved-at"),
     sha256_original: await sha256HexBytes(bytes),
     sha256_extracted: await sha256Hex(extracted),
@@ -262,8 +296,8 @@ async function capture(values: Record<string, string | boolean | string[] | unde
   };
   const extraction = {
     file: captureFileNames.extracted,
-    extractor: served === "pdf" ? "pdfjs-dist" : HTML_TEXT_EXTRACTOR,
-    extractor_version: served === "pdf" ? pdfjsVersion : HTML_TEXT_EXTRACTOR_VERSION,
+    extractor: served === "pdf" ? "pdfjs-dist" : served === "zip" ? ZIP_MANIFEST_EXTRACTOR : HTML_TEXT_EXTRACTOR,
+    extractor_version: served === "pdf" ? pdfjsVersion : served === "zip" ? ZIP_MANIFEST_EXTRACTOR_VERSION : HTML_TEXT_EXTRACTOR_VERSION,
     normalization: EXTRACTED_TEXT_NORMALIZATION,
     page_separator: "form_feed",
     page_count: normalizedPages.length,
@@ -289,6 +323,9 @@ async function capture(values: Record<string, string | boolean | string[] | unde
               }).basis ?? "global_allowlist",
             agency_map: common.source_type === "agency_map" ? context : null,
             statute: common.source_type === "statute" ? context : null,
+            // Phase 3D blocks are written only when used, so earlier captures stay byte-identical on recapture.
+            ...(common.source_type === "regulation" ? { regulation: context, dataset_archive: null } : {}),
+            ...(common.source_type === "dataset_archive" ? { regulation: null, dataset_archive: context } : {}),
             ...provenance,
           }
         : {
@@ -316,7 +353,7 @@ async function capture(values: Record<string, string | boolean | string[] | unde
     if (values.replace !== true) {
       fail(`${directory} already exists. Captures are immutable; pass --replace to recapture.`);
     }
-    const known = new Set<string>([...Object.values(captureFileNames), captureOriginals.html.file]);
+    const known = new Set<string>([...Object.values(captureFileNames), captureOriginals.html.file, captureOriginals.zip.file]);
     const unknown = (await readdir(absolute)).filter((name) => !known.has(name));
     if (unknown.length > 0) fail(`refusing to replace ${directory}: unexpected files ${unknown.join(", ")}.`);
     await rm(absolute, { recursive: true });
@@ -358,6 +395,12 @@ async function capture(values: Record<string, string | boolean | string[] | unde
     console.log(
       "  NOTE: statute capture only. It cannot support a criterion rule; it can prompt the human re-review\n" +
         "        its Round 1 trigger names.",
+    );
+  }
+  if (metadata.source_type === "regulation" || metadata.source_type === "dataset_archive") {
+    console.log(
+      `  NOTE: ${metadata.source_type} capture only. It registers no issuer or authority source and establishes no fact;\n` +
+        "        only a reviewed authority package that pins it can be registered.",
     );
   }
 }

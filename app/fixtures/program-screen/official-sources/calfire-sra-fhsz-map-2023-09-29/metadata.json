@@ -1,0 +1,85 @@
+{
+  "schema_version": "program-screen-official-source-v2",
+  "source_id": "calfire-sra-fhsz-map-2023-09-29",
+  "title": "CAL FIRE / OSFM, State Responsibility Area Fire Hazard Severity Zones (statewide map, dated September 29, 2023)",
+  "official_url": "https://34c031f8-c9fd-4018-8c5a-4159cdff6b0d-cdn-endpoint.azureedge.net/-/media/osfm-website/what-we-do/community-wildfire-preparedness-and-mitigation/fire-hazard-severity-zones/fhsz_statewide_sra_e_2022_3.pdf?hash=0F0A6600B86610FC79BA8BF1D83D8812&rev=5f9d2c7e7a7e47f5946cb5bf6742d813",
+  "source_type": "agency_map",
+  "document_date": "2023-09-29",
+  "retrieved_at": "2026-09-29T04:52:56Z",
+  "sha256_original": "6e54c1bb10672d2ca5f307c920f09b874b5f9be671b3fa001df6e9eb7b4729e4",
+  "sha256_extracted": "11830e2c8c29f368e4087ae9ff270ee042673dfd7be6e354750c326579e5b1fe",
+  "operative_status": "operative",
+  "notes": "Exact HTTP response body served by CAL FIRE's CDN endpoint (HTTP/2 200, content-type application/pdf, content-length 16306456, last-modified Tue, 06 Jan 2026 18:32:40 GMT, etag 7c4d788195074b5dbc439919e7652378, content-disposition inline; filename=FHSZ_Statewide_SRA_E_2022_3.pdf); retrieved_at is the owner's recorded retrieval time (server Date 04:52:56 GMT). The repository owner found the link by browser-only link discovery on the current official CAL FIRE / OSFM Fire Hazard Severity Zones page (the page itself answered curl and wget with an Akamai 403) and downloaded the file with curl; its SHA-256 and size matched the owner's values. The capture environment could not reach the host (egress 403), so the bytes were not re-fetched here. The map prints its title and the bare date September 29, 2023 (date_kind dated, Phase 3D D4). Operative status follows the Phase 2b rule for agency maps (an established edition date, no supersession statement); adoption and the effective date are established only by the authority package calfire-sra-fhsz-2023-09-29. Its non-SRA legend entry, Federal Responsibility Area (FRA) or Local Responsibility Area (LRA), defines no hazard class. Scale 1:1,150,000 at 36 x 48 inches: never used to place a lot.",
+  "may_change_source_ids": [],
+  "original": {
+    "file": "original.pdf",
+    "media_type": "application/pdf",
+    "bytes": 16306456
+  },
+  "extraction": {
+    "file": "extracted.txt",
+    "extractor": "pdfjs-dist",
+    "extractor_version": "6.3.289",
+    "normalization": "program-screen-text-v1",
+    "page_separator": "form_feed",
+    "page_count": 1,
+    "pages_without_text": []
+  },
+  "host_basis": {
+    "exception_id": "calfire-cdn-sra-fhsz-statewide-map"
+  },
+  "agency_map": {
+    "issuing_agency": {
+      "name": "California Department of Forestry and Fire Protection",
+      "excerpt": {
+        "page": 1,
+        "text": "Daniel Berlant, State Fire Marshal (Appointed), California Department of Forestry and Fire Protection"
+      }
+    },
+    "edition": {
+      "label": "State Responsibility Area Fire Hazard Severity Zones, September 29, 2023",
+      "date": "2023-09-29",
+      "date_kind": "dated",
+      "excerpt": {
+        "page": 1,
+        "text": "State Responsibility Area Fire Hazard Severity Zones STATE OF CALIFORNIA September 29, 2023"
+      }
+    },
+    "responsibility_areas": [
+      {
+        "area": "state",
+        "legend_classes": [
+          "very_high",
+          "high",
+          "moderate"
+        ],
+        "excerpts": [
+          {
+            "page": 1,
+            "text": "Fire Hazard Severity Zones in State Responsibility Area (SRA)"
+          },
+          {
+            "page": 1,
+            "text": "Very High 16,913,515 Acres"
+          },
+          {
+            "page": 1,
+            "text": "High 10,137,597 Acres"
+          },
+          {
+            "page": 1,
+            "text": "Moderate 3,944,882 Acres"
+          }
+        ]
+      }
+    ],
+    "supersession": {
+      "statement": "not_stated",
+      "excerpt": null
+    }
+  },
+  "statute": null,
+  "capture_tool": "app/scripts/capture-program-screen-source.ts",
+  "is_ai_generated": false,
+  "test_only": false
+}

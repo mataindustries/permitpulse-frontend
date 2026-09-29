@@ -306,7 +306,10 @@ export const sourceCaptureMethods = [
  * can prompt a human re-review but can never support a criterion rule.
  * `agency_map` and `statute` (Phase 2b) are captured for later reviewed use:
  * a map through the authority registries, a statute for human re-review.
- * Neither can support a criterion rule.
+ * `regulation` and `dataset_archive` (Phase 3D) are members of a reviewed
+ * authority package: an adopted regulation's text, and a GIS data archive
+ * captured as the exact ZIP bytes served. None of these can support a
+ * criterion rule.
  */
 export const officialSourceTypes = [
   "adopted_ordinance",
@@ -314,6 +317,8 @@ export const officialSourceTypes = [
   "proposed_draft",
   "agency_map",
   "statute",
+  "regulation",
+  "dataset_archive",
 ] as const;
 /** Source types that can support a human-verified criterion rule. */
 export const operativeSourceTypes = ["adopted_ordinance", "official_memo"] as const;

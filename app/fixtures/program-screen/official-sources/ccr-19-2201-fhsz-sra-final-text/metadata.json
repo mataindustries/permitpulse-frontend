@@ -1,0 +1,56 @@
+{
+  "schema_version": "program-screen-official-source-v2",
+  "source_id": "ccr-19-2201-fhsz-sra-final-text",
+  "title": "Office of the State Fire Marshal, Final Regulation Text Title 14 and Title 19 (19 CCR section 2201, Fire Hazard Severity Zones in the SRA)",
+  "official_url": "https://34c031f8-c9fd-4018-8c5a-4159cdff6b0d-cdn-endpoint.azureedge.net/-/media/osfm-website/what-we-do/code-development-and-analysis/title-19-development/fhsz-2024/final-text.pdf?hash=8AE9545C673F3BAB91EDC29A614097CC&rev=6d3a48124b7f4bbaa98a8fa5afd697ff",
+  "source_type": "regulation",
+  "document_date": null,
+  "retrieved_at": "2026-09-29T04:50:26Z",
+  "sha256_original": "977abe3a6fc0da2568cabe6bfb164bbb8965e2bc8ef2b01b9012dd8b5517d147",
+  "sha256_extracted": "61aafec5e4a394ffb5724cb894dc570fc28e36e7c7174754016c5e64b8d78657",
+  "operative_status": "status_unconfirmed",
+  "notes": "Exact HTTP response body served by CAL FIRE's CDN endpoint (HTTP/2 200, content-type application/pdf, content-length 67366, last-modified Wed, 07 Feb 2024 22:50:13 GMT, etag b4ce48ae959b4612b164c0927b0f7947, content-disposition inline; filename=Final Text.pdf); retrieved_at is the owner's recorded retrieval time (server Date 04:50:26 GMT). The repository owner found the link by browser-only link discovery on the official CAL FIRE / OSFM regulatory page and downloaded it with curl; its SHA-256 and size matched the owner's values. The capture environment could not reach the host (egress 403). The document prints no date (document_date null) and no statement of its own effect (status_unconfirmed): adoption and the effective date are established by the authority package calfire-sra-fhsz-2023-09-29 from the data archive's metadata (Phase 3D D3). Read only section 2201: the page images show section 1280.01 of Title 14 struck through (repealed) and sections 2200-2201 underlined (added); extracted text keeps no strike-through or underline, so the repealed 1280.01 text and its November 7, 2007 maps read as plain text on page 1. The scanned OAL Notice of Approval (matter 2023-1215-03) is external corroboration only and is not captured.",
+  "may_change_source_ids": [],
+  "original": {
+    "file": "original.pdf",
+    "media_type": "application/pdf",
+    "bytes": 67366
+  },
+  "extraction": {
+    "file": "extracted.txt",
+    "extractor": "pdfjs-dist",
+    "extractor_version": "6.3.289",
+    "normalization": "program-screen-text-v1",
+    "page_separator": "form_feed",
+    "page_count": 3,
+    "pages_without_text": []
+  },
+  "host_basis": {
+    "exception_id": "calfire-cdn-fhsz-sra-final-text"
+  },
+  "agency_map": null,
+  "statute": null,
+  "regulation": {
+    "jurisdiction": "CA",
+    "code": "CCR",
+    "title": "19",
+    "section": "2201",
+    "document_label": {
+      "page": 1,
+      "text": "Final Regulation Text Title 14 and Title 19"
+    },
+    "title_heading": {
+      "page": 2,
+      "text": "Title 19 Public Safety"
+    },
+    "section_heading": {
+      "page": 2,
+      "text": "2201. Fire Hazard Severity Zones in the SRA."
+    },
+    "status_as_published": null
+  },
+  "dataset_archive": null,
+  "capture_tool": "app/scripts/capture-program-screen-source.ts",
+  "is_ai_generated": false,
+  "test_only": false
+}

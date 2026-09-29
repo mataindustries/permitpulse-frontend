@@ -10,6 +10,7 @@ One directory per source document, written only by the capture tool:
 ```
 <source-id>/original.pdf     the downloaded official PDF, byte for byte
   (or original.html)         a statute page: the exact HTML the host served
+  (or original.zip)          a GIS data archive: the exact ZIP the host served
 <source-id>/extracted.txt    deterministic text extraction of that file
 <source-id>/metadata.json    official URL, source type, operative status,
                              dates, and SHA-256 of both files
@@ -31,10 +32,17 @@ One directory per source document, written only by the capture tool:
 - **Drafts are not law.** A proposed draft is captured with
   `--type proposed_draft --operative-status proposed_not_operative`. It can
   prompt a re-review; it can never support a rule.
-- **Maps and statutes are captures, not authorities.** An `agency_map` or
-  `statute` capture (metadata v2, `--context`) never supports a criterion rule
-  and never registers an issuer or authority source. Registration is a
-  separate, reviewed change (`docs/PROGRAM_SCREEN_SOURCE_CAPTURE_2B.md`).
+- **Maps and statutes are captures, not authorities.** An `agency_map`,
+  `statute`, `regulation`, or `dataset_archive` capture (metadata v2,
+  `--context`) never supports a criterion rule and never registers an issuer
+  or authority source. Registration is a separate, reviewed change
+  (`docs/PROGRAM_SCREEN_SOURCE_CAPTURE_2B.md`), and a map can be registered only
+  through a reviewed authority package (`../authority-packages/`, Phase 3D).
+- **A data archive is never unpacked here.** `original.zip` is the served ZIP,
+  byte for byte; `extracted.txt` is the deterministic
+  `program-screen-zip-manifest` text derived from it in memory (member
+  manifest with SHA-256s, metadata and projection text, attribute summary).
+  Never extract and re-zip it.
 - **Register first.** Every source ID here must match an entry in
   `expectedOfficialSources` (`app/src/shared/program-screen/proposed-verification.ts`).
 
@@ -66,3 +74,24 @@ the capture environment; the upload matched the owner's SHA-256 and size):
 It is a capture only. It fires the Round 1 re-review trigger for c-g and
 registers no authority. See
 `docs/PROGRAM_SCREEN_PHASE_3A_GCS_66499_41_A_9_REVIEW.md`.
+
+Captured 2026-09-29 (Phase 3D) from the exact bytes CAL FIRE's CDN endpoint
+served, which the repository owner downloaded with curl after browser-only
+link discovery on the official CAL FIRE / OSFM pages (the pages themselves
+returned an Akamai 403; the capture environment could not reach either host).
+Each upload matched the owner's SHA-256 and size before any analysis:
+
+| Source ID | Type | Status |
+| --- | --- | --- |
+| `calfire-sra-fhsz-map-2023-09-29` | `agency_map` (metadata v2) | `operative` |
+| `ccr-19-2201-fhsz-sra-final-text` | `regulation` (metadata v2) | `status_unconfirmed` (it prints no statement of its own effect) |
+| `calfire-fhszsra-23-3-data` | `dataset_archive` (metadata v2, `original.zip`) | `operative` (per its metadata) |
+
+They are the members of the authority package `calfire-sra-fhsz-2023-09-29`.
+The regulation's page images show Title 14 §1280.01 struck through; read it
+only inside §2201. See `docs/PROGRAM_SCREEN_PHASE_3D_CALFIRE_SRA_PACKAGE.md`.
+
+The 36 MB ZIP is committed so this first package is reproducible offline.
+Future large GIS revisions should be evaluated for an immutable external
+artifact store, pinned by SHA-256, rather than assuming every revision
+belongs in Git history.

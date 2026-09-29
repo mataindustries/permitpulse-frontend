@@ -32,6 +32,7 @@ import {
 } from "../src/shared/program-screen/schema";
 import {
   canSupportCriterionRule,
+  captureHostBasis,
   excerptAppearsInCapture,
   humanRecordCaptureIssues,
   isNormalizedExtraction,
@@ -189,6 +190,10 @@ const officialSourceFiles = Object.keys(
 
 const OFFICIAL_DIR = "app/fixtures/program-screen/official-sources/";
 const CAPTURED_SOURCE_IDS = [
+  // Phase 3D: the three members of the CAL FIRE SRA authority package.
+  "calfire-fhszsra-23-3-data",
+  "calfire-sra-fhsz-map-2023-09-29",
+  "ccr-19-2201-fhsz-sra-final-text",
   "gcs-66499-41",
   "low-rise-draft-2026-09-24",
   "ordinance-188967",
@@ -599,14 +604,14 @@ describe("Captured official sources (official-sources/)", () => {
     expect(officialSourceFiles).toContain("README.md");
     for (const path of officialSourceFiles) {
       expect(path, path).toMatch(
-        /^(?:README\.md|[a-z0-9]+(?:-[a-z0-9]+)*\/(?:original\.pdf|original\.html|extracted\.txt|metadata\.json))$/,
+        /^(?:README\.md|[a-z0-9]+(?:-[a-z0-9]+)*\/(?:original\.pdf|original\.html|original\.zip|extracted\.txt|metadata\.json))$/,
       );
     }
     for (const capture of Object.values(officialCaptures)) {
       expect(capture.metadata, capture.directory).not.toBeNull();
       expect(capture.extracted, capture.directory).not.toBeNull();
       const id = capture.directory.slice(OFFICIAL_DIR.length);
-      // original.pdf, or original.html for a served statute page (metadata v2).
+      // original.pdf, original.html for a served statute page, or original.zip for a data archive (metadata v2).
       const original = capture.metadata?.original.file ?? "original.pdf";
       expect(officialSourceFiles, capture.directory).toContain(`${id}/${original}`);
       expect(officialByteChecks[capture.directory]?.files).toEqual(
@@ -646,6 +651,19 @@ describe("Captured official sources (official-sources/)", () => {
       }),
     );
     expect(pins).toEqual({
+      // Phase 3D: the CAL FIRE SRA package members (docs/PROGRAM_SCREEN_PHASE_3D_CALFIRE_SRA_PACKAGE.md).
+      "calfire-fhszsra-23-3-data": [
+        "e744eb8eb7895157f4025109f29ff5312180a52fdb4648ff9fe9328edf4db3b2",
+        "a85ff7eecf0f8ffa80d7dd8dcdc727a9dde42979fb3b7b8d5614b7a47a6b5a8a",
+      ],
+      "calfire-sra-fhsz-map-2023-09-29": [
+        "6e54c1bb10672d2ca5f307c920f09b874b5f9be671b3fa001df6e9eb7b4729e4",
+        "11830e2c8c29f368e4087ae9ff270ee042673dfd7be6e354750c326579e5b1fe",
+      ],
+      "ccr-19-2201-fhsz-sra-final-text": [
+        "977abe3a6fc0da2568cabe6bfb164bbb8965e2bc8ef2b01b9012dd8b5517d147",
+        "61aafec5e4a394ffb5724cb894dc570fc28e36e7c7174754016c5e64b8d78657",
+      ],
       // Phase 3A: the served leginfo page for GOV 66499.41 (docs/PROGRAM_SCREEN_PHASE_3A_GCS_66499_41_A_9_REVIEW.md).
       "gcs-66499-41": [
         "3521eb92f68d966461eb0c7b60ebffad8371b487eff2f014417cd74fc077ec72",
@@ -682,6 +700,10 @@ describe("Captured official sources (official-sources/)", () => {
       };
     });
     expect(summary).toEqual([
+      // Phase 3D: package members never support a rule. The regulation prints no statement of its own effect.
+      { id: "calfire-fhszsra-23-3-data", type: "dataset_archive", status: "operative", may_change: [], supports_rule: false },
+      { id: "calfire-sra-fhsz-map-2023-09-29", type: "agency_map", status: "operative", may_change: [], supports_rule: false },
+      { id: "ccr-19-2201-fhsz-sra-final-text", type: "regulation", status: "status_unconfirmed", may_change: [], supports_rule: false },
       // A statute capture never supports a rule (Phase 2b B4), even when operative.
       { id: "gcs-66499-41", type: "statute", status: "operative", may_change: [], supports_rule: false },
       {
@@ -741,13 +763,24 @@ describe("Captured official sources (official-sources/)", () => {
       "shra-2025-10-28",
       "low-rise-draft-2026-09-24",
       "gcs-66499-41",
+      "calfire-sra-fhsz-map-2023-09-29",
+      "ccr-19-2201-fhsz-sra-final-text",
+      "calfire-fhszsra-23-3-data",
     ]);
     const drafts = expectedOfficialSources.filter((source) => source.source_type === "proposed_draft");
     expect(drafts.map((source) => source.source_id)).toEqual(["low-rise-draft-2026-09-24"]);
     expect(drafts[0].may_change_source_ids).toEqual(["ordinance-188967"]);
     const urls = expectedOfficialSources.flatMap((source) => (source.official_url ? [source.official_url] : []));
     expect(new Set(urls).size).toBe(urls.length);
-    for (const url of urls) expect(officialSourceUrlIssue(url), url).toBeNull();
+    // Phase 3D: a package member's CDN URL passes only through its own reviewed exception, never globally.
+    for (const source of expectedOfficialSources) {
+      if (source.official_url === null) continue;
+      const host = captureHostBasis(source.official_url, { source_id: source.source_id, source_type: source.source_type, test_only: false });
+      expect(host.issue, source.official_url).toBeNull();
+      const global = officialSourceUrlIssue(source.official_url);
+      if (typeof host.basis === "string") expect(global, source.official_url).toBeNull();
+      else expect(global, source.official_url).toMatch(/is not an official source host/);
+    }
 
     // A draft can never be filed as, or replace, the adopted ordinance.
     const draftAsAdopted = parseLikeCapture({

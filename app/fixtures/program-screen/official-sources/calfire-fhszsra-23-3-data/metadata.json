@@ -1,0 +1,114 @@
+{
+  "schema_version": "program-screen-official-source-v2",
+  "source_id": "calfire-fhszsra-23-3-data",
+  "title": "CAL FIRE, State Responsibility Area Fire Hazard Severity Zones (FHSZSRA_23_3), GIS data archive",
+  "official_url": "https://34c031f8-c9fd-4018-8c5a-4159cdff6b0d-cdn-endpoint.azureedge.net/-/media/osfm-website/what-we-do/community-wildfire-preparedness-and-mitigation/fire-hazard-severity-zones/fhszsra_23_3.zip?hash=87816F8F0635FFA1D7B99A723DE38A70&rev=f5118b1ba17044a8aa3cd2994f00d6d3",
+  "source_type": "dataset_archive",
+  "document_date": null,
+  "retrieved_at": "2026-09-29T04:53:37Z",
+  "sha256_original": "e744eb8eb7895157f4025109f29ff5312180a52fdb4648ff9fe9328edf4db3b2",
+  "sha256_extracted": "a85ff7eecf0f8ffa80d7dd8dcdc727a9dde42979fb3b7b8d5614b7a47a6b5a8a",
+  "operative_status": "operative",
+  "notes": "Exact HTTP response body served by CAL FIRE's CDN endpoint (HTTP/2 200, content-type application/x-zip-compressed, content-length 36001656, last-modified Mon, 24 Feb 2025 18:01:18 GMT, etag b913eaa131b7421fa81992d77e702392, content-disposition attachment; filename=FHSZSRA_23_3.zip); retrieved_at is the owner's recorded retrieval time (server Date 04:53:33 GMT). The link, SRA FHSZ Data Effective April 1, 2024, was found by browser-only link discovery on the official CAL FIRE / OSFM Fire Hazard Severity Zones page; the owner downloaded it with curl and uploaded it in two byte-for-byte parts, which reassembled to the owner's SHA-256 and size before any analysis. The capture environment could not reach the host (egress 403). Stored byte for byte as original.zip, never extracted to disk or re-zipped. The overlay layer is the FHSZSRA_23_3 shapefile (18,423 SRA polygons, EPSG:3310); the geodatabase copy is pinned by hash only. Classes come from the FHSZ_Descr labels, never the numeric FHSZ code, whose order is the reverse of the map legend's. No polygon means the land is not SRA, never a negative zone result. The archive prints no date of its own (document_date null); its metadata states the adoption and effective dates, and the fields listed as non_authoritative are kept but never relied on. idPurp repeats the OAL notice's slip Section 1280.1 for 1280.01.",
+  "may_change_source_ids": [],
+  "original": {
+    "file": "original.zip",
+    "media_type": "application/zip",
+    "bytes": 36001656
+  },
+  "extraction": {
+    "file": "extracted.txt",
+    "extractor": "program-screen-zip-manifest",
+    "extractor_version": "1.0.0",
+    "normalization": "program-screen-text-v1",
+    "page_separator": "form_feed",
+    "page_count": 7,
+    "pages_without_text": []
+  },
+  "host_basis": {
+    "exception_id": "calfire-cdn-fhszsra-23-3-data"
+  },
+  "agency_map": null,
+  "statute": null,
+  "regulation": null,
+  "dataset_archive": {
+    "dataset_name": "FHSZSRA_23_3",
+    "title": {
+      "page": 6,
+      "text": "/metadata/dataIdInfo/idCitation/resTitle: State Responsibility Area Fire Hazard Severity Zones (FHSZSRA_23_3)"
+    },
+    "publisher": {
+      "name": "CAL FIRE",
+      "excerpt": {
+        "page": 6,
+        "text": "/metadata/dataIdInfo/idCitation/citRespParty/rpOrgName: Fire Hazard Severity Zone Team, CAL FIRE"
+      }
+    },
+    "crs": {
+      "epsg": 3310,
+      "excerpt": {
+        "page": 6,
+        "text": "UNIT[\"Meter\",1.0],AUTHORITY[\"EPSG\",3310]]"
+      }
+    },
+    "geometry": {
+      "shape_type": "PolygonZ",
+      "feature_count": 18423
+    },
+    "class_field": {
+      "field": "FHSZ_Descr",
+      "values": [
+        {
+          "label": "Very High",
+          "count": 8411
+        },
+        {
+          "label": "High",
+          "count": 5824
+        },
+        {
+          "label": "Moderate",
+          "count": 4188
+        }
+      ]
+    },
+    "extent_field": {
+      "field": "SRA",
+      "values": [
+        {
+          "label": "SRA",
+          "count": 18423
+        }
+      ]
+    },
+    "status_as_published": {
+      "page": 6,
+      "text": "/metadata/dataIdInfo/idAbs: Fire Hazard Severity Zone classes from the map dated September 29, 2023, as adopted on January 31, 2024 and implemented on April 1, 2024"
+    },
+    "non_authoritative": [
+      {
+        "path": "/metadata/dataIdInfo/idCitation/date/pubDate",
+        "reason": "Stale: 2022-04-12 predates the September 29, 2023 map this archive represents. Never used for version, registration, or currency."
+      },
+      {
+        "path": "/metadata/dataIdInfo/idCitation/resEd",
+        "reason": "Stale draft edition label 22_2; the archive is FHSZSRA_23_3. Never used for version, registration, or currency."
+      },
+      {
+        "path": "/metadata/eainfo/detailed/enttyp/enttypl",
+        "reason": "Stale draft entity label FHSZSRA_DRAFT22_1. Never used for version, registration, or currency."
+      },
+      {
+        "path": "/metadata/spatRepInfo/VectSpatRep/geometObjs/geoObjCnt",
+        "reason": "Reads 0, contradicting the 18,423 features in the archive's own attribute table and index. Never used."
+      },
+      {
+        "path": "/metadata/spdoinfo/ptvctinf/esriterm/efeacnt",
+        "reason": "Reads 0, contradicting the 18,423 features in the archive's own attribute table and index. Never used."
+      }
+    ]
+  },
+  "capture_tool": "app/scripts/capture-program-screen-source.ts",
+  "is_ai_generated": false,
+  "test_only": false
+}

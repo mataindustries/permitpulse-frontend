@@ -1,0 +1,127 @@
+Data Sources:
+CAL FIRE Fire Hazard Severity Zones (FHSZSRA_23_3)
+CAL FIRE State Responsibility Areas (SRA22_2)
+Obtain FRAP maps, data, metadata, and publications at https://frap.fire.ca.gov. For more information, please call 916-633-7655
+or email FHSZcomments@fire.ca.gov.
+The State of California and the Department of Forestry and Fire Protection make no representations or warranties regarding the accuracy of data or maps.
+Neither the State nor the Department shall be liable under any circumstances for any direct, special, incidental, or consequential damages with respect to
+any claim by any user or third party on account of, or arising from, the use of data or maps.
+Gavin Newsom, Governor, State of California
+Wade Crowfoot, Secretary for Natural Resources,
+California Natural Resources Agency
+Daniel Berlant, State Fire Marshal (Appointed),
+California Department of Forestry and Fire Protection
+M E X I C O
+A R I Z
+O N A
+N E V A D A
+U T A H
+N E V A D A
+O R E G O NALAMEDA
+ALPINE
+AMADOR
+BUTTE
+CALAVERAS
+COLUSA
+CONTRA COSTA
+DEL NORTE
+EL DORADO
+FRESNO
+GLENN
+HUMBOLDT
+IMPERIAL
+INYO
+KERN
+KINGS
+LAKE
+LASSEN
+LOS ANGELES
+MADERA
+MARIN
+MARIPOSA
+MENDOCINO
+MERCED
+MODOC
+MONO
+MONTEREY
+NAPA
+NEVADA
+ORANGE
+PLACER
+PLUMAS
+RIVERSIDE
+SACRAMENTO
+SAN BENITO
+SAN
+BERNARDINO
+SAN DIEGO
+SAN JOAQUIN
+SAN LUIS
+OBISPO
+SAN
+MATEO
+SANTA BARBARA
+SANTA CLARA
+SANTA CRUZ
+SHASTA
+SIERRA
+SISKIYOU
+SOLANO
+SONOMA
+STANISLAUS
+SUTTER
+TEHAMA
+TRINITY
+TULARE
+TUOLUMNE
+VENTURA
+YOLO
+YUBA
+Bakersfield
+Eureka
+Fresno
+Redding
+Sacramento
+San
+Bernardino
+San Diego
+San Francisco
+Projection: NAD 83 California Teale Albers
+Scale: 1:1,150,000 at 36" x 48"
+0 50 100 Km
+0 25 50 Miles
+Public Resources Code 4201-4204 directs the California Department of Forestry and
+Fire Protection (CAL FIRE) to map fire hazard within State Responsibility Areas (SRA)
+based on fuel loading, slope, fire weather, and other relevant factors present,
+including areas where winds have been identified by the department as a major
+cause of wildfire spread. These zones, referred to as Fire Hazard Severity Zones
+(FHSZ), classify a wildland zone as Moderate, High, or Very High fire hazard based
+on the average hazard across the area included in the zone.
+Access PDF versions of the maps at https://osfm.fire.ca.gov/fhsz-maps.
+For more information, please visit the Frequently Asked Questions document for the
+2023 Fire Hazard Severity Zones at https://osfm.fire.ca.gov/fhsz or scan the
+QR code above. If you have further questions, please call 916-633-7655 or email
+FHSZcomments@fire.ca.gov.
+Scan or click the QR code
+for more information and
+to visit the interactive
+FHSZ viewer.
+https://osfm.fire.ca.gov/fhsz/
+https://osfm.fire.ca.gov/fhsz/
+https://osfm.fire.ca.gov/fhsz/
+https://osfm.fire.ca.gov/fhsz/
+https://osfm.fire.ca.gov/fhsz/
+Federal Responsibility Area (FRA)
+or Local Responsibility Area (LRA)
+Fire Protection Responsibility Areas
+(non-SRA)
+1 Very High 16,913,515 Acres
+2 High 10,137,597 Acres
+3 Moderate 3,944,882 Acres
+FHSZ FHSZ AcresText2
+Fire Hazard Severity Zones in
+State Responsibility Area (SRA)
+State Responsibility Area
+Fire Hazard Severity Zones
+STATE OF CALIFORNIA
+September 29, 2023

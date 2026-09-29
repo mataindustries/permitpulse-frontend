@@ -1,0 +1,246 @@
+{
+  "schema_version": "program-screen-authority-package-v1",
+  "package_id": "calfire-sra-fhsz-2023-09-29",
+  "title": "CAL FIRE / OSFM State Responsibility Area Fire Hazard Severity Zones, map dated September 29, 2023 (PRC section 4202)",
+  "members": [
+    {
+      "role": "adopted_map",
+      "source_id": "calfire-sra-fhsz-map-2023-09-29",
+      "source_type": "agency_map",
+      "sha256_original": "6e54c1bb10672d2ca5f307c920f09b874b5f9be671b3fa001df6e9eb7b4729e4",
+      "sha256_extracted": "11830e2c8c29f368e4087ae9ff270ee042673dfd7be6e354750c326579e5b1fe"
+    },
+    {
+      "role": "adopting_regulation",
+      "source_id": "ccr-19-2201-fhsz-sra-final-text",
+      "source_type": "regulation",
+      "sha256_original": "977abe3a6fc0da2568cabe6bfb164bbb8965e2bc8ef2b01b9012dd8b5517d147",
+      "sha256_extracted": "61aafec5e4a394ffb5724cb894dc570fc28e36e7c7174754016c5e64b8d78657"
+    },
+    {
+      "role": "overlay_dataset",
+      "source_id": "calfire-fhszsra-23-3-data",
+      "source_type": "dataset_archive",
+      "sha256_original": "e744eb8eb7895157f4025109f29ff5312180a52fdb4648ff9fe9328edf4db3b2",
+      "sha256_extracted": "a85ff7eecf0f8ffa80d7dd8dcdc727a9dde42979fb3b7b8d5614b7a47a6b5a8a"
+    }
+  ],
+  "assertions": {
+    "issuer_identity": {
+      "value": {
+        "issuer_id": "calfire-osfm",
+        "name": "California Department of Forestry and Fire Protection, Office of the State Fire Marshal"
+      },
+      "evidence": [
+        {
+          "source_id": "ccr-19-2201-fhsz-sra-final-text",
+          "sha256_extracted": "61aafec5e4a394ffb5724cb894dc570fc28e36e7c7174754016c5e64b8d78657",
+          "page": 2,
+          "text": "shall be designated by the State Fire Marshal and delineated on a map on file in the Sacramento Office of the Department of Forestry and Fire Protection, Office of the State Fire Marshal"
+        },
+        {
+          "source_id": "calfire-sra-fhsz-map-2023-09-29",
+          "sha256_extracted": "11830e2c8c29f368e4087ae9ff270ee042673dfd7be6e354750c326579e5b1fe",
+          "page": 1,
+          "text": "Daniel Berlant, State Fire Marshal (Appointed), California Department of Forestry and Fire Protection"
+        }
+      ]
+    },
+    "statutory_basis": {
+      "value": "prc_4202",
+      "evidence": [
+        {
+          "source_id": "ccr-19-2201-fhsz-sra-final-text",
+          "sha256_extracted": "61aafec5e4a394ffb5724cb894dc570fc28e36e7c7174754016c5e64b8d78657",
+          "page": 3,
+          "text": "NOTE: Authority cited: Sections 4202, 4203 and 4204, Public Resources Code."
+        }
+      ]
+    },
+    "adopted_status": {
+      "value": "adopted",
+      "evidence": [
+        {
+          "source_id": "calfire-fhszsra-23-3-data",
+          "sha256_extracted": "a85ff7eecf0f8ffa80d7dd8dcdc727a9dde42979fb3b7b8d5614b7a47a6b5a8a",
+          "page": 6,
+          "text": "/metadata/dataIdInfo/idAbs: Fire Hazard Severity Zone classes from the map dated September 29, 2023, as adopted on January 31, 2024 and implemented on April 1, 2024"
+        }
+      ]
+    },
+    "map_identity": {
+      "value": {
+        "title": "State Responsibility Area Fire Hazard Severity Zones"
+      },
+      "evidence": [
+        {
+          "source_id": "ccr-19-2201-fhsz-sra-final-text",
+          "sha256_extracted": "61aafec5e4a394ffb5724cb894dc570fc28e36e7c7174754016c5e64b8d78657",
+          "page": 3,
+          "text": "The map, approved by the Office of the State Fire Marshal, is hereby incorporated by reference and entitled “State Responsibility Area Fire Hazard Severity Zones,” dated September 29, 2023."
+        },
+        {
+          "source_id": "calfire-sra-fhsz-map-2023-09-29",
+          "sha256_extracted": "11830e2c8c29f368e4087ae9ff270ee042673dfd7be6e354750c326579e5b1fe",
+          "page": 1,
+          "text": "State Responsibility Area Fire Hazard Severity Zones STATE OF CALIFORNIA September 29, 2023"
+        }
+      ]
+    },
+    "map_date": {
+      "value": {
+        "date": "2023-09-29",
+        "date_kind": "dated"
+      },
+      "evidence": [
+        {
+          "source_id": "ccr-19-2201-fhsz-sra-final-text",
+          "sha256_extracted": "61aafec5e4a394ffb5724cb894dc570fc28e36e7c7174754016c5e64b8d78657",
+          "page": 3,
+          "text": "The map, approved by the Office of the State Fire Marshal, is hereby incorporated by reference and entitled “State Responsibility Area Fire Hazard Severity Zones,” dated September 29, 2023."
+        },
+        {
+          "source_id": "calfire-sra-fhsz-map-2023-09-29",
+          "sha256_extracted": "11830e2c8c29f368e4087ae9ff270ee042673dfd7be6e354750c326579e5b1fe",
+          "page": 1,
+          "text": "State Responsibility Area Fire Hazard Severity Zones STATE OF CALIFORNIA September 29, 2023"
+        }
+      ]
+    },
+    "adoption_date": {
+      "value": "2024-01-31",
+      "evidence": [
+        {
+          "source_id": "calfire-fhszsra-23-3-data",
+          "sha256_extracted": "a85ff7eecf0f8ffa80d7dd8dcdc727a9dde42979fb3b7b8d5614b7a47a6b5a8a",
+          "page": 6,
+          "text": "/metadata/dataIdInfo/idAbs: Fire Hazard Severity Zone classes from the map dated September 29, 2023, as adopted on January 31, 2024 and implemented on April 1, 2024"
+        }
+      ]
+    },
+    "effective_date": {
+      "value": "2024-04-01",
+      "evidence": [
+        {
+          "source_id": "calfire-fhszsra-23-3-data",
+          "sha256_extracted": "a85ff7eecf0f8ffa80d7dd8dcdc727a9dde42979fb3b7b8d5614b7a47a6b5a8a",
+          "page": 6,
+          "text": "Effective April 1, 2024 this regulatory adoption repeals Section 1280.1 of Title 14 California Code of Regulations and adopts similar regulatory provisions in Section 2201 of Title 19 California Code of Regulations."
+        }
+      ]
+    },
+    "legend_classes": {
+      "value": [
+        "very_high",
+        "high",
+        "moderate"
+      ],
+      "evidence": [
+        {
+          "source_id": "calfire-sra-fhsz-map-2023-09-29",
+          "sha256_extracted": "11830e2c8c29f368e4087ae9ff270ee042673dfd7be6e354750c326579e5b1fe",
+          "page": 1,
+          "text": "Fire Hazard Severity Zones in State Responsibility Area (SRA)"
+        },
+        {
+          "source_id": "calfire-sra-fhsz-map-2023-09-29",
+          "sha256_extracted": "11830e2c8c29f368e4087ae9ff270ee042673dfd7be6e354750c326579e5b1fe",
+          "page": 1,
+          "text": "Very High 16,913,515 Acres"
+        },
+        {
+          "source_id": "calfire-sra-fhsz-map-2023-09-29",
+          "sha256_extracted": "11830e2c8c29f368e4087ae9ff270ee042673dfd7be6e354750c326579e5b1fe",
+          "page": 1,
+          "text": "High 10,137,597 Acres"
+        },
+        {
+          "source_id": "calfire-sra-fhsz-map-2023-09-29",
+          "sha256_extracted": "11830e2c8c29f368e4087ae9ff270ee042673dfd7be6e354750c326579e5b1fe",
+          "page": 1,
+          "text": "Moderate 3,944,882 Acres"
+        }
+      ]
+    },
+    "lot_overlay_dataset": {
+      "value": {
+        "dataset_name": "FHSZSRA_23_3",
+        "class_field": "FHSZ_Descr",
+        "class_labels": {
+          "Very High": "very_high",
+          "High": "high",
+          "Moderate": "moderate"
+        },
+        "extent": {
+          "field": "SRA",
+          "value": "SRA"
+        },
+        "feature_count": 18423,
+        "crs_epsg": 3310
+      },
+      "evidence": [
+        {
+          "source_id": "calfire-sra-fhsz-map-2023-09-29",
+          "sha256_extracted": "11830e2c8c29f368e4087ae9ff270ee042673dfd7be6e354750c326579e5b1fe",
+          "page": 1,
+          "text": "CAL FIRE Fire Hazard Severity Zones (FHSZSRA_23_3)"
+        },
+        {
+          "source_id": "calfire-fhszsra-23-3-data",
+          "sha256_extracted": "a85ff7eecf0f8ffa80d7dd8dcdc727a9dde42979fb3b7b8d5614b7a47a6b5a8a",
+          "page": 6,
+          "text": "/metadata/dataIdInfo/idCitation/resTitle: State Responsibility Area Fire Hazard Severity Zones (FHSZSRA_23_3)"
+        },
+        {
+          "source_id": "calfire-fhszsra-23-3-data",
+          "sha256_extracted": "a85ff7eecf0f8ffa80d7dd8dcdc727a9dde42979fb3b7b8d5614b7a47a6b5a8a",
+          "page": 6,
+          "text": "/metadata/dataIdInfo/idAbs: Fire Hazard Severity Zone classes from the map dated September 29, 2023, as adopted on January 31, 2024 and implemented on April 1, 2024"
+        },
+        {
+          "source_id": "calfire-fhszsra-23-3-data",
+          "sha256_extracted": "a85ff7eecf0f8ffa80d7dd8dcdc727a9dde42979fb3b7b8d5614b7a47a6b5a8a",
+          "page": 3,
+          "text": "values FHSZ_Descr: \"High\" 5824; \"Moderate\" 4188; \"Very High\" 8411"
+        },
+        {
+          "source_id": "calfire-fhszsra-23-3-data",
+          "sha256_extracted": "a85ff7eecf0f8ffa80d7dd8dcdc727a9dde42979fb3b7b8d5614b7a47a6b5a8a",
+          "page": 6,
+          "text": "UNIT[\"Meter\",1.0],AUTHORITY[\"EPSG\",3310]]"
+        }
+      ]
+    },
+    "unclassified_areas": {
+      "value": "no_feature_is_not_a_negative_result",
+      "evidence": [
+        {
+          "source_id": "calfire-sra-fhsz-map-2023-09-29",
+          "sha256_extracted": "11830e2c8c29f368e4087ae9ff270ee042673dfd7be6e354750c326579e5b1fe",
+          "page": 1,
+          "text": "Federal Responsibility Area (FRA) or Local Responsibility Area (LRA) Fire Protection Responsibility Areas (non-SRA)"
+        },
+        {
+          "source_id": "calfire-fhszsra-23-3-data",
+          "sha256_extracted": "a85ff7eecf0f8ffa80d7dd8dcdc727a9dde42979fb3b7b8d5614b7a47a6b5a8a",
+          "page": 3,
+          "text": "values SRA: \"SRA\" 18423"
+        }
+      ]
+    }
+  },
+  "currency": "until_superseded",
+  "excluded_documents": [
+    {
+      "title": "Office of Administrative Law, Notice of Approval of Regulatory Action, OAL matter 2023-1215-03 (dated January 31, 2024)",
+      "url": "https://34c031f8-c9fd-4018-8c5a-4159cdff6b0d-cdn-endpoint.azureedge.net/-/media/osfm-website/what-we-do/code-development-and-analysis/title-19-development/fhsz-2024/notice-of-approval.pdf?hash=941532C8824AE4644648F54D04B73DA8&rev=331dccb3676940b980081f2e7ccfed44",
+      "reason": "Image-only scan (no text layer on any of its 6 pages; SHA-256 d1bf674e255d7c7e285c40fe072a400bd65f8db67189095ea2b0f96524268d29, 1,005,624 bytes). Phase 3D decision D3: external corroboration and provenance history only; never transcribed, captured, or relied on by this package."
+    }
+  ],
+  "notes": [
+    "Phase 3D decisions D1-D7 (docs/PROGRAM_SCREEN_PHASE_3D_CALFIRE_SRA_PACKAGE.md). This package establishes the PRC section 4202 route only; GOV section 51178 is neither captured nor registered.",
+    "The package never determines a lot: a lot result needs a reviewed legal-lot geometry compared deterministically with the pinned overlay dataset. Partial overlap stays unknown, and land with no SRA feature (FRA or LRA) is unknown, never a NO.",
+    "The map date (2023-09-29, dated), the adoption date (2024-01-31), and the effective date (2024-04-01) are kept separate. The map date is never relabeled as issued or adopted.",
+    "The dataset's classes are its FHSZ_Descr labels. Its numeric FHSZ code (3 Very High, 2 High, 1 Moderate) is never semantic authority; the map legend numbers the same classes in the opposite order."
+  ]
+}

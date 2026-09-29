@@ -177,6 +177,14 @@ function qualifiersFor(key: ProgramFactKey, value: boolean | null, route: string
         map_covers_lot: "yes",
         legend_defines_class_for_lot: "yes",
         responsibility_area_as_stated: "not_stated",
+        // Phase 3D: a reviewed lot geometry compared with the package's pinned overlay dataset.
+        // A YES lies wholly in the fact's class; a NO lies in Moderate only.
+        lot_overlay: {
+          method: "deterministic_spatial_overlay",
+          dataset: TEST_CAPTURE,
+          lot_geometry: { store: "case_evidence_file", file_id: "TEST-ONLY-lot-geometry-0001", sha256: "0".repeat(64) },
+          classes_on_lot: value === true ? [authorityFactProfiles[key].hazard_class === "very_high" ? "Very High" : "High"] : value === false ? ["Moderate"] : [],
+        },
       };
     case "farmland_map":
       return {
@@ -243,7 +251,8 @@ function block(evidence: CanonicalEvidenceRecord, route = "prc_4202"): ProgramEv
     source_url: evidence.source.url,
     capture: { store: "repo_official_source", ...TEST_CAPTURE },
     parcel_relationship: {
-      matched_by: "parcel_identifier",
+      // Phase 3D: a hazard result is a spatial overlay of the lot on the pinned dataset.
+      matched_by: authorityFactProfiles[key].qualifier_family === "hazard_map" ? "spatial_overlay" : "parcel_identifier",
       parcel_identifier: "TEST-ONLY-APN-0000",
       legal_lot_reference: "TEST-ONLY Tract 1, Lot 1",
       legal_lot_identity: "parcel_is_one_legal_lot",
@@ -311,7 +320,22 @@ function testRegistries(requirements: Record<string, ProgramCriterionAuthorityRe
       issuer("test-only-recorder"),
     ],
     sources: [
-      source("test-only-4202-map", "agency_hazard_map", "test-only-fire-agency", [VH, HIGH]),
+      // Phase 3D: a hazard source establishes only through a reviewed authority package.
+      {
+        ...source("test-only-4202-map", "agency_hazard_map", "test-only-fire-agency", [VH, HIGH]),
+        package: {
+          manifest_sha256: "0".repeat(64),
+          statutory_basis: "prc_4202" as const,
+          adoption: { status: "adopted" as const, adoption_date: EDITION_DATE, effective_date: EDITION_DATE },
+          currency: "until_superseded" as const,
+          members: { adopted_map: TEST_CAPTURE, adopting_regulation: TEST_CAPTURE, overlay_dataset: TEST_CAPTURE },
+          overlay: {
+            dataset_name: "TEST_ONLY_FHSZ",
+            class_field: "CLASS",
+            class_labels: { "Very High": "very_high" as const, High: "high" as const, Moderate: "moderate" as const },
+          },
+        },
+      },
       source("test-only-fmmp-map", "agency_farmland_map", "test-only-conservation-agency", [FARM]),
       source("test-only-nccp-plan", "adopted_plan_document", "test-only-plan-agency", [NCCP]),
     ],
@@ -1005,12 +1029,16 @@ describe("7. The Phase 3B promotion gates are wired", () => {
     );
   });
 
-  it("points c-g at their Phase 3B decisions and requires exactly the decided gates, all unmet", () => {
+  it("points c-g at their Phase 3B decisions and requires exactly the decided gates, unmet except where Phase 3D met them", () => {
+    // Updated in Phase 3D: the registered PRC §4202 package meets every non-reviewer gate of d,
+    // and every gate of c but statutory_route_recorded (GOV §51178 has no record kind).
+    const reviewer = ["reviewer_confirms_encoded_rule", "human_verification_record"];
+    const unmet: Record<string, readonly string[]> = { ...decidedGates, [C]: ["statutory_route_recorded", ...reviewer], [D]: reviewer };
     for (const id of C_TO_G) {
       const requirement = programAuthorityRegistries.criterion_requirements[id];
       expect(requirement.decision_ref, id).toEqual({ phase: "3B", letter: LETTER[id] });
       expect(requirement.promotion_gates, id).toEqual(decidedGates[id]);
-      expect(authorityPromotionBlockers(shippedCriterion(id), programAuthorityRegistries, false), id).toEqual(decidedGates[id]);
+      expect(authorityPromotionBlockers(shippedCriterion(id), programAuthorityRegistries, false), id).toEqual(unmet[id]);
       const facts = programAuthorityRegistries.fact_policies[shippedCriterion(id).fact_keys[0]];
       expect(facts?.decision_refs, id).toEqual([{ round: 1, letter: LETTER[id] }, { phase: "3B", letter: LETTER[id] }]);
     }
@@ -1048,10 +1076,17 @@ describe("7. The Phase 3B promotion gates are wired", () => {
     expect(authorityPromotionBlockers(c, registries, true)).toEqual(["statutory_route_recorded"]);
   });
 
-  it("keeps promotion impossible under the shipped registries, even with a complete Phase 3B human record", () => {
+  it("keeps promotion impossible under the shipped registries, even with a complete Phase 3B human record (d excepted since Phase 3D)", () => {
     for (const id of C_TO_G) {
       const spy = vi.fn((() => "requires_judgment") as CriterionPredicate);
       const promoted = promote(shippedCriterion(id), spy, { phase: "3B", letter: LETTER[id] });
+      if (id === D) {
+        // Phase 3D: the package meets every other gate of d, so only an explicit human
+        // verification record could promote it. The shipped d has none and stays pending.
+        expect(authorityPromotionBlockers(promoted, programAuthorityRegistries, true), id).toEqual([]);
+        expect(shippedCriterion(id)).toMatchObject({ verification: "pending_human", human_verification: null });
+        continue;
+      }
       expect(criterionAwaitsHumanVerification(promoted), id).toBe(true);
       const records = promoted.fact_keys.map((key) => record(`fact-${key}`, key, true));
       const factIndex = new Map(assessProgramFacts(records, promoted.fact_keys).map((fact) => [fact.key, fact]));
@@ -1150,13 +1185,14 @@ describe("9. Invariants", () => {
     }
   });
 
-  it("registers no issuer, authority source, establishing entry, or host exception", () => {
-    expect(programAuthorityRegistries.issuers).toEqual([]);
-    expect(programAuthorityRegistries.sources).toEqual([]);
+  // Updated in Phase 3D, which registered the CAL FIRE SRA package and nothing else.
+  it("registers only the Phase 3D issuer, source, establishing entries, and host exceptions", () => {
+    expect(programAuthorityRegistries.issuers.map((issuer) => issuer.issuer_id)).toEqual(["calfire-osfm"]);
+    expect(programAuthorityRegistries.sources.map((source) => source.authority_source_id)).toEqual(["calfire-sra-fhsz-2023-09-29"]);
     for (const [key, entry] of Object.entries(programAuthorityRegistries.fact_policies)) {
-      expect(entry?.establishing, key).toEqual([]);
+      expect(entry?.establishing.length, key).toBe(key === VH || key === HIGH ? 1 : 0);
     }
-    expect(sourceHostExceptions).toEqual([]);
+    expect(sourceHostExceptions).toHaveLength(3);
   });
 
   it("keeps every fixture status and roll-up; output changes only by the reviewed labels", async () => {
