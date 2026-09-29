@@ -105,11 +105,12 @@ Every context excerpt is `{ page, text }`, and it must appear on that page of `e
   "edition": { "label": "..." | null, "date": "YYYY-MM-DD" | null,
                "date_kind": "effective" | "adopted" | "published" | "issued" | null,
                "excerpt": { ... } | null },
-  "responsibility_areas": [
+  "responsibility_areas": [                                  // context, only when the map states it
     { "area": "state" | "local" | "federal",
       "legend_classes": ["very_high", "high", "moderate"],   // as this map's legend lists them for the area
       "excerpts": [ { ... } ] }
   ],
+  "legend": { "classes": ["very_high", "high", "moderate"], "excerpts": [ { ... } ] },  // optional (Phase 3C): map-wide legend
   "supersession": { "statement": "stated_current" | "stated_superseded" | "not_stated", "excerpt": { ... } | null }
 }
 ```
@@ -118,7 +119,8 @@ Rules:
 
 - The edition date and its kind are recorded together or not at all.
 - A label or date is recorded exactly when an excerpt shows it, and the edition date is the `document_date`.
-- Each responsibility area is recorded once, with at least one excerpt and unique legend classes. An empty list means the areas are not established.
+- Each responsibility area is recorded once, with at least one excerpt and unique legend classes. An empty list means the map states none. Responsibility area is context only (Phase 3B d, Phase 3C).
+- A map-wide `legend`, when recorded, has unique classes and at least one excerpt.
 - A supersession statement is recorded exactly when an excerpt shows it. A map that states it is superseded is recorded as `superseded`.
 - An `operative` map has an established edition date and does not state that it is superseded.
 - A recommended or proposed map may be captured as `proposed_not_operative` (B7). It can never be registered.
@@ -205,8 +207,8 @@ In Phase 2b, only an `agency_hazard_map` registration backed by an official `age
 - be `operative`, not proposed (B7), unconfirmed, or superseded;
 - have an edition date and kind that equal the registration's;
 - show the issuing agency printed on the map;
-- record at least one responsibility area, and not state that it is superseded;
-- have a legend class for every fact it is registered for: `very_high` for the Very High fact, `high` (in some area) for the High fact;
+- not state that it is superseded;
+- have a legend class for every fact it is registered for: `very_high` for the Very High fact, `high` for the High fact, on the map-wide legend or a stated responsibility area's legend. Since Phase 3C a map that states no responsibility area is not refused for that;
 - have every context excerpt on its page.
 
 A statute, ordinance, memo, or draft capture never passes.

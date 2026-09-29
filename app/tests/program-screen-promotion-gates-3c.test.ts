@@ -172,6 +172,7 @@ function qualifiersFor(key: ProgramFactKey, value: boolean | null, route: string
         family: "hazard_map",
         hazard_class: authorityFactProfiles[key].hazard_class as "very_high" | "high",
         statutory_basis: route as "prc_4202",
+        adoption_status: "adopted",
         named_agency: "department_of_forestry_and_fire_protection",
         map_covers_lot: "yes",
         legend_defines_class_for_lot: "yes",
@@ -234,7 +235,7 @@ function block(evidence: CanonicalEvidenceRecord, route = "prc_4202"): ProgramEv
     edition: {
       label: "TEST-ONLY edition",
       date: EDITION_DATE,
-      date_kind: setup.kind === "agency_hazard_map" ? "adopted" : "effective",
+      date_kind: "effective",
       currency: "current_on_as_of",
       currency_checked_on: REVIEWED_ON,
     },
@@ -633,7 +634,7 @@ describe("2. c: route authority fails closed and never manufactures conflict", (
     ["another statutory basis", (draft: Record<string, any>) => (draft.qualifiers.statutory_basis = "other_basis"), "statutory_route_not_accepted"],
     ["another named agency", (draft: Record<string, any>) => (draft.qualifiers.named_agency = "other_agency"), "statutory_agency_not_recorded"],
     ["no named agency", (draft: Record<string, any>) => (draft.qualifiers.named_agency = "not_established"), "statutory_agency_not_recorded"],
-    ["an edition date that is not the adoption date", (draft: Record<string, any>) => (draft.edition.date_kind = "published"), "hazard_map_adoption_date_not_recorded"],
+    ["a map whose adopted status is not established", (draft: Record<string, any>) => (draft.qualifiers.adoption_status = "not_established"), "hazard_map_adoption_not_established"],
     ["a map that does not cover the lot", (draft: Record<string, any>) => (draft.qualifiers.map_covers_lot = "no"), "hazard_area_not_covered"],
   ])("leaves c unknown for %s", (_name, change, code) => {
     const evidence = record("vh-4202", VH, true);
@@ -730,6 +731,81 @@ describe("3. d: the PRC §4202 route only, decided by lot coverage and the legen
     for (const area of ["state", "local", "federal", "not_stated"]) {
       expect(run(true, (draft) => (draft.qualifiers.responsibility_area_as_stated = area)).status, area).toBe("disqualifying_per_source");
       expect(run(false, (draft) => (draft.qualifiers.responsibility_area_as_stated = area)).status, area).toBe("consistent_with_source");
+    }
+  });
+});
+
+/* ======================================================================== */
+
+describe("3b. PRC §4202: an adopted CAL FIRE map, dated by its edition or its adoption date", () => {
+  // Phase 3B d point 6: "map identity, edition or adoption date". Adopted
+  // status is its own reviewed field; the date may be of either kind.
+  const D_ID = "la_shra.test-only-high-date";
+  const subjects: Array<[string, ProgramFactKey, () => ProgramCriterion, readonly boolean[]]> = [
+    // c can establish only YES on Route 2: a NO needs GOV §51178 too.
+    ["c, Route 2", VH, () => routeCriterion(), [true]],
+    ["d", HIGH, () => synthetic(D_ID, HIGH), [true, false]],
+  ];
+  const run = (build: () => ProgramCriterion, key: ProgramFactKey, value: boolean, change: (draft: Record<string, any>) => void) => {
+    const criterion = build();
+    const evidence = record(`map-4202-${String(value)}`, key, value);
+    return screen(criterion, [evidence], {
+      blocks: [edit(block(evidence), change)],
+      registries: testRegistries({ [criterion.id]: enforcedRequirement(criterion.id) }),
+    }).criterion;
+  };
+  const byEdition = (draft: Record<string, any>) =>
+    Object.assign(draft.edition, { label: "TEST-ONLY 2026 edition", date: EDITION_DATE, date_kind: "effective" });
+  const byAdoptionDate = (draft: Record<string, any>) =>
+    Object.assign(draft.edition, { label: null, date: EDITION_DATE, date_kind: "adopted" });
+  const expected = (value: boolean) => (value ? "disqualifying_per_source" : "consistent_with_source");
+
+  it.each(subjects)("%s: establishes an adopted map identified by its edition and version", (_name, key, build, values) => {
+    for (const value of values) {
+      expect(run(build, key, value, byEdition), String(value)).toMatchObject({ status: expected(value), authority: { established: true } });
+    }
+  });
+
+  it.each(subjects)("%s: establishes an adopted map dated by its adoption date", (_name, key, build, values) => {
+    for (const value of values) {
+      expect(run(build, key, value, byAdoptionDate), String(value)).toMatchObject({ status: expected(value), authority: { established: true } });
+    }
+  });
+
+  it.each(subjects)("%s: stays unknown when adopted status is not established, whichever date the map carries", (_name, key, build, values) => {
+    for (const value of values) {
+      for (const [status, dating] of [
+        ["not_established", byEdition],
+        ["not_established", byAdoptionDate],
+        ["not_adopted", byEdition],
+      ] as const) {
+        const result = run(build, key, value, (draft) => {
+          dating(draft);
+          draft.qualifiers.adoption_status = status;
+        });
+        expect(result.status, `${value} ${status}`).toBe("unknown");
+        expect(failureCodes(result), `${value} ${status}`).toContain("hazard_map_adoption_not_established");
+      }
+      // An adoption date on a map recorded as not adopted is a contradiction.
+      expectCode(
+        () =>
+          run(build, key, value, (draft) => {
+            byAdoptionDate(draft);
+            draft.qualifiers.adoption_status = "not_adopted";
+          }),
+        "INVALID_PROGRAM_EVIDENCE_AUTHORITY",
+      );
+    }
+  });
+
+  it.each(subjects)("%s: stays unknown without map identity or a dated version", (_name, key, build, values) => {
+    for (const value of values) {
+      const unidentified = run(build, key, value, (draft) => (draft.source_identifier = { scheme: "portal_url_only", value: "TEST-ONLY map page" }));
+      expect(unidentified.status).toBe("unknown");
+      expect(failureCodes(unidentified)).toContain("authority_source_not_registered");
+      const undated = run(build, key, value, (draft) => Object.assign(draft.edition, { label: "TEST-ONLY 2026 edition", date: null, date_kind: null }));
+      expect(undated.status).toBe("unknown");
+      expect(failureCodes(undated)).toContain("edition_not_established");
     }
   });
 });
@@ -1134,6 +1210,7 @@ describe("9. Invariants", () => {
       "## Legal-lot identity",
       "## Qualifier fields",
       "## Promotion gates",
+      "## Agency-map capture readiness",
       "## SHRA completeness guard (G1, G2)",
       "## Client labels",
       "## Evaluator and demo output",

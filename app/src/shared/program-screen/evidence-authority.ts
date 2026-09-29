@@ -149,6 +149,12 @@ export const zoneMatches = [
 export const hazardClasses = ["very_high", "high"] as const;
 /** The statute a fire-hazard record itself names as its basis (Phase 3B c, d). */
 export const hazardStatutoryBases = [...fireHazardStatutoryRoutes, "other_basis", "not_established"] as const;
+/**
+ * Whether reviewed metadata establishes that a fire-hazard map is adopted
+ * (PRC §4202: a map adopted by CAL FIRE). Established this way, the map's
+ * edition may be dated by an edition date or its adoption date.
+ */
+export const hazardMapAdoptionStatuses = ["adopted", "not_adopted", "not_established"] as const;
 /** The agency a fire-hazard record names as determining or adopting the zone. */
 export const hazardNamedAgencies = ["department_of_forestry_and_fire_protection", "other_agency", "not_established"] as const;
 /** Context only, recorded when the source states it (Phase 3B d); never a condition. */
@@ -374,6 +380,8 @@ const qualifiersSchema = z.discriminatedUnion("family", [
       hazard_class: z.enum(hazardClasses),
       /** The statute the record names as its basis: its route (Phase 3B c, d). */
       statutory_basis: z.enum(hazardStatutoryBases),
+      /** Whether the map is adopted; a PRC §4202 record needs `adopted`. */
+      adoption_status: z.enum(hazardMapAdoptionStatuses),
       /** The agency the record names as determining or adopting the zone. */
       named_agency: z.enum(hazardNamedAgencies),
       /** Whether the map covers the lot proposed to be subdivided. */
@@ -563,6 +571,9 @@ export function evidenceAuthorityLinkIssues(
     if (value?.kind === "boolean" && value.value && qualifiers.legend_defines_class_for_lot === "no") {
       issues.push("A parcel cannot be inside a class the map's legend does not define.");
     }
+    if (qualifiers.adoption_status === "not_adopted" && block.edition.date_kind === "adopted") {
+      issues.push("An adoption date contradicts a map recorded as not adopted.");
+    }
   }
   if (qualifiers?.family === "farmland_map" && value?.kind === "boolean") {
     const designated =
@@ -651,7 +662,7 @@ export const authorityRecordFailureCodes = [
   "statutory_route_not_accepted",
   "statutory_route_record_kind_undefined",
   "statutory_agency_not_recorded",
-  "hazard_map_adoption_date_not_recorded",
+  "hazard_map_adoption_not_established",
   "hazard_area_not_covered",
   "hazard_legend_class_not_defined",
   "farmland_map_program_not_established",

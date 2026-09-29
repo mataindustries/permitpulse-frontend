@@ -210,7 +210,10 @@ function familyFailures(
       failures.push("statutory_route_record_kind_undefined");
     }
     if (qualifiers.named_agency !== "department_of_forestry_and_fire_protection") failures.push("statutory_agency_not_recorded");
-    if (basis === "prc_4202" && block.edition.date_kind !== "adopted") failures.push("hazard_map_adoption_date_not_recorded");
+    // Phase 3B d: map identity, edition or adoption date. The map must be
+    // established as adopted; its edition may then be dated either way (the
+    // edition date checks above apply to any date kind).
+    if (basis === "prc_4202" && qualifiers.adoption_status !== "adopted") failures.push("hazard_map_adoption_not_established");
     if (qualifiers.map_covers_lot !== "yes") failures.push("hazard_area_not_covered");
     if (family.require_legend_class && qualifiers.legend_defines_class_for_lot !== "yes") {
       failures.push("hazard_legend_class_not_defined");

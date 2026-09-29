@@ -235,6 +235,7 @@ function qualifiersFor(key: ProgramFactKey, value: CanonicalEvidenceRecord["norm
         family,
         hazard_class: authorityFactProfiles[key].hazard_class,
         statutory_basis: "prc_4202",
+        adoption_status: "adopted",
         named_agency: "department_of_forestry_and_fire_protection",
         map_covers_lot: "yes",
         legend_defines_class_for_lot: "yes",
@@ -306,8 +307,7 @@ function completeBlock(source: CanonicalEvidenceRecord): ProgramEvidenceAuthorit
     edition: {
       label: "TEST-ONLY edition",
       date: EDITION_DATE,
-      // Phase 3C: a PRC §4202 map's edition is its adoption date.
-      date_kind: profile.qualifier_family === "hazard_map" ? "adopted" : "effective",
+      date_kind: "effective",
       currency: "current_on_as_of",
       currency_checked_on: REVIEWED_ON,
     },

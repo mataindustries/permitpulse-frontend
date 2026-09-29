@@ -36,6 +36,7 @@ The abstraction is limited to one optional criterion field, and the schema accep
 | Family | Field | Values | Use |
 | --- | --- | --- | --- |
 | `hazard_map` | `statutory_basis` (new) | `gov_51178`, `prc_4202`, `other_basis`, `not_established` | The route. Very High rests on either route, High on `prc_4202` only (`hazardClassStatutoryRoutes`). |
+| `hazard_map` | `adoption_status` (new) | `adopted`, `not_adopted`, `not_established` | Whether reviewed metadata establishes that the map is adopted. A PRC §4202 record needs `adopted`. |
 | `hazard_map` | `named_agency` (new) | `department_of_forestry_and_fire_protection`, `other_agency`, `not_established` | The agency the record names. |
 | `hazard_map` | `map_covers_lot` (was `map_covers_that_area`) | `yes`, `no`, `not_established` | Keyed to the lot, not a responsibility area. |
 | `hazard_map` | `legend_defines_class_for_lot` (was `legend_defines_class_for_area`) | `yes`, `no`, `not_established` | Whether the legend defines the fact's class for the area containing the lot. |
@@ -46,9 +47,9 @@ The abstraction is limited to one optional criterion field, and the schema accep
 | `adopted_plan` | `plan_type` (new) | `natural_community_conservation_plan`, `habitat_conservation_plan`, `other_natural_resource_protection_plan`, `not_established` | Only an NCCP can back f. |
 | `adopted_plan` | `statutory_basis` (new) | `fish_and_game_code_2800_et_seq`, `federal_endangered_species_act`, `other_basis`, `not_established` | Only the NCCP Act can back f. |
 
-Map identity and edition stay in the existing block fields (`source_identifier`, `document_title`, `edition`). A PRC §4202 record's edition date must be its adoption date (`date_kind: "adopted"`, c point 6). A new record kind, `agency_farmland_map`, is the only kind a farmland policy may list. The farmland family policy gains `accepted_usda_criteria_documentation`, shipped empty; a populated farmland policy must name at least one.
+Map identity and edition stay in the existing block fields (`source_identifier`, `document_title`, `edition`). A PRC §4202 record establishes only when it shows an adopted CAL FIRE map under PRC §4202 (`statutory_basis: "prc_4202"`, `named_agency` CAL FIRE, `adoption_status: "adopted"`) and names a registered map edition. Following d point 6 ("map identity, edition or adoption date"), the edition may be dated by its edition date (effective, published, or issued) or by its adoption date; the date need not itself be labelled adopted. The block must still carry the registered edition's date, so an undated edition label alone stays unknown. An adoption date on a map recorded as `not_adopted` is rejected as contradictory. This applies to c's Route 2 as well. A new record kind, `agency_farmland_map`, is the only kind a farmland policy may list. The farmland family policy gains `accepted_usda_criteria_documentation`, shipped empty; a populated farmland policy must name at least one.
 
-New record failure codes: `statutory_route_not_accepted`, `statutory_route_record_kind_undefined`, `statutory_agency_not_recorded`, `hazard_map_adoption_date_not_recorded`, `farmland_map_program_not_established`, `farmland_designation_not_established`, `farmland_usda_criteria_not_established`, `plan_type_not_nccp`. `hazard_area_not_covered` no longer reads responsibility area.
+New record failure codes: `statutory_route_not_accepted`, `statutory_route_record_kind_undefined`, `statutory_agency_not_recorded`, `hazard_map_adoption_not_established`, `farmland_map_program_not_established`, `farmland_designation_not_established`, `farmland_usda_criteria_not_established`, `plan_type_not_nccp`. `hazard_area_not_covered` no longer reads responsibility area.
 
 ## Promotion gates
 
@@ -69,6 +70,10 @@ The five Phase 3B gates join `criterionPromotionGates`. Each c–g requirement n
 Under the shipped registries every c–g gate except the two reviewer gates is unmet, because nothing can establish a c–g fact. The tests also show each new gate becoming met once its enforcement is configured in TEST-ONLY registries; c then still waits on `statutory_route_recorded`.
 
 The Phase 3B record schema now accepts that the gates its record defines exist in code (`rereviewIntroducedPromotionGates`), and still rejects a redefinition of any earlier gate.
+
+## Agency-map capture readiness
+
+Responsibility area is context, never a condition, at capture registration too (Phase 3B d). `authoritySourceCaptureIssues` no longer refuses an agency-map capture because it records no responsibility area. The operative check is unchanged: the captured legend must define the class of every fact the registration names (`very_high`, `high`). That class may come from a new optional map-wide `agency_map.legend` (classes and page excerpts, for a map whose legend is not tied to a stated area) or from a stated responsibility area's legend. `responsibility_areas` stays in the capture schema and is kept, with its excerpts checked, whenever the map states it. No capture file changes. Evaluation and promotion never read responsibility area: the hazard gate checks map coverage of the lot and the legend class for the lot.
 
 ## SHRA completeness guard (G1, G2)
 
@@ -99,6 +104,5 @@ The only cause is the label text. Replacing the six old strings in the pre-3C ou
 
 - A record kind for a GOV §51178 determination, after GOV §51178 is captured and reviewed.
 - Registering CAL FIRE, the Department of Conservation, any plan, or any recorder, and capturing their sources.
-- The source-capture registration check still asks an agency-map capture to list responsibility areas; aligning it with d's rule belongs with the first fire-map capture.
 - A G1 or G2 criterion or fact, or a human resolution of either.
 - Combined High-or-Very-High coverage (deferred by Phase 3B d).
