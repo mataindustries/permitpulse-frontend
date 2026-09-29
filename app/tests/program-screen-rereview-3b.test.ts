@@ -23,6 +23,7 @@ import {
   humanReviewDecisionsSchema,
   humanRereviewDecisionLabels,
   humanRereviewDecisionsSchema,
+  rereviewIntroducedPromotionGates,
   statuteRereviewWarnings,
 } from "../src/shared/program-screen/proposed-verification";
 import { buildProgramScreenPublicDemoPayload } from "../src/shared/program-screen/public-demo";
@@ -41,6 +42,10 @@ import { criterionPromotionGates } from "../src/shared/program-screen/types";
  * decisions c-g, recorded only. Nothing is promoted, wired, registered, or
  * relabelled, and Round 1 history is not edited.
  * Record: docs/PROGRAM_SCREEN_PHASE_3B_REREVIEW_DECISIONS.md.
+ *
+ * Phase 3C wired the decided gates and made the deferred label changes
+ * (docs/PROGRAM_SCREEN_PHASE_3C_PROMOTION_GATES.md). The record itself is
+ * unchanged; the assertions about the code that 3C superseded are marked.
  */
 
 const C_TO_G = [
@@ -88,13 +93,21 @@ const fence = (text: string) => `\`\`\`text\n${text}\n\`\`\``;
 const docProse = rereviewDoc.replace(/^```text\n[\s\S]*?\n```$/gm, "");
 const quotedSegments = (text: string) => [...text.matchAll(/“([^”]*)”/g)].map((match) => match[1]);
 
-/** Every text a curly-quoted segment may be traced to: the two sources, the reviewer's words, and the shipped client labels. */
+/** The client labels as shipped when Phase 3B was recorded; Phase 3C changed them. */
+const PHASE_3B_SHIPPED_CLIENT_LABELS = {
+  "very-high-fire-hazard-severity-zone": "the property's fire-hazard designation",
+  "high-fire-hazard-severity-zone": "whether the parcel is mapped in a High Fire Hazard Severity Zone, in a state or local responsibility area",
+  "conservation-easement": "whether the parcel is under a recorded conservation easement",
+} as const;
+
+/** Every text a curly-quoted segment may be traced to: the two sources, the reviewer's words, and the client labels as then shipped. */
 const traceableTexts = [
   memoExtracted,
   statuteExtracted,
   rereview.confirmations_verbatim,
   ...rereview.decisions.map((entry) => entry.reviewer_text_verbatim),
   ...Object.values(programFactSpecs).map((spec) => spec.client_label),
+  ...Object.values(PHASE_3B_SHIPPED_CLIENT_LABELS),
 ].map(normalizeSourceText);
 const traces = (segment: string) => traceableTexts.some((text) => text.includes(normalizeSourceText(segment)));
 
@@ -277,7 +290,7 @@ describe("2. The trigger is answered, pinned to the capture", () => {
 
 /* ======================================================================== */
 
-describe("3. Gates: recorded, not wired", () => {
+describe("3. Gates: recorded in Phase 3B, wired in Phase 3C", () => {
   const registry = programAuthorityRegistries.criterion_requirements;
   const sorted = (values: readonly string[]) => [...values].sort();
 
@@ -296,9 +309,11 @@ describe("3. Gates: recorded, not wired", () => {
       "statutory_route_recorded",
       "statutory_routes_assessed_separately",
     ]);
+    // Phase 3C: every gate this record defines is now a code gate, introduced by 3B.
     for (const gate of Object.keys(rereview.gate_definitions)) {
-      expect((criterionPromotionGates as readonly string[]).includes(gate), gate).toBe(false);
+      expect((criterionPromotionGates as readonly string[]).includes(gate), gate).toBe(true);
     }
+    expect([...rereviewIntroducedPromotionGates["3B"]].sort()).toEqual(Object.keys(rereview.gate_definitions).sort());
     expect(rereview.gate_definitions.statutory_routes_assessed_separately).toContain("a NO under only one route cannot clear the criterion");
     expect(decisionFor("d").gates_retained_until_replacement_wired).toEqual([
       { gate: "responsibility_area_and_legend_recorded", replaced_by: "prc_4202_map_coverage_and_legend_class_recorded" },
@@ -313,31 +328,38 @@ describe("3. Gates: recorded, not wired", () => {
     }
   });
 
-  it("leaves the authority registry at exactly the wired set, still pointing at Round 1", () => {
+  it("holds the authority registry to every decided gate, pointing at Phase 3B (superseded in Phase 3C)", () => {
     for (const entry of rereview.decisions) {
       const requirement = registry[entry.criterion_id];
       expect(requirement, entry.letter).toBeDefined();
-      const wired = [
-        ...entry.promotion_gates.filter((gate) => !entry.gates_not_yet_wired.includes(gate)),
-        ...entry.gates_retained_until_replacement_wired.map((retained) => retained.gate),
-      ];
-      expect(sorted(requirement.promotion_gates), entry.letter).toEqual(sorted(wired));
-      expect(requirement.promotion_gates, entry.letter).toEqual(round1For(entry.letter).promotion_gates);
-      if (requirement.applicability === "enforced") expect(requirement.decision_ref, entry.letter).toEqual({ round: 1, letter: entry.letter });
+      // Phase 3C wired every gate the record lists as not yet wired, and retired
+      // each retained gate once its replacement was wired.
+      expect(requirement.promotion_gates, entry.letter).toEqual(entry.promotion_gates);
+      for (const gate of entry.gates_not_yet_wired) expect(requirement.promotion_gates, `${entry.letter}: ${gate}`).toContain(gate);
+      for (const retained of entry.gates_retained_until_replacement_wired) {
+        expect(requirement.promotion_gates, entry.letter).not.toContain(retained.gate);
+        expect(requirement.promotion_gates, entry.letter).toContain(retained.replaced_by);
+      }
+      expect(sorted(requirement.promotion_gates), entry.letter).not.toEqual(sorted(round1For(entry.letter).promotion_gates));
+      if (requirement.applicability === "enforced") expect(requirement.decision_ref, entry.letter).toEqual({ phase: "3B", letter: entry.letter });
     }
   });
 
-  it("blocks promotion of c-g while any decided gate is unwired", () => {
+  it("blocks promotion of c-g while any decided gate is unmet", () => {
     for (const entry of rereview.decisions) {
-      const unwired = entry.gates_not_yet_wired.length > 0 || entry.gates_retained_until_replacement_wired.length > 0;
-      expect(unwired, entry.letter).toBe(true);
+      // The record is history: as of Phase 3B these gates were not yet wired.
+      expect(entry.gates_not_yet_wired.length + entry.gates_retained_until_replacement_wired.length, entry.letter).toBeGreaterThan(0);
       const criterion = criterionFor(entry.criterion_id);
-      if (unwired) {
-        expect(criterion, entry.letter).toMatchObject({ verification: "pending_human", human_verification: null, predicate: "not_encoded" });
-      }
+      expect(criterion, entry.letter).toMatchObject({ verification: "pending_human", human_verification: null, predicate: "not_encoded" });
+      const blockers = authorityPromotionBlockers(criterion, programAuthorityRegistries, false);
+      for (const gate of entry.gates_not_yet_wired) expect(blockers, `${entry.letter}: ${gate}`).toContain(gate);
     }
     // c cannot be promoted until route-separated assessment is implemented and fails closed (confirmation 3).
     expect(decisionFor("c").gates_not_yet_wired).toContain("statutory_routes_assessed_separately");
+    expect(criterionFor("la_shra.very-high-fire-hazard-severity-zone").statutory_routes).toEqual({
+      fact_key: "very-high-fire-hazard-severity-zone",
+      routes: ["gov_51178", "prc_4202"],
+    });
   });
 });
 
@@ -380,8 +402,11 @@ describe("4. SHRA pathway completeness blockers G1 and G2", () => {
 
 describe("5. Invariants: recording only", () => {
   // The same pins as the Round 1, Phase 2, Phase 2b, and Phase 3A tests.
-  const EVALUATOR_OUTPUT_SHA256 = "2b0c6ea651dfc55191090ab0c6129a8c22692a28bfdce3f046425437e1acecca";
-  const PUBLIC_DEMO_OUTPUT_SHA256 = "d00a74d195a2749da877775c0204a3435820fd13189f2ae05880b744ab45f57f";
+  // Phase 3C moved these pins for the three reviewed client-label changes only
+  // (c, d, g; docs/PROGRAM_SCREEN_PHASE_3C_PROMOTION_GATES.md). Every status,
+  // roll-up, and release decision is unchanged.
+  const EVALUATOR_OUTPUT_SHA256 = "68341529825b41e7dcd3b25a5daec94385fe6641e07cc03d29003c94c256b45a";
+  const PUBLIC_DEMO_OUTPUT_SHA256 = "11081860902438dd881cb743c98de30f4b4c3c425675a6e0eb2b6d41474a84a1";
 
   it("keeps human_verified at 0 and pending_human at 46, every guarded criterion blocked", () => {
     expect(shippedCriteria.filter((criterion) => criterion.verification === "human_verified")).toEqual([]);
@@ -436,12 +461,15 @@ describe("5. Invariants: recording only", () => {
     expect(await sha256Hex(phase3aMemo)).toBe("4da16a443ebdf39a6f1b5bd42bcb2e42517b0afd7018e401b9d46be150cb1f58");
   });
 
-  it("makes none of the deferred label changes", () => {
-    expect(programFactSpecs["very-high-fire-hazard-severity-zone"].client_label).toBe("the property's fire-hazard designation");
-    expect(programFactSpecs["high-fire-hazard-severity-zone"].client_label).toBe(
-      "whether the parcel is mapped in a High Fire Hazard Severity Zone, in a state or local responsibility area",
+  it("makes the deferred label changes only in Phase 3C (superseded)", () => {
+    for (const [key, label] of Object.entries(PHASE_3B_SHIPPED_CLIENT_LABELS)) {
+      expect(programFactSpecs[key as keyof typeof PHASE_3B_SHIPPED_CLIENT_LABELS].client_label, key).not.toBe(label);
+    }
+    expect(programFactSpecs["very-high-fire-hazard-severity-zone"].client_label).toBe(
+      "whether the parcel is mapped in a Very High Fire Hazard Severity Zone",
     );
-    expect(programFactSpecs["conservation-easement"].client_label).toBe("whether the parcel is under a recorded conservation easement");
+    expect(programFactSpecs["high-fire-hazard-severity-zone"].client_label).toBe("whether the parcel is mapped in a High Fire Hazard Severity Zone");
+    expect(programFactSpecs["conservation-easement"].client_label).toBe("whether the parcel is under a conservation easement");
     expect(decisionFor("c").deferred_changes).toEqual(["very_high_fire_client_label"]);
     expect(decisionFor("d").deferred_changes).toEqual(["combined_high_or_very_high_coverage_fact_if_needed", "high_fire_client_label"]);
     expect(decisionFor("g").deferred_changes).toEqual(["conservation_easement_client_label"]);

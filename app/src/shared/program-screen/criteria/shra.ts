@@ -404,17 +404,22 @@ export const shraCriteria: readonly ProgramCriterion[] = [
     permitted: ["disqualifying_per_source", "requires_judgment"],
     designation: "a recorded wetland",
   }),
-  shraSiteCategory({
-    id: "la_shra.very-high-fire-hazard-severity-zone",
-    label: "SHRA prohibited site category: Very High Fire Hazard Severity Zone",
-    fact: "very-high-fire-hazard-severity-zone",
-    pinpoint: "Memo Part I, Environmental Criteria, page 4, prohibited category 3 and footnote 1",
-    excerpts: [memoFireCategory, memoFireFootnote, memoProhibitedIntro],
-    summary:
-      "The memo bars High and Very High Fire Hazard Severity Zones in state and local responsibility areas. This criterion covers Very High only: a record that the parcel is not in a Very High zone says nothing about a High zone, which is its own criterion.",
-    permitted: ["consistent_with_source", "disqualifying_per_source", "requires_judgment"],
-    designation: "a Very High Fire Hazard Severity Zone (state or local responsibility area)",
-  }),
+  {
+    ...shraSiteCategory({
+      id: "la_shra.very-high-fire-hazard-severity-zone",
+      label: "SHRA prohibited site category: Very High Fire Hazard Severity Zone",
+      fact: "very-high-fire-hazard-severity-zone",
+      pinpoint: "Memo Part I, Environmental Criteria, page 4, prohibited category 3 and footnote 1",
+      excerpts: [memoFireCategory, memoFireFootnote, memoProhibitedIntro],
+      summary:
+        "The memo bars High and Very High Fire Hazard Severity Zones in state and local responsibility areas. This criterion covers Very High only: a record that the parcel is not in a Very High zone says nothing about a High zone, which is its own criterion.",
+      permitted: ["consistent_with_source", "disqualifying_per_source", "requires_judgment"],
+      designation: "a Very High Fire Hazard Severity Zone",
+    }),
+    // Phase 3B c: GOV §51178 and PRC §4202 are assessed separately. A YES on
+    // either route is enough; a NO needs both (statutory_routes_assessed_separately).
+    statutory_routes: { fact_key: "very-high-fire-hazard-severity-zone", routes: ["gov_51178", "prc_4202"] },
+  },
   shraSiteCategory({
     id: "la_shra.high-fire-hazard-severity-zone",
     label: "SHRA prohibited site category: High Fire Hazard Severity Zone",
@@ -424,7 +429,7 @@ export const shraCriteria: readonly ProgramCriterion[] = [
     summary:
       "The memo bars High and Very High Fire Hazard Severity Zones in state and local responsibility areas. This criterion covers High only and reads its own fact; the Very High record never stands in for it.",
     permitted: ["consistent_with_source", "disqualifying_per_source", "requires_judgment"],
-    designation: "a High Fire Hazard Severity Zone (state or local responsibility area)",
+    designation: "a High Fire Hazard Severity Zone",
   }),
   shraSiteCategory({
     id: "la_shra.natural-community-conservation-plan-land",
@@ -467,7 +472,7 @@ export const shraCriteria: readonly ProgramCriterion[] = [
     summary:
       "The memo lists lands under a conservation easement among the prohibited site categories. A recorded easement is the record; the memo names none.",
     permitted: ["consistent_with_source", "disqualifying_per_source", "requires_judgment"],
-    designation: "land under a recorded conservation easement",
+    designation: "land under a conservation easement",
   }),
 
   /* ------------------------- environmental criteria: conditional sites */

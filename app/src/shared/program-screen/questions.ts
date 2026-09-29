@@ -20,8 +20,11 @@ import type {
  */
 
 function questionSources(facts: readonly ProgramFactAssessment[]): ProgramQuestionSource[] {
+  // A record read by two statutory routes of one fact is listed once.
+  const seen = new Set<string>();
+  const firstSeen = (id: string) => !seen.has(id) && Boolean(seen.add(id));
   return facts.flatMap((fact) =>
-    fact.evidence.map((citation) => ({
+    fact.evidence.filter((citation) => firstSeen(citation.evidence_id)).map((citation) => ({
       evidence_id: citation.evidence_id,
       fact_key: fact.key,
       source_agency: citation.source_agency,

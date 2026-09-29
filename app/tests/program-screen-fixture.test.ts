@@ -143,7 +143,13 @@ describe("Program Screen fictional LA parcel fixture", () => {
   it("reuses the canonical evaluator for the copied fire-hazard conflict", () => {
     const fire = evaluate().facts.find((fact) => fact.key === "very-high-fire-hazard-severity-zone");
 
-    expect(fire?.statement).toBe(fireConflictFixture.expected.client_safe_statement);
+    // Same canonical conflict template as the Case Integrity fixture. Phase 3C
+    // renamed the Program Screen's Very High client label (Phase 3B deferred
+    // change very_high_fire_client_label); the Case Integrity fixture keeps its own.
+    const caseIntegrityLabel = fireConflictFixture.evidence_records[0].claim.client_label;
+    expect(fireConflictFixture.expected.client_safe_statement).toBe(`Official sources conflict regarding ${caseIntegrityLabel}.`);
+    expect(fire?.statement).toBe(`Official sources conflict regarding ${fire?.client_label}.`);
+    expect(fire?.client_label).toBe("whether the parcel is mapped in a Very High Fire Hazard Severity Zone");
     expect(fire?.normalized_value).toEqual({
       kind: "unresolved",
       value: null,

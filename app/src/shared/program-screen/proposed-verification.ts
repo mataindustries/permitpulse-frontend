@@ -960,6 +960,22 @@ export const humanRereviewDecisionSchema = z
 export type HumanRereviewDecision = z.infer<typeof humanRereviewDecisionSchema>;
 
 /**
+ * The promotion gates each re-review record introduced, once they are wired
+ * into `criterionPromotionGates`. A record may define exactly these existing
+ * gates; every other existing gate predates it and cannot be redefined.
+ * Phase 3C wired the five Phase 3B gates.
+ */
+export const rereviewIntroducedPromotionGates: Readonly<Record<string, readonly (typeof humanReviewPromotionGates)[number][]>> = {
+  "3B": [
+    "statutory_route_recorded",
+    "statutory_routes_assessed_separately",
+    "prc_4202_map_coverage_and_legend_class_recorded",
+    "fmmp_categories_tied_to_usda_criteria",
+    "nccp_plan_type_and_statutory_basis_recorded",
+  ],
+};
+
+/**
  * A statutory category the pathway's criteria do not model. While it is open,
  * passing the related criterion never implies the statutory subparagraph as a
  * whole is met, and the pathway must not roll up to `blocks_rollup`.
@@ -1021,9 +1037,12 @@ export const humanRereviewDecisionsSchema = z
       issue("decisions", "Each criterion and letter appears once.");
     }
     const knownGates = new Set<string>(humanReviewPromotionGates);
+    const introduced: readonly string[] = rereviewIntroducedPromotionGates[record.phase] ?? [];
     const defined = Object.keys(record.gate_definitions);
     for (const gate of defined) {
-      if (knownGates.has(gate)) issue("gate_definitions", `${gate} is an existing gate; only new gates are defined here.`);
+      if (knownGates.has(gate) && !introduced.includes(gate)) {
+        issue("gate_definitions", `${gate} is an existing gate; only new gates are defined here.`);
+      }
       if (!record.decisions.some((entry) => entry.promotion_gates.includes(gate))) {
         issue("gate_definitions", `${gate} is defined but no decision requires it.`);
       }

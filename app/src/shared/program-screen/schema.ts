@@ -5,14 +5,17 @@ import { IntegrityValidationError } from "../build-week-integrity/validation";
 import {
   authorityPromotionBlockers,
   programAuthorityRegistries,
+  programDecisionRefSchema,
   promotionGuardedCriterionIds,
   type ProgramAuthorityRegistries,
   type ProgramPromotionBlocker,
 } from "./authority-policy";
 import { programFactSpecs, retiredProgramFacts } from "./facts";
+import { authorityFactProfiles, hazardClassStatutoryRoutes } from "./evidence-authority";
 import {
   citationVolatilities,
   criterionVerifications,
+  fireHazardStatutoryRoutes,
   humanVerificationRequiredCriterionIds,
   operativeSourceTypes,
   predicateOutcomes,
@@ -138,10 +141,8 @@ export const programCriterionHumanVerificationSchema = z
     pinpoint: nonEmptyText,
     supporting_excerpt: nonEmptyText,
     source_capture: programSourceCaptureSchema,
-    decision_ref: z
-      .object({ round: z.number().int().positive(), letter: z.string().regex(/^[a-z]$/) })
-      .strict()
-      .optional(),
+    /** A Round 1 decision, or the Phase 3B decision that superseded it. */
+    decision_ref: programDecisionRefSchema.optional(),
   })
   .strict()
   .superRefine((record, context) => {
@@ -258,6 +259,13 @@ export const programCriterionSchema = z
         "Every criterion may route to judgment; requires_judgment must be permitted.",
       ),
     exception_paths: z.array(programCriterionExceptionSchema),
+    statutory_routes: z
+      .object({
+        fact_key: z.enum(programFactKeys),
+        routes: z.array(z.enum(fireHazardStatutoryRoutes)).min(2),
+      })
+      .strict()
+      .optional(),
     rule_summary: nonEmptyText,
     citation: programCriterionCitationSchema,
     confirmer: z.enum(programConfirmers),
@@ -340,6 +348,26 @@ export const programCriterionSchema = z
             path: ["permitted_outcomes"],
           });
         }
+      }
+    }
+    if (criterion.statutory_routes !== undefined) {
+      // Only a fire-hazard fact has statutory routes, and the routes are exactly
+      // the ones its class rests on (Phase 3B c): never a subset that would let
+      // one route clear the criterion alone.
+      const { fact_key: routeFact, routes } = criterion.statutory_routes;
+      const hazardClass = authorityFactProfiles[routeFact].hazard_class;
+      const expected = hazardClass === null ? [] : hazardClassStatutoryRoutes[hazardClass];
+      if (
+        !criterion.fact_keys.includes(routeFact) ||
+        new Set(routes).size !== routes.length ||
+        routes.length !== expected.length ||
+        !expected.every((route) => routes.includes(route))
+      ) {
+        context.addIssue({
+          code: "custom",
+          message: "A route-separated criterion reads the fact and assesses every statutory route its class rests on.",
+          path: ["statutory_routes"],
+        });
       }
     }
     if (criterion.predicate === "not_encoded" && criterion.verification !== "pending_human") {

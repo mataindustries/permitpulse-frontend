@@ -7,9 +7,11 @@ import {
   DECIMAL_FIGURE,
   editionDateKinds,
   hazardClasses,
+  hazardClassStatutoryRoutes,
   isExactSquareFeetConversion,
   isIsoCalendarDate,
   lotAreaBases,
+  statutoryRouteRecordKinds,
   type AuthorityRecordKind,
   type EditionDateKind,
   type HazardClass,
@@ -20,6 +22,7 @@ import {
   criterionPromotionGates,
   humanVerificationRequiredCriterionIds,
   programFactKeys,
+  retiredCriterionPromotionGates,
   type CriterionPromotionGate,
   type ProgramCriterion,
   type ProgramDecisionRef,
@@ -87,7 +90,18 @@ export type ProgramFactFamilyPolicy =
   | { family: "map_history"; required_search_repositories: readonly string[]; search_max_age_days: number | null }
   | { family: "hazard_map"; hazard_class: HazardClass; require_legend_class: boolean }
   | { family: "adopted_plan" }
-  | { family: "recorded_instrument"; required_release_search_repositories: readonly string[] };
+  | { family: "recorded_instrument"; required_release_search_repositories: readonly string[] }
+  | {
+      family: "farmland_map";
+      /**
+       * Captured official legends or documentation a named reviewer accepted
+       * as showing that the map's Prime Farmland and Farmland of Statewide
+       * Importance are the categories defined under the USDA criteria
+       * §66499.41(a)(9)(A) references (Phase 3B e). Empty: no designation
+       * can establish YES.
+       */
+      accepted_usda_criteria_documentation: ReadonlyArray<{ source_id: string; sha256_extracted: string }>;
+    };
 
 /** One policy per fact, shared by every pathway that reads it (D12). */
 export interface ProgramFactAuthorityPolicy {
@@ -161,6 +175,22 @@ export const pinnedProhibitedEstablishingKinds: Readonly<Partial<Record<ProgramF
   "sb79-permanent-exemption-shown": ["city_parcel_display"],
 };
 
+/**
+ * Facts whose establishing records must show that the APN/parcel and the
+ * legal lot are one screening unit, and name that legal lot (Round 1 a, b;
+ * Phase 3B c-g: the lot proposed to be subdivided). A policy for one of these
+ * facts must require legal-lot identity.
+ */
+export const legalLotIdentityFacts: readonly ProgramFactKey[] = [
+  "lot-area",
+  "prior-shra-or-sb9-map",
+  "very-high-fire-hazard-severity-zone",
+  "high-fire-hazard-severity-zone",
+  "prime-or-statewide-farmland",
+  "nccp-conservation-land",
+  "conservation-easement",
+];
+
 /** Facts whose NO can never be established: absence never clears (decisions e, f, g, h). */
 export const blockOnlyAuthorityFacts: readonly ProgramFactKey[] = [
   "prime-or-statewide-farmland",
@@ -171,32 +201,38 @@ export const blockOnlyAuthorityFacts: readonly ProgramFactKey[] = [
 
 /* -------------------------------------------------- shipped registries */
 
+/** The Phase 3B re-review, which superseded the rule text of Round 1 decisions c-g. */
+const PHASE_3B = "3B";
+
 function denyPolicy(
   factKey: ProgramFactKey,
   familyPolicy: ProgramFactFamilyPolicy | null,
   letters: readonly string[],
-  requiresLegalLotIdentity = false,
+  options: { requiresLegalLotIdentity?: boolean; phase3b?: boolean } = {},
 ): ProgramFactAuthorityPolicy {
   return {
     fact_key: factKey,
     family_policy: familyPolicy,
-    requires_legal_lot_identity: requiresLegalLotIdentity,
+    requires_legal_lot_identity: options.requiresLegalLotIdentity ?? false,
     establishing: [],
     prohibited_establishing_kinds: pinnedProhibitedEstablishingKinds[factKey] ?? [],
-    decision_refs: letters.map((letter) => ({ round: 1, letter })),
+    decision_refs: [
+      ...letters.map((letter) => ({ round: 1, letter })),
+      ...(options.phase3b ? letters.map((letter) => ({ phase: PHASE_3B, letter })) : []),
+    ],
   };
 }
 
 function enforced(
   criterionId: string,
-  letter: string,
+  decisionRef: ProgramDecisionRef,
   promotionGates: readonly CriterionPromotionGate[],
   extra: Partial<Pick<EnforcedAuthorityRequirement, "scope_preconditions" | "numeric_boundaries">> = {},
 ): EnforcedAuthorityRequirement {
   return {
     criterion_id: criterionId,
     applicability: "enforced",
-    decision_ref: { round: 1, letter },
+    decision_ref: decisionRef,
     promotion_gates: promotionGates,
     scope_preconditions: extra.scope_preconditions ?? [],
     numeric_boundaries: extra.numeric_boundaries ?? [],
@@ -205,6 +241,8 @@ function enforced(
 
 const reviewerGates = ["reviewer_confirms_encoded_rule", "human_verification_record"] as const;
 const provenanceGate = "evidence_provenance_enforced_or_fails_closed" as const;
+const round1 = (letter: string): ProgramDecisionRef => ({ round: 1, letter });
+const phase3b = (letter: string): ProgramDecisionRef => ({ phase: PHASE_3B, letter });
 
 /**
  * The shipped registries. Nothing here can establish a fact: no issuer or
@@ -214,38 +252,50 @@ export const programAuthorityRegistries: ProgramAuthorityRegistries = {
   issuers: [],
   sources: [],
   fact_policies: {
-    "lot-area": denyPolicy("lot-area", { family: "lot_area", accepted_area_bases: [] }, ["a"], true),
+    "lot-area": denyPolicy("lot-area", { family: "lot_area", accepted_area_bases: [] }, ["a"], { requiresLegalLotIdentity: true }),
     "shra-zone-category": denyPolicy("shra-zone-category", { family: "zone_record" }, ["a"]),
     "zoning-code-chapter": denyPolicy("zoning-code-chapter", null, ["a"]),
     "prior-shra-or-sb9-map": denyPolicy(
       "prior-shra-or-sb9-map",
       { family: "map_history", required_search_repositories: [], search_max_age_days: null },
       ["b"],
-      true,
+      { requiresLegalLotIdentity: true },
     ),
+    // c-g: Phase 3B supersedes the Round 1 rule text; the lot identity rule applies to each.
     "very-high-fire-hazard-severity-zone": denyPolicy(
       "very-high-fire-hazard-severity-zone",
       { family: "hazard_map", hazard_class: "very_high", require_legend_class: false },
       ["c"],
+      { requiresLegalLotIdentity: true, phase3b: true },
     ),
     "high-fire-hazard-severity-zone": denyPolicy(
       "high-fire-hazard-severity-zone",
       { family: "hazard_map", hazard_class: "high", require_legend_class: true },
       ["d"],
+      { requiresLegalLotIdentity: true, phase3b: true },
     ),
-    "prime-or-statewide-farmland": denyPolicy("prime-or-statewide-farmland", null, ["e"]),
-    "nccp-conservation-land": denyPolicy("nccp-conservation-land", { family: "adopted_plan" }, ["f"]),
+    "prime-or-statewide-farmland": denyPolicy(
+      "prime-or-statewide-farmland",
+      { family: "farmland_map", accepted_usda_criteria_documentation: [] },
+      ["e"],
+      { requiresLegalLotIdentity: true, phase3b: true },
+    ),
+    "nccp-conservation-land": denyPolicy("nccp-conservation-land", { family: "adopted_plan" }, ["f"], {
+      requiresLegalLotIdentity: true,
+      phase3b: true,
+    }),
     "conservation-easement": denyPolicy(
       "conservation-easement",
       { family: "recorded_instrument", required_release_search_repositories: [] },
       ["g"],
+      { requiresLegalLotIdentity: true, phase3b: true },
     ),
     "sb79-permanent-exemption-shown": denyPolicy("sb79-permanent-exemption-shown", null, ["h"]),
   },
   criterion_requirements: {
     "la_shra.single-family-lot-area-threshold": enforced(
       "la_shra.single-family-lot-area-threshold",
-      "a",
+      round1("a"),
       [
         "lot_area_precision_fails_closed",
         "legal_lot_identity_fails_closed",
@@ -273,40 +323,54 @@ export const programAuthorityRegistries: ProgramAuthorityRegistries = {
         ],
       },
     ),
-    "la_shra.prior-shra-or-sb9-map": enforced("la_shra.prior-shra-or-sb9-map", "b", [
+    "la_shra.prior-shra-or-sb9-map": enforced("la_shra.prior-shra-or-sb9-map", round1("b"), [
       "map_history_completeness_fails_closed",
       "legal_lot_identity_fails_closed",
       "applicable_law_fails_closed",
       "search_completeness_fails_closed",
       ...reviewerGates,
     ]),
-    "la_shra.very-high-fire-hazard-severity-zone": enforced("la_shra.very-high-fire-hazard-severity-zone", "c", [
+    // c-g: exactly the gates the Phase 3B decisions list, in their order (Phase 3C wiring).
+    "la_shra.very-high-fire-hazard-severity-zone": enforced("la_shra.very-high-fire-hazard-severity-zone", phase3b("c"), [
       provenanceGate,
       "map_identity_and_edition_recorded",
+      "statutory_route_recorded",
+      "statutory_routes_assessed_separately",
+      "legal_lot_identity_fails_closed",
       ...reviewerGates,
     ]),
-    "la_shra.high-fire-hazard-severity-zone": enforced("la_shra.high-fire-hazard-severity-zone", "d", [
+    // d: prc_4202_map_coverage_and_legend_class_recorded replaces the retired
+    // responsibility_area_and_legend_recorded (Round 1 d).
+    "la_shra.high-fire-hazard-severity-zone": enforced("la_shra.high-fire-hazard-severity-zone", phase3b("d"), [
       provenanceGate,
       "map_identity_and_edition_recorded",
-      "responsibility_area_and_legend_recorded",
+      "statutory_route_recorded",
+      "prc_4202_map_coverage_and_legend_class_recorded",
+      "legal_lot_identity_fails_closed",
       ...reviewerGates,
     ]),
-    "la_shra.prime-or-statewide-farmland": enforced("la_shra.prime-or-statewide-farmland", "e", [
+    "la_shra.prime-or-statewide-farmland": enforced("la_shra.prime-or-statewide-farmland", phase3b("e"), [
       "defining_official_source_captured",
+      "fmmp_categories_tied_to_usda_criteria",
       provenanceGate,
+      "map_identity_and_edition_recorded",
+      "legal_lot_identity_fails_closed",
       ...reviewerGates,
     ]),
-    "la_shra.natural-community-conservation-plan-land": enforced("la_shra.natural-community-conservation-plan-land", "f", [
+    "la_shra.natural-community-conservation-plan-land": enforced("la_shra.natural-community-conservation-plan-land", phase3b("f"), [
       provenanceGate,
       "adopted_plan_identity_adoption_and_map_date_recorded",
+      "nccp_plan_type_and_statutory_basis_recorded",
+      "legal_lot_identity_fails_closed",
       ...reviewerGates,
     ]),
-    "la_shra.conservation-easement": enforced("la_shra.conservation-easement", "g", [
+    "la_shra.conservation-easement": enforced("la_shra.conservation-easement", phase3b("g"), [
       provenanceGate,
       "instrument_identity_in_force_status_and_coverage_recorded",
+      "legal_lot_identity_fails_closed",
       ...reviewerGates,
     ]),
-    "la_sb79.permanent-exemption-shown": enforced("la_sb79.permanent-exemption-shown", "h", [
+    "la_sb79.permanent-exemption-shown": enforced("la_sb79.permanent-exemption-shown", round1("h"), [
       "directors_section_3_map_captured",
       ...reviewerGates,
     ]),
@@ -319,7 +383,13 @@ const kebabId = z.string().max(120).regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/);
 const isoDate = z.string().refine(isIsoCalendarDate, { message: "Dates must be valid ISO calendar dates." });
 const shortText = z.string().trim().min(1).max(300);
 const hex64 = z.string().regex(/^[0-9a-f]{64}$/);
-const decisionRefSchema = z.object({ round: z.number().int().positive(), letter: z.string().regex(/^[a-z]$/) }).strict();
+const decisionLetter = z.string().regex(/^[a-z]$/);
+/** A Round 1 decision ({ round, letter }) or a re-review decision ({ phase, letter }). */
+export const programDecisionRefSchema = z.union([
+  z.object({ round: z.number().int().positive(), letter: decisionLetter }).strict(),
+  z.object({ phase: z.string().regex(/^\d+[A-Z]?$/), letter: decisionLetter }).strict(),
+]);
+const decisionRefSchema = programDecisionRefSchema;
 const captureRefSchema = z.object({ source_id: kebabId, sha256_extracted: hex64 }).strict();
 const humanReviewSchema = z
   .object({ reviewer: authorityHumanReviewerSchema, reviewed_on: isoDate, decision_ref: decisionRefSchema.nullable() })
@@ -343,6 +413,15 @@ const familyPolicySchema = z.discriminatedUnion("family", [
     .strict(),
   z.object({ family: z.literal("adopted_plan") }).strict(),
   z.object({ family: z.literal("recorded_instrument"), required_release_search_repositories: uniqueList(kebabId) }).strict(),
+  z
+    .object({
+      family: z.literal("farmland_map"),
+      accepted_usda_criteria_documentation: z.array(captureRefSchema).refine(
+        (refs) => new Set(refs.map((ref) => `${ref.source_id}:${ref.sha256_extracted}`)).size === refs.length,
+        "Entries must be unique.",
+      ),
+    })
+    .strict(),
 ]);
 
 const establishingEntrySchema = z
@@ -458,6 +537,9 @@ export const programAuthorityRegistriesSchema = z
       for (const kind of pinnedProhibitedEstablishingKinds[factKey] ?? []) {
         if (!policy.prohibited_establishing_kinds.includes(kind)) issue(path, `${factKey} must keep ${kind} prohibited.`);
       }
+      if (legalLotIdentityFacts.includes(factKey) && !policy.requires_legal_lot_identity) {
+        issue(path, `${factKey} must require legal-lot identity; unclear lot identity is unknown.`);
+      }
       const populated = policy.establishing.length > 0;
       if (populated && policy.family_policy?.family === "map_history") {
         if (policy.family_policy.required_search_repositories.length === 0 || policy.family_policy.search_max_age_days === null) {
@@ -467,6 +549,27 @@ export const programAuthorityRegistriesSchema = z
       if (populated && policy.family_policy?.family === "recorded_instrument") {
         if (policy.family_policy.required_release_search_repositories.length === 0) {
           issue(path, "An instrument policy names its required release-search repositories before it can establish anything.");
+        }
+      }
+      if (populated && policy.family_policy?.family === "farmland_map") {
+        if (policy.family_policy.accepted_usda_criteria_documentation.length === 0) {
+          issue(path, "A farmland policy names the reviewed USDA-criteria documentation before it can establish anything.");
+        }
+        // Phase 3B e: the program map is the statutory record type.
+        if (policy.establishing.some((entry) => entry.record_kind !== "agency_farmland_map")) {
+          issue(path, "Only a Farmland Mapping and Monitoring Program map can establish the farmland fact.");
+        }
+      }
+      if (populated && policy.family_policy?.family === "hazard_map") {
+        // A route's record kind must be defined before an entry can establish on it;
+        // GOV §51178 has none yet (Phase 3C).
+        const routeKinds = hazardClassStatutoryRoutes[policy.family_policy.hazard_class]
+          .map((route) => statutoryRouteRecordKinds[route])
+          .filter((kind): kind is AuthorityRecordKind => kind !== null);
+        for (const entry of policy.establishing) {
+          if (!routeKinds.includes(entry.record_kind)) {
+            issue(path, `${entry.record_kind} carries no statutory route that ${factKey} may rest on.`);
+          }
         }
       }
       policy.establishing.forEach((entry, index) => {
@@ -514,6 +617,9 @@ export const programAuthorityRegistriesSchema = z
       if (requirement.criterion_id !== id) issue(path, "A requirement is keyed by its own criterion.");
       for (const gate of ["reviewer_confirms_encoded_rule", "human_verification_record"] as const) {
         if (!requirement.promotion_gates.includes(gate)) issue(path, `Every requirement keeps the ${gate} gate.`);
+      }
+      for (const gate of retiredCriterionPromotionGates) {
+        if (requirement.promotion_gates.includes(gate)) issue(path, `${gate} is retired; a requirement lists its replacement.`);
       }
       if (requirement.applicability === "not_applicable") {
         if (requirement.promotion_gates.includes(provenanceGate)) {
@@ -564,10 +670,11 @@ export function parseProgramAuthorityRegistries(value: ProgramAuthorityRegistrie
 
 export type ProgramPromotionBlocker = CriterionPromotionGate | "authority_requirement_missing";
 
-const legalLotFacts: readonly ProgramFactKey[] = ["lot-area", "prior-shra-or-sb9-map"];
-
 function sameDecisionRef(left: ProgramDecisionRef | undefined | null, right: ProgramDecisionRef): boolean {
-  return left !== undefined && left !== null && left.round === right.round && left.letter === right.letter;
+  if (left === undefined || left === null || left.letter !== right.letter) return false;
+  if ("round" in left && "round" in right) return left.round === right.round;
+  if ("phase" in left && "phase" in right) return left.phase === right.phase;
+  return false;
 }
 
 /**
@@ -591,6 +698,20 @@ function gateMet(
     );
   const isEnforced = requirement.applicability === "enforced";
   const liveSources = registries.sources.filter((source) => source.superseded_by === null);
+  const hazardFamily = (key: ProgramFactKey) => {
+    const family = policy(key)?.family_policy;
+    return family?.family === "hazard_map" ? family : null;
+  };
+  /** Every establishing entry uses the record kind of a route the fact's class rests on, and each such route has one. */
+  const routeKindsDefined = (key: ProgramFactKey) => {
+    const family = hazardFamily(key);
+    if (family === null || !populated(key)) return false;
+    const kinds = hazardClassStatutoryRoutes[family.hazard_class].map((route) => statutoryRouteRecordKinds[route]);
+    return (
+      kinds.every((kind) => kind !== null) &&
+      (policy(key)?.establishing ?? []).every((entry) => kinds.includes(entry.record_kind))
+    );
+  };
 
   switch (gate) {
     case "evidence_provenance_enforced_or_fails_closed":
@@ -598,10 +719,59 @@ function gateMet(
     case "map_identity_and_edition_recorded":
       return isEnforced && reads.length > 0 && reads.every(registeredEditions);
     case "responsibility_area_and_legend_recorded":
+      // Retired (Phase 3B d): replaced by prc_4202_map_coverage_and_legend_class_recorded.
+      return false;
+    case "statutory_route_recorded": {
+      // The gate code refuses a record whose statutory basis or named agency is
+      // missing or not a route the fact's class rests on. Met once every hazard
+      // fact read can be established only through a record kind that carries a
+      // route; for c that waits on a GOV §51178 record kind.
+      const hazard = reads.filter((key) => hazardFamily(key) !== null);
+      return isEnforced && hazard.length > 0 && hazard.every(routeKindsDefined);
+    }
+    case "statutory_routes_assessed_separately": {
+      const assessment = criterion.statutory_routes;
+      const family = assessment === undefined ? null : hazardFamily(assessment.fact_key);
+      if (!isEnforced || assessment === undefined || family === null) return false;
+      const routes = hazardClassStatutoryRoutes[family.hazard_class];
+      return (
+        reads.includes(assessment.fact_key) &&
+        populated(assessment.fact_key) &&
+        routes.length > 1 &&
+        assessment.routes.length === routes.length &&
+        routes.every((route) => assessment.routes.includes(route))
+      );
+    }
+    case "prc_4202_map_coverage_and_legend_class_recorded":
+      // The gate code requires the PRC §4202 map to cover the lot and its legend
+      // to define High there; responsibility area is context only.
       return reads.some((key) => {
-        const family = policy(key)?.family_policy;
-        return populated(key) && family?.family === "hazard_map" && family.require_legend_class;
+        const family = hazardFamily(key);
+        return (
+          family !== null &&
+          family.hazard_class === "high" &&
+          family.require_legend_class &&
+          populated(key) &&
+          (policy(key)?.establishing ?? []).every((entry) => entry.record_kind === statutoryRouteRecordKinds.prc_4202)
+        );
       });
+    case "fmmp_categories_tied_to_usda_criteria": {
+      const family = policy("prime-or-statewide-farmland")?.family_policy;
+      return (
+        reads.includes("prime-or-statewide-farmland") &&
+        populated("prime-or-statewide-farmland") &&
+        family?.family === "farmland_map" &&
+        family.accepted_usda_criteria_documentation.length > 0
+      );
+    }
+    case "nccp_plan_type_and_statutory_basis_recorded":
+      // The gate code refuses any plan not recorded as an NCCP adopted under
+      // Fish and Game Code §2800 et seq.
+      return (
+        reads.includes("nccp-conservation-land") &&
+        populated("nccp-conservation-land") &&
+        policy("nccp-conservation-land")?.family_policy?.family === "adopted_plan"
+      );
     case "lot_area_precision_fails_closed":
       return (
         requirement.applicability === "enforced" &&
@@ -611,7 +781,7 @@ function gateMet(
         requirement.numeric_boundaries.some((boundary) => boundary.fact_key === "lot-area")
       );
     case "legal_lot_identity_fails_closed": {
-      const lotFacts = reads.filter((key) => legalLotFacts.includes(key));
+      const lotFacts = reads.filter((key) => legalLotIdentityFacts.includes(key));
       return lotFacts.length > 0 && lotFacts.every((key) => populated(key) && policy(key)?.requires_legal_lot_identity === true);
     }
     case "r1_variation_zone_fails_closed":

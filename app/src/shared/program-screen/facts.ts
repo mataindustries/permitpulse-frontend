@@ -149,19 +149,26 @@ export const programFactSpecs: Readonly<Record<ProgramFactKey, ProgramFactSpec>>
     "controlled_value",
     { kind: "text", allowed: ["single_family_listed_zone", "zone_not_on_single_family_list"] },
   ),
-  /** Very High only. A NO here says nothing about a High zone; see high-fire-hazard-severity-zone. */
+  /**
+   * Very High only. A NO here says nothing about a High zone; see
+   * high-fire-hazard-severity-zone. SHRA assesses its records per statutory
+   * route (GOV §51178, PRC §4202; Phase 3B c).
+   */
   "very-high-fire-hazard-severity-zone": parcelFact(
     "very-high-fire-hazard-severity-zone",
     "Very High Fire Hazard Severity Zone",
-    "the property's fire-hazard designation",
+    "whether the parcel is mapped in a Very High Fire Hazard Severity Zone",
     "controlled_value",
     booleanValue,
   ),
-  /** High only, never Very High: the two designations stay separate facts. */
+  /**
+   * High only, never Very High: the two designations stay separate facts.
+   * Responsibility area is context, not part of the rule (Phase 3B d).
+   */
   "high-fire-hazard-severity-zone": parcelFact(
     "high-fire-hazard-severity-zone",
     "High Fire Hazard Severity Zone",
-    "whether the parcel is mapped in a High Fire Hazard Severity Zone, in a state or local responsibility area",
+    "whether the parcel is mapped in a High Fire Hazard Severity Zone",
     "controlled_value",
     booleanValue,
   ),
@@ -223,10 +230,11 @@ export const programFactSpecs: Readonly<Record<ProgramFactKey, ProgramFactSpec>>
     "controlled_value",
     booleanValue,
   ),
+  /** A recorded instrument is an evidence standard for YES, not the source's definition (Phase 3B g). */
   "conservation-easement": parcelFact(
     "conservation-easement",
     "Conservation easement",
-    "whether the parcel is under a recorded conservation easement",
+    "whether the parcel is under a conservation easement",
     "controlled_value",
     booleanValue,
   ),

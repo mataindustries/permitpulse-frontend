@@ -396,7 +396,7 @@
       "claim": {
         "key": "very-high-fire-hazard-severity-zone",
         "label": "Very High Fire Hazard Severity Zone",
-        "client_label": "the property's fire-hazard designation"
+        "client_label": "whether the parcel is mapped in a Very High Fire Hazard Severity Zone"
       },
       "source": {
         "agency": "CAL FIRE",
@@ -441,7 +441,7 @@
       "claim": {
         "key": "very-high-fire-hazard-severity-zone",
         "label": "Very High Fire Hazard Severity Zone",
-        "client_label": "the property's fire-hazard designation"
+        "client_label": "whether the parcel is mapped in a Very High Fire Hazard Severity Zone"
       },
       "source": {
         "agency": "ZIMAS / City source",

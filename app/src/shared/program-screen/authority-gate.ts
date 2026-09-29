@@ -8,13 +8,20 @@ import type {
 import {
   authorityRecordFailureCodes,
   daysBetween,
-  type AuthorityQualifiers,
+  hazardClassStatutoryRoutes,
+  statutoryRouteRecordKinds,
   type AuthorityRecordFailureCode,
   type ProgramCriterionAuthorityResult,
   type ProgramEvidenceAuthority,
   type ProgramFactAuthorityResult,
 } from "./evidence-authority";
-import type { KnownFactValue, ProgramCriterion, ProgramFactAssessment, ProgramFactKey } from "./types";
+import type {
+  FireHazardStatutoryRoute,
+  KnownFactValue,
+  ProgramCriterion,
+  ProgramFactAssessment,
+  ProgramFactKey,
+} from "./types";
 
 /**
  * The evidence-authority gate (Layer 2).
@@ -27,6 +34,10 @@ import type { KnownFactValue, ProgramCriterion, ProgramFactAssessment, ProgramFa
  * fact: does at least one record carrying the recorded value establish it
  * under the registries? It never reads free text, never changes a fact, and
  * can only leave the criterion `unknown` (D3).
+ *
+ * For a route-separated fact (Phase 3B c) it asks the same question once per
+ * statutory route, over that route's records only, and a record counts only
+ * for the route its block names (Phase 3C).
  */
 
 export interface ProgramAuthorityContext {
@@ -117,11 +128,13 @@ function identityFailures(
 
 function familyFailures(
   policy: ProgramFactAuthorityPolicy,
-  qualifiers: AuthorityQualifiers | null,
+  block: ProgramEvidenceAuthority,
   value: KnownFactValue,
   entry: ProgramFactAuthorityEstablishingEntry | undefined,
   asOf: string,
+  route: FireHazardStatutoryRoute | undefined,
 ): AuthorityRecordFailureCode[] {
+  const qualifiers = block.qualifiers;
   const family = policy.family_policy;
   if (family === null || qualifiers === null || family.family !== qualifiers.family) return [];
   const failures: AuthorityRecordFailureCode[] = [];
@@ -186,15 +199,55 @@ function familyFailures(
   }
 
   if (family.family === "hazard_map" && qualifiers.family === "hazard_map") {
-    if (qualifiers.parcel_responsibility_area === "not_established" || qualifiers.map_covers_that_area !== "yes") {
-      failures.push("hazard_area_not_covered");
+    // Phase 3B c, d: a record counts only on a route its class rests on, and
+    // only for the route being assessed. Responsibility area is never checked.
+    const basis = qualifiers.statutory_basis;
+    const accepted: readonly string[] = hazardClassStatutoryRoutes[family.hazard_class];
+    if (!accepted.includes(basis) || (route !== undefined && basis !== route)) {
+      failures.push("statutory_route_not_accepted");
+    } else if (statutoryRouteRecordKinds[basis as FireHazardStatutoryRoute] === null) {
+      // What a GOV §51178 record looks like is not decided; Route 1 fails closed.
+      failures.push("statutory_route_record_kind_undefined");
     }
-    if (family.require_legend_class && qualifiers.legend_defines_class_for_area !== "yes") {
+    if (qualifiers.named_agency !== "department_of_forestry_and_fire_protection") failures.push("statutory_agency_not_recorded");
+    if (basis === "prc_4202" && block.edition.date_kind !== "adopted") failures.push("hazard_map_adoption_date_not_recorded");
+    if (qualifiers.map_covers_lot !== "yes") failures.push("hazard_area_not_covered");
+    if (family.require_legend_class && qualifiers.legend_defines_class_for_lot !== "yes") {
       failures.push("hazard_legend_class_not_defined");
     }
   }
 
+  if (family.family === "farmland_map" && qualifiers.family === "farmland_map") {
+    // Phase 3B e: the program map, the designation, and a reviewed tie to the
+    // USDA criteria, never assumed from the map's source.
+    if (qualifiers.map_program !== "farmland_mapping_and_monitoring_program") failures.push("farmland_map_program_not_established");
+    if (
+      token === "true" &&
+      qualifiers.designation_class !== "prime_farmland" &&
+      qualifiers.designation_class !== "farmland_of_statewide_importance"
+    ) {
+      failures.push("farmland_designation_not_established");
+    }
+    const documentation = qualifiers.usda_criteria_documentation;
+    if (
+      documentation === null ||
+      !family.accepted_usda_criteria_documentation.some(
+        (accepted) =>
+          accepted.source_id === documentation.source_id && accepted.sha256_extracted === documentation.sha256_extracted,
+      )
+    ) {
+      failures.push("farmland_usda_criteria_not_established");
+    }
+  }
+
   if (family.family === "adopted_plan" && qualifiers.family === "adopted_plan") {
+    // Phase 3B f: only an NCCP adopted under Fish and Game Code §2800 et seq.
+    if (
+      qualifiers.plan_type !== "natural_community_conservation_plan" ||
+      qualifiers.statutory_basis !== "fish_and_game_code_2800_et_seq"
+    ) {
+      failures.push("plan_type_not_nccp");
+    }
     if (
       qualifiers.adoption_status !== "adopted_in_effect" ||
       !checkedWithin(qualifiers.status_checked_on, asOf, entry?.currency_max_age_days ?? null)
@@ -244,8 +297,9 @@ function recordAuthorityFailures(input: {
   policy: ProgramFactAuthorityPolicy | undefined;
   registries: ProgramAuthorityRegistries;
   asOf: string;
+  route: FireHazardStatutoryRoute | undefined;
 }): AuthorityRecordFailureCode[] {
-  const { key, value, record, block, policy, registries, asOf } = input;
+  const { key, value, record, block, policy, registries, asOf, route } = input;
   if (block === undefined) return ["no_authority_block"];
   const failures = new Set<AuthorityRecordFailureCode>();
   const token = valueToken(value);
@@ -296,24 +350,42 @@ function recordAuthorityFailures(input: {
   if (block.parcel_relationship.matched_by === "address_only" || block.parcel_relationship.matched_by === "not_established") {
     failures.add("parcel_match_not_established");
   }
-  if (policy?.requires_legal_lot_identity && block.parcel_relationship.legal_lot_identity !== "parcel_is_one_legal_lot") {
+  // The APN/parcel and the legal lot must be one screening unit, and the
+  // record must name that legal lot (Phase 3B: the lot proposed to be
+  // subdivided). Anything else is unknown, never an inferred YES or NO.
+  const lot = block.parcel_relationship;
+  if (policy?.requires_legal_lot_identity && (lot.legal_lot_identity !== "parcel_is_one_legal_lot" || lot.legal_lot_reference === null)) {
     failures.add("legal_lot_identity_not_established");
   }
   if (policy !== undefined) {
-    familyFailures(policy, block.qualifiers, value, matched, asOf).forEach((failure) => failures.add(failure));
+    familyFailures(policy, block, value, matched, asOf, route).forEach((failure) => failures.add(failure));
   }
   return authorityRecordFailureCodes.filter((code) => failures.has(code));
+}
+
+/** One statutory route's assessment of a route-separated fact, and the records it read. */
+export interface ProgramRouteAuthorityInput {
+  route: FireHazardStatutoryRoute;
+  assessment: ProgramFactAssessment;
+  record_ids: ReadonlySet<string>;
 }
 
 function factAuthority(
   fact: ProgramFactAssessment,
   context: ProgramAuthorityContext,
   asOf: string,
+  route?: ProgramRouteAuthorityInput,
 ): ProgramFactAuthorityResult {
   const policy = context.registries.fact_policies[fact.key];
   const value = fact.normalized_value as KnownFactValue;
   const candidates = context.records
-    .filter((record) => record.claim.key === fact.key && isComparable(record) && sameKnownValue(record, value))
+    .filter(
+      (record) =>
+        record.claim.key === fact.key &&
+        (route === undefined || route.record_ids.has(record.id)) &&
+        isComparable(record) &&
+        sameKnownValue(record, value),
+    )
     .sort((left, right) => left.id.localeCompare(right.id));
 
   const establishing: string[] = [];
@@ -327,6 +399,7 @@ function factAuthority(
       policy,
       registries: context.registries,
       asOf,
+      route: route?.route,
     });
     if (failures.length === 0) establishing.push(record.id);
     else nonEstablishing.push({ evidence_id: record.id, failures });
@@ -338,6 +411,7 @@ function factAuthority(
   if (establishing.length === 0) failures.push("no_establishing_record");
   return {
     key: fact.key,
+    ...(route === undefined ? {} : { route: route.route }),
     established: establishing.length > 0,
     establishing_evidence_ids: establishing,
     non_establishing: nonEstablishing,
@@ -356,9 +430,33 @@ export function evaluateCriterionAuthority(input: {
   facts: readonly ProgramFactAssessment[];
   context: ProgramAuthorityContext;
   asOf: string;
+  /**
+   * Route-separated fact only (Phase 3B c): each route's assessment. The
+   * whole-fact assessment of that key is then not gated; the routes are.
+   */
+  routes?: { fact_key: ProgramFactKey; entries: readonly ProgramRouteAuthorityInput[] };
 }): ProgramCriterionAuthorityResult {
-  const { criterion, requirement, facts, context, asOf } = input;
-  const factResults = facts.map((fact) => factAuthority(fact, context, asOf));
+  const { criterion, requirement, facts, context, asOf, routes } = input;
+  const factResults = facts
+    .filter((fact) => fact.key !== routes?.fact_key)
+    .map((fact) => factAuthority(fact, context, asOf));
+  let routesEstablished = true;
+  if (routes !== undefined) {
+    // A YES needs one YES route established by a record on that route; a NO
+    // needs every route established NO. Only the routes that carry the
+    // combined value are gated, so a NO route never cancels a YES route.
+    const isYes = (entry: ProgramRouteAuthorityInput) =>
+      entry.assessment.normalized_value.kind === "boolean" && entry.assessment.normalized_value.value;
+    const yesRoutes = routes.entries.filter(isYes);
+    const gated = yesRoutes.length > 0 ? yesRoutes : routes.entries;
+    const routeResults = gated.map((entry) => factAuthority(entry.assessment, context, asOf, entry));
+    factResults.push(...routeResults);
+    routesEstablished =
+      routeResults.length > 0 &&
+      (yesRoutes.length > 0
+        ? routeResults.some((result) => result.established)
+        : routeResults.every((result) => result.established));
+  }
   const criterionFailures: ProgramCriterionAuthorityResult["criterion_failures"] = [];
 
   for (const precondition of requirement.scope_preconditions) {
@@ -380,8 +478,9 @@ export function evaluateCriterionAuthority(input: {
     }
   }
 
+  const nonRouteResults = factResults.filter((result) => result.route === undefined);
   return {
-    established: factResults.every((result) => result.established) && criterionFailures.length === 0,
+    established: nonRouteResults.every((result) => result.established) && routesEstablished && criterionFailures.length === 0,
     facts: factResults,
     criterion_failures: criterionFailures,
   };

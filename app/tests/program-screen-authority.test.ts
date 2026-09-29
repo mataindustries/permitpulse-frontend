@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 import designDoc from "../../docs/PROGRAM_SCREEN_EVIDENCE_AUTHORITY.md?raw";
 import fixtureJson from "../fixtures/program-screen/fictional-la-parcel.json";
+import rereviewJson from "../fixtures/program-screen/human-review-rounds/phase-3b-rereview-decisions.json";
 import decisionsJson from "../fixtures/program-screen/human-review-rounds/round-1-decisions.json";
 import shraMemoText from "../fixtures/program-screen/official-sources/shra-2025-10-28/extracted.txt?raw";
 import testOnlyCapture from "../fixtures/program-screen/test-only-sources/test-only-adopted-ordinance-000001/metadata.json";
@@ -44,6 +45,7 @@ import {
   type ProgramCriterion,
   type ProgramCriterionHumanVerification,
   type ProgramCriterionResult,
+  type ProgramDecisionRef,
   type ProgramFactKey,
   type ProgramPathwayPack,
 } from "../src/shared/program-screen/types";
@@ -73,6 +75,12 @@ const TEST_CAPTURE = { source_id: testOnlyCapture.source_id, sha256_extracted: t
 const ROUND_1_LETTERS: Readonly<Record<string, string>> = Object.fromEntries(
   decisionsJson.decisions.map((entry) => [entry.criterion_id, entry.letter]),
 );
+/** Phase 3C: c-g point at the Phase 3B decision that superseded Round 1. */
+const PHASE_3B_GATES: Readonly<Record<string, readonly string[]>> = Object.fromEntries(
+  rereviewJson.decisions.map((entry) => [entry.criterion_id, entry.promotion_gates]),
+);
+const refToken = (ref: { round?: number; phase?: string; letter: string }) =>
+  ref.phase === undefined ? `${ref.round}${ref.letter}` : `${ref.phase}${ref.letter}`;
 
 /* ------------------------------------------------------------ evidence */
 
@@ -222,17 +230,29 @@ function qualifiersFor(key: ProgramFactKey, value: CanonicalEvidenceRecord["norm
       };
     }
     case "hazard_map":
+      // Phase 3C: a PRC §4202 map named as CAL FIRE's, keyed to the lot, not a responsibility area.
       return {
         family,
         hazard_class: authorityFactProfiles[key].hazard_class,
-        parcel_responsibility_area: "local",
-        map_covers_that_area: "yes",
-        legend_defines_class_for_area: "yes",
+        statutory_basis: "prc_4202",
+        named_agency: "department_of_forestry_and_fire_protection",
+        map_covers_lot: "yes",
+        legend_defines_class_for_lot: "yes",
+        responsibility_area_as_stated: "local",
+      };
+    case "farmland_map":
+      return {
+        family,
+        map_program: "farmland_mapping_and_monitoring_program",
+        designation_class: value.kind === "boolean" && !value.value ? "other_or_none" : "prime_farmland",
+        usda_criteria_documentation: TEST_CAPTURE,
       };
     case "adopted_plan":
       return {
         family,
         plan_identifier: "TEST-ONLY NCCP",
+        plan_type: "natural_community_conservation_plan",
+        statutory_basis: "fish_and_game_code_2800_et_seq",
         adoption_status: "adopted_in_effect",
         adoption_reference: "TEST-ONLY Resolution 1",
         adoption_date: "2020-01-01",
@@ -286,7 +306,8 @@ function completeBlock(source: CanonicalEvidenceRecord): ProgramEvidenceAuthorit
     edition: {
       label: "TEST-ONLY edition",
       date: EDITION_DATE,
-      date_kind: "effective",
+      // Phase 3C: a PRC §4202 map's edition is its adoption date.
+      date_kind: profile.qualifier_family === "hazard_map" ? "adopted" : "effective",
       currency: "current_on_as_of",
       currency_checked_on: REVIEWED_ON,
     },
@@ -423,19 +444,21 @@ function testRegistries(requirements: Record<string, ProgramCriterionAuthorityRe
         [viaInstrument("recorded_subdivision_map", Object.keys(mapsFor))],
         true,
       ),
+      // Phase 3C: every c-g policy requires legal-lot identity.
       [VH]: policy(VH, { family: "hazard_map", hazard_class: "very_high", require_legend_class: false }, [
         viaSource("agency_hazard_map", "test-only-hazard-agency", "test-only-hazard-map", ["true", "false"]),
-      ]),
+      ], true),
       [HIGH]: policy(HIGH, { family: "hazard_map", hazard_class: "high", require_legend_class: true }, [
         viaSource("agency_hazard_map", "test-only-hazard-agency", "test-only-hazard-map", ["true", "false"]),
-      ]),
+      ], true),
       "nccp-conservation-land": policy("nccp-conservation-land", { family: "adopted_plan" }, [
         viaSource("adopted_plan_document", "test-only-plan-agency", "test-only-nccp-plan", ["true"]),
-      ]),
+      ], true),
       "conservation-easement": policy(
         "conservation-easement",
         { family: "recorded_instrument", required_release_search_repositories: ["test-only-county-recorder"] },
         [viaInstrument("recorded_instrument", ["true"])],
+        true,
       ),
     },
     criterion_requirements: requirements,
@@ -675,7 +698,7 @@ describe("2. Malformed supplied authority metadata throws", () => {
       edit(completeBlock(lot), (draft) => (draft.qualifiers.as_recorded = { figure: "0.1701", unit: "acres" })),
     ]],
     ["a listed zone recorded for an R1 variation", [edit(completeBlock(zone), (draft) => (draft.qualifiers.zone_match = "r1_variation_zone"))]],
-    ["a High YES with a legend that has no High class", [edit(completeBlock(highTrue), (draft) => (draft.qualifiers.legend_defines_class_for_area = "no"))]],
+    ["a High YES with a legend that has no High class", [edit(completeBlock(highTrue), (draft) => (draft.qualifiers.legend_defines_class_for_lot = "no"))]],
   ];
 
   it.each(cases)("rejects %s", (_name, blocks) => {
@@ -823,7 +846,7 @@ describe("6. The gate can only downgrade", () => {
     ["a superseded edition", (evidence) => edit(completeBlock(evidence), (draft) => (draft.edition.currency = "superseded"))],
     ["an unregistered issuer", (evidence) => edit(completeBlock(evidence), (draft) => (draft.issuer.issuer_id = "test-only-unknown-agency"))],
     ["an address-only match", (evidence) => edit(completeBlock(evidence), (draft) => (draft.parcel_relationship.matched_by = "address_only"))],
-    ["a responsibility area the map does not cover", (evidence) => edit(completeBlock(evidence), (draft) => (draft.qualifiers.map_covers_that_area = "no"))],
+    ["a map that does not cover the lot", (evidence) => edit(completeBlock(evidence), (draft) => (draft.qualifiers.map_covers_lot = "no"))],
   ];
   const displays = ["absent", "agrees", "disagrees"] as const;
   const registrySets: Array<[string, ProgramAuthorityRegistries]> = [
@@ -1037,24 +1060,35 @@ describe("7. Criterion-specific checks under TEST-ONLY registries", () => {
 
   describe("c, d: fire-hazard maps", () => {
     it("establishes Very High without a legend check, and High only when the legend defines a High class", () => {
-      expect(runFact(VH, false, (draft) => (draft.qualifiers.legend_defines_class_for_area = "not_established")).status).toBe(
+      expect(runFact(VH, false, (draft) => (draft.qualifiers.legend_defines_class_for_lot = "not_established")).status).toBe(
         "consistent_with_source",
       );
       expect(runFact(HIGH, false).status).toBe("consistent_with_source");
       for (const legend of ["no", "not_established"]) {
-        const result = runFact(HIGH, false, (draft) => (draft.qualifiers.legend_defines_class_for_area = legend));
+        const result = runFact(HIGH, false, (draft) => (draft.qualifiers.legend_defines_class_for_lot = legend));
         expect(result.status, legend).toBe("unknown");
         expect(nonEstablishingCodes(result), legend).toContain("hazard_legend_class_not_defined");
       }
     });
 
     it.each([
-      ["an unestablished responsibility area", (draft: Record<string, any>) => (draft.qualifiers.parcel_responsibility_area = "not_established")],
-      ["a map that does not cover the area", (draft: Record<string, any>) => (draft.qualifiers.map_covers_that_area = "no")],
+      ["a map that does not cover the lot", (draft: Record<string, any>) => (draft.qualifiers.map_covers_lot = "no")],
+      ["an unestablished map coverage", (draft: Record<string, any>) => (draft.qualifiers.map_covers_lot = "not_established")],
     ])("leaves the Very High fact unknown for %s", (_name, change) => {
       const result = runFact(VH, true, change);
       expect(result.status).toBe("unknown");
       expect(nonEstablishingCodes(result)).toContain("hazard_area_not_covered");
+    });
+
+    it("treats responsibility area as context only (Phase 3B c point 7, d point 6)", () => {
+      for (const area of ["state", "local", "federal", "not_stated"]) {
+        expect(runFact(VH, true, (draft) => (draft.qualifiers.responsibility_area_as_stated = area)).status, area).toBe(
+          "disqualifying_per_source",
+        );
+        expect(runFact(HIGH, false, (draft) => (draft.qualifiers.responsibility_area_as_stated = area)).status, area).toBe(
+          "consistent_with_source",
+        );
+      }
     });
 
     it.each([
@@ -1131,17 +1165,17 @@ describe("8. Registry contents and validation", () => {
 
   it("pins the shipped fact policies: deny-by-default, with the reviewer's prohibitions", () => {
     const policies = programAuthorityRegistries.fact_policies;
-    expect(Object.fromEntries(Object.entries(policies).map(([key, entry]) => [key, entry?.decision_refs.map((ref) => ref.letter)]))).toEqual({
-      "lot-area": ["a"],
-      "shra-zone-category": ["a"],
-      "zoning-code-chapter": ["a"],
-      "prior-shra-or-sb9-map": ["b"],
-      [VH]: ["c"],
-      [HIGH]: ["d"],
-      "prime-or-statewide-farmland": ["e"],
-      "nccp-conservation-land": ["f"],
-      "conservation-easement": ["g"],
-      "sb79-permanent-exemption-shown": ["h"],
+    expect(Object.fromEntries(Object.entries(policies).map(([key, entry]) => [key, entry?.decision_refs.map(refToken)]))).toEqual({
+      "lot-area": ["1a"],
+      "shra-zone-category": ["1a"],
+      "zoning-code-chapter": ["1a"],
+      "prior-shra-or-sb9-map": ["1b"],
+      [VH]: ["1c", "3Bc"],
+      [HIGH]: ["1d", "3Bd"],
+      "prime-or-statewide-farmland": ["1e", "3Be"],
+      "nccp-conservation-land": ["1f", "3Bf"],
+      "conservation-easement": ["1g", "3Bg"],
+      "sb79-permanent-exemption-shown": ["1h"],
     });
     expect(pinnedProhibitedEstablishingKinds).toEqual({
       [VH]: ["city_parcel_display"],
@@ -1166,16 +1200,24 @@ describe("8. Registry contents and validation", () => {
       family_policy: { family: "map_history", required_search_repositories: [], search_max_age_days: null },
     });
     expect(policies[HIGH]?.family_policy).toEqual({ family: "hazard_map", hazard_class: "high", require_legend_class: true });
+    // Phase 3C: the lot identity rule applies to c-g.
+    for (const key of [VH, HIGH, "prime-or-statewide-farmland", "nccp-conservation-land", "conservation-easement"] as const) {
+      expect(policies[key]?.requires_legal_lot_identity, key).toBe(true);
+    }
   });
 
-  it("pins one requirement for each of the eight Round 1 criteria, with the decision's gates", () => {
+  it("pins one requirement for each of the eight Round 1 criteria, with the governing decision's gates", () => {
     const requirements = programAuthorityRegistries.criterion_requirements;
     expect(Object.keys(requirements)).toEqual(decisionsJson.decisions.map((entry) => entry.criterion_id));
     for (const [id, requirement] of Object.entries(requirements)) {
       expect((humanVerificationRequiredCriterionIds as readonly string[]).includes(id), id).toBe(true);
       expect(requirement.applicability, id).toBe("enforced");
-      expect(requirement.decision_ref, id).toEqual({ round: 1, letter: ROUND_1_LETTERS[id] });
-      expect(requirement.promotion_gates, id).toEqual(decisionGates[id]);
+      // Phase 3C: c-g follow the Phase 3B decision that superseded Round 1.
+      const phase3b = PHASE_3B_GATES[id] !== undefined;
+      expect(requirement.decision_ref, id).toEqual(
+        phase3b ? { phase: "3B", letter: ROUND_1_LETTERS[id] } : { round: 1, letter: ROUND_1_LETTERS[id] },
+      );
+      expect(requirement.promotion_gates, id).toEqual(phase3b ? PHASE_3B_GATES[id] : decisionGates[id]);
     }
     const a = requirements["la_shra.single-family-lot-area-threshold"];
     expect(a).toMatchObject({
@@ -1298,7 +1340,7 @@ describe("9. The promotion guard protects all 46 atomic criteria", () => {
     };
   }
 
-  function promote(criterion: ProgramCriterion, predicate: CriterionPredicate, decisionRef?: { round: number; letter: string }): ProgramCriterion {
+  function promote(criterion: ProgramCriterion, predicate: CriterionPredicate, decisionRef?: ProgramDecisionRef): ProgramCriterion {
     return {
       ...criterion,
       predicate: criterion.predicate === "professional_judgment" ? criterion.predicate : predicate,
@@ -1317,10 +1359,11 @@ describe("9. The promotion guard protects all 46 atomic criteria", () => {
     return new Map(assessProgramFacts(records, keys).map((fact) => [fact.key, fact]));
   }
 
-  it("pins the unmet gates of the eight Round 1 criteria to their decisions", () => {
+  it("pins the unmet gates of the eight Round 1 criteria to their governing decisions", () => {
     for (const entry of decisionsJson.decisions) {
       const criterion = byId.get(entry.criterion_id) as ProgramCriterion;
-      expect(criterionPromotionBlockers(criterion), entry.letter).toEqual(entry.promotion_gates);
+      // Phase 3C: c-g are held to every Phase 3B gate, all unmet.
+      expect(criterionPromotionBlockers(criterion), entry.letter).toEqual(PHASE_3B_GATES[entry.criterion_id] ?? entry.promotion_gates);
     }
   });
 
@@ -1352,7 +1395,13 @@ describe("9. The promotion guard protects all 46 atomic criteria", () => {
   it("does not let a reviewer's confirmation alone promote a gated criterion", () => {
     const c = byId.get("la_shra.very-high-fire-hazard-severity-zone") as ProgramCriterion;
     const promoted = promote(c, () => "disqualifying_per_source");
-    expect(criterionPromotionBlockers(promoted)).toEqual(["evidence_provenance_enforced_or_fails_closed", "map_identity_and_edition_recorded"]);
+    expect(criterionPromotionBlockers(promoted)).toEqual([
+      "evidence_provenance_enforced_or_fails_closed",
+      "map_identity_and_edition_recorded",
+      "statutory_route_recorded",
+      "statutory_routes_assessed_separately",
+      "legal_lot_identity_fails_closed",
+    ]);
     // A human record cannot carry a note at all.
     const noted = { ...promoted, human_verification: { ...promoted.human_verification, note: "Provenance reviewed and approved." } } as ProgramCriterion;
     expect(hasCompleteHumanVerification(noted)).toBe(false);
@@ -1396,8 +1445,11 @@ describe("9. The promotion guard protects all 46 atomic criteria", () => {
 
 describe("10. Production output is unchanged while every affected criterion stays pending", () => {
   // The same pins as the Round 1 test: SHA-256 of the full JSON output.
-  const EVALUATOR_OUTPUT_SHA256 = "2b0c6ea651dfc55191090ab0c6129a8c22692a28bfdce3f046425437e1acecca";
-  const PUBLIC_DEMO_OUTPUT_SHA256 = "d00a74d195a2749da877775c0204a3435820fd13189f2ae05880b744ab45f57f";
+  // Phase 3C moved these pins for the three reviewed client-label changes only
+  // (c, d, g; docs/PROGRAM_SCREEN_PHASE_3C_PROMOTION_GATES.md). Every status,
+  // roll-up, and release decision is unchanged.
+  const EVALUATOR_OUTPUT_SHA256 = "68341529825b41e7dcd3b25a5daec94385fe6641e07cc03d29003c94c256b45a";
+  const PUBLIC_DEMO_OUTPUT_SHA256 = "11081860902438dd881cb743c98de30f4b4c3c425675a6e0eb2b6d41474a84a1";
   const shipped = programScreenPathwayPacks.flatMap((pack) => pack.criteria);
 
   it("keeps the evaluator and public-demo output byte-identical", async () => {
