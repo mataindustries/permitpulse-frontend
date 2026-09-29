@@ -293,8 +293,11 @@ describe("4. The Round 1 re-review trigger fires for c-g only", () => {
 
 describe("5. Invariants: nothing promoted, output unchanged", () => {
   // The same pins as the Round 1, Phase 2, and Phase 2b tests.
-  const EVALUATOR_OUTPUT_SHA256 = "2b0c6ea651dfc55191090ab0c6129a8c22692a28bfdce3f046425437e1acecca";
-  const PUBLIC_DEMO_OUTPUT_SHA256 = "d00a74d195a2749da877775c0204a3435820fd13189f2ae05880b744ab45f57f";
+  // Phase 3C moved these pins for the three reviewed client-label changes only
+  // (c, d, g; docs/PROGRAM_SCREEN_PHASE_3C_PROMOTION_GATES.md). Every status,
+  // roll-up, and release decision is unchanged.
+  const EVALUATOR_OUTPUT_SHA256 = "68341529825b41e7dcd3b25a5daec94385fe6641e07cc03d29003c94c256b45a";
+  const PUBLIC_DEMO_OUTPUT_SHA256 = "11081860902438dd881cb743c98de30f4b4c3c425675a6e0eb2b6d41474a84a1";
 
   it("keeps human_verified at 0 and pending_human at 46", () => {
     expect(shippedCriteria.filter((criterion) => criterion.verification === "human_verified")).toEqual([]);

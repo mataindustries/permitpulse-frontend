@@ -3,6 +3,7 @@ import type { ProgramCriterionAuthorityResult } from "./evidence-authority";
 import { programFactSpecs } from "./facts";
 import type {
   CriterionStatus,
+  FireHazardStatutoryRoute,
   PathwayRollup,
   ProgramFactAssessment,
   ProgramFlagCrosscheck,
@@ -90,6 +91,12 @@ export function findProhibitedFactStatementLanguage(
 
 /* -------------------------------------------------------------- templates */
 
+/** Client-facing names of the statutory routes a route-separated fact is assessed on. */
+export const statutoryRouteLabels: Readonly<Record<FireHazardStatutoryRoute, string>> = {
+  gov_51178: "GOV §51178 route",
+  prc_4202: "PRC §4202 route",
+};
+
 function joinLabels(labels: readonly string[]): string {
   if (labels.length <= 1) return labels[0] ?? "";
   if (labels.length === 2) return `${labels[0]} and ${labels[1]}`;
@@ -109,7 +116,11 @@ export function authorityShortfallLabels(authority: ProgramCriterionAuthorityRes
   return {
     unestablished: authority.facts
       .filter((fact) => !fact.established)
-      .map((fact) => programFactSpecs[fact.key].label),
+      .map((fact) =>
+        fact.route === undefined
+          ? programFactSpecs[fact.key].label
+          : `${programFactSpecs[fact.key].label} (${statutoryRouteLabels[fact.route]})`,
+      ),
     unread: labelsFor("requirement_fact_not_read"),
     outOfScope: labelsFor("scope_precondition_not_met"),
   };
@@ -188,6 +199,8 @@ export function pathwayStatement(input: {
   factConflict: boolean;
   flagDivergence: boolean;
   confirmer: string;
+  /** An open completeness blocker held a clear roll-up at undetermined (Phase 3B G1, G2). */
+  completenessBlocked?: boolean;
 }): string {
   const unanchored =
     "The parcel match or jurisdiction is not settled in the reviewed record, so this screen draws no pathway result.";
@@ -213,6 +226,9 @@ export function pathwayStatement(input: {
       return parts.join(" ");
     }
     case "undetermined":
+      if (input.anchored && input.completenessBlocked) {
+        return `No blocking condition was found in the reviewed sources for the criteria screened, but at least one statutory site category this screen does not yet cover remains open, so the reviewed record does not settle this pathway. ${input.confirmer} makes the governing determination.`;
+      }
       return input.anchored
         ? "The reviewed record does not settle this pathway: at least one criterion is unknown, turns on agency or professional judgment, or awaits PermitPulse review."
         : unanchored;

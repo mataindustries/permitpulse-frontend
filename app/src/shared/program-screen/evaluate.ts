@@ -1,6 +1,10 @@
 import type { EvidenceIntegrityClassification } from "../build-week-integrity/types";
 import { IntegrityValidationError } from "../build-week-integrity/validation";
-import { evaluateCriterionAuthority, type ProgramAuthorityContext } from "./authority-gate";
+import {
+  evaluateCriterionAuthority,
+  type ProgramAuthorityContext,
+  type ProgramRouteAuthorityInput,
+} from "./authority-gate";
 import {
   parseProgramAuthorityRegistries,
   programAuthorityRegistries,
@@ -20,6 +24,7 @@ import {
   findProhibitedFactStatementLanguage,
   flagStatement,
   pathwayStatement,
+  statutoryRouteLabels,
 } from "./language";
 import { parseProgramEvidenceAuthority, type ProgramCriterionAuthorityResult } from "./evidence-authority";
 import { buildCriterionQuestion, buildFlagQuestion, buildReviewTasks } from "./questions";
@@ -32,14 +37,17 @@ import {
 import {
   criterionStatuses,
   pathwayRollups,
+  programPathwayCompletenessBlockers,
   PROGRAM_SCREEN_SCHEMA_VERSION,
   PROGRAM_SCREEN_SCOPE,
   type CriterionFactValues,
   type CriterionStatus,
+  type FireHazardStatutoryRoute,
   type KnownFactValue,
   type PathwayRollup,
   type ProgramCriterion,
   type ProgramCriterionResult,
+  type ProgramCriterionRouteRef,
   type ProgramFactAssessment,
   type ProgramFactKey,
   type ProgramFlagCrosscheck,
@@ -98,10 +106,133 @@ const shippedAuthorityContext: ProgramAuthorityContext = {
   records: [],
 };
 
+/** A route-separated fact assessed once per statutory route (Phase 3B c). */
+export interface ProgramStatutoryRouteAssessmentResult {
+  fact_key: ProgramFactKey;
+  /** True when at least one record's authority block names one of the routes. */
+  routed: boolean;
+  entries: ProgramRouteAuthorityInput[];
+  /** YES when any route is established YES; NO when every route is established NO; otherwise null. */
+  combined: KnownFactValue | null;
+}
+
+/**
+ * Route-separated assessment (Phase 3B c, `statutory_routes_assessed_separately`).
+ *
+ * A record whose authority block names a route counts only toward that route;
+ * every other record (no block, another basis, a City display) counts toward
+ * every route, so it is still compared with each route's records. Records
+ * joined by an explicit `conflicts_with` link are assessed together. Each
+ * route is then assessed by the canonical evaluator, so records that
+ * disagree within a route stay a Layer 1 conflict, and a YES on one route
+ * and a NO on the other are two route results, not a conflict.
+ *
+ * With no routed record every route holds the same records, so each route's
+ * assessment is the single-fact assessment and nothing changes.
+ */
+export function assessStatutoryRoutes(
+  criterion: ProgramCriterion,
+  factIndex: ProgramFactIndex,
+  authorityContext: ProgramAuthorityContext = shippedAuthorityContext,
+): ProgramStatutoryRouteAssessmentResult | null {
+  const spec = criterion.statutory_routes;
+  if (spec === undefined) return null;
+  const whole = factIndex.get(spec.fact_key);
+  if (whole === undefined) {
+    throw new IntegrityValidationError(
+      "PROGRAM_FACT_NOT_ASSESSED",
+      `Criterion ${criterion.id} requires fact ${spec.fact_key}, which was not assessed.`,
+    );
+  }
+  const records = authorityContext.records.filter((record) => record.claim.key === spec.fact_key);
+  const routeOf = (id: string): FireHazardStatutoryRoute | null => {
+    const qualifiers = authorityContext.blocks.get(id)?.qualifiers;
+    if (qualifiers?.family !== "hazard_map") return null;
+    return spec.routes.find((route) => route === qualifiers.statutory_basis) ?? null;
+  };
+  const routed = records.some((record) => routeOf(record.id) !== null);
+
+  let entries: ProgramRouteAuthorityInput[];
+  if (!routed) {
+    const ids = new Set(records.map((record) => record.id));
+    entries = spec.routes.map((route) => ({ route, assessment: whole, record_ids: ids }));
+  } else {
+    const wholeIds = whole.observations.map((observation) => observation.evidence_id).sort();
+    const recordIds = records.map((record) => record.id).sort();
+    if (JSON.stringify(wholeIds) !== JSON.stringify(recordIds)) {
+      throw new IntegrityValidationError(
+        "PROGRAM_ROUTE_RECORDS_MISMATCH",
+        `Criterion ${criterion.id} needs the records behind ${spec.fact_key} to assess its statutory routes.`,
+      );
+    }
+    entries = spec.routes.map((route) => {
+      const members = new Set(
+        records.filter((record) => [null, route].includes(routeOf(record.id))).map((record) => record.id),
+      );
+      for (let grew = true; grew; ) {
+        grew = false;
+        for (const record of records) {
+          const linked = members.has(record.id)
+            ? record.conflicts_with.filter((id) => !members.has(id))
+            : record.conflicts_with.some((id) => members.has(id))
+              ? [record.id]
+              : [];
+          for (const id of linked) {
+            members.add(id);
+            grew = true;
+          }
+        }
+      }
+      const [assessment] = assessProgramFacts(
+        records.filter((record) => members.has(record.id)),
+        [spec.fact_key],
+      );
+      return { route, assessment, record_ids: members };
+    });
+  }
+
+  const values = entries.map(({ assessment }) =>
+    isEstablishedFact(assessment) && assessment.normalized_value.kind === "boolean"
+      ? assessment.normalized_value.value
+      : null,
+  );
+  const combined: KnownFactValue | null = values.some((value) => value === true)
+    ? { kind: "boolean", value: true }
+    : values.every((value) => value === false)
+      ? { kind: "boolean", value: false }
+      : null;
+  return { fact_key: spec.fact_key, routed, entries, combined };
+}
+
+/** Each route's assessment, labelled with its route, for statements and questions. */
+function labelledRouteFacts(routes: ProgramStatutoryRouteAssessmentResult): ProgramFactAssessment[] {
+  return routes.entries.map(({ route, assessment }) => ({
+    ...assessment,
+    label: `${assessment.label} (${statutoryRouteLabels[route]})`,
+    statement: `Under the ${statutoryRouteLabels[route]}: ${assessment.statement}`,
+  }));
+}
+
+/**
+ * The facts a criterion's statement and question describe: the route
+ * assessments in place of the route-separated fact when a record is routed
+ * and the result is unknown or conflict; otherwise the facts it reads.
+ */
+export function criterionNarrativeFacts(
+  facts: readonly ProgramFactAssessment[],
+  routes: ProgramStatutoryRouteAssessmentResult | null,
+  status: CriterionStatus,
+): ProgramFactAssessment[] {
+  if (routes === null || !routes.routed || (status !== "unknown" && status !== "conflict")) return [...facts];
+  return [...facts.filter((fact) => fact.key !== routes.fact_key), ...labelledRouteFacts(routes)];
+}
+
 /**
  * Criterion status precedence:
  * 1. any required fact in conflict            -> conflict
  * 2. any required fact unknown / inference    -> unknown
+ *    (a route-separated fact counts per statutory route instead: conflict on
+ *    any route, else unknown unless a route is YES or every route is NO)
  * 3. professional judgment criterion          -> professional
  * 4. rule pending human or evidence unreviewed -> unreviewed
  * 5. enforced authority requirement not met   -> unknown
@@ -138,10 +269,16 @@ export function evaluateProgramCriterion(
   let status: CriterionStatus;
   const unreviewedReasons: UnreviewedReason[] = [];
   let authority: ProgramCriterionAuthorityResult | undefined;
+  const routes = assessStatutoryRoutes(criterion, factIndex, authorityContext);
+  // The route-separated fact is judged through its routes, never as one fact.
+  const ruleFacts = routes === null ? facts : facts.filter((fact) => fact.key !== routes.fact_key);
 
-  if (facts.some((fact) => fact.classification === "conflict")) {
+  if (
+    ruleFacts.some((fact) => fact.classification === "conflict") ||
+    routes?.entries.some((entry) => entry.assessment.classification === "conflict")
+  ) {
     status = "conflict";
-  } else if (facts.some((fact) => !isEstablishedFact(fact))) {
+  } else if (ruleFacts.some((fact) => !isEstablishedFact(fact)) || (routes !== null && routes.combined === null)) {
     status = "unknown";
   } else if (criterion.predicate === "professional_judgment") {
     status = "professional";
@@ -168,6 +305,7 @@ export function evaluateProgramCriterion(
         facts,
         context: authorityContext,
         asOf,
+        ...(routes === null ? {} : { routes: { fact_key: routes.fact_key, entries: routes.entries } }),
       });
     }
 
@@ -178,7 +316,10 @@ export function evaluateProgramCriterion(
     } else {
       const values: CriterionFactValues = Object.freeze(
         Object.fromEntries(
-          facts.map((fact) => [fact.key, fact.normalized_value as KnownFactValue]),
+          facts.map((fact) => [
+            fact.key,
+            fact.key === routes?.fact_key ? (routes.combined as KnownFactValue) : (fact.normalized_value as KnownFactValue),
+          ]),
         ),
       );
       const outcome = criterion.predicate(values);
@@ -210,7 +351,12 @@ export function evaluateProgramCriterion(
     rule_summary: criterion.rule_summary,
     status,
     classification: statusClassification(status),
-    statement: criterionStatement({ status, facts, unreviewedReasons, authority }),
+    statement: criterionStatement({
+      status,
+      facts: criterionNarrativeFacts(facts, routes, status),
+      unreviewedReasons,
+      authority,
+    }),
     unreviewed_reasons: unreviewedReasons,
     facts: facts.map((fact) => ({
       key: fact.key,
@@ -224,7 +370,24 @@ export function evaluateProgramCriterion(
     confirmer: criterion.confirmer,
     // Appended only when the gate ran, so every other result is unchanged.
     ...(authority === undefined ? {} : { authority }),
+    // Appended only when a record is routed; otherwise the routes are the single fact.
+    ...(routes === null || !routes.routed ? {} : { statutory_routes: routeRefs(routes) }),
   };
+}
+
+function routeRefs(routes: ProgramStatutoryRouteAssessmentResult): ProgramCriterionRouteRef[] {
+  return routes.entries.map(({ route, assessment }) => ({
+    route,
+    fact_key: routes.fact_key,
+    classification: assessment.classification,
+    supplied: assessment.supplied,
+    reviewed: assessment.reviewed,
+    value:
+      isEstablishedFact(assessment) && assessment.normalized_value.kind === "boolean"
+        ? assessment.normalized_value.value
+        : null,
+    evidence_ids: assessment.evidence.map((citation) => citation.evidence_id),
+  }));
 }
 
 export interface ProgramPathwayRollupResult {
@@ -232,6 +395,8 @@ export interface ProgramPathwayRollupResult {
   anchored: boolean;
   decisive_criteria: string[];
   fact_conflict: boolean;
+  /** Set only when an open completeness blocker held the roll-up at `undetermined`. */
+  completeness_blockers?: string[];
 }
 
 function ids(results: readonly ProgramCriterionResult[]): string[] {
@@ -248,6 +413,11 @@ function ids(results: readonly ProgramCriterionResult[]): string[] {
  * earlier gating criteria consistent) can decide the pathway; otherwise the
  * result is contested or undetermined. A program-flag divergence counts as a
  * conflict. The pathway is never described as available or open.
+ *
+ * Completeness guard (Phase 3B G1, G2): while a pathway has an open
+ * completeness blocker, a roll-up that would find no disqualifier is
+ * `undetermined` instead. The guard is keyed to the pathway, not the pack, so
+ * no pack can drop it.
  */
 export function rollUpProgramPathway(
   results: readonly ProgramCriterionResult[],
@@ -319,6 +489,20 @@ export function rollUpProgramPathway(
       anchored: true,
       decisive_criteria: ids(unresolved),
       fact_conflict: false,
+    };
+  }
+  const pathway = results.find((result) => result.pathway !== undefined)?.pathway;
+  const open = programPathwayCompletenessBlockers.filter(
+    (blocker) => blocker.pathway === pathway && blocker.status === "open",
+  );
+  if (open.length > 0) {
+    const related = results.filter((result) => open.some((blocker) => blocker.related_criterion_id === result.criterion_id));
+    return {
+      rollup: "undetermined",
+      anchored: true,
+      decisive_criteria: ids(related.length > 0 ? related : results),
+      fact_conflict: false,
+      completeness_blockers: open.map((blocker) => blocker.id),
     };
   }
   return {
@@ -458,7 +642,11 @@ function evaluatePathway(
     return fact;
   });
   const base = rollUpProgramPathway(results);
-  const flags = flagFacts.map((fact) => crosscheckProgramFlag(fact, base.rollup));
+  // A flag is compared with what the criteria found. The completeness guard
+  // holds a clear result at undetermined, but a display that points to a
+  // blocker still diverges from the criteria and escalates to contested.
+  const criteriaRollup = base.completeness_blockers === undefined ? base.rollup : "no_disqualifier_found_in_reviewed_sources";
+  const flags = flagFacts.map((fact) => crosscheckProgramFlag(fact, criteriaRollup));
   const flagDivergence = flags.some((flag) => flag.crosscheck === "diverges_from_criteria");
   const final = flagDivergence ? rollUpProgramPathway(results, { flagDivergence }) : base;
 
@@ -468,7 +656,12 @@ function evaluatePathway(
   const questions: ProgramQuestion[] = [];
   criteria.forEach((criterion, index) => {
     const facts = criterion.fact_keys.map((key) => factIndex.get(key) as ProgramFactAssessment);
-    const question = buildCriterionQuestion(criterion, results[index], facts);
+    const routes = assessStatutoryRoutes(criterion, factIndex, authorityContext);
+    const question = buildCriterionQuestion(
+      criterion,
+      results[index],
+      criterionNarrativeFacts(facts, routes, results[index].status),
+    );
     if (question) questions.push(question);
   });
   flags.forEach((flag, index) => {
@@ -497,6 +690,7 @@ function evaluatePathway(
     factConflict: final.fact_conflict,
     flagDivergence,
     confirmer: pathway.confirmer,
+    completenessBlocked: final.completeness_blockers !== undefined,
   });
 
   const blockers: ReleaseBlocker[] = [];
@@ -578,6 +772,7 @@ function evaluatePathway(
     planning_questions: questions,
     review_tasks: reviewTasks,
     release: { client_releasable: blockers.length === 0, blockers },
+    ...(final.completeness_blockers === undefined ? {} : { open_completeness_blockers: final.completeness_blockers }),
   };
 }
 

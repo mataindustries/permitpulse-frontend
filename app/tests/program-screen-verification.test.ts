@@ -26,6 +26,7 @@ import {
 } from "../src/shared/program-screen/source-capture";
 import {
   humanVerificationRequiredCriterionIds,
+  programPathwayCompletenessBlockers,
   type ProgramCriterion,
   type ProgramCriterionHumanVerification,
   type ProgramFactKey,
@@ -273,8 +274,15 @@ function exerciseVerifiedCriterion(
       verification: "human_verified",
       unreviewed_reasons: [],
     });
-    expect(pathway.rollup).toBe("no_disqualifier_found_in_reviewed_sources");
-    expect(pathway.statement).toContain("This is not a determination that the pathway is available");
+    // Phase 3C: an open completeness blocker holds a clear result at undetermined.
+    const open = programPathwayCompletenessBlockers.filter((blocker) => blocker.pathway === criterion.pathway);
+    if (open.length > 0) {
+      expect(pathway).toMatchObject({ rollup: "undetermined", open_completeness_blockers: open.map((blocker) => blocker.id) });
+      expect(pathway.statement).toContain("at least one statutory site category this screen does not yet cover remains open");
+    } else {
+      expect(pathway.rollup).toBe("no_disqualifier_found_in_reviewed_sources");
+      expect(pathway.statement).toContain("This is not a determination that the pathway is available");
+    }
     expect(result.release).toEqual({ client_releasable: true, blockers: [] });
   });
 

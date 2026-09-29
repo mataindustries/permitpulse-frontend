@@ -5,7 +5,12 @@ import type {
   EvidenceNormalizedValue,
 } from "../build-week-integrity/types";
 import { IntegrityValidationError } from "../build-week-integrity/validation";
-import { programFactKeys, type ProgramFactKey } from "./types";
+import {
+  fireHazardStatutoryRoutes,
+  programFactKeys,
+  type FireHazardStatutoryRoute,
+  type ProgramFactKey,
+} from "./types";
 
 /**
  * Evidence authority: which records may establish a parcel fact.
@@ -33,6 +38,8 @@ export const PROGRAM_EVIDENCE_AUTHORITY_VERSION = "program-screen-evidence-autho
  */
 export const authorityRecordKinds = [
   "agency_hazard_map",
+  /** A Farmland Mapping and Monitoring Program map (Phase 3B e). */
+  "agency_farmland_map",
   "adopted_plan_document",
   "recorded_instrument",
   "recorded_subdivision_map",
@@ -55,6 +62,7 @@ export const authorityRecordKindEvidenceTypes: Readonly<
   Record<AuthorityRecordKind, readonly EvidenceIntegrityType[]>
 > = {
   agency_hazard_map: ["official_map"],
+  agency_farmland_map: ["official_map"],
   adopted_plan_document: ["official_document", "official_map"],
   recorded_instrument: ["official_document"],
   recorded_subdivision_map: ["official_map", "official_document"],
@@ -116,6 +124,7 @@ export const qualifierFamilies = [
   "hazard_map",
   "adopted_plan",
   "recorded_instrument",
+  "farmland_map",
 ] as const;
 export const lotAreaBases = [
   "recorded_legal_lot_area",
@@ -138,6 +147,44 @@ export const zoneMatches = [
   "not_established",
 ] as const;
 export const hazardClasses = ["very_high", "high"] as const;
+/** The statute a fire-hazard record itself names as its basis (Phase 3B c, d). */
+export const hazardStatutoryBases = [...fireHazardStatutoryRoutes, "other_basis", "not_established"] as const;
+/**
+ * Whether reviewed metadata establishes that a fire-hazard map is adopted
+ * (PRC §4202: a map adopted by CAL FIRE). Established this way, the map's
+ * edition may be dated by an edition date or its adoption date.
+ */
+export const hazardMapAdoptionStatuses = ["adopted", "not_adopted", "not_established"] as const;
+/** The agency a fire-hazard record names as determining or adopting the zone. */
+export const hazardNamedAgencies = ["department_of_forestry_and_fire_protection", "other_agency", "not_established"] as const;
+/** Context only, recorded when the source states it (Phase 3B d); never a condition. */
+export const responsibilityAreasAsStated = ["state", "local", "federal", "not_stated"] as const;
+/** The Department of Conservation Farmland Mapping and Monitoring Program, or another program (Phase 3B e). */
+export const farmlandMapPrograms = ["farmland_mapping_and_monitoring_program", "other_program", "not_established"] as const;
+/**
+ * The one designation a farmland map shows for the whole lot. A lot shown in
+ * more than one class is recorded as not_established.
+ */
+export const farmlandDesignationClasses = [
+  "prime_farmland",
+  "farmland_of_statewide_importance",
+  "other_or_none",
+  "not_established",
+] as const;
+/** What kind of plan an adopted plan is (Phase 3B f). Only an NCCP can back f. */
+export const adoptedPlanTypes = [
+  "natural_community_conservation_plan",
+  "habitat_conservation_plan",
+  "other_natural_resource_protection_plan",
+  "not_established",
+] as const;
+/** The statute a plan was adopted under: the NCCP Act is Fish and Game Code §2800 et seq. */
+export const adoptedPlanStatutoryBases = [
+  "fish_and_game_code_2800_et_seq",
+  "federal_endangered_species_act",
+  "other_basis",
+  "not_established",
+] as const;
 
 export type SourceIdentifierScheme = (typeof sourceIdentifierSchemes)[number];
 export type EditionDateKind = (typeof editionDateKinds)[number];
@@ -146,6 +193,27 @@ export type LegalLotIdentity = (typeof legalLotIdentities)[number];
 export type QualifierFamily = (typeof qualifierFamilies)[number];
 export type LotAreaBasis = (typeof lotAreaBases)[number];
 export type HazardClass = (typeof hazardClasses)[number];
+export type HazardStatutoryBasis = (typeof hazardStatutoryBases)[number];
+
+/**
+ * The routes each hazard class may rest on: Very High on GOV §51178 or PRC
+ * §4202 (Phase 3B c), High on PRC §4202 only (Phase 3B d). Pinned by the
+ * reviewer's rules, not configurable in a registry.
+ */
+export const hazardClassStatutoryRoutes: Readonly<Record<HazardClass, readonly FireHazardStatutoryRoute[]>> = {
+  very_high: ["gov_51178", "prc_4202"],
+  high: ["prc_4202"],
+};
+
+/**
+ * The record kind that can carry each route. GOV §51178 has none: what a
+ * §51178 record looks like is not decided until GOV §51178 is captured and
+ * reviewed, so a Route 1 record never establishes a fact (Phase 3C).
+ */
+export const statutoryRouteRecordKinds: Readonly<Record<FireHazardStatutoryRoute, AuthorityRecordKind | null>> = {
+  gov_51178: null,
+  prc_4202: "agency_hazard_map",
+};
 
 /**
  * How authority metadata is shaped for each fact. `whole_or_none` facts
@@ -175,7 +243,7 @@ const profileOverrides: Partial<Record<ProgramFactKey, AuthorityFactProfile>> = 
     coverage_semantics: "whole_or_none",
   },
   "high-fire-hazard-severity-zone": { qualifier_family: "hazard_map", hazard_class: "high", coverage_semantics: "whole_or_none" },
-  "prime-or-statewide-farmland": { qualifier_family: null, hazard_class: null, coverage_semantics: "whole_or_none" },
+  "prime-or-statewide-farmland": { qualifier_family: "farmland_map", hazard_class: null, coverage_semantics: "whole_or_none" },
   "nccp-conservation-land": { qualifier_family: "adopted_plan", hazard_class: null, coverage_semantics: "whole_or_none" },
   "conservation-easement": { qualifier_family: "recorded_instrument", hazard_class: null, coverage_semantics: "whole_or_none" },
 };
@@ -310,15 +378,28 @@ const qualifiersSchema = z.discriminatedUnion("family", [
     .object({
       family: z.literal("hazard_map"),
       hazard_class: z.enum(hazardClasses),
-      parcel_responsibility_area: z.enum(["state", "local", "federal", "not_established"]),
-      map_covers_that_area: z.enum(["yes", "no", "not_established"]),
-      legend_defines_class_for_area: z.enum(["yes", "no", "not_established"]),
+      /** The statute the record names as its basis: its route (Phase 3B c, d). */
+      statutory_basis: z.enum(hazardStatutoryBases),
+      /** Whether the map is adopted; a PRC §4202 record needs `adopted`. */
+      adoption_status: z.enum(hazardMapAdoptionStatuses),
+      /** The agency the record names as determining or adopting the zone. */
+      named_agency: z.enum(hazardNamedAgencies),
+      /** Whether the map covers the lot proposed to be subdivided. */
+      map_covers_lot: z.enum(["yes", "no", "not_established"]),
+      /** Whether the map's legend defines the fact's class for the area containing the lot. */
+      legend_defines_class_for_lot: z.enum(["yes", "no", "not_established"]),
+      /** Context only; never picks or rules out a route (Phase 3B c point 7, d point 6). */
+      responsibility_area_as_stated: z.enum(responsibilityAreasAsStated),
     })
     .strict(),
   z
     .object({
       family: z.literal("adopted_plan"),
       plan_identifier: shortText,
+      /** What kind of plan it is; f accepts only an NCCP (Phase 3B f). */
+      plan_type: z.enum(adoptedPlanTypes),
+      /** The statute the plan was adopted under. */
+      statutory_basis: z.enum(adoptedPlanStatutoryBases),
       adoption_status: z.enum([
         "adopted_in_effect",
         "draft",
@@ -349,6 +430,21 @@ const qualifiersSchema = z.discriminatedUnion("family", [
           searched_on: isoDate.nullable(),
         })
         .strict(),
+    })
+    .strict(),
+  z
+    .object({
+      family: z.literal("farmland_map"),
+      /** The program that prepared the map (Phase 3B e). */
+      map_program: z.enum(farmlandMapPrograms),
+      designation_class: z.enum(farmlandDesignationClasses),
+      /**
+       * The captured official legend or documentation the record relies on to
+       * show that the map's Prime Farmland and Farmland of Statewide Importance
+       * are the categories defined under the USDA criteria §66499.41(a)(9)(A)
+       * references. Never assumed from the map's source. Null: none.
+       */
+      usda_criteria_documentation: z.object({ source_id: kebabId, sha256_extracted: hex64 }).strict().nullable(),
     })
     .strict(),
 ]);
@@ -472,9 +568,20 @@ export function evidenceAuthorityLinkIssues(
     if (qualifiers.hazard_class !== profile.hazard_class) {
       issues.push(`A ${qualifiers.hazard_class} hazard map cannot describe ${block.fact_key}; High and Very High never stand in for each other.`);
     }
-    if (value?.kind === "boolean" && value.value && qualifiers.legend_defines_class_for_area === "no") {
+    if (value?.kind === "boolean" && value.value && qualifiers.legend_defines_class_for_lot === "no") {
       issues.push("A parcel cannot be inside a class the map's legend does not define.");
     }
+    if (qualifiers.adoption_status === "not_adopted" && block.edition.date_kind === "adopted") {
+      issues.push("An adoption date contradicts a map recorded as not adopted.");
+    }
+  }
+  if (qualifiers?.family === "farmland_map" && value?.kind === "boolean") {
+    const designated =
+      qualifiers.designation_class === "prime_farmland" || qualifiers.designation_class === "farmland_of_statewide_importance";
+    if (value.value && qualifiers.designation_class === "other_or_none") {
+      issues.push("A YES contradicts a designation other than Prime Farmland or Farmland of Statewide Importance.");
+    }
+    if (!value.value && designated) issues.push("A NO contradicts a Prime Farmland or Farmland of Statewide Importance designation.");
   }
   if (qualifiers?.family === "zone_record" && value?.kind === "text") {
     const expected =
@@ -552,8 +659,16 @@ export const authorityRecordFailureCodes = [
   "map_history_not_established",
   "map_lineage_uncertain",
   "map_history_does_not_support_value",
+  "statutory_route_not_accepted",
+  "statutory_route_record_kind_undefined",
+  "statutory_agency_not_recorded",
+  "hazard_map_adoption_not_established",
   "hazard_area_not_covered",
   "hazard_legend_class_not_defined",
+  "farmland_map_program_not_established",
+  "farmland_designation_not_established",
+  "farmland_usda_criteria_not_established",
+  "plan_type_not_nccp",
   "plan_not_adopted_in_effect",
   "plan_identification_not_explicit",
   "plan_reference_incomplete",
@@ -574,6 +689,8 @@ export type AuthorityCriterionFailureCode = (typeof authorityCriterionFailureCod
 
 export interface ProgramFactAuthorityResult {
   key: ProgramFactKey;
+  /** Set when this result is one statutory route of a route-separated fact (Phase 3B c). */
+  route?: FireHazardStatutoryRoute;
   established: boolean;
   /** Records that establish the fact's recorded value. */
   establishing_evidence_ids: string[];

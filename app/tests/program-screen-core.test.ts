@@ -547,11 +547,13 @@ describe("Program Screen release gates", () => {
   });
 
   it("can release a fully reviewed, repo-sourced, current screen", () => {
-    const clear = testCriterion({ id: "la_shra.clear", fact_keys: ["hillside-area"] });
+    // Low-Rise: the SHRA pathway is held at undetermined while its Phase 3B
+    // completeness blockers are open (program-screen-promotion-gates-3c.test.ts).
+    const clear = testCriterion({ id: "la_low_rise.clear", pathway: "la_low_rise", fact_keys: ["hillside-area"] });
     const result = evaluateProgramScreen({
       evidence_records: [...anchorEvidence(), evidence("h", "hillside-area", false)],
       as_of: FIXTURE_AS_OF,
-      packs: [testPack([clear])],
+      packs: [testPack([clear], "la_low_rise")],
     });
 
     expect(result.pathways[0].rollup).toBe("no_disqualifier_found_in_reviewed_sources");

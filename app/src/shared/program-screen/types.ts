@@ -230,7 +230,70 @@ export const criterionPromotionGates = [
   "directors_section_3_map_captured",
   "reviewer_confirms_encoded_rule",
   "human_verification_record",
+  // Decided in Phase 3B (docs/PROGRAM_SCREEN_PHASE_3B_REREVIEW_DECISIONS.md), wired in Phase 3C.
+  "statutory_route_recorded",
+  "statutory_routes_assessed_separately",
+  "prc_4202_map_coverage_and_legend_class_recorded",
+  "fmmp_categories_tied_to_usda_criteria",
+  "nccp_plan_type_and_statutory_basis_recorded",
 ] as const;
+
+/**
+ * Gates a later decision replaced. Each stays in `criterionPromotionGates` so
+ * the decision records that name it still parse, but no authority
+ * requirement may list it and it is never met.
+ * `responsibility_area_and_legend_recorded` (Round 1 d) was replaced by
+ * `prc_4202_map_coverage_and_legend_class_recorded` (Phase 3B d).
+ */
+export const retiredCriterionPromotionGates = ["responsibility_area_and_legend_recorded"] as const;
+
+/**
+ * The two statutory routes to a Very High Fire Hazard Severity Zone record
+ * (Phase 3B c): a zone determined by CAL FIRE under GOV §51178, and a zone on a
+ * map adopted by CAL FIRE under PRC §4202. High has only the PRC §4202 route
+ * (Phase 3B d).
+ */
+export const fireHazardStatutoryRoutes = ["gov_51178", "prc_4202"] as const;
+
+/**
+ * A statutory category a pathway's criteria do not model yet (Phase 3B
+ * pathway completeness blockers). While one is open, its pathway never rolls
+ * up to `no_disqualifier_found_in_reviewed_sources`; see `rollUpProgramPathway`.
+ * A blocker closes only through a separately reviewed criterion or fact, or an
+ * explicit later human review, recorded as a reviewed change to this list.
+ */
+export interface ProgramPathwayCompletenessBlocker {
+  id: string;
+  key: string;
+  pathway: ProgramPathwayId;
+  statute_source_id: string;
+  statute_pinpoint: string;
+  /** The criterion nearest the category. Passing it never closes the blocker. */
+  related_criterion_id: string;
+  status: "open";
+}
+
+/** Mirrors `pathway_completeness_blockers` in the Phase 3B decisions record. */
+export const programPathwayCompletenessBlockers: readonly ProgramPathwayCompletenessBlocker[] = [
+  {
+    id: "G1",
+    key: "shra_a9a_ballot_measure_agricultural_land",
+    pathway: "la_shra",
+    statute_source_id: "gcs-66499-41",
+    statute_pinpoint: "(a)(9)(A)",
+    related_criterion_id: "la_shra.prime-or-statewide-farmland",
+    status: "open",
+  },
+  {
+    id: "G2",
+    key: "shra_a9h_hcp_and_other_resource_protection_plans",
+    pathway: "la_shra",
+    statute_source_id: "gcs-66499-41",
+    statute_pinpoint: "(a)(9)(H)",
+    related_criterion_id: "la_shra.natural-community-conservation-plan-land",
+    status: "open",
+  },
+];
 
 export const sourceCaptureMethods = [
   "pdf_text_extraction",
@@ -327,12 +390,13 @@ export type OfficialSourceType = (typeof officialSourceTypes)[number];
 export type OperativeSourceType = (typeof operativeSourceTypes)[number];
 export type SourceOperativeStatus = (typeof sourceOperativeStatuses)[number];
 export type CriterionPromotionGate = (typeof criterionPromotionGates)[number];
+export type FireHazardStatutoryRoute = (typeof fireHazardStatutoryRoutes)[number];
 
-/** A named human reviewer's decision, by review round and letter. */
-export interface ProgramDecisionRef {
-  round: number;
-  letter: string;
-}
+/**
+ * A named human reviewer's decision: by review round and letter (Round 1), or
+ * by re-review phase and letter (Phase 3B supersedes Round 1 c-g).
+ */
+export type ProgramDecisionRef = { round: number; letter: string } | { phase: string; letter: string };
 
 /* ------------------------------------------------------------------ facts */
 
@@ -480,6 +544,18 @@ export interface ProgramCriterionException {
   fact_keys: readonly ProgramFactKey[];
 }
 
+/**
+ * Records of `fact_key` are assessed separately for each route: a record
+ * whose authority block names a route counts only toward that route, and
+ * every other record counts toward every route. Each route keeps canonical
+ * Layer 1 conflict handling. A YES on any route supports the criterion; a NO
+ * needs every route; anything else is unknown.
+ */
+export interface ProgramStatutoryRouteAssessment {
+  fact_key: ProgramFactKey;
+  routes: readonly FireHazardStatutoryRoute[];
+}
+
 export interface ProgramCriterion {
   id: string;
   pathway: ProgramPathwayId;
@@ -496,6 +572,12 @@ export interface ProgramCriterion {
    */
   permitted_outcomes: readonly PredicateOutcome[];
   exception_paths: readonly ProgramCriterionException[];
+  /**
+   * Phase 3B c: the fact whose records are assessed once per statutory route
+   * before the roll-up. Absent for every other criterion.
+   * See `assessStatutoryRoutes` in evaluate.ts.
+   */
+  statutory_routes?: ProgramStatutoryRouteAssessment;
   rule_summary: string;
   citation: ProgramCriterionCitation;
   confirmer: ProgramConfirmer;
@@ -531,6 +613,18 @@ export interface ProgramCriterionFactRef {
   evidence_ids: string[];
 }
 
+/** One statutory route's assessment of a route-separated fact. */
+export interface ProgramCriterionRouteRef {
+  route: FireHazardStatutoryRoute;
+  fact_key: ProgramFactKey;
+  classification: EvidenceIntegrityClassification;
+  supplied: boolean;
+  reviewed: boolean;
+  /** The route's established YES or NO; null when the route is not established. */
+  value: boolean | null;
+  evidence_ids: string[];
+}
+
 export interface ProgramCriterionResult {
   criterion_id: string;
   pathway: ProgramPathwayId;
@@ -555,6 +649,12 @@ export interface ProgramCriterionResult {
    * exact output.
    */
   authority?: ProgramCriterionAuthorityResult;
+  /**
+   * Present only when a record of the route-separated fact names a statutory
+   * route. With no routed record every route sees the same records, so the
+   * result is the single-fact result and is left unchanged.
+   */
+  statutory_routes?: ProgramCriterionRouteRef[];
 }
 
 export interface ProgramFlagResult {
@@ -636,6 +736,11 @@ export interface ProgramPathwayResult {
   planning_questions: ProgramQuestion[];
   review_tasks: ProgramReviewTask[];
   release: ReleaseDecision;
+  /**
+   * Present only when an open completeness blocker held the roll-up at
+   * `undetermined` instead of `no_disqualifier_found_in_reviewed_sources`.
+   */
+  open_completeness_blockers?: string[];
 }
 
 export interface ProgramScreenResult {

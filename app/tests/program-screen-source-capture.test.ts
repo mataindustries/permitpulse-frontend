@@ -803,7 +803,8 @@ describe("Draft sources never become operative law", () => {
       "documented_disqualifier",
     );
     const clear = screen(criterion, [evidence("f", "special-flood-hazard-area", false)]);
-    expect(clear.pathway.rollup).toBe("no_disqualifier_found_in_reviewed_sources");
+    // Phase 3C: a clear SHRA result is held at undetermined while G1 and G2 are open.
+    expect(clear.pathway).toMatchObject({ rollup: "undetermined", open_completeness_blockers: ["G1", "G2"] });
     expect(clear.result.release.client_releasable).toBe(true);
   });
 

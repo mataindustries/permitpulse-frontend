@@ -653,7 +653,11 @@ export const agencyMapCaptureContextSchema = z
         excerpt: pageExcerptSchema.nullable(),
       })
       .strict(),
-    /** Each area the map shows, with the hazard classes its legend lists for it. Empty: not established. */
+    /**
+     * Context, recorded only when the map itself states it: each responsibility
+     * area the map shows, with the hazard classes its legend lists for it.
+     * Empty: the map states none. Never a registration condition (Phase 3B d).
+     */
     responsibility_areas: z
       .array(
         z
@@ -665,6 +669,18 @@ export const agencyMapCaptureContextSchema = z
           .strict(),
       )
       .max(responsibilityAreas.length),
+    /**
+     * The hazard classes the map's legend lists, recorded for the map as a
+     * whole when the legend is not tied to a stated responsibility area.
+     * Absent: not recorded this way.
+     */
+    legend: z
+      .object({
+        classes: z.array(z.enum(mapLegendClasses)).min(1).max(mapLegendClasses.length),
+        excerpts: z.array(pageExcerptSchema).min(1).max(10),
+      })
+      .strict()
+      .optional(),
     supersession: z
       .object({ statement: z.enum(mapSupersessionStatements), excerpt: pageExcerptSchema.nullable() })
       .strict(),
@@ -763,6 +779,7 @@ function contextExcerpts(metadata: {
     map.responsibility_areas.forEach((area, index) =>
       area.excerpts.forEach((excerpt) => found.push({ path: `agency_map.responsibility_areas.${index}`, excerpt })),
     );
+    map.legend?.excerpts.forEach((excerpt) => found.push({ path: "agency_map.legend", excerpt }));
     found.push({ path: "agency_map.supersession", excerpt: map.supersession.excerpt });
   }
   const statute = metadata.statute;
@@ -911,6 +928,9 @@ function officialSourceMetadataV2SchemaWith(exceptions: readonly SourceHostExcep
             issue(`agency_map.responsibility_areas.${index}`, "Each legend class is recorded once.");
           }
         });
+        if (map.legend !== undefined && new Set(map.legend.classes).size !== map.legend.classes.length) {
+          issue("agency_map.legend", "Each legend class is recorded once.");
+        }
         const supersession = map.supersession;
         if ((supersession.statement === "not_stated") !== (supersession.excerpt === null)) {
           issue("agency_map.supersession", "A supersession statement is recorded exactly when an excerpt shows it.");
@@ -1178,8 +1198,10 @@ export const agencyMapFactLegendClasses: Readonly<Partial<Record<ProgramFactKey,
  * In Phase 2b only an agency map can back a source, and only when the
  * capture itself shows everything a reviewer needs: an operative edition
  * with a date matching the registration, the issuing agency printed on the
- * map, the responsibility areas it covers, and a legend class for each fact
- * (Very High for the Very High fact, High for the High fact). A test-only,
+ * map, and a legend class for each fact (Very High for the Very High fact,
+ * High for the High fact), on the map's own legend or a stated
+ * responsibility area's. Responsibility area is context only: a map that
+ * states none is not refused for that (Phase 3B d, Phase 3C). A test-only,
  * proposed, superseded, or unconfirmed map, a statute, and an ordinance or
  * memo never can.
  */
@@ -1217,16 +1239,16 @@ export async function authoritySourceCaptureIssues(
     issues.push("The registered edition date or kind differs from the captured edition.");
   }
   if (map.issuing_agency.excerpt === null) issues.push("The capture does not show the issuing agency printed on the map.");
-  if (map.responsibility_areas.length === 0) {
-    issues.push("The capture does not establish which responsibility areas the map covers.");
-  }
   if (map.supersession.statement === "stated_superseded") issues.push("The map states that it is superseded.");
+  // The legend class is operative; where the map states responsibility areas,
+  // their legends count too, and that context is kept as recorded.
+  const legendClasses = new Set([...(map.legend?.classes ?? []), ...map.responsibility_areas.flatMap((area) => area.legend_classes)]);
   for (const key of source.fact_keys) {
     const needed = agencyMapFactLegendClasses[key];
     if (needed === undefined) {
       issues.push(`An agency map capture cannot back ${key}.`);
-    } else if (!map.responsibility_areas.some((area) => area.legend_classes.includes(needed))) {
-      issues.push(`The captured legend defines no ${needed} class for any responsibility area, so it cannot back ${key}.`);
+    } else if (!legendClasses.has(needed)) {
+      issues.push(`The captured legend defines no ${needed} class, so it cannot back ${key}.`);
     }
   }
   issues.push(...captureContextIssues(metadata, extracted));

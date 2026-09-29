@@ -206,6 +206,15 @@ function officialMap(change: (draft: Draft) => void = () => {}): OfficialSourceM
   }) as OfficialSourceMetadata;
 }
 
+/**
+ * The TEST-ONLY map's legend recorded for the map as a whole, as for a map
+ * that states no responsibility area (Phase 3C).
+ */
+const MAP_WIDE_LEGEND = {
+  classes: ["very_high", "high", "moderate"],
+  excerpts: [{ page: 2, text: "Very High Fire Hazard Severity Zone High Fire Hazard Severity Zone Moderate Fire Hazard Severity Zone" }],
+};
+
 /** A TEST-ONLY registration of an agency map, as a reviewer would enter it in authority-policy.ts. */
 function mapRegistration(overrides: Partial<ReviewedAuthoritySource> = {}): ReviewedAuthoritySource {
   return {
@@ -590,6 +599,10 @@ describe("5. Malformed agency-map metadata fails", () => {
     ["a repeated legend class", (draft) => draft.agency_map.responsibility_areas[0].legend_classes.push("high")],
     ["an unknown legend class", (draft) => (draft.agency_map.responsibility_areas[0].legend_classes = ["extreme"])],
     ["an area with no excerpt", (draft) => (draft.agency_map.responsibility_areas[0].excerpts = [])],
+    ["a map-wide legend with no classes", (draft) => (draft.agency_map.legend = { ...structuredClone(MAP_WIDE_LEGEND), classes: [] })],
+    ["a repeated map-wide legend class", (draft) => (draft.agency_map.legend = { ...structuredClone(MAP_WIDE_LEGEND), classes: ["high", "high"] })],
+    ["an unknown map-wide legend class", (draft) => (draft.agency_map.legend = { ...structuredClone(MAP_WIDE_LEGEND), classes: ["extreme"] })],
+    ["a map-wide legend with no excerpt", (draft) => (draft.agency_map.legend = { ...structuredClone(MAP_WIDE_LEGEND), excerpts: [] })],
     ["a supersession statement without an excerpt", (draft) => (draft.agency_map.supersession.excerpt = null)],
     ["a supersession excerpt with no statement", (draft) => (draft.agency_map.supersession.statement = "not_stated")],
     ["a superseded map recorded as operative", (draft) => (draft.agency_map.supersession.statement = "stated_superseded")],
@@ -623,6 +636,13 @@ describe("5. Malformed agency-map metadata fails", () => {
     const invented = edited(map, (draft) => (draft.agency_map.edition.excerpt.text = "Edition 000002, effective January 15, 2026"));
     expect(await officialSourceCaptureIssues({ ...map, metadata: invented })).toEqual([
       "agency_map.edition: the excerpt is not on page 1 of extracted.txt.",
+    ]);
+    const wideLegendMoved = edited(map, (draft) => {
+      draft.agency_map.legend = structuredClone(MAP_WIDE_LEGEND);
+      draft.agency_map.legend.excerpts[0].page = 1;
+    });
+    expect(await officialSourceCaptureIssues({ ...map, metadata: wideLegendMoved })).toEqual([
+      "agency_map.legend: the excerpt is not on page 1 of extracted.txt.",
     ]);
   });
 
@@ -671,18 +691,17 @@ describe("6. A map capture cannot silently become authoritative", () => {
     ["a registration of another edition", mapRegistration({ edition: { label: "Edition 000002", date: "2026-06-01", date_kind: "effective" } }), officialMap(), "The registered edition date or kind differs from the captured edition."],
     ["a registration with another date kind", mapRegistration({ edition: { label: "Edition 000001", date: "2026-01-15", date_kind: "adopted" } }), officialMap(), "The registered edition date or kind differs from the captured edition."],
     ["an unprinted issuing agency", mapRegistration(), officialMap((draft) => (draft.agency_map.issuing_agency.excerpt = null)), "The capture does not show the issuing agency printed on the map."],
-    ["no responsibility-area context", mapRegistration(), officialMap((draft) => (draft.agency_map.responsibility_areas = [])), "The capture does not establish which responsibility areas the map covers."],
     [
       "a legend without a High class, registered for High",
       mapRegistration(),
       officialMap((draft) => (draft.agency_map.responsibility_areas[0].legend_classes = ["very_high", "moderate"])),
-      "The captured legend defines no high class for any responsibility area, so it cannot back high-fire-hazard-severity-zone.",
+      "The captured legend defines no high class, so it cannot back high-fire-hazard-severity-zone.",
     ],
     [
       "a legend without a Very High class, registered for Very High",
       mapRegistration({ fact_keys: ["very-high-fire-hazard-severity-zone"] }),
       officialMap((draft) => (draft.agency_map.responsibility_areas[0].legend_classes = ["high"])),
-      "The captured legend defines no very_high class for any responsibility area, so it cannot back very-high-fire-hazard-severity-zone.",
+      "The captured legend defines no very_high class, so it cannot back very-high-fire-hazard-severity-zone.",
     ],
     ["a fact a fire map cannot show", mapRegistration({ fact_keys: ["coastal-zone"] as ProgramFactKey[] }), officialMap(), "An agency map capture cannot back coastal-zone."],
     ["a recommended or proposed map (B7)", mapRegistration(), officialMap((draft) => (draft.operative_status = "proposed_not_operative")), "A map recorded as proposed_not_operative can never back an authority source."],
@@ -704,6 +723,52 @@ describe("6. A map capture cannot silently become authoritative", () => {
 
   it.each(blocked)("blocks registration of %s", async (_name, source, metadata, message) => {
     expect(await authoritySourceCaptureIssues(source, capture(metadata), EXCEPTIONS)).toContain(message);
+  });
+
+  describe("responsibility area is context, never a registration condition (Phase 3B d, Phase 3C)", () => {
+    const statesNoArea = (legend?: typeof MAP_WIDE_LEGEND) =>
+      officialMap((draft) => {
+        draft.agency_map.responsibility_areas = [];
+        if (legend !== undefined) draft.agency_map.legend = structuredClone(legend);
+      });
+
+    it("does not refuse a map that states no responsibility area when its legend is captured", async () => {
+      const metadata = statesNoArea(MAP_WIDE_LEGEND);
+      expect(officialSourceMetadataSchemaWith(EXCEPTIONS).safeParse(metadata).success).toBe(true);
+      expect(await officialSourceCaptureIssues({ ...map, metadata: edited(map, (draft) => {
+        draft.agency_map.responsibility_areas = [];
+        draft.agency_map.legend = structuredClone(MAP_WIDE_LEGEND);
+      }) as OfficialSourceMetadata })).toEqual([]);
+      expect(await authoritySourceCaptureIssues(mapRegistration(), capture(metadata), EXCEPTIONS)).toEqual([]);
+    });
+
+    it("still refuses a map whose captured legend lacks the fact's class, with or without stated areas", async () => {
+      expect(await authoritySourceCaptureIssues(mapRegistration(), capture(statesNoArea()), EXCEPTIONS)).toEqual([
+        "The captured legend defines no very_high class, so it cannot back very-high-fire-hazard-severity-zone.",
+        "The captured legend defines no high class, so it cannot back high-fire-hazard-severity-zone.",
+      ]);
+      const veryHighOnly = { ...MAP_WIDE_LEGEND, classes: ["very_high"] };
+      expect(await authoritySourceCaptureIssues(mapRegistration(), capture(statesNoArea(veryHighOnly)), EXCEPTIONS)).toEqual([
+        "The captured legend defines no high class, so it cannot back high-fire-hazard-severity-zone.",
+      ]);
+      for (const issues of [
+        await authoritySourceCaptureIssues(mapRegistration(), capture(statesNoArea()), EXCEPTIONS),
+        await authoritySourceCaptureIssues(mapRegistration(), capture(officialMap()), EXCEPTIONS),
+      ]) {
+        expect(issues.join(" ")).not.toMatch(/responsibility area/i);
+      }
+    });
+
+    it("keeps responsibility-area context when the map states it, and reads its legend", async () => {
+      const stated = officialMap();
+      expect((stated as Draft).agency_map.responsibility_areas.map((area: Draft) => area.area)).toEqual(["local"]);
+      expect((stated as Draft).agency_map.legend).toBeUndefined();
+      expect(await authoritySourceCaptureIssues(mapRegistration(), capture(stated), EXCEPTIONS)).toEqual([]);
+      const both = officialMap((draft) => (draft.agency_map.legend = structuredClone(MAP_WIDE_LEGEND)));
+      expect(officialSourceMetadataSchemaWith(EXCEPTIONS).safeParse(both).success).toBe(true);
+      expect((both as Draft).agency_map.responsibility_areas).toHaveLength(1);
+      expect(await authoritySourceCaptureIssues(mapRegistration(), capture(both), EXCEPTIONS)).toEqual([]);
+    });
   });
 
   it("never lets a statute, ordinance, memo, or draft capture back an authority source", async () => {
@@ -1033,8 +1098,11 @@ describe("10. No capture populates the authority registries", () => {
 
 describe("11. Invariants: nothing promoted, output unchanged", () => {
   // The same pins as the Round 1 and Phase 2 tests.
-  const EVALUATOR_OUTPUT_SHA256 = "2b0c6ea651dfc55191090ab0c6129a8c22692a28bfdce3f046425437e1acecca";
-  const PUBLIC_DEMO_OUTPUT_SHA256 = "d00a74d195a2749da877775c0204a3435820fd13189f2ae05880b744ab45f57f";
+  // Phase 3C moved these pins for the three reviewed client-label changes only
+  // (c, d, g; docs/PROGRAM_SCREEN_PHASE_3C_PROMOTION_GATES.md). Every status,
+  // roll-up, and release decision is unchanged.
+  const EVALUATOR_OUTPUT_SHA256 = "68341529825b41e7dcd3b25a5daec94385fe6641e07cc03d29003c94c256b45a";
+  const PUBLIC_DEMO_OUTPUT_SHA256 = "11081860902438dd881cb743c98de30f4b4c3c425675a6e0eb2b6d41474a84a1";
 
   it("keeps human_verified at 0 and pending_human at 46", () => {
     const shipped = programScreenPathwayPacks.flatMap((pack) => pack.criteria);
