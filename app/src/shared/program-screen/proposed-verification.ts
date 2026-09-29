@@ -101,6 +101,35 @@ export const expectedOfficialSources: readonly ExpectedOfficialSource[] = [
     role:
       "Statute capture only (Phase 3A). It fires the Round 1 re-review trigger gcs_66499_41_a_9_captured; it cannot support a rule, and it registers no issuer or authority source.",
   },
+  // Phase 3D: the three members of the CAL FIRE SRA authority package
+  // calfire-sra-fhsz-2023-09-29 (docs/PROGRAM_SCREEN_PHASE_3D_CALFIRE_SRA_PACKAGE.md).
+  {
+    source_id: "calfire-sra-fhsz-map-2023-09-29",
+    title: "CAL FIRE / OSFM, State Responsibility Area Fire Hazard Severity Zones (statewide map, dated September 29, 2023)",
+    official_url:
+      "https://34c031f8-c9fd-4018-8c5a-4159cdff6b0d-cdn-endpoint.azureedge.net/-/media/osfm-website/what-we-do/community-wildfire-preparedness-and-mitigation/fire-hazard-severity-zones/fhsz_statewide_sra_e_2022_3.pdf?hash=0F0A6600B86610FC79BA8BF1D83D8812&rev=5f9d2c7e7a7e47f5946cb5bf6742d813",
+    source_type: "agency_map",
+    may_change_source_ids: [],
+    role: "Authority package member: the adopted SRA map, its printed identity and date, and its legend. It cannot support a rule.",
+  },
+  {
+    source_id: "ccr-19-2201-fhsz-sra-final-text",
+    title: "Office of the State Fire Marshal, Final Regulation Text Title 14 and Title 19 (19 CCR section 2201, Fire Hazard Severity Zones in the SRA)",
+    official_url:
+      "https://34c031f8-c9fd-4018-8c5a-4159cdff6b0d-cdn-endpoint.azureedge.net/-/media/osfm-website/what-we-do/code-development-and-analysis/title-19-development/fhsz-2024/final-text.pdf?hash=8AE9545C673F3BAB91EDC29A614097CC&rev=6d3a48124b7f4bbaa98a8fa5afd697ff",
+    source_type: "regulation",
+    may_change_source_ids: [],
+    role: "Authority package member: the section 2201 text incorporating the map, and its PRC section 4202 authority note. It cannot support a rule.",
+  },
+  {
+    source_id: "calfire-fhszsra-23-3-data",
+    title: "CAL FIRE, State Responsibility Area Fire Hazard Severity Zones (FHSZSRA_23_3), GIS data archive",
+    official_url:
+      "https://34c031f8-c9fd-4018-8c5a-4159cdff6b0d-cdn-endpoint.azureedge.net/-/media/osfm-website/what-we-do/community-wildfire-preparedness-and-mitigation/fire-hazard-severity-zones/fhszsra_23_3.zip?hash=87816F8F0635FFA1D7B99A723DE38A70&rev=f5118b1ba17044a8aa3cd2994f00d6d3",
+    source_type: "dataset_archive",
+    may_change_source_ids: [],
+    role: "Authority package member: the SRA zone polygons for a lot overlay, and the archive's adoption and effective-date statements. It cannot support a rule.",
+  },
 ];
 
 /**

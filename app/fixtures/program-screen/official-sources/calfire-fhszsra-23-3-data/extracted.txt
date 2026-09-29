@@ -1,0 +1,364 @@
+program-screen-zip-manifest 1.0.0
+archive entries 59
+member FHSZSRA_23_3.cpg bytes 5 crc32 0e813c50 sha256 3ad3031f5503a4404af825262ee8232cc04d4ea6683d42c5dd0a2f2a27ac9824
+member FHSZSRA_23_3.dbf bytes 1326650 crc32 32b5aa29 sha256 95424b8357c6aab847ca96de3489b439d3fa90dc67615385aaa866b992ac867d
+directory FHSZSRA_23_3.gdb/
+member FHSZSRA_23_3.gdb/FHSZSRA_23_3.FRP65952.7240.22900.sr.lock bytes 0 crc32 00000000 sha256 e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+member FHSZSRA_23_3.gdb/_gdb.FRP65952.7240.22900.sr.lock bytes 0 crc32 00000000 sha256 e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855
+member FHSZSRA_23_3.gdb/a00000001.TablesByName.atx bytes 4118 crc32 ee19a7c3 sha256 8471ebabe7044904f9db558395671a7b0645b1224fe665bbc2af58e3aa17a927
+member FHSZSRA_23_3.gdb/a00000001.gdbindexes bytes 110 crc32 96cbdec4 sha256 80ba95b873e151074244f7655f9e29ce8967aab1bd57ff4c06a329b723a3d46c
+member FHSZSRA_23_3.gdb/a00000001.gdbtable bytes 323 crc32 33b7f76a sha256 3556284be057ec95526527c89e7e7a76be6046f69ef6907b9442881c9204b13f
+member FHSZSRA_23_3.gdb/a00000001.gdbtablx bytes 5152 crc32 fce70703 sha256 b65d6bdd23b973033884654531d2ed75d5c4e55fd260bf23631bbecf9f7edab5
+member FHSZSRA_23_3.gdb/a00000002.gdbtable bytes 2055 crc32 6f6586b3 sha256 9efa50dc62a40e109a546054943ae5ad4b3d41aa81ece0dfa026b7b23cb09da8
+member FHSZSRA_23_3.gdb/a00000002.gdbtablx bytes 5152 crc32 81192413 sha256 f3ac9865dec6ab40e73d91dd1f5c2eef0248e66e359d4abb1d97edba92b5df88
+member FHSZSRA_23_3.gdb/a00000003.gdbindexes bytes 42 crc32 10a41729 sha256 de0911d18e2f304380c04ae123ea18057d262d788301f7cc3148298231c7c618
+member FHSZSRA_23_3.gdb/a00000003.gdbtable bytes 1081 crc32 696dcebc sha256 1f3136f1fe20070bddb7566f5bd53c6a312cc32c6fed9c70ddec1f4ccb6c2522
+member FHSZSRA_23_3.gdb/a00000003.gdbtablx bytes 5152 crc32 2f01a881 sha256 d63fd5f8a490aa6aeffde1336e80ce35b5399af5752a72b316570a670b09d167
+member FHSZSRA_23_3.gdb/a00000004.CatItemsByPhysicalName.atx bytes 4118 crc32 f7ad2e20 sha256 7bddd83e9c52f58d4026dc1493c7db4dd0c58a4857bae09e49ae99b597d9749e
+member FHSZSRA_23_3.gdb/a00000004.CatItemsByType.atx bytes 4118 crc32 2ec0e136 sha256 cffffae84219f406a5c19bf1be66bc0f803180ba954587f3aaa9a466d951f278
+member FHSZSRA_23_3.gdb/a00000004.FDO_UUID.atx bytes 4118 crc32 b3856cc6 sha256 97518579f18a247697843d238c2611b024633df272d3a793441e365782bb6930
+member FHSZSRA_23_3.gdb/a00000004.freelist bytes 29016 crc32 2588f51e sha256 15a9e4206d06287c99bc5a602249f9e94e4769527f734c630df7603e9788f234
+member FHSZSRA_23_3.gdb/a00000004.gdbindexes bytes 310 crc32 20b0d3a9 sha256 f29887c93b126a3feb0e20958cd73cc774f76ab79284b9c7286dc12eb05db858
+member FHSZSRA_23_3.gdb/a00000004.gdbtable bytes 67469 crc32 12c8c0ec sha256 5dcd0dee15e9c8549fcdc6fef31affb31eee6d3b0c50bd068b4ba660a9c28e0d
+member FHSZSRA_23_3.gdb/a00000004.gdbtablx bytes 5152 crc32 19132444 sha256 c5f87d8f9f126b763fc56b53c85f1aafbe475a68433f3bcc673548a30dbb57df
+member FHSZSRA_23_3.gdb/a00000004.horizon bytes 32 crc32 3050f004 sha256 9fab34115b351a30fb6adb5818d8f08e4dd3a024b7247dbbc61c56929ab6e223
+member FHSZSRA_23_3.gdb/a00000004.spx bytes 4118 crc32 863010df sha256 027866f78134de031571290fab2599ab7879bd7df84030ee324b233b891058aa
+member FHSZSRA_23_3.gdb/a00000005.CatItemTypesByName.atx bytes 12310 crc32 749a5532 sha256 5e901522888a8153c398e005ac61c7352e3fe920bf2b7a84d76d2b4caeee9817
+member FHSZSRA_23_3.gdb/a00000005.CatItemTypesByParentTypeID.atx bytes 4118 crc32 f5a8f26d sha256 d8ba35a73b3e10a55caae8ccf875f10ca3288d1c0d18aad51bf52182b322ec0e
+member FHSZSRA_23_3.gdb/a00000005.CatItemTypesByUUID.atx bytes 4118 crc32 92e0538a sha256 480f1f90818c3dc361c6e9ffc09330781a1c55ba52f7cb1a1925b2d791beba5e
+member FHSZSRA_23_3.gdb/a00000005.gdbindexes bytes 296 crc32 81a6dd1a sha256 c21e650994b48cc72d174b3caf2ac1bd19e2d7305c8087aaae97e24caecf98a5
+member FHSZSRA_23_3.gdb/a00000005.gdbtable bytes 2071 crc32 10236021 sha256 457b2ef15090d858e7c3e88d41131d1054b241836d2f4cc6d61d082bbf7e6aa3
+member FHSZSRA_23_3.gdb/a00000005.gdbtablx bytes 5152 crc32 e7e94313 sha256 fbe2191ecb633ff3a4c3d449dd4dcd964389c72dc6686aa02f6ce6fcea31cc6f
+member FHSZSRA_23_3.gdb/a00000006.CatRelsByDestinationID.atx bytes 4118 crc32 9ad0c5b8 sha256 418f0d82c0f84d42c067736bb9d8291ae2318a3cfff783a716e544fc6ab720bb
+member FHSZSRA_23_3.gdb/a00000006.CatRelsByOriginID.atx bytes 4118 crc32 1ff1da59 sha256 071cbb3e22f7f9ebedd0d40203fd938ac646ef9747978688f49f25f4ad242154
+member FHSZSRA_23_3.gdb/a00000006.CatRelsByType.atx bytes 4118 crc32 aeba20d5 sha256 977cbde080bcdb9a2b35b955610e57cfb4c3790bc657c01c61d89362d5d82b7d
+member FHSZSRA_23_3.gdb/a00000006.FDO_UUID.atx bytes 4118 crc32 90221449 sha256 d410af9a8b6a0664ff122266501613c51c079b3c4eaac386c0e9ee229a1c4dff
+member FHSZSRA_23_3.gdb/a00000006.gdbindexes bytes 318 crc32 11bee99e sha256 1919a00326f198a90dc97545ec448c10b2b90d367020222212f7b00433fe09b5
+member FHSZSRA_23_3.gdb/a00000006.gdbtable bytes 263 crc32 a9dc5d63 sha256 df02e7b1ddacb5d1b6c2f5ef558d0c0747c2d5fa361eb97f16ed390012452c9c
+member FHSZSRA_23_3.gdb/a00000006.gdbtablx bytes 5152 crc32 4a734fc6 sha256 d9c498cb200741d86e8fd4adbd17f8b5dd4f35abf4dfad3f88239c84ac999d0e
+member FHSZSRA_23_3.gdb/a00000007.CatRelTypesByBackwardLabel.atx bytes 12310 crc32 d331f37f sha256 1d51717d5b9de760d2488edb544637d875f131ad96483b96bf95aecff7f679d5
+member FHSZSRA_23_3.gdb/a00000007.CatRelTypesByDestItemTypeID.atx bytes 4118 crc32 223fd0ce sha256 655a5548325b8adf939e69851f9f52ae3b61244d998df60811169142a1a77648
+member FHSZSRA_23_3.gdb/a00000007.CatRelTypesByForwardLabel.atx bytes 12310 crc32 9c9fad34 sha256 c3471d1b80a6cc2ac1a094743a52f72a6dd6bbcca787604cacaa0ba409a9b583
+member FHSZSRA_23_3.gdb/a00000007.CatRelTypesByName.atx bytes 12310 crc32 5a48956d sha256 3e4d57cabb14dc7b1f3510441e0b5ebd94f01e7412f272993b98502eea3d9577
+member FHSZSRA_23_3.gdb/a00000007.CatRelTypesByOriginItemTypeID.atx bytes 4118 crc32 fb54d603 sha256 9c7f665eb045df2a910a6800d0919af507bed2a42d2e9547a4004ba235fec5de
+member FHSZSRA_23_3.gdb/a00000007.CatRelTypesByUUID.atx bytes 4118 crc32 3c438ecc sha256 209099cc5bdb713a603488740c831b805af7138397499f5d946a2c8aed69d446
+member FHSZSRA_23_3.gdb/a00000007.gdbindexes bytes 602 crc32 c1cd0064 sha256 dc98e24d04eddd7f38905d176c1ea43c547a3a2daa0c80091a20d3443c726621
+member FHSZSRA_23_3.gdb/a00000007.gdbtable bytes 3626 crc32 b9c695df sha256 f6cc24256e330ab468b5c594309b1493c2028fe072c9f13e5fe41b2084ce9a16
+member FHSZSRA_23_3.gdb/a00000007.gdbtablx bytes 5152 crc32 25b309e7 sha256 1d81aa3c399da5feba68a24ae6461edfca18cfaa9d81a1f1dab9b8b8a64e590c
+member FHSZSRA_23_3.gdb/a00000009.gdbindexes bytes 116 crc32 673aef5b sha256 760bd4864717c60d5e7c0c6461a622062680e6f79f51250f49456aa609b43774
+member FHSZSRA_23_3.gdb/a00000009.gdbtable bytes 27590734 crc32 9620a329 sha256 7cec84eb02ed688ee408d895636e6801ec85507d4cc78f331a35ac1d8bc92d21
+member FHSZSRA_23_3.gdb/a00000009.gdbtablx bytes 92192 crc32 4d7d131e sha256 e78a27c321490599225198f6717d828d52a986651e205e0fd7ed93304e4a8f55
+member FHSZSRA_23_3.gdb/a00000009.horizon bytes 32 crc32 63605aa7 sha256 8ce6a3bac1b5f2adc69cb44512bdbba71d6b2f7e225d86864b2af6dc949e2023
+member FHSZSRA_23_3.gdb/a00000009.spx bytes 258070 crc32 0f053efe sha256 4228d82c6a86189cd28f1d4fd849d5f758fc7a64a4a5fe99eff55315f16eaa04
+member FHSZSRA_23_3.gdb/gdb bytes 4 crc32 169a2f2e sha256 2594b6a92ebfb1c3312deb7d01c015fb95e9fbe9bd7bc6b527af07813ec7b910
+member FHSZSRA_23_3.gdb/timestamps bytes 400 crc32 bd351f13 sha256 910c98c1598223eeff821258799edb766b146f3c42b654ca00ed4666105634ef
+member FHSZSRA_23_3.lyrx bytes 22640 crc32 c2fb7581 sha256 7f3f5c5b26cc1fcd4b83a1d8c356353daff60b865da784add3e3ad7ee1b7cab4
+member FHSZSRA_23_3.prj bytes 468 crc32 19dbd612 sha256 93d3d5f7ff1673dd8228c2fd30c927002c24e73b333ec4fa2d5534d430f53a51
+member FHSZSRA_23_3.sbn bytes 189292 crc32 c99ef69d sha256 50f4825b3d5e3f8f44d90f26439734cd1798f756db1c3813d1a036a3dbdbaa05
+member FHSZSRA_23_3.sbx bytes 11156 crc32 ad329a89 sha256 e86d5f4f55e8f545806a9fbe92abddb4df5b9b345c79e53d9dcb5853d4db47aa
+member FHSZSRA_23_3.shp bytes 154355596 crc32 b77a5ebd sha256 3de6625a8fbb53f6f0fbcc4f261b5fd30efd1d7ba3299cee5550778249f024dc
+member FHSZSRA_23_3.shp.xml bytes 21720 crc32 7c9761ad sha256 c4442ead0e6c88222fd339cf10d88b94c0cb7601f159a51ccaea904aae64d74b
+member FHSZSRA_23_3.shx bytes 147484 crc32 744ef7cd sha256 95226d3e0ac4a59ac429345bcb3054e9a2430519fd751bf259e18a881f4dd0a8
+
+member FHSZSRA_23_3.cpg (text)
+UTF-8
+
+member FHSZSRA_23_3.dbf (dBASE table)
+records 18423 (deleted 0)
+field SRA type C length 3 decimals 0
+field FHSZ type N length 5 decimals 0
+field FHSZ_Descr type C length 25 decimals 0
+field Shape_Leng type F length 19 decimals 11
+field Shape_Area type F length 19 decimals 11
+values SRA: "SRA" 18423
+values FHSZ: not summarized (type N)
+values FHSZ_Descr: "High" 5824; "Moderate" 4188; "Very High" 8411
+values Shape_Leng: not summarized (type F)
+values Shape_Area: not summarized (type F)
+
+member FHSZSRA_23_3.prj (text)
+PROJCS["NAD_1983_California_Teale_Albers",GEOGCS["GCS_North_American_1983",DATUM["D_North_American_1983",SPHEROID["GRS_1980",6378137.0,298.257222101]],PRIMEM["Greenwich",0.0],UNIT["Degree",0.0174532925199433]],PROJECTION["Albers"],PARAMETER["False_Easting",0.0],PARAMETER["False_Northing",-4000000.0],PARAMETER["Central_Meridian",-120.0],PARAMETER["Standard_Parallel_1",34.0],PARAMETER["Standard_Parallel_2",40.5],PARAMETER["Latitude_Of_Origin",0.0],UNIT["Meter",1.0]]
+
+member FHSZSRA_23_3.shp (shapefile header)
+shape type 15 (PolygonZ)
+bounding box xmin -373748.625 ymin -602050.9578999998 xmax 375087.26959999994 ymax 450023.1618
+
+member FHSZSRA_23_3.shp.xml (xml text)
+/metadata/Esri/DataProperties/itemProps/itemName@Sync: TRUE
+/metadata/Esri/DataProperties/itemProps/itemName: FHSZSRA_23_3
+/metadata/Esri/DataProperties/itemProps/nativeExtBox/westBL@Sync: TRUE
+/metadata/Esri/DataProperties/itemProps/nativeExtBox/westBL: -373748.625000
+/metadata/Esri/DataProperties/itemProps/nativeExtBox/eastBL@Sync: TRUE
+/metadata/Esri/DataProperties/itemProps/nativeExtBox/eastBL: 375087.269600
+/metadata/Esri/DataProperties/itemProps/nativeExtBox/southBL@Sync: TRUE
+/metadata/Esri/DataProperties/itemProps/nativeExtBox/southBL: -602050.957900
+/metadata/Esri/DataProperties/itemProps/nativeExtBox/northBL@Sync: TRUE
+/metadata/Esri/DataProperties/itemProps/nativeExtBox/northBL: 450023.161800
+/metadata/Esri/DataProperties/itemProps/nativeExtBox/exTypeCode@Sync: TRUE
+/metadata/Esri/DataProperties/itemProps/nativeExtBox/exTypeCode: 1
+/metadata/Esri/DataProperties/itemProps/itemLocation/linkage@Sync: TRUE
+/metadata/Esri/DataProperties/itemProps/itemLocation/linkage: file://\\SFM118034\D$\Data\FHSZSRA_23_3 (1)\FHSZSRA_23_3.shp
+/metadata/Esri/DataProperties/itemProps/itemLocation/protocol@Sync: TRUE
+/metadata/Esri/DataProperties/itemProps/itemLocation/protocol: Local Area Network
+/metadata/Esri/DataProperties/itemProps/imsContentType@Sync: TRUE
+/metadata/Esri/DataProperties/itemProps/imsContentType: 002
+/metadata/Esri/DataProperties/itemProps/itemSize@Sync: TRUE
+/metadata/Esri/DataProperties/itemProps/itemSize: 0.000
+/metadata/Esri/DataProperties/coordRef/type@Sync: TRUE
+/metadata/Esri/DataProperties/coordRef/type: Projected
+/metadata/Esri/DataProperties/coordRef/geogcsn@Sync: TRUE
+/metadata/Esri/DataProperties/coordRef/geogcsn: GCS_North_American_1983
+/metadata/Esri/DataProperties/coordRef/csUnits@Sync: TRUE
+/metadata/Esri/DataProperties/coordRef/csUnits: Linear Unit: Meter (1.000000)
+/metadata/Esri/DataProperties/coordRef/projcsn@Sync: TRUE
+/metadata/Esri/DataProperties/coordRef/projcsn: NAD_1983_California_Teale_Albers
+/metadata/Esri/DataProperties/coordRef/peXml@Sync: TRUE
+/metadata/Esri/DataProperties/coordRef/peXml: PROJCS["NAD_1983_California_Teale_Albers",GEOGCS["GCS_North_American_1983",DATUM["D_North_American_1983",SPHEROID["GRS_1980",6378137.0,298.257222101]],PRIMEM["Greenwich",0.0],UNIT["Degree",0.0174532925199433]],PROJECTION["Albers"],PARAMETER["False_Easting",0.0],PARAMETER["False_Northing",-4000000.0],PARAMETER["Central_Meridian",-120.0],PARAMETER["Standard_Parallel_1",34.0],PARAMETER["Standard_Parallel_2",40.5],PARAMETER["Latitude_Of_Origin",0.0],UNIT["Meter",1.0],AUTHORITY["EPSG",3310]]-16909700-8597000266332319.7555542-10000010000-100000100000.0010.0010.001true33103310
+/metadata/Esri/DataProperties/lineage/Process@ToolSource: c:\program files\arcgis\pro\Resources\ArcToolbox\toolboxes\Data Management Tools.tbx\CopyFeatures
+/metadata/Esri/DataProperties/lineage/Process@Date: 20250221
+/metadata/Esri/DataProperties/lineage/Process@Time: 104216
+/metadata/Esri/DataProperties/lineage/Process: CopyFeatures "D:\Data\FHSZSRA_23_3 (1)\FHSZSRA_23_3.gdb\FHSZSRA_23_3" "D:\Data\FHSZSRA_23_3 (1)\FHSZSRA_23_3.shp" # # # #
+/metadata/Esri/DataProperties/LayerFile: {"type":"CIMLayerDocument","version":"2.7.0","build":26828,"layers":["CIMPATH=SRA/3ebb7ce3bdc240858dfacc1506f65b9e.xml"],"layerDefinitions":[{"type":"CIMFeatureLayer","name":"sraown_factory","uRI":"CIMPATH=SRA/3ebb7ce3bdc240858dfacc1506f65b9e.xml","sourceModifiedTime":{"type":"TimeInstant"},"useSourceMetadata":true,"description":"sraown_factory","layerElevation":{"type":"CIMLayerElevationSurface","mapElevationID":"{5F697CC8-727B-42C6-BB32-088B78A371A5}"},"expanded":true,"layerType":"Operational","showLegends":true,"transparency":40.8285539999999969,"visibility":true,"displayCacheType":"Permanent","maxDisplayCacheAge":5,"popupInfo":{"type":"CIMPopupInfo","title":"{SRA}","mediaInfos":[{"type":"CIMTableMediaInfo","refreshRateUnit":"esriTimeUnitsSeconds","rowSpan":1,"columnSpan":1,"fields":["SRA"]}],"gridLayout":{"type":"CIMPopupLayout","columnWidths":[100],"borderWidth":0,"borderColor":{"type":"CIMRGBColor","values":[0,0,0,100]}}},"showPopups":true,"serviceLayerID":-1,"refreshRate":-1,"refreshRateUnit":"esriTimeUnitsSeconds","blendingMode":"Alpha","autoGenerateFeatureTemplates":true,"featureElevationExpression":"0","featureTable":{"type":"CIMFeatureTable","displayField":"SRA","editable":true,"dataConnection":{"type":"CIMFeatureDatasetDataConnection"},"studyAreaSpatialRel":"esriSpatialRelUndefined","searchOrder":"esriSearchOrderSpatial"},"htmlPopupEnabled":true,"selectable":true,"featureCacheType":"Session","displayFiltersType":"ByScale","featureBlendingMode":"Alpha","labelClasses":[{"type":"CIMLabelClass","expressionTitle":"Custom","expression":"$feature.SRA","expressionEngine":"Arcade","featuresToLabel":"AllVisibleFeatures","maplexLabelPlacementProperties":{"type":"CIMMaplexLabelPlacementProperties","featureType":"Polygon","avoidPolygonHoles":true,"canOverrunFeature":true,"canPlaceLabelOutsidePolygon":true,"canRemoveOverlappingLabel":true,"canStackLabel":true,"connectionType":"Unambiguous","constrainOffset":"NoConstraint","contourAlignmentType":"Page","contourLadderType":"Straight","contourMaximumAngle":90,"enableConnection":true,"featureWeight":0,"fontHeightReductionLimit":4,"fontHeightReductionStep":0.5,"fontWidthReductionLimit":90,"fontWidthReductionStep":5,"graticuleAlignmentType":"Straight","keyNumberGroupName":"Default","labelBuffer":15,"labelLargestPolygon":true,"labelPriority":-1,"labelStackingProperties":{"type":"CIMMaplexLabelStackingProperties","stackAlignment":"ChooseBest","maximumNumberOfLines":3,"minimumNumberOfCharsPerLine":3,"maximumNumberOfCharsPerLine":24,"separators":[{"type":"CIMMaplexStackingSeparator","separator":" ","splitAfter":true},{"type":"CIMMaplexStackingSeparator","separator":",","visible":true,"splitAfter":true}]},"lineFeatureType":"General","linePlacementMethod":"OffsetCurvedFromLine","maximumLabelOverrun":80,"maximumLabelOverrunUnit":"Point","minimumFeatureSizeUnit":"Map","multiPartOption":"OneLabelPerPart","offsetAlongLineProperties":{"type":"CIMMaplexOffsetAlongLineProperties","placementMethod":"BestPositionAlongLine","labelAnchorPoint":"CenterOfLabel","distanceUnit":"Percentage","useLineDirection":true},"pointExternalZonePriorities":{"type":"CIMMaplexExternalZonePriorities","aboveLeft":4,"aboveCenter":2,"aboveRight":1,"centerRight":3,"belowRight":5,"belowCenter":7,"belowLeft":8,"centerLeft":6},"pointPlacementMethod":"AroundPoint","polygonAnchorPointType":"GeometricCenter","polygonBoundaryWeight":0,"polygonExternalZones":{"type":"CIMMaplexExternalZonePriorities","aboveLeft":4,"aboveCenter":2,"aboveRight":1,"centerRight":3,"belowRight":5,"belowCenter":7,"belowLeft":8,"centerLeft":6},"polygonFeatureType":"General","polygonInternalZones":{"type":"CIMMaplexInternalZonePriorities","center":1},"polygonPlacementMethod":"HorizontalInPolygon","primaryOffset":1,"primaryOffsetUnit":"Point","removeExtraWhiteSpace":true,"repetitionIntervalUnit":"Point","rotationProperties":{"type":"CIMMaplexRotationProperties","rotationType":"Arithmetic","alignmentType":"Straight"},"secondaryOffset":100,"strategyPriorities":{"type":"CIMMaplexStrategyPriorities","stacking":1,"overrun":2,"fontCompression":3,"fontReduction":4,"abbreviation":5},"thinningDistanceUnit":"Point","truncationMarkerCharacter":".","truncationMinimumLength":1,"truncationPreferredCharacters":"aeiou","truncationExcludedCharacters":"0123456789","polygonAnchorPointPerimeterInsetUnit":"Point"},"name":"Class 1","priority":-1,"standardLabelPlacementProperties":{"type":"CIMStandardLabelPlacementProperties","featureType":"Line","featureWeight":"None","labelWeight":"High","numLabelsOption":"OneLabelPerName","lineLabelPosition":{"type":"CIMStandardLineLabelPosition","above":true,"inLine":true,"parallel":true},"lineLabelPriorities":{"type":"CIMStandardLineLabelPriorities","aboveStart":3,"aboveAlong":3,"aboveEnd":3,"centerStart":3,"centerAlong":3,"centerEnd":3,"belowStart":3,"belowAlong":3,"belowEnd":3},"pointPlacementMethod":"AroundPoint","pointPlacementPriorities":{"type":"CIMStandardPointPlacementPriorities","aboveLeft":2,"aboveCenter":2,"aboveRight":1,"centerLeft":3,"centerRight":2,"belowLeft":3,"belowCenter":3,"belowRight":2},"rotationType":"Arithmetic","polygonPlacementMethod":"AlwaysHorizontal"},"textSymbol":{"type":"CIMSymbolReference","symbol":{"type":"CIMTextSymbol","blockProgression":"TTB","depth3D":1,"extrapolateBaselines":true,"fontEffects":"Normal","fontEncoding":"Unicode","fontFamilyName":"Tahoma","fontStyleName":"Regular","fontType":"Unspecified","haloSize":1,"height":10,"hinting":"Default","horizontalAlignment":"Left","kerning":true,"letterWidth":100,"ligatures":true,"lineGapType":"ExtraLeading","symbol":{"type":"CIMPolygonSymbol","symbolLayers":[{"type":"CIMSolidFill","enable":true,"color":{"type":"CIMRGBColor","values":[0,0,0,100]}}]},"textCase":"Normal","textDirection":"LTR","verticalAlignment":"Bottom","verticalGlyphOrientation":"Right","wordSpacing":100,"billboardMode3D":"FaceNearPlane"}},"useCodedValue":true,"visibility":true,"iD":-1}],"renderer":{"type":"CIMUniqueValueRenderer","colorRamp":{"type":"CIMMultipartColorRamp","colorRamps":[{"type":"CIMLinearContinuousColorRamp","fromColor":{"type":"CIMRGBColor","values":[209,252,192,100]},"toColor":{"type":"CIMRGBColor","values":[209,252,192,100]}},{"type":"CIMLinearContinuousColorRamp","fromColor":{"type":"CIMRGBColor","values":[238,179,252,100]},"toColor":{"type":"CIMRGBColor","values":[238,179,252,100]}},{"type":"CIMLinearContinuousColorRamp","fromColor":{"type":"CIMRGBColor","values":[252,199,184,100]},"toColor":{"type":"CIMRGBColor","values":[252,199,184,100]}},{"type":"CIMLinearContinuousColorRamp","fromColor":{"type":"CIMRGBColor","values":[179,222,252,100]},"toColor":{"type":"CIMRGBColor","values":[179,222,252,100]}},{"type":"CIMLinearContinuousColorRamp","fromColor":{"type":"CIMRGBColor","values":[252,215,243,100]},"toColor":{"type":"CIMRGBColor","values":[252,215,243,100]}},{"type":"CIMLinearContinuousColorRamp","fromColor":{"type":"CIMRGBColor","values":[192,252,236,100]},"toColor":{"type":"CIMRGBColor","values":[192,252,236,100]}},{"type":"CIMLinearContinuousColorRamp","fromColor":{"type":"CIMRGBColor","values":[252,235,179,100]},"toColor":{"type":"CIMRGBColor","values":[252,235,179,100]}},{"type":"CIMLinearContinuousColorRamp","fromColor":{"type":"CIMRGBColor","values":[203,197,252,100]},"toColor":{"type":"CIMRGBColor","values":[203,197,252,100]}},{"type":"CIMLinearContinuousColorRamp","fromColor":{"type":"CIMRGBColor","values":[252,233,210,100]},"toColor":{"type":"CIMRGBColor","values":[252,233,210,100]}},{"type":"CIMLinearContinuousColorRamp","fromColor":{"type":"CIMRGBColor","values":[252,182,229,100]},"toColor":{"type":"CIMRGBColor","values":[252,182,229,100]}},{"type":"CIMLinearContinuousColorRamp","fromColor":{"type":"CIMRGBColor","values":[252,179,184,100]},"toColor":{"type":"CIMRGBColor","values":[252,179,184,100]}},{"type":"CIMLinearContinuousColorRamp","fromColor":{"type":"CIMRGBColor","values":[230,252,212,100]},"toColor":{"type":"CIMRGBColor","values":[230,252,212,100]}},{"type":"CIMLinearContinuousColorRamp","fromColor":{"type":"CIMRGBColor","values":[212,245,252,100]},"toColor":{"type":"CIMRGBColor","values":[212,245,252,100]}}]},"defaultSymbolPatch":"Default","fields":["SRA"],"groups":[{"type":"CIMUniqueValueGroup","classes":[{"type":"CIMUniqueValueClass","label":"Federal Responsibility Area (FRA)","patch":"Default","symbol":{"type":"CIMSymbolReference","symbol":{"type":"CIMPolygonSymbol","symbolLayers":[{"type":"CIMSolidStroke","enable":true,"colorLocked":true,"capStyle":"Butt","joinStyle":"Round","lineStyle3D":"Strip","miterLimit":10,"width":0.69999999999999996,"color":{"type":"CIMRGBColor","values":[110,110,110,0]}},{"type":"CIMSolidFill","enable":true,"color":{"type":"CIMRGBColor","values":[211,255,190,100]}}]},"symbolName":"Level_1"},"values":[{"type":"CIMUniqueValue","fieldValues":["FRA"]}],"visible":true},{"type":"CIMUniqueValueClass","label":"Local Responsibility Area (LRA)","patch":"Default","symbol":{"type":"CIMSymbolReference","symbol":{"type":"CIMPolygonSymbol","symbolLayers":[{"type":"CIMSolidFill","enable":true,"color":{"type":"CIMRGBColor","values":[204,204,204,100]}}]},"symbolName":"Level_1"},"values":[{"type":"CIMUniqueValue","fieldValues":["LRA"]}],"visible":true},{"type":"CIMUniqueValueClass","label":"State Responsibility Area (SRA)","patch":"Default","symbol":{"type":"CIMSymbolReference","symbol":{"type":"CIMPolygonSymbol","symbolLayers":[{"type":"CIMSolidStroke","enable":true,"colorLocked":true,"capStyle":"Butt","joinStyle":"Round","lineStyle3D":"Strip","miterLimit":10,"width":0.69999999999999996,"color":{"type":"CIMRGBColor","values":[110,110,110,0]}},{"type":"CIMSolidFill","enable":true,"color":{"type":"CIMRGBColor","values":[255,255,190,100]}}]}},"values":[{"type":"CIMUniqueValue","fieldValues":["SRA"]}],"visible":true}]}],"polygonSymbolColorTarget":"Fill"},"scaleSymbols":true,"snappable":true}]}
+/metadata/Esri/SyncDate: 20250221
+/metadata/Esri/SyncTime: 10420900
+/metadata/Esri/ModDate: 20250221
+/metadata/Esri/ModTime: 10420900
+/metadata/Esri/ArcGISFormat: 1.0
+/metadata/Esri/ArcGISProfile: FGDC
+/metadata/Esri/CreaDate: 20240206
+/metadata/Esri/CreaTime: 15125700
+/metadata/Esri/ArcGISstyle: FGDC CSDGM Metadata
+/metadata/Esri/SyncOnce: FALSE
+/metadata/Esri/scaleRange/minScale: 150000000
+/metadata/Esri/scaleRange/maxScale: 5000
+/metadata/mdChar/CharSetCd@value: 004
+/metadata/mdHrLv/ScopeCd@value: 005
+/metadata/mdContact/rpIndName: Fire Hazard Severity Zone Team
+/metadata/mdContact/rpOrgName: CAL FIRE
+/metadata/mdContact/rpCntInfo/cntPhone/voiceNum: (916) 633-7655
+/metadata/mdContact/rpCntInfo/cntAddress@addressType: both
+/metadata/mdContact/rpCntInfo/cntAddress/delPoint: 715 P St
+/metadata/mdContact/rpCntInfo/cntAddress/city: Sacramento
+/metadata/mdContact/rpCntInfo/cntAddress/adminArea: CA
+/metadata/mdContact/rpCntInfo/cntAddress/postCode: 95814
+/metadata/mdContact/rpCntInfo/cntAddress/country: US
+/metadata/mdContact/rpCntInfo/cntAddress/eMailAdd: FHSZinformation@fire.ca.gov
+/metadata/mdContact/role/RoleCd@value: 007
+/metadata/mdDateSt@Sync: TRUE
+/metadata/mdDateSt: 20250221
+/metadata/mdStanName: ArcGIS Metadata
+/metadata/mdStanVer: 1.0
+/metadata/dataIdInfo/idCitation/resTitle: State Responsibility Area Fire Hazard Severity Zones (FHSZSRA_23_3)
+/metadata/dataIdInfo/idCitation/date/pubDate: 2022-04-12
+/metadata/dataIdInfo/idCitation/resEd: 22_2
+/metadata/dataIdInfo/idCitation/citRespParty/rpOrgName: Fire Hazard Severity Zone Team, CAL FIRE
+/metadata/dataIdInfo/idCitation/citRespParty/role/RoleCd@value: 006
+/metadata/dataIdInfo/idCitation/presForm/PresFormCd@value: 005
+/metadata/dataIdInfo/idCitation/presForm/fgdcGeoform: vector digital data
+/metadata/dataIdInfo/idAbs:
+
+Fire Hazard Severity Zone classes from the map dated September 29, 2023, as adopted on January 31, 2024 and implemented on April 1, 2024
+
+/metadata/dataIdInfo/idPurp: The State Fire Marshal shall classify lands within state responsibility areas into fire hazard severity zones. Each zone shall embrace relatively homogeneous lands and shall be based on fuel loading, slope, fire weather, and other relevant factors present, including areas where winds have been identified by the department as a major cause of wildfire spread.
+
+The California laws and regulations that require Fire Hazard Severity Zones include California Public Resource code 4201-4204 and California Code of Regulations Title 19, Section 2201. Effective April 1, 2024 this regulatory adoption repeals Section 1280.1 of Title 14 California Code of Regulations and adopts similar regulatory provisions in Section 2201 of Title 19 California Code of Regulations.
+
+A prior version of this file and data was released as part of the data package accompanying the final Public Comment period for Fire Hazard Severity Zones (September 29, 2023). This previous version and this version are the same geographic representation of Fire Hazard Severity Zones and are now part of the formal regulation as adopted. While under normal workflow any revision to a public data file would get reflected in the filename, in this case the file name remains identical as it is part of the adopted regulation. The only changes reflect edits to the metadata describing timing of adoption and effective date for the regulation.
+/metadata/dataIdInfo/idCredit: Datasets from numerous sources were used in the modeling process.
+
+/metadata/dataIdInfo/idStatus/ProgCd@value: 007
+/metadata/dataIdInfo/idPoC/rpIndName: Fire Hazard Severity Zone Team
+/metadata/dataIdInfo/idPoC/rpOrgName: CAL FIRE
+/metadata/dataIdInfo/idPoC/rpCntInfo/cntPhone/voiceNum: (916) 633-7655
+/metadata/dataIdInfo/idPoC/rpCntInfo/cntAddress@addressType: both
+/metadata/dataIdInfo/idPoC/rpCntInfo/cntAddress/delPoint: 715 P St
+/metadata/dataIdInfo/idPoC/rpCntInfo/cntAddress/city: Sacramento
+/metadata/dataIdInfo/idPoC/rpCntInfo/cntAddress/adminArea: CA
+/metadata/dataIdInfo/idPoC/rpCntInfo/cntAddress/postCode: 95814
+/metadata/dataIdInfo/idPoC/rpCntInfo/cntAddress/country: US
+/metadata/dataIdInfo/idPoC/rpCntInfo/cntAddress/eMailAdd: FHSZinformation@fire.ca.gov
+/metadata/dataIdInfo/idPoC/role/RoleCd@value: 007
+/metadata/dataIdInfo/resMaint/maintFreq/MaintFreqCd@value: 008
+/metadata/dataIdInfo/themeKeys/keyword: Fire Hazard Severity Zones
+/metadata/dataIdInfo/themeKeys/keyword: FHSZ
+/metadata/dataIdInfo/themeKeys/keyword: Chapter 7A
+/metadata/dataIdInfo/themeKeys/keyword: Building Standards
+/metadata/dataIdInfo/themeKeys/keyword: State Responsibility Area
+/metadata/dataIdInfo/themeKeys/keyword: SRA
+/metadata/dataIdInfo/searchKeys/keyword: Fire Hazard Severity Zones
+/metadata/dataIdInfo/searchKeys/keyword: FHSZ
+/metadata/dataIdInfo/searchKeys/keyword: Chapter 7A
+/metadata/dataIdInfo/searchKeys/keyword: Building Standards
+/metadata/dataIdInfo/searchKeys/keyword: State Responsibility Area
+/metadata/dataIdInfo/searchKeys/keyword: SRA
+/metadata/dataIdInfo/resConst/Consts/useLimit:
+
+The State of California and the Department of Forestry and Fire Protection make no representations or warranties regarding the accuracy of data or maps. Neither the State nor the Department shall be liable under any circumstances for any direct, special, incidental, or consequential damages with respect to any claim by any user or third party on account of, or arising from, the use of data or maps.
+
+/metadata/dataIdInfo/spatRpType/SpatRepTypCd@value: 001
+/metadata/dataIdInfo/envirDesc: Version 6.2 (Build 9200) ; Esri ArcGIS 10.7.1.11595
+/metadata/dataIdInfo/dataExt/geoEle/GeoBndBox/exTypeCode: true
+/metadata/dataIdInfo/dataExt/geoEle/GeoBndBox/westBL: -124.503290
+/metadata/dataIdInfo/dataExt/geoEle/GeoBndBox/eastBL: -115.480605
+/metadata/dataIdInfo/dataExt/geoEle/GeoBndBox/northBL: 42.068507
+/metadata/dataIdInfo/dataExt/geoEle/GeoBndBox/southBL: 32.522199
+/metadata/dataIdInfo/dataExt/vertEle/vertMinVal@Sync: TRUE
+/metadata/dataIdInfo/dataExt/vertEle/vertMinVal: 0.000000
+/metadata/dataIdInfo/dataExt/vertEle/vertMaxVal@Sync: TRUE
+/metadata/dataIdInfo/dataExt/vertEle/vertMaxVal: 0.000000
+/metadata/dataIdInfo/dataLang/languageCode@value: eng
+/metadata/dataIdInfo/dataLang/languageCode@Sync: TRUE
+/metadata/dataIdInfo/dataLang/countryCode@value: USA
+/metadata/dataIdInfo/dataLang/countryCode@Sync: TRUE
+/metadata/dataIdInfo/dataExt/geoEle@xmlns:
+/metadata/dataIdInfo/dataExt/geoEle/GeoBndBox@esriExtentType: search
+/metadata/dataIdInfo/dataExt/geoEle/GeoBndBox/exTypeCode@Sync: TRUE
+/metadata/dataIdInfo/dataExt/geoEle/GeoBndBox/exTypeCode: 1
+/metadata/dataIdInfo/dataExt/geoEle/GeoBndBox/westBL@Sync: TRUE
+/metadata/dataIdInfo/dataExt/geoEle/GeoBndBox/westBL: -124.503290
+/metadata/dataIdInfo/dataExt/geoEle/GeoBndBox/eastBL@Sync: TRUE
+/metadata/dataIdInfo/dataExt/geoEle/GeoBndBox/eastBL: -115.480605
+/metadata/dataIdInfo/dataExt/geoEle/GeoBndBox/northBL@Sync: TRUE
+/metadata/dataIdInfo/dataExt/geoEle/GeoBndBox/northBL: 42.068507
+/metadata/dataIdInfo/dataExt/geoEle/GeoBndBox/southBL@Sync: TRUE
+/metadata/dataIdInfo/dataExt/geoEle/GeoBndBox/southBL: 32.522199
+/metadata/spatRepInfo/VectSpatRep/geometObjs@Name: FHSZSRA_23_3
+/metadata/spatRepInfo/VectSpatRep/geometObjs/geoObjTyp/GeoObjTypCd@value: 002
+/metadata/spatRepInfo/VectSpatRep/geometObjs/geoObjTyp/GeoObjTypCd@Sync: TRUE
+/metadata/spatRepInfo/VectSpatRep/geometObjs/geoObjCnt@Sync: TRUE
+/metadata/spatRepInfo/VectSpatRep/geometObjs/geoObjCnt: 0
+/metadata/spatRepInfo/VectSpatRep/topLvl/TopoLevCd@value: 001
+/metadata/spatRepInfo/VectSpatRep/topLvl/TopoLevCd@Sync: TRUE
+/metadata/eainfo/detailed@Name: FHSZSRA_23_3
+/metadata/eainfo/detailed/enttyp/enttypl: FHSZSRA_DRAFT22_1
+/metadata/eainfo/detailed/enttyp/enttypt@Sync: TRUE
+/metadata/eainfo/detailed/enttyp/enttypt: Feature Class
+/metadata/eainfo/detailed/enttyp/enttypc@Sync: TRUE
+/metadata/eainfo/detailed/enttyp/enttypc: 0
+/metadata/eainfo/detailed/attr/attrlabl@Sync: TRUE
+/metadata/eainfo/detailed/attr/attrlabl: FID
+/metadata/eainfo/detailed/attr/attalias@Sync: TRUE
+/metadata/eainfo/detailed/attr/attalias: FID
+/metadata/eainfo/detailed/attr/attrtype@Sync: TRUE
+/metadata/eainfo/detailed/attr/attrtype: OID
+/metadata/eainfo/detailed/attr/attwidth@Sync: TRUE
+/metadata/eainfo/detailed/attr/attwidth: 4
+/metadata/eainfo/detailed/attr/atprecis@Sync: TRUE
+/metadata/eainfo/detailed/attr/atprecis: 0
+/metadata/eainfo/detailed/attr/attscale@Sync: TRUE
+/metadata/eainfo/detailed/attr/attscale: 0
+/metadata/eainfo/detailed/attr/attrdef@Sync: TRUE
+/metadata/eainfo/detailed/attr/attrdef: Internal feature number.
+/metadata/eainfo/detailed/attr/attrdefs@Sync: TRUE
+/metadata/eainfo/detailed/attr/attrdefs: Esri
+/metadata/eainfo/detailed/attr/attrdomv/udom@Sync: TRUE
+/metadata/eainfo/detailed/attr/attrdomv/udom: Sequential unique whole numbers that are automatically generated.
+/metadata/eainfo/detailed/attr/attrlabl: Shape
+/metadata/eainfo/detailed/attr/attrdef: Feature geometry.
+/metadata/eainfo/detailed/attr/attrdefs: Esri
+/metadata/eainfo/detailed/attr/attrdomv/udom: Coordinates defining the features.
+/metadata/eainfo/detailed/attr/attalias@Sync: TRUE
+/metadata/eainfo/detailed/attr/attalias: Shape
+/metadata/eainfo/detailed/attr/attrtype@Sync: TRUE
+/metadata/eainfo/detailed/attr/attrtype: Geometry
+/metadata/eainfo/detailed/attr/attwidth@Sync: TRUE
+/metadata/eainfo/detailed/attr/attwidth: 0
+/metadata/eainfo/detailed/attr/atprecis@Sync: TRUE
+/metadata/eainfo/detailed/attr/atprecis: 0
+/metadata/eainfo/detailed/attr/attscale@Sync: TRUE
+/metadata/eainfo/detailed/attr/attscale: 0
+/metadata/eainfo/detailed/attr/attrlabl@Sync: TRUE
+/metadata/eainfo/detailed/attr/attrlabl: SRA
+/metadata/eainfo/detailed/attr/attalias@Sync: TRUE
+/metadata/eainfo/detailed/attr/attalias: SRA
+/metadata/eainfo/detailed/attr/attrtype@Sync: TRUE
+/metadata/eainfo/detailed/attr/attrtype: String
+/metadata/eainfo/detailed/attr/attwidth@Sync: TRUE
+/metadata/eainfo/detailed/attr/attwidth: 3
+/metadata/eainfo/detailed/attr/atprecis@Sync: TRUE
+/metadata/eainfo/detailed/attr/atprecis: 0
+/metadata/eainfo/detailed/attr/attscale@Sync: TRUE
+/metadata/eainfo/detailed/attr/attscale: 0
+/metadata/eainfo/detailed/attr/attrlabl@Sync: TRUE
+/metadata/eainfo/detailed/attr/attrlabl: FHSZ
+/metadata/eainfo/detailed/attr/attalias@Sync: TRUE
+/metadata/eainfo/detailed/attr/attalias: FHSZ
+/metadata/eainfo/detailed/attr/attrtype@Sync: TRUE
+/metadata/eainfo/detailed/attr/attrtype: Integer
+/metadata/eainfo/detailed/attr/attwidth@Sync: TRUE
+/metadata/eainfo/detailed/attr/attwidth: 5
+/metadata/eainfo/detailed/attr/atprecis@Sync: TRUE
+/metadata/eainfo/detailed/attr/atprecis: 5
+/metadata/eainfo/detailed/attr/attscale@Sync: TRUE
+/metadata/eainfo/detailed/attr/attscale: 0
+/metadata/eainfo/detailed/attr/attrlabl@Sync: TRUE
+/metadata/eainfo/detailed/attr/attrlabl: FHSZ_Descr
+/metadata/eainfo/detailed/attr/attalias@Sync: TRUE
+/metadata/eainfo/detailed/attr/attalias: FHSZ_Descr
+/metadata/eainfo/detailed/attr/attrtype@Sync: TRUE
+/metadata/eainfo/detailed/attr/attrtype: String
+/metadata/eainfo/detailed/attr/attwidth@Sync: TRUE
+/metadata/eainfo/detailed/attr/attwidth: 25
+/metadata/eainfo/detailed/attr/atprecis@Sync: TRUE
+/metadata/eainfo/detailed/attr/atprecis: 0
+/metadata/eainfo/detailed/attr/attscale@Sync: TRUE
+/metadata/eainfo/detailed/attr/attscale: 0
+/metadata/eainfo/detailed/attr/attrlabl@Sync: TRUE
+/metadata/eainfo/detailed/attr/attrlabl: Shape_Leng
+/metadata/eainfo/detailed/attr/attalias@Sync: TRUE
+/metadata/eainfo/detailed/attr/attalias: Shape_Leng
+/metadata/eainfo/detailed/attr/attrtype@Sync: TRUE
+/metadata/eainfo/detailed/attr/attrtype: Double
+/metadata/eainfo/detailed/attr/attwidth@Sync: TRUE
+/metadata/eainfo/detailed/attr/attwidth: 19
+/metadata/eainfo/detailed/attr/atprecis@Sync: TRUE
+/metadata/eainfo/detailed/attr/atprecis: 0
+/metadata/eainfo/detailed/attr/attscale@Sync: TRUE
+/metadata/eainfo/detailed/attr/attscale: 0
+/metadata/eainfo/detailed/attr/attrlabl: Shape_Area
+/metadata/eainfo/detailed/attr/attrdef: Area of feature in internal units squared.
+/metadata/eainfo/detailed/attr/attrdefs: Esri
+/metadata/eainfo/detailed/attr/attrdomv/udom: Positive real numbers that are automatically generated.
+/metadata/eainfo/detailed/attr/attalias@Sync: TRUE
+/metadata/eainfo/detailed/attr/attalias: Shape_Area
+/metadata/eainfo/detailed/attr/attrtype@Sync: TRUE
+/metadata/eainfo/detailed/attr/attrtype: Double
+/metadata/eainfo/detailed/attr/attwidth@Sync: TRUE
+/metadata/eainfo/detailed/attr/attwidth: 19
+/metadata/eainfo/detailed/attr/atprecis@Sync: TRUE
+/metadata/eainfo/detailed/attr/atprecis: 0
+/metadata/eainfo/detailed/attr/attscale@Sync: TRUE
+/metadata/eainfo/detailed/attr/attscale: 0
+/metadata/mdLang/languageCode@value: eng
+/metadata/mdLang/languageCode@Sync: TRUE
+/metadata/mdLang/countryCode@value: USA
+/metadata/mdLang/countryCode@Sync: TRUE
+/metadata/distInfo/distFormat/formatName@Sync: TRUE
+/metadata/distInfo/distFormat/formatName: Shapefile
+/metadata/distInfo/distTranOps/transSize@Sync: TRUE
+/metadata/distInfo/distTranOps/transSize: 0.000
+/metadata/mdHrLvName@Sync: TRUE
+/metadata/mdHrLvName: dataset
+/metadata/refSysInfo/RefSystem/refSysID/identCode@code: 3310
+/metadata/refSysInfo/RefSystem/refSysID/identCode@Sync: TRUE
+/metadata/refSysInfo/RefSystem/refSysID/idCodeSpace@Sync: TRUE
+/metadata/refSysInfo/RefSystem/refSysID/idCodeSpace: EPSG
+/metadata/refSysInfo/RefSystem/refSysID/idVersion@Sync: TRUE
+/metadata/refSysInfo/RefSystem/refSysID/idVersion: 6.8(9.2.0)
+/metadata/spdoinfo/ptvctinf/esriterm@Name: FHSZSRA_23_3
+/metadata/spdoinfo/ptvctinf/esriterm/efeatyp@Sync: TRUE
+/metadata/spdoinfo/ptvctinf/esriterm/efeatyp: Simple
+/metadata/spdoinfo/ptvctinf/esriterm/efeageom@code: 4
+/metadata/spdoinfo/ptvctinf/esriterm/efeageom@Sync: TRUE
+/metadata/spdoinfo/ptvctinf/esriterm/esritopo@Sync: TRUE
+/metadata/spdoinfo/ptvctinf/esriterm/esritopo: FALSE
+/metadata/spdoinfo/ptvctinf/esriterm/efeacnt@Sync: TRUE
+/metadata/spdoinfo/ptvctinf/esriterm/efeacnt: 0
+/metadata/spdoinfo/ptvctinf/esriterm/spindex@Sync: TRUE
+/metadata/spdoinfo/ptvctinf/esriterm/spindex: FALSE
+/metadata/spdoinfo/ptvctinf/esriterm/linrefer@Sync: TRUE
+/metadata/spdoinfo/ptvctinf/esriterm/linrefer: TRUE
+
+member FHSZSRA_23_3.shx (shapefile index)
+shape type 15 (PolygonZ)
+records 18423

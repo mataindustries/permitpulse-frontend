@@ -352,7 +352,15 @@ describe("3. Gates: recorded in Phase 3B, wired in Phase 3C", () => {
       const criterion = criterionFor(entry.criterion_id);
       expect(criterion, entry.letter).toMatchObject({ verification: "pending_human", human_verification: null, predicate: "not_encoded" });
       const blockers = authorityPromotionBlockers(criterion, programAuthorityRegistries, false);
-      for (const gate of entry.gates_not_yet_wired) expect(blockers, `${entry.letter}: ${gate}`).toContain(gate);
+      // Phase 3D: the registered CAL FIRE SRA package meets these gates for d, and all but
+      // statutory_route_recorded for c; both still wait on the human gates.
+      const metByPhase3d = entry.letter === "c" || entry.letter === "d";
+      for (const gate of entry.gates_not_yet_wired) {
+        if (!metByPhase3d || (gate === "statutory_route_recorded" && entry.letter === "c")) {
+          expect(blockers, `${entry.letter}: ${gate}`).toContain(gate);
+        }
+      }
+      expect(blockers, entry.letter).toContain("human_verification_record");
     }
     // c cannot be promoted until route-separated assessment is implemented and fails closed (confirmation 3).
     expect(decisionFor("c").gates_not_yet_wired).toContain("statutory_routes_assessed_separately");
@@ -418,13 +426,20 @@ describe("5. Invariants: recording only", () => {
     }
   });
 
-  it("registers no issuer, authority source, fact-policy entry, or host exception", () => {
-    expect(programAuthorityRegistries.issuers).toEqual([]);
-    expect(programAuthorityRegistries.sources).toEqual([]);
+  // Updated in Phase 3D, which registered the CAL FIRE SRA package: its issuer, its source,
+  // the Very High and High entries, and one host exception per package member.
+  it("registers only the Phase 3D issuer, source, fact-policy entries, and host exceptions", () => {
+    expect(programAuthorityRegistries.issuers.map((issuer) => issuer.issuer_id)).toEqual(["calfire-osfm"]);
+    expect(programAuthorityRegistries.sources.map((source) => source.authority_source_id)).toEqual(["calfire-sra-fhsz-2023-09-29"]);
     for (const [key, policy] of Object.entries(programAuthorityRegistries.fact_policies)) {
-      expect(policy?.establishing, key).toEqual([]);
+      const phase3d = key === "very-high-fire-hazard-severity-zone" || key === "high-fire-hazard-severity-zone";
+      expect(policy?.establishing.length, key).toBe(phase3d ? 1 : 0);
     }
-    expect(sourceHostExceptions).toEqual([]);
+    expect(sourceHostExceptions.map((exception) => exception.source_id).sort()).toEqual([
+      "calfire-fhszsra-23-3-data",
+      "calfire-sra-fhsz-map-2023-09-29",
+      "ccr-19-2201-fhsz-sra-final-text",
+    ]);
     expect(canSupportCriterionRule(statuteMetadata)).toBe(false);
     expect(JSON.stringify(programAuthorityRegistries)).not.toContain("phase-3b");
   });
@@ -444,9 +459,10 @@ describe("5. Invariants: recording only", () => {
       "ordinance-188968": ["e355179f5e7dfb58626f596d2023549279a53b4a3431f691a599557b5f7519e3", 8296425],
       "shra-2025-10-28": ["c7063b881987dc855bb74a674f0d344233f7b7d2859544850c54176d347d8b5e", 291094],
     };
+    // Phase 3D added three captures beside these five; the five are unchanged.
     const real = Object.fromEntries(
       Object.entries(officialByteChecks)
-        .filter(([directory]) => !directory.includes("/test-only-"))
+        .filter(([directory]) => !directory.includes("/test-only-") && directory.replace(/^.*\//, "") in pins)
         .map(([directory, check]) => [directory.replace(/^.*\//, ""), [check.sha256_original, check.bytes]]),
     );
     expect(real).toEqual(pins);

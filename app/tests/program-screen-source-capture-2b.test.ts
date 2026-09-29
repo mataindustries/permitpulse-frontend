@@ -283,9 +283,10 @@ describe("1. v1 metadata is frozen and the four existing captures are unchanged"
 
   it("keeps exactly the four existing official captures on v1, byte-valid and pinned", async () => {
     // Phase 3A adds one v2 statute capture, gcs-66499-41, pinned in
-    // program-screen-statute-capture-3a.test.ts. The four v1 captures are unchanged.
+    // program-screen-statute-capture-3a.test.ts; Phase 3D adds the three v2 members of the
+    // CAL FIRE SRA package. The four v1 captures are unchanged.
     expect(Object.keys(officialMetadata).sort()).toEqual(
-      [...Object.keys(PINS), "gcs-66499-41"].sort().map((id) => `${OFFICIAL_DIR}${id}`),
+      [...Object.keys(PINS), "gcs-66499-41", "calfire-fhszsra-23-3-data", "calfire-sra-fhsz-map-2023-09-29", "ccr-19-2201-fhsz-sra-final-text"].sort().map((id) => `${OFFICIAL_DIR}${id}`),
     );
     const v1Captures = officialCaptures.filter((capture) => capture.metadata.schema_version === OFFICIAL_SOURCE_METADATA_VERSION);
     expect(v1Captures.map((capture) => capture.metadata.source_id)).toEqual(Object.keys(PINS));
@@ -326,7 +327,8 @@ describe("1. v1 metadata is frozen and the four existing captures are unchanged"
 
   it("splits the source types between v1 and v2 and leaves the rule-supporting types unchanged (B4)", () => {
     expect([...v1SourceTypes, ...v2SourceTypes]).toEqual([...officialSourceTypes]);
-    expect(v2SourceTypes).toEqual(["agency_map", "statute"]);
+    // Phase 3D adds regulations and data archives to v2; the rule-supporting types never change.
+    expect(v2SourceTypes).toEqual(["agency_map", "statute", "regulation", "dataset_archive"]);
     expect(operativeSourceTypes).toEqual(["adopted_ordinance", "official_memo"]);
   });
 });
@@ -448,15 +450,22 @@ describe("3. The served-HTML extractor is deterministic and literal", () => {
 /* ======================================================================== */
 
 describe("4. Host policy: unsupported hosts fail, and an exception is never global", () => {
-  it("keeps the global allowlist exactly as it was and ships no exception (B2)", () => {
+  // Updated in Phase 3D: it shipped no exception until decision D1 approved three exact paths.
+  it("keeps the global allowlist exactly as it was and ships only the three Phase 3D exceptions (B2, D1)", () => {
     expect(officialSourceHosts).toEqual([
       "cityclerk.lacity.org",
       "clkrep.lacity.org",
       "planning.lacity.gov",
       "leginfo.legislature.ca.gov",
     ]);
-    expect(sourceHostExceptions).toEqual([]);
-    expect(parseSourceHostExceptions(sourceHostExceptions)).toEqual([]);
+    expect(parseSourceHostExceptions(sourceHostExceptions)).toBe(sourceHostExceptions);
+    expect(sourceHostExceptions.map((exception) => [exception.source_id, exception.source_type])).toEqual([
+      ["calfire-sra-fhsz-map-2023-09-29", "agency_map"],
+      ["ccr-19-2201-fhsz-sra-final-text", "regulation"],
+      ["calfire-fhszsra-23-3-data", "dataset_archive"],
+    ]);
+    // One exact file path each, never a directory.
+    for (const exception of sourceHostExceptions) expect(exception.path_prefix.endsWith("/"), exception.exception_id).toBe(false);
   });
 
   it.each([
@@ -666,7 +675,8 @@ describe("6. A map capture cannot silently become authoritative", () => {
     // Proves the check can pass, so every blocker below is real. Passing is
     // readiness, not registration: nothing is added to any registry.
     expect(await authoritySourceCaptureIssues(mapRegistration(), capture(), EXCEPTIONS)).toEqual([]);
-    expect(programAuthorityRegistries.sources).toEqual([]);
+    // Phase 3D: the only registered source is the CAL FIRE package, never this TEST-ONLY map.
+    expect(programAuthorityRegistries.sources.map((source) => source.capture.source_id)).toEqual(["calfire-sra-fhsz-map-2023-09-29"]);
   });
 
   it("never lets a TEST-ONLY capture back an authority source", async () => {
@@ -778,7 +788,8 @@ describe("6. A map capture cannot silently become authoritative", () => {
       statuteCapture,
     );
     expect(statuteIssues).toContain("A statute capture cannot back an authority source.");
-    for (const official of officialCaptures) {
+    // Phase 3D: the CAL FIRE SRA map is an agency map, checked with its own registration below.
+    for (const official of officialCaptures.filter((capture) => capture.metadata.source_type !== "agency_map")) {
       const issues = await authoritySourceCaptureIssues(
         mapRegistration({ capture: { source_id: official.metadata.source_id, sha256_extracted: official.metadata.sha256_extracted } }),
         official,
@@ -787,15 +798,17 @@ describe("6. A map capture cannot silently become authoritative", () => {
     }
   });
 
-  it("runs on every shipped registration (none today) and would flag a hypothetical one (B6)", async () => {
+  // Updated in Phase 3D: the one shipped registration, the CAL FIRE SRA package, is ready.
+  it("runs on every shipped registration and would flag a hypothetical one (B6)", async () => {
     const allCaptures = [...officialCaptures, ...v2Captures.map(({ metadata, extracted }) => ({ metadata, extracted }))];
-    expect(await registryReadinessIssues(programAuthorityRegistries, allCaptures)).toEqual({});
+    expect(await registryReadinessIssues(programAuthorityRegistries, allCaptures)).toEqual({ "calfire-sra-fhsz-2023-09-29": [] });
 
     // A registry that registered the TEST-ONLY map passes structural registry
     // validation, which cannot read captures; the readiness check refuses it.
     const hypothetical = parseProgramAuthorityRegistries({
       ...programAuthorityRegistries,
       issuers: [
+        ...programAuthorityRegistries.issuers,
         {
           issuer_id: "fictional-fire-agency-000001",
           name: "TEST-ONLY Fictional Fire Agency 000001",
@@ -803,12 +816,17 @@ describe("6. A map capture cannot silently become authoritative", () => {
           review: mapRegistration().review,
         },
       ],
-      sources: [mapRegistration({ capture: { source_id: map.metadata.source_id, sha256_extracted: map.metadata.sha256_extracted } })],
+      sources: [
+        ...programAuthorityRegistries.sources,
+        mapRegistration({ capture: { source_id: map.metadata.source_id, sha256_extracted: map.metadata.sha256_extracted } }),
+      ],
     });
     expect(await registryReadinessIssues(hypothetical, allCaptures)).toEqual({
+      "calfire-sra-fhsz-2023-09-29": [],
       "fictional-fire-map-000001-edition-000001": ["A test-only capture can never back an authority source."],
     });
     expect(await registryReadinessIssues(hypothetical, officialCaptures)).toEqual({
+      "calfire-sra-fhsz-2023-09-29": [],
       "fictional-fire-map-000001-edition-000001": ["test-only-agency-map-000001 is not captured."],
     });
   });
@@ -1056,14 +1074,18 @@ describe("9. A map or statute capture never becomes a rule source, review eviden
     );
   });
 
-  it("registers no real map, and only the Phase 3A statute, as an expected official source", () => {
-    // Phase 2b captured nothing real (B3). Phase 3A adds GOV 66499.41 as a capture only.
+  it("expects the Phase 3A statute and the three Phase 3D package members as official sources", () => {
+    // Phase 2b captured nothing real (B3). Phase 3A adds GOV 66499.41 as a capture only;
+    // Phase 3D adds the CAL FIRE SRA package members (updated in Phase 3D).
     expect(expectedOfficialSources.map((source) => [source.source_id, source.source_type])).toEqual([
       ["ordinance-188967", "adopted_ordinance"],
       ["ordinance-188968", "adopted_ordinance"],
       ["shra-2025-10-28", "official_memo"],
       ["low-rise-draft-2026-09-24", "proposed_draft"],
       ["gcs-66499-41", "statute"],
+      ["calfire-sra-fhsz-map-2023-09-29", "agency_map"],
+      ["ccr-19-2201-fhsz-sra-final-text", "regulation"],
+      ["calfire-fhszsra-23-3-data", "dataset_archive"],
     ]);
   });
 });
@@ -1071,17 +1093,24 @@ describe("9. A map or statute capture never becomes a rule source, review eviden
 /* ======================================================================== */
 
 describe("10. No capture populates the authority registries", () => {
-  it("keeps the issuer and authority-source registries empty and every policy deny-by-default", () => {
-    expect(programAuthorityRegistries.issuers).toEqual([]);
-    expect(programAuthorityRegistries.sources).toEqual([]);
+  // Updated in Phase 3D: a capture still populates nothing; the one registration is the
+  // separately reviewed CAL FIRE package, and every other policy stays deny-by-default.
+  it("registers only the reviewed Phase 3D package, and every other policy stays deny-by-default", () => {
+    expect(programAuthorityRegistries.issuers.map((issuer) => issuer.issuer_id)).toEqual(["calfire-osfm"]);
+    expect(programAuthorityRegistries.sources.map((source) => source.authority_source_id)).toEqual(["calfire-sra-fhsz-2023-09-29"]);
     for (const [key, policy] of Object.entries(programAuthorityRegistries.fact_policies)) {
-      expect(policy?.establishing, key).toEqual([]);
+      const phase3d = key === "very-high-fire-hazard-severity-zone" || key === "high-fire-hazard-severity-zone";
+      expect(policy?.establishing.length, key).toBe(phase3d ? 1 : 0);
     }
   });
 
   it("keeps the evaluator and registries independent of captures and fixtures", () => {
+    // authority-package.ts (Phase 3D) validates manifests in tests, like proposed-verification.ts:
+    // nothing in production imports either, and dataset-archive.ts is read only by source-capture.ts.
     for (const [path, text] of Object.entries(productionSources)) {
-      if (path.endsWith("/source-capture.ts") || path.endsWith("/proposed-verification.ts")) continue;
+      if (!path.endsWith("/source-capture.ts")) expect(text, path).not.toMatch(/from "\.{1,2}\/(?:[^"]*\/)?dataset-archive"/);
+      expect(text, path).not.toMatch(/from "\.{1,2}\/(?:[^"]*\/)?authority-package"/);
+      if (path.endsWith("/source-capture.ts") || path.endsWith("/proposed-verification.ts") || path.endsWith("/authority-package.ts")) continue;
       expect(text, path).not.toMatch(/from "\.{1,2}\/(?:[^"]*\/)?source-capture"/);
       expect(text, path).not.toMatch(/from "\.{1,2}\/(?:[^"]*\/)?proposed-verification"/);
       // Criteria cite capture paths as strings; no module imports a fixture.

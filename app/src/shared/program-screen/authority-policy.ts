@@ -11,19 +11,23 @@ import {
   isExactSquareFeetConversion,
   isIsoCalendarDate,
   lotAreaBases,
+  overlayHazardClasses,
   statutoryRouteRecordKinds,
   type AuthorityRecordKind,
   type EditionDateKind,
   type HazardClass,
   type LotAreaBasis,
+  type OverlayHazardClass,
 } from "./evidence-authority";
 import { programFactSpecs } from "./facts";
 import {
   criterionPromotionGates,
+  fireHazardStatutoryRoutes,
   humanVerificationRequiredCriterionIds,
   programFactKeys,
   retiredCriterionPromotionGates,
   type CriterionPromotionGate,
+  type FireHazardStatutoryRoute,
   type ProgramCriterion,
   type ProgramDecisionRef,
   type ProgramFactKey,
@@ -33,11 +37,13 @@ import {
  * Evidence-authority registries. Design and review decisions D1-D12:
  * docs/PROGRAM_SCREEN_EVIDENCE_AUTHORITY.md.
  *
- * Four registries decide whether a record can establish a parcel fact. All
- * four ship deny-by-default: no issuing authority and no authority source is
- * registered, and every fact policy has no establishing entries. Registering
- * a real authority is a separately reviewed change, made only after the
- * source is captured and a named human reviewer approves it.
+ * Four registries decide whether a record can establish a parcel fact. They
+ * are deny-by-default: registering a real authority is a separately reviewed
+ * change, made only after the source is captured and a named human reviewer
+ * approves it. Phase 3D registered the first one: CAL FIRE / OSFM and its
+ * PRC §4202 State Responsibility Area map package, which alone can establish
+ * the Very High and High facts (docs/PROGRAM_SCREEN_PHASE_3D_CALFIRE_SRA_PACKAGE.md).
+ * Every other policy's `establishing` list is empty.
  */
 
 export interface ProgramAuthorityHumanReview {
@@ -55,6 +61,30 @@ export interface ReviewedIssuingAuthority {
   review: ProgramAuthorityHumanReview;
 }
 
+/** A capture pinned by its source ID and the SHA-256 of its extracted text. */
+export interface ProgramCaptureRef {
+  source_id: string;
+  sha256_extracted: string;
+}
+
+/**
+ * A reviewed authority package (Phase 3D): the captured documents that
+ * together establish a hazard map's authority, pinned by its manifest's
+ * SHA-256 (app/fixtures/program-screen/authority-packages/<id>.json). The
+ * values here are the manifest's, checked against it and its members' text in
+ * tests (B6); the evaluator reads only these values, never a capture.
+ */
+export interface ReviewedAuthorityPackage {
+  manifest_sha256: string;
+  statutory_basis: FireHazardStatutoryRoute;
+  adoption: { status: "adopted"; adoption_date: string; effective_date: string };
+  /** Current while it is the registered source, `superseded_by` is null, and every member pin matches (D7). */
+  currency: "until_superseded";
+  members: { adopted_map: ProgramCaptureRef; adopting_regulation: ProgramCaptureRef; overlay_dataset: ProgramCaptureRef };
+  /** How the overlay dataset's class labels map to hazard classes. Never a numeric code. */
+  overlay: { dataset_name: string; class_field: string; class_labels: Readonly<Record<string, OverlayHazardClass>> };
+}
+
 /** One specific edition of a map, plan, or other document, captured and reviewed. */
 export interface ReviewedAuthoritySource {
   authority_source_id: string;
@@ -62,10 +92,12 @@ export interface ReviewedAuthoritySource {
   issuer_id: string;
   title: string;
   edition: { label: string; date: string; date_kind: EditionDateKind };
-  capture: { source_id: string; sha256_extracted: string };
+  capture: ProgramCaptureRef;
   fact_keys: readonly ProgramFactKey[];
   superseded_by: string | null;
   review: ProgramAuthorityHumanReview;
+  /** Phase 3D. Required for a hazard map that establishes anything. */
+  package?: ReviewedAuthorityPackage;
 }
 
 export interface ProgramFactAuthorityEstablishingEntry {
@@ -80,8 +112,12 @@ export interface ProgramFactAuthorityEstablishingEntry {
   authority_source_ids: readonly string[];
   /** Values this entry may establish: "true"/"false", an allowed text value, or "number". */
   values: readonly string[];
-  /** Days a currency check stays valid before the screen date. */
-  currency_max_age_days: number | null;
+  /**
+   * Days a currency check stays valid before the screen date, or
+   * `until_superseded` (Phase 3D D7): no age limit; the registered source is
+   * current while its `superseded_by` is null.
+   */
+  currency_max_age_days: number | "until_superseded" | null;
 }
 
 export type ProgramFactFamilyPolicy =
@@ -244,13 +280,87 @@ const provenanceGate = "evidence_provenance_enforced_or_fails_closed" as const;
 const round1 = (letter: string): ProgramDecisionRef => ({ round: 1, letter });
 const phase3b = (letter: string): ProgramDecisionRef => ({ phase: PHASE_3B, letter });
 
+/** The human review of every Phase 3D registration (decisions D1-D7). */
+const phase3dReview: ProgramAuthorityHumanReview = {
+  reviewer: { kind: "human", name: "Sergio Mata", role: "Project Owner / Human Reviewer" },
+  reviewed_on: "2026-09-29",
+  decision_ref: null,
+};
+
+/** The captured members of the CAL FIRE SRA package (Phase 3D). */
+const calfireSraMap: ProgramCaptureRef = {
+  source_id: "calfire-sra-fhsz-map-2023-09-29",
+  sha256_extracted: "11830e2c8c29f368e4087ae9ff270ee042673dfd7be6e354750c326579e5b1fe",
+};
+const calfireSraRegulation: ProgramCaptureRef = {
+  source_id: "ccr-19-2201-fhsz-sra-final-text",
+  sha256_extracted: "61aafec5e4a394ffb5724cb894dc570fc28e36e7c7174754016c5e64b8d78657",
+};
+const calfireSraDataset: ProgramCaptureRef = {
+  source_id: "calfire-fhszsra-23-3-data",
+  sha256_extracted: "a85ff7eecf0f8ffa80d7dd8dcdc727a9dde42979fb3b7b8d5614b7a47a6b5a8a",
+};
+/** The only establishing path for a hazard fact: the reviewed PRC §4202 package. */
+const CALFIRE_SRA_PACKAGE_ID = "calfire-sra-fhsz-2023-09-29";
+
+function viaCalfireSraPackage(): ProgramFactAuthorityEstablishingEntry {
+  return {
+    record_kind: "agency_hazard_map",
+    identity: "registered_authority_source",
+    issuer_ids: ["calfire-osfm"],
+    authority_source_ids: [CALFIRE_SRA_PACKAGE_ID],
+    // A route's NO is recorded here; c still cannot clear without GOV §51178 (Phase 3C).
+    values: ["true", "false"],
+    currency_max_age_days: "until_superseded",
+  };
+}
+
 /**
- * The shipped registries. Nothing here can establish a fact: no issuer or
- * source is registered and every policy's `establishing` list is empty.
+ * The shipped registries. Only the Phase 3D package can establish anything:
+ * the Very High and High facts, through CAL FIRE / OSFM. Every other policy's
+ * `establishing` list is empty.
  */
 export const programAuthorityRegistries: ProgramAuthorityRegistries = {
-  issuers: [],
-  sources: [],
+  issuers: [
+    {
+      issuer_id: "calfire-osfm",
+      name: "California Department of Forestry and Fire Protection, Office of the State Fire Marshal",
+      // 19 CCR §2201 as captured: the State Fire Marshal designates the zones on a map on file with
+      // "the Department of Forestry and Fire Protection, Office of the State Fire Marshal" (D5).
+      basis_capture: calfireSraRegulation,
+      review: phase3dReview,
+    },
+  ],
+  sources: [
+    {
+      authority_source_id: CALFIRE_SRA_PACKAGE_ID,
+      record_kind: "agency_hazard_map",
+      issuer_id: "calfire-osfm",
+      title: "State Responsibility Area Fire Hazard Severity Zones (CAL FIRE / OSFM, PRC §4202)",
+      edition: {
+        label: "State Responsibility Area Fire Hazard Severity Zones, dated September 29, 2023",
+        date: "2023-09-29",
+        date_kind: "dated",
+      },
+      capture: calfireSraMap,
+      fact_keys: ["very-high-fire-hazard-severity-zone", "high-fire-hazard-severity-zone"],
+      superseded_by: null,
+      review: phase3dReview,
+      package: {
+        // SHA-256 of app/fixtures/program-screen/authority-packages/calfire-sra-fhsz-2023-09-29.json.
+        manifest_sha256: "768930ea3bc874cf06436499219895dd2acb18d970c4ddbba6b5dd88e9d40832",
+        statutory_basis: "prc_4202",
+        adoption: { status: "adopted", adoption_date: "2024-01-31", effective_date: "2024-04-01" },
+        currency: "until_superseded",
+        members: { adopted_map: calfireSraMap, adopting_regulation: calfireSraRegulation, overlay_dataset: calfireSraDataset },
+        overlay: {
+          dataset_name: "FHSZSRA_23_3",
+          class_field: "FHSZ_Descr",
+          class_labels: { "Very High": "very_high", High: "high", Moderate: "moderate" },
+        },
+      },
+    },
+  ],
   fact_policies: {
     "lot-area": denyPolicy("lot-area", { family: "lot_area", accepted_area_bases: [] }, ["a"], { requiresLegalLotIdentity: true }),
     "shra-zone-category": denyPolicy("shra-zone-category", { family: "zone_record" }, ["a"]),
@@ -262,18 +372,25 @@ export const programAuthorityRegistries: ProgramAuthorityRegistries = {
       { requiresLegalLotIdentity: true },
     ),
     // c-g: Phase 3B supersedes the Round 1 rule text; the lot identity rule applies to each.
-    "very-high-fire-hazard-severity-zone": denyPolicy(
-      "very-high-fire-hazard-severity-zone",
-      { family: "hazard_map", hazard_class: "very_high", require_legend_class: false },
-      ["c"],
-      { requiresLegalLotIdentity: true, phase3b: true },
-    ),
-    "high-fire-hazard-severity-zone": denyPolicy(
-      "high-fire-hazard-severity-zone",
-      { family: "hazard_map", hazard_class: "high", require_legend_class: true },
-      ["d"],
-      { requiresLegalLotIdentity: true, phase3b: true },
-    ),
+    // c, d: Phase 3D registers the PRC §4202 package as their only establishing path.
+    "very-high-fire-hazard-severity-zone": {
+      ...denyPolicy(
+        "very-high-fire-hazard-severity-zone",
+        { family: "hazard_map", hazard_class: "very_high", require_legend_class: false },
+        ["c"],
+        { requiresLegalLotIdentity: true, phase3b: true },
+      ),
+      establishing: [viaCalfireSraPackage()],
+    },
+    "high-fire-hazard-severity-zone": {
+      ...denyPolicy(
+        "high-fire-hazard-severity-zone",
+        { family: "hazard_map", hazard_class: "high", require_legend_class: true },
+        ["d"],
+        { requiresLegalLotIdentity: true, phase3b: true },
+      ),
+      establishing: [viaCalfireSraPackage()],
+    },
     "prime-or-statewide-farmland": denyPolicy(
       "prime-or-statewide-farmland",
       { family: "farmland_map", accepted_usda_criteria_documentation: [] },
@@ -431,9 +548,37 @@ const establishingEntrySchema = z
     issuer_ids: uniqueList(kebabId).refine((ids) => ids.length > 0, "An establishing entry names its issuers."),
     authority_source_ids: uniqueList(kebabId),
     values: uniqueList(z.string().min(1)).refine((values) => values.length > 0, "An establishing entry names its values."),
-    currency_max_age_days: positiveDays.nullable(),
+    currency_max_age_days: z.union([positiveDays, z.literal("until_superseded")]).nullable(),
   })
   .strict();
+
+const packageSchema = z
+  .object({
+    manifest_sha256: hex64,
+    statutory_basis: z.enum(fireHazardStatutoryRoutes),
+    adoption: z.object({ status: z.literal("adopted"), adoption_date: isoDate, effective_date: isoDate }).strict(),
+    currency: z.literal("until_superseded"),
+    members: z
+      .object({ adopted_map: captureRefSchema, adopting_regulation: captureRefSchema, overlay_dataset: captureRefSchema })
+      .strict(),
+    overlay: z
+      .object({
+        dataset_name: z.string().regex(/^[A-Za-z0-9_-]{1,64}$/),
+        class_field: z.string().regex(/^[A-Za-z_][A-Za-z0-9_]{0,10}$/),
+        class_labels: z.record(z.string().min(1).max(60), z.enum(overlayHazardClasses)),
+      })
+      .strict(),
+  })
+  .strict()
+  .superRefine((value, context) => {
+    if (value.adoption.effective_date < value.adoption.adoption_date) {
+      context.addIssue({ code: "custom", message: "A package takes effect on or after its adoption date." });
+    }
+    const labelled = new Set(Object.values(value.overlay.class_labels));
+    if (!labelled.has("very_high") || !labelled.has("high")) {
+      context.addIssue({ code: "custom", message: "A hazard package's overlay labels name both the Very High and the High class." });
+    }
+  });
 
 const factPolicySchema = z
   .object({
@@ -494,6 +639,7 @@ export const programAuthorityRegistriesSchema = z
           fact_keys: uniqueList(z.enum(programFactKeys)).refine((keys) => keys.length > 0),
           superseded_by: kebabId.nullable(),
           review: humanReviewSchema,
+          package: packageSchema.optional(),
         })
         .strict(),
     ),
@@ -512,6 +658,19 @@ export const programAuthorityRegistriesSchema = z
       if (!issuerIds.includes(source.issuer_id)) issue(["sources", index], `${source.issuer_id} is not a registered issuer.`);
       if (source.superseded_by !== null && (source.superseded_by === source.authority_source_id || !sources.has(source.superseded_by))) {
         issue(["sources", index], "A source is superseded only by another registered source.");
+      }
+      const pack = source.package;
+      if (pack !== undefined) {
+        // Phase 3D: a package belongs to a hazard map, whose own capture is the package's map member.
+        if (source.record_kind !== "agency_hazard_map") issue(["sources", index], "Only a hazard map source carries an authority package.");
+        // GOV §51178 has no record kind (Phase 3C), so no package can rest on it.
+        if (statutoryRouteRecordKinds[pack.statutory_basis] !== source.record_kind) {
+          issue(["sources", index], `A package on ${pack.statutory_basis} is not a ${source.record_kind}; that route has no record kind.`);
+        }
+        if (pack.members.adopted_map.source_id !== source.capture.source_id || pack.members.adopted_map.sha256_extracted !== source.capture.sha256_extracted) {
+          issue(["sources", index], "The package's adopted map is the source's own capture.");
+        }
+        if (source.edition.date > pack.adoption.adoption_date) issue(["sources", index], "A map is dated no later than its adoption.");
       }
     });
 
@@ -563,13 +722,29 @@ export const programAuthorityRegistriesSchema = z
       if (populated && policy.family_policy?.family === "hazard_map") {
         // A route's record kind must be defined before an entry can establish on it;
         // GOV §51178 has none yet (Phase 3C).
-        const routeKinds = hazardClassStatutoryRoutes[policy.family_policy.hazard_class]
+        const hazardClass = policy.family_policy.hazard_class;
+        const routes = hazardClassStatutoryRoutes[hazardClass];
+        const routeKinds = routes
           .map((route) => statutoryRouteRecordKinds[route])
           .filter((kind): kind is AuthorityRecordKind => kind !== null);
         for (const entry of policy.establishing) {
           if (!routeKinds.includes(entry.record_kind)) {
             issue(path, `${entry.record_kind} carries no statutory route that ${factKey} may rest on.`);
           }
+          // Phase 3D: a hazard fact is established only through a reviewed
+          // authority package on a route its class rests on, with an overlay
+          // dataset whose labels define the class.
+          for (const sourceId of entry.authority_source_ids) {
+            const pack = sources.get(sourceId)?.package;
+            if (
+              pack === undefined ||
+              !(routes as readonly string[]).includes(pack.statutory_basis) ||
+              !Object.values(pack.overlay.class_labels).includes(hazardClass)
+            ) {
+              issue(path, `${sourceId} carries no authority package that can establish ${factKey}.`);
+            }
+          }
+          if (entry.identity !== "registered_authority_source") issue(path, "A hazard fact is established only through a registered source.");
         }
       }
       policy.establishing.forEach((entry, index) => {
@@ -580,9 +755,12 @@ export const programAuthorityRegistriesSchema = z
         for (const issuerId of entry.issuer_ids) {
           if (!issuerIds.includes(issuerId)) issue(entryPath, `${issuerId} is not a registered issuer.`);
         }
+        if (entry.currency_max_age_days === "until_superseded" && entry.authority_source_ids.some((id) => sources.get(id)?.package === undefined)) {
+          issue(entryPath, "Only a registered authority package is current until superseded.");
+        }
         if (entry.identity === "registered_authority_source") {
           if (entry.authority_source_ids.length === 0) issue(entryPath, "A registered-source entry names its sources.");
-          if (entry.currency_max_age_days === null) issue(entryPath, "A registered-source entry sets a currency window.");
+          if (entry.currency_max_age_days === null) issue(entryPath, "A registered-source entry sets a currency window or until_superseded.");
           for (const sourceId of entry.authority_source_ids) {
             const source = sources.get(sourceId);
             if (

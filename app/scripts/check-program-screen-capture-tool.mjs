@@ -302,6 +302,99 @@ try {
     result.output,
   );
 
+  /* ------------------------- Phase 3D: an adopted regulation and a data archive */
+
+  const phase3d = Object.fromEntries(
+    ["ccr-19-2201-fhsz-sra-final-text", "calfire-fhszsra-23-3-data"].map((id) => {
+      const directory = resolve(appRoot, "fixtures/program-screen/official-sources", id);
+      const meta = JSON.parse(readFileSync(join(directory, "metadata.json"), "utf8"));
+      return [id, { directory, meta, original: join(directory, meta.original.file) }];
+    }),
+  );
+  const [regulationId, datasetId] = Object.keys(phase3d);
+  function phase3dContext(id, edit = (block) => block) {
+    const { meta } = phase3d[id];
+    const block = structuredClone(meta.source_type === "regulation" ? meta.regulation : meta.dataset_archive);
+    const path = join(temp, `${id}-${Math.random().toString(36).slice(2)}.context.json`);
+    writeFileSync(path, JSON.stringify(edit(block)));
+    return path;
+  }
+  function phase3dArgs(id, overrides = {}) {
+    const { meta, original } = phase3d[id];
+    const flags = {
+      file: original,
+      "source-id": meta.source_id,
+      title: meta.title,
+      url: meta.official_url,
+      type: meta.source_type,
+      "document-date": meta.document_date ?? "none",
+      "operative-status": meta.operative_status,
+      "retrieved-at": meta.retrieved_at,
+      notes: meta.notes,
+      context: phase3dContext(id),
+      ...overrides,
+    };
+    return [...Object.entries(flags).flatMap(([name, value]) => (value === null ? [] : [`--${name}`, value])), "--replace"];
+  }
+  const officialCopy = (id) => join(captureRoot, "official-sources", id);
+  for (const id of [regulationId, datasetId]) {
+    result = run(phase3dArgs(id));
+    check(`recaptures ${id}`, result.status === 0, result.output);
+    check(`reproduces ${id} byte for byte`, sameAsFixture(officialCopy(id), phase3d[id].directory));
+  }
+  const refusedPhase3d = (name, id, overrides, message) => {
+    const result = run(phase3dArgs(id, overrides));
+    check(name, result.status === 1 && result.output.includes(message) && sameAsFixture(officialCopy(id), phase3d[id].directory), result.output);
+  };
+  refusedPhase3d("refuses a PDF as a data archive", datasetId, { file: phase3d[regulationId].original }, "the input is not a ZIP");
+  refusedPhase3d(
+    "refuses a ZIP as a regulation",
+    regulationId,
+    { file: phase3d[datasetId].original },
+    "only --type dataset_archive captures an archive",
+  );
+  expectRefusal(
+    "refuses an undated agency map",
+    v2Args(mapId, { "source-id": "test-only-undated-map-check", "document-date": "none" }),
+    "--document-date none applies only",
+    testOnly("test-only-undated-map-check"),
+  );
+  refusedPhase3d(
+    "refuses a regulation heading that does not open its section",
+    regulationId,
+    { context: phase3dContext(regulationId, (block) => ({ ...block, section: "2200" })) },
+    "must open section 2200",
+  );
+  refusedPhase3d(
+    "refuses a regulation section heading on the wrong page",
+    regulationId,
+    { context: phase3dContext(regulationId, (block) => ({ ...block, section_heading: { ...block.section_heading, page: 3 } })) },
+    "does not match the extracted text",
+  );
+  refusedPhase3d(
+    "refuses a data archive whose class counts differ from its table",
+    datasetId,
+    {
+      context: phase3dContext(datasetId, (block) => {
+        block.class_field.values[0].count += 1;
+        block.class_field.values[1].count -= 1;
+        return block;
+      }),
+    },
+    "does not take exactly the recorded values",
+  );
+  refusedPhase3d(
+    "refuses a data archive read by its numeric class code",
+    datasetId,
+    {
+      context: phase3dContext(datasetId, (block) => {
+        block.class_field.field = "FHSZ";
+        return block;
+      }),
+    },
+    "does not take exactly the recorded values",
+  );
+
   result = run(["--verify"]);
   check("verifies an intact capture", result.status === 0 && result.output.includes("ok"), result.output);
 

@@ -93,7 +93,8 @@ export const sourceIdentifierSchemes = [
   "city_case_number",
   "portal_url_only",
 ] as const;
-export const editionDateKinds = ["effective", "adopted", "published", "recorded", "issued"] as const;
+/** `dated` (Phase 3D D4): a bare date the source prints, which its adopting text calls the date the map is "dated". */
+export const editionDateKinds = ["effective", "adopted", "published", "recorded", "issued", "dated"] as const;
 export const editionCurrencies = ["current_on_as_of", "superseded", "not_established"] as const;
 export const parcelMatchMethods = [
   "parcel_identifier",
@@ -159,6 +160,14 @@ export const hazardMapAdoptionStatuses = ["adopted", "not_adopted", "not_establi
 export const hazardNamedAgencies = ["department_of_forestry_and_fire_protection", "other_agency", "not_established"] as const;
 /** Context only, recorded when the source states it (Phase 3B d); never a condition. */
 export const responsibilityAreasAsStated = ["state", "local", "federal", "not_stated"] as const;
+/**
+ * The hazard classes a registered overlay dataset's labels may map to
+ * (Phase 3D). Moderate is a class the map defines, never Very High or High.
+ */
+export const overlayHazardClasses = ["very_high", "high", "moderate"] as const;
+export type OverlayHazardClass = (typeof overlayHazardClasses)[number];
+/** How a lot was compared with a registered overlay dataset (Phase 3D). */
+export const lotOverlayMethods = ["deterministic_spatial_overlay", "not_performed"] as const;
 /** The Department of Conservation Farmland Mapping and Monitoring Program, or another program (Phase 3B e). */
 export const farmlandMapPrograms = ["farmland_mapping_and_monitoring_program", "other_program", "not_established"] as const;
 /**
@@ -390,6 +399,37 @@ const qualifiersSchema = z.discriminatedUnion("family", [
       legend_defines_class_for_lot: z.enum(["yes", "no", "not_established"]),
       /** Context only; never picks or rules out a route (Phase 3B c point 7, d point 6). */
       responsibility_area_as_stated: z.enum(responsibilityAreasAsStated),
+      /**
+       * Phase 3D: how the lot was compared with the registered package's
+       * overlay dataset. A map or package never determines a lot by itself:
+       * a result needs a reviewed legal-lot geometry compared deterministically
+       * with the pinned dataset. Absent or null: no overlay, so nothing can be
+       * established.
+       */
+      lot_overlay: z
+        .object({
+          method: z.enum(lotOverlayMethods),
+          /** The pinned dataset capture the lot was compared with. */
+          dataset: z.object({ source_id: kebabId, sha256_extracted: hex64 }).strict().nullable(),
+          /**
+           * The reviewed geometry of the legal lot, in the case-scoped evidence
+           * store (D10). Which lot it draws is part of the block's human review;
+           * no check compares free text.
+           */
+          lot_geometry: z.object({ store: z.literal("case_evidence_file"), file_id: shortText, sha256: hex64 }).strict().nullable(),
+          /**
+           * The dataset's class labels (as its class field prints them, never a
+           * numeric code) of every feature the lot intersects, each once.
+           * Empty: the lot intersects no feature.
+           */
+          classes_on_lot: z
+            .array(z.string().trim().min(1).max(60))
+            .max(10)
+            .refine((labels) => new Set(labels).size === labels.length, "Each class label is recorded once."),
+        })
+        .strict()
+        .nullable()
+        .optional(),
     })
     .strict(),
   z
@@ -665,6 +705,8 @@ export const authorityRecordFailureCodes = [
   "hazard_map_adoption_not_established",
   "hazard_area_not_covered",
   "hazard_legend_class_not_defined",
+  "lot_overlay_not_established",
+  "lot_overlay_classes_do_not_support_value",
   "farmland_map_program_not_established",
   "farmland_designation_not_established",
   "farmland_usda_criteria_not_established",

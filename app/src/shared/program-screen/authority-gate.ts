@@ -4,6 +4,7 @@ import type {
   ProgramAuthorityRegistries,
   ProgramFactAuthorityEstablishingEntry,
   ProgramFactAuthorityPolicy,
+  ReviewedAuthoritySource,
 } from "./authority-policy";
 import {
   authorityRecordFailureCodes,
@@ -85,6 +86,28 @@ function checkedWithin(checkedOn: string | null, asOf: string, maxAgeDays: numbe
   return maxAgeDays === null || daysBetween(checkedOn, asOf) <= maxAgeDays;
 }
 
+/**
+ * An entry's age window. `until_superseded` (Phase 3D D7) has none: the
+ * registered source is current while its `superseded_by` is null, which the
+ * identity check requires.
+ */
+function maxAge(entry: ProgramFactAuthorityEstablishingEntry | undefined): number | null {
+  const window = entry?.currency_max_age_days ?? null;
+  return window === "until_superseded" ? null : window;
+}
+
+/** The registered source a block names through an entry, when the entry lists it. */
+function namedSource(
+  entry: ProgramFactAuthorityEstablishingEntry,
+  block: ProgramEvidenceAuthority,
+  registries: ProgramAuthorityRegistries,
+): ReviewedAuthoritySource | undefined {
+  const id = block.source_identifier.value;
+  return block.source_identifier.scheme === "authority_source_id" && entry.authority_source_ids.includes(id)
+    ? registries.sources.find((candidate) => candidate.authority_source_id === id)
+    : undefined;
+}
+
 function identityFailures(
   entry: ProgramFactAuthorityEstablishingEntry,
   block: ProgramEvidenceAuthority,
@@ -126,11 +149,53 @@ function identityFailures(
   return failures;
 }
 
+/**
+ * Phase 3D: a hazard result for a lot is a reviewed legal-lot geometry
+ * compared deterministically with the registered package's pinned overlay
+ * dataset. The package never determines a lot by itself. Checks against the
+ * package run only once the block names a registered source.
+ */
+function lotOverlayFailures(
+  block: ProgramEvidenceAuthority,
+  hazardClass: string,
+  value: KnownFactValue,
+  source: ReviewedAuthoritySource | undefined,
+): AuthorityRecordFailureCode[] {
+  const qualifiers = block.qualifiers;
+  if (qualifiers?.family !== "hazard_map") return [];
+  const overlay = qualifiers.lot_overlay ?? null;
+  const lot = block.parcel_relationship;
+  if (
+    overlay === null ||
+    overlay.method !== "deterministic_spatial_overlay" ||
+    overlay.dataset === null ||
+    overlay.lot_geometry === null ||
+    lot.matched_by !== "spatial_overlay"
+  ) {
+    return ["lot_overlay_not_established"];
+  }
+  if (source === undefined) return [];
+  const pack = source.package;
+  const pinned = pack?.members.overlay_dataset;
+  if (pack === undefined || pinned === undefined || overlay.dataset.source_id !== pinned.source_id || overlay.dataset.sha256_extracted !== pinned.sha256_extracted) {
+    return ["lot_overlay_not_established"];
+  }
+  // The dataset's own labels, mapped by the package: never a numeric code.
+  const classes = overlay.classes_on_lot.map((label) => pack.overlay.class_labels[label]);
+  const token = valueToken(value);
+  const supported =
+    classes.length > 0 &&
+    classes.every((cls) => cls !== undefined) &&
+    (token === "true" ? classes.every((cls) => cls === hazardClass) : token === "false" ? !classes.includes(hazardClass as never) : false);
+  return supported ? [] : ["lot_overlay_classes_do_not_support_value"];
+}
+
 function familyFailures(
   policy: ProgramFactAuthorityPolicy,
   block: ProgramEvidenceAuthority,
   value: KnownFactValue,
   entry: ProgramFactAuthorityEstablishingEntry | undefined,
+  source: ReviewedAuthoritySource | undefined,
   asOf: string,
   route: FireHazardStatutoryRoute | undefined,
 ): AuthorityRecordFailureCode[] {
@@ -203,21 +268,29 @@ function familyFailures(
     // only for the route being assessed. Responsibility area is never checked.
     const basis = qualifiers.statutory_basis;
     const accepted: readonly string[] = hazardClassStatutoryRoutes[family.hazard_class];
+    const pack = source?.package;
     if (!accepted.includes(basis) || (route !== undefined && basis !== route)) {
       failures.push("statutory_route_not_accepted");
     } else if (statutoryRouteRecordKinds[basis as FireHazardStatutoryRoute] === null) {
       // What a GOV §51178 record looks like is not decided; Route 1 fails closed.
       failures.push("statutory_route_record_kind_undefined");
+    } else if (pack !== undefined && basis !== pack.statutory_basis) {
+      // Phase 3D: a record counts only on the route its registered package establishes.
+      failures.push("statutory_route_not_accepted");
     }
     if (qualifiers.named_agency !== "department_of_forestry_and_fire_protection") failures.push("statutory_agency_not_recorded");
     // Phase 3B d: map identity, edition or adoption date. The map must be
     // established as adopted; its edition may then be dated either way (the
     // edition date checks above apply to any date kind).
-    if (basis === "prc_4202" && qualifiers.adoption_status !== "adopted") failures.push("hazard_map_adoption_not_established");
+    // Phase 3D: the adopted status must also be the registered package's, which its members establish.
+    if (basis === "prc_4202" && (qualifiers.adoption_status !== "adopted" || (source !== undefined && pack?.adoption.status !== "adopted"))) {
+      failures.push("hazard_map_adoption_not_established");
+    }
     if (qualifiers.map_covers_lot !== "yes") failures.push("hazard_area_not_covered");
     if (family.require_legend_class && qualifiers.legend_defines_class_for_lot !== "yes") {
       failures.push("hazard_legend_class_not_defined");
     }
+    failures.push(...lotOverlayFailures(block, family.hazard_class, value, source));
   }
 
   if (family.family === "farmland_map" && qualifiers.family === "farmland_map") {
@@ -253,7 +326,7 @@ function familyFailures(
     }
     if (
       qualifiers.adoption_status !== "adopted_in_effect" ||
-      !checkedWithin(qualifiers.status_checked_on, asOf, entry?.currency_max_age_days ?? null)
+      !checkedWithin(qualifiers.status_checked_on, asOf, maxAge(entry))
     ) {
       failures.push("plan_not_adopted_in_effect");
     }
@@ -312,6 +385,7 @@ function recordAuthorityFailures(input: {
   // The declared kind only selects which entries could apply; it never
   // authorizes anything by itself.
   let matched: ProgramFactAuthorityEstablishingEntry | undefined;
+  let matchedSource: ReviewedAuthoritySource | undefined;
   if (policy === undefined) {
     failures.add("record_kind_not_establishing");
   } else {
@@ -331,8 +405,10 @@ function recordAuthorityFailures(input: {
     else {
       const identities = byIssuer.map((entry) => ({ entry, failures: identityFailures(entry, block, key, registries) }));
       const passing = identities.find((candidate) => candidate.failures.length === 0);
-      if (passing !== undefined) matched = passing.entry;
-      else identities[0].failures.forEach((failure) => failures.add(failure));
+      if (passing !== undefined) {
+        matched = passing.entry;
+        matchedSource = namedSource(passing.entry, block, registries);
+      } else identities[0].failures.forEach((failure) => failures.add(failure));
     }
   }
 
@@ -346,7 +422,7 @@ function recordAuthorityFailures(input: {
   }
   if (
     block.edition.currency !== "current_on_as_of" ||
-    !checkedWithin(block.edition.currency_checked_on, asOf, matched?.currency_max_age_days ?? null)
+    !checkedWithin(block.edition.currency_checked_on, asOf, maxAge(matched))
   ) {
     failures.add("edition_not_current");
   }
@@ -361,7 +437,7 @@ function recordAuthorityFailures(input: {
     failures.add("legal_lot_identity_not_established");
   }
   if (policy !== undefined) {
-    familyFailures(policy, block, value, matched, asOf, route).forEach((failure) => failures.add(failure));
+    familyFailures(policy, block, value, matched, matchedSource, asOf, route).forEach((failure) => failures.add(failure));
   }
   return authorityRecordFailureCodes.filter((code) => failures.has(code));
 }

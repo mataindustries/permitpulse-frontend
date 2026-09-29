@@ -2,6 +2,14 @@ import { z } from "zod";
 import { IntegrityValidationError } from "../build-week-integrity/validation";
 import type { ReviewedAuthoritySource } from "./authority-policy";
 import {
+  DatasetArchiveError,
+  extractDatasetArchivePages,
+  isZip,
+  readDatasetArchiveSummary,
+  ZIP_MANIFEST_EXTRACTOR,
+  ZIP_MANIFEST_EXTRACTOR_VERSION,
+} from "./dataset-archive";
+import {
   operativeSourceTypes,
   sourceOperativeStatuses,
   type OfficialSourceType,
@@ -14,7 +22,8 @@ import {
  * Captured official sources live one directory per document:
  *
  *   official-sources/<source-id>/original.pdf    exact downloaded bytes
- *     (or original.html: a statute page, exactly as the official host served it)
+ *     (or original.html: a statute page, exactly as the official host served it;
+ *      or original.zip: a GIS data archive, exactly as served, Phase 3D)
  *   official-sources/<source-id>/extracted.txt   deterministic text extraction
  *   official-sources/<source-id>/metadata.json   provenance and SHA-256 pins
  *
@@ -24,9 +33,11 @@ import {
  * file fails the tests.
  *
  * Metadata v1 (ordinances, memos, drafts) is frozen. Metadata v2 (Phase 2b,
- * docs/PROGRAM_SCREEN_SOURCE_CAPTURE_2B.md) adds agency maps and statutes. A
- * capture is only a pinned copy: it never registers an issuer or authority
- * source, never supports a criterion rule, and never establishes a fact.
+ * docs/PROGRAM_SCREEN_SOURCE_CAPTURE_2B.md) adds agency maps and statutes, and
+ * Phase 3D (docs/PROGRAM_SCREEN_PHASE_3D_CALFIRE_SRA_PACKAGE.md) adds adopted
+ * regulations and GIS data archives. A capture is only a pinned copy: it never
+ * registers an issuer or authority source, never supports a criterion rule,
+ * and never establishes a fact.
  */
 export const OFFICIAL_SOURCE_CAPTURE_DIR = "app/fixtures/program-screen/official-sources/";
 /** Synthetic captures for tests. Never cited by a shipped criterion. */
@@ -38,10 +49,14 @@ export const captureFileNames = {
   metadata: "metadata.json",
 } as const;
 
-/** The two forms an original may take. HTML is accepted for a v2 statute only. */
+/**
+ * The forms an original may take. HTML is accepted for a v2 statute only, a
+ * ZIP for a v2 data archive only.
+ */
 export const captureOriginals = {
   pdf: { file: "original.pdf", media_type: "application/pdf" },
   html: { file: "original.html", media_type: "text/html" },
+  zip: { file: "original.zip", media_type: "application/zip" },
 } as const;
 
 export const OFFICIAL_SOURCE_METADATA_VERSION = "program-screen-official-source-v1" as const;
@@ -54,8 +69,10 @@ export const v1SourceTypes = [
   "official_memo",
   "proposed_draft",
 ] as const satisfies readonly OfficialSourceType[];
-/** Source types metadata v2 records (Phase 2b). */
-export const v2SourceTypes = ["agency_map", "statute"] as const satisfies readonly OfficialSourceType[];
+/** Source types metadata v2 records: agency maps and statutes (Phase 2b), regulations and data archives (Phase 3D). */
+export const v2SourceTypes = ["agency_map", "statute", "regulation", "dataset_archive"] as const satisfies readonly OfficialSourceType[];
+/** v2 types whose document may print no date of its own (Phase 3D): `document_date` is then null. */
+export const undatedSourceTypes = ["regulation", "dataset_archive"] as const satisfies readonly V2SourceType[];
 export type V2SourceType = (typeof v2SourceTypes)[number];
 
 /**
@@ -316,12 +333,57 @@ export interface SourceHostException {
   };
 }
 
+/** CAL FIRE's Azure CDN endpoint, which serves the media the official CAL FIRE / OSFM pages link to. */
+const CALFIRE_CDN_HOST = "34c031f8-c9fd-4018-8c5a-4159cdff6b0d-cdn-endpoint.azureedge.net";
+const PHASE_3D_REVIEW = {
+  reviewer: { kind: "human", name: "Sergio Mata", role: "Project Owner / Human Reviewer" },
+  reviewed_on: "2026-09-29",
+  decision_ref: null,
+} as const;
+const PHASE_3D_CDN_REASON =
+  "Phase 3D decision D1: the current official CAL FIRE / OSFM Fire Hazard Severity Zones pages link to this exact file. " +
+  "One exact path for one package member; the CDN hostname is not trusted for anything else.";
+
 /**
- * Shipped empty (Phase 2b decision B2). Each real exception is added only
- * after its exact official source, host, and path are identified and a named
- * human reviewer explicitly approves it.
+ * Each real exception is added only after its exact official source, host,
+ * and path are identified and a named human reviewer explicitly approves it
+ * (Phase 2b decision B2). Phase 3D D1 approved exactly these three: one
+ * exact file path each, for the three CAL FIRE SRA package members. The
+ * scanned OAL Notice of Approval is not a package member and has none.
  */
-export const sourceHostExceptions: readonly SourceHostException[] = [];
+export const sourceHostExceptions: readonly SourceHostException[] = [
+  {
+    exception_id: "calfire-cdn-sra-fhsz-statewide-map",
+    source_id: "calfire-sra-fhsz-map-2023-09-29",
+    source_type: "agency_map",
+    host: CALFIRE_CDN_HOST,
+    path_prefix:
+      "/-/media/osfm-website/what-we-do/community-wildfire-preparedness-and-mitigation/fire-hazard-severity-zones/fhsz_statewide_sra_e_2022_3.pdf",
+    operator: "California Department of Forestry and Fire Protection (CAL FIRE), Office of the State Fire Marshal",
+    reason: PHASE_3D_CDN_REASON,
+    review: PHASE_3D_REVIEW,
+  },
+  {
+    exception_id: "calfire-cdn-fhsz-sra-final-text",
+    source_id: "ccr-19-2201-fhsz-sra-final-text",
+    source_type: "regulation",
+    host: CALFIRE_CDN_HOST,
+    path_prefix: "/-/media/osfm-website/what-we-do/code-development-and-analysis/title-19-development/fhsz-2024/final-text.pdf",
+    operator: "California Department of Forestry and Fire Protection (CAL FIRE), Office of the State Fire Marshal",
+    reason: PHASE_3D_CDN_REASON,
+    review: PHASE_3D_REVIEW,
+  },
+  {
+    exception_id: "calfire-cdn-fhszsra-23-3-data",
+    source_id: "calfire-fhszsra-23-3-data",
+    source_type: "dataset_archive",
+    host: CALFIRE_CDN_HOST,
+    path_prefix: "/-/media/osfm-website/what-we-do/community-wildfire-preparedness-and-mitigation/fire-hazard-severity-zones/fhszsra_23_3.zip",
+    operator: "California Department of Forestry and Fire Protection (CAL FIRE), Office of the State Fire Marshal",
+    reason: PHASE_3D_CDN_REASON,
+    review: PHASE_3D_REVIEW,
+  },
+];
 
 const sourceIdSchema = z
   .string()
@@ -629,7 +691,12 @@ const pageExcerptSchema = z
   .object({ page: z.number().int().positive(), text: z.string().trim().min(1).max(2000) })
   .strict();
 
-export const mapEditionDateKinds = ["effective", "adopted", "published", "issued"] as const;
+/**
+ * How a map labels its edition date. `dated` (Phase 3D D4): the map prints a
+ * bare date, which the adopting text calls the date the map is "dated"; it is
+ * never relabeled as issued, published, or adopted.
+ */
+export const mapEditionDateKinds = ["effective", "adopted", "published", "issued", "dated"] as const;
 export const responsibilityAreas = ["state", "local", "federal"] as const;
 export const mapLegendClasses = ["very_high", "high", "moderate"] as const;
 export const mapSupersessionStatements = ["stated_current", "stated_superseded", "not_stated"] as const;
@@ -723,6 +790,133 @@ export const statuteCaptureContextSchema = z
 
 export type StatuteCaptureContext = z.infer<typeof statuteCaptureContextSchema>;
 
+/**
+ * Which regulation section a capture holds (Phase 3D): an official PDF of an
+ * adopted regulation's text, pinned to one section of the California Code of
+ * Regulations. Text extraction drops strike-through and underline, so a
+ * document that also prints repealed text is read only inside the pinned
+ * section (`regulationSectionPages`).
+ */
+export const regulationCaptureContextSchema = z
+  .object({
+    jurisdiction: z.literal("CA"),
+    code: z.literal("CCR"),
+    title: z.string().regex(/^[1-9]\d?$/, "A CCR title is its number, such as 19."),
+    section: z.string().max(20).regex(/^\d+(?:\.\d+)*$/, "A section is its number, such as 2201."),
+    /** How the document labels itself, as printed. */
+    document_label: pageExcerptSchema,
+    /** A heading naming the title, such as "Title 19 Public Safety". */
+    title_heading: pageExcerptSchema,
+    /** The section heading: a whole line reading "<section>. <caption>". */
+    section_heading: pageExcerptSchema,
+    /** The document's own statement of the section's effect, if it prints one. */
+    status_as_published: pageExcerptSchema.nullable(),
+  })
+  .strict();
+
+export type RegulationCaptureContext = z.infer<typeof regulationCaptureContextSchema>;
+
+const labelCountSchema = z.object({ label: z.string().min(1).max(60), count: z.number().int().positive() }).strict();
+const datasetFieldName = z.string().regex(/^[A-Za-z_][A-Za-z0-9_]{0,10}$/, "A dBASE field name is at most 11 characters.");
+
+/**
+ * What a GIS data archive holds (Phase 3D), each item checked against the
+ * extractor's own summary of the archive. It records what the archive
+ * contains, not a conclusion: which labels mean which hazard class, and what
+ * the archive can establish, are decided by a reviewed authority package.
+ */
+export const datasetArchiveCaptureContextSchema = z
+  .object({
+    /** The layer's base name: its .shp, .shx, .dbf, and .prj members are the layer. */
+    dataset_name: z.string().regex(/^[A-Za-z0-9_-]{1,64}$/),
+    title: pageExcerptSchema,
+    publisher: z.object({ name: shortText, excerpt: pageExcerptSchema }).strict(),
+    crs: z.object({ epsg: z.number().int().positive(), excerpt: pageExcerptSchema }).strict(),
+    geometry: z
+      .object({ shape_type: z.enum(["Polygon", "PolygonZ", "PolygonM"]), feature_count: z.number().int().positive() })
+      .strict(),
+    /** The attribute that carries each feature's class, and every value it takes, with counts. */
+    class_field: z.object({ field: datasetFieldName, values: z.array(labelCountSchema).min(1).max(10) }).strict(),
+    /** An attribute every feature carries with the same single value: the area the layer maps. */
+    extent_field: z.object({ field: datasetFieldName, values: z.array(labelCountSchema).length(1) }).strict(),
+    /** The archive's own statement of its status, if it states one. */
+    status_as_published: pageExcerptSchema.nullable(),
+    /**
+     * Metadata fields kept byte for byte but never relied on (stale or
+     * contradictory), by their extracted path, such as
+     * /metadata/dataIdInfo/idCitation/date/pubDate.
+     */
+    non_authoritative: z
+      .array(z.object({ path: z.string().max(200).regex(/^(?:\/[A-Za-z_][\w.:-]*)+(?:@[A-Za-z_][\w.:-]*)?$/), reason: shortText }).strict())
+      .max(20),
+  })
+  .strict();
+
+export type DatasetArchiveCaptureContext = z.infer<typeof datasetArchiveCaptureContextSchema>;
+
+/** Whole-line section heading, such as "2201. Fire Hazard Severity Zones in the SRA." */
+function headingOpensSection(heading: string, section: string): boolean {
+  return new RegExp(`^(?:§ ?)?${escapeRegExp(section)}\\. \\S`).test(normalizeSourceText(heading));
+}
+
+const SECTION_HEADING_LINE = /^(?:§ ?)?\d+(?:\.\d+)*\.\s+\S/;
+
+/**
+ * The text of the pinned regulation section on each page it spans: from its
+ * heading line to the next line that opens another section (or the end),
+ * whitespace-normalized and keyed by 1-based page. Null when no whole line
+ * on the heading's page is the heading. An excerpt is inside the section only
+ * if it is inside the section's text on the page it names, so identical text
+ * elsewhere in the document (such as a repealed section's authority note)
+ * never counts.
+ */
+export function regulationSectionPages(
+  extracted: string,
+  context: Pick<RegulationCaptureContext, "section_heading">,
+): ReadonlyMap<number, string> | null {
+  const pages = splitExtractedPages(extracted);
+  const heading = context.section_heading;
+  const first = (pages[heading.page - 1] ?? "").split("\n");
+  const start = first.findIndex((line) => normalizeSourceText(line) === normalizeSourceText(heading.text));
+  if (start < 0) return null;
+  const section = new Map<number, string>();
+  let lines = first.slice(start);
+  for (let page = heading.page; page <= pages.length; page += 1) {
+    if (page > heading.page) lines = pages[page - 1].split("\n");
+    const end = lines.findIndex((line, index) => (page > heading.page || index > 0) && SECTION_HEADING_LINE.test(line.trim()));
+    section.set(page, normalizeSourceText((end < 0 ? lines : lines.slice(0, end)).join("\n")));
+    if (end >= 0) break;
+  }
+  return section;
+}
+
+/** Whether an excerpt lies inside the pinned regulation section, on the page it names. */
+export function excerptInRegulationSection(
+  excerpt: { page: number; text: string },
+  extracted: string,
+  context: Pick<RegulationCaptureContext, "section_heading">,
+): boolean {
+  const needle = normalizeSourceText(excerpt.text);
+  const onPage = regulationSectionPages(extracted, context)?.get(excerpt.page);
+  return needle.length > 0 && onPage !== undefined && onPage.includes(needle);
+}
+
+/**
+ * The extracted metadata line for a path, such as
+ * `/metadata/dataIdInfo/idAbs: ...`, on the archive's XML page(s).
+ */
+export function datasetMetadataLine(extracted: string, path: string): string | null {
+  for (const page of splitExtractedPages(extracted)) {
+    const lines = page.split("\n");
+    const index = lines.findIndex((line) => line.startsWith(`${path}: `) || line === `${path}:`);
+    if (index >= 0) {
+      const next = lines.slice(index + 1).findIndex((line) => /^\/[\w.:@/-]+:(?: |$)/.test(line));
+      return normalizeSourceText(lines.slice(index, next < 0 ? undefined : index + 1 + next).join("\n"));
+    }
+  }
+  return null;
+}
+
 function escapeRegExp(value: string): string {
   return value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
@@ -770,6 +964,8 @@ type Excerpt = z.infer<typeof pageExcerptSchema>;
 function contextExcerpts(metadata: {
   agency_map: AgencyMapCaptureContext | null;
   statute: StatuteCaptureContext | null;
+  regulation?: RegulationCaptureContext | null;
+  dataset_archive?: DatasetArchiveCaptureContext | null;
 }): Array<{ path: string; excerpt: Excerpt }> {
   const found: Array<{ path: string; excerpt: Excerpt | null }> = [];
   const map = metadata.agency_map;
@@ -787,6 +983,20 @@ function contextExcerpts(metadata: {
     found.push({ path: "statute.section_heading", excerpt: statute.section_heading });
     statute.pinpoints.forEach((pinpoint, index) => found.push({ path: `statute.pinpoints.${index}`, excerpt: pinpoint.excerpt }));
     found.push({ path: "statute.status_as_published", excerpt: statute.status_as_published });
+  }
+  const regulation = metadata.regulation ?? null;
+  if (regulation !== null) {
+    found.push({ path: "regulation.document_label", excerpt: regulation.document_label });
+    found.push({ path: "regulation.title_heading", excerpt: regulation.title_heading });
+    found.push({ path: "regulation.section_heading", excerpt: regulation.section_heading });
+    found.push({ path: "regulation.status_as_published", excerpt: regulation.status_as_published });
+  }
+  const dataset = metadata.dataset_archive ?? null;
+  if (dataset !== null) {
+    found.push({ path: "dataset_archive.title", excerpt: dataset.title });
+    found.push({ path: "dataset_archive.publisher", excerpt: dataset.publisher.excerpt });
+    found.push({ path: "dataset_archive.crs", excerpt: dataset.crs.excerpt });
+    found.push({ path: "dataset_archive.status_as_published", excerpt: dataset.status_as_published });
   }
   return found.flatMap(({ path, excerpt }) => (excerpt === null ? [] : [{ path, excerpt }]));
 }
@@ -809,7 +1019,8 @@ function officialSourceMetadataV2SchemaWith(exceptions: readonly SourceHostExcep
       title: z.string().trim().min(1).max(300),
       official_url: z.string().max(600),
       source_type: z.enum(v2SourceTypes),
-      document_date: isoDate,
+      /** Null only for a regulation or data archive that prints no date of its own (Phase 3D). */
+      document_date: isoDate.nullable(),
       retrieved_at: z.string().datetime({ offset: true }),
       sha256_original: hex64,
       sha256_extracted: hex64,
@@ -832,11 +1043,18 @@ function officialSourceMetadataV2SchemaWith(exceptions: readonly SourceHostExcep
             bytes: z.number().int().positive(),
           })
           .strict(),
+        z
+          .object({
+            file: z.literal(captureOriginals.zip.file),
+            media_type: z.literal(captureOriginals.zip.media_type),
+            bytes: z.number().int().positive(),
+          })
+          .strict(),
       ]),
       extraction: z
         .object({
           file: z.literal(captureFileNames.extracted),
-          extractor: z.enum(["pdfjs-dist", HTML_TEXT_EXTRACTOR]),
+          extractor: z.enum(["pdfjs-dist", HTML_TEXT_EXTRACTOR, ZIP_MANIFEST_EXTRACTOR]),
           extractor_version: z.string().regex(/^\d+\.\d+\.\d+$/),
           normalization: z.literal(EXTRACTED_TEXT_NORMALIZATION),
           page_separator: z.literal("form_feed"),
@@ -847,6 +1065,9 @@ function officialSourceMetadataV2SchemaWith(exceptions: readonly SourceHostExcep
       host_basis: hostBasisSchema,
       agency_map: agencyMapCaptureContextSchema.nullable(),
       statute: statuteCaptureContextSchema.nullable(),
+      /** Phase 3D. Absent in earlier captures, which the schema reads as null. */
+      regulation: regulationCaptureContextSchema.nullable().optional(),
+      dataset_archive: datasetArchiveCaptureContextSchema.nullable().optional(),
       capture_tool: z.literal(CAPTURE_TOOL_PATH),
       is_ai_generated: z.literal(false),
       test_only: z.boolean(),
@@ -869,7 +1090,11 @@ function officialSourceMetadataV2SchemaWith(exceptions: readonly SourceHostExcep
 
       const statusIssue = sourceTypeStatusIssue(metadata.source_type, metadata.operative_status);
       if (statusIssue !== null) issue("operative_status", statusIssue);
-      if (metadata.document_date > metadata.retrieved_at.slice(0, 10)) {
+      if (metadata.document_date === null) {
+        if (!(undatedSourceTypes as readonly string[]).includes(metadata.source_type)) {
+          issue("document_date", `A ${metadata.source_type} capture records its document date.`);
+        }
+      } else if (metadata.document_date > metadata.retrieved_at.slice(0, 10)) {
         issue("document_date", "A document cannot be dated after it was retrieved.");
       }
 
@@ -883,23 +1108,37 @@ function officialSourceMetadataV2SchemaWith(exceptions: readonly SourceHostExcep
       }
 
       const html = metadata.original.media_type === captureOriginals.html.media_type;
+      const zip = metadata.original.media_type === captureOriginals.zip.media_type;
       if (html) {
         if (metadata.extraction.extractor !== HTML_TEXT_EXTRACTOR || metadata.extraction.extractor_version !== HTML_TEXT_EXTRACTOR_VERSION) {
           issue("extraction", `Served HTML is extracted by ${HTML_TEXT_EXTRACTOR} ${HTML_TEXT_EXTRACTOR_VERSION}.`);
         }
         if (pageCount !== 1) issue("extraction", "Served HTML is extracted as one page.");
         if (metadata.source_type !== "statute") issue("original", "Only a statute page may be captured as served HTML.");
+      } else if (zip) {
+        if (metadata.extraction.extractor !== ZIP_MANIFEST_EXTRACTOR || metadata.extraction.extractor_version !== ZIP_MANIFEST_EXTRACTOR_VERSION) {
+          issue("extraction", `A data archive is extracted by ${ZIP_MANIFEST_EXTRACTOR} ${ZIP_MANIFEST_EXTRACTOR_VERSION}.`);
+        }
+        if (metadata.source_type !== "dataset_archive") issue("original", "Only a data archive may be captured as a ZIP.");
       } else if (metadata.extraction.extractor !== "pdfjs-dist") {
         issue("extraction", "A PDF is extracted by pdfjs-dist.");
       }
+      if (metadata.source_type === "dataset_archive" && !zip) issue("original", "A data archive is captured as the exact ZIP served.");
 
       const map = metadata.agency_map;
       const statute = metadata.statute;
-      if (metadata.source_type === "agency_map" && (map === null || statute !== null)) {
-        issue("agency_map", "An agency map capture records agency_map context and no statute context.");
-      }
-      if (metadata.source_type === "statute" && (statute === null || map !== null)) {
-        issue("statute", "A statute capture records statute context and no agency_map context.");
+      const regulation = metadata.regulation ?? null;
+      const dataset = metadata.dataset_archive ?? null;
+      // Exactly one context block, the one for the source type.
+      const contexts = { agency_map: map, statute, regulation, dataset_archive: dataset };
+      for (const [type, context] of Object.entries(contexts)) {
+        if ((type === metadata.source_type) !== (context !== null)) {
+          issue(
+            metadata.source_type,
+            `A ${metadata.source_type} capture records ${metadata.source_type} context and no other context.`,
+          );
+          break;
+        }
       }
 
       for (const { path, excerpt } of contextExcerpts(metadata)) {
@@ -965,6 +1204,34 @@ function officialSourceMetadataV2SchemaWith(exceptions: readonly SourceHostExcep
           issue("operative_status", "An operative statute capture quotes the source's own history or effective-date note.");
         }
       }
+
+      if (metadata.source_type === "regulation" && regulation !== null) {
+        if (html || zip) issue("original", "A regulation is captured as the agency's PDF.");
+        if (!headingOpensSection(regulation.section_heading.text, regulation.section)) {
+          issue("regulation.section_heading", `The section heading must open section ${regulation.section}.`);
+        }
+        if (!new RegExp(`\\bTitle ${regulation.title}\\b`).test(normalizeSourceText(regulation.title_heading.text))) {
+          issue("regulation.title_heading", `The title heading must name Title ${regulation.title}.`);
+        }
+        if (metadata.operative_status === "operative" && regulation.status_as_published === null) {
+          issue("operative_status", "An operative regulation capture quotes the document's own statement of its effect.");
+        }
+      }
+
+      if (metadata.source_type === "dataset_archive" && dataset !== null) {
+        const classLabels = dataset.class_field.values.map((value) => value.label);
+        if (new Set(classLabels).size !== classLabels.length) issue("dataset_archive.class_field", "Each class label is recorded once.");
+        const total = dataset.class_field.values.reduce((sum, value) => sum + value.count, 0);
+        if (total !== dataset.geometry.feature_count || dataset.extent_field.values[0].count !== dataset.geometry.feature_count) {
+          issue("dataset_archive", "Every feature carries one class and the extent value.");
+        }
+        if (dataset.class_field.field === dataset.extent_field.field) issue("dataset_archive", "The class and extent fields differ.");
+        const paths = dataset.non_authoritative.map((field) => field.path);
+        if (new Set(paths).size !== paths.length) issue("dataset_archive.non_authoritative", "Each field is recorded once.");
+        if (metadata.operative_status === "operative" && dataset.status_as_published === null) {
+          issue("operative_status", "An operative data archive quotes the archive's own statement of its status.");
+        }
+      }
     });
 }
 
@@ -1010,9 +1277,11 @@ export function captureDirectoryFor(metadata: Pick<OfficialSourceMetadata, "sour
  * knows which file to load before validation: original.html only when the
  * metadata says so, otherwise original.pdf.
  */
-export function declaredOriginalFile(metadata: unknown): "original.pdf" | "original.html" {
+export function declaredOriginalFile(metadata: unknown): "original.pdf" | "original.html" | "original.zip" {
   const original = (metadata as { original?: { file?: unknown } } | null)?.original;
-  return original?.file === captureOriginals.html.file ? captureOriginals.html.file : captureOriginals.pdf.file;
+  if (original?.file === captureOriginals.html.file) return captureOriginals.html.file;
+  if (original?.file === captureOriginals.zip.file) return captureOriginals.zip.file;
+  return captureOriginals.pdf.file;
 }
 
 export interface OfficialSourceCaptureFiles {
@@ -1052,6 +1321,12 @@ export function captureContextIssues(metadata: OfficialSourceMetadata, extracted
       issues.push(`${path}: the excerpt is not on page ${excerpt.page} of extracted.txt.`);
     }
   }
+  const regulation = metadata.regulation ?? null;
+  if (regulation !== null && regulationSectionPages(extracted, regulation) === null) {
+    issues.push(`regulation.section_heading: no whole line on page ${regulation.section_heading.page} reads ${regulation.section_heading.text}.`);
+  }
+  const dataset = metadata.dataset_archive ?? null;
+  if (dataset !== null) issues.push(...datasetArchiveContextIssues(dataset, extracted));
   const statute = metadata.statute;
   if (statute !== null) {
     const afterHeading = textFromHeadingLine(extracted, statute.section_heading.page, statute.section_heading.text);
@@ -1064,6 +1339,39 @@ export function captureContextIssues(metadata: OfficialSourceMetadata, extracted
         }
       });
     }
+  }
+  return issues;
+}
+
+/** Every way a data archive's context disagrees with the extractor's own summary of the archive. */
+function datasetArchiveContextIssues(dataset: DatasetArchiveCaptureContext, extracted: string): string[] {
+  const issues: string[] = [];
+  const summary = readDatasetArchiveSummary(splitExtractedPages(extracted));
+  const name = dataset.dataset_name;
+  for (const suffix of [".shp", ".shx", ".dbf", ".prj"]) {
+    if (!summary.members.has(`${name}${suffix}`)) issues.push(`dataset_archive: the archive has no ${name}${suffix} member.`);
+  }
+  const table = summary.tables.get(`${name}.dbf`);
+  const shape = summary.shapes.get(name);
+  if (table === undefined || shape === undefined) return [...issues, `dataset_archive: ${name} has no attribute table or shapefile summary.`];
+  if (table.records !== dataset.geometry.feature_count || table.deleted !== 0 || shape.records !== dataset.geometry.feature_count) {
+    issues.push(`dataset_archive.geometry: the archive holds ${table.records} records and ${shape.records} shapes, not ${dataset.geometry.feature_count}.`);
+  }
+  if (shape.type !== dataset.geometry.shape_type) issues.push(`dataset_archive.geometry: the shapefile holds ${shape.type}, not ${dataset.geometry.shape_type}.`);
+  const sameValues = (field: { field: string; values: ReadonlyArray<{ label: string; count: number }> }) => {
+    const found = table.values.get(field.field);
+    if (found === undefined || found === null) return false;
+    const recorded = [...field.values].map((value) => `${value.label}\u0000${value.count}`).sort();
+    return JSON.stringify(recorded) === JSON.stringify(found.map(([label, count]) => `${label}\u0000${count}`).sort());
+  };
+  if (!sameValues(dataset.class_field)) issues.push(`dataset_archive.class_field: ${dataset.class_field.field} does not take exactly the recorded values.`);
+  if (!sameValues(dataset.extent_field)) issues.push(`dataset_archive.extent_field: ${dataset.extent_field.field} does not take exactly the recorded value.`);
+  const crs = normalizeSourceText(dataset.crs.excerpt.text);
+  if (!crs.includes("EPSG") || !new RegExp(`\\b${dataset.crs.epsg}\\b`).test(crs)) {
+    issues.push(`dataset_archive.crs: the excerpt does not name EPSG ${dataset.crs.epsg}.`);
+  }
+  for (const field of dataset.non_authoritative) {
+    if (datasetMetadataLine(extracted, field.path) === null) issues.push(`dataset_archive.non_authoritative: no extracted line reads ${field.path}.`);
   }
   return issues;
 }
@@ -1087,6 +1395,7 @@ export async function officialSourceCaptureIssues(
   const metadata = parsed.data;
   const originalFile = metadata.original.file;
   const html = metadata.original.media_type === captureOriginals.html.media_type;
+  const zip = metadata.original.media_type === captureOriginals.zip.media_type;
   const issues: string[] = [];
 
   if (files.directory !== captureDirectoryFor(metadata)) {
@@ -1094,6 +1403,7 @@ export async function officialSourceCaptureIssues(
   }
 
   let servedHtml: string | null = null;
+  let archive: Uint8Array | null = null;
   if (files.original === null) {
     issues.push(`${originalFile} is missing.`);
   } else {
@@ -1101,6 +1411,9 @@ export async function officialSourceCaptureIssues(
       const htmlIssue = htmlCaptureIssue(files.original);
       if (htmlIssue === null) servedHtml = decodeUtf8Strict(files.original);
       else issues.push(`${originalFile} ${htmlIssue}.`);
+    } else if (zip) {
+      if (isZip(files.original)) archive = files.original;
+      else issues.push(`${originalFile} is not a ZIP archive.`);
     } else if (!isPdf(files.original)) {
       issues.push(`${originalFile} is not a PDF file.`);
     }
@@ -1129,11 +1442,25 @@ export async function officialSourceCaptureIssues(
     if (JSON.stringify(empty) !== JSON.stringify(metadata.extraction.pages_without_text)) {
       issues.push("extracted.txt empty pages do not match pages_without_text.");
     }
-    // Served HTML is re-extracted on every check: the extractor is pure code.
+    // Served HTML and data archives are re-extracted on every check: both extractors are pure code.
     if (servedHtml !== null && joinExtractedPages(extractHtmlPages(servedHtml)) !== files.extracted) {
       issues.push(
         `extracted.txt differs from a re-extraction of ${originalFile} with ${HTML_TEXT_EXTRACTOR} ${HTML_TEXT_EXTRACTOR_VERSION}.`,
       );
+    }
+    if (archive !== null) {
+      let reextracted: string | null = null;
+      try {
+        reextracted = joinExtractedPages(await extractDatasetArchivePages(archive));
+      } catch (error) {
+        if (!(error instanceof DatasetArchiveError)) throw error;
+        issues.push(`${originalFile} cannot be read: ${error.message}.`);
+      }
+      if (reextracted !== null && reextracted !== files.extracted) {
+        issues.push(
+          `extracted.txt differs from a re-extraction of ${originalFile} with ${ZIP_MANIFEST_EXTRACTOR} ${ZIP_MANIFEST_EXTRACTOR_VERSION}.`,
+        );
+      }
     }
     issues.push(...captureContextIssues(metadata, files.extracted));
   }
