@@ -1,0 +1,306 @@
+{
+  "record_kind": "human_rereview_decisions",
+  "schema_version": "program-screen-human-rereview-decisions-v1",
+  "phase": "3B",
+  "decisions_doc": "docs/PROGRAM_SCREEN_PHASE_3B_REREVIEW_DECISIONS.md",
+  "preparation_memo": "docs/PROGRAM_SCREEN_PHASE_3A_GCS_66499_41_A_9_REVIEW.md",
+  "supersedes_record": "app/fixtures/program-screen/human-review-rounds/round-1-decisions.json",
+  "reviewer": {
+    "kind": "human",
+    "name": "Sergio Mata",
+    "role": "Project Owner / Human Reviewer"
+  },
+  "decided_on": "2026-09-28",
+  "promoted_in_this_review": [],
+  "trigger": {
+    "id": "gcs_66499_41_a_9_captured",
+    "statute_source_id": "gcs-66499-41",
+    "sha256_original": "3521eb92f68d966461eb0c7b60ebffad8371b487eff2f014417cd74fc077ec72",
+    "sha256_extracted": "48815c8e2a892ca8e3aa523c6d3237d9c014fc556b3e332e31f0894f5bcf0759"
+  },
+  "source_basis": [
+    "shra-2025-10-28",
+    "gcs-66499-41"
+  ],
+  "confirmations_verbatim": "Confirmations:\n1. c point 2: REWORD. Use the same semantics as the approved d correction: “A non-qualifying record cannot establish the fact. Alone, the authority gate returns unknown. Disagreement between known-value records is handled by existing Layer 1 conflict detection. The authority gate does not manufacture conflict.”\n2. d label: ADD. Add deferred high_fire_client_label. The eventual client-facing label should not imply that “state or local responsibility area” is part of the deterministic d rule.\n3. c route gate: ACCEPT. Record statutory_routes_assessed_separately as a Phase 3C promotion gate. Do not change the approved c rule. Until route-separated assessment is implemented and fail-closed, c remains pending_human and cannot be promoted.\nDate correction: record the Phase 3B human-review decision date as 2026-09-28, not 2026-09-29.\nG1 and G2 remain SHRA pathway completeness blockers exactly as proposed.",
+  "common_terms": [
+    "The lot means the lot proposed to be subdivided. Every rule measures coverage against the whole lot proposed to be subdivided.",
+    "Lot identity rule: if APN/parcel and legal-lot identity are unclear, the result is unknown.",
+    "Non-qualifying record: a record that cannot establish the fact. On its own, the authority gate returns unknown. Where it disagrees with another known-value record, existing Layer 1 conflict detection decides. There is no special conflict rule, and the authority gate does not manufacture conflict."
+  ],
+  "gate_definitions": {
+    "statutory_route_recorded": "The evidence records the agency (the Department of Forestry and Fire Protection) and the statutory basis of the record: GOV §51178 or PRC §4202 for c, and PRC §4202 only for d. The evaluator fails closed when either is missing. Today the hazard_map qualifier has no statutory-basis field, and the agency_hazard_map record kind always describes a map, which may not fit a §51178 determination.",
+    "statutory_routes_assessed_separately": "c is assessed per statutory route: a YES under either route is enough, a NO under only one route cannot clear the criterion, and partial coverage is judged per route and never combined across routes. Under today's single Very High fact, a Route 1 YES and a Route 2 NO would be a Layer 1 conflict, so c cannot be promoted until route-separated assessment is implemented and fails closed (Phase 3C).",
+    "prc_4202_map_coverage_and_legend_class_recorded": "The evidence records whether a PRC §4202 map covers the lot and whether its legend defines a High class for the area containing the lot, and the evaluator fails closed when it does not. It replaces responsibility_area_and_legend_recorded; responsibility area is recorded as context only, when the source states it. Today the hazard_map qualifier keys map coverage and legend class to parcel_responsibility_area.",
+    "fmmp_categories_tied_to_usda_criteria": "The captured Farmland Mapping and Monitoring Program map edition and its official legend or documentation establish that its Prime Farmland and Farmland of Statewide Importance categories are the categories defined pursuant to the USDA land inventory and monitoring criteria referenced by §66499.41(a)(9)(A). The relationship is never assumed from the map's source; until it is established, a designation cannot establish YES.",
+    "nccp_plan_type_and_statutory_basis_recorded": "The evidence records that the plan is a natural community conservation plan adopted pursuant to the Natural Community Conservation Planning Act (Fish and Game Code §2800 et seq.), not a habitat conservation plan or another plan, and the evaluator fails closed when it does not. Today the adopted_plan qualifier has no plan-type or statutory-basis field."
+  },
+  "pathway_completeness_blockers": [
+    {
+      "id": "G1",
+      "key": "shra_a9a_ballot_measure_agricultural_land",
+      "pathway": "la_shra",
+      "statute_source_id": "gcs-66499-41",
+      "statute_pinpoint": "(a)(9)(A)",
+      "category_text": "land zoned or designated for agricultural protection or preservation by a local ballot measure that was approved by the voters of that jurisdiction",
+      "related_criterion_id": "la_shra.prime-or-statewide-farmland",
+      "status": "open",
+      "blocks_rollup": "no_disqualifier_found_in_reviewed_sources",
+      "resolution_requires_one_of": [
+        "A separately reviewed criterion or fact for the category.",
+        "An explicit later human review that resolves the category."
+      ],
+      "reviewer_text_verbatim": "Also record for the final decisions stage: I want G1 treated consistently with G2. The ballot-measure agricultural-land category in §66499.41(a)(9)(A) should become a separate SHRA pathway completeness blocker. Passing criterion e must never imply that subsection (A) as a whole is satisfied until that category has its own reviewed fact/criterion or an explicit later human resolution."
+    },
+    {
+      "id": "G2",
+      "key": "shra_a9h_hcp_and_other_resource_protection_plans",
+      "pathway": "la_shra",
+      "statute_source_id": "gcs-66499-41",
+      "statute_pinpoint": "(a)(9)(H)",
+      "category_text": "habitat conservation plan pursuant to the federal Endangered Species Act of 1973 (16 U.S.C. Sec. 1531 et seq.), or another adopted natural resource protection plan",
+      "related_criterion_id": "la_shra.natural-community-conservation-plan-land",
+      "status": "open",
+      "blocks_rollup": "no_disqualifier_found_in_reviewed_sources",
+      "resolution_requires_one_of": [
+        "A separately reviewed criterion or fact for the category.",
+        "An explicit later human review that resolves the category."
+      ],
+      "reviewer_text_verbatim": "Add this condition for statutory gap G2:\n§66499.41(a)(9)(H) also covers:\nhabitat conservation plans under the federal Endangered Species Act; and\nother adopted natural resource protection plans.\nCriterion f does not absorb those categories.\nRecord G2 as a separate SHRA pathway completeness blocker: before the overall SHRA pathway can ever produce a fully clear/consistent result, those two statutory categories must either:\nreceive separately reviewed criteria/facts, or\nbe explicitly resolved by a later human review.\nDo not infer that passing criterion f means §66499.41(a)(9)(H) as a whole is satisfied.\nThis does not change f’s own outcome ceiling or rule. It prevents the broader statutory category from being silently lost later."
+    }
+  ],
+  "decisions": [
+    {
+      "letter": "c",
+      "criterion_id": "la_shra.very-high-fire-hazard-severity-zone",
+      "supersedes": {
+        "round": 1,
+        "letter": "c"
+      },
+      "decision": "approve_revised_rule",
+      "reviewer_text_verbatim": "APPROVE REVISED RULE, with one terminology revision:\nWherever the rule says “whole parcel,” use “whole lot proposed to be subdivided.”\nIf the parcel/APN and the legal lot proposed to be subdivided are not clearly the same unit, return unknown.\nI approve points 1–8 with that correction.\nKeep c pending_human.\nPreserve all listed gates, including the need to distinguish the two statutory routes and the fail-closed rule that a NO under only one route cannot clear the criterion.\nDo not edit files yet. Continue to criterion d.",
+      "rule_as_decided": [
+        "1. Scope: Very High only. A High class on any record, including a PRC §4202 map, never establishes c. High stays d.",
+        "2. Qualifying records. A record counts toward a route only if it names CAL FIRE (the Department of Forestry and Fire Protection) as the agency and that route's section as its basis. Route 1: a Very High zone “as determined” by CAL FIRE under GOV §51178. Route 2: a Very High zone on a map adopted by CAL FIRE under PRC §4202. Any other record, City/ZIMAS included, may only corroborate. “A non-qualifying record cannot establish the fact. Alone, the authority gate returns unknown. Disagreement between known-value records is handled by existing Layer 1 conflict detection. The authority gate does not manufacture conflict.”",
+        "3. YES → disqualifying_per_source when a qualifying record under either route shows the whole lot proposed to be subdivided inside a Very High zone. A negative under one route never cancels a YES under the other.",
+        "4. Partial coverage → unknown / requires_judgment, judged separately for each route. Partial coverage under Route 1 is not added to partial coverage under Route 2. No overlap threshold.",
+        "5. NO → consistent_with_source only when qualifying records under both routes each show no part of the lot in a Very High zone. A negative under one route alone gives unknown. There is no \"only one route applies here\" shortcut unless a later captured, reviewed source supports it.",
+        "6. Required fields: agency, route (statutory basis), record identity, and edition or effective date (adoption date for Route 2). If any is missing, the result is unknown.",
+        "7. Responsibility areas: footnote 1 stays as memo context. Responsibility area is never used to pick or rule out a route.",
+        "8. The lot identity rule applies. Ceiling unchanged."
+      ],
+      "tier": "gated_on_enforcement",
+      "status_after_review": "pending_human",
+      "outcome_ceiling_changed": false,
+      "promotion_gates": [
+        "evidence_provenance_enforced_or_fails_closed",
+        "map_identity_and_edition_recorded",
+        "statutory_route_recorded",
+        "statutory_routes_assessed_separately",
+        "legal_lot_identity_fails_closed",
+        "reviewer_confirms_encoded_rule",
+        "human_verification_record"
+      ],
+      "gates_not_yet_wired": [
+        "statutory_route_recorded",
+        "statutory_routes_assessed_separately",
+        "legal_lot_identity_fails_closed"
+      ],
+      "gates_retained_until_replacement_wired": [],
+      "restated_gates": [],
+      "deferred_changes": [
+        "very_high_fire_client_label"
+      ],
+      "pathway_blockers_referenced": [],
+      "resolves_rereview_triggers": [
+        "gcs_66499_41_a_9_captured"
+      ]
+    },
+    {
+      "letter": "d",
+      "criterion_id": "la_shra.high-fire-hazard-severity-zone",
+      "supersedes": {
+        "round": 1,
+        "letter": "d"
+      },
+      "decision": "approve_revised_rule",
+      "reviewer_text_verbatim": "APPROVE REVISED RULE, with one correction.\nI approve points 1–8, including:\nHigh is limited to the PRC §4202 map route.\nResponsibility area is no longer an independent required condition. Record it as context only when the source states it.\nMap coverage of the lot and the map legend’s actual High class are the operative checks.\nUse “whole lot proposed to be subdivided” consistently, and fail closed if APN/parcel and legal-lot identity are unclear.\nKeep combined High/Very High coverage deferred.\nCorrection to points 2, 5 and the gate summary:\nA non-qualifying record that shows or denies High does not, by itself, produce conflict.\nIf only non-qualifying evidence exists, it cannot establish the fact and the authority gate returns unknown.\nIf a non-qualifying record disagrees with another known-value record, existing Layer 1 conflict detection determines whether the fact is conflict.\nDo not add a special rule saying “any non-qualifying High record = conflict.”\nPreserve the existing architecture: authority gating may downgrade an established result to unknown, but it does not manufacture conflicts.\nKeep d pending_human with all remaining gates.\nDo not edit files yet. Continue to criterion e",
+      "rule_as_decided": [
+        "1. Scope: High only, never inferred from Very High in either direction. A Very High class on a §4202 map belongs to c.",
+        "2. Only one kind of record qualifies: a map adopted by CAL FIRE under PRC §4202. A §51178 determination never establishes d, because that route names only Very High. Any other record showing or denying High, including City/ZIMAS and any High designation resting on another basis, is a non-qualifying record (see the common terms).",
+        "3. YES → disqualifying_per_source only when a qualifying §4202 map shows the whole lot proposed to be subdivided inside a High zone. The lot identity rule applies.",
+        "4. Partial coverage → unknown / requires_judgment. No threshold. A lot that is partly High and partly Very High stays unknown on both c and d. The combined-coverage fact stays deferred and is not solved by inference.",
+        "5. NO → consistent_with_source only when all three hold: a qualifying §4202 map covers the lot; its legend defines a High class for the area containing the lot; it shows no part of the lot in High. If no §4202 map covers the lot, or its legend has no High class there, the result is unknown.",
+        "6. Required fields: CAL FIRE as the adopting agency, PRC §4202 as the basis, map identity, edition or adoption date, whether the map covers the lot, and whether the legend defines High there. If any is missing, the result is unknown. Responsibility area is recorded only when the source states it, as context. It is not a condition: map coverage of the lot and the legend's High class are the operative checks.",
+        "7. Memo reading: footnote 1 and the memo's “as referenced in GCS 51178” are memo context only. They add no YES route.",
+        "8. Ceiling unchanged."
+      ],
+      "tier": "gated_on_enforcement",
+      "status_after_review": "pending_human",
+      "outcome_ceiling_changed": false,
+      "promotion_gates": [
+        "evidence_provenance_enforced_or_fails_closed",
+        "map_identity_and_edition_recorded",
+        "statutory_route_recorded",
+        "prc_4202_map_coverage_and_legend_class_recorded",
+        "legal_lot_identity_fails_closed",
+        "reviewer_confirms_encoded_rule",
+        "human_verification_record"
+      ],
+      "gates_not_yet_wired": [
+        "statutory_route_recorded",
+        "prc_4202_map_coverage_and_legend_class_recorded",
+        "legal_lot_identity_fails_closed"
+      ],
+      "gates_retained_until_replacement_wired": [
+        {
+          "gate": "responsibility_area_and_legend_recorded",
+          "replaced_by": "prc_4202_map_coverage_and_legend_class_recorded"
+        }
+      ],
+      "restated_gates": [],
+      "deferred_changes": [
+        "combined_high_or_very_high_coverage_fact_if_needed",
+        "high_fire_client_label"
+      ],
+      "pathway_blockers_referenced": [],
+      "resolves_rereview_triggers": [
+        "gcs_66499_41_a_9_captured"
+      ]
+    },
+    {
+      "letter": "e",
+      "criterion_id": "la_shra.prime-or-statewide-farmland",
+      "supersedes": {
+        "round": 1,
+        "letter": "e"
+      },
+      "decision": "approve_revised_rule",
+      "reviewer_text_verbatim": "APPROVE REVISED RULE, with one additional fail-closed condition.\nI approve points 1–8 as the candidate rule, and e remains pending_human.\nAdd this clarification to points 2, 3 and the remaining gates:\nA Department of Conservation Farmland Mapping and Monitoring Program map is the correct statutory record type.\nHowever, a map designation may establish YES only after the captured map edition and its official legend/documentation establish that the displayed categories Prime Farmland and Farmland of Statewide Importance are the categories defined pursuant to the USDA land inventory and monitoring criteria referenced by §66499.41(a)(9)(A).\nDo not assume that relationship merely because the map comes from FMMP.\nIf the captured map/legend does not establish that relationship, return unknown and keep the criterion pending.\nKeep:\nwhole lot proposed to be subdivided wording;\nlegal-lot identity fail closed;\npartial coverage unknown;\nNO never clears;\nZIMAS/generic GIS/search results non-establishing;\nmap edition/date unresolved until a specific official edition is captured;\nballot-measure agricultural land as a separate unmodeled statutory gap, not something e tries to absorb.\ne stays pending_human in the pending-source-capture tier.\nDo not edit files yet. Continue to criterion f.",
+      "rule_as_decided": [
+        "1. Source proposition unchanged. The statute scopes e to prime farmland or farmland of statewide importance “designated on the maps prepared by the Farmland Mapping and Monitoring Program of the Department of Conservation”.",
+        "2. Record type: a Department of Conservation Farmland Mapping and Monitoring Program map is the statutory record type. Any other record, including ZIMAS fields, generic GIS layers, search results, and City or County farmland layers, is a non-qualifying record (see the common terms). A designation on a program map may establish YES only after the captured map edition and its official legend or documentation establish that the displayed categories Prime Farmland and Farmland of Statewide Importance are the categories defined pursuant to the USDA land inventory and monitoring criteria referenced by §66499.41(a)(9)(A). That relationship is never assumed merely because the map comes from the program. If it is not established, the result is unknown and the criterion stays pending.",
+        "3. YES → disqualifying_per_source only when a captured, reviewed edition of that map designates the whole lot proposed to be subdivided as Prime Farmland or Farmland of Statewide Importance, and point 2's relationship is established. The lot identity rule applies.",
+        "4. Partial coverage → unknown / requires_judgment. No threshold.",
+        "5. NO never clears (block-only, unchanged). A \"not designated\" result also says nothing about (A)'s ballot-measure agricultural land, which is SHRA pathway completeness blocker G1.",
+        "6. Required fields: the Department of Conservation program as preparer, map identity, edition or date, and the designation shown for the lot. If any is missing, the result is unknown.",
+        "7. Edition: not set by the statute, and the most recent edition is not assumed. The edition or date stays unresolved until a specific official edition is captured and reviewed.",
+        "8. Status: the rule stays a candidate. e stays pending_human in the pending-source-capture tier. Ceiling unchanged, and the criterion is not removed. Ballot-measure agricultural land is not part of e (G1)."
+      ],
+      "tier": "pending_source_capture",
+      "status_after_review": "pending_human",
+      "outcome_ceiling_changed": false,
+      "promotion_gates": [
+        "defining_official_source_captured",
+        "fmmp_categories_tied_to_usda_criteria",
+        "evidence_provenance_enforced_or_fails_closed",
+        "map_identity_and_edition_recorded",
+        "legal_lot_identity_fails_closed",
+        "reviewer_confirms_encoded_rule",
+        "human_verification_record"
+      ],
+      "gates_not_yet_wired": [
+        "fmmp_categories_tied_to_usda_criteria",
+        "map_identity_and_edition_recorded",
+        "legal_lot_identity_fails_closed"
+      ],
+      "gates_retained_until_replacement_wired": [],
+      "restated_gates": [
+        {
+          "gate": "defining_official_source_captured",
+          "restated_as": "A specific Department of Conservation Farmland Mapping and Monitoring Program map edition, with its official legend or documentation, is captured as an agency_map and reviewed. The statute supplies only the program's identity, not an edition or date."
+        }
+      ],
+      "deferred_changes": [],
+      "pathway_blockers_referenced": [
+        "G1"
+      ],
+      "resolves_rereview_triggers": [
+        "gcs_66499_41_a_9_captured"
+      ]
+    },
+    {
+      "letter": "f",
+      "criterion_id": "la_shra.natural-community-conservation-plan-land",
+      "supersedes": {
+        "round": 1,
+        "letter": "f"
+      },
+      "decision": "approve_revised_rule",
+      "reviewer_text_verbatim": "APPROVE REVISED RULE, with one additional release-safety condition.\nI approve points 1–6.\nKeep:\nf scoped only to land identified for conservation in an adopted NCCP under the Natural Community Conservation Planning Act;\nwhole lot proposed to be subdivided wording;\nlegal-lot identity fail closed;\npartial coverage unknown;\ninterpretation-dependent plan labels unknown;\ndraft/proposed/pending/superseded/unconfirmed plans non-establishing;\nNO never clears;\nprovenance from the adopted plan itself required;\nplan type and statutory basis recorded;\nceiling unchanged.\nAdd this condition for statutory gap G2:\n§66499.41(a)(9)(H) also covers:\nhabitat conservation plans under the federal Endangered Species Act; and\nother adopted natural resource protection plans.\nCriterion f does not absorb those categories.\nRecord G2 as a separate SHRA pathway completeness blocker: before the overall SHRA pathway can ever produce a fully clear/consistent result, those two statutory categories must either:\nreceive separately reviewed criteria/facts, or\nbe explicitly resolved by a later human review.\nDo not infer that passing criterion f means §66499.41(a)(9)(H) as a whole is satisfied.\nThis does not change f’s own outcome ceiling or rule. It prevents the broader statutory category from being silently lost later.\nAlso keep the distinction that “expired/superseded/current status” is a fail-closed evidence requirement, not wording supplied by §66499.41(a)(9)(H) itself.\nf stays pending_human behind its implementation/provenance gates.\nDo not edit files yet. Continue to criterion g.",
+      "rule_as_decided": [
+        "1. The record is the adopted plan itself, meaning its official adopted maps, exhibits, or text; provenance from the adopted plan itself is required. f is scoped only to land identified for conservation in a natural community conservation plan adopted pursuant to the Natural Community Conservation Planning Act (Fish and Game Code §2800 et seq.), and the plan type and statutory basis are recorded. A habitat conservation plan, or any other natural resource protection plan, never establishes f. City/ZIMAS, generic GIS layers, and secondary sources are non-qualifying records (see the common terms).",
+        "2. YES → disqualifying_per_source only when reviewed evidence establishes all five Round 1 elements: the plan is an NCCP adopted under the Act; its adoption status is established; the applicable map or text is identified and dated; the plan itself identifies the land for conservation; the whole lot proposed to be subdivided lies within that land. The lot identity rule applies.",
+        "3. Unknown / requires_judgment in each of these cases, unchanged from Round 1: partial identification (no threshold); a label that needs interpretation; a draft, proposed, pending, expired, superseded, or unconfirmed plan; adoption status that cannot be established. Expired, superseded, and current status is a fail-closed evidence requirement, not wording supplied by §66499.41(a)(9)(H) itself.",
+        "4. NO never clears. This keeps Round 1's future door: a reviewed method showing that every applicable adopted NCCP covering the lot was checked. Even then, a clearing NO would speak only to NCCP land, never to (H)'s other plans, which are SHRA pathway completeness blocker G2. Passing f never means §66499.41(a)(9)(H) as a whole is satisfied.",
+        "5. No master list of plans is required. A lot cannot block until its particular plan and map or text are captured and reviewed (unchanged).",
+        "6. Ceiling unchanged."
+      ],
+      "tier": "gated_on_enforcement",
+      "status_after_review": "pending_human",
+      "outcome_ceiling_changed": false,
+      "promotion_gates": [
+        "evidence_provenance_enforced_or_fails_closed",
+        "adopted_plan_identity_adoption_and_map_date_recorded",
+        "nccp_plan_type_and_statutory_basis_recorded",
+        "legal_lot_identity_fails_closed",
+        "reviewer_confirms_encoded_rule",
+        "human_verification_record"
+      ],
+      "gates_not_yet_wired": [
+        "nccp_plan_type_and_statutory_basis_recorded",
+        "legal_lot_identity_fails_closed"
+      ],
+      "gates_retained_until_replacement_wired": [],
+      "restated_gates": [],
+      "deferred_changes": [],
+      "pathway_blockers_referenced": [
+        "G2"
+      ],
+      "resolves_rereview_triggers": [
+        "gcs_66499_41_a_9_captured"
+      ]
+    },
+    {
+      "letter": "g",
+      "criterion_id": "la_shra.conservation-easement",
+      "supersedes": {
+        "round": 1,
+        "letter": "g"
+      },
+      "decision": "approve_revised_rule",
+      "reviewer_text_verbatim": "APPROVE REVISED RULE.\nI approve points 1–7.\nPreserve these distinctions explicitly:\nThe source proposition is only “Land under conservation easement.”\n“Recorded instrument” is a PermitPulse conservative evidence standard for establishing YES, not part of the statutory definition and not a claim that only recorded easements qualify.\nA recorded instrument can support YES only when it expressly creates or establishes a conservation easement, applies to the whole lot proposed to be subdivided, remains in force, and lot/instrument identity is established.\nIf APN/parcel and legal-lot identity are unclear, return unknown.\nPartial coverage, interpretation-dependent instruments, uncertain release/extinguishment, or unclear instrument identity remain unknown / requires_judgment.\nSecondary sources cannot establish the fact. They remain subject to existing Layer 1 conflict handling and the authority gate; do not create new conflict logic.\nNO never clears.\nKeep the deferred client-label fix so the UI does not present “recorded” as part of the legal/source rule.\ng stays pending_human behind the existing provenance and instrument-status gates.\nDo not edit files yet.\nAlso record for the final decisions stage: I want G1 treated consistently with G2. The ballot-measure agricultural-land category in §66499.41(a)(9)(A) should become a separate SHRA pathway completeness blocker. Passing criterion e must never imply that subsection (A) as a whole is satisfied until that category has its own reviewed fact/criterion or an explicit later human resolution.\nNow produce the consolidated Phase 3B decisions record and proposed implementation plan for c–g, but stop before editing files.",
+      "rule_as_decided": [
+        "1. The source proposition is only “Land under conservation easement.” (statute), the same proposition as the memo's “Lands under a conservation easement.” It is never restated as requiring a recorded easement.",
+        "2. Recorded instrument: a PermitPulse conservative evidence standard for establishing YES. It is not part of the statutory definition and not a claim that only recorded easements qualify.",
+        "3. YES → disqualifying_per_source only when a recorded instrument expressly creates or establishes a conservation easement, applies to the whole lot proposed to be subdivided, remains in force, and lot and instrument identity are established. The lot identity rule applies.",
+        "4. Unknown / requires_judgment in each of these cases: partial coverage (no threshold); an instrument that needs interpretation; uncertain release, termination, or extinguishment; unclear instrument identity or coverage. These are fail-closed evidence requirements, not wording supplied by §66499.41(a)(9)(J).",
+        "5. A ZIMAS field, title summary, GIS layer, or other secondary source is a non-qualifying record (see the common terms). No new conflict logic.",
+        "6. NO never clears (unchanged).",
+        "7. Ceiling unchanged. The deferred conservation_easement_client_label change stays, so the client label does not present recorded as part of the source rule."
+      ],
+      "tier": "gated_on_enforcement",
+      "status_after_review": "pending_human",
+      "outcome_ceiling_changed": false,
+      "promotion_gates": [
+        "evidence_provenance_enforced_or_fails_closed",
+        "instrument_identity_in_force_status_and_coverage_recorded",
+        "legal_lot_identity_fails_closed",
+        "reviewer_confirms_encoded_rule",
+        "human_verification_record"
+      ],
+      "gates_not_yet_wired": [
+        "legal_lot_identity_fails_closed"
+      ],
+      "gates_retained_until_replacement_wired": [],
+      "restated_gates": [],
+      "deferred_changes": [
+        "conservation_easement_client_label"
+      ],
+      "pathway_blockers_referenced": [],
+      "resolves_rereview_triggers": [
+        "gcs_66499_41_a_9_captured"
+      ]
+    }
+  ]
+}
