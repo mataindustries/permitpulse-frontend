@@ -1046,7 +1046,14 @@ describe("7. The Phase 3B promotion gates are wired", () => {
     // Updated in Phase 3D: the registered PRC §4202 package meets every non-reviewer gate of d,
     // and every gate of c but statutory_route_recorded (GOV §51178 has no record kind).
     const reviewer = ["reviewer_confirms_encoded_rule", "human_verification_record"];
-    const unmet: Record<string, readonly string[]> = { ...decidedGates, [C]: ["statutory_route_recorded", ...reviewer], [D]: reviewer };
+    // Updated in Phase 3E: the shipped d carries a human record citing the Phase 3B d decision, so only the
+    // record-completeness flag passed here (false) is unmet; with its real record, no gate of d is unmet.
+    const unmet: Record<string, readonly string[]> = {
+      ...decidedGates,
+      [C]: ["statutory_route_recorded", ...reviewer],
+      [D]: ["human_verification_record"],
+    };
+    expect(authorityPromotionBlockers(shippedCriterion(D), programAuthorityRegistries, true)).toEqual([]);
     for (const id of C_TO_G) {
       const requirement = programAuthorityRegistries.criterion_requirements[id];
       expect(requirement.decision_ref, id).toEqual({ phase: "3B", letter: LETTER[id] });
@@ -1063,7 +1070,10 @@ describe("7. The Phase 3B promotion gates are wired", () => {
     const blockers = (id: string, criterion = shippedCriterion(id)) => authorityPromotionBlockers(criterion, registries, false);
     const reviewer = ["reviewer_confirms_encoded_rule", "human_verification_record"];
     expect(blockers(C)).toEqual(["statutory_route_recorded", ...reviewer]);
-    for (const id of [D, E, F, G]) expect(blockers(id), id).toEqual(reviewer);
+    for (const id of [E, F, G]) expect(blockers(id), id).toEqual(reviewer);
+    // Updated in Phase 3E: d's shipped record cites the Phase 3B d decision.
+    expect(blockers(D, { ...shippedCriterion(D), human_verification: null })).toEqual(reviewer);
+    expect(blockers(D)).toEqual(["human_verification_record"]);
     // Without route-separated assessment, c could not meet its route gate.
     const unrouted: ProgramCriterion = { ...shippedCriterion(C) };
     delete unrouted.statutory_routes;
@@ -1095,9 +1105,10 @@ describe("7. The Phase 3B promotion gates are wired", () => {
       const promoted = promote(shippedCriterion(id), spy, { phase: "3B", letter: LETTER[id] });
       if (id === D) {
         // Phase 3D: the package meets every other gate of d, so only an explicit human
-        // verification record could promote it. The shipped d has none and stays pending.
+        // verification record could promote it. Updated in Phase 3E: the reviewer supplied it.
         expect(authorityPromotionBlockers(promoted, programAuthorityRegistries, true), id).toEqual([]);
-        expect(shippedCriterion(id)).toMatchObject({ verification: "pending_human", human_verification: null });
+        expect(shippedCriterion(id)).toMatchObject({ verification: "human_verified", human_verification: { decision_ref: { phase: "3B", letter: "d" } } });
+        expect(criterionAwaitsHumanVerification(shippedCriterion(id)), id).toBe(false);
         continue;
       }
       expect(criterionAwaitsHumanVerification(promoted), id).toBe(true);
@@ -1187,15 +1198,20 @@ describe("9. Invariants", () => {
   // The same pins as the Round 1, Phase 2, Phase 2b, Phase 3A, and Phase 3B tests.
   const EVALUATOR_OUTPUT_SHA256 = "68341529825b41e7dcd3b25a5daec94385fe6641e07cc03d29003c94c256b45a";
   const PUBLIC_DEMO_OUTPUT_SHA256 = "11081860902438dd881cb743c98de30f4b4c3c425675a6e0eb2b6d41474a84a1";
+  // Updated in Phase 3E: the reviewed promotion of d moved the output pins (the Phase 3C record keeps the ones above).
+  const PHASE_3E_EVALUATOR_OUTPUT_SHA256 = "156dd1f41964ab5beebcf3882e0a0d653cc5d778939033bf2b752dba1e86afbc";
+  const PHASE_3E_PUBLIC_DEMO_OUTPUT_SHA256 = "4dd2735bab875ad40b123fec72020e16442737bc6b5052eb55c5fba374b9a8a5";
 
-  it("promotes nothing: human_verified is 0 and pending_human is 46, every guarded criterion blocked", () => {
-    expect(shipped.filter((criterion) => criterion.verification === "human_verified")).toEqual([]);
-    expect(shipped.filter((criterion) => criterion.verification === "pending_human")).toHaveLength(46);
+  // Updated in Phase 3E: d alone is human-verified; every other guarded criterion is blocked.
+  it("promotes only d: human_verified is 1 and pending_human is 45, every other guarded criterion blocked", () => {
+    expect(shipped.filter((criterion) => criterion.verification === "human_verified").map((criterion) => criterion.id)).toEqual([D]);
+    expect(shipped.filter((criterion) => criterion.verification === "pending_human")).toHaveLength(45);
     const guarded = shipped.filter((criterion) => promotionGuardedCriterionIds.has(criterion.id));
     expect(guarded).toHaveLength(46);
-    for (const criterion of guarded) {
+    for (const criterion of guarded.filter((candidate) => candidate.id !== D)) {
       expect(authorityPromotionBlockers(criterion, programAuthorityRegistries, false).length, criterion.id).toBeGreaterThan(0);
     }
+    expect(authorityPromotionBlockers(shippedCriterion(D), programAuthorityRegistries, true)).toEqual([]);
   });
 
   // Updated in Phase 3D, which registered the CAL FIRE SRA package and nothing else.
@@ -1208,7 +1224,7 @@ describe("9. Invariants", () => {
     expect(sourceHostExceptions).toHaveLength(3);
   });
 
-  it("keeps every fixture status and roll-up; output changes only by the reviewed labels", async () => {
+  it("keeps every fixture status and roll-up; output changes only by the reviewed labels and the reviewed promotion of d", async () => {
     const result = evaluateProgramScreen({ evidence_records: fixtureJson.evidence_records, as_of: fixtureJson.as_of });
     const statuses = Object.fromEntries(result.pathways.flatMap((pathway) => pathway.criteria).map((criterion) => [criterion.criterion_id, criterion.status]));
     expect(statuses).toEqual(fixtureJson.expected.criterion_statuses);
@@ -1216,8 +1232,8 @@ describe("9. Invariants", () => {
     const json = JSON.stringify(result);
     for (const key of ['"authority"', '"statutory_routes"', '"open_completeness_blockers"']) expect(json).not.toContain(key);
     const demo = buildProgramScreenPublicDemoPayload(fixtureJson, { as_of: fixtureJson.as_of });
-    expect(await sha256Hex(json)).toBe(EVALUATOR_OUTPUT_SHA256);
-    expect(await sha256Hex(JSON.stringify(demo))).toBe(PUBLIC_DEMO_OUTPUT_SHA256);
+    expect(await sha256Hex(json)).toBe(PHASE_3E_EVALUATOR_OUTPUT_SHA256);
+    expect(await sha256Hex(JSON.stringify(demo))).toBe(PHASE_3E_PUBLIC_DEMO_OUTPUT_SHA256);
   });
 
   it("makes exactly the three deferred label changes, client-safe and without the retired conditions", () => {

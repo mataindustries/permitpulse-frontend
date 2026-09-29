@@ -11,6 +11,7 @@ import {
   evaluateProgramScreen,
   programScreenPathwayPacks,
 } from "../src/shared/program-screen/evaluate";
+import { PROGRAM_EVIDENCE_AUTHORITY_VERSION, type ProgramEvidenceAuthority } from "../src/shared/program-screen/evidence-authority";
 import { assessProgramFacts, programFactSpecs } from "../src/shared/program-screen/facts";
 import {
   criterionAwaitsHumanVerification,
@@ -32,6 +33,8 @@ import {
   type ProgramFactKey,
   type ProgramPathwayPack,
 } from "../src/shared/program-screen/types";
+import type { ProgramScreenInput } from "../src/shared/program-screen/evaluate";
+import { realLotOverlay } from "./program-screen-overlay-helpers";
 
 const AS_OF = "2026-09-27";
 const SUBJECT = {
@@ -220,22 +223,91 @@ function syntheticVerifiedCriterion(
   };
 }
 
+/* ------------------------------------------ d: the High fire-hazard lot */
+
+// Phase 3E: TEST-ONLY lots placed on the real FHSZSRA_23_3 dataset; the gate computes each overlay.
+const overlay = await realLotOverlay();
+
+/** A reviewed lot result on the High fact, recorded from the CAL FIRE map. */
+function highFireRecord(id: string, value: boolean): CanonicalEvidenceRecord {
+  return { ...evidence(id, "high-fire-hazard-severity-zone", value, { agency: "TEST-ONLY lot overlay on the CAL FIRE SRA package" }), evidence_type: "official_map" };
+}
+
+/** Reviewed authority blocks naming the registered package and a TEST-ONLY lot whose overlay supports each value. */
+function highFireAuthority(records: CanonicalEvidenceRecord[]): Pick<ProgramScreenInput, "evidence_authority" | "lot_overlay"> {
+  const blocks: ProgramEvidenceAuthority[] = records
+    .filter((record) => record.claim.key === "high-fire-hazard-severity-zone" && record.normalized_value.kind === "boolean")
+    .map((record) => {
+      const value = record.normalized_value.kind === "boolean" && record.normalized_value.value;
+      return {
+        schema_version: PROGRAM_EVIDENCE_AUTHORITY_VERSION,
+        evidence_id: record.id,
+        fact_key: "high-fire-hazard-severity-zone",
+        record_kind: "agency_hazard_map",
+        issuer: { name: "Office of the State Fire Marshal", issuer_id: "calfire-osfm" },
+        source_identifier: { scheme: "authority_source_id", value: "calfire-sra-fhsz-2023-09-29" },
+        document_title: "State Responsibility Area Fire Hazard Severity Zones",
+        edition: { label: "dated September 29, 2023", date: "2023-09-29", date_kind: "dated", currency: "current_on_as_of", currency_checked_on: "2026-09-20" },
+        retrieved_at: record.source.retrieved_at,
+        source_url: record.source.url,
+        capture: { store: "repo_official_source", source_id: "calfire-sra-fhsz-map-2023-09-29", sha256_extracted: "11830e2c8c29f368e4087ae9ff270ee042673dfd7be6e354750c326579e5b1fe" },
+        parcel_relationship: {
+          matched_by: "spatial_overlay",
+          parcel_identifier: "TEST-ONLY-APN-VERIFY",
+          legal_lot_reference: "TEST-ONLY Tract V, Lot 1",
+          legal_lot_identity: "parcel_is_one_legal_lot",
+        },
+        coverage: value ? "whole_parcel" : "none_of_parcel",
+        qualifiers: {
+          family: "hazard_map",
+          hazard_class: "high",
+          statutory_basis: "prc_4202",
+          adoption_status: "adopted",
+          named_agency: "department_of_forestry_and_fire_protection",
+          map_covers_lot: "yes",
+          legend_defines_class_for_lot: "yes",
+          responsibility_area_as_stated: "state",
+          lot_overlay: {
+            method: "deterministic_spatial_overlay",
+            dataset: { source_id: "calfire-fhszsra-23-3-data", sha256_extracted: "a85ff7eecf0f8ffa80d7dd8dcdc727a9dde42979fb3b7b8d5614b7a47a6b5a8a" },
+            lot_geometry: overlay.lots[value ? "whole-high" : "whole-moderate"],
+          },
+        },
+        authority_review: { status: "reviewed", reviewer: { kind: "human", name: "TEST-ONLY Reviewer", role: "Synthetic reviewer" }, reviewed_on: "2026-09-20" },
+        notes: ["TEST-ONLY fictional lot result."],
+        is_ai_generated: false,
+      };
+    });
+  return { evidence_authority: blocks, lot_overlay: overlay.inputs };
+}
+
 /* --------------------------------------- verified-criterion test runner */
 
 interface VerifiedCriterionCase {
   /** Reviewed evidence for exactly the criterion's facts, consistent with the source. */
   positive: () => CanonicalEvidenceRecord[];
+  /**
+   * Phase 3E: the authority inputs for a criterion with an enforced authority
+   * requirement (the blocks for the given records, and the lot overlay).
+   */
+  authority?: (records: CanonicalEvidenceRecord[]) => Pick<ProgramScreenInput, "evidence_authority" | "lot_overlay">;
   /** Reviewed evidence documenting the blocking condition, when the rule has one. */
   blocking: (() => CanonicalEvidenceRecord[]) | null;
   /** Captured text of the cited source, keyed by repo path. */
   captures: Readonly<Record<string, string>>;
 }
 
-function screen(criterion: ProgramCriterion, records: CanonicalEvidenceRecord[], asOf = AS_OF) {
+function screen(
+  criterion: ProgramCriterion,
+  records: CanonicalEvidenceRecord[],
+  asOf = AS_OF,
+  authority: VerifiedCriterionCase["authority"] = undefined,
+) {
   const result = evaluateProgramScreen({
     evidence_records: [...anchorEvidence(), ...records],
     as_of: asOf,
     packs: [packFor(criterion)],
+    ...(authority === undefined ? {} : authority(records)),
   });
   return { result, pathway: result.pathways[0], criterion: result.pathways[0].criteria[2] };
 }
@@ -266,7 +338,7 @@ function exerciseVerifiedCriterion(
 
   it("returns consistent_with_source for the exact positive case", () => {
     const { spy, criterion: spiedCriterion } = spied();
-    const { result, pathway, criterion: evaluated } = screen(spiedCriterion, testCase.positive());
+    const { result, pathway, criterion: evaluated } = screen(spiedCriterion, testCase.positive(), AS_OF, testCase.authority);
     expect(spy).toHaveBeenCalledTimes(1);
     expect(evaluated).toMatchObject({
       status: "consistent_with_source",
@@ -289,7 +361,7 @@ function exerciseVerifiedCriterion(
   if (testCase.blocking !== null) {
     const blocking = testCase.blocking;
     it("returns disqualifying_per_source for the exact blocking case", () => {
-      const { pathway, criterion: evaluated } = screen(criterion, blocking());
+      const { pathway, criterion: evaluated } = screen(criterion, blocking(), AS_OF, testCase.authority);
       expect(evaluated.status).toBe("disqualifying_per_source");
       expect(pathway).toMatchObject({
         rollup: "documented_disqualifier",
@@ -303,7 +375,7 @@ function exerciseVerifiedCriterion(
     for (const key of criterion.fact_keys) {
       const { spy, criterion: spiedCriterion } = spied();
       const records = testCase.positive().filter((record) => record.claim.key !== key);
-      const { pathway, criterion: evaluated } = screen(spiedCriterion, records);
+      const { pathway, criterion: evaluated } = screen(spiedCriterion, records, AS_OF, testCase.authority);
       expect(spy).not.toHaveBeenCalled();
       expect(evaluated.status).toBe("unknown");
       expect(evaluated.statement).toContain("missing evidence is not treated as a no");
@@ -326,7 +398,7 @@ function exerciseVerifiedCriterion(
       second.raw_observed_value = { kind: "text", value: "Second source value" };
       second.normalized_value = { kind: "text", value: "Second source value" };
     }
-    const { pathway, criterion: evaluated } = screen(spiedCriterion, [...records, second]);
+    const { pathway, criterion: evaluated } = screen(spiedCriterion, [...records, second], AS_OF, testCase.authority);
     expect(spy).not.toHaveBeenCalled();
     expect(evaluated.status).toBe("conflict");
     expect(pathway.rollup).toBe("contested");
@@ -338,7 +410,7 @@ function exerciseVerifiedCriterion(
       ...record,
       review_status: "unreviewed" as const,
     }));
-    const { result, pathway, criterion: evaluated } = screen(spiedCriterion, records);
+    const { result, pathway, criterion: evaluated } = screen(spiedCriterion, records, AS_OF, testCase.authority);
     expect(spy).not.toHaveBeenCalled();
     expect(evaluated).toMatchObject({
       status: "unreviewed",
@@ -353,7 +425,7 @@ function exerciseVerifiedCriterion(
   it("blocks release once its citation reaches the review date", () => {
     const record = criterion.human_verification as ProgramCriterionHumanVerification;
     const dueDate = record.next_review_at;
-    const { result, criterion: evaluated } = screen(criterion, testCase.positive(), dueDate);
+    const { result, criterion: evaluated } = screen(criterion, testCase.positive(), dueDate, testCase.authority);
     expect(evaluated.stale).toBe(true);
     expect(result.release.client_releasable).toBe(false);
     expect(result.release.blockers).toContainEqual(
@@ -539,6 +611,8 @@ describe("Program Screen criteria awaiting human verification", () => {
         question_if_judgment: "How does Planning apply this criterion?",
         permitted_outcomes: ["consistent_with_source", "disqualifying_per_source", "requires_judgment"] as const,
         verification: "repo_sourced" as const,
+        // Updated in Phase 3E: d carries a human record; a relabeled or unrecorded copy has none.
+        human_verification: null,
       };
       const unrecorded = { ...relabeled, verification: "human_verified" as const };
 
@@ -587,13 +661,19 @@ describe("Shipped human-verified Program Screen criteria", () => {
    * Behavior cases for each shipped human-verified criterion. Adding a
    * verified criterion without a case here fails the pin below.
    */
-  const verifiedCases: Record<string, Omit<VerifiedCriterionCase, "captures">> = {};
+  const verifiedCases: Record<string, Omit<VerifiedCriterionCase, "captures">> = {
+    // Phase 3E: d runs only through the CAL FIRE / OSFM PRC §4202 package, on a lot the gate overlays itself.
+    "la_shra.high-fire-hazard-severity-zone": {
+      positive: () => [highFireRecord("high-fire-lot", false)],
+      blocking: () => [highFireRecord("high-fire-lot", true)],
+      authority: highFireAuthority,
+    },
+  };
 
   it("pins exactly which shipped criteria have been human-verified", () => {
-    // Empty: the official sources were captured on 2026-09-27, but no human
-    // reviewer has approved a proposal yet. See
-    // docs/PROGRAM_SCREEN_CRITERION_VERIFICATION.md.
-    expect(verified.map((criterion) => criterion.id)).toEqual([]);
+    // Phase 3E: d, verified by Sergio Mata (Project Owner / Human Reviewer) on 2026-09-29 against the
+    // Phase 3B d decision (docs/PROGRAM_SCREEN_PHASE_3E_D_PROMOTION_REVIEW.md).
+    expect(verified.map((criterion) => criterion.id)).toEqual(["la_shra.high-fire-hazard-severity-zone"]);
     expect(Object.keys(verifiedCases).sort()).toEqual(
       verified.map((criterion) => criterion.id).sort(),
     );
@@ -608,10 +688,12 @@ describe("Shipped human-verified Program Screen criteria", () => {
       .map((criterion) => criterion.id);
 
     // Changing this list means a person verified a new rule; review it as such.
+    // Updated in Phase 3E: d.
     expect(executable).toEqual([
       "la_shra.parcel-match",
       "la_shra.jurisdiction",
       "la_shra.implementation-memo-scope",
+      "la_shra.high-fire-hazard-severity-zone",
       "la_sb79.parcel-match",
       "la_sb79.jurisdiction",
       "la_low_rise.parcel-match",

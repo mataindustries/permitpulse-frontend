@@ -1,5 +1,11 @@
-import type { ProgramCriterion, ProgramCriterionException, ProgramPathwayPack } from "../types";
+import type {
+  ProgramCriterion,
+  ProgramCriterionException,
+  ProgramCriterionHumanVerification,
+  ProgramPathwayPack,
+} from "../types";
 import {
+  booleanFact,
   cite,
   jurisdictionCriterion,
   parcelMatchCriterion,
@@ -74,6 +80,39 @@ function shraSiteCategory(input: {
     question_if_conflict: `Official sources disagree on whether the parcel is in ${input.designation}. Which source governs for SHRA review?`,
   });
 }
+
+/**
+ * d, `la_shra.high-fire-hazard-severity-zone`, human-verified in Phase 3E
+ * (docs/PROGRAM_SCREEN_PHASE_3E_D_PROMOTION_REVIEW.md): the encoded Phase 3B d
+ * rule. It reads only the High fact. Every source, whole-lot coverage, and
+ * legal-lot condition is enforced before it runs, by the authority gate, which
+ * computes the lot overlay itself from a reviewed lot geometry and the pinned
+ * PRC §4202 dataset. No production path supplies reviewed overlay inputs yet,
+ * so a real parcel's High fact is never established and d stays unknown for it.
+ */
+const highFirePinpoint = "Memo Part I, Environmental Criteria, page 4, prohibited category 3 and footnote 1";
+/** Dated on the verification day: the shared memo citation (2026-09-17) predates the memo capture (2026-09-27). */
+const highFireCitation = { ...cite("shraMemo", highFirePinpoint), verified_at: "2026-09-29", next_review_at: "2026-10-29" };
+const highFireVerification: ProgramCriterionHumanVerification = {
+  reviewer: { kind: "human", name: "Sergio Mata", role: "Project Owner / Human Reviewer" },
+  verified_at: "2026-09-29",
+  next_review_at: "2026-10-29",
+  source_title: "Los Angeles City Planning — SHRA implementation memo (October 28, 2025; SB 684, SB 1123, AB 130)",
+  source_url: "https://planning.lacity.gov/odocument/1b081b86-f735-43e8-bba6-c2d73a192db7/SB_684_1123_Memo_Update_ACP.pdf",
+  instrument: "City of Los Angeles SHRA implementation memo, October 28, 2025",
+  pinpoint: highFirePinpoint,
+  supporting_excerpt: memoFireCategory,
+  source_capture: {
+    repo_path: "app/fixtures/program-screen/official-sources/shra-2025-10-28/extracted.txt",
+    retrieved_at: "2026-09-27T16:19:20Z",
+    capture_method: "pdf_text_extraction",
+    sha256: "f44574084091c51419d0475d4b8501d9a2c3577b3a16830fc6ecb2a88b20f6e2",
+    is_ai_generated: false,
+    source_type: "official_memo",
+    operative_status: "operative",
+  },
+  decision_ref: { phase: "3B", letter: "d" },
+};
 
 export const shraPathway = {
   id: "la_shra",
@@ -420,17 +459,29 @@ export const shraCriteria: readonly ProgramCriterion[] = [
     // either route is enough; a NO needs both (statutory_routes_assessed_separately).
     statutory_routes: { fact_key: "very-high-fire-hazard-severity-zone", routes: ["gov_51178", "prc_4202"] },
   },
-  shraSiteCategory({
-    id: "la_shra.high-fire-hazard-severity-zone",
-    label: "SHRA prohibited site category: High Fire Hazard Severity Zone",
-    fact: "high-fire-hazard-severity-zone",
-    pinpoint: "Memo Part I, Environmental Criteria, page 4, prohibited category 3 and footnote 1",
-    excerpts: [memoFireCategory, memoFireFootnote, memoProhibitedIntro],
-    summary:
-      "The memo bars High and Very High Fire Hazard Severity Zones in state and local responsibility areas. This criterion covers High only and reads its own fact; the Very High record never stands in for it.",
-    permitted: ["consistent_with_source", "disqualifying_per_source", "requires_judgment"],
-    designation: "a High Fire Hazard Severity Zone",
-  }),
+  {
+    ...shraSiteCategory({
+      id: "la_shra.high-fire-hazard-severity-zone",
+      label: "SHRA prohibited site category: High Fire Hazard Severity Zone",
+      fact: "high-fire-hazard-severity-zone",
+      pinpoint: highFirePinpoint,
+      excerpts: [memoFireCategory, memoFireFootnote, memoProhibitedIntro],
+      summary:
+        "The memo bars High and Very High Fire Hazard Severity Zones in state and local responsibility areas. This criterion covers High only and reads its own fact; the Very High record never stands in for it.",
+      permitted: ["consistent_with_source", "disqualifying_per_source", "requires_judgment"],
+      designation: "a High Fire Hazard Severity Zone",
+    }),
+    // Phase 3E: human-verified. Outcome ceiling unchanged.
+    predicate: (facts) =>
+      booleanFact(facts, "high-fire-hazard-severity-zone") ? "disqualifying_per_source" : "consistent_with_source",
+    rule_summary:
+      "Phase 3B decision d. Disqualifying per source when a reviewed CAL FIRE / State Fire Marshal record under PRC §4202, a deterministic overlay of the reviewed legal-lot geometry on the registered SRA dataset, shows the whole lot proposed to be subdivided in High. Consistent with source when SRA features cover the whole lot, the legend defines High there, and no part of the lot is High. Partial coverage, land outside the SRA, an unclear legal lot, GOV §51178, and any other source stay unknown. Very High is criterion c.",
+    question_if_judgment:
+      "How does Planning apply the SHRA High Fire Hazard Severity Zone site category (memo page 4, prohibited category 3) to the lot proposed to be subdivided?",
+    citation: highFireCitation,
+    verification: "human_verified",
+    human_verification: highFireVerification,
+  },
   shraSiteCategory({
     id: "la_shra.natural-community-conservation-plan-land",
     label: "SHRA prohibited site category: land identified for conservation in a natural community conservation plan",

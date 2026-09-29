@@ -842,11 +842,17 @@ describe("5. d: YES and NO through the package, and only with lot coverage and t
     expect(failureCodes(dResult(true, {}, (draft) => (draft.qualifiers.named_agency = "other_agency")))).toContain("statutory_agency_not_recorded");
   });
 
-  it("keeps d pending: only the two human gates remain, and the shipped d has no human record", () => {
+  // Updated in Phase 3E: the reviewer promoted d (docs/PROGRAM_SCREEN_PHASE_3E_D_PROMOTION_REVIEW.md).
+  // Only the human record met the two gates Phase 3D left; every package gate is as Phase 3D set it.
+  it("left d only the two human gates, which its Phase 3E human record now meets", () => {
     const d = programScreenPathwayPacks.flatMap((entry) => entry.criteria).find((criterion) => criterion.id === D) as ProgramCriterion;
-    expect(d).toMatchObject({ verification: "pending_human", human_verification: null, predicate: "not_encoded" });
-    expect(authorityPromotionBlockers(d, programAuthorityRegistries, false)).toEqual(["reviewer_confirms_encoded_rule", "human_verification_record"]);
-    expect(criterionAwaitsHumanVerification(d)).toBe(true);
+    expect(d).toMatchObject({ verification: "human_verified", human_verification: { decision_ref: { phase: "3B", letter: "d" } } });
+    expect(authorityPromotionBlockers({ ...d, human_verification: null }, programAuthorityRegistries, false)).toEqual([
+      "reviewer_confirms_encoded_rule",
+      "human_verification_record",
+    ]);
+    expect(authorityPromotionBlockers(d, programAuthorityRegistries, true)).toEqual([]);
+    expect(criterionAwaitsHumanVerification(d)).toBe(false);
   });
 });
 
@@ -928,21 +934,25 @@ describe("7. Invariants", () => {
   // The same pins as every earlier phase: registration changes no fixture output.
   const EVALUATOR_OUTPUT_SHA256 = "68341529825b41e7dcd3b25a5daec94385fe6641e07cc03d29003c94c256b45a";
   const PUBLIC_DEMO_OUTPUT_SHA256 = "11081860902438dd881cb743c98de30f4b4c3c425675a6e0eb2b6d41474a84a1";
+  // Updated in Phase 3E: d's promotion moved the output pins (the Phase 3D record keeps the ones above).
+  const PHASE_3E_EVALUATOR_OUTPUT_SHA256 = "156dd1f41964ab5beebcf3882e0a0d653cc5d778939033bf2b752dba1e86afbc";
+  const PHASE_3E_PUBLIC_DEMO_OUTPUT_SHA256 = "4dd2735bab875ad40b123fec72020e16442737bc6b5052eb55c5fba374b9a8a5";
   const criteria = programScreenPathwayPacks.flatMap((entry) => entry.criteria);
 
-  it("promotes nothing: human_verified is 0 and pending_human is 46, every guarded criterion blocked", () => {
-    expect(criteria.filter((criterion) => criterion.verification === "human_verified")).toEqual([]);
-    expect(criteria.filter((criterion) => criterion.verification === "pending_human")).toHaveLength(46);
-    for (const criterion of criteria.filter((candidate) => promotionGuardedCriterionIds.has(candidate.id))) {
+  // Updated in Phase 3E: d alone is human-verified; every other guarded criterion is still blocked.
+  it("promotes only d: human_verified is 1 and pending_human is 45, every other guarded criterion blocked", () => {
+    expect(criteria.filter((criterion) => criterion.verification === "human_verified").map((criterion) => criterion.id)).toEqual([D]);
+    expect(criteria.filter((criterion) => criterion.verification === "pending_human")).toHaveLength(45);
+    for (const criterion of criteria.filter((candidate) => promotionGuardedCriterionIds.has(candidate.id) && candidate.id !== D)) {
       expect(authorityPromotionBlockers(criterion, programAuthorityRegistries, false).length, criterion.id).toBeGreaterThan(0);
     }
   });
 
-  it("keeps the evaluator and public-demo output byte-identical", async () => {
+  it("keeps the evaluator and public-demo output byte-identical (moved only by the Phase 3E promotion)", async () => {
     const result = evaluateProgramScreen({ evidence_records: fixtureJson.evidence_records, as_of: fixtureJson.as_of });
     const demo = buildProgramScreenPublicDemoPayload(fixtureJson, { as_of: fixtureJson.as_of });
-    expect(await sha256Hex(JSON.stringify(result))).toBe(EVALUATOR_OUTPUT_SHA256);
-    expect(await sha256Hex(JSON.stringify(demo))).toBe(PUBLIC_DEMO_OUTPUT_SHA256);
+    expect(await sha256Hex(JSON.stringify(result))).toBe(PHASE_3E_EVALUATOR_OUTPUT_SHA256);
+    expect(await sha256Hex(JSON.stringify(demo))).toBe(PHASE_3E_PUBLIC_DEMO_OUTPUT_SHA256);
   });
 
   it("keeps the SHRA completeness blockers G1 and G2 open", () => {

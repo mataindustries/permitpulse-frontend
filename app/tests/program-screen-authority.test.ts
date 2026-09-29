@@ -85,7 +85,8 @@ const PHASE_3B_GATES: Readonly<Record<string, readonly string[]>> = Object.fromE
 /** Phase 3D: the gates still unmet for c and d once the CAL FIRE SRA package is registered. */
 const PHASE_3D_UNMET: Readonly<Record<string, readonly string[]>> = {
   "la_shra.very-high-fire-hazard-severity-zone": ["statutory_route_recorded", "reviewer_confirms_encoded_rule", "human_verification_record"],
-  "la_shra.high-fire-hazard-severity-zone": ["reviewer_confirms_encoded_rule", "human_verification_record"],
+  // Updated in Phase 3E: d is human-verified, so no gate of d is unmet.
+  "la_shra.high-fire-hazard-severity-zone": [],
 };
 const refToken = (ref: { round?: number; phase?: string; letter: string }) =>
   ref.phase === undefined ? `${ref.round}${ref.letter}` : `${ref.phase}${ref.letter}`;
@@ -1439,11 +1440,12 @@ describe("9. The promotion guard protects all 46 atomic criteria", () => {
       const promoted = promote(original, spy);
       expect(hasCompleteHumanVerification(promoted), id).toBe(true);
       if (id === "la_shra.high-fire-hazard-severity-zone") {
-        // Phase 3D: the package meets every gate of d but the human record itself, so d now waits
-        // only on an explicit human promotion step. The shipped d has no record and stays pending.
+        // Phase 3D: the package meets every gate of d but the human record itself.
+        // Updated in Phase 3E: the reviewer promoted d; the shipped d carries its record and runs.
         expect(criterionPromotionBlockers(promoted), id).toEqual([]);
-        expect(original.verification, id).toBe("pending_human");
-        expect(criterionAwaitsHumanVerification(original), id).toBe(true);
+        expect(original.verification, id).toBe("human_verified");
+        expect(criterionPromotionBlockers(original), id).toEqual([]);
+        expect(criterionAwaitsHumanVerification(original), id).toBe(false);
         continue;
       }
       expect(criterionAwaitsHumanVerification(promoted), id).toBe(true);
@@ -1515,8 +1517,10 @@ describe("10. Production output is unchanged while every affected criterion stay
   // Phase 3C moved these pins for the three reviewed client-label changes only
   // (c, d, g; docs/PROGRAM_SCREEN_PHASE_3C_PROMOTION_GATES.md). Every status,
   // roll-up, and release decision is unchanged.
-  const EVALUATOR_OUTPUT_SHA256 = "68341529825b41e7dcd3b25a5daec94385fe6641e07cc03d29003c94c256b45a";
-  const PUBLIC_DEMO_OUTPUT_SHA256 = "11081860902438dd881cb743c98de30f4b4c3c425675a6e0eb2b6d41474a84a1";
+  // Updated in Phase 3E: d is human-verified (its verification, rule kind, rule summary, citation dates,
+  // and its own pending_human_criterion blocker and review task). Every status and roll-up is unchanged.
+  const EVALUATOR_OUTPUT_SHA256 = "156dd1f41964ab5beebcf3882e0a0d653cc5d778939033bf2b752dba1e86afbc";
+  const PUBLIC_DEMO_OUTPUT_SHA256 = "4dd2735bab875ad40b123fec72020e16442737bc6b5052eb55c5fba374b9a8a5";
   const shipped = programScreenPathwayPacks.flatMap((pack) => pack.criteria);
 
   it("keeps the evaluator and public-demo output byte-identical", async () => {
@@ -1532,9 +1536,12 @@ describe("10. Production output is unchanged while every affected criterion stay
     expect(JSON.stringify(withEmptySidecar)).toBe(JSON.stringify(result));
   });
 
-  it("promotes nothing and never runs the gate on the shipped screen", () => {
-    expect(shipped.filter((criterion) => criterion.verification === "human_verified")).toEqual([]);
-    expect(shipped.filter((criterion) => criterion.verification === "pending_human")).toHaveLength(46);
+  // Updated in Phase 3E: d alone is promoted; the fixture holds no High record, so its gate still never runs.
+  it("promotes only d and never runs the gate on the shipped screen", () => {
+    expect(shipped.filter((criterion) => criterion.verification === "human_verified").map((criterion) => criterion.id)).toEqual([
+      "la_shra.high-fire-hazard-severity-zone",
+    ]);
+    expect(shipped.filter((criterion) => criterion.verification === "pending_human")).toHaveLength(45);
     const result = evaluateProgramScreen({ evidence_records: fixtureJson.evidence_records, as_of: fixtureJson.as_of });
     expect(JSON.stringify(result)).not.toContain('"authority"');
     const statuses = new Map(result.pathways.flatMap((pathway) => pathway.criteria).map((criterion) => [criterion.criterion_id, criterion.status]));

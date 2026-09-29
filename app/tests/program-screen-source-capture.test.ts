@@ -1159,6 +1159,11 @@ describe("Proposed verification records", () => {
         professional_judgment: ["professional_judgment", 0],
       };
       const [predicate, count] = expected[component.disposition];
+      // Updated in Phase 3E: d, a deterministic candidate, is human-verified and carries its encoded rule.
+      if (criterion.verification === "human_verified") {
+        expect([component.disposition, typeof criterion.predicate, directions], component.component_id).toEqual(["deterministic_candidate", "function", 2]);
+        continue;
+      }
       expect([criterion.predicate, directions], component.component_id).toEqual([predicate, count]);
     }
   });
@@ -1406,9 +1411,10 @@ describe("Fail-closed behavior after this capture pass", () => {
   const shipped = programScreenPathwayPacks.flatMap((pack) => pack.criteria);
   const fixture = parseProgramScreenFixture(fixtureJson);
 
-  it("keeps all 46 atomic criteria pending_human, without a rule or a record", () => {
+  // Updated in Phase 3E: d alone is human-verified; the other 45 are unchanged.
+  it("keeps the other 45 atomic criteria pending_human, without a rule or a record", () => {
     expect(humanVerificationRequiredCriterionIds).toHaveLength(46);
-    for (const id of humanVerificationRequiredCriterionIds) {
+    for (const id of humanVerificationRequiredCriterionIds.filter((candidate) => candidate !== "la_shra.high-fire-hazard-severity-zone")) {
       const criterion = shipped.find((candidate) => candidate.id === id);
       expect(criterion, id).toMatchObject({ verification: "pending_human", human_verification: null });
       expect(typeof criterion?.predicate, id).not.toBe("function");
@@ -1417,7 +1423,7 @@ describe("Fail-closed behavior after this capture pass", () => {
     for (const id of retiredProgramCriterionIds) {
       expect(shipped.find((candidate) => candidate.id === id), id).toBeUndefined();
     }
-    expect(shipped.filter((criterion) => criterion.verification === "human_verified")).toEqual([]);
+    expect(shipped.filter((criterion) => criterion.verification === "human_verified").map((criterion) => criterion.id)).toEqual(["la_shra.high-fire-hazard-severity-zone"]);
   });
 
   it("still blocks a TEST-ONLY verified rule once its citation is due for review", () => {
@@ -1444,9 +1450,10 @@ describe("Fail-closed behavior after this capture pass", () => {
     expect(result.release.client_releasable).toBe(false);
   });
 
-  it("keeps the public demo non-releasable with 46 pending criteria", () => {
+  // Updated in Phase 3E: d is human-verified.
+  it("keeps the public demo non-releasable with 45 pending criteria", () => {
     const payload = buildProgramScreenPublicDemoPayload(fixtureJson, { as_of: fixture.as_of });
     expect(payload.release.client_releasable).toBe(false);
-    expect(payload.release.blocker_counts.pending_human_criterion).toBe(46);
+    expect(payload.release.blocker_counts.pending_human_criterion).toBe(45);
   });
 });

@@ -1130,13 +1130,15 @@ describe("11. Invariants: nothing promoted, output unchanged", () => {
   // Phase 3C moved these pins for the three reviewed client-label changes only
   // (c, d, g; docs/PROGRAM_SCREEN_PHASE_3C_PROMOTION_GATES.md). Every status,
   // roll-up, and release decision is unchanged.
-  const EVALUATOR_OUTPUT_SHA256 = "68341529825b41e7dcd3b25a5daec94385fe6641e07cc03d29003c94c256b45a";
-  const PUBLIC_DEMO_OUTPUT_SHA256 = "11081860902438dd881cb743c98de30f4b4c3c425675a6e0eb2b6d41474a84a1";
+  // Updated in Phase 3E: the reviewed promotion of d moved them.
+  const EVALUATOR_OUTPUT_SHA256 = "156dd1f41964ab5beebcf3882e0a0d653cc5d778939033bf2b752dba1e86afbc";
+  const PUBLIC_DEMO_OUTPUT_SHA256 = "4dd2735bab875ad40b123fec72020e16442737bc6b5052eb55c5fba374b9a8a5";
 
-  it("keeps human_verified at 0 and pending_human at 46", () => {
+  // Updated in Phase 3E: d alone is human-verified.
+  it("keeps human_verified at 1 (d) and pending_human at 45", () => {
     const shipped = programScreenPathwayPacks.flatMap((pack) => pack.criteria);
-    expect(shipped.filter((criterion) => criterion.verification === "human_verified")).toEqual([]);
-    expect(shipped.filter((criterion) => criterion.verification === "pending_human")).toHaveLength(46);
+    expect(shipped.filter((criterion) => criterion.verification === "human_verified").map((criterion) => criterion.id)).toEqual(["la_shra.high-fire-hazard-severity-zone"]);
+    expect(shipped.filter((criterion) => criterion.verification === "pending_human")).toHaveLength(45);
   });
 
   it("keeps the evaluator and public-demo output byte-identical", async () => {

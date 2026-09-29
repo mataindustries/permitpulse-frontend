@@ -711,7 +711,8 @@ describe("Program Screen criterion citations", () => {
     for (const criterion of criteria) {
       expect(criterion.citation.url).toMatch(/^https:\/\//);
       expect(criterion.citation.pinpoint.length).toBeGreaterThan(0);
-      expect(criterion.citation.verified_at).toBe("2026-09-17");
+      // Updated in Phase 3E: d's citation carries its human verification date.
+      expect(criterion.citation.verified_at).toBe(criterion.id === "la_shra.high-fire-hazard-severity-zone" ? "2026-09-29" : "2026-09-17");
       expect(criterion.citation.next_review_at > criterion.citation.verified_at).toBe(true);
       expect(criterion.basis.excerpts.length).toBeGreaterThan(0);
     }
@@ -820,11 +821,13 @@ describe("Program Screen documented disqualifiers fail closed", () => {
       .map((criterion) => criterion.id);
 
     // Changing this list means a person verified a new rule; review it as such.
+    // Updated in Phase 3E: d, human-verified by Sergio Mata on 2026-09-29.
     expect(runnable).toEqual([
       "la_shra.parcel-match",
       "la_shra.jurisdiction",
       "la_shra.implementation-memo-scope",
       "la_shra.vacant-site-definition",
+      "la_shra.high-fire-hazard-severity-zone",
       "la_sb79.parcel-match",
       "la_sb79.jurisdiction",
       "la_low_rise.parcel-match",

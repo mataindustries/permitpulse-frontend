@@ -77,16 +77,18 @@ import {
 import { REAL_LOT_NAMES, realLotOverlay, syntheticLotOverlay, type RealLotName } from "./program-screen-overlay-helpers";
 
 /**
- * Phase 3E: first production promotion review, for
- * la_shra.high-fire-hazard-severity-zone (d) only. Nothing here promotes d:
- * the shipped d stays pending_human with no rule and no human record.
+ * Phase 3E: the first production promotion, of
+ * la_shra.high-fire-hazard-severity-zone (d) only. The reviewer kept d pending
+ * until F1 was fixed, then approved the promotion ("APPROVE D PROMOTION",
+ * 2026-09-29). The approved rule, rule summary, judgment question, citation
+ * dates, and human-verification record are written out below as constants;
+ * section 1 checks that the shipped d is exactly them. `promotedD()` is the
+ * shipped d; `pendingD()` is d as it shipped before, for comparison.
  *
- * `promotedD()` is the PROPOSED promotion, built in this test only: the
- * shipped d plus the encoded rule, citation dates, and human-verification
- * record that would ship if the human reviewer approves. Every check runs it
- * against its real Phase 3B requirement and the SHIPPED registries (the real
- * CAL FIRE / OSFM package), never a TEST-ONLY requirement. Every lot, lot
- * geometry, and case record is TEST-ONLY and fictional.
+ * Every check runs d against its real Phase 3B requirement and the SHIPPED
+ * registries (the real CAL FIRE / OSFM package), never a TEST-ONLY
+ * requirement. Every lot, lot geometry, and case record is TEST-ONLY and
+ * fictional.
  *
  * F1 (Phase 3E): whole-lot coverage and the classes on the lot are computed
  * by the gate's lot overlay from a reviewed lot geometry and the pinned
@@ -126,9 +128,12 @@ const D_GATES = [
   ...REVIEWER_GATES,
 ] as const;
 
-// The shipped state these tests were written against (Phase 3D, PR #26).
+// The shipped output before the promotion (Phase 3D, PR #26, and the F1 fix, which changed no output).
 const EVALUATOR_OUTPUT_SHA256 = "68341529825b41e7dcd3b25a5daec94385fe6641e07cc03d29003c94c256b45a";
 const PUBLIC_DEMO_OUTPUT_SHA256 = "11081860902438dd881cb743c98de30f4b4c3c425675a6e0eb2b6d41474a84a1";
+// After the approved promotion of d: the projections the reviewer approved, reproduced exactly.
+const PROMOTED_EVALUATOR_OUTPUT_SHA256 = "156dd1f41964ab5beebcf3882e0a0d653cc5d778939033bf2b752dba1e86afbc";
+const PROMOTED_PUBLIC_DEMO_OUTPUT_SHA256 = "4dd2735bab875ad40b123fec72020e16442737bc6b5052eb55c5fba374b9a8a5";
 
 const mapMetadata = parseOfficialSourceMetadata(mapMetadataJson);
 const regulationMetadata = parseOfficialSourceMetadata(regulationMetadataJson);
@@ -198,20 +203,18 @@ function proposedRecord(citation: ProgramCriterion["citation"]): ProgramCriterio
   };
 }
 
-/** d as it would ship if promoted. TEST-ONLY until the reviewer approves. */
+/**
+ * The shipped d. Since the reviewer approved the promotion ("APPROVE D
+ * PROMOTION", 2026-09-29), it is exactly the proposal above; section 1 checks
+ * that field by field.
+ */
 function promotedD(overrides: Partial<ProgramCriterion> = {}): ProgramCriterion {
-  const base = shipped(D);
-  const citation = { ...base.citation, verified_at: PROPOSED_VERIFIED_AT, next_review_at: PROPOSED_NEXT_REVIEW_AT };
-  return {
-    ...base,
-    predicate: proposedPredicate,
-    rule_summary: PROPOSED_RULE_SUMMARY,
-    question_if_judgment: PROPOSED_QUESTION_IF_JUDGMENT,
-    citation,
-    verification: "human_verified",
-    human_verification: proposedRecord(citation),
-    ...overrides,
-  };
+  return { ...shipped(D), ...overrides };
+}
+
+/** d as it shipped before the promotion: pending, no rule, no record (TEST-ONLY, for comparison). */
+function pendingD(): ProgramCriterion {
+  return { ...shipped(D), predicate: "not_encoded", question_if_judgment: null, verification: "pending_human", human_verification: null };
 }
 
 const withPromotedD = (criterion: ProgramCriterion = promotedD()): ProgramPathwayPack[] =>
@@ -419,35 +422,60 @@ function packageCaptures(change: (captures: Map<string, PackageCapture>) => void
 
 /* ======================================================================== */
 
-describe("1. The shipped state before any promotion decision", () => {
-  it("keeps d pending_human with no rule and no record; only the two human gates are unmet", () => {
+describe("1. The shipped state after the approved promotion of d", () => {
+  it("ships exactly the approved rule, rule summary, judgment question, citation, and human-verification record", () => {
     const d = shipped(D);
-    expect(d).toMatchObject({ verification: "pending_human", human_verification: null, predicate: "not_encoded" });
-    expect(d.permitted_outcomes).toEqual(["consistent_with_source", "disqualifying_per_source", "requires_judgment"]);
+    const citation = { ...shipped(C).citation, pinpoint: d.citation.pinpoint, verified_at: PROPOSED_VERIFIED_AT, next_review_at: PROPOSED_NEXT_REVIEW_AT };
+    expect(d).toMatchObject({
+      verification: "human_verified",
+      rule_summary: PROPOSED_RULE_SUMMARY,
+      question_if_judgment: PROPOSED_QUESTION_IF_JUDGMENT,
+      citation,
+      permitted_outcomes: ["consistent_with_source", "disqualifying_per_source", "requires_judgment"],
+      fact_keys: [HIGH],
+      exception_paths: [],
+    });
+    expect(d.human_verification).toEqual(proposedRecord(citation));
+    expect(d.human_verification).toMatchObject({ verified_at: "2026-09-29", next_review_at: "2026-10-29", decision_ref: { phase: "3B", letter: "d" } });
+    const rule = d.predicate as CriterionPredicate;
+    expect(typeof rule).toBe("function");
+    for (const value of [true, false]) {
+      expect(rule({ [HIGH]: { kind: "boolean", value } }), String(value)).toBe(proposedPredicate({ [HIGH]: { kind: "boolean", value } }));
+    }
+    expect(() => rule({ [VH]: { kind: "boolean", value: true } })).toThrow();
+  });
+
+  it("meets every d gate with its record: the reviewer gates were the only two left", () => {
+    const d = shipped(D);
     const requirement = programAuthorityRegistries.criterion_requirements[D];
     expect(requirement).toMatchObject({ applicability: "enforced", decision_ref: { phase: "3B", letter: "d" } });
     expect(requirement.promotion_gates).toEqual([...D_GATES]);
-    expect(authorityPromotionBlockers(d, programAuthorityRegistries, false)).toEqual([...REVIEWER_GATES]);
-    expect(criterionPromotionBlockers(d)).toEqual([...REVIEWER_GATES]);
-    expect(criterionAwaitsHumanVerification(d)).toBe(true);
+    expect(criterionPromotionBlockers(d)).toEqual([]);
+    expect(authorityPromotionBlockers(pendingD(), programAuthorityRegistries, false)).toEqual([...REVIEWER_GATES]);
+    expect(criterionAwaitsHumanVerification(d)).toBe(false);
   });
 
-  it("counts human_verified 0 and pending_human 46", () => {
-    expect(shippedCriteria.filter((criterion) => criterion.verification === "human_verified")).toEqual([]);
-    expect(shippedCriteria.filter((criterion) => criterion.verification === "pending_human")).toHaveLength(46);
+  it("promotes d alone: human_verified 1 and pending_human 45; c stays blocked by GOV §51178", () => {
+    expect(shippedCriteria.filter((criterion) => criterion.verification === "human_verified").map((criterion) => criterion.id)).toEqual([D]);
+    expect(shippedCriteria.filter((criterion) => criterion.verification === "pending_human")).toHaveLength(45);
+    for (const id of [C, E, F, G]) expect(shipped(id), id).toMatchObject({ verification: "pending_human", human_verification: null, predicate: "not_encoded" });
+    expect(criterionPromotionBlockers(shipped(C))).toEqual(["statutory_route_recorded", ...REVIEWER_GATES]);
   });
 
-  it("pins the evaluator and public-demo output", async () => {
+  it("pins the evaluator and public-demo output to the approved projections", async () => {
     const result = evaluateProgramScreen({ evidence_records: fixtureJson.evidence_records, as_of: fixtureJson.as_of });
     const demo = buildProgramScreenPublicDemoPayload(fixtureJson, { as_of: fixtureJson.as_of });
-    expect(await sha256Hex(JSON.stringify(result))).toBe(EVALUATOR_OUTPUT_SHA256);
-    expect(await sha256Hex(JSON.stringify(demo))).toBe(PUBLIC_DEMO_OUTPUT_SHA256);
+    expect(await sha256Hex(JSON.stringify(result))).toBe(PROMOTED_EVALUATOR_OUTPUT_SHA256);
+    expect(await sha256Hex(JSON.stringify(demo))).toBe(PROMOTED_PUBLIC_DEMO_OUTPUT_SHA256);
+    // Before the promotion, the same fixture gave the Phase 3D output.
+    const before = evaluateProgramScreen({ evidence_records: fixtureJson.evidence_records, as_of: fixtureJson.as_of, packs: withPromotedD(pendingD()) });
+    expect(await sha256Hex(JSON.stringify(before))).not.toBe(PROMOTED_EVALUATOR_OUTPUT_SHA256);
   });
 });
 
 /* ======================================================================== */
 
-describe("2. The proposal is well-formed and meets every gate only through the shipped registries", () => {
+describe("2. The promoted d is well-formed and meets every gate only through the shipped registries", () => {
   it("parses as a shipped criterion inside the real SHRA pack, and every gate is met", () => {
     const candidate = promotedD();
     expect(programCriterionSchema.safeParse(candidate).success).toBe(true);
@@ -463,9 +491,10 @@ describe("2. The proposal is well-formed and meets every gate only through the s
     expect(await sha256Hex(memoExtracted)).toBe(record.source_capture.sha256);
     expect(excerptAppearsInCapture(record.supporting_excerpt, memoExtracted)).toBe(true);
     expect(record.decision_ref).toEqual(programAuthorityRegistries.criterion_requirements[D].decision_ref);
-    // The shared memo citation (2026-09-17) predates the capture (2026-09-27), so a record can
-    // match d's citation only if d's citation carries the actual verification date.
-    expect(memoMetadata.retrieved_at.slice(0, 10) > shipped(D).citation.verified_at).toBe(true);
+    // The shared memo citation (2026-09-17, still c's) predates the capture (2026-09-27), so a record can
+    // match d's citation only because d's citation carries the actual verification date.
+    expect(memoMetadata.retrieved_at.slice(0, 10) > shipped(C).citation.verified_at).toBe(true);
+    expect(shipped(D).citation.verified_at).toBe(record.verified_at);
     expect(record.verified_at >= memoMetadata.retrieved_at.slice(0, 10)).toBe(true);
   });
 
@@ -1023,8 +1052,8 @@ describe("5. Promotion safety", () => {
   });
 
   it("changes nothing else on the fixture: every other criterion, fact, and roll-up is identical", () => {
-    const before = evaluateProgramScreen({ evidence_records: fixtureJson.evidence_records, as_of: fixtureJson.as_of });
-    const after = evaluateProgramScreen({ evidence_records: fixtureJson.evidence_records, as_of: fixtureJson.as_of, packs: withPromotedD() });
+    const before = evaluateProgramScreen({ evidence_records: fixtureJson.evidence_records, as_of: fixtureJson.as_of, packs: withPromotedD(pendingD()) });
+    const after = evaluateProgramScreen({ evidence_records: fixtureJson.evidence_records, as_of: fixtureJson.as_of });
     expect(after.facts).toEqual(before.facts);
     expect(after.screen_id).toBe(before.screen_id);
     expect(after.counts).toEqual(before.counts);
@@ -1140,6 +1169,9 @@ describe("6. The Phase 3E record", () => {
       header.members.dbf,
       EVALUATOR_OUTPUT_SHA256,
       PUBLIC_DEMO_OUTPUT_SHA256,
+      PROMOTED_EVALUATOR_OUTPUT_SHA256,
+      PROMOTED_PUBLIC_DEMO_OUTPUT_SHA256,
+      "APPROVE D PROMOTION",
       "lot_within_features",
       "KEEP D PENDING",
     ]) {

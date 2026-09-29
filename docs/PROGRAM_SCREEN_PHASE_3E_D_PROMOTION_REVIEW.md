@@ -1,12 +1,48 @@
-# Program Screen Phase 3E: promotion review of d, and the F1 lot-overlay fix
+# Program Screen Phase 3E: the promotion of d, and the F1 lot-overlay fix
 
-Phase 3E reviews one criterion for the first production promotion: d, `la_shra.high-fire-hazard-severity-zone`. The reviewer's first answer was **KEEP D PENDING**: the audit found F1, and the reviewer asked for F1 to be fixed and the audit re-run before any promotion decision.
+Phase 3E is the first production promotion of an atomic criterion: d, `la_shra.high-fire-hazard-severity-zone`, and only d. Decided 2026-09-29 by **Sergio Mata, Project Owner / Human Reviewer**, in two steps:
 
-- **Nothing is promoted.** `human_verified` = 0 and `pending_human` = 46. d stays `pending_human`, with no encoded rule and no human verification record. c, e, f, and g are unchanged.
+1. **KEEP D PENDING.** The promotion audit found F1 (below). The reviewer asked for F1 to be fixed and the audit re-run before any decision.
+2. **APPROVE D PROMOTION**, on the completed post-F1 audit. The reviewer approved the encoded d rule, rule summary, judgment question, and human-verification record exactly as proposed, with `verified_at` 2026-09-29, `next_review_at` 2026-10-29, and `decision_ref` `{ phase: "3B", letter: "d" }`.
+
+Result:
+
+- **d alone is `human_verified`**: `human_verified` = 1 and `pending_human` = 45. c, e, f, and g stay `pending_human`; c is still blocked by `statutory_route_recorded` (GOV §51178 has no record kind). The G1 and G2 completeness blockers are unchanged and open.
+- **The outcome ceiling is unchanged**: consistent, disqualifying, or judgment.
 - **The CAL FIRE / OSFM package is unchanged**: its manifest, members, registration, and pins (`calfire-sra-fhsz-2023-09-29`, Phase 3D).
-- **The evaluator and public-demo output hashes are unchanged**: `68341529825b41e7dcd3b25a5daec94385fe6641e07cc03d29003c94c256b45a` and `11081860902438dd881cb743c98de30f4b4c3c425675a6e0eb2b6d41474a84a1`. The fictional fixture has no authority sidecar and no lot overlay.
+- **The Phase 3B record is unchanged.** It is history: its `status_after_review` still reads `pending_human`.
 
 Tests: `app/tests/program-screen-d-promotion-review-3e.test.ts`.
+
+## The production gap: real parcels still return unknown
+
+**The production system has no store for reviewed lot geometry or for overlay inputs.** d is now a human-verified, executable rule, but it can return YES or NO only for a lot whose High fact is established by a reviewed authority block through the CAL FIRE / OSFM package, with the gate's own overlay of a reviewed legal-lot geometry on the pinned FHSZSRA_23_3 polygons. No production caller supplies those inputs: the case-scoped evidence store for lot geometry (D10) and a store for the overlay index and records do not exist. Until reviewed overlay inputs are supplied through a production ingestion path, every real parcel's High fact stays unestablished, and d returns `unknown` for it.
+
+This gap is not permission to infer a parcel result. No parcel result may be inferred from a City or ZIMAS display, a map image, an address, a reviewer's reading of coverage, or anything else the gate does not compute. Closing the gap is a separate, reviewed change.
+
+## The promotion
+
+d's encoded rule reads only the High fact: `true` → `disqualifying_per_source`, `false` → `consistent_with_source`. Every source, whole-lot coverage, and legal-lot condition is enforced before it runs, by the authority gate. Changes, all in `app/src/shared/program-screen/criteria/shra.ts`, d only:
+
+| Field | Before | After |
+| --- | --- | --- |
+| `predicate` | `not_encoded` | the rule above |
+| `rule_summary` | "Rule not encoded. …" | the approved summary (Phase 3B decision d, as encoded) |
+| `question_if_judgment` | none | "How does Planning apply the SHRA High Fire Hazard Severity Zone site category (memo page 4, prohibited category 3) to the lot proposed to be subdivided?" |
+| `citation.verified_at` / `next_review_at` | 2026-09-17 / 2026-10-17 (the shared memo citation) | 2026-09-29 / 2026-10-29 (d only; the shared date predates the memo capture of 2026-09-27, which a record may not do) |
+| `verification` | `pending_human` | `human_verified` |
+| `human_verification` | none | reviewer Sergio Mata, the SHRA memo capture `shra-2025-10-28` (`f44574084091c51419d0475d4b8501d9a2c3577b3a16830fc6ecb2a88b20f6e2`), page 4 prohibited category 3 and footnote 1, `decision_ref` `{ phase: "3B", letter: "d" }` |
+
+d becomes stale on 2026-10-29: from then on it is a `stale_criterion` release blocker until it is re-verified.
+
+**Evaluator and public-demo output.** The F1 fix changed no output. The promotion moved both hashes to exactly the projections the reviewer approved:
+
+| | Before | After |
+| --- | --- | --- |
+| Evaluator SHA-256 | `68341529825b41e7dcd3b25a5daec94385fe6641e07cc03d29003c94c256b45a` | `156dd1f41964ab5beebcf3882e0a0d653cc5d778939033bf2b752dba1e86afbc` |
+| Public-demo SHA-256 | `11081860902438dd881cb743c98de30f4b4c3c425675a6e0eb2b6d41474a84a1` | `4dd2735bab875ad40b123fec72020e16442737bc6b5052eb55c5fba374b9a8a5` |
+
+The only causes are d's own fields (verification, rule kind, rule summary, citation dates) and the removal of its own `pending_human_criterion` release blocker and review task (45 pending blockers instead of 46). The fixture holds no High record, so d is `unknown` before and after; every other criterion result, fact, count, roll-up, and the screen ID are identical, and the fixture stays non-releasable.
 
 ## F1: whole-lot SRA coverage was attested, not computed
 
@@ -58,7 +94,7 @@ Every earlier check still applies: CAL FIRE named, PRC §4202 basis, adopted map
 
 **c is affected in the same way, explicitly.** The lot overlay belongs to the package, and c's Route 2 establishes through the same package, so Route 2 now also needs the computed overlay. c stays `pending_human` and never runs its rule, so no shipped output changes, and c's promotion gates are unchanged (`statutory_route_recorded` stays unmet).
 
-**Promotion gates are unchanged.** d still lists exactly the seven Phase 3B gates; only the two reviewer gates are unmet. The `prc_4202_map_coverage_and_legend_class_recorded` check now rests on computed lot coverage.
+**Promotion gates are unchanged.** d still lists exactly the seven Phase 3B gates. After the F1 fix only the two reviewer gates were unmet; d's human verification record now meets both. The `prc_4202_map_coverage_and_legend_class_recorded` check rests on computed lot coverage.
 
 ## Tests and test data
 
@@ -67,12 +103,10 @@ Every earlier check still applies: CAL FIRE named, PRC §4202 basis, adopted map
 - `app/tests/program-screen-overlay-helpers.ts` loads them, and builds TEST-ONLY datasets for TEST-ONLY packages, pinned by TEST-ONLY index pins passed like registries.
 - The Phase 2, 3C, and 3D tests now name TEST-ONLY lots instead of typed classes; their assertions about `map_covers_lot` are updated where Phase 3E supersedes them, and marked.
 
-## Proposed promotion (not applied)
-
-If the reviewer approves, d gains its encoded rule (`true` → `disqualifying_per_source`, `false` → `consistent_with_source`), a judgment question, a d-only citation dated on the approval day (the shared memo citation, 2026-09-17, predates the memo capture of 2026-09-27), and a human verification record citing the Phase 3B d decision and the SHRA memo capture. Expected then: `human_verified` = 1, `pending_human` = 45. The record is not written until the reviewer approves.
+Earlier tests that pinned "nothing promoted" (0 human-verified, 46 pending, the old output hashes, d pending, d's rule not encoded) are updated where Phase 3E supersedes them, and marked. `program-screen-verification.test.ts` runs its verified-criterion checks on d, through the package and the computed overlay.
 
 ## Not in Phase 3E
 
-- Promoting d, or any other criterion.
+- Promoting any criterion other than d.
 - GOV §51178, and c's Route 1.
-- The case-scoped evidence store for lot geometry (D10) and an external store for the overlay index and records. Until they exist, no production caller supplies overlay inputs, so no real lot can establish either hazard fact.
+- The production ingestion path for reviewed lot geometry and overlay inputs: the case-scoped evidence store (D10) and a store for the overlay index and records. Until it exists, real parcels return `unknown` on d (see [the production gap](#the-production-gap-real-parcels-still-return-unknown)).
