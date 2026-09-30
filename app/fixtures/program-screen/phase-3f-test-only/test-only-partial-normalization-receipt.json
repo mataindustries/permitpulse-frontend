@@ -1,15 +1,15 @@
 {
   "schema_version": "program-screen-normalization-receipt-v1",
   "profile_id": "boe-3857-ca-south-3310-proj-9-9-0-v1",
-  "profile_sha256": "a72210c70aa3e143845385fc0f3b80cbf3a5653d3614ed6c3c724a5823c0c6c4",
+  "profile_sha256": "ffee429a5802debb84bd646db60f15130090384ecb6765e1b4d4827ff7b0a1c2",
   "implementation": {
     "name": "PROJ",
     "version": "9.9.0",
     "libtiff_version": "4.7.2",
-    "normalizer_version": "1.0.0",
+    "normalizer_version": "1.0.1",
     "python_version": "3.12.1",
     "platform": "linux-x86_64",
-    "normalizer_sha256": "1d01f43a5662a333f45335a2d4c1f8645a15a5280efc56e103774f58ab57940d"
+    "normalizer_sha256": "5349b44e4e9f783c0a1937fa2404ca317da102c81a1dffea632a6b9df1b6b98e"
   },
   "source": {
     "sha256": "d6130a73b6dc916eeb9d7d9c5f6a00cbbcf0dbe3cff7e671fdbf9a3ac0196799",
@@ -114,5 +114,6 @@
     }
   ],
   "network_enabled": false,
-  "normalized_at_utc": "2026-09-30T04:45:32.512817Z"
+  "test_only": true,
+  "normalized_at_utc": "2026-09-30T05:51:01.847783Z"
 }

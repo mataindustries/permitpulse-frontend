@@ -43,7 +43,7 @@ export const reviewedLotRecordSchema = z.object({
   normalized_geometry: z.object({ file: caseFileRefSchema, crs: z.literal("EPSG:3310"), serialization: z.literal(normalizationProfile.serialization) }).strict(),
   reprojection: z.object({
     profile_id: z.literal(normalizationProfile.profile_id), profile_sha256: digest,
-    proj_version: z.literal("9.9.0"), normalizer_version: z.literal("1.0.0"),
+    proj_version: z.literal("9.9.0"), normalizer_version: z.literal("1.0.1"),
     pipeline_sha256: z.literal(normalizationProfile.operation.pipeline_sha256), receipt_file: caseFileRefSchema,
   }).strict(),
   source_provenance: z.object({
@@ -65,7 +65,7 @@ const receiptSchema = z.object({
   implementation: z.unknown(),
   source: z.object({ sha256: digest, metadata_sha256: digest, crs: crsSchema }).strict(),
   target: z.object({ crs_epsg: z.literal(3310), sha256: digest, bytes: z.number().int().positive(), serialization: z.literal(normalizationProfile.serialization) }).strict(),
-  operation: z.unknown(), resources: z.unknown(), network_enabled: z.literal(false), normalized_at_utc: timestamp,
+  operation: z.unknown(), resources: z.unknown(), network_enabled: z.literal(false), test_only: z.boolean(), normalized_at_utc: timestamp,
 }).strict();
 
 export interface ReviewedLotEvidenceReader {
@@ -103,9 +103,15 @@ const sourceSchema = z.object({
 const metadataSchema = z.object({ geometryType: z.literal("esriGeometryPolygon"), extent: z.object({ spatialReference }).passthrough() }).passthrough();
 
 /** Validation only: no projection or address lookup is implemented in runtime code. */
-function validateCapturedSource(record: ReviewedLotRecord, sourceBytes: Uint8Array, metadataBytes: Uint8Array): void {
+function validateCapturedSource(record: ReviewedLotRecord, sourceBytes: Uint8Array, metadataBytes: Uint8Array): boolean {
   const source = sourceSchema.parse(decodeEvidenceJson(sourceBytes));
   const metadata = metadataSchema.parse(decodeEvidenceJson(metadataBytes));
+  const testOnly = "TEST_ONLY" in source || "TEST_ONLY" in metadata;
+  const testNamespace = [record.parcel.pin, record.legal_lot_reference.tract, record.legal_lot_reference.lot, record.source_provenance.agency,
+    record.source_geometry.file.file_id, record.source_geometry.metadata_file.file_id, record.normalized_geometry.file.file_id].some((value) => /test[-_]only/i.test(value)) ||
+    [record.source_provenance.requested_url, record.source_provenance.final_url].some((url) => new URL(url).hostname.endsWith(".test"));
+  // Vite folds both conditions to false in every production build, including --mode test.
+  if ((testOnly || testNamespace) && !(import.meta.env.MODE === "test" && !import.meta.env.PROD)) throw new Error("TEST-ONLY evidence cannot enter a production case evaluation.");
   const feature = source.features[0];
   if ("curveRings" in feature.geometry || feature.geometry.hasZ || feature.geometry.hasM || feature.geometry.rings.flat().length > 2000) throw new Error("Captured geometry is not supported linear 2D geometry.");
   const declarations = [metadata.extent.spatialReference, source.spatialReference, feature.geometry.spatialReference].filter((value) => value !== undefined);
@@ -116,6 +122,7 @@ function validateCapturedSource(record: ReviewedLotRecord, sourceBytes: Uint8Arr
   if (captured.wkid !== record.source_geometry.crs.wkid || (captured.latestWkid ?? null) !== record.source_geometry.crs.latest_wkid) throw new Error("Reviewed source CRS differs from captured metadata.");
   const fields = record.source_geometry.identity_fields;
   if (String(feature.attributes[fields.apn]) !== record.parcel.apn || feature.attributes[fields.pin] !== record.parcel.pin) throw new Error("Captured identifiers differ from the reviewed parcel identifiers.");
+  return testOnly;
 }
 
 function canonical(value: unknown): string {
@@ -133,8 +140,9 @@ export async function verifyReviewedLotEvidence(reader: ReviewedLotEvidenceReade
   // Source byte verification precedes source parsing and normalized-file acceptance.
   const sourceBytes = await verifiedCaseFile(reader, record.source_geometry.file);
   const metadataBytes = await verifiedCaseFile(reader, record.source_geometry.metadata_file);
-  validateCapturedSource(record, sourceBytes, metadataBytes);
+  const testOnly = validateCapturedSource(record, sourceBytes, metadataBytes);
   const receipt = receiptSchema.parse(decodeEvidenceJson(await verifiedCaseFile(reader, record.reprojection.receipt_file)));
+  if (receipt.test_only !== testOnly) throw new Error("Normalization receipt misstates the TEST-ONLY source boundary.");
   const profileHash = await bytesSha256(new TextEncoder().encode(normalizationProfileRaw));
   if (record.reprojection.profile_sha256 !== profileHash || receipt.profile_sha256 !== profileHash || canonical(receipt.implementation) !== canonical(normalizationProfile.implementation) || canonical(receipt.operation) !== canonical(normalizationProfile.operation) || canonical(receipt.resources) !== canonical(normalizationProfile.resources)) throw new Error("Offline normalization does not match the approved pinned implementation.");
   if (receipt.source.sha256 !== record.source_geometry.file.sha256 || receipt.source.metadata_sha256 !== record.source_geometry.metadata_file.sha256 || canonical(receipt.source.crs) !== canonical(record.source_geometry.crs) || receipt.target.sha256 !== record.normalized_geometry.file.sha256 || receipt.target.bytes !== record.normalized_geometry.file.bytes) throw new Error("Normalization receipt is not linked to these source/normalized bytes.");

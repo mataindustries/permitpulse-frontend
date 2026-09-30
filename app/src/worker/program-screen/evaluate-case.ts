@@ -5,7 +5,7 @@ import { evaluateProgramScreen } from "../../shared/program-screen/evaluate";
 import { programFactSpecs } from "../../shared/program-screen/facts";
 import { computeLotOverlay, type LotOverlayComputation } from "../../shared/program-screen/lot-overlay";
 import { loadOverlayDatasetView, overlayCandidates, overlayIndexPinFor } from "../../shared/program-screen/overlay-dataset";
-import { verifyReviewedLotEvidence, type ReviewedLotRecord } from "../../shared/program-screen/reviewed-lot";
+import { bytesSha256, verifyReviewedLotEvidence, type ReviewedLotRecord } from "../../shared/program-screen/reviewed-lot";
 import type { ProgramLotOverlayInputs } from "../../shared/program-screen/authority-gate";
 import type { ProgramScreenResult } from "../../shared/program-screen/types";
 import type { CaseActor } from "../cases/authorization";
@@ -31,6 +31,7 @@ function unavailable(issue: string): CaseOverlayResult {
 /** Load only private reviewed normalized bytes and candidate records verified against the shipped pins. */
 export async function loadCaseOverlay(store: ProgramScreenCaseEvidenceStore, asOf: string, registries: ProgramAuthorityRegistries = programAuthorityRegistries): Promise<CaseOverlayResult> {
   try {
+    if (registries !== programAuthorityRegistries && !(import.meta.env.MODE === "test" && !import.meta.env.PROD)) return unavailable("Test registry overrides cannot enter production evaluation.");
     const snapshot = await store.readReview();
     if (snapshot === null) return unavailable("No current reviewed-lot record.");
     const { record, geometry } = await verifyReviewedLotEvidence(store, snapshot.record, asOf);
@@ -42,6 +43,7 @@ export async function loadCaseOverlay(store: ProgramScreenCaseEvidenceStore, asO
     if (pin === undefined) return unavailable("CAL FIRE overlay dataset is not pinned.");
     const index = await store.getOverlayIndex(pin.index_sha256);
     if (index === null) return unavailable("CAL FIRE overlay index is missing.");
+    if (await bytesSha256(index) !== pin.index_sha256) return unavailable("CAL FIRE overlay index bytes differ from the pinned SHA-256.");
     const indexText = new TextDecoder("utf-8", { fatal: true }).decode(index);
     // Establish index integrity BEFORE it can select records to retrieve.
     const indexView = await loadOverlayDatasetView({ index_text: indexText, records: [] });
@@ -122,6 +124,7 @@ function computedAuthority(record: CanonicalEvidenceRecord, overlay: CaseOverlay
 export async function evaluateStoredCaseProgramScreen(store: ProgramScreenCaseEvidenceStore, input: {
   evidence_records: readonly CanonicalEvidenceRecord[]; evidence_authority?: unknown; as_of: string;
 }, registries: ProgramAuthorityRegistries = programAuthorityRegistries): Promise<{ overlay: CaseOverlayResult; screen: ProgramScreenResult }> {
+  if (registries !== programAuthorityRegistries && !(import.meta.env.MODE === "test" && !import.meta.env.PROD)) throw new Error("Test registry overrides cannot enter production evaluation.");
   const subject = input.evidence_records[0]?.subject;
   if (subject === undefined || input.evidence_records.some((record) => record.subject.case_id !== store.case_id)) throw new Error("Program Screen evidence must belong to the authorized case.");
   const overlay = await loadCaseOverlay(store, input.as_of, registries);

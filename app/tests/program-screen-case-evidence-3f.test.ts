@@ -1,5 +1,5 @@
 import { env } from "cloudflare:workers";
-import { describe, expect, inject, it } from "vitest";
+import { describe, expect, inject, it, vi } from "vitest";
 import reviewedJson from "../fixtures/program-screen/phase-3f-test-only/test-only-reviewed-lot.json";
 import sraSource from "../fixtures/program-screen/phase-3f-test-only/test-only-sra-source.json?raw";
 import sraReceipt from "../fixtures/program-screen/phase-3f-test-only/test-only-sra-normalization-receipt.json?raw";
@@ -19,7 +19,7 @@ import { programFactSpecs } from "../src/shared/program-screen/facts";
 import { programPathwayCompletenessBlockers } from "../src/shared/program-screen/types";
 import { parseOverlayIndex } from "../src/shared/program-screen/overlay-dataset";
 import { bytesSha256, reviewedLotRecordSchema, verifyReviewedLotEvidence, type CaseFileRef, type ReviewedLotRecord } from "../src/shared/program-screen/reviewed-lot";
-import { openProgramScreenCaseStore, R2ProgramScreenCaseStore, type ProgramScreenCaseEvidenceStore } from "../src/worker/program-screen/case-evidence";
+import { openProgramScreenCaseStore, type ProgramScreenCaseEvidenceStore } from "../src/worker/program-screen/case-evidence";
 import { evaluateStoredCaseProgramScreen, loadCaseOverlay } from "../src/worker/program-screen/evaluate-case";
 
 // Every case, identity, source capture and lot in this file is TEST-ONLY.
@@ -38,7 +38,7 @@ class MemoryCaseStore implements ProgramScreenCaseEvidenceStore {
   index: Uint8Array | null = null;
   current = true;
   async getFile(ref: CaseFileRef) { return this.files.get(ref.sha256) ?? null; }
-  async readReview() { return { record: this.record, revision: "test-only-revision" }; }
+  async readReview() { return this.record === null ? null : { record: this.record, revision: "test-only-revision" }; }
   async revisionIsCurrent() { return this.current; }
   async getOverlayIndex() { return this.index; }
   async getOverlayRecord(sha: string) { return this.candidates.get(sha) ?? null; }
@@ -111,6 +111,25 @@ async function useNormalizedFixture(store: MemoryCaseStore, record: ReviewedLotR
 }
 
 describe("Phase 3F production case evidence ingestion and overlay", () => {
+  it.each(["production", "test"])("refuses TEST-ONLY evidence in a production build with MODE=%s", async (mode) => {
+    const { store } = await setup("parcel_is_one_legal_lot");
+    vi.stubEnv("MODE", mode);
+    vi.stubEnv("PROD", true);
+    try {
+      const result = await screen(store);
+      expect(result.overlay.computed.lot_within_features).toBe("not_established");
+      expect(criterion(result).status).toBe("unknown");
+      expect(result.overlay.issues.join(" ")).toContain("TEST-ONLY");
+    } finally { vi.unstubAllEnvs(); }
+  });
+
+  it("refuses registry overrides in production", async () => {
+    const { store } = await setup("parcel_is_one_legal_lot");
+    vi.stubEnv("MODE", "production"); vi.stubEnv("PROD", true);
+    try {
+      await expect(evaluateStoredCaseProgramScreen(store, { evidence_records: anchors(), as_of: AS_OF }, structuredClone(programAuthorityRegistries))).rejects.toThrow("registry overrides");
+    } finally { vi.unstubAllEnvs(); }
+  });
   it("keeps the Vidor-equivalent unknown even with real CAL FIRE whole-High coverage and valid offline-normalized geometry", async () => {
     const { store, record } = await setup();
     const verified = await verifyReviewedLotEvidence(store, record, AS_OF);
@@ -149,9 +168,9 @@ describe("Phase 3F production case evidence ingestion and overlay", () => {
     expect(criterion(await screen(store)).status).toBe("unknown");
   });
 
-  it.each(["source", "normalized"] as const)("fails closed on a %s geometry hash mismatch", async (which) => {
+  it.each(["source", "metadata", "normalized", "receipt"] as const)("fails closed on a %s file hash mismatch", async (which) => {
     const { store, record } = await setup("parcel_is_one_legal_lot");
-    const ref = which === "source" ? record.source_geometry.file : record.normalized_geometry.file;
+    const ref = ({ source: record.source_geometry.file, metadata: record.source_geometry.metadata_file, normalized: record.normalized_geometry.file, receipt: record.reprojection.receipt_file })[which];
     store.files.set(ref.sha256, utf8("TEST-ONLY corrupted bytes"));
     const result = await screen(store);
     expect(result.overlay.computed.lot_within_features).toBe("not_established");
@@ -202,6 +221,106 @@ describe("Phase 3F production case evidence ingestion and overlay", () => {
     const receipt = JSON.parse(sraReceipt); receipt.operation.pipeline_sha256 = "0".repeat(64);
     const bytes = utf8(JSON.stringify(receipt)); record.reprojection.receipt_file = await fileRef("test-only-altered-receipt", bytes); store.files.set(record.reprojection.receipt_file.sha256, bytes);
     expect(criterion(await screen(store)).status).toBe("unknown");
+  });
+
+  it.each(["profile", "source", "metadata", "normalized", "proj_db", "grid", "pipeline", "implementation", "network", "test_marker"])("refuses a repaired receipt hash after changing the required %s link", async (link) => {
+    const { store, record } = await setup("parcel_is_one_legal_lot");
+    const receipt = JSON.parse(sraReceipt);
+    if (link === "profile") receipt.profile_sha256 = "0".repeat(64);
+    if (link === "source") receipt.source.sha256 = "0".repeat(64);
+    if (link === "metadata") receipt.source.metadata_sha256 = "0".repeat(64);
+    if (link === "normalized") receipt.target.sha256 = "0".repeat(64);
+    if (link === "proj_db" || link === "grid") receipt.resources.find((item: { id: string }) => item.id === link).sha256 = "0".repeat(64);
+    if (link === "pipeline") receipt.operation.pipeline_sha256 = "0".repeat(64);
+    if (link === "implementation") receipt.implementation.normalizer_sha256 = "0".repeat(64);
+    if (link === "network") receipt.network_enabled = true;
+    if (link === "test_marker") receipt.test_only = false;
+    const bytes = utf8(`${JSON.stringify(receipt)}\n`);
+    record.reprojection.receipt_file = await fileRef("test-only-mutated-receipt", bytes);
+    store.files.set(record.reprojection.receipt_file.sha256, bytes);
+    const result = await screen(store);
+    expect(result.overlay.computed.lot_within_features).toBe("not_established");
+    expect(criterion(result).status).toBe("unknown");
+  });
+
+  it("refuses a changed manifest profile hash or a missing review", async () => {
+    const { store, record } = await setup("parcel_is_one_legal_lot");
+    record.reprojection.profile_sha256 = "0".repeat(64);
+    expect(criterion(await screen(store)).status).toBe("unknown");
+    store.record = null;
+    const missing = await screen(store);
+    expect(missing.overlay.issues.join(" ")).toContain("No current reviewed-lot record");
+    expect(criterion(missing).status).toBe("unknown");
+  });
+
+  it.each(["APN", "PIN"])("refuses changed captured %s even after repairing the source and receipt hashes", async (field) => {
+    const { store, record } = await setup("parcel_is_one_legal_lot");
+    const source = JSON.parse(sraSource); source.features[0].attributes[field] = "TEST-ONLY-DIFFERENT-PARCEL";
+    const bytes = utf8(`${JSON.stringify(source)}\n`);
+    record.source_geometry.file = await fileRef("test-only-mutated-source", bytes);
+    store.files.set(record.source_geometry.file.sha256, bytes);
+    record.source_provenance.evidence_files = [record.source_geometry.file, record.source_geometry.metadata_file];
+    const receipt = JSON.parse(sraReceipt); receipt.source.sha256 = record.source_geometry.file.sha256;
+    const receiptBytes = utf8(`${JSON.stringify(receipt)}\n`);
+    record.reprojection.receipt_file = await fileRef("test-only-repaired-receipt", receiptBytes);
+    store.files.set(record.reprojection.receipt_file.sha256, receiptBytes);
+    const result = await screen(store);
+    expect(result.overlay.issues.join(" ")).toContain("Captured identifiers differ");
+    expect(criterion(result).status).toBe("unknown");
+  });
+
+  it("refuses changed captured CRS even after repairing the metadata and receipt hashes", async () => {
+    const { store, record } = await setup("parcel_is_one_legal_lot");
+    const changed = JSON.parse(metadata); changed.extent.spatialReference = { wkid: 3310 };
+    const bytes = utf8(`${JSON.stringify(changed)}\n`);
+    record.source_geometry.metadata_file = await fileRef("test-only-mutated-metadata", bytes);
+    store.files.set(record.source_geometry.metadata_file.sha256, bytes);
+    record.source_provenance.evidence_files = [record.source_geometry.file, record.source_geometry.metadata_file];
+    const receipt = JSON.parse(sraReceipt); receipt.source.metadata_sha256 = record.source_geometry.metadata_file.sha256;
+    const receiptBytes = utf8(`${JSON.stringify(receipt)}\n`);
+    record.reprojection.receipt_file = await fileRef("test-only-repaired-receipt", receiptBytes);
+    store.files.set(record.reprojection.receipt_file.sha256, receiptBytes);
+    const result = await screen(store);
+    expect(result.overlay.issues.join(" ")).toContain("Captured CRS differs");
+    expect(criterion(result).status).toBe("unknown");
+  });
+
+  it("accepts separately hashed receipts with different valid timestamps and identical normalized geometry", async () => {
+    const { store, record } = await setup("parcel_is_one_legal_lot");
+    const original = record.reprojection.receipt_file.sha256;
+    for (const timestamp of ["2026-09-30T01:01:02Z", "2026-09-30T01:01:03Z"]) {
+      const receipt = JSON.parse(sraReceipt); receipt.normalized_at_utc = timestamp;
+      const bytes = utf8(`${JSON.stringify(receipt)}\n`);
+      record.reprojection.receipt_file = await fileRef("test-only-timestamp-receipt", bytes);
+      store.files.set(record.reprojection.receipt_file.sha256, bytes);
+      expect(record.reprojection.receipt_file.sha256).not.toBe(original);
+      expect(criterion(await screen(store)).status).toBe("disqualifying_per_source");
+      expect(record.normalized_geometry.file.sha256).toBe(fixture().normalized_geometry.file.sha256);
+    }
+  });
+
+  it.each(["index", "record"] as const)("refuses changed CAL FIRE %s bytes", async (which) => {
+    const { store } = await setup("parcel_is_one_legal_lot");
+    if (which === "index") store.index = utf8(new TextDecoder().decode(store.index!).replace('"High"', '"Moderate"'));
+    else {
+      const ready = await loadCaseOverlay(store, AS_OF);
+      const entry = parseOverlayIndex(new TextDecoder().decode(store.index!)).entries[ready.computed.candidate_records[0] - 1];
+      const bytes = store.candidates.get(entry.content_sha256)!.slice(); bytes[bytes.length - 1] ^= 1;
+      store.candidates.set(entry.content_sha256, bytes);
+    }
+    const result = await screen(store);
+    expect(result.overlay.computed.lot_within_features).toBe("not_established");
+    expect(criterion(result).status).toBe("unknown");
+  });
+
+  it("refuses a changed raw CAL FIRE index even when a decoder would erase the byte change", async () => {
+    const { store } = await setup("parcel_is_one_legal_lot");
+    const changed = new Uint8Array(store.index!.length + 3);
+    changed.set([0xef, 0xbb, 0xbf]); changed.set(store.index!, 3); store.index = changed;
+    const result = await screen(store);
+    expect(result.overlay.computed.lot_within_features).toBe("not_established");
+    expect(result.overlay.issues.join(" ")).toContain("index bytes differ");
+    expect(criterion(result).status).toBe("unknown");
   });
 
   it("fails closed on a missing candidate record instead of manufacturing NO", async () => {
@@ -282,9 +401,20 @@ describe("Phase 3F production case evidence ingestion and overlay", () => {
 });
 
 describe("Phase 3F existing private R2 evidence boundary", () => {
+  it("cannot grant a participating client permission to publish reviewed evidence", async () => {
+    const caseId = crypto.randomUUID();
+    const userId = "test-only-client-reviewer";
+    await env.DB.prepare("INSERT INTO user (id, name, email, role) VALUES (?, 'TEST-ONLY', 'test-only-client-reviewer@example.test', 'client')").bind(userId).run();
+    await env.DB.prepare("INSERT INTO cases (id, project_name, client_name, address, city, jurisdiction) VALUES (?, 'TEST-ONLY', 'TEST-ONLY', 'TEST-ONLY', 'Los Angeles', 'City of Los Angeles')").bind(caseId).run();
+    await env.DB.prepare("INSERT INTO case_participants (case_id, user_id, participant_role) VALUES (?, ?, 'owner')").bind(caseId, userId).run();
+    const actor = { id: userId, role: "client" as const };
+    expect((await openProgramScreenCaseStore(env, actor, caseId)).case_id).toBe(caseId);
+    await expect(openProgramScreenCaseStore(env, actor, caseId, "write")).rejects.toThrow("verification");
+  });
   it("ingests verified files and CAL FIRE records, publishes with CAS, then evaluates through the production adapter", async () => {
     const { store: memory, record } = await setup();
-    const store = new R2ProgramScreenCaseStore(env.EVIDENCE_FILES!, record.case_id, record.review.reviewer_user_id);
+    await env.DB.prepare("INSERT INTO cases (id, project_name, client_name, address, city, jurisdiction) VALUES (?, 'TEST-ONLY', 'TEST-ONLY', 'TEST-ONLY', 'Los Angeles', 'City of Los Angeles')").bind(record.case_id).run();
+    const store = await openProgramScreenCaseStore(env, { id: record.review.reviewer_user_id, role: "admin" }, record.case_id, "write");
     for (const ref of [record.source_geometry.file, record.source_geometry.metadata_file, record.normalized_geometry.file, record.reprojection.receipt_file]) await store.putFile(ref, memory.files.get(ref.sha256)!);
     const provided = inject("programScreenOverlayDataset");
     await store.ingestCalFire(provided.index_text!, Object.entries(provided.records).map(([number, base64]) => ({ record_number: Number(number), content: Uint8Array.from(atob(base64), (char) => char.charCodeAt(0)) })));
@@ -293,8 +423,14 @@ describe("Phase 3F existing private R2 evidence boundary", () => {
     const result = await evaluateStoredCaseProgramScreen(store, { evidence_records: anchors(), as_of: AS_OF });
     expect(result.overlay.computed.lot_within_features).toBe("whole_lot");
     expect(criterion(result).status).toBe("unknown");
-    const anotherCase = new R2ProgramScreenCaseStore(env.EVIDENCE_FILES!, "00000000-0000-4000-8000-000000000099");
+    const otherId = "00000000-0000-4000-8000-000000000099";
+    await env.DB.prepare("INSERT INTO cases (id, project_name, client_name, address, city, jurisdiction) VALUES (?, 'TEST-ONLY', 'TEST-ONLY', 'TEST-ONLY', 'Los Angeles', 'City of Los Angeles')").bind(otherId).run();
+    const anotherCase = await openProgramScreenCaseStore(env, { id: "test-only-admin", role: "admin" }, otherId);
     expect(await anotherCase.getFile(record.normalized_geometry.file)).toBeNull();
+    expect(await anotherCase.readReview()).toBeNull();
+    await expect(anotherCase.ingestReviewedLot(record, null, AS_OF)).rejects.toThrow("read-only");
+    const otherWriter = await openProgramScreenCaseStore(env, { id: record.review.reviewer_user_id, role: "admin" }, otherId, "write");
+    await expect(otherWriter.ingestReviewedLot(record, null, AS_OF)).rejects.toThrow("another case");
     await store.invalidateReview("superseded", revision, "00000000-0000-4000-8000-0000000000f2");
     expect(criterion(await evaluateStoredCaseProgramScreen(store, { evidence_records: anchors(), as_of: AS_OF })).status).toBe("unknown");
     await expect(anotherCase.putFile(record.normalized_geometry.file, utf8(sraGeometry))).rejects.toThrow("read-only");

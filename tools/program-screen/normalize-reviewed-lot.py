@@ -99,6 +99,27 @@ class Info(C.Structure):
                 ("paths", C.POINTER(C.c_char_p)), ("path_count", C.c_size_t)]
 
 
+def verify_loaded_libraries(profile):
+    # Verify the libraries actually mapped into this pinned Linux process, not
+    # merely the files at the expected installation paths.
+    mapped = set()
+    for line in Path("/proc/self/maps").read_text().splitlines():
+        fields = line.split(maxsplit=5)
+        if len(fields) == 6 and fields[5].startswith("/"):
+            mapped.add(Path(fields[5]).resolve())
+    for resource in profile["resources"]:
+        if not resource["id"].startswith("lib"):
+            continue
+        soname_prefix = Path(resource["path"]).name.split(".so")[0] + ".so"
+        actual = [path for path in mapped if path.name.startswith(soname_prefix)]
+        if not actual:
+            raise ValueError(f"Pinned native library is not loaded: {resource['id']}")
+        for path in actual:
+            data = verified_file(path, resource["sha256"])
+            if len(data) != resource["bytes"]:
+                raise ValueError(f"Loaded library length mismatch: {resource['id']}")
+
+
 def normalize(rings, profile, pipeline, paths):
     for key in tuple(os.environ):
         if key.startswith("PROJ_"):
@@ -111,6 +132,7 @@ def normalize(rings, profile, pipeline, paths):
     # Preload the exact pinned TIFF library, so its SONAME cannot resolve to a different installation.
     C.CDLL(str(paths["libtiff"]), mode=C.RTLD_GLOBAL)
     lib = C.CDLL(str(paths["libproj"]))
+    verify_loaded_libraries(profile)
 
     def bind(name, result, arguments):
         fn = getattr(lib, name)
@@ -176,6 +198,8 @@ def main():
     metadata_bytes = verified_file(args.metadata, args.metadata_sha256)
     profile_bytes = PROFILE.read_bytes()
     profile = json.loads(profile_bytes)
+    if any(os.environ.get(name) for name in ("LD_LIBRARY_PATH", "LD_PRELOAD", "LD_AUDIT")):
+        raise ValueError("Native library loader overrides are not permitted in the pinned workflow")
     implementation = profile["implementation"]
     if platform.python_version() != implementation["python_version"] or sys.platform != "linux" or platform.machine() != "x86_64":
         raise ValueError("The pinned Python/platform implementation is required")
@@ -209,6 +233,7 @@ def main():
                "source": {"sha256": sha(source_bytes), "metadata_sha256": sha(metadata_bytes), "crs": crs},
                "target": {"crs_epsg": 3310, "sha256": sha(normalized), "bytes": len(normalized), "serialization": profile["serialization"]},
                "operation": profile["operation"], "resources": profile["resources"], "network_enabled": False,
+               "test_only": "TEST_ONLY" in source or "TEST_ONLY" in metadata,
                "normalized_at_utc": datetime.now(timezone.utc).isoformat().replace("+00:00", "Z")}
     directory.mkdir(parents=True, exist_ok=True)
     atomic_write(directory / "normalized.json", normalized)

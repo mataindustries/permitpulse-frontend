@@ -54,15 +54,15 @@
   },
   "reprojection": {
     "profile_id": "boe-3857-ca-south-3310-proj-9-9-0-v1",
-    "profile_sha256": "a72210c70aa3e143845385fc0f3b80cbf3a5653d3614ed6c3c724a5823c0c6c4",
+    "profile_sha256": "ffee429a5802debb84bd646db60f15130090384ecb6765e1b4d4827ff7b0a1c2",
     "proj_version": "9.9.0",
-    "normalizer_version": "1.0.0",
+    "normalizer_version": "1.0.1",
     "pipeline_sha256": "e78dcde94b61df7bdefc85b9e36b69312af28b17ea348ac2bae32ca49c4f6ab3",
     "receipt_file": {
       "store": "case_evidence_file",
       "file_id": "test-only-normalization-receipt",
-      "sha256": "1cb11a706238355f44f06ed0ccd9452aab4e2b230d293dfc26e05391f7b4259e",
-      "bytes": 3536
+      "sha256": "e0954008f85b2e336355eb97c0dd3d9e58226b8f59d51000308818674cb98383",
+      "bytes": 3557
     }
   },
   "source_provenance": {

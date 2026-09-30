@@ -1,4 +1,4 @@
-import type { CaseActor } from "../cases/authorization";
+import { maySetEvidenceVerification, type CaseActor } from "../cases/authorization";
 import { getCaseForActor, getEditableCaseForActor } from "../cases/repository";
 import { R2EvidenceFileStore } from "../evidence-intake/file-store";
 import type { Bindings } from "../types";
@@ -23,7 +23,7 @@ function prefix(caseId: string): string {
 }
 
 /** Internal adapter. Application callers open it through the existing case authorization checks below. */
-export class R2ProgramScreenCaseStore implements ProgramScreenCaseEvidenceStore {
+class R2ProgramScreenCaseStore implements ProgramScreenCaseEvidenceStore {
   readonly case_id: string;
   private readonly root: string;
   private readonly files: R2EvidenceFileStore;
@@ -132,6 +132,7 @@ export class R2ProgramScreenCaseStore implements ProgramScreenCaseEvidenceStore 
 export async function openProgramScreenCaseStore(bindings: Pick<Bindings, "DB" | "EVIDENCE_FILES">, actor: CaseActor, caseId: string, access: "read" | "write" = "read"): Promise<R2ProgramScreenCaseStore> {
   const allowed = access === "write" ? await getEditableCaseForActor(bindings.DB, actor, caseId) : await getCaseForActor(bindings.DB, actor, caseId);
   if (allowed === null) throw new Error("Case evidence access denied.");
+  if (access === "write" && !maySetEvidenceVerification(actor)) throw new Error("Case evidence verification permission denied.");
   if (bindings.EVIDENCE_FILES === undefined) throw new Error("Private evidence storage is unavailable.");
   return new R2ProgramScreenCaseStore(bindings.EVIDENCE_FILES, caseId, access === "write" ? actor.id : null);
 }

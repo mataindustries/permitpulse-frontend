@@ -19,7 +19,7 @@ Phase 3F exercises this decision through a production service and TEST-ONLY fixt
 | `app/src/worker/program-screen/evaluate-case.ts` | Production entry `evaluateCaseProgramScreen(bindings, actor, caseId, input)`. Load verified reviewed geometry and candidate records, compute coverage/semantic labels, construct the computed High observation and authority block, then call the unchanged Program Screen evaluator. |
 | `app/tests/program-screen-case-evidence-3f.test.ts` | Integration through the real R2 adapter, existing case authorization and the unchanged pinned CAL FIRE package, using synthetic case evidence. |
 
-The production entry authorizes the case through the existing `getCaseForActor` boundary. Ingestion callers use `openProgramScreenCaseStore(..., "write")`, which applies the existing `getEditableCaseForActor` boundary. `ingestReviewedLot` also requires the named review's `reviewer_user_id` to equal the authenticated writer. These are internal service interfaces; this phase adds no public upload/download route or UI publication. The public evaluator/demo caller is unchanged.
+The production entry authorizes the case through the existing `getCaseForActor` boundary. Ingestion callers use `openProgramScreenCaseStore(..., "write")`, which applies the existing `getEditableCaseForActor` boundary and **admin-only `maySetEvidenceVerification` permission**. Case ownership cannot grant authority to publish a reviewed lot. The R2 adapter constructor is not exported; callers must use the authorized factory. `ingestReviewedLot` also requires the named review's `reviewer_user_id` to equal the authenticated writer. These are internal service interfaces; this phase adds no public upload/download route or UI publication. The public evaluator/demo caller is unchanged.
 
 The production entry uses the shipped authority registry and CAL FIRE package. It accepts canonical observations and existing non-hazard authority blocks. Caller-supplied hazard authority is discarded after schema validation; manual observations remain available for conflict detection. Only a server-computed record receives the hazard authority block. `classes_on_lot` cannot be supplied in the reviewed record. `map_covers_lot` remains `not_established` in the generated block; no gate treats it as authority. The legacy `coverage` compatibility field is derived from the computed fact and cannot establish coverage independently.
 
@@ -69,7 +69,7 @@ type ReviewedLotRecord = {
     profile_id: "boe-3857-ca-south-3310-proj-9-9-0-v1";
     profile_sha256: string;
     proj_version: "9.9.0";
-    normalizer_version: "1.0.0";
+    normalizer_version: "1.0.1";
     pipeline_sha256: "e78dcde94b61df7bdefc85b9e36b69312af28b17ea348ac2bae32ca49c4f6ab3";
     receipt_file: CaseFileRef;
   };
@@ -97,7 +97,7 @@ Ordinary text fields are trimmed, nonempty and at most 256 characters; the revie
 
 `parcel.apn` and `legal_lot_reference` have separate meanings. Matching APN/PIN identifies the captured assessor/GIS feature. The structured recorded reference identifies the historic mapped lot. An established current legal identity requires the human's private evidence references, which are also byte/hash verified. No schema check decides the legal sufficiency of a deed or map.
 
-The normalization receipt has version `program-screen-normalization-receipt-v1`: profile ID/hash; implementation object; source SHA, metadata SHA and captured CRS; target EPSG, SHA, byte count and serialization; exact operation object; resource pins; `network_enabled: false`; normalization UTC time. Ingestion compares its implementation/operation/resources to the shipped profile and links it to the exact source/normalized files. Source retrieval must precede normalization, and normalization must precede review. The receipt is evidence for the authenticated human review, not an automatic legal-identity approval.
+The normalization receipt has version `program-screen-normalization-receipt-v1`: profile ID/hash; implementation object; source SHA, metadata SHA and captured CRS; target EPSG, SHA, byte count and serialization; exact operation object; resource pins; `network_enabled: false`; `test_only` marker; normalization UTC time. Ingestion compares its implementation/operation/resources to the shipped profile and links it to the exact source/normalized files. Its `test_only` marker must match the captured source/metadata markers. Source retrieval must precede normalization, and normalization must precede review. The receipt is evidence for the authenticated human review, not an automatic legal-identity approval.
 
 ## Private evidence storage
 
@@ -113,7 +113,7 @@ Use the existing private R2 binding **`EVIDENCE_FILES`**, bucket **`permitpulse-
 
 Original BOE response, captured metadata, normalization receipt, normalized geometry and legal-identity/provenance evidence all use private case-scoped file references. Files are hash addressed inside the case; an identical digest in another case cannot cross the case boundary. Every consumer recomputes hashes. The current review carries a manifest hash and R2 ETag. Publication requires the expected ETag (or initial nonexistence); a changed review during loading fails closed. Review history is retained, and `invalidateReview` can mark it stale or superseded. Missing storage cannot supply authoritative geometry.
 
-Offline real-case working files belong outside the checkout or under the existing ignored `.private/` path. The CLI refuses unmarked real-case output in the public checkout. The committed fixtures all use synthetic identifiers and explicit TEST-ONLY source annotations. The committed grid is the approved public PROJ resource, not case evidence.
+Offline real-case working files belong outside the checkout or under the existing ignored `.private/` path. The CLI refuses unmarked real-case output in the public checkout. The committed fixtures all use synthetic identifiers and explicit TEST-ONLY source annotations. Production verification rejects those annotations, TEST-ONLY identifiers and `.test` provenance. Fixture admission and registry overrides are available only in non-production Vitest mode; production builds reject both, including a production build made with `--mode test`. The committed grid is the approved public PROJ resource, not case evidence.
 
 ## Approved offline reprojection
 
@@ -174,8 +174,8 @@ The full operation audit, exact query arguments, per-candidate grid availability
 | `libz.so.1.3` | `9b64150b28505a33d6bc3ecf709c279f6de97a1c184dbda65d06ee4537f6d286` |
 | `libm.so.6` | `1b87a1a50b496cfead2b0ad134c2ff536705c82608db240c7e8aa48d6c0e4217` |
 | Exact pipeline (541 bytes) | `e78dcde94b61df7bdefc85b9e36b69312af28b17ea348ac2bae32ca49c4f6ab3` |
-| Offline normalizer 1.0.0 | `1d01f43a5662a333f45335a2d4c1f8645a15a5280efc56e103774f58ab57940d` |
-| Approved profile | `a72210c70aa3e143845385fc0f3b80cbf3a5653d3614ed6c3c724a5823c0c6c4` |
+| Offline normalizer 1.0.1 | `5349b44e4e9f783c0a1937fa2404ca317da102c81a1dffea632a6b9df1b6b98e` |
+| Approved operation profile with normalizer 1.0.1 | `ffee429a5802debb84bd646db60f15130090384ecb6765e1b4d4827ff7b0a1c2` |
 
 Requested and final grid URL: `https://cdn.proj.org/us_noaa_cshpgn.tif`; HTTP 200. Retrieval UTC: `2026-09-30T03:53:25.775416+00:00`, preserved curl download-file modification time; the receipt explicitly states this time basis. Exact bytes, unmodified response headers and provenance JSON are preserved in `tools/program-screen/proj/resources/`.
 
@@ -195,7 +195,7 @@ The SRA fixtures are fictional locations in the selected operation's California 
 
 ## Overlay path and fail-closed checks
 
-The private store loads the unchanged pinned overlay index. Its hash is checked before selecting candidates by the reviewed lot's bbox. Each candidate's bytes are verified against the index. Missing candidates remain missing in the view; `computeLotOverlay` returns `not_established` instead of treating omission as absence. Both lot and dataset must be EPSG:3310. The semantic class field must be `FHSZ_Descr`, with labels mapped by the registered package.
+The private store loads the unchanged pinned overlay index. Its **raw byte hash is checked before UTF-8 decoding** and before selecting candidates by the reviewed lot's bbox. This rejects byte changes, including a BOM that a decoder would otherwise erase. Each candidate's bytes are verified against the index. Missing candidates remain missing in the view; `computeLotOverlay` returns `not_established` instead of treating omission as absence. Both lot and dataset must be EPSG:3310. The semantic class field must be `FHSZ_Descr`, with labels mapped by the registered package.
 
 The existing exact geometry machinery computes `whole_lot` / `part_of_lot` / `none` / `not_established`. A High boolean is generated only with current one-legal-lot identity and whole-lot SRA coverage. All High gives true; wholly other known classes gives false; a mix containing High gives unknown. Partial or outside-SRA coverage gives unknown. The unchanged authority gate independently checks the computed dataset/geometry result and the Phase 3E requirements before d runs.
 
@@ -209,7 +209,7 @@ Integration tests cover:
 - manual disagreement (conflict), typed overlay fields (refused), and caller hazard authority/coverage attestations that cannot replace the stored review;
 - actual R2 ingestion/evaluation, conditional publication, supersession and existing case authorization.
 
-The offline checks additionally prove source-byte verification precedes projection, captured wrong CRS is refused, missing/changed preferred grids cannot fall back, current-directory grids cannot shadow pinned resources, and unmarked real-case output cannot enter the public checkout.
+The offline checks additionally prove source-byte verification precedes projection, captured wrong CRS is refused, missing/changed preferred grids cannot fall back, current-directory grids cannot shadow pinned resources, and unmarked real-case output cannot enter the public checkout. Normalizer 1.0.1 refuses native loader overrides and verifies the hashes of the libraries actually mapped into the Linux process. A library at another path cannot be used while the receipt claims the pinned system library's hash. These fixes change implementation/profile/receipt hashes; the selected operation, PROJ/grid/database pins and normalized geometry hashes are unchanged.
 
 ## Preserved Phase 3E decisions and output pins
 
@@ -222,4 +222,6 @@ The Phase 3E regression suite reproduces these evaluator/demo output hashes befo
 | Evaluator | `156dd1f41964ab5beebcf3882e0a0d653cc5d778939033bf2b752dba1e86afbc` | `156dd1f41964ab5beebcf3882e0a0d653cc5d778939033bf2b752dba1e86afbc` |
 | Public demo | `4dd2735bab875ad40b123fec72020e16442737bc6b5052eb55c5fba374b9a8a5` | `4dd2735bab875ad40b123fec72020e16442737bc6b5052eb55c5fba374b9a8a5` |
 
-Verification: `npm run check` in `app/` passes typecheck, **1,369 tests across 42 files** (including **24 Phase 3F tests**), OS foundation verification and production build. The offline checker passes **9 checks**. Repository-root `npm run check` passes syntax checks and **351 public-site validations**. Phase 3F adds no runtime dependency or deployment change.
+Verification commands: `npm run check` in `app/`; the offline normalization checker; repository-root `npm run check`. The final adversarial-review run passes **1,393 tests in 42 files**, including **48 Phase 3F tests**, plus typecheck, OS foundation checks and the production build. The regressions cover TEST-ONLY production refusal, client verification denial, source/metadata/receipt/resource-link mutations, changed CAL FIRE bytes, missing review and timestamp independence. The offline checker passes **16 checks**; production-compiled service probes also verify fixture/override refusal (including production with `MODE=test`), R2 manifest hash mutation and absence of an authorization-free constructor. Repository-root checks pass **351 public-site validations**. Phase 3F adds no runtime dependency or deployment change.
+
+The review demonstrated and corrected four defects: production admission of synthetic evidence; client-owner access to reviewed-evidence publication; native loader substitution while reporting the original pinned library hash; and acceptance of altered raw CAL FIRE index bytes after UTF-8 decoding removed a BOM. Mutation tests reproduced these failures before the fixes and now fail closed. The corrections preserve the approved datum operation, geometry serialization/hashes, CAL FIRE package and Phase 3E decisions.

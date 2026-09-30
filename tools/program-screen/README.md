@@ -4,7 +4,7 @@ This tooling is for offline ingestion/development. Program Screen runtime accept
 
 ## Pinned audited installation
 
-The audited installation is `/tmp/permitpulse-proj-review/install`, with LibTIFF in `/tmp/permitpulse-proj-review/tiff-install`. It is PROJ **9.9.0**, LibTIFF **4.7.2**, Python **3.12.1**, Linux x86_64. CMake was **3.28.3** and the compiler was Ubuntu GCC **13.3.0-6ubuntu2~24.04.1**. The exact database, pipeline, libraries and only grid are pinned in `app/src/shared/program-screen/normalization-profile.json`. The CLI verifies each pin before loading native code.
+The audited installation is `/tmp/permitpulse-proj-review/install`, with LibTIFF in `/tmp/permitpulse-proj-review/tiff-install`. It is PROJ **9.9.0**, LibTIFF **4.7.2**, Python **3.12.1**, Linux x86_64. Normalizer **1.0.1** rejects native loader overrides and verifies the libraries actually mapped into the process before transforming. CMake was **3.28.3** and the compiler was Ubuntu GCC **13.3.0-6ubuntu2~24.04.1**. The exact database, pipeline, libraries and only grid are pinned in `app/src/shared/program-screen/normalization-profile.json`. The CLI verifies each resource file pin before loading PROJ.
 
 Tooling sources used in this audit:
 
@@ -92,7 +92,7 @@ python tools/program-screen/check-normalization.py \
   --tiff-prefix /tmp/permitpulse-proj-review/tiff-install
 ```
 
-This makes two independent normalization runs for each of three synthetic source files and compares exact normalized bytes to the committed pins. It also checks source verification order, wrong captured CRS, missing/altered grid refusal, directory shadowing and the private-output boundary. It fetches nothing. The 9 checks pass on the audited installation.
+This makes two independent normalization runs for each of three synthetic source files and compares exact normalized bytes to the committed pins. It checks independently variable receipt timestamps, source/metadata verification, wrong CRS, missing/altered grids, database/library/pipeline mutations, loader overrides, forced network-off behavior, directory shadowing and the private-output boundary. It fetches nothing. The 16 checks pass on the audited installation.
 
 Example single-run CLI:
 
@@ -108,14 +108,14 @@ PROJ_NETWORK=OFF python tools/program-screen/normalize-reviewed-lot.py \
   --tiff-prefix /tmp/permitpulse-proj-review/tiff-install
 ```
 
-`normalized.json` is fixed-key compact UTF-8 JSON with CPython 3.12.1 shortest round-trip binary64 numbers and a trailing LF. Rings and vertices preserve source order. Its own SHA differs from the source SHA. `normalization-receipt.json` links both hashes, captured CRS, metadata SHA, target bytes/serialization, profile, operation, implementation and resource pins. Receipt timestamps record each run, so geometry determinism does not require receipts to have identical timestamps.
+`normalized.json` is fixed-key compact UTF-8 JSON with CPython 3.12.1 shortest round-trip binary64 numbers and a trailing LF. Rings and vertices preserve source order. Its own SHA differs from the source SHA. `normalization-receipt.json` links both hashes, captured CRS, metadata SHA, target bytes/serialization, profile, operation, implementation and resource pins, and preserves the source/metadata TEST-ONLY marker. Receipt timestamps record each run, so geometry determinism does not require receipts to have identical timestamps or receipt hashes. Production rejects TEST-ONLY evidence; the integration suite admits it only in non-production test mode.
 
 ## Production ingestion
 
 Real source files, metadata and expected hashes are supplied from preserved private evidence. The caller selects exactly one captured feature by explicit APN/PIN attribute fields; there is no address matching. Source layer metadata must state EPSG:3857 (or an explicit 102100/102113 alias with `latestWkid: 3857`). Unsupported CRS, curves, Z/M, nonfinite coordinates or geometry outside the approved operation area are refused. Use output outside the checkout or under ignored `.private/`.
 
 1. Normalize offline through the pinned CLI and review the source/normalized geometry and receipt. Keep the legal-identity decision explicit; normalization cannot make it.
-2. Open the existing authorized case store using `openProgramScreenCaseStore(bindings, actor, caseId, "write")`.
+2. Open the existing authorized case store using `openProgramScreenCaseStore(bindings, actor, caseId, "write")`. This requires existing admin evidence-verification permission as well as case edit permission. Case ownership alone is insufficient.
 3. `putFile` each hash/byte-count-bound source, metadata, receipt, normalized and supporting evidence file into that private case.
 4. `ingestCalFire` the unchanged pinned index and verified candidate record bytes. An incomplete record set can be stored, but it cannot manufacture negative coverage.
 5. `ingestReviewedLot(record, expectedRevision, asOf)` validates everything and publishes conditionally. Use `null` only for the initial review; later publications require the current revision. The reviewer user ID must identify the authenticated writer.
