@@ -1,0 +1,13 @@
+{
+  "TEST_ONLY": true,
+  "note": "Only synthetic geometry was normalized; two independent processes produced identical bytes.",
+  "source_sha256": "3ac32e9f67680951443984d1d4320cf3dcf3cf83f77ac35347041086a9b70ae4",
+  "metadata_sha256": "c5fe73818a84f1da357130a3d54845cdab49e8a46c022cd07c30aa958dc5396b",
+  "normalized_bytes": 305,
+  "normalized_sha256": "e5edc2c7b145b7eb39fd480922c35a29109adcae697a714ffd18e45dd9fe9c10",
+  "profile_sha256": "ffee429a5802debb84bd646db60f15130090384ecb6765e1b4d4827ff7b0a1c2",
+  "receipt_sha256": "33297235807aaf60f043316a0d37f1a6caae256077757f7c00a0505258aa7245",
+  "two_runs_identical": true,
+  "sra_normalized_sha256": "be25919869c1a0fdd1d856ebf18fdb16ca83ac7a758f7551704b5f3dd2ceffeb",
+  "sra_two_runs_identical": true
+}

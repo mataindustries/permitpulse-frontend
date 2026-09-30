@@ -1,0 +1,2 @@
+# Source and receipt files are byte/hash-bound TEST-ONLY evidence.
+*.json -text

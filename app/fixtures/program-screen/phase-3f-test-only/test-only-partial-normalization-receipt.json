@@ -1,0 +1,119 @@
+{
+  "schema_version": "program-screen-normalization-receipt-v1",
+  "profile_id": "boe-3857-ca-south-3310-proj-9-9-0-v1",
+  "profile_sha256": "ffee429a5802debb84bd646db60f15130090384ecb6765e1b4d4827ff7b0a1c2",
+  "implementation": {
+    "name": "PROJ",
+    "version": "9.9.0",
+    "libtiff_version": "4.7.2",
+    "normalizer_version": "1.0.1",
+    "python_version": "3.12.1",
+    "platform": "linux-x86_64",
+    "normalizer_sha256": "5349b44e4e9f783c0a1937fa2404ca317da102c81a1dffea632a6b9df1b6b98e"
+  },
+  "source": {
+    "sha256": "d6130a73b6dc916eeb9d7d9c5f6a00cbbcf0dbe3cff7e671fdbf9a3ac0196799",
+    "metadata_sha256": "c5fe73818a84f1da357130a3d54845cdab49e8a46c022cd07c30aa958dc5396b",
+    "crs": {
+      "wkid": 102100,
+      "latest_wkid": 3857,
+      "epsg": 3857
+    }
+  },
+  "target": {
+    "crs_epsg": 3310,
+    "sha256": "225d03173861146a651d6d3f8e2bf3afc4c0d6c4edc9c0368410d2a620dce9b7",
+    "bytes": 304,
+    "serialization": "pp-lot-json-v1: UTF-8; fixed key order; compact JSON; CPython 3.12.1 shortest round-trip binary64 numbers; LF terminator; preserve ring and vertex order; no rounding or simplification"
+  },
+  "operation": {
+    "component_ids": [
+      {
+        "authority": "INVERSE(EPSG)",
+        "code": 3856
+      },
+      {
+        "authority": "INVERSE(EPSG)",
+        "code": 1901
+      },
+      {
+        "authority": "INVERSE(DERIVED_FROM(EPSG))",
+        "code": 1477
+      },
+      {
+        "authority": "EPSG",
+        "code": 10420
+      }
+    ],
+    "accuracy_m": 1.05,
+    "area": "United States (USA) - California south of 36.5\u00b0N",
+    "bbox": [
+      -121.98,
+      32.53,
+      -114.12,
+      36.5
+    ],
+    "pipeline_sha256": "e78dcde94b61df7bdefc85b9e36b69312af28b17ea348ac2bae32ca49c4f6ab3"
+  },
+  "resources": [
+    {
+      "id": "proj_db",
+      "base": "proj",
+      "path": "share/proj/proj.db",
+      "bytes": 10551296,
+      "sha256": "082d5e6acc6b125d64fe77788db27455103229b05c541bc0343db89a7aa90a9d"
+    },
+    {
+      "id": "proj_ini",
+      "base": "proj",
+      "path": "share/proj/proj.ini",
+      "bytes": 2435,
+      "sha256": "b95ebf0d007339244483d65d571cd887a51806e2bd2c1ab7f47b897d25320d65"
+    },
+    {
+      "id": "grid",
+      "base": "proj",
+      "path": "share/proj/us_noaa_cshpgn.tif",
+      "bytes": 6834,
+      "sha256": "d54183c832e0366fc558147961bd8ae7d0dd3b5ae945069afd6a37a5a5c604c9"
+    },
+    {
+      "id": "libproj",
+      "base": "proj",
+      "path": "lib/libproj.so.25.9.9.0",
+      "bytes": 5984464,
+      "sha256": "ae6194010e96ec7d021c47d26bee0f3e2d1567fdc3481b704f802179ebd67806"
+    },
+    {
+      "id": "libtiff",
+      "base": "tiff",
+      "path": "lib/libtiff.so.6.3.0",
+      "bytes": 623288,
+      "sha256": "1d3ac3c6fab7fdfef9b694430402321e02489041d5a0f2c88f1c77c017d64633"
+    },
+    {
+      "id": "libsqlite3",
+      "base": "system",
+      "path": "/usr/lib/x86_64-linux-gnu/libsqlite3.so.0.8.6",
+      "bytes": 1468440,
+      "sha256": "eac351cf84d688d1f9235e6165bd57555b31a491cd2f65e0dca67daa69036370"
+    },
+    {
+      "id": "libz",
+      "base": "system",
+      "path": "/usr/lib/x86_64-linux-gnu/libz.so.1.3",
+      "bytes": 113000,
+      "sha256": "9b64150b28505a33d6bc3ecf709c279f6de97a1c184dbda65d06ee4537f6d286"
+    },
+    {
+      "id": "libm",
+      "base": "system",
+      "path": "/usr/lib/x86_64-linux-gnu/libm.so.6",
+      "bytes": 952616,
+      "sha256": "1b87a1a50b496cfead2b0ad134c2ff536705c82608db240c7e8aa48d6c0e4217"
+    }
+  ],
+  "network_enabled": false,
+  "test_only": true,
+  "normalized_at_utc": "2026-09-30T05:51:01.847783Z"
+}

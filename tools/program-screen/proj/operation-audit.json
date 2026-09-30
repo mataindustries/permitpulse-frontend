@@ -1,0 +1,955 @@
+{
+  "schema_version": "program-screen-offline-operation-audit-v1",
+  "audit_date_utc": "2026-09-30",
+  "source_crs": "EPSG:3857",
+  "target_crs": "EPSG:3310",
+  "aoi_bbox": [
+    -118.5,
+    33.9,
+    -118.2,
+    34.2
+  ],
+  "environment": {
+    "PROJ_NETWORK": "OFF",
+    "PROJ_DATA": "/tmp/permitpulse-proj-review/install/share/proj",
+    "PROJ_USER_WRITABLE_DIRECTORY": "/tmp/permitpulse-proj-review/user-data",
+    "PROJ_SKIP_READ_USER_WRITABLE_DIRECTORY": "YES",
+    "PROJ_ONLY_BEST_DEFAULT": "ON"
+  },
+  "network_status": "Status: disabled\nReason: build without Curl support",
+  "proj_version": "9.9.0",
+  "database": {
+    "layout": "1.7",
+    "epsg_version": "v13.102",
+    "epsg_date": "2026-08-27"
+  },
+  "database_sha256": "082d5e6acc6b125d64fe77788db27455103229b05c541bc0343db89a7aa90a9d",
+  "grid_capture": {
+    "requested_url": "https://cdn.proj.org/us_noaa_cshpgn.tif",
+    "final_url": "https://cdn.proj.org/us_noaa_cshpgn.tif",
+    "http_status": 200,
+    "retrieved_at_utc": "2026-09-30T03:53:25.775416+00:00",
+    "retrieval_time_basis": "Preserved download-file modification time at curl write; UTC.",
+    "recorded_at_utc": "2026-09-30T03:54:16.300860+00:00",
+    "bytes": 6834,
+    "sha256": "d54183c832e0366fc558147961bd8ae7d0dd3b5ae945069afd6a37a5a5c604c9",
+    "headers_sha256": "6f04810aaa98aec7fe1ffbfce2b3c8504d9bbcd465134ab38e0100b9b905be09",
+    "requested_url_count": 1,
+    "proj_network": "OFF"
+  },
+  "commands": {
+    "inventory": {
+      "argv": [
+        "/tmp/permitpulse-proj-review/install/bin/projinfo",
+        "--main-db-path",
+        "/tmp/permitpulse-proj-review/install/share/proj/proj.db",
+        "-s",
+        "EPSG:3857",
+        "-t",
+        "EPSG:3310",
+        "--bbox",
+        "-118.50,33.90,-118.20,34.20",
+        "--spatial-test",
+        "contains",
+        "--crs-extent-use",
+        "intersection",
+        "--hide-ballpark",
+        "--pivot-crs",
+        "always",
+        "--grid-check",
+        "none",
+        "-o",
+        "PROJ,PROJJSON"
+      ],
+      "returncode": 0,
+      "stdout_sha256": "e01ee8b9424e6a48821454b607d18fc0389e4d0c38c11dba5d2ec72edf4fa509",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "local": {
+      "argv": [
+        "/tmp/permitpulse-proj-review/install/bin/projinfo",
+        "--main-db-path",
+        "/tmp/permitpulse-proj-review/install/share/proj/proj.db",
+        "-s",
+        "EPSG:3857",
+        "-t",
+        "EPSG:3310",
+        "--bbox",
+        "-118.50,33.90,-118.20,34.20",
+        "--spatial-test",
+        "contains",
+        "--crs-extent-use",
+        "intersection",
+        "--hide-ballpark",
+        "--pivot-crs",
+        "always",
+        "--grid-check",
+        "discard_missing",
+        "-o",
+        "PROJ,PROJJSON"
+      ],
+      "returncode": 0,
+      "stdout_sha256": "991cb5ac2a843efe10f782d66b0041f8b1c83cbf44ce170bf6234998c178fc92",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "local-summary": {
+      "argv": [
+        "/tmp/permitpulse-proj-review/install/bin/projinfo",
+        "--main-db-path",
+        "/tmp/permitpulse-proj-review/install/share/proj/proj.db",
+        "-s",
+        "EPSG:3857",
+        "-t",
+        "EPSG:3310",
+        "--bbox",
+        "-118.50,33.90,-118.20,34.20",
+        "--spatial-test",
+        "contains",
+        "--crs-extent-use",
+        "intersection",
+        "--hide-ballpark",
+        "--pivot-crs",
+        "always",
+        "--grid-check",
+        "discard_missing",
+        "--summary"
+      ],
+      "returncode": 0,
+      "stdout_sha256": "39282f0f177503a08b36cfe08122a1d9d34506e1aa3dcaf4c5cb697c87252afe",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "superseded-summary": {
+      "argv": [
+        "/tmp/permitpulse-proj-review/install/bin/projinfo",
+        "--main-db-path",
+        "/tmp/permitpulse-proj-review/install/share/proj/proj.db",
+        "-s",
+        "EPSG:3857",
+        "-t",
+        "EPSG:3310",
+        "--bbox",
+        "-118.50,33.90,-118.20,34.20",
+        "--spatial-test",
+        "contains",
+        "--crs-extent-use",
+        "intersection",
+        "--hide-ballpark",
+        "--pivot-crs",
+        "always",
+        "--grid-check",
+        "none",
+        "--show-superseded",
+        "--summary"
+      ],
+      "returncode": 0,
+      "stdout_sha256": "a64f038a4bf52dad1a2933e00aca7550546c054db5bd021de8adbf7d08847fed",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "remote": {
+      "argv": [
+        "/tmp/permitpulse-proj-review/install/bin/projinfo",
+        "--main-db-path",
+        "/tmp/permitpulse-proj-review/install/share/proj/proj.db",
+        "--remote-data"
+      ],
+      "returncode": 0,
+      "stdout_sha256": "d09de272a1cfda664bda3f72b93b38d28e10764cc7882a71e575e5f125a5132b",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "searchpaths": {
+      "argv": [
+        "/tmp/permitpulse-proj-review/install/bin/projinfo",
+        "--main-db-path",
+        "/tmp/permitpulse-proj-review/install/share/proj/proj.db",
+        "--searchpaths"
+      ],
+      "returncode": 0,
+      "stdout_sha256": "8f5214c7d3c532130a0871f89ebcc5852b8e7c6f961f713d21352e9af2a2b327",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    }
+  },
+  "candidate_count_without_ballpark_or_superseded": 11,
+  "locally_usable_count": 3,
+  "superseded_diagnostic_count": 13,
+  "inventory": [
+    {
+      "rank": 1,
+      "name": "Inverse of Popular Visualisation Pseudo-Mercator + Inverse of NAD83(HARN) to WGS 84 (3) + Inverse of NAD83 to NAD83(HARN) (4) + California Albers",
+      "accuracy_m": 1.05,
+      "ballpark": false,
+      "instantiable": true,
+      "grids": [
+        {
+          "name": "us_noaa_cshpgn.tif",
+          "full_name": "/tmp/permitpulse-proj-review/install/share/proj/us_noaa_cshpgn.tif",
+          "package": null,
+          "url_metadata_only": "https://cdn.proj.org/us_noaa_cshpgn.tif",
+          "direct_download": true,
+          "open_license": true,
+          "available": true
+        }
+      ],
+      "pipeline": "+proj=pipeline +step +inv +proj=webmerc +lat_0=0 +lon_0=0 +x_0=0 +y_0=0 +ellps=WGS84 +step +proj=push +v_3 +step +proj=cart +ellps=WGS84 +step +inv +proj=helmert +x=-0.991 +y=1.9072 +z=0.5129 +rx=-0.0257899075194932 +ry=-0.0096500989602704 +rz=-0.0116599432323421 +s=0 +convention=coordinate_frame +step +inv +proj=cart +ellps=GRS80 +step +proj=pop +v_3 +step +inv +proj=hgridshift +grids=us_noaa_cshpgn.tif +step +proj=aea +lat_0=0 +lon_0=-120 +lat_1=34 +lat_2=40.5 +x_0=0 +y_0=-4000000 +ellps=GRS80",
+      "component_ids": [
+        {
+          "authority": "INVERSE(EPSG)",
+          "code": 3856
+        },
+        {
+          "authority": "INVERSE(EPSG)",
+          "code": 1901
+        },
+        {
+          "authority": "INVERSE(DERIVED_FROM(EPSG))",
+          "code": 1477
+        },
+        {
+          "authority": "EPSG",
+          "code": 10420
+        }
+      ],
+      "area": "United States (USA) - California south of 36.5\u00b0N",
+      "bbox": {
+        "south_latitude": 32.53,
+        "west_longitude": -121.98,
+        "north_latitude": 36.5,
+        "east_longitude": -114.12
+      }
+    },
+    {
+      "rank": 2,
+      "name": "Inverse of Popular Visualisation Pseudo-Mercator + Inverse of NAD83(HARN) to WGS 84 (3) + Inverse of NAD83 to NAD83(HARN) (47) + California Albers",
+      "accuracy_m": 1.05,
+      "ballpark": false,
+      "instantiable": false,
+      "grids": [
+        {
+          "name": "us_noaa_nadcon5_nad83_1986_nad83_harn_conus.tif",
+          "full_name": null,
+          "package": null,
+          "url_metadata_only": "https://cdn.proj.org/us_noaa_nadcon5_nad83_1986_nad83_harn_conus.tif",
+          "direct_download": true,
+          "open_license": true,
+          "available": false
+        }
+      ],
+      "pipeline": "+proj=pipeline +step +inv +proj=webmerc +lat_0=0 +lon_0=0 +x_0=0 +y_0=0 +ellps=WGS84 +step +proj=push +v_3 +step +proj=cart +ellps=WGS84 +step +inv +proj=helmert +x=-0.991 +y=1.9072 +z=0.5129 +rx=-0.0257899075194932 +ry=-0.0096500989602704 +rz=-0.0116599432323421 +s=0 +convention=coordinate_frame +step +inv +proj=cart +ellps=GRS80 +step +proj=pop +v_3 +step +inv +proj=gridshift +grids=us_noaa_nadcon5_nad83_1986_nad83_harn_conus.tif +step +proj=aea +lat_0=0 +lon_0=-120 +lat_1=34 +lat_2=40.5 +x_0=0 +y_0=-4000000 +ellps=GRS80",
+      "component_ids": [
+        {
+          "authority": "INVERSE(EPSG)",
+          "code": 3856
+        },
+        {
+          "authority": "INVERSE(EPSG)",
+          "code": 1901
+        },
+        {
+          "authority": "INVERSE(DERIVED_FROM(EPSG))",
+          "code": 8556
+        },
+        {
+          "authority": "EPSG",
+          "code": 10420
+        }
+      ],
+      "area": "United States (USA) - conterminous (contiguous) lower 48 states (CONUS) - onshore.",
+      "bbox": {
+        "south_latitude": 24.41,
+        "west_longitude": -124.79,
+        "north_latitude": 49.38,
+        "east_longitude": -66.91
+      }
+    },
+    {
+      "rank": 3,
+      "name": "Inverse of Popular Visualisation Pseudo-Mercator + Inverse of NAD83 to WGS 84 (54) + California Albers",
+      "accuracy_m": 2.0,
+      "ballpark": false,
+      "instantiable": true,
+      "grids": [
+        {
+          "name": "us_noaa_cshpgn.tif",
+          "full_name": "/tmp/permitpulse-proj-review/install/share/proj/us_noaa_cshpgn.tif",
+          "package": null,
+          "url_metadata_only": "https://cdn.proj.org/us_noaa_cshpgn.tif",
+          "direct_download": true,
+          "open_license": true,
+          "available": true
+        }
+      ],
+      "pipeline": "+proj=pipeline +step +inv +proj=webmerc +lat_0=0 +lon_0=0 +x_0=0 +y_0=0 +ellps=WGS84 +step +inv +proj=hgridshift +grids=us_noaa_cshpgn.tif +step +proj=aea +lat_0=0 +lon_0=-120 +lat_1=34 +lat_2=40.5 +x_0=0 +y_0=-4000000 +ellps=GRS80",
+      "component_ids": [
+        {
+          "authority": "INVERSE(EPSG)",
+          "code": 3856
+        },
+        {
+          "authority": "INVERSE(DERIVED_FROM(EPSG))",
+          "code": 1750
+        },
+        {
+          "authority": "EPSG",
+          "code": 10420
+        }
+      ],
+      "area": "United States (USA) - California south of 36.5\u00b0N",
+      "bbox": {
+        "south_latitude": 32.53,
+        "west_longitude": -121.98,
+        "north_latitude": 36.5,
+        "east_longitude": -114.12
+      }
+    },
+    {
+      "rank": 4,
+      "name": "Inverse of Popular Visualisation Pseudo-Mercator + Inverse of NAD83(HARN) to WGS 84 (1) + Inverse of NAD83 to NAD83(HARN) (47) + California Albers",
+      "accuracy_m": 2.05,
+      "ballpark": false,
+      "instantiable": false,
+      "grids": [
+        {
+          "name": "us_noaa_nadcon5_nad83_1986_nad83_harn_conus.tif",
+          "full_name": null,
+          "package": null,
+          "url_metadata_only": "https://cdn.proj.org/us_noaa_nadcon5_nad83_1986_nad83_harn_conus.tif",
+          "direct_download": true,
+          "open_license": true,
+          "available": false
+        }
+      ],
+      "pipeline": "+proj=pipeline +step +inv +proj=webmerc +lat_0=0 +lon_0=0 +x_0=0 +y_0=0 +ellps=WGS84 +step +inv +proj=gridshift +grids=us_noaa_nadcon5_nad83_1986_nad83_harn_conus.tif +step +proj=aea +lat_0=0 +lon_0=-120 +lat_1=34 +lat_2=40.5 +x_0=0 +y_0=-4000000 +ellps=GRS80",
+      "component_ids": [
+        {
+          "authority": "INVERSE(EPSG)",
+          "code": 3856
+        },
+        {
+          "authority": "INVERSE(EPSG)",
+          "code": 1580
+        },
+        {
+          "authority": "INVERSE(DERIVED_FROM(EPSG))",
+          "code": 8556
+        },
+        {
+          "authority": "EPSG",
+          "code": 10420
+        }
+      ],
+      "area": "United States (USA) - conterminous (contiguous) lower 48 states (CONUS) onshore, Gulf of Mexico offshore continental shelf (GoM OCS).",
+      "bbox": {
+        "south_latitude": 23.82,
+        "west_longitude": -124.79,
+        "north_latitude": 49.38,
+        "east_longitude": -66.91
+      }
+    },
+    {
+      "rank": 5,
+      "name": "Inverse of Popular Visualisation Pseudo-Mercator + Inverse of NAD83 to WGS 84 (1) + California Albers",
+      "accuracy_m": 4.0,
+      "ballpark": false,
+      "instantiable": true,
+      "grids": [],
+      "pipeline": "+proj=pipeline +step +inv +proj=webmerc +lat_0=0 +lon_0=0 +x_0=0 +y_0=0 +ellps=WGS84 +step +proj=aea +lat_0=0 +lon_0=-120 +lat_1=34 +lat_2=40.5 +x_0=0 +y_0=-4000000 +ellps=GRS80",
+      "component_ids": [
+        {
+          "authority": "INVERSE(EPSG)",
+          "code": 3856
+        },
+        {
+          "authority": "INVERSE(EPSG)",
+          "code": 1188
+        },
+        {
+          "authority": "EPSG",
+          "code": 10420
+        }
+      ],
+      "area": "North America - onshore and offshore: Canada; United States (USA) - Alaska (mainland) and conterminous (contiguous) lower 48 states (CONUS).",
+      "bbox": {
+        "south_latitude": 23.81,
+        "west_longitude": -172.54,
+        "north_latitude": 86.46,
+        "east_longitude": -47.74
+      }
+    },
+    {
+      "rank": 6,
+      "name": "Inverse of Popular Visualisation Pseudo-Mercator + Inverse of NAD27 to WGS 84 (79) + NAD27 to NAD83 (1) + California Albers",
+      "accuracy_m": 5.15,
+      "ballpark": false,
+      "instantiable": false,
+      "grids": [
+        {
+          "name": "us_noaa_conus.tif",
+          "full_name": null,
+          "package": null,
+          "url_metadata_only": "https://cdn.proj.org/us_noaa_conus.tif",
+          "direct_download": true,
+          "open_license": true,
+          "available": false
+        }
+      ],
+      "pipeline": "+proj=pipeline +step +inv +proj=webmerc +lat_0=0 +lon_0=0 +x_0=0 +y_0=0 +ellps=WGS84 +step +proj=aea +lat_0=0 +lon_0=-120 +lat_1=34 +lat_2=40.5 +x_0=0 +y_0=-4000000 +ellps=GRS80",
+      "component_ids": [
+        {
+          "authority": "INVERSE(EPSG)",
+          "code": 3856
+        },
+        {
+          "authority": "INVERSE(DERIVED_FROM(EPSG))",
+          "code": 15851
+        },
+        {
+          "authority": "DERIVED_FROM(EPSG)",
+          "code": 1241
+        },
+        {
+          "authority": "EPSG",
+          "code": 10420
+        }
+      ],
+      "area": "United States (USA) - CONUS including EEZ - onshore and offshore - Alabama; Arizona; Arkansas; California; Colorado; Connecticut; Delaware; Florida; Georgia; Idaho; Illinois; Indiana; Iowa; Kansas; Kentucky; Louisiana; Maine; Maryland; Massachusetts; Michigan; Minnesota; Mississippi; Missouri; Montana; Nebraska; Nevada; New Hampshire; New Jersey; New Mexico; New York; North Carolina; North Dakota; Ohio; Oklahoma; Oregon; Pennsylvania; Rhode Island; South Carolina; South Dakota; Tennessee; Texas; Utah; Vermont; Virginia; Washington; West Virginia; Wisconsin; Wyoming. US Gulf of Mexico (GoM) OCS.",
+      "bbox": {
+        "south_latitude": 23.81,
+        "west_longitude": -129.17,
+        "north_latitude": 49.38,
+        "east_longitude": -65.69
+      }
+    },
+    {
+      "rank": 7,
+      "name": "Inverse of Popular Visualisation Pseudo-Mercator + Inverse of NAD27 to WGS 84 (79) + NAD27 to NAD83 (7) + California Albers",
+      "accuracy_m": 5.15,
+      "ballpark": false,
+      "instantiable": false,
+      "grids": [
+        {
+          "name": "us_noaa_conus.tif",
+          "full_name": null,
+          "package": null,
+          "url_metadata_only": "https://cdn.proj.org/us_noaa_conus.tif",
+          "direct_download": true,
+          "open_license": true,
+          "available": false
+        },
+        {
+          "name": "us_noaa_nadcon5_nad27_nad83_1986_conus.tif",
+          "full_name": null,
+          "package": null,
+          "url_metadata_only": "https://cdn.proj.org/us_noaa_nadcon5_nad27_nad83_1986_conus.tif",
+          "direct_download": true,
+          "open_license": true,
+          "available": false
+        }
+      ],
+      "pipeline": "+proj=pipeline +step +inv +proj=webmerc +lat_0=0 +lon_0=0 +x_0=0 +y_0=0 +ellps=WGS84 +step +inv +proj=hgridshift +grids=us_noaa_conus.tif +step +proj=gridshift +grids=us_noaa_nadcon5_nad27_nad83_1986_conus.tif +step +proj=aea +lat_0=0 +lon_0=-120 +lat_1=34 +lat_2=40.5 +x_0=0 +y_0=-4000000 +ellps=GRS80",
+      "component_ids": [
+        {
+          "authority": "INVERSE(EPSG)",
+          "code": 3856
+        },
+        {
+          "authority": "INVERSE(DERIVED_FROM(EPSG))",
+          "code": 15851
+        },
+        {
+          "authority": "DERIVED_FROM(EPSG)",
+          "code": 8555
+        },
+        {
+          "authority": "EPSG",
+          "code": 10420
+        }
+      ],
+      "area": "United States (USA) - conterminous (contiguous) lower 48 states (CONUS) onshore, Gulf of Mexico offshore continental shelf (GoM OCS).",
+      "bbox": {
+        "south_latitude": 23.82,
+        "west_longitude": -124.79,
+        "north_latitude": 49.38,
+        "east_longitude": -66.91
+      }
+    },
+    {
+      "rank": 8,
+      "name": "Inverse of Popular Visualisation Pseudo-Mercator + Inverse of NAD27 to WGS 84 (6) + NAD27 to NAD83 (7) + California Albers",
+      "accuracy_m": 7.15,
+      "ballpark": false,
+      "instantiable": false,
+      "grids": [
+        {
+          "name": "us_noaa_nadcon5_nad27_nad83_1986_conus.tif",
+          "full_name": null,
+          "package": null,
+          "url_metadata_only": "https://cdn.proj.org/us_noaa_nadcon5_nad27_nad83_1986_conus.tif",
+          "direct_download": true,
+          "open_license": true,
+          "available": false
+        }
+      ],
+      "pipeline": "+proj=pipeline +step +inv +proj=webmerc +lat_0=0 +lon_0=0 +x_0=0 +y_0=0 +ellps=WGS84 +step +proj=push +v_3 +step +proj=cart +ellps=WGS84 +step +proj=helmert +x=8 +y=-159 +z=-175 +step +inv +proj=cart +ellps=clrk66 +step +proj=pop +v_3 +step +proj=gridshift +grids=us_noaa_nadcon5_nad27_nad83_1986_conus.tif +step +proj=aea +lat_0=0 +lon_0=-120 +lat_1=34 +lat_2=40.5 +x_0=0 +y_0=-4000000 +ellps=GRS80",
+      "component_ids": [
+        {
+          "authority": "INVERSE(EPSG)",
+          "code": 3856
+        },
+        {
+          "authority": "INVERSE(EPSG)",
+          "code": 1175
+        },
+        {
+          "authority": "DERIVED_FROM(EPSG)",
+          "code": 8555
+        },
+        {
+          "authority": "EPSG",
+          "code": 10420
+        }
+      ],
+      "area": "United States (USA) - CONUS west of Mississippi River - onshore - excludes those states covered under Area 2389 - Includes Arizona; Arkansas; California; Colorado; Idaho; Iowa; Kansas; Montana; Nebraska; Nevada; New Mexico; North Dakota; Oklahoma; Oregon; South Dakota; Texas; Utah; Washington; Wyoming.",
+      "bbox": {
+        "south_latitude": 25.83,
+        "west_longitude": -124.79,
+        "north_latitude": 49.05,
+        "east_longitude": -89.64
+      }
+    },
+    {
+      "rank": 9,
+      "name": "Inverse of Popular Visualisation Pseudo-Mercator + Inverse of NAD27 to WGS 84 (6) + NAD27 to NAD83 (1) + California Albers",
+      "accuracy_m": 7.15,
+      "ballpark": false,
+      "instantiable": false,
+      "grids": [
+        {
+          "name": "us_noaa_conus.tif",
+          "full_name": null,
+          "package": null,
+          "url_metadata_only": "https://cdn.proj.org/us_noaa_conus.tif",
+          "direct_download": true,
+          "open_license": true,
+          "available": false
+        }
+      ],
+      "pipeline": "+proj=pipeline +step +inv +proj=webmerc +lat_0=0 +lon_0=0 +x_0=0 +y_0=0 +ellps=WGS84 +step +proj=push +v_3 +step +proj=cart +ellps=WGS84 +step +proj=helmert +x=8 +y=-159 +z=-175 +step +inv +proj=cart +ellps=clrk66 +step +proj=pop +v_3 +step +proj=hgridshift +grids=us_noaa_conus.tif +step +proj=aea +lat_0=0 +lon_0=-120 +lat_1=34 +lat_2=40.5 +x_0=0 +y_0=-4000000 +ellps=GRS80",
+      "component_ids": [
+        {
+          "authority": "INVERSE(EPSG)",
+          "code": 3856
+        },
+        {
+          "authority": "INVERSE(EPSG)",
+          "code": 1175
+        },
+        {
+          "authority": "DERIVED_FROM(EPSG)",
+          "code": 1241
+        },
+        {
+          "authority": "EPSG",
+          "code": 10420
+        }
+      ],
+      "area": "United States (USA) - CONUS west of Mississippi River - onshore - excludes those states covered under Area 2389 - Includes Arizona; Arkansas; California; Colorado; Idaho; Iowa; Kansas; Montana; Nebraska; Nevada; New Mexico; North Dakota; Oklahoma; Oregon; South Dakota; Texas; Utah; Washington; Wyoming.",
+      "bbox": {
+        "south_latitude": 25.83,
+        "west_longitude": -124.79,
+        "north_latitude": 49.05,
+        "east_longitude": -89.64
+      }
+    },
+    {
+      "rank": 10,
+      "name": "Inverse of Popular Visualisation Pseudo-Mercator + Inverse of NAD27 to WGS 84 (4) + NAD27 to NAD83 (7) + California Albers",
+      "accuracy_m": 10.15,
+      "ballpark": false,
+      "instantiable": false,
+      "grids": [
+        {
+          "name": "us_noaa_nadcon5_nad27_nad83_1986_conus.tif",
+          "full_name": null,
+          "package": null,
+          "url_metadata_only": "https://cdn.proj.org/us_noaa_nadcon5_nad27_nad83_1986_conus.tif",
+          "direct_download": true,
+          "open_license": true,
+          "available": false
+        }
+      ],
+      "pipeline": "+proj=pipeline +step +inv +proj=webmerc +lat_0=0 +lon_0=0 +x_0=0 +y_0=0 +ellps=WGS84 +step +proj=push +v_3 +step +proj=cart +ellps=WGS84 +step +proj=helmert +x=8 +y=-160 +z=-176 +step +inv +proj=cart +ellps=clrk66 +step +proj=pop +v_3 +step +proj=gridshift +grids=us_noaa_nadcon5_nad27_nad83_1986_conus.tif +step +proj=aea +lat_0=0 +lon_0=-120 +lat_1=34 +lat_2=40.5 +x_0=0 +y_0=-4000000 +ellps=GRS80",
+      "component_ids": [
+        {
+          "authority": "INVERSE(EPSG)",
+          "code": 3856
+        },
+        {
+          "authority": "INVERSE(EPSG)",
+          "code": 1173
+        },
+        {
+          "authority": "DERIVED_FROM(EPSG)",
+          "code": 8555
+        },
+        {
+          "authority": "EPSG",
+          "code": 10420
+        }
+      ],
+      "area": "United States (USA) - conterminous (contiguous) lower 48 states (CONUS) - onshore.",
+      "bbox": {
+        "south_latitude": 24.41,
+        "west_longitude": -124.79,
+        "north_latitude": 49.38,
+        "east_longitude": -66.91
+      }
+    },
+    {
+      "rank": 11,
+      "name": "Inverse of Popular Visualisation Pseudo-Mercator + Inverse of NAD27 to WGS 84 (4) + NAD27 to NAD83 (1) + California Albers",
+      "accuracy_m": 10.15,
+      "ballpark": false,
+      "instantiable": false,
+      "grids": [
+        {
+          "name": "us_noaa_conus.tif",
+          "full_name": null,
+          "package": null,
+          "url_metadata_only": "https://cdn.proj.org/us_noaa_conus.tif",
+          "direct_download": true,
+          "open_license": true,
+          "available": false
+        }
+      ],
+      "pipeline": "+proj=pipeline +step +inv +proj=webmerc +lat_0=0 +lon_0=0 +x_0=0 +y_0=0 +ellps=WGS84 +step +proj=push +v_3 +step +proj=cart +ellps=WGS84 +step +proj=helmert +x=8 +y=-160 +z=-176 +step +inv +proj=cart +ellps=clrk66 +step +proj=pop +v_3 +step +proj=hgridshift +grids=us_noaa_conus.tif +step +proj=aea +lat_0=0 +lon_0=-120 +lat_1=34 +lat_2=40.5 +x_0=0 +y_0=-4000000 +ellps=GRS80",
+      "component_ids": [
+        {
+          "authority": "INVERSE(EPSG)",
+          "code": 3856
+        },
+        {
+          "authority": "INVERSE(EPSG)",
+          "code": 1173
+        },
+        {
+          "authority": "DERIVED_FROM(EPSG)",
+          "code": 1241
+        },
+        {
+          "authority": "EPSG",
+          "code": 10420
+        }
+      ],
+      "area": "United States (USA) - conterminous (contiguous) lower 48 states (CONUS) - onshore.",
+      "bbox": {
+        "south_latitude": 24.41,
+        "west_longitude": -124.79,
+        "north_latitude": 49.38,
+        "east_longitude": -66.91
+      }
+    }
+  ],
+  "locally_usable": [
+    {
+      "rank": 1,
+      "name": "Inverse of Popular Visualisation Pseudo-Mercator + Inverse of NAD83(HARN) to WGS 84 (3) + Inverse of NAD83 to NAD83(HARN) (4) + California Albers",
+      "accuracy_m": 1.05,
+      "ballpark": false,
+      "instantiable": true,
+      "grids": [
+        {
+          "name": "us_noaa_cshpgn.tif",
+          "full_name": "/tmp/permitpulse-proj-review/install/share/proj/us_noaa_cshpgn.tif",
+          "package": null,
+          "url_metadata_only": "https://cdn.proj.org/us_noaa_cshpgn.tif",
+          "direct_download": true,
+          "open_license": true,
+          "available": true
+        }
+      ],
+      "pipeline": "+proj=pipeline +step +inv +proj=webmerc +lat_0=0 +lon_0=0 +x_0=0 +y_0=0 +ellps=WGS84 +step +proj=push +v_3 +step +proj=cart +ellps=WGS84 +step +inv +proj=helmert +x=-0.991 +y=1.9072 +z=0.5129 +rx=-0.0257899075194932 +ry=-0.0096500989602704 +rz=-0.0116599432323421 +s=0 +convention=coordinate_frame +step +inv +proj=cart +ellps=GRS80 +step +proj=pop +v_3 +step +inv +proj=hgridshift +grids=us_noaa_cshpgn.tif +step +proj=aea +lat_0=0 +lon_0=-120 +lat_1=34 +lat_2=40.5 +x_0=0 +y_0=-4000000 +ellps=GRS80",
+      "component_ids": [
+        {
+          "authority": "INVERSE(EPSG)",
+          "code": 3856
+        },
+        {
+          "authority": "INVERSE(EPSG)",
+          "code": 1901
+        },
+        {
+          "authority": "INVERSE(DERIVED_FROM(EPSG))",
+          "code": 1477
+        },
+        {
+          "authority": "EPSG",
+          "code": 10420
+        }
+      ],
+      "area": "United States (USA) - California south of 36.5\u00b0N",
+      "bbox": {
+        "south_latitude": 32.53,
+        "west_longitude": -121.98,
+        "north_latitude": 36.5,
+        "east_longitude": -114.12
+      }
+    },
+    {
+      "rank": 2,
+      "name": "Inverse of Popular Visualisation Pseudo-Mercator + Inverse of NAD83 to WGS 84 (54) + California Albers",
+      "accuracy_m": 2.0,
+      "ballpark": false,
+      "instantiable": true,
+      "grids": [
+        {
+          "name": "us_noaa_cshpgn.tif",
+          "full_name": "/tmp/permitpulse-proj-review/install/share/proj/us_noaa_cshpgn.tif",
+          "package": null,
+          "url_metadata_only": "https://cdn.proj.org/us_noaa_cshpgn.tif",
+          "direct_download": true,
+          "open_license": true,
+          "available": true
+        }
+      ],
+      "pipeline": "+proj=pipeline +step +inv +proj=webmerc +lat_0=0 +lon_0=0 +x_0=0 +y_0=0 +ellps=WGS84 +step +inv +proj=hgridshift +grids=us_noaa_cshpgn.tif +step +proj=aea +lat_0=0 +lon_0=-120 +lat_1=34 +lat_2=40.5 +x_0=0 +y_0=-4000000 +ellps=GRS80",
+      "component_ids": [
+        {
+          "authority": "INVERSE(EPSG)",
+          "code": 3856
+        },
+        {
+          "authority": "INVERSE(DERIVED_FROM(EPSG))",
+          "code": 1750
+        },
+        {
+          "authority": "EPSG",
+          "code": 10420
+        }
+      ],
+      "area": "United States (USA) - California south of 36.5\u00b0N",
+      "bbox": {
+        "south_latitude": 32.53,
+        "west_longitude": -121.98,
+        "north_latitude": 36.5,
+        "east_longitude": -114.12
+      }
+    },
+    {
+      "rank": 3,
+      "name": "Inverse of Popular Visualisation Pseudo-Mercator + Inverse of NAD83 to WGS 84 (1) + California Albers",
+      "accuracy_m": 4.0,
+      "ballpark": false,
+      "instantiable": true,
+      "grids": [],
+      "pipeline": "+proj=pipeline +step +inv +proj=webmerc +lat_0=0 +lon_0=0 +x_0=0 +y_0=0 +ellps=WGS84 +step +proj=aea +lat_0=0 +lon_0=-120 +lat_1=34 +lat_2=40.5 +x_0=0 +y_0=-4000000 +ellps=GRS80",
+      "component_ids": [
+        {
+          "authority": "INVERSE(EPSG)",
+          "code": 3856
+        },
+        {
+          "authority": "INVERSE(EPSG)",
+          "code": 1188
+        },
+        {
+          "authority": "EPSG",
+          "code": 10420
+        }
+      ],
+      "area": "North America - onshore and offshore: Canada; United States (USA) - Alaska (mainland) and conterminous (contiguous) lower 48 states (CONUS).",
+      "bbox": {
+        "south_latitude": 23.81,
+        "west_longitude": -172.54,
+        "north_latitude": 86.46,
+        "east_longitude": -47.74
+      }
+    }
+  ],
+  "excluded_superseded": [
+    {
+      "rank": 2,
+      "name": "Inverse of Popular Visualisation Pseudo-Mercator + Inverse of NAD83(HARN) to WGS 84 (2) + Inverse of NAD83 to NAD83(HARN) (4) + California Albers",
+      "accuracy_m": 1.05,
+      "ballpark": false,
+      "instantiable": true,
+      "grids": [
+        {
+          "name": "us_noaa_cshpgn.tif",
+          "full_name": "/tmp/permitpulse-proj-review/install/share/proj/us_noaa_cshpgn.tif",
+          "package": null,
+          "url_metadata_only": "https://cdn.proj.org/us_noaa_cshpgn.tif",
+          "direct_download": true,
+          "open_license": true,
+          "available": true
+        }
+      ],
+      "pipeline": "+proj=pipeline +step +inv +proj=webmerc +lat_0=0 +lon_0=0 +x_0=0 +y_0=0 +ellps=WGS84 +step +proj=push +v_3 +step +proj=cart +ellps=WGS84 +step +inv +proj=helmert +x=-0.9738 +y=1.9453 +z=0.5486 +rx=-0.0275507901704247 +ry=-0.0100492213603585 +rz=-0.0113590028800276 +s=0 +convention=coordinate_frame +step +inv +proj=cart +ellps=GRS80 +step +proj=pop +v_3 +step +inv +proj=hgridshift +grids=us_noaa_cshpgn.tif +step +proj=aea +lat_0=0 +lon_0=-120 +lat_1=34 +lat_2=40.5 +x_0=0 +y_0=-4000000 +ellps=GRS80",
+      "component_ids": [
+        {
+          "authority": "INVERSE(EPSG)",
+          "code": 3856
+        },
+        {
+          "authority": "INVERSE(EPSG)",
+          "code": 1900
+        },
+        {
+          "authority": "INVERSE(DERIVED_FROM(EPSG))",
+          "code": 1477
+        },
+        {
+          "authority": "EPSG",
+          "code": 10420
+        }
+      ],
+      "area": "United States (USA) - California south of 36.5\u00b0N",
+      "bbox": {
+        "south_latitude": 32.53,
+        "west_longitude": -121.98,
+        "north_latitude": 36.5,
+        "east_longitude": -114.12
+      }
+    },
+    {
+      "rank": 4,
+      "name": "Inverse of Popular Visualisation Pseudo-Mercator + Inverse of NAD83(HARN) to WGS 84 (2) + Inverse of NAD83 to NAD83(HARN) (47) + California Albers",
+      "accuracy_m": 1.05,
+      "ballpark": false,
+      "instantiable": false,
+      "grids": [
+        {
+          "name": "us_noaa_nadcon5_nad83_1986_nad83_harn_conus.tif",
+          "full_name": null,
+          "package": null,
+          "url_metadata_only": "https://cdn.proj.org/us_noaa_nadcon5_nad83_1986_nad83_harn_conus.tif",
+          "direct_download": true,
+          "open_license": true,
+          "available": false
+        }
+      ],
+      "pipeline": "+proj=pipeline +step +inv +proj=webmerc +lat_0=0 +lon_0=0 +x_0=0 +y_0=0 +ellps=WGS84 +step +proj=push +v_3 +step +proj=cart +ellps=WGS84 +step +inv +proj=helmert +x=-0.9738 +y=1.9453 +z=0.5486 +rx=-0.0275507901704247 +ry=-0.0100492213603585 +rz=-0.0113590028800276 +s=0 +convention=coordinate_frame +step +inv +proj=cart +ellps=GRS80 +step +proj=pop +v_3 +step +inv +proj=gridshift +grids=us_noaa_nadcon5_nad83_1986_nad83_harn_conus.tif +step +proj=aea +lat_0=0 +lon_0=-120 +lat_1=34 +lat_2=40.5 +x_0=0 +y_0=-4000000 +ellps=GRS80",
+      "component_ids": [
+        {
+          "authority": "INVERSE(EPSG)",
+          "code": 3856
+        },
+        {
+          "authority": "INVERSE(EPSG)",
+          "code": 1900
+        },
+        {
+          "authority": "INVERSE(DERIVED_FROM(EPSG))",
+          "code": 8556
+        },
+        {
+          "authority": "EPSG",
+          "code": 10420
+        }
+      ],
+      "area": "United States (USA) - conterminous (contiguous) lower 48 states (CONUS) - onshore.",
+      "bbox": {
+        "south_latitude": 24.41,
+        "west_longitude": -124.79,
+        "north_latitude": 49.38,
+        "east_longitude": -66.91
+      }
+    }
+  ],
+  "selected_component_ids": [
+    {
+      "authority": "INVERSE(EPSG)",
+      "code": 3856
+    },
+    {
+      "authority": "INVERSE(EPSG)",
+      "code": 1901
+    },
+    {
+      "authority": "INVERSE(DERIVED_FROM(EPSG))",
+      "code": 1477
+    },
+    {
+      "authority": "EPSG",
+      "code": 10420
+    }
+  ],
+  "selected_pipeline": "+proj=pipeline\n  +step +inv +proj=webmerc +lat_0=0 +lon_0=0 +x_0=0 +y_0=0 +ellps=WGS84\n  +step +proj=push +v_3\n  +step +proj=cart +ellps=WGS84\n  +step +inv +proj=helmert +x=-0.991 +y=1.9072 +z=0.5129 +rx=-0.0257899075194932\n        +ry=-0.0096500989602704 +rz=-0.0116599432323421 +s=0\n        +convention=coordinate_frame\n  +step +inv +proj=cart +ellps=GRS80\n  +step +proj=pop +v_3\n  +step +inv +proj=hgridshift +grids=us_noaa_cshpgn.tif\n  +step +proj=aea +lat_0=0 +lon_0=-120 +lat_1=34 +lat_2=40.5 +x_0=0 +y_0=-4000000\n        +ellps=GRS80\n",
+  "selected_pipeline_sha256": "e78dcde94b61df7bdefc85b9e36b69312af28b17ea348ac2bae32ca49c4f6ab3",
+  "selected_accuracy_m": 1.05,
+  "profile_sha256": "ffee429a5802debb84bd646db60f15130090384ecb6765e1b4d4827ff7b0a1c2",
+  "no_new_equal_or_better_locally_usable_operation": true,
+  "selection_decision": "Same previously proposed California South route; conditionally approved by the user. No geometry was transformed during selection.",
+  "build": {
+    "cmake_version": "3.28.3",
+    "cxx_version": "Ubuntu 13.3.0-6ubuntu2~24.04.1",
+    "proj": {
+      "ENABLE_CURL": false,
+      "ENABLE_TIFF": true,
+      "NLOHMANN_JSON_ORIGIN": "internal",
+      "BUILD_TESTING": false
+    },
+    "tiff": {
+      "version": "4.7.2",
+      "zlib": true,
+      "tools_tests_docs_contrib": false,
+      "jpeg_jbig_zstd_webp_lerc_lzma_libdeflate": false
+    }
+  },
+  "resource_pins": [
+    {
+      "id": "proj_db",
+      "base": "proj",
+      "path": "share/proj/proj.db",
+      "bytes": 10551296,
+      "sha256": "082d5e6acc6b125d64fe77788db27455103229b05c541bc0343db89a7aa90a9d"
+    },
+    {
+      "id": "proj_ini",
+      "base": "proj",
+      "path": "share/proj/proj.ini",
+      "bytes": 2435,
+      "sha256": "b95ebf0d007339244483d65d571cd887a51806e2bd2c1ab7f47b897d25320d65"
+    },
+    {
+      "id": "grid",
+      "base": "proj",
+      "path": "share/proj/us_noaa_cshpgn.tif",
+      "bytes": 6834,
+      "sha256": "d54183c832e0366fc558147961bd8ae7d0dd3b5ae945069afd6a37a5a5c604c9"
+    },
+    {
+      "id": "libproj",
+      "base": "proj",
+      "path": "lib/libproj.so.25.9.9.0",
+      "bytes": 5984464,
+      "sha256": "ae6194010e96ec7d021c47d26bee0f3e2d1567fdc3481b704f802179ebd67806"
+    },
+    {
+      "id": "libtiff",
+      "base": "tiff",
+      "path": "lib/libtiff.so.6.3.0",
+      "bytes": 623288,
+      "sha256": "1d3ac3c6fab7fdfef9b694430402321e02489041d5a0f2c88f1c77c017d64633"
+    },
+    {
+      "id": "libsqlite3",
+      "base": "system",
+      "path": "/usr/lib/x86_64-linux-gnu/libsqlite3.so.0.8.6",
+      "bytes": 1468440,
+      "sha256": "eac351cf84d688d1f9235e6165bd57555b31a491cd2f65e0dca67daa69036370"
+    },
+    {
+      "id": "libz",
+      "base": "system",
+      "path": "/usr/lib/x86_64-linux-gnu/libz.so.1.3",
+      "bytes": 113000,
+      "sha256": "9b64150b28505a33d6bc3ecf709c279f6de97a1c184dbda65d06ee4537f6d286"
+    },
+    {
+      "id": "libm",
+      "base": "system",
+      "path": "/usr/lib/x86_64-linux-gnu/libm.so.6",
+      "bytes": 952616,
+      "sha256": "1b87a1a50b496cfead2b0ad134c2ff536705c82608db240c7e8aa48d6c0e4217"
+    }
+  ]
+}

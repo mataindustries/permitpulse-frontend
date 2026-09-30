@@ -1,0 +1,43 @@
+{
+  "TEST_ONLY": true,
+  "spatialReference": {
+    "wkid": 102100,
+    "latestWkid": 3857
+  },
+  "features": [
+    {
+      "attributes": {
+        "APN": "0000000001",
+        "PIN": "TEST-ONLY-PIN-3F",
+        "TR": "TEST-ONLY-TRACT",
+        "LOT": "1"
+      },
+      "geometry": {
+        "rings": [
+          [
+            [
+              -13189000,
+              4034000
+            ],
+            [
+              -13188980,
+              4034000
+            ],
+            [
+              -13188980,
+              4034020
+            ],
+            [
+              -13189000,
+              4034020
+            ],
+            [
+              -13189000,
+              4034000
+            ]
+          ]
+        ]
+      }
+    }
+  ]
+}
