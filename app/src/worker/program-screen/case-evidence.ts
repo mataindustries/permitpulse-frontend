@@ -7,6 +7,7 @@ import {
   type CaseFileRef, type ReviewedLotEvidenceReader, type ReviewedLotRecord,
 } from "../../shared/program-screen/reviewed-lot";
 import { loadOverlayDatasetView, overlayIndexPins } from "../../shared/program-screen/overlay-dataset";
+import { programAuthorityRegistries } from "../../shared/program-screen/authority-policy";
 
 export interface CaseReviewSnapshot { record: unknown; revision: string }
 export interface ProgramScreenCaseEvidenceStore extends ReviewedLotEvidenceReader {
@@ -93,7 +94,16 @@ class R2ProgramScreenCaseStore implements ProgramScreenCaseEvidenceStore {
   async ingestCalFire(indexText: string, records: Array<{ record_number: number; content: Uint8Array }>): Promise<void> {
     this.requireWriter();
     const view = await loadOverlayDatasetView({ index_text: indexText, records });
-    if (view.crs_epsg !== 3310 || view.class_field !== "FHSZ_Descr" || view.layer !== "FHSZSRA_23_3") throw new Error("Unexpected CAL FIRE overlay metadata.");
+    const source = programAuthorityRegistries.sources.find(
+      (entry) =>
+        entry.package?.members.overlay_dataset.source_id === view.dataset.source_id &&
+        entry.package.members.overlay_dataset.sha256_extracted === view.dataset.sha256_extracted,
+    );
+    if (
+      source?.package === undefined ||
+      source.superseded_by !== null ||
+      view.crs_epsg !== 3310 || view.class_field !== source.package.overlay.class_field || view.layer !== source.package.overlay.dataset_name
+    ) throw new Error("Unexpected CAL FIRE overlay metadata.");
     for (const record of records) await this.put(`${this.root}/calfire/record-${await bytesSha256(record.content)}.bin`, record.content, "application/octet-stream");
     await this.put(`${this.root}/calfire/index-${view.index_sha256}.txt`, new TextEncoder().encode(indexText), "text/plain; charset=utf-8");
   }

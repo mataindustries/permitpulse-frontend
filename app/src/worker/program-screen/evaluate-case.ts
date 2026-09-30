@@ -30,24 +30,47 @@ function unavailable(issue: string): CaseOverlayResult {
 
 /** Load only private reviewed normalized bytes and candidate records verified against the shipped pins. */
 export async function loadCaseOverlay(store: ProgramScreenCaseEvidenceStore, asOf: string, registries: ProgramAuthorityRegistries = programAuthorityRegistries): Promise<CaseOverlayResult> {
+  return loadCaseHazardOverlay(store, asOf, registries, SOURCE_ID, "prc_4202");
+}
+
+/** Route 1 infrastructure only. Criterion c remains pending; the Phase 3F d
+ * evaluator continues to use its independently assessed SRA input. */
+export async function loadCaseLraOverlay(
+  store: ProgramScreenCaseEvidenceStore,
+  asOf: string,
+  registries: ProgramAuthorityRegistries = programAuthorityRegistries,
+): Promise<CaseOverlayResult> {
+  return loadCaseHazardOverlay(store, asOf, registries, "calfire-lra-fhsz-2025-03-24-v1", "gov_51178");
+}
+
+async function loadCaseHazardOverlay(
+  store: ProgramScreenCaseEvidenceStore,
+  asOf: string,
+  registries: ProgramAuthorityRegistries,
+  sourceId: string,
+  route: "prc_4202" | "gov_51178",
+): Promise<CaseOverlayResult> {
   try {
     if (registries !== programAuthorityRegistries && !(import.meta.env.MODE === "test" && !import.meta.env.PROD)) return unavailable("Test registry overrides cannot enter production evaluation.");
     const snapshot = await store.readReview();
     if (snapshot === null) return unavailable("No current reviewed-lot record.");
     const { record, geometry } = await verifyReviewedLotEvidence(store, snapshot.record, asOf);
-    const source = registries.sources.find((entry) => entry.authority_source_id === SOURCE_ID);
+    const source = registries.sources.find((entry) => entry.authority_source_id === sourceId);
     const pack = source?.package;
-    if (source === undefined || source.superseded_by !== null || pack === undefined || pack.statutory_basis !== "prc_4202" || pack.adoption.status !== "adopted" || source.edition.date > asOf) return unavailable("CAL FIRE package is missing, superseded, or not applicable.");
+    if (source === undefined || source.superseded_by !== null || pack === undefined || pack.statutory_basis !== route ||
+      (pack.statutory_basis === "prc_4202"
+        ? pack.adoption.status !== "adopted"
+        : pack.identification.status !== "state_identification_recommendation") || source.edition.date > asOf) return unavailable("CAL FIRE package is missing, superseded, or not applicable.");
     const dataset = pack.members.overlay_dataset;
     const pin = overlayIndexPinFor(dataset);
     if (pin === undefined) return unavailable("CAL FIRE overlay dataset is not pinned.");
     const index = await store.getOverlayIndex(pin.index_sha256);
     if (index === null) return unavailable("CAL FIRE overlay index is missing.");
-    if (await bytesSha256(index) !== pin.index_sha256) return unavailable("CAL FIRE overlay index bytes differ from the pinned SHA-256.");
+    if ((await bytesSha256(index)) !== pin.index_sha256) return unavailable("CAL FIRE overlay index bytes differ from the pinned SHA-256.");
     const indexText = new TextDecoder("utf-8", { fatal: true }).decode(index);
     // Establish index integrity BEFORE it can select records to retrieve.
     const indexView = await loadOverlayDatasetView({ index_text: indexText, records: [] });
-    if (indexView.crs_epsg !== 3310 || indexView.class_field !== "FHSZ_Descr" || indexView.class_field !== pack.overlay.class_field || indexView.layer !== pack.overlay.dataset_name) return unavailable("CAL FIRE index CRS/layer/semantic class field differs from the package.");
+    if (indexView.crs_epsg !== 3310 || indexView.class_field !== pack.overlay.class_field || indexView.layer !== pack.overlay.dataset_name) return unavailable("CAL FIRE index CRS/layer/semantic class field differs from the package.");
     const positions = geometry.rings();
     const xs = positions.flatMap((ring) => ring.filter((_, index) => index % 2 === 0));
     const ys = positions.flatMap((ring) => ring.filter((_, index) => index % 2 === 1));
@@ -60,11 +83,11 @@ export async function loadCaseOverlay(store: ProgramScreenCaseEvidenceStore, asO
     const view = await loadOverlayDatasetView({ index_text: indexText, records });
     const computed = computeLotOverlay(view, geometry);
     const labels = computed.classes_on_lot.map((label) => pack.overlay.class_labels[label]);
-    if (labels.some((label) => label === undefined)) return unavailable("CAL FIRE FHSZ_Descr contains an unmapped semantic label.");
-    if (!await store.revisionIsCurrent(snapshot.revision)) return unavailable("Reviewed lot changed while loading evidence.");
+    if (labels.some((label) => label === undefined)) return unavailable(`CAL FIRE ${pack.overlay.class_field} contains an unmapped semantic label.`);
+    if (!(await store.revisionIsCurrent(snapshot.revision))) return unavailable("Reviewed lot changed while loading evidence.");
     const issues = [...computed.issues];
     if (record.legal_lot_identity !== "parcel_is_one_legal_lot") issues.push("Current one-legal-lot identity is not established.");
-    if (computed.lot_within_features === "part_of_lot" || computed.lot_within_features === "none") issues.push("Whole-lot SRA coverage is not established.");
+    if (computed.lot_within_features === "part_of_lot" || computed.lot_within_features === "none") issues.push(`Whole-lot ${route === "prc_4202" ? "SRA" : "LRA"} coverage is not established.`);
     return { record, computed, semantic_zone_labels: [...new Set(labels)].sort(), inputs: { datasets: [view], lot_geometries: [geometry] }, issues };
   } catch (error) {
     return unavailable(error instanceof Error ? error.message : "Case overlay evidence could not be verified.");

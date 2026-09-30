@@ -43,7 +43,8 @@ import {
  * approves it. Phase 3D registered the first one: CAL FIRE / OSFM and its
  * PRC §4202 State Responsibility Area map package, which alone can establish
  * the Very High and High facts (docs/PROGRAM_SCREEN_PHASE_3D_CALFIRE_SRA_PACKAGE.md).
- * Every other policy's `establishing` list is empty.
+ * Phase 3G adds the independent GOV §51178 LRA identification package for
+ * Very High only. Every other policy's `establishing` list is empty.
  */
 
 export interface ProgramAuthorityHumanReview {
@@ -74,9 +75,9 @@ export interface ProgramCaptureRef {
  * values here are the manifest's, checked against it and its members' text in
  * tests (B6); the evaluator reads only these values, never a capture.
  */
-export interface ReviewedAuthorityPackage {
+export interface ReviewedAdoptedAuthorityPackage {
   manifest_sha256: string;
-  statutory_basis: FireHazardStatutoryRoute;
+  statutory_basis: "prc_4202";
   adoption: { status: "adopted"; adoption_date: string; effective_date: string };
   /** Current while it is the registered source, `superseded_by` is null, and every member pin matches (D7). */
   currency: "until_superseded";
@@ -84,6 +85,32 @@ export interface ReviewedAuthorityPackage {
   /** How the overlay dataset's class labels map to hazard classes. Never a numeric code. */
   overlay: { dataset_name: string; class_field: string; class_labels: Readonly<Record<string, OverlayHazardClass>> };
 }
+export interface ReviewedIdentifiedAuthorityPackage {
+  manifest_sha256: string;
+  statutory_basis: "gov_51178";
+  identification: {
+    status: "state_identification_recommendation";
+    map_date: string;
+  };
+  currency: "until_superseded";
+  members: {
+    identification_statute: ProgramCaptureRef;
+    local_designation_statute: ProgramCaptureRef;
+    overlay_dataset: ProgramCaptureRef;
+  };
+  active_metadata: {
+    fid: 3;
+    layer: "FHSALRA25_v1_All";
+    xml_sha256: string;
+    definition_sha256: string;
+  };
+  overlay: {
+    dataset_name: string;
+    class_field: string;
+    class_labels: Readonly<Record<string, OverlayHazardClass>>;
+  };
+}
+export type ReviewedAuthorityPackage = ReviewedAdoptedAuthorityPackage | ReviewedIdentifiedAuthorityPackage;
 
 /** One specific edition of a map, plan, or other document, captured and reviewed. */
 export interface ReviewedAuthoritySource {
@@ -300,8 +327,13 @@ const calfireSraDataset: ProgramCaptureRef = {
   source_id: "calfire-fhszsra-23-3-data",
   sha256_extracted: "a85ff7eecf0f8ffa80d7dd8dcdc727a9dde42979fb3b7b8d5614b7a47a6b5a8a",
 };
-/** The only establishing path for a hazard fact: the reviewed PRC §4202 package. */
+/** Independently reviewed statutory authority packages. */
 const CALFIRE_SRA_PACKAGE_ID = "calfire-sra-fhsz-2023-09-29";
+const CALFIRE_LRA_PACKAGE_ID = "calfire-lra-fhsz-2025-03-24-v1";
+const calfireLraDataset: ProgramCaptureRef = {
+  source_id: "calfire-fhszlra-25-1-all-data",
+  sha256_extracted: "5724d4a456ddbf7845a116d162d96fc51b4a295c4c05a92d91fb2049cd4f1dad",
+};
 
 function viaCalfireSraPackage(): ProgramFactAuthorityEstablishingEntry {
   return {
@@ -315,10 +347,20 @@ function viaCalfireSraPackage(): ProgramFactAuthorityEstablishingEntry {
   };
 }
 
+function viaCalfireLraPackage(): ProgramFactAuthorityEstablishingEntry {
+  return {
+    record_kind: "agency_hazard_map",
+    identity: "registered_authority_source",
+    issuer_ids: ["calfire-osfm"],
+    authority_source_ids: [CALFIRE_LRA_PACKAGE_ID],
+    values: ["true", "false"],
+    currency_max_age_days: "until_superseded",
+  };
+}
+
 /**
- * The shipped registries. Only the Phase 3D package can establish anything:
- * the Very High and High facts, through CAL FIRE / OSFM. Every other policy's
- * `establishing` list is empty.
+ * The shipped registries: SRA can establish Very High or High; LRA can
+ * establish Very High only. All other policies remain deny-by-default.
  */
 export const programAuthorityRegistries: ProgramAuthorityRegistries = {
   issuers: [
@@ -360,6 +402,65 @@ export const programAuthorityRegistries: ProgramAuthorityRegistries = {
         },
       },
     },
+    {
+      authority_source_id: CALFIRE_LRA_PACKAGE_ID,
+      record_kind: "agency_hazard_map",
+      issuer_id: "calfire-osfm",
+      title: "Local Responsibility Area Fire Hazard Severity Zones Combined Phases (FHSZLRA25_v1_All) Version 1",
+      edition: {
+        label: "Combined Phases, Version 1, map dated March 24, 2025",
+        date: "2025-03-24",
+        date_kind: "dated",
+      },
+      capture: calfireLraDataset,
+      fact_keys: ["very-high-fire-hazard-severity-zone"],
+      superseded_by: null,
+      review: {
+        reviewer: {
+          kind: "human",
+          name: "Sergio Mata",
+          role: "Project Owner / Human Reviewer",
+        },
+        reviewed_on: "2026-09-30",
+        decision_ref: null,
+      },
+      package: {
+        manifest_sha256: "f86e0a2157f3a44594da51fd2ffeb4e1a19c935ca2f00f0cc40e82df0bd86797",
+        statutory_basis: "gov_51178",
+        identification: {
+          status: "state_identification_recommendation",
+          map_date: "2025-03-24",
+        },
+        currency: "until_superseded",
+        members: {
+          identification_statute: {
+            source_id: "gcs-51178",
+            sha256_extracted: "3eac548aa2e63d82a08fd8996207550e7970715cd17984a7e2a7df4e8cc1fd63",
+          },
+          local_designation_statute: {
+            source_id: "gcs-51179",
+            sha256_extracted: "821621810e1ad3d87c1b693d85183c45e11c84077ce148c99f8012b56672ada4",
+          },
+          overlay_dataset: calfireLraDataset,
+        },
+        active_metadata: {
+          fid: 3,
+          layer: "FHSALRA25_v1_All",
+          xml_sha256: "1bbf01d7df12ebaf60376c95a23305dcfc63d81d49e3661ac4395c17591bfbbb",
+          definition_sha256: "05724568962346a1997adc3d17b538d32afc148795101cacf95f2a91a1aa925e",
+        },
+        overlay: {
+          dataset_name: "FHSALRA25_v1_All",
+          class_field: "FHSZ_Description",
+          class_labels: {
+            "Very High": "very_high",
+            High: "high",
+            Moderate: "moderate",
+            NonWildland: "non_wildland",
+          },
+        },
+      },
+    },
   ],
   fact_policies: {
     "lot-area": denyPolicy("lot-area", { family: "lot_area", accepted_area_bases: [] }, ["a"], { requiresLegalLotIdentity: true }),
@@ -372,7 +473,7 @@ export const programAuthorityRegistries: ProgramAuthorityRegistries = {
       { requiresLegalLotIdentity: true },
     ),
     // c-g: Phase 3B supersedes the Round 1 rule text; the lot identity rule applies to each.
-    // c, d: Phase 3D registers the PRC §4202 package as their only establishing path.
+    // Phase 3G: c's routes are independent; d accepts only the unchanged SRA package.
     "very-high-fire-hazard-severity-zone": {
       ...denyPolicy(
         "very-high-fire-hazard-severity-zone",
@@ -380,7 +481,7 @@ export const programAuthorityRegistries: ProgramAuthorityRegistries = {
         ["c"],
         { requiresLegalLotIdentity: true, phase3b: true },
       ),
-      establishing: [viaCalfireSraPackage()],
+      establishing: [viaCalfireSraPackage(), viaCalfireLraPackage()],
     },
     "high-fire-hazard-severity-zone": {
       ...denyPolicy(
@@ -552,10 +653,10 @@ const establishingEntrySchema = z
   })
   .strict();
 
-const packageSchema = z
+const adoptedPackageSchema = z
   .object({
     manifest_sha256: hex64,
-    statutory_basis: z.enum(fireHazardStatutoryRoutes),
+    statutory_basis: z.literal("prc_4202"),
     adoption: z.object({ status: z.literal("adopted"), adoption_date: isoDate, effective_date: isoDate }).strict(),
     currency: z.literal("until_superseded"),
     members: z
@@ -579,6 +680,49 @@ const packageSchema = z
       context.addIssue({ code: "custom", message: "A hazard package's overlay labels name both the Very High and the High class." });
     }
   });
+const identifiedPackageSchema = z
+  .object({
+    manifest_sha256: hex64,
+    statutory_basis: z.literal("gov_51178"),
+    identification: z
+      .object({
+        status: z.literal("state_identification_recommendation"),
+        map_date: isoDate,
+      })
+      .strict(),
+    currency: z.literal("until_superseded"),
+    members: z
+      .object({
+        identification_statute: captureRefSchema,
+        local_designation_statute: captureRefSchema,
+        overlay_dataset: captureRefSchema,
+      })
+      .strict(),
+    active_metadata: z
+      .object({
+        fid: z.literal(3),
+        layer: z.literal("FHSALRA25_v1_All"),
+        xml_sha256: hex64,
+        definition_sha256: hex64,
+      })
+      .strict(),
+    overlay: z
+      .object({
+        dataset_name: z.literal("FHSALRA25_v1_All"),
+        class_field: z.literal("FHSZ_Description"),
+        class_labels: z
+          .object({
+            "Very High": z.literal("very_high"),
+            High: z.literal("high"),
+            Moderate: z.literal("moderate"),
+            NonWildland: z.literal("non_wildland"),
+          })
+          .strict(),
+      })
+      .strict(),
+  })
+  .strict();
+const packageSchema = z.union([adoptedPackageSchema, identifiedPackageSchema]);
 
 const factPolicySchema = z
   .object({
@@ -667,10 +811,22 @@ export const programAuthorityRegistriesSchema = z
         if (statutoryRouteRecordKinds[pack.statutory_basis] !== source.record_kind) {
           issue(["sources", index], `A package on ${pack.statutory_basis} is not a ${source.record_kind}; that route has no record kind.`);
         }
-        if (pack.members.adopted_map.source_id !== source.capture.source_id || pack.members.adopted_map.sha256_extracted !== source.capture.sha256_extracted) {
+        const primary = pack.statutory_basis === "prc_4202" ? pack.members.adopted_map : pack.members.overlay_dataset;
+        if (
+          primary.source_id !== source.capture.source_id ||
+          primary.sha256_extracted !== source.capture.sha256_extracted) {
           issue(["sources", index], "The package's adopted map is the source's own capture.");
         }
-        if (source.edition.date > pack.adoption.adoption_date) issue(["sources", index], "A map is dated no later than its adoption.");
+        if (pack.statutory_basis === "prc_4202" && source.edition.date > pack.adoption.adoption_date) issue(["sources", index], "A map is dated no later than its adoption.");
+        if (
+          pack.statutory_basis === "gov_51178" &&
+          (source.edition.date !== pack.identification.map_date ||
+            source.fact_keys.some((k) => k !== "very-high-fire-hazard-severity-zone"))
+        )
+          issue(
+            ["sources", index],
+            "A GOV 51178 source establishes only the Very High fact for its identified edition.",
+          );
       }
     });
 
@@ -887,7 +1043,19 @@ function gateMet(
     const kinds = hazardClassStatutoryRoutes[family.hazard_class].map((route) => statutoryRouteRecordKinds[route]);
     return (
       kinds.every((kind) => kind !== null) &&
-      (policy(key)?.establishing ?? []).every((entry) => kinds.includes(entry.record_kind))
+      (policy(key)?.establishing ?? []).every((entry) => kinds.includes(entry.record_kind)) &&
+      hazardClassStatutoryRoutes[family.hazard_class].every((route) =>
+        registries.sources.some(
+          (source) =>
+            source.package?.statutory_basis === route &&
+            source.fact_keys.includes(key) &&
+            (policy(key)?.establishing ?? []).some(
+              (entry) =>
+                entry.authority_source_ids.includes(source.authority_source_id) &&
+                entry.record_kind === statutoryRouteRecordKinds[route],
+            ),
+        ),
+      )
     );
   };
 
@@ -961,7 +1129,9 @@ function gateMet(
       );
     case "legal_lot_identity_fails_closed": {
       const lotFacts = reads.filter((key) => legalLotIdentityFacts.includes(key));
-      return lotFacts.length > 0 && lotFacts.every((key) => populated(key) && policy(key)?.requires_legal_lot_identity === true);
+      return (
+        lotFacts.length > 0 && lotFacts.every((key) => populated(key) && policy(key)?.requires_legal_lot_identity === true)
+      );
     }
     case "r1_variation_zone_fails_closed":
       return (

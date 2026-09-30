@@ -84,7 +84,7 @@ const PHASE_3B_GATES: Readonly<Record<string, readonly string[]>> = Object.fromE
 );
 /** Phase 3D: the gates still unmet for c and d once the CAL FIRE SRA package is registered. */
 const PHASE_3D_UNMET: Readonly<Record<string, readonly string[]>> = {
-  "la_shra.very-high-fire-hazard-severity-zone": ["statutory_route_recorded", "reviewer_confirms_encoded_rule", "human_verification_record"],
+  "la_shra.very-high-fire-hazard-severity-zone": ["reviewer_confirms_encoded_rule", "human_verification_record"],
   // Updated in Phase 3E: d is human-verified, so no gate of d is unmet.
   "la_shra.high-fire-hazard-severity-zone": [],
 };
@@ -638,12 +638,12 @@ describe("1. Legacy evidence and deny-by-default registries", () => {
   });
 
   // Updated in Phase 3D: the registries were empty until the CAL FIRE SRA package was registered.
-  it("ships registries that can establish only the Very High and High facts, through the Phase 3D package", () => {
+  it("ships independent SRA/LRA sources for Very High and preserves SRA-only High authority", () => {
     expect(programAuthorityRegistries.issuers.map((issuer) => issuer.issuer_id)).toEqual(["calfire-osfm"]);
-    expect(programAuthorityRegistries.sources.map((source) => source.authority_source_id)).toEqual(["calfire-sra-fhsz-2023-09-29"]);
+    expect(programAuthorityRegistries.sources.map((source) => source.authority_source_id)).toEqual(["calfire-sra-fhsz-2023-09-29", "calfire-lra-fhsz-2025-03-24-v1"]);
     for (const [key, entry] of Object.entries(programAuthorityRegistries.fact_policies)) {
       if (key === VH || key === HIGH) {
-        expect(entry?.establishing.map((establishing) => establishing.authority_source_ids), key).toEqual([["calfire-sra-fhsz-2023-09-29"]]);
+        expect(entry?.establishing.map((establishing) => establishing.authority_source_ids), key).toEqual(key === VH ? [["calfire-sra-fhsz-2023-09-29"], ["calfire-lra-fhsz-2025-03-24-v1"]] : [["calfire-sra-fhsz-2023-09-29"]]);
       } else {
         expect(entry?.establishing, key).toEqual([]);
       }
@@ -1302,7 +1302,7 @@ describe("8. Registry contents and validation", () => {
       for (const member of Object.values(entry.package?.members ?? {})) expect(pinned(member), member.source_id).toBe(true);
     }
     expect(programAuthorityRegistries.issuers).toHaveLength(1);
-    expect(programAuthorityRegistries.sources).toHaveLength(1);
+    expect(programAuthorityRegistries.sources).toHaveLength(2);
     expect(captures.length).toBeGreaterThan(0);
   });
 
@@ -1448,6 +1448,13 @@ describe("9. The promotion guard protects all 46 atomic criteria", () => {
         expect(criterionAwaitsHumanVerification(original), id).toBe(false);
         continue;
       }
+      if (id === "la_shra.very-high-fire-hazard-severity-zone") {
+        // Phase 3G supplies its source gate; the shipped rule and review remain pending.
+        expect(criterionPromotionBlockers(promoted)).toEqual([]);
+        expect(original).toMatchObject({ verification: "pending_human", human_verification: null, predicate: "not_encoded" });
+        expect(criterionAwaitsHumanVerification(original)).toBe(true);
+        continue;
+      }
       expect(criterionAwaitsHumanVerification(promoted), id).toBe(true);
       const blockers = criterionPromotionBlockers(promoted);
       expect(blockers.length, id).toBeGreaterThan(0);
@@ -1469,8 +1476,9 @@ describe("9. The promotion guard protects all 46 atomic criteria", () => {
   it("does not let a reviewer's confirmation alone promote a gated criterion", () => {
     const c = byId.get("la_shra.very-high-fire-hazard-severity-zone") as ProgramCriterion;
     const promoted = promote(c, () => "disqualifying_per_source");
-    // Phase 3D: the PRC §4202 package meets c's other gates; GOV §51178 still has no record kind.
-    expect(criterionPromotionBlockers(promoted)).toEqual(["statutory_route_recorded"]);
+    // Phase 3G closes c's source gate; the shipped criterion still awaits its rule and human record.
+    expect(criterionPromotionBlockers(promoted)).toEqual([]);
+    expect(c).toMatchObject({ verification: "pending_human", human_verification: null, predicate: "not_encoded" });
     // A human record cannot carry a note at all.
     const noted = { ...promoted, human_verification: { ...promoted.human_verification, note: "Provenance reviewed and approved." } } as ProgramCriterion;
     expect(hasCompleteHumanVerification(noted)).toBe(false);

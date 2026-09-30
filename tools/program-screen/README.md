@@ -1,5 +1,21 @@
 # Offline reviewed-lot normalization
 
+Phase 3G's LRA authority polygons have a separate offline decoder. It does not normalize a lot, reproject a source feature, or alter source geometry. With GDAL **3.10.3**, GEOS **3.13.1**, and the Python GDAL bindings installed, run from the repository root:
+
+```bash
+/usr/bin/python3 tools/program-screen/export-lra-filegdb.py \
+  app/fixtures/program-screen/official-sources/calfire-fhszlra-25-1-all-data/original.zip \
+  /tmp/permitpulse-lra-features.ndjson
+cd app
+npm run program-screen:lra-overlay -- \
+  --features /tmp/permitpulse-lra-features.ndjson \
+  --output /tmp/permitpulse-lra-overlay
+```
+
+The exporter refuses changed ZIP/XML bytes or decoder versions. The builder independently checks native active FIDs, full semantic labels, the metadata association, and the final reviewed index hash before writing. Use `PP_LRA_PYTHON` to select the installed Python executable for test setup; its linked GDAL/GEOS versions must match. The full test suite re-derives the index from the original archive. Neither GDAL nor GEOS is needed in production. All 119 invalid geometries remain in the index. Thirty native curved features retain their WKB; 28 valid curves are marked unreadable by the straight-edge evaluator, with two already among the 119 invalid features. Candidate validity is evaluated per lot, with no source repair. See [the Phase 3G package record](../../docs/PROGRAM_SCREEN_PHASE_3G_GOV_51178_PACKAGE.md).
+
+The capture CLI can take `--headers <original header dump>` for metadata v2. It stores the exact UTF-8 header bytes, length and SHA-256 inside `metadata.json`, preserving the three-file capture layout. The requested URL is kept exactly, including query parameters. A single HTTP 200 response without Location permits the final URL to be recorded as the requested URL with the explicit basis `inferred_no_redirect_from_supplied_headers`. A redirect trace requires `--final-url <original effective URL>`; it is never guessed. Preserve the original `--retrieved-at` value and original source file. These transport records are provenance, not additional operative authority members.
+
 This tooling is for offline ingestion/development. Program Screen runtime accepts only reviewed, hash-verified EPSG:3310 files. No PROJ runtime package is added to the Cloudflare app.
 
 ## Pinned audited installation

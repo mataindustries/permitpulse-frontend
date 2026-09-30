@@ -1,0 +1,260 @@
+program-screen-zip-manifest 1.0.0
+archive entries 47
+member FHSZLRA25_1_All.gdb/a00000001.TablesByName.atx bytes 4118 crc32 bf601c6e sha256 8f4b79828cd26925c3565988ec66b86bccc50aabb77441bd002cac1d93e35755
+member FHSZLRA25_1_All.gdb/a00000001.gdbindexes bytes 110 crc32 96cbdec4 sha256 80ba95b873e151074244f7655f9e29ce8967aab1bd57ff4c06a329b723a3d46c
+member FHSZLRA25_1_All.gdb/a00000001.gdbtable bytes 331 crc32 57e8e8b2 sha256 ba977b9330d159646d43935a9aab5a6cc9e9fd1a5899bdae70713ef8c4e4aadc
+member FHSZLRA25_1_All.gdb/a00000001.gdbtablx bytes 5152 crc32 fce70703 sha256 b65d6bdd23b973033884654531d2ed75d5c4e55fd260bf23631bbecf9f7edab5
+member FHSZLRA25_1_All.gdb/a00000002.gdbtable bytes 2055 crc32 6f6586b3 sha256 9efa50dc62a40e109a546054943ae5ad4b3d41aa81ece0dfa026b7b23cb09da8
+member FHSZLRA25_1_All.gdb/a00000002.gdbtablx bytes 5152 crc32 81192413 sha256 f3ac9865dec6ab40e73d91dd1f5c2eef0248e66e359d4abb1d97edba92b5df88
+member FHSZLRA25_1_All.gdb/a00000003.gdbindexes bytes 42 crc32 10a41729 sha256 de0911d18e2f304380c04ae123ea18057d262d788301f7cc3148298231c7c618
+member FHSZLRA25_1_All.gdb/a00000003.gdbtable bytes 1081 crc32 9eccaf57 sha256 c1910a1755e9fb80c3c3f967cc3e6b0a9207ebd1e055176a71e59cfb25c302d0
+member FHSZLRA25_1_All.gdb/a00000003.gdbtablx bytes 5152 crc32 2f01a881 sha256 d63fd5f8a490aa6aeffde1336e80ce35b5399af5752a72b316570a670b09d167
+member FHSZLRA25_1_All.gdb/a00000004.CatItemsByPhysicalName.atx bytes 4118 crc32 a460f6f6 sha256 9d52968832cf6207c0bdb916eff5cffb82bfd41ac1c44ef95eb6361a99354f7b
+member FHSZLRA25_1_All.gdb/a00000004.CatItemsByType.atx bytes 4118 crc32 2ec0e136 sha256 cffffae84219f406a5c19bf1be66bc0f803180ba954587f3aaa9a466d951f278
+member FHSZLRA25_1_All.gdb/a00000004.FDO_UUID.atx bytes 4118 crc32 e8bec769 sha256 8bdb357ae537aa4ddd82b6013a7dd1019433ff590d18d377c71568991e8cff22
+member FHSZLRA25_1_All.gdb/a00000004.freelist bytes 16728 crc32 6082dd28 sha256 b98633e1ef6793556685f302f98525bc089f37e89ea6711afb6cdd27e6c8edf1
+member FHSZLRA25_1_All.gdb/a00000004.gdbindexes bytes 310 crc32 20b0d3a9 sha256 f29887c93b126a3feb0e20958cd73cc774f76ab79284b9c7286dc12eb05db858
+member FHSZLRA25_1_All.gdb/a00000004.gdbtable bytes 50654 crc32 953687a3 sha256 0a6e833aa0eecc975b3c123fad182fa1f31f2e1395ea9382aa07e25e5e76fa6e
+member FHSZLRA25_1_All.gdb/a00000004.gdbtablx bytes 5152 crc32 180d43bf sha256 61d09a7a264ca20837e3e7bb79e611eeb1a850e952a2ed05aa183af24250e505
+member FHSZLRA25_1_All.gdb/a00000004.horizon bytes 32 crc32 3050f004 sha256 9fab34115b351a30fb6adb5818d8f08e4dd3a024b7247dbbc61c56929ab6e223
+member FHSZLRA25_1_All.gdb/a00000004.spx bytes 20502 crc32 d632075f sha256 39007406b9f0ace4d1cf62f86243f4fa676de7ee1b0cf982005bbecf60e6b575
+member FHSZLRA25_1_All.gdb/a00000005.CatItemTypesByName.atx bytes 12310 crc32 749a5532 sha256 5e901522888a8153c398e005ac61c7352e3fe920bf2b7a84d76d2b4caeee9817
+member FHSZLRA25_1_All.gdb/a00000005.CatItemTypesByParentTypeID.atx bytes 4118 crc32 f5a8f26d sha256 d8ba35a73b3e10a55caae8ccf875f10ca3288d1c0d18aad51bf52182b322ec0e
+member FHSZLRA25_1_All.gdb/a00000005.CatItemTypesByUUID.atx bytes 4118 crc32 92e0538a sha256 480f1f90818c3dc361c6e9ffc09330781a1c55ba52f7cb1a1925b2d791beba5e
+member FHSZLRA25_1_All.gdb/a00000005.gdbindexes bytes 296 crc32 81a6dd1a sha256 c21e650994b48cc72d174b3caf2ac1bd19e2d7305c8087aaae97e24caecf98a5
+member FHSZLRA25_1_All.gdb/a00000005.gdbtable bytes 2071 crc32 10236021 sha256 457b2ef15090d858e7c3e88d41131d1054b241836d2f4cc6d61d082bbf7e6aa3
+member FHSZLRA25_1_All.gdb/a00000005.gdbtablx bytes 5152 crc32 e7e94313 sha256 fbe2191ecb633ff3a4c3d449dd4dcd964389c72dc6686aa02f6ce6fcea31cc6f
+member FHSZLRA25_1_All.gdb/a00000006.CatRelsByDestinationID.atx bytes 4118 crc32 af26acc0 sha256 06aed4d5415c93b55b8540a1a923fe97e24d75ffa84f9d4ef78e2d97ff5ad407
+member FHSZLRA25_1_All.gdb/a00000006.CatRelsByOriginID.atx bytes 4118 crc32 1ff1da59 sha256 071cbb3e22f7f9ebedd0d40203fd938ac646ef9747978688f49f25f4ad242154
+member FHSZLRA25_1_All.gdb/a00000006.CatRelsByType.atx bytes 4118 crc32 aeba20d5 sha256 977cbde080bcdb9a2b35b955610e57cfb4c3790bc657c01c61d89362d5d82b7d
+member FHSZLRA25_1_All.gdb/a00000006.FDO_UUID.atx bytes 4118 crc32 0519e499 sha256 5f285c0125ee669e9e527ca55ffdb64782cdb73d527cf788d9b97d86e8944565
+member FHSZLRA25_1_All.gdb/a00000006.gdbindexes bytes 318 crc32 11bee99e sha256 1919a00326f198a90dc97545ec448c10b2b90d367020222212f7b00433fe09b5
+member FHSZLRA25_1_All.gdb/a00000006.gdbtable bytes 263 crc32 7cd72708 sha256 8c97df7e4ed00c9cb8dc1ab56d25b7f6626dc286d81aae4854f5b585a0816f54
+member FHSZLRA25_1_All.gdb/a00000006.gdbtablx bytes 5152 crc32 4a734fc6 sha256 d9c498cb200741d86e8fd4adbd17f8b5dd4f35abf4dfad3f88239c84ac999d0e
+member FHSZLRA25_1_All.gdb/a00000007.CatRelTypesByBackwardLabel.atx bytes 12310 crc32 d331f37f sha256 1d51717d5b9de760d2488edb544637d875f131ad96483b96bf95aecff7f679d5
+member FHSZLRA25_1_All.gdb/a00000007.CatRelTypesByDestItemTypeID.atx bytes 4118 crc32 223fd0ce sha256 655a5548325b8adf939e69851f9f52ae3b61244d998df60811169142a1a77648
+member FHSZLRA25_1_All.gdb/a00000007.CatRelTypesByForwardLabel.atx bytes 12310 crc32 9c9fad34 sha256 c3471d1b80a6cc2ac1a094743a52f72a6dd6bbcca787604cacaa0ba409a9b583
+member FHSZLRA25_1_All.gdb/a00000007.CatRelTypesByName.atx bytes 12310 crc32 5a48956d sha256 3e4d57cabb14dc7b1f3510441e0b5ebd94f01e7412f272993b98502eea3d9577
+member FHSZLRA25_1_All.gdb/a00000007.CatRelTypesByOriginItemTypeID.atx bytes 4118 crc32 fb54d603 sha256 9c7f665eb045df2a910a6800d0919af507bed2a42d2e9547a4004ba235fec5de
+member FHSZLRA25_1_All.gdb/a00000007.CatRelTypesByUUID.atx bytes 4118 crc32 3c438ecc sha256 209099cc5bdb713a603488740c831b805af7138397499f5d946a2c8aed69d446
+member FHSZLRA25_1_All.gdb/a00000007.gdbindexes bytes 602 crc32 c1cd0064 sha256 dc98e24d04eddd7f38905d176c1ea43c547a3a2daa0c80091a20d3443c726621
+member FHSZLRA25_1_All.gdb/a00000007.gdbtable bytes 3626 crc32 b9c695df sha256 f6cc24256e330ab468b5c594309b1493c2028fe072c9f13e5fe41b2084ce9a16
+member FHSZLRA25_1_All.gdb/a00000007.gdbtablx bytes 5152 crc32 25b309e7 sha256 1d81aa3c399da5feba68a24ae6461edfca18cfaa9d81a1f1dab9b8b8a64e590c
+member FHSZLRA25_1_All.gdb/a00000009.gdbindexes bytes 116 crc32 673aef5b sha256 760bd4864717c60d5e7c0c6461a622062680e6f79f51250f49456aa609b43774
+member FHSZLRA25_1_All.gdb/a00000009.gdbtable bytes 20185726 crc32 3270a444 sha256 f253e6f0b68481d5d556ecaf1dfe42ac01e2445f5a060f15cfe4632ff41ae6e9
+member FHSZLRA25_1_All.gdb/a00000009.gdbtablx bytes 51232 crc32 a1783027 sha256 d201c0379a943a596145953c47a02218b9e2bfbed53d649021d0553ce937bf52
+member FHSZLRA25_1_All.gdb/a00000009.horizon bytes 32 crc32 63605aa7 sha256 8ce6a3bac1b5f2adc69cb44512bdbba71d6b2f7e225d86864b2af6dc949e2023
+member FHSZLRA25_1_All.gdb/a00000009.spx bytes 151574 crc32 4f6fa35c sha256 288049fe83f75ba07099af77a7c1f6ebc60e73f3b90b7ce0eb602ef71969a1fc
+member FHSZLRA25_1_All.gdb/gdb bytes 4 crc32 169a2f2e sha256 2594b6a92ebfb1c3312deb7d01c015fb95e9fbe9bd7bc6b527af07813ec7b910
+member FHSZLRA25_1_All.gdb/timestamps bytes 400 crc32 5cb1a17d sha256 86fcc895f522516127bc4b4446e1f39ab42150b0e8c858aec40127800907ca4d
+
+program-screen-filegdb-manifest 1.0.0
+layer FHSALRA25_v1_All
+active metadata association {"fid":3,"name":"FHSALRA25_v1_All","physical_name":"FHSALRA25_V1_ALL","path":"\\FHSALRA25_v1_All","definition_sha256":"05724568962346a1997adc3d17b538d32afc148795101cacf95f2a91a1aa925e","metadata_sha256":"1bbf01d7df12ebaf60376c95a23305dcfc63d81d49e3661ac4395c17591bfbbb"}
+records 9752
+shape type MultiPolygon
+crs EPSG:3310
+values FHSZ_Description: "High" 2049; "Moderate" 4741; "NonWildland" 1954; "Very High" 1008
+values SRA: "LRA" 9752
+/metadata@xml:lang: en
+/metadata/Esri/CreaDate: 20250327
+/metadata/Esri/CreaTime: 09000100
+/metadata/Esri/ArcGISFormat: 1.0
+/metadata/Esri/SyncOnce: FALSE
+/metadata/Esri/DataProperties/itemProps/itemLocation/linkage@Sync: TRUE
+/metadata/Esri/DataProperties/itemProps/itemLocation/linkage: file://\\GISHPCWS01\mark\fhsz\data_outputs12\FHSZLRA25_1_All.gdb
+/metadata/Esri/DataProperties/itemProps/itemLocation/protocol@Sync: TRUE
+/metadata/Esri/DataProperties/itemProps/itemLocation/protocol: Local Area Network
+/metadata/Esri/DataProperties/itemProps/itemName@Sync: TRUE
+/metadata/Esri/DataProperties/itemProps/itemName: FHSALRA25_v1_All
+/metadata/Esri/DataProperties/itemProps/imsContentType@Sync: TRUE
+/metadata/Esri/DataProperties/itemProps/imsContentType: 002
+/metadata/Esri/DataProperties/itemProps/nativeExtBox/westBL@Sync: TRUE
+/metadata/Esri/DataProperties/itemProps/nativeExtBox/westBL: -368311.896500
+/metadata/Esri/DataProperties/itemProps/nativeExtBox/eastBL@Sync: TRUE
+/metadata/Esri/DataProperties/itemProps/nativeExtBox/eastBL: 539624.230100
+/metadata/Esri/DataProperties/itemProps/nativeExtBox/southBL@Sync: TRUE
+/metadata/Esri/DataProperties/itemProps/nativeExtBox/southBL: -604494.225000
+/metadata/Esri/DataProperties/itemProps/nativeExtBox/northBL@Sync: TRUE
+/metadata/Esri/DataProperties/itemProps/nativeExtBox/northBL: 444420.079400
+/metadata/Esri/DataProperties/itemProps/nativeExtBox/exTypeCode@Sync: TRUE
+/metadata/Esri/DataProperties/itemProps/nativeExtBox/exTypeCode: 1
+/metadata/Esri/DataProperties/coordRef/type@Sync: TRUE
+/metadata/Esri/DataProperties/coordRef/type: Projected
+/metadata/Esri/DataProperties/coordRef/geogcsn@Sync: TRUE
+/metadata/Esri/DataProperties/coordRef/geogcsn: GCS_North_American_1983
+/metadata/Esri/DataProperties/coordRef/csUnits@Sync: TRUE
+/metadata/Esri/DataProperties/coordRef/csUnits: Linear Unit: Meter (1.000000)
+/metadata/Esri/DataProperties/coordRef/projcsn@Sync: TRUE
+/metadata/Esri/DataProperties/coordRef/projcsn: NAD_1983_California_Teale_Albers
+/metadata/Esri/DataProperties/coordRef/peXml@Sync: TRUE
+/metadata/Esri/DataProperties/coordRef/peXml: PROJCS["NAD_1983_California_Teale_Albers",GEOGCS["GCS_North_American_1983",DATUM["D_North_American_1983",SPHEROID["GRS_1980",6378137.0,298.257222101]],PRIMEM["Greenwich",0.0],UNIT["Degree",0.0174532925199433]],PROJECTION["Albers"],PARAMETER["False_Easting",0.0],PARAMETER["False_Northing",-4000000.0],PARAMETER["Central_Meridian",-120.0],PARAMETER["Standard_Parallel_1",34.0],PARAMETER["Standard_Parallel_2",40.5],PARAMETER["Latitude_Of_Origin",0.0],UNIT["Meter",1.0],AUTHORITY["EPSG",3310]]-16909700-8597000266332319.7555542-10000010000-100000100000.0010.0010.001true33103310
+/metadata/Esri/SyncDate: 20250327
+/metadata/Esri/SyncTime: 09030400
+/metadata/Esri/ModDate: 20250327
+/metadata/Esri/ModTime: 9153000
+/metadata/Esri/scaleRange/minScale: 150000000
+/metadata/Esri/scaleRange/maxScale: 5000
+/metadata/Esri/ArcGISProfile: FGDC
+/metadata/mdChar/CharSetCd@value: 004
+/metadata/mdHrLv/ScopeCd@value: 005
+/metadata/mdContact/rpIndName: Fire Hazard Severity Zone Team
+/metadata/mdContact/rpOrgName: CAL FIRE
+/metadata/mdContact/rpCntInfo/cntPhone/voiceNum: (916) 633-7655
+/metadata/mdContact/rpCntInfo/cntAddress@addressType: both
+/metadata/mdContact/rpCntInfo/cntAddress/delPoint: 715 P St
+/metadata/mdContact/rpCntInfo/cntAddress/city: Sacramento
+/metadata/mdContact/rpCntInfo/cntAddress/adminArea: CA
+/metadata/mdContact/rpCntInfo/cntAddress/postCode: 95814
+/metadata/mdContact/rpCntInfo/cntAddress/country: US
+/metadata/mdContact/rpCntInfo/cntAddress/eMailAdd: FHSZinformation@fire.ca.gov
+/metadata/mdContact/role/RoleCd@value: 007
+/metadata/mdDateSt@Sync: TRUE
+/metadata/mdDateSt: 20250327
+/metadata/mdStanName: ArcGIS Metadata
+/metadata/mdStanVer: 1.0
+/metadata/dataIdInfo/idCitation/resTitle: Local Responsibility Area Fire Hazard Severity Zones Combined Phases (FHSZLRA25_v1_All) Version 1
+/metadata/dataIdInfo/idCitation/date/pubDate: 2022-04-12
+/metadata/dataIdInfo/idCitation/resEd: 22_2
+/metadata/dataIdInfo/idCitation/citRespParty/rpOrgName: Fire Hazard Severity Zone Team, CAL FIRE
+/metadata/dataIdInfo/idCitation/citRespParty/role/RoleCd@value: 006
+/metadata/dataIdInfo/idCitation/presForm/PresFormCd@value: 005
+/metadata/dataIdInfo/idCitation/presForm/fgdcGeoform: vector digital data
+/metadata/dataIdInfo/idAbs:
+
+Fire Hazard Severity Zone classes from the map dated March 24, 2025
+
+/metadata/dataIdInfo/idPurp: Under the purpose of fire safety and prevention, and by statutory authority, The State Fire Marshal shall classify lands within Local Responsibility Areas (LRA) into fire hazard severity zones. Each zone shall embrace relatively homogeneous lands and shall be based on fuel loading, slope, fire weather, and other relevant factors present, including areas where winds have been identified by the department as a major cause of wildfire spread.
+
+The California laws and regulations associated with Fire Hazard Severity Zones in LRA are found in California Government Code 51175-51189, and describe the objectives and and processes by which these data are developed, transmitted as a recommendation to local government agencies, and the subsequent required local ordinance adoption and documentation processes to see the zones finalized.
+
+Delivery of Recommended LRA FHSZ data and maps was phased by 4 regional areas of the state. This data set represents all 4 phases combined into one dataset
+
+/metadata/dataIdInfo/idCredit: Datasets from numerous sources were used in the modeling process.
+
+/metadata/dataIdInfo/idStatus/ProgCd@value: 007
+/metadata/dataIdInfo/idPoC/rpIndName: Fire Hazard Severity Zone Team
+/metadata/dataIdInfo/idPoC/rpOrgName: CAL FIRE
+/metadata/dataIdInfo/idPoC/rpCntInfo/cntPhone/voiceNum: (916) 633-7655
+/metadata/dataIdInfo/idPoC/rpCntInfo/cntAddress@addressType: both
+/metadata/dataIdInfo/idPoC/rpCntInfo/cntAddress/delPoint: 715 P St
+/metadata/dataIdInfo/idPoC/rpCntInfo/cntAddress/city: Sacramento
+/metadata/dataIdInfo/idPoC/rpCntInfo/cntAddress/adminArea: CA
+/metadata/dataIdInfo/idPoC/rpCntInfo/cntAddress/postCode: 95814
+/metadata/dataIdInfo/idPoC/rpCntInfo/cntAddress/country: US
+/metadata/dataIdInfo/idPoC/rpCntInfo/cntAddress/eMailAdd: FHSZinformation@fire.ca.gov
+/metadata/dataIdInfo/idPoC/role/RoleCd@value: 007
+/metadata/dataIdInfo/resMaint/maintFreq/MaintFreqCd@value: 008
+/metadata/dataIdInfo/themeKeys/keyword: Fire Hazard Severity Zones
+/metadata/dataIdInfo/themeKeys/keyword: FHSZ
+/metadata/dataIdInfo/themeKeys/keyword: Chapter 7A
+/metadata/dataIdInfo/themeKeys/keyword: Building Standards
+/metadata/dataIdInfo/themeKeys/keyword: State Responsibility Area
+/metadata/dataIdInfo/themeKeys/keyword: SRA
+/metadata/dataIdInfo/searchKeys/keyword: Fire Hazard Severity Zones
+/metadata/dataIdInfo/searchKeys/keyword: FHSZ
+/metadata/dataIdInfo/searchKeys/keyword: Chapter 7A
+/metadata/dataIdInfo/searchKeys/keyword: Building Standards
+/metadata/dataIdInfo/searchKeys/keyword: State Responsibility Area
+/metadata/dataIdInfo/searchKeys/keyword: SRA
+/metadata/dataIdInfo/resConst/Consts/useLimit:
+
+The State of California and the Department of Forestry and Fire Protection make no representations or warranties regarding the accuracy of data or maps. Neither the State nor the Department shall be liable under any circumstances for any direct, special, incidental, or consequential damages with respect to any claim by any user or third party on account of, or arising from, the use of data or maps.
+
+/metadata/dataIdInfo/spatRpType/SpatRepTypCd@value: 001
+/metadata/dataIdInfo/envirDesc: Version 6.2 (Build 9200) ; Esri ArcGIS 10.7.1.11595
+/metadata/dataIdInfo/dataExt/geoEle/GeoBndBox/exTypeCode: true
+/metadata/dataIdInfo/dataExt/geoEle/GeoBndBox/westBL: -119.609966
+/metadata/dataIdInfo/dataExt/geoEle/GeoBndBox/eastBL: -113.796795
+/metadata/dataIdInfo/dataExt/geoEle/GeoBndBox/northBL: 38.707987
+/metadata/dataIdInfo/dataExt/geoEle/GeoBndBox/southBL: 32.424019
+/metadata/dataIdInfo/dataLang/languageCode@value: eng
+/metadata/dataIdInfo/dataLang/languageCode@Sync: TRUE
+/metadata/dataIdInfo/dataLang/countryCode@value: USA
+/metadata/dataIdInfo/dataLang/countryCode@Sync: TRUE
+/metadata/dataIdInfo/dataExt/geoEle@xmlns:
+/metadata/dataIdInfo/dataExt/geoEle/GeoBndBox@esriExtentType: search
+/metadata/dataIdInfo/dataExt/geoEle/GeoBndBox/exTypeCode@Sync: TRUE
+/metadata/dataIdInfo/dataExt/geoEle/GeoBndBox/exTypeCode: 1
+/metadata/dataIdInfo/dataExt/geoEle/GeoBndBox/westBL@Sync: TRUE
+/metadata/dataIdInfo/dataExt/geoEle/GeoBndBox/westBL: -124.434723
+/metadata/dataIdInfo/dataExt/geoEle/GeoBndBox/eastBL@Sync: TRUE
+/metadata/dataIdInfo/dataExt/geoEle/GeoBndBox/eastBL: -113.507984
+/metadata/dataIdInfo/dataExt/geoEle/GeoBndBox/northBL@Sync: TRUE
+/metadata/dataIdInfo/dataExt/geoEle/GeoBndBox/northBL: 42.017961
+/metadata/dataIdInfo/dataExt/geoEle/GeoBndBox/southBL@Sync: TRUE
+/metadata/dataIdInfo/dataExt/geoEle/GeoBndBox/southBL: 32.424019
+/metadata/spatRepInfo/VectSpatRep/geometObjs@Name: FHSALRA25_v1_All
+/metadata/spatRepInfo/VectSpatRep/geometObjs/geoObjTyp/GeoObjTypCd@value: 002
+/metadata/spatRepInfo/VectSpatRep/geometObjs/geoObjTyp/GeoObjTypCd@Sync: TRUE
+/metadata/spatRepInfo/VectSpatRep/geometObjs/geoObjCnt@Sync: TRUE
+/metadata/spatRepInfo/VectSpatRep/geometObjs/geoObjCnt: 9752
+/metadata/spatRepInfo/VectSpatRep/topLvl/TopoLevCd@value: 001
+/metadata/spatRepInfo/VectSpatRep/topLvl/TopoLevCd@Sync: TRUE
+/metadata/eainfo/detailed@Name: FHSALRA25_v1_All
+/metadata/eainfo/detailed/enttyp/enttypl: FHSZSRA_DRAFT22_1
+/metadata/eainfo/detailed/enttyp/enttypt@Sync: TRUE
+/metadata/eainfo/detailed/enttyp/enttypt: Feature Class
+/metadata/eainfo/detailed/enttyp/enttypc@Sync: TRUE
+/metadata/eainfo/detailed/enttyp/enttypc: 9752
+/metadata/eainfo/detailed/attr/attrlabl: OBJECTID
+/metadata/eainfo/detailed/attr/attrdef: Internal feature number.
+/metadata/eainfo/detailed/attr/attrdefs: Esri
+/metadata/eainfo/detailed/attr/attrdomv/udom: Sequential unique whole numbers that are automatically generated.
+/metadata/eainfo/detailed/attr/attrlabl: Shape
+/metadata/eainfo/detailed/attr/attrdef: Feature geometry.
+/metadata/eainfo/detailed/attr/attrdefs: Esri
+/metadata/eainfo/detailed/attr/attrdomv/udom: Coordinates defining the features.
+/metadata/eainfo/detailed/attr/attrlabl: SRA
+/metadata/eainfo/detailed/attr/attrdef: The type of entity responsible for fire protection.
+/metadata/eainfo/detailed/attr/attrdefs: California Department of Forestry and Fire Protection
+/metadata/eainfo/detailed/attr/attrdomv/edom/edomv: LRA
+/metadata/eainfo/detailed/attr/attrdomv/edom/edomvd: Local Responsibility Area
+/metadata/eainfo/detailed/attr/attrdomv/edom/edomvds: California Department of Forestry and Fire Protection
+/metadata/eainfo/detailed/attr/attrlabl: FHSZ
+/metadata/eainfo/detailed/attr/attrdef: A numerical code that can be used to identify the corresponding Fire Hazard Severity Zone .
+-3 = Unzoned, Non Wildland
+1 = Moderate Fire Hazard Severity Zone
+2 = High Fire Hazard Severity Zone
+3 = Very High Fire Hazard Severity Zone
+/metadata/eainfo/detailed/attr/attrlabl: FHSZ_Description
+/metadata/eainfo/detailed/attr/attrdef: A numerical code that can be used to identify the corresponding Fire Hazard Severity Zone .
+-3 = Unzoned, Non Wildland
+1 = Moderate Fire Hazard Severity Zone
+2 = High Fire Hazard Severity Zone
+3 = Very High Fire Hazard Severity Zone
+/metadata/eainfo/detailed/attr/attrlabl: Shape_Length
+/metadata/eainfo/detailed/attr/attrdef: Length of feature in internal units.
+/metadata/eainfo/detailed/attr/attrdefs: Esri
+/metadata/eainfo/detailed/attr/attrdomv/udom: Positive real numbers that are automatically generated.
+/metadata/eainfo/detailed/attr/attrlabl: Shape_Area
+/metadata/eainfo/detailed/attr/attrdef: Area of feature in internal units squared.
+/metadata/eainfo/detailed/attr/attrdefs: Esri
+/metadata/eainfo/detailed/attr/attrdomv/udom: Positive real numbers that are automatically generated.
+/metadata/mdLang/languageCode@value: eng
+/metadata/mdLang/languageCode@Sync: TRUE
+/metadata/mdLang/countryCode@value: USA
+/metadata/mdLang/countryCode@Sync: TRUE
+/metadata/distInfo/distFormat/formatName@Sync: TRUE
+/metadata/distInfo/distFormat/formatName: File Geodatabase Feature Class
+/metadata/mdHrLvName@Sync: TRUE
+/metadata/mdHrLvName: dataset
+/metadata/refSysInfo/RefSystem/refSysID/identCode@code: 3310
+/metadata/refSysInfo/RefSystem/refSysID/identCode@Sync: TRUE
+/metadata/refSysInfo/RefSystem/refSysID/idCodeSpace@Sync: TRUE
+/metadata/refSysInfo/RefSystem/refSysID/idCodeSpace: EPSG
+/metadata/refSysInfo/RefSystem/refSysID/idVersion@Sync: TRUE
+/metadata/refSysInfo/RefSystem/refSysID/idVersion: 6.8(9.2.0)
+/metadata/spdoinfo/ptvctinf/esriterm@Name: FHSALRA25_v1_All
+/metadata/spdoinfo/ptvctinf/esriterm/efeatyp@Sync: TRUE
+/metadata/spdoinfo/ptvctinf/esriterm/efeatyp: Simple
+/metadata/spdoinfo/ptvctinf/esriterm/efeageom@code: 4
+/metadata/spdoinfo/ptvctinf/esriterm/efeageom@Sync: TRUE
+/metadata/spdoinfo/ptvctinf/esriterm/esritopo@Sync: TRUE
+/metadata/spdoinfo/ptvctinf/esriterm/esritopo: FALSE
+/metadata/spdoinfo/ptvctinf/esriterm/efeacnt@Sync: TRUE
+/metadata/spdoinfo/ptvctinf/esriterm/efeacnt: 9752
+/metadata/spdoinfo/ptvctinf/esriterm/spindex@Sync: TRUE
+/metadata/spdoinfo/ptvctinf/esriterm/spindex: TRUE
+/metadata/spdoinfo/ptvctinf/esriterm/linrefer@Sync: TRUE
+/metadata/spdoinfo/ptvctinf/esriterm/linrefer: FALSE

@@ -217,7 +217,9 @@ function lotOverlayFailures(
       candidate.dataset.source_id === pinned.source_id &&
       candidate.dataset.sha256_extracted === pinned.sha256_extracted &&
       candidate.index_sha256 === indexPin?.index_sha256 &&
-      candidate.class_field === pack.overlay.class_field,
+      candidate.class_field === pack.overlay.class_field &&
+      (pack.statutory_basis !== "gov_51178" ||
+        (candidate.layer === pack.overlay.dataset_name && candidate.crs_epsg === 3310)),
   );
   const { file_id: fileId, sha256 } = request.lot_geometry;
   const lot = overlay?.lot_geometries.find(
@@ -322,7 +324,7 @@ function familyFailures(
     if (!accepted.includes(basis) || (route !== undefined && basis !== route)) {
       failures.push("statutory_route_not_accepted");
     } else if (statutoryRouteRecordKinds[basis as FireHazardStatutoryRoute] === null) {
-      // What a GOV §51178 record looks like is not decided; Route 1 fails closed.
+      // Any route lacking a reviewed record kind fails closed.
       failures.push("statutory_route_record_kind_undefined");
     } else if (pack !== undefined && basis !== pack.statutory_basis) {
       // Phase 3D: a record counts only on the route its registered package establishes.
@@ -333,9 +335,14 @@ function familyFailures(
     // established as adopted; its edition may then be dated either way (the
     // edition date checks above apply to any date kind).
     // Phase 3D: the adopted status must also be the registered package's, which its members establish.
-    if (basis === "prc_4202" && (qualifiers.adoption_status !== "adopted" || (source !== undefined && pack?.adoption.status !== "adopted"))) {
+    if (basis === "prc_4202" && (qualifiers.adoption_status !== "adopted" || (source !== undefined && (pack?.statutory_basis !== "prc_4202" || pack.adoption.status !== "adopted")))) {
       failures.push("hazard_map_adoption_not_established");
     }
+    if (
+      basis === "gov_51178" &&
+      (pack?.statutory_basis !== "gov_51178" || pack.identification.status !== "state_identification_recommendation")
+    )
+      failures.push("statutory_route_not_accepted");
     // Phase 3E: whether the map covers the lot is computed by the lot overlay,
     // never read from the block (map_covers_lot is context only).
     if (family.require_legend_class && qualifiers.legend_defines_class_for_lot !== "yes") {
@@ -566,7 +573,8 @@ export function evaluateCriterionAuthority(input: {
    * Route-separated fact only (Phase 3B c): each route's assessment. The
    * whole-fact assessment of that key is then not gated; the routes are.
    */
-  routes?: { fact_key: ProgramFactKey; entries: readonly ProgramRouteAuthorityInput[] };
+  routes?: { fact_key: ProgramFactKey; entries: readonly ProgramRouteAuthorityInput[];
+  };
 }): ProgramCriterionAuthorityResult {
   const { criterion, requirement, facts, context, asOf, routes } = input;
   const factResults = facts

@@ -190,6 +190,8 @@ Fixture results, before and after:
 
 ## Captured official sources
 
+Phase 3G adds the separately reviewed GOV §51178 / 2025 LRA authority infrastructure, with c still pending and d alone human-verified (1 / 45). Current pins, the active FileGDB association, retained stale metadata, geometry validity policy and verification status are recorded in [the Phase 3G package record](PROGRAM_SCREEN_PHASE_3G_GOV_51178_PACKAGE.md). The historical captures and decisions below remain unchanged.
+
 All four PDFs were supplied to the capture session by the repository owner on 2026-09-27. The capture environment still could not reach `cityclerk.lacity.org` or `planning.lacity.gov` (egress 403), so the bytes were **not** compared with the files the hosts serve, and `retrieved_at` records the upload time, not the original download time. Recapture with `--replace` and the true download time if it is known.
 
 | Source ID | Type / status | Pages | Text layer | `sha256_original` | `sha256_extracted` |

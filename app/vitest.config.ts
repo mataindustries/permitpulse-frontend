@@ -33,7 +33,7 @@ export default defineConfig({
     }),
   ],
   test: {
-    globalSetup: ["./tests/program-screen-capture-bytes.global-setup.ts", "./tests/program-screen-overlay.global-setup.ts"],
+    globalSetup: ["./tests/program-screen-capture-bytes.global-setup.ts", "./tests/program-screen-overlay.global-setup.ts", "./tests/program-screen-lra.global-setup.ts"],
     setupFiles: ["./tests/apply-migrations.ts"],
   },
 });

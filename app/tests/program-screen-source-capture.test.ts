@@ -190,10 +190,13 @@ const officialSourceFiles = Object.keys(
 
 const OFFICIAL_DIR = "app/fixtures/program-screen/official-sources/";
 const CAPTURED_SOURCE_IDS = [
+  "calfire-fhszlra-25-1-all-data",
   // Phase 3D: the three members of the CAL FIRE SRA authority package.
   "calfire-fhszsra-23-3-data",
   "calfire-sra-fhsz-map-2023-09-29",
   "ccr-19-2201-fhsz-sra-final-text",
+  "gcs-51178",
+  "gcs-51179",
   "gcs-66499-41",
   "low-rise-draft-2026-09-24",
   "ordinance-188967",
@@ -651,6 +654,9 @@ describe("Captured official sources (official-sources/)", () => {
       }),
     );
     expect(pins).toEqual({
+      "calfire-fhszlra-25-1-all-data": ["736fa5231c70b844550784cd13c8d414c239cf9573c9cae6139554ef0bf464b6", "5724d4a456ddbf7845a116d162d96fc51b4a295c4c05a92d91fb2049cd4f1dad"],
+      "gcs-51178": ["d6c0bd92141a950ebf56651a9988679ef6498329daa8fc04144a80611d88b821", "3eac548aa2e63d82a08fd8996207550e7970715cd17984a7e2a7df4e8cc1fd63"],
+      "gcs-51179": ["fe26edd20837ae19e072fbabcea128bc6a1cb2f4eefae7397e6b8a1d8660ab77", "821621810e1ad3d87c1b693d85183c45e11c84077ce148c99f8012b56672ada4"],
       // Phase 3D: the CAL FIRE SRA package members (docs/PROGRAM_SCREEN_PHASE_3D_CALFIRE_SRA_PACKAGE.md).
       "calfire-fhszsra-23-3-data": [
         "e744eb8eb7895157f4025109f29ff5312180a52fdb4648ff9fe9328edf4db3b2",
@@ -700,10 +706,13 @@ describe("Captured official sources (official-sources/)", () => {
       };
     });
     expect(summary).toEqual([
+      { id: "calfire-fhszlra-25-1-all-data", type: "dataset_archive", status: "operative", may_change: [], supports_rule: false },
       // Phase 3D: package members never support a rule. The regulation prints no statement of its own effect.
       { id: "calfire-fhszsra-23-3-data", type: "dataset_archive", status: "operative", may_change: [], supports_rule: false },
       { id: "calfire-sra-fhsz-map-2023-09-29", type: "agency_map", status: "operative", may_change: [], supports_rule: false },
       { id: "ccr-19-2201-fhsz-sra-final-text", type: "regulation", status: "status_unconfirmed", may_change: [], supports_rule: false },
+      { id: "gcs-51178", type: "statute", status: "operative", may_change: [], supports_rule: false },
+      { id: "gcs-51179", type: "statute", status: "operative", may_change: [], supports_rule: false },
       // A statute capture never supports a rule (Phase 2b B4), even when operative.
       { id: "gcs-66499-41", type: "statute", status: "operative", may_change: [], supports_rule: false },
       {
@@ -766,6 +775,9 @@ describe("Captured official sources (official-sources/)", () => {
       "calfire-sra-fhsz-map-2023-09-29",
       "ccr-19-2201-fhsz-sra-final-text",
       "calfire-fhszsra-23-3-data",
+      "gcs-51178",
+      "gcs-51179",
+      "calfire-fhszlra-25-1-all-data",
     ]);
     const drafts = expectedOfficialSources.filter((source) => source.source_type === "proposed_draft");
     expect(drafts.map((source) => source.source_id)).toEqual(["low-rise-draft-2026-09-24"]);

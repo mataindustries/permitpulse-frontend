@@ -240,10 +240,10 @@ describe("3. A capture, not an authority", () => {
   // Updated in Phase 3D, which registered only the CAL FIRE SRA package: the statute is still no authority.
   it("registers no issuer, authority source, fact-policy entry, or host exception for the statute", () => {
     expect(programAuthorityRegistries.issuers.map((issuer) => issuer.issuer_id)).toEqual(["calfire-osfm"]);
-    expect(programAuthorityRegistries.sources.map((source) => source.authority_source_id)).toEqual(["calfire-sra-fhsz-2023-09-29"]);
+    expect(programAuthorityRegistries.sources.map((source) => source.authority_source_id)).toEqual(["calfire-sra-fhsz-2023-09-29", "calfire-lra-fhsz-2025-03-24-v1"]);
     for (const [key, policy] of Object.entries(programAuthorityRegistries.fact_policies)) {
       const phase3d = key === "very-high-fire-hazard-severity-zone" || key === "high-fire-hazard-severity-zone";
-      expect(policy?.establishing.length, key).toBe(phase3d ? 1 : 0);
+      expect(policy?.establishing.length, key).toBe(key === "very-high-fire-hazard-severity-zone" ? 2 : phase3d ? 1 : 0);
     }
     expect(sourceHostExceptions.map((exception) => exception.source_id)).not.toContain("gcs-66499-41");
     expect(JSON.stringify(programAuthorityRegistries)).not.toContain("gcs-66499-41");

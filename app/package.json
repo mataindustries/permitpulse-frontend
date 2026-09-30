@@ -29,6 +29,7 @@
     "program-screen:capture:build": "esbuild scripts/capture-program-screen-source.ts --bundle --platform=node --format=esm --packages=external --log-level=warning --outfile=node_modules/.cache/permitpulse/capture-program-screen-source.mjs",
     "program-screen:capture:selftest": "npm run --silent program-screen:capture:build && node scripts/check-program-screen-capture-tool.mjs",
     "program-screen:capture:verify": "npm run --silent program-screen:capture -- --verify",
+    "program-screen:lra-overlay": "esbuild scripts/build-program-screen-lra-overlay.ts --bundle --platform=node --format=esm --packages=external --log-level=warning --outfile=node_modules/.cache/permitpulse/build-program-screen-lra-overlay.mjs && node node_modules/.cache/permitpulse/build-program-screen-lra-overlay.mjs",
     "preview:config": "node scripts/preview-deployment.mjs prepare",
     "preflight:preview": "node scripts/preview-deployment.mjs preflight",
     "preflight:preview:resolved": "node scripts/preview-deployment.mjs preflight --config .wrangler.preview.jsonc --resolved",

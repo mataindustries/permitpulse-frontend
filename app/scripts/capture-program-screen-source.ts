@@ -1,6 +1,13 @@
 import { mkdir, readdir, readFile, rm, stat, writeFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import { parseArgs } from "node:util";
+import { buildHttpCapture } from "../src/shared/program-screen/http-capture";
+import {
+  FILEGDB_EXTRACTOR,
+  FILEGDB_VERSION,
+  extractFileGdbPages,
+  isFileGdbArchive,
+} from "../src/shared/program-screen/filegdb-capture";
 import { getDocument, version as pdfjsVersion } from "pdfjs-dist/legacy/build/pdf.mjs";
 import {
   CAPTURE_TOOL_PATH,
@@ -232,6 +239,9 @@ async function capture(values: Record<string, string | boolean | string[] | unde
     fail(`--context is required for --type ${v2SourceTypes.join(", --type ")}.`);
   }
   if (!v2 && values.context !== undefined) fail(`--context applies only to --type ${v2SourceTypes.join(", --type ")}.`);
+  if (!v2 && (values.headers !== undefined || values["final-url"] !== undefined))
+    fail("--headers and --final-url apply only to metadata v2.");
+  if (values["final-url"] !== undefined && values.headers === undefined) fail("--final-url requires --headers.");
   const undated = text("document-date") === "none";
   if (undated && !(undatedSourceTypes as readonly string[]).includes(text("type"))) {
     fail(`--document-date none applies only to --type ${undatedSourceTypes.join(", --type ")}.`);
@@ -257,7 +267,7 @@ async function capture(values: Record<string, string | boolean | string[] | unde
   let pages: string[];
   if (served === "zip") {
     try {
-      pages = await extractDatasetArchivePages(bytes);
+      pages = await (isFileGdbArchive(bytes) ? extractFileGdbPages(bytes) : extractDatasetArchivePages(bytes));
     } catch (error) {
       if (!(error instanceof DatasetArchiveError)) throw error;
       fail(`the archive cannot be read: ${error.message}.`);
@@ -296,14 +306,21 @@ async function capture(values: Record<string, string | boolean | string[] | unde
   };
   const extraction = {
     file: captureFileNames.extracted,
-    extractor: served === "pdf" ? "pdfjs-dist" : served === "zip" ? ZIP_MANIFEST_EXTRACTOR : HTML_TEXT_EXTRACTOR,
-    extractor_version: served === "pdf" ? pdfjsVersion : served === "zip" ? ZIP_MANIFEST_EXTRACTOR_VERSION : HTML_TEXT_EXTRACTOR_VERSION,
+    extractor: served === "pdf" ? "pdfjs-dist" : served === "zip" ? isFileGdbArchive(bytes)
+            ? FILEGDB_EXTRACTOR
+            : ZIP_MANIFEST_EXTRACTOR : HTML_TEXT_EXTRACTOR,
+    extractor_version: served === "pdf" ? pdfjsVersion : served === "zip" ? isFileGdbArchive(bytes)
+            ? FILEGDB_VERSION
+            : ZIP_MANIFEST_EXTRACTOR_VERSION : HTML_TEXT_EXTRACTOR_VERSION,
     normalization: EXTRACTED_TEXT_NORMALIZATION,
     page_separator: "form_feed",
     page_count: normalizedPages.length,
     pages_without_text: pagesWithoutText,
   };
   const provenance = { capture_tool: CAPTURE_TOOL_PATH, is_ai_generated: false, test_only: testOnly };
+  const http = typeof values.headers === "string"
+    ? await buildHttpCapture(common.official_url, new Uint8Array(await readFile(resolve(values.headers))), values["final-url"] as string | undefined)
+    : undefined;
 
   // Built in a fixed key order and validated before anything is written.
   let metadata: OfficialSourceMetadata;
@@ -326,6 +343,7 @@ async function capture(values: Record<string, string | boolean | string[] | unde
             // Phase 3D blocks are written only when used, so earlier captures stay byte-identical on recapture.
             ...(common.source_type === "regulation" ? { regulation: context, dataset_archive: null } : {}),
             ...(common.source_type === "dataset_archive" ? { regulation: null, dataset_archive: context } : {}),
+            ...(http === undefined ? {} : { http_capture: http }),
             ...provenance,
           }
         : {
@@ -419,6 +437,8 @@ const { values } = parseArgs({
     notes: { type: "string" },
     "may-change": { type: "string", multiple: true },
     context: { type: "string" },
+    headers: { type: "string" },
+    "final-url": { type: "string" },
     replace: { type: "boolean", default: false },
     verify: { type: "boolean", default: false },
   },

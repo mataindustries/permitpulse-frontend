@@ -130,6 +130,30 @@ export const expectedOfficialSources: readonly ExpectedOfficialSource[] = [
     may_change_source_ids: [],
     role: "Authority package member: the SRA zone polygons for a lot overlay, and the archive's adoption and effective-date statements. It cannot support a rule.",
   },
+  {
+    source_id: "gcs-51178",
+    title: "California Government Code Section 51178",
+    official_url: "https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=GOV&sectionNum=51178.",
+    source_type: "statute",
+    may_change_source_ids: [],
+    role: "Phase 3G State identification authority; capture only, not criterion promotion.",
+  },
+  {
+    source_id: "gcs-51179",
+    title: "California Government Code Section 51179",
+    official_url: "https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=GOV&sectionNum=51179.",
+    source_type: "statute",
+    may_change_source_ids: [],
+    role: "Phase 3G recommendation and separate local designation context; never a City-adoption gate.",
+  },
+  {
+    source_id: "calfire-fhszlra-25-1-all-data",
+    title: "CAL FIRE / OSFM, Local Responsibility Area Fire Hazard Severity Zones Combined Phases Version 1, GIS data archive",
+    official_url: "https://34c031f8-c9fd-4018-8c5a-4159cdff6b0d-cdn-endpoint.azureedge.net/-/media/osfm-website/what-we-do/community-wildfire-preparedness-and-mitigation/fire-hazard-severity-zones/fhszlra251allgdb.zip?hash=4FE6C7291E09FC36126F91318C6CCB88&rev=c273e91031b6401b99937894df5f1266",
+    source_type: "dataset_archive",
+    may_change_source_ids: [],
+    role: "Phase 3G GOV 51178 State identification/recommendation polygons and active FileGDB metadata. Separate from local adoption and from the PRC 4202 SRA route.",
+  },
 ];
 
 /**

@@ -395,6 +395,28 @@ try {
     "does not take exactly the recorded values",
   );
 
+  /* ------------------------- Phase 3G: statutes, native FileGDB and original headers */
+  for (const id of ["gcs-51178", "gcs-51179", "calfire-fhszlra-25-1-all-data"]) {
+    const directory = resolve(appRoot, "fixtures/program-screen/official-sources", id);
+    const meta = JSON.parse(readFileSync(join(directory, "metadata.json"), "utf8"));
+    const context = join(temp, `${id}.context.json`);
+    writeFileSync(context, JSON.stringify(meta.source_type === "statute" ? meta.statute : meta.dataset_archive));
+    let headers = null;
+    if (meta.http_capture) {
+      headers = join(temp, `${id}.headers.txt`);
+      writeFileSync(headers, meta.http_capture.response_headers.raw_utf8);
+    }
+    const flags = {
+      file: join(directory, meta.original.file), "source-id": id, title: meta.title, url: meta.official_url,
+      type: meta.source_type, "document-date": meta.document_date, "operative-status": meta.operative_status,
+      "retrieved-at": meta.retrieved_at, notes: meta.notes, context, headers,
+    };
+    const args = [...Object.entries(flags).flatMap(([name, value]) => value === null ? [] : [`--${name}`, value]), "--replace"];
+    result = run(args);
+    check(`recaptures ${id} with its original transport provenance`, result.status === 0, result.output);
+    check(`reproduces ${id} byte for byte`, sameAsFixture(officialCopy(id), directory));
+  }
+
   result = run(["--verify"]);
   check("verifies an intact capture", result.status === 0 && result.output.includes("ok"), result.output);
 

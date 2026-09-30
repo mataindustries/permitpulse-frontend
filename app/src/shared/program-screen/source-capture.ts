@@ -1,8 +1,16 @@
 import { z } from "zod";
+import { httpCaptureSchema, httpCaptureIssues } from "./http-capture";
+import {
+  FILEGDB_EXTRACTOR,
+  FILEGDB_VERSION,
+  extractFileGdbPages,
+  LRA_DIRECTORY,
+  LRA_LAYER,
+  LRA_METADATA_SHA256,
+} from "./filegdb-capture";
 import { IntegrityValidationError } from "../build-week-integrity/validation";
 import type { ReviewedAuthoritySource } from "./authority-policy";
 import {
-  DatasetArchiveError,
   extractDatasetArchivePages,
   isZip,
   readDatasetArchiveSummary,
@@ -348,8 +356,9 @@ const PHASE_3D_CDN_REASON =
  * Each real exception is added only after its exact official source, host,
  * and path are identified and a named human reviewer explicitly approves it
  * (Phase 2b decision B2). Phase 3D D1 approved exactly these three: one
- * exact file path each, for the three CAL FIRE SRA package members. The
- * scanned OAL Notice of Approval is not a package member and has none.
+ * exact file path each, for the three CAL FIRE SRA package members. Phase 3G
+ * adds the owner-approved exact combined LRA vector path. The scanned OAL
+ * Notice of Approval is not a package member and has none.
  */
 export const sourceHostExceptions: readonly SourceHostException[] = [
   {
@@ -382,6 +391,20 @@ export const sourceHostExceptions: readonly SourceHostException[] = [
     operator: "California Department of Forestry and Fire Protection (CAL FIRE), Office of the State Fire Marshal",
     reason: PHASE_3D_CDN_REASON,
     review: PHASE_3D_REVIEW,
+  },
+  {
+    exception_id: "calfire-cdn-fhszlra-25-1-all-data",
+    source_id: "calfire-fhszlra-25-1-all-data",
+    source_type: "dataset_archive",
+    host: CALFIRE_CDN_HOST,
+    path_prefix: "/-/media/osfm-website/what-we-do/community-wildfire-preparedness-and-mitigation/fire-hazard-severity-zones/fhszlra251allgdb.zip",
+    operator: "California Department of Forestry and Fire Protection (CAL FIRE), Office of the State Fire Marshal",
+    reason: "Phase 3G owner-approved Route 1 package and exact original 3G-1 URL. The official FHSZ page links this exact combined 2025 LRA vector archive. One source/path only; no other CDN artifact is authorized.",
+    review: {
+      reviewer: { kind: "human", name: "Sergio Mata", role: "Project Owner / Human Reviewer" },
+      reviewed_on: "2026-09-30",
+      decision_ref: null,
+    },
   },
 ];
 
@@ -542,7 +565,8 @@ export type CaptureHostResolution = { basis: CaptureHostBasis; issue: null } | {
  */
 export function captureHostBasis(
   value: string,
-  capture: { source_id: string; source_type: OfficialSourceType; test_only: boolean },
+  capture: { source_id: string; source_type: OfficialSourceType; test_only: boolean;
+  },
   exceptions: readonly SourceHostException[] = sourceHostExceptions,
 ): CaptureHostResolution {
   if (capture.test_only) {
@@ -776,7 +800,10 @@ export const statuteCaptureContextSchema = z
       .array(
         z
           .object({
-            pinpoint: z.string().max(40).regex(/^(?:\([a-z0-9]+\))+$/, "A pinpoint is written like (a)(9)."),
+            pinpoint: z.string().max(40).regex(
+                /^(?:section|(?:\([a-z0-9]+\))+)$/,
+                "Use section for an unnumbered section, or a pinpoint like (a)(9).",
+              ),
             excerpt: pageExcerptSchema,
           })
           .strict(),
@@ -817,7 +844,7 @@ export const regulationCaptureContextSchema = z
 export type RegulationCaptureContext = z.infer<typeof regulationCaptureContextSchema>;
 
 const labelCountSchema = z.object({ label: z.string().min(1).max(60), count: z.number().int().positive() }).strict();
-const datasetFieldName = z.string().regex(/^[A-Za-z_][A-Za-z0-9_]{0,10}$/, "A dBASE field name is at most 11 characters.");
+const datasetFieldName = z.string().regex(/^[A-Za-z_][A-Za-z0-9_]{0,63}$/);
 
 /**
  * What a GIS data archive holds (Phase 3D), each item checked against the
@@ -833,7 +860,7 @@ export const datasetArchiveCaptureContextSchema = z
     publisher: z.object({ name: shortText, excerpt: pageExcerptSchema }).strict(),
     crs: z.object({ epsg: z.number().int().positive(), excerpt: pageExcerptSchema }).strict(),
     geometry: z
-      .object({ shape_type: z.enum(["Polygon", "PolygonZ", "PolygonM"]), feature_count: z.number().int().positive() })
+      .object({ shape_type: z.enum(["Polygon", "PolygonZ", "PolygonM", "MultiPolygon"]), feature_count: z.number().int().positive() })
       .strict(),
     /** The attribute that carries each feature's class, and every value it takes, with counts. */
     class_field: z.object({ field: datasetFieldName, values: z.array(labelCountSchema).min(1).max(10) }).strict(),
@@ -849,6 +876,15 @@ export const datasetArchiveCaptureContextSchema = z
     non_authoritative: z
       .array(z.object({ path: z.string().max(200).regex(/^(?:\/[A-Za-z_][\w.:-]*)+(?:@[A-Za-z_][\w.:-]*)?$/), reason: shortText }).strict())
       .max(20),
+    file_geodatabase: z
+      .object({
+        directory: z.literal(LRA_DIRECTORY),
+        metadata_fid: z.literal(3),
+        metadata_sha256: z.literal(LRA_METADATA_SHA256),
+        definition_sha256: z.string().regex(/^[0-9a-f]{64}$/),
+      })
+      .strict()
+      .optional(),
   })
   .strict();
 
@@ -1054,7 +1090,7 @@ function officialSourceMetadataV2SchemaWith(exceptions: readonly SourceHostExcep
       extraction: z
         .object({
           file: z.literal(captureFileNames.extracted),
-          extractor: z.enum(["pdfjs-dist", HTML_TEXT_EXTRACTOR, ZIP_MANIFEST_EXTRACTOR]),
+          extractor: z.enum(["pdfjs-dist", HTML_TEXT_EXTRACTOR, ZIP_MANIFEST_EXTRACTOR, FILEGDB_EXTRACTOR]),
           extractor_version: z.string().regex(/^\d+\.\d+\.\d+$/),
           normalization: z.literal(EXTRACTED_TEXT_NORMALIZATION),
           page_separator: z.literal("form_feed"),
@@ -1068,6 +1104,7 @@ function officialSourceMetadataV2SchemaWith(exceptions: readonly SourceHostExcep
       /** Phase 3D. Absent in earlier captures, which the schema reads as null. */
       regulation: regulationCaptureContextSchema.nullable().optional(),
       dataset_archive: datasetArchiveCaptureContextSchema.nullable().optional(),
+      http_capture: httpCaptureSchema.optional(),
       capture_tool: z.literal(CAPTURE_TOOL_PATH),
       is_ai_generated: z.literal(false),
       test_only: z.boolean(),
@@ -1086,6 +1123,12 @@ function officialSourceMetadataV2SchemaWith(exceptions: readonly SourceHostExcep
         issue("official_url", `The source URL ${host.issue}.`);
       } else if (JSON.stringify(host.basis) !== JSON.stringify(metadata.host_basis)) {
         issue("host_basis", `The host basis must be ${describeHostBasis(host.basis)}.`);
+      }
+      if (metadata.http_capture) {
+        if (metadata.http_capture.requested_url !== metadata.official_url)
+          issue("http_capture.requested_url", "Transport requested URL must preserve the exact official URL.");
+        const finalHost = captureHostBasis(metadata.http_capture.final_url, metadata, exceptions);
+        if (finalHost.issue !== null) issue("http_capture.final_url", `The final source URL ${finalHost.issue}.`);
       }
 
       const statusIssue = sourceTypeStatusIssue(metadata.source_type, metadata.operative_status);
@@ -1116,7 +1159,15 @@ function officialSourceMetadataV2SchemaWith(exceptions: readonly SourceHostExcep
         if (pageCount !== 1) issue("extraction", "Served HTML is extracted as one page.");
         if (metadata.source_type !== "statute") issue("original", "Only a statute page may be captured as served HTML.");
       } else if (zip) {
-        if (metadata.extraction.extractor !== ZIP_MANIFEST_EXTRACTOR || metadata.extraction.extractor_version !== ZIP_MANIFEST_EXTRACTOR_VERSION) {
+        if (
+          !(
+            (metadata.extraction.extractor === ZIP_MANIFEST_EXTRACTOR &&
+              metadata.extraction.extractor_version === ZIP_MANIFEST_EXTRACTOR_VERSION) ||
+            (metadata.extraction.extractor === FILEGDB_EXTRACTOR &&
+              metadata.extraction.extractor_version === FILEGDB_VERSION &&
+              metadata.dataset_archive?.file_geodatabase !== undefined)
+          )
+        ) {
           issue("extraction", `A data archive is extracted by ${ZIP_MANIFEST_EXTRACTOR} ${ZIP_MANIFEST_EXTRACTOR_VERSION}.`);
         }
         if (metadata.source_type !== "dataset_archive") issue("original", "Only a data archive may be captured as a ZIP.");
@@ -1195,6 +1246,7 @@ function officialSourceMetadataV2SchemaWith(exceptions: readonly SourceHostExcep
         const pinpoints = statute.pinpoints.map((pinpoint) => pinpoint.pinpoint);
         if (new Set(pinpoints).size !== pinpoints.length) issue("statute.pinpoints", "Each pinpoint is recorded once.");
         statute.pinpoints.forEach((pinpoint, index) => {
+          if (pinpoint.pinpoint === "section") return;
           const last = pinpoint.pinpoint.slice(pinpoint.pinpoint.lastIndexOf("("));
           if (!normalizeSourceText(pinpoint.excerpt.text).startsWith(last)) {
             issue(`statute.pinpoints.${index}`, `The excerpt for ${pinpoint.pinpoint} begins with ${last}.`);
@@ -1346,6 +1398,42 @@ export function captureContextIssues(metadata: OfficialSourceMetadata, extracted
 /** Every way a data archive's context disagrees with the extractor's own summary of the archive. */
 function datasetArchiveContextIssues(dataset: DatasetArchiveCaptureContext, extracted: string): string[] {
   const issues: string[] = [];
+  if (dataset.file_geodatabase) {
+    const pages = splitExtractedPages(extracted),
+      page = pages.at(-1) ?? "";
+    const associationLine = page.split("\n").find((line) => line.startsWith("active metadata association "));
+    let association: Record<string, unknown> = {};
+    try {
+      association = JSON.parse(associationLine?.slice(28) ?? "{}");
+    } catch {
+      issues.push("FileGDB metadata association is malformed.");
+    }
+    if (
+      dataset.dataset_name !== LRA_LAYER ||
+      dataset.geometry.shape_type !== "MultiPolygon" ||
+      dataset.geometry.feature_count !== 9752 ||
+      dataset.crs.epsg !== 3310 ||
+      dataset.class_field.field !== "FHSZ_Description" ||
+      dataset.extent_field.field !== "SRA" ||
+      association.name !== dataset.dataset_name ||
+      association.fid !== dataset.file_geodatabase.metadata_fid ||
+      association.metadata_sha256 !== dataset.file_geodatabase.metadata_sha256 ||
+      association.definition_sha256 !== dataset.file_geodatabase.definition_sha256
+    )
+      issues.push("FileGDB active layer/metadata association differs from the capture.");
+    for (const field of [dataset.class_field, dataset.extent_field]) {
+      const expected = [...field.values]
+        .sort((a, b) => (a.label < b.label ? -1 : a.label > b.label ? 1 : 0))
+        .map((v) => `${JSON.stringify(v.label)} ${v.count}`)
+        .join("; ");
+      if (!page.split("\n").includes(`values ${field.field}: ${expected}`))
+        issues.push(`FileGDB ${field.field} values differ.`);
+    }
+    for (const field of dataset.non_authoritative)
+      if (datasetMetadataLine(extracted, field.path) === null)
+        issues.push(`No non-authoritative metadata line ${field.path}.`);
+    return issues;
+  }
   const summary = readDatasetArchiveSummary(splitExtractedPages(extracted));
   const name = dataset.dataset_name;
   for (const suffix of [".shp", ".shx", ".dbf", ".prj"]) {
@@ -1401,6 +1489,8 @@ export async function officialSourceCaptureIssues(
   if (files.directory !== captureDirectoryFor(metadata)) {
     issues.push(`metadata.json source_id ${metadata.source_id} does not match directory ${files.directory}.`);
   }
+  if (metadata.schema_version === OFFICIAL_SOURCE_METADATA_V2_VERSION && metadata.http_capture)
+    issues.push(...await httpCaptureIssues(metadata.http_capture));
 
   let servedHtml: string | null = null;
   let archive: Uint8Array | null = null;
@@ -1451,10 +1541,11 @@ export async function officialSourceCaptureIssues(
     if (archive !== null) {
       let reextracted: string | null = null;
       try {
-        reextracted = joinExtractedPages(await extractDatasetArchivePages(archive));
+        reextracted = joinExtractedPages(await (metadata.extraction.extractor === FILEGDB_EXTRACTOR
+            ? extractFileGdbPages(archive)
+            : extractDatasetArchivePages(archive)));
       } catch (error) {
-        if (!(error instanceof DatasetArchiveError)) throw error;
-        issues.push(`${originalFile} cannot be read: ${error.message}.`);
+        issues.push(`${originalFile} cannot be read: ${(error as Error).message}.`);
       }
       if (reextracted !== null && reextracted !== files.extracted) {
         issues.push(
@@ -1533,7 +1624,7 @@ export const agencyMapFactLegendClasses: Readonly<Partial<Record<ProgramFactKey,
  * memo never can.
  */
 export async function authoritySourceCaptureIssues(
-  source: Pick<ReviewedAuthoritySource, "record_kind" | "edition" | "capture" | "fact_keys">,
+  source: Pick<ReviewedAuthoritySource, "record_kind" | "edition" | "capture" | "fact_keys" | "package">,
   capture: { metadata: OfficialSourceMetadata; extracted: string },
   exceptions: readonly SourceHostException[] = sourceHostExceptions,
 ): Promise<string[]> {
@@ -1548,6 +1639,40 @@ export async function authoritySourceCaptureIssues(
     issues.push("The registration's SHA-256 does not pin the captured extracted text.");
   }
   if (metadata.test_only) issues.push("A test-only capture can never back an authority source.");
+  if (
+    metadata.schema_version === OFFICIAL_SOURCE_METADATA_V2_VERSION &&
+    metadata.source_type === "dataset_archive" &&
+    source.package?.statutory_basis === "gov_51178"
+  ) {
+    const data = metadata.dataset_archive,
+      pack = source.package;
+    if (
+      source.record_kind !== "agency_hazard_map" ||
+      metadata.operative_status !== "operative" ||
+      !data?.file_geodatabase
+    )
+      issues.push("Route 1 requires an operative reviewed FileGDB identification package.");
+    if (
+      source.edition.date !== pack.identification.map_date ||
+      source.edition.date !== metadata.document_date ||
+      source.edition.date_kind !== "dated"
+    )
+      issues.push("Route 1's edition differs from its captured map date.");
+    if (
+      data?.dataset_name !== pack.active_metadata.layer ||
+      data?.class_field.field !== "FHSZ_Description" ||
+      data?.crs.epsg !== 3310 ||
+      data?.file_geodatabase?.metadata_sha256 !== pack.active_metadata.xml_sha256 ||
+      data.file_geodatabase.definition_sha256 !== pack.active_metadata.definition_sha256
+    )
+      issues.push("Route 1's active layer/metadata/class field differs.");
+    if (source.fact_keys.length !== 1 || source.fact_keys[0] !== "very-high-fire-hazard-severity-zone")
+      issues.push("LRA evidence establishes only the Very High fact.");
+    if (data?.publisher.name !== "Fire Hazard Severity Zone Team, CAL FIRE")
+      issues.push("The active dataset publisher differs.");
+    issues.push(...captureContextIssues(metadata, extracted));
+    return issues;
+  }
   if (metadata.schema_version !== OFFICIAL_SOURCE_METADATA_V2_VERSION || metadata.source_type !== "agency_map" || metadata.agency_map === null) {
     issues.push(`A ${metadata.source_type} capture cannot back an authority source.`);
     return issues;

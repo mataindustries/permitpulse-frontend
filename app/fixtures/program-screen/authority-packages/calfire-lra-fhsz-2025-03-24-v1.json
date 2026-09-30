@@ -1,0 +1,144 @@
+{
+  "schema_version": "program-screen-gov-51178-package-v1",
+  "package_id": "calfire-lra-fhsz-2025-03-24-v1",
+  "title": "Local Responsibility Area Fire Hazard Severity Zones Combined Phases (FHSZLRA25_v1_All) Version 1",
+  "statutory_basis": "gov_51178",
+  "status": "state_identification_recommendation",
+  "currency": "until_superseded",
+  "members": [
+    {
+      "role": "identification_statute",
+      "source_id": "gcs-51178",
+      "source_type": "statute",
+      "sha256_original": "d6c0bd92141a950ebf56651a9988679ef6498329daa8fc04144a80611d88b821",
+      "sha256_extracted": "3eac548aa2e63d82a08fd8996207550e7970715cd17984a7e2a7df4e8cc1fd63"
+    },
+    {
+      "role": "local_designation_statute",
+      "source_id": "gcs-51179",
+      "source_type": "statute",
+      "sha256_original": "fe26edd20837ae19e072fbabcea128bc6a1cb2f4eefae7397e6b8a1d8660ab77",
+      "sha256_extracted": "821621810e1ad3d87c1b693d85183c45e11c84077ce148c99f8012b56672ada4"
+    },
+    {
+      "role": "overlay_dataset",
+      "source_id": "calfire-fhszlra-25-1-all-data",
+      "source_type": "dataset_archive",
+      "sha256_original": "736fa5231c70b844550784cd13c8d414c239cf9573c9cae6139554ef0bf464b6",
+      "sha256_extracted": "5724d4a456ddbf7845a116d162d96fc51b4a295c4c05a92d91fb2049cd4f1dad"
+    }
+  ],
+  "assertions": {
+    "issuer_identity": {
+      "value": "calfire-osfm",
+      "evidence": [
+        {
+          "source_id": "calfire-fhszlra-25-1-all-data",
+          "sha256_extracted": "5724d4a456ddbf7845a116d162d96fc51b4a295c4c05a92d91fb2049cd4f1dad",
+          "page": 2,
+          "text": "/metadata/dataIdInfo/idCitation/citRespParty/rpOrgName: Fire Hazard Severity Zone Team, CAL FIRE"
+        }
+      ]
+    },
+    "statutory_basis": {
+      "value": "gov_51178",
+      "evidence": [
+        {
+          "source_id": "gcs-51178",
+          "sha256_extracted": "3eac548aa2e63d82a08fd8996207550e7970715cd17984a7e2a7df4e8cc1fd63",
+          "page": 1,
+          "text": "The State Fire Marshal shall identify areas in the state as moderate, high, and very high fire hazard severity zones based on consistent statewide criteria and based on the severity of fire hazard that is expected to prevail in those areas."
+        },
+        {
+          "source_id": "gcs-51179",
+          "sha256_extracted": "821621810e1ad3d87c1b693d85183c45e11c84077ce148c99f8012b56672ada4",
+          "page": 1,
+          "text": "(a) A local agency shall designate, by ordinance, moderate, high, and very high fire hazard severity zones in its jurisdiction within 120 days of receiving recommendations from the State Fire Marshal pursuant to Section 51178."
+        },
+        {
+          "source_id": "calfire-fhszlra-25-1-all-data",
+          "sha256_extracted": "5724d4a456ddbf7845a116d162d96fc51b4a295c4c05a92d91fb2049cd4f1dad",
+          "page": 2,
+          "text": "/metadata/dataIdInfo/idPurp: Under the purpose of fire safety and prevention, and by statutory authority, The State Fire Marshal shall classify lands within Local Responsibility Areas (LRA) into fire hazard severity zones. Each zone shall embrace relatively homogeneous lands and shall be based on fuel loading, slope, fire weather, and other relevant factors present, including areas where winds have been identified by the department as a major cause of wildfire spread. The California laws and regulations associated with Fire Hazard Severity Zones in LRA are found in California Government Code 51175-51189, and describe the objectives and and processes by which these data are developed, transmitted as a recommendation to local government agencies, and the subsequent required local ordinance adoption and documentation processes to see the zones finalized. Delivery of Recommended LRA FHSZ data and maps was phased by 4 regional areas of the state. This data set represents all 4 phases combined into one dataset"
+        }
+      ]
+    },
+    "map_identity": {
+      "value": "Local Responsibility Area Fire Hazard Severity Zones Combined Phases (FHSZLRA25_v1_All) Version 1",
+      "evidence": [
+        {
+          "source_id": "calfire-fhszlra-25-1-all-data",
+          "sha256_extracted": "5724d4a456ddbf7845a116d162d96fc51b4a295c4c05a92d91fb2049cd4f1dad",
+          "page": 2,
+          "text": "/metadata/dataIdInfo/idCitation/resTitle: Local Responsibility Area Fire Hazard Severity Zones Combined Phases (FHSZLRA25_v1_All) Version 1"
+        }
+      ]
+    },
+    "map_date": {
+      "value": "2025-03-24",
+      "evidence": [
+        {
+          "source_id": "calfire-fhszlra-25-1-all-data",
+          "sha256_extracted": "5724d4a456ddbf7845a116d162d96fc51b4a295c4c05a92d91fb2049cd4f1dad",
+          "page": 2,
+          "text": "/metadata/dataIdInfo/idAbs: Fire Hazard Severity Zone classes from the map dated March 24, 2025"
+        }
+      ]
+    },
+    "state_identification_recommendation": {
+      "value": true,
+      "evidence": [
+        {
+          "source_id": "calfire-fhszlra-25-1-all-data",
+          "sha256_extracted": "5724d4a456ddbf7845a116d162d96fc51b4a295c4c05a92d91fb2049cd4f1dad",
+          "page": 2,
+          "text": "/metadata/dataIdInfo/idPurp: Under the purpose of fire safety and prevention, and by statutory authority, The State Fire Marshal shall classify lands within Local Responsibility Areas (LRA) into fire hazard severity zones. Each zone shall embrace relatively homogeneous lands and shall be based on fuel loading, slope, fire weather, and other relevant factors present, including areas where winds have been identified by the department as a major cause of wildfire spread. The California laws and regulations associated with Fire Hazard Severity Zones in LRA are found in California Government Code 51175-51189, and describe the objectives and and processes by which these data are developed, transmitted as a recommendation to local government agencies, and the subsequent required local ordinance adoption and documentation processes to see the zones finalized. Delivery of Recommended LRA FHSZ data and maps was phased by 4 regional areas of the state. This data set represents all 4 phases combined into one dataset"
+        }
+      ]
+    },
+    "local_adoption_is_separate": {
+      "value": true,
+      "evidence": [
+        {
+          "source_id": "gcs-51179",
+          "sha256_extracted": "821621810e1ad3d87c1b693d85183c45e11c84077ce148c99f8012b56672ada4",
+          "page": 1,
+          "text": "(a) A local agency shall designate, by ordinance, moderate, high, and very high fire hazard severity zones in its jurisdiction within 120 days of receiving recommendations from the State Fire Marshal pursuant to Section 51178."
+        }
+      ]
+    }
+  },
+  "active_metadata": {
+    "fid": 3,
+    "layer": "FHSALRA25_v1_All",
+    "xml_sha256": "1bbf01d7df12ebaf60376c95a23305dcfc63d81d49e3661ac4395c17591bfbbb",
+    "definition_sha256": "05724568962346a1997adc3d17b538d32afc148795101cacf95f2a91a1aa925e"
+  },
+  "overlay": {
+    "dataset_name": "FHSALRA25_v1_All",
+    "class_field": "FHSZ_Description",
+    "crs_epsg": 3310,
+    "feature_count": 9752,
+    "class_labels": {
+      "Very High": "very_high",
+      "High": "high",
+      "Moderate": "moderate",
+      "NonWildland": "non_wildland"
+    }
+  },
+  "non_authoritative": [
+    "/metadata/dataIdInfo/idCitation/date/pubDate",
+    "/metadata/dataIdInfo/idCitation/resEd",
+    "/metadata/eainfo/detailed/enttyp/enttypl",
+    "/metadata/dataIdInfo/themeKeys/keyword",
+    "/metadata/dataIdInfo/searchKeys/keyword"
+  ],
+  "notes": [
+    "Owner accepted the Route 1 sufficiency judgment before authorizing Phase 3G. The active GDB_Items Name/PhysicalName/Path/Definition and system-catalog slot link this exact XML to this exact feature class. Metadata title FHSZLRA25_v1_All differs from the actual active layer FHSALRA25_v1_All; retain both verbatim.",
+    "GOV 51178 requires State identification. GOV 51179(a), and (g), expressly link State recommendations and the State map to 51178. The active metadata describes State classification under GOV 51175-51189 and transmittal of this combined output as recommendations. Local designation by ordinance is a separate fact and is not a Route 1 gate.",
+    "Map date March 24, 2025 controls this identified edition. Metadata creation/modification date March 27, 2025 and HTTP Last-Modified May 1, 2025 are provenance dates. Neither establishes local adoption or legal effectiveness.",
+    "The 421 MB intermediary/model-input package is supporting methodology only, excluded from operative membership. Blocked page fetches (CAL FIRE FHSZ and Board of Forestry LRA adoption, HTTP 403) remain discovery/review provenance; no bypass or new fetch was performed.",
+    "Only Very High can establish c. High, Moderate and NonWildland are recognized non-Very-High coverage for Route 1 NO; NonWildland is not relabeled Moderate and does not mean absence of wildfire hazard. LRA evidence cannot establish d.",
+    "Pin all source validity and preserve unsupported curves as native WKB. Invalid/unreadable relevant candidates fail closed; none are repaired. No City adoption capture, criterion promotion, SRA package modification, or G1/G2 change."
+  ]
+}

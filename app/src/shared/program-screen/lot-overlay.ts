@@ -336,6 +336,12 @@ function computeUncached(view: OverlayDatasetView, lot: ReviewedLotGeometry): Lo
   const box: OverlayExtent = [Math.min(...xs), Math.min(...ys), Math.max(...xs), Math.max(...ys)];
   const candidates = overlayCandidates(view.entries(), box);
   const candidateNumbers = candidates.map((entry) => entry.record_number);
+  const invalid = candidates.filter((entry) => entry.geometry_state !== undefined && entry.geometry_state !== "valid");
+  if (invalid.length > 0)
+    return notEstablished(
+      `Invalid or unreadable candidate source geometry: ${invalid.map((e) => e.record_number).join(", ")}.`,
+      candidateNumbers,
+    );
   const missing = candidates.filter((entry) => view.feature(entry.record_number) === undefined);
   if (missing.length > 0) {
     return notEstablished(`Records that could touch the lot are not in the view: ${missing.map((entry) => entry.record_number).join(", ")}.`, candidateNumbers);

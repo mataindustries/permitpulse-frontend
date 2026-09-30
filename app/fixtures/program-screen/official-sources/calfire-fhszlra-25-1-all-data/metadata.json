@@ -1,0 +1,137 @@
+{
+  "schema_version": "program-screen-official-source-v2",
+  "source_id": "calfire-fhszlra-25-1-all-data",
+  "title": "CAL FIRE / OSFM, Local Responsibility Area Fire Hazard Severity Zones Combined Phases Version 1, GIS data archive",
+  "official_url": "https://34c031f8-c9fd-4018-8c5a-4159cdff6b0d-cdn-endpoint.azureedge.net/-/media/osfm-website/what-we-do/community-wildfire-preparedness-and-mitigation/fire-hazard-severity-zones/fhszlra251allgdb.zip?hash=4FE6C7291E09FC36126F91318C6CCB88&rev=c273e91031b6401b99937894df5f1266",
+  "source_type": "dataset_archive",
+  "document_date": "2025-03-24",
+  "retrieved_at": "2026-09-30T16:39:28Z",
+  "sha256_original": "736fa5231c70b844550784cd13c8d414c239cf9573c9cae6139554ef0bf464b6",
+  "sha256_extracted": "5724d4a456ddbf7845a116d162d96fc51b4a295c4c05a92d91fb2049cd4f1dad",
+  "operative_status": "operative",
+  "notes": "Original owner-supplied 3G-1 ZIP, response headers and UTC timestamp. Exact original requested URL including hash/rev supplied by owner. One HTTP 200 block and no Location in original supplied header capture; final URL is inferred as requested URL, not a separately recorded curl url_effective. Original archive bytes unchanged; no refetch. Active GDB_Items metadata FID 3 and native feature-class identity are verified. Stale SRA metadata retained without authority. Map dated March 24, 2025; HTTP Last-Modified May 1, 2025 is delivery provenance only. State identification/recommendation under GOV 51178; local designation/adoption under 51179 is separate.",
+  "may_change_source_ids": [],
+  "original": {
+    "file": "original.zip",
+    "media_type": "application/zip",
+    "bytes": 9840158
+  },
+  "extraction": {
+    "file": "extracted.txt",
+    "extractor": "program-screen-filegdb-manifest",
+    "extractor_version": "1.0.0",
+    "normalization": "program-screen-text-v1",
+    "page_separator": "form_feed",
+    "page_count": 2,
+    "pages_without_text": []
+  },
+  "host_basis": {
+    "exception_id": "calfire-cdn-fhszlra-25-1-all-data"
+  },
+  "agency_map": null,
+  "statute": null,
+  "regulation": null,
+  "dataset_archive": {
+    "dataset_name": "FHSALRA25_v1_All",
+    "title": {
+      "page": 2,
+      "text": "/metadata/dataIdInfo/idCitation/resTitle: Local Responsibility Area Fire Hazard Severity Zones Combined Phases (FHSZLRA25_v1_All) Version 1"
+    },
+    "publisher": {
+      "name": "Fire Hazard Severity Zone Team, CAL FIRE",
+      "excerpt": {
+        "page": 2,
+        "text": "/metadata/dataIdInfo/idCitation/citRespParty/rpOrgName: Fire Hazard Severity Zone Team, CAL FIRE"
+      }
+    },
+    "crs": {
+      "epsg": 3310,
+      "excerpt": {
+        "page": 2,
+        "text": "crs EPSG:3310"
+      }
+    },
+    "geometry": {
+      "shape_type": "MultiPolygon",
+      "feature_count": 9752
+    },
+    "class_field": {
+      "field": "FHSZ_Description",
+      "values": [
+        {
+          "label": "Very High",
+          "count": 1008
+        },
+        {
+          "label": "High",
+          "count": 2049
+        },
+        {
+          "label": "Moderate",
+          "count": 4741
+        },
+        {
+          "label": "NonWildland",
+          "count": 1954
+        }
+      ]
+    },
+    "extent_field": {
+      "field": "SRA",
+      "values": [
+        {
+          "label": "LRA",
+          "count": 9752
+        }
+      ]
+    },
+    "status_as_published": {
+      "page": 2,
+      "text": "/metadata/dataIdInfo/idPurp: Under the purpose of fire safety and prevention, and by statutory authority, The State Fire Marshal shall classify lands within Local Responsibility Areas (LRA) into fire hazard severity zones. Each zone shall embrace relatively homogeneous lands and shall be based on fuel loading, slope, fire weather, and other relevant factors present, including areas where winds have been identified by the department as a major cause of wildfire spread. The California laws and regulations associated with Fire Hazard Severity Zones in LRA are found in California Government Code 51175-51189, and describe the objectives and and processes by which these data are developed, transmitted as a recommendation to local government agencies, and the subsequent required local ordinance adoption and documentation processes to see the zones finalized. Delivery of Recommended LRA FHSZ data and maps was phased by 4 regional areas of the state. This data set represents all 4 phases combined into one dataset"
+    },
+    "non_authoritative": [
+      {
+        "path": "/metadata/dataIdInfo/idCitation/date/pubDate",
+        "reason": "Inherited 2022 SRA metadata conflicts with the active combined 2025 LRA identity and map date; preserved, never used for authority."
+      },
+      {
+        "path": "/metadata/dataIdInfo/idCitation/resEd",
+        "reason": "Inherited 2022 SRA metadata conflicts with the active combined 2025 LRA identity and map date; preserved, never used for authority."
+      },
+      {
+        "path": "/metadata/eainfo/detailed/enttyp/enttypl",
+        "reason": "Inherited 2022 SRA metadata conflicts with the active combined 2025 LRA identity and map date; preserved, never used for authority."
+      },
+      {
+        "path": "/metadata/dataIdInfo/themeKeys/keyword",
+        "reason": "Inherited SRA keywords conflict with the active LRA identity and purpose; preserved, never used for authority."
+      },
+      {
+        "path": "/metadata/dataIdInfo/searchKeys/keyword",
+        "reason": "Inherited SRA keywords conflict with the active LRA identity and purpose; preserved, never used for authority."
+      }
+    ],
+    "file_geodatabase": {
+      "directory": "FHSZLRA25_1_All.gdb",
+      "metadata_fid": 3,
+      "metadata_sha256": "1bbf01d7df12ebaf60376c95a23305dcfc63d81d49e3661ac4395c17591bfbbb",
+      "definition_sha256": "05724568962346a1997adc3d17b538d32afc148795101cacf95f2a91a1aa925e"
+    }
+  },
+  "http_capture": {
+    "requested_url": "https://34c031f8-c9fd-4018-8c5a-4159cdff6b0d-cdn-endpoint.azureedge.net/-/media/osfm-website/what-we-do/community-wildfire-preparedness-and-mitigation/fire-hazard-severity-zones/fhszlra251allgdb.zip?hash=4FE6C7291E09FC36126F91318C6CCB88&rev=c273e91031b6401b99937894df5f1266",
+    "final_url": "https://34c031f8-c9fd-4018-8c5a-4159cdff6b0d-cdn-endpoint.azureedge.net/-/media/osfm-website/what-we-do/community-wildfire-preparedness-and-mitigation/fire-hazard-severity-zones/fhszlra251allgdb.zip?hash=4FE6C7291E09FC36126F91318C6CCB88&rev=c273e91031b6401b99937894df5f1266",
+    "final_url_basis": "inferred_no_redirect_from_supplied_headers",
+    "response_statuses": [
+      200
+    ],
+    "response_headers": {
+      "raw_utf8": "HTTP/2 200 \r\ndate: Wed, 30 Sep 2026 16:39:28 GMT\r\ncontent-type: application/x-zip-compressed\r\ncontent-length: 9840158\r\ncache-control: public, max-age=604800\r\netag: 1096ac57dc834b8caef790bf706e7cff\r\nlast-modified: Thu, 01 May 2025 23:08:11 GMT\r\nrequest-context: appId=cid-v1:7d94dcb4-168e-416c-851f-685e11191e72\r\ncontent-disposition: attachment; filename=\"FHSZLRA251Allgdb.zip\"\r\nx-azure-ref: 20260930T163927Z-168dc46868dhvpl9hC1BY1myes0000001a8g00000000cpq6\r\nx-fd-int-roxy-purgeid: 0\r\nx-cache: TCP_MISS\r\naccess-control-allow-origin: *\r\naccess-control-allow-methods: GET, OPTIONS\r\naccess-control-allow-headers: *\r\naccept-ranges: bytes\r\n\r\n",
+      "bytes": 636,
+      "sha256": "e7b95196f0cfc5495e274110e917f8c0f5d70b0732e5f6553fe4a9a34e37c81f"
+    }
+  },
+  "capture_tool": "app/scripts/capture-program-screen-source.ts",
+  "is_ai_generated": false,
+  "test_only": false
+}
