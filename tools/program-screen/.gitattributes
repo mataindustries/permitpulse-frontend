@@ -1,0 +1,7 @@
+# Preserve the exact captured HTTP response headers and grid bytes.
+proj/resources/* -text
+# Captured HTTP CRLF/trailing spaces are evidence, not editable text whitespace.
+proj/resources/*.headers.txt -diff
+# The implementation and pipeline hashes use canonical LF bytes.
+normalize-reviewed-lot.py text eol=lf
+proj/approved-pipeline.proj text eol=lf

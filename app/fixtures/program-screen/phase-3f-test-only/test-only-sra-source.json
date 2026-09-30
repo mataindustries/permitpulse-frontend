@@ -1,0 +1,44 @@
+{
+  "TEST_ONLY": true,
+  "spatialReference": {
+    "wkid": 102100,
+    "latestWkid": 3857
+  },
+  "features": [
+    {
+      "attributes": {
+        "APN": "0000000001",
+        "PIN": "TEST-ONLY-PIN-3F",
+        "TR": "TEST-ONLY-TRACT",
+        "LOT": "1"
+      },
+      "geometry": {
+        "rings": [
+          [
+            [
+              -13043980.988463003,
+              4003918.987730713
+            ],
+            [
+              -13043956.95651127,
+              4003918.268132321
+            ],
+            [
+              -13043956.240415242,
+              4003942.4205596214
+            ],
+            [
+              -13043980.272421645,
+              4003943.140161007
+            ],
+            [
+              -13043980.988463003,
+              4003918.987730713
+            ]
+          ]
+        ]
+      }
+    }
+  ],
+  "TEST_ONLY_NOTE": "Synthetic square prepared from the existing TEST-ONLY whole-high fixture using the inverse of the same pinned pipeline. It is in the operation California South area; it is not Vidor geometry."
+}

@@ -1,0 +1,11 @@
+{
+  "TEST_ONLY": true,
+  "description": "SYNTHETIC layer metadata; not a LA BOE capture.",
+  "geometryType": "esriGeometryPolygon",
+  "extent": {
+    "spatialReference": {
+      "wkid": 102100,
+      "latestWkid": 3857
+    }
+  }
+}

@@ -1,0 +1,13 @@
+{
+  "requested_url": "https://cdn.proj.org/us_noaa_cshpgn.tif",
+  "final_url": "https://cdn.proj.org/us_noaa_cshpgn.tif",
+  "http_status": 200,
+  "retrieved_at_utc": "2026-09-30T03:53:25.775416+00:00",
+  "retrieval_time_basis": "Preserved download-file modification time at curl write; UTC.",
+  "recorded_at_utc": "2026-09-30T03:54:16.300860+00:00",
+  "bytes": 6834,
+  "sha256": "d54183c832e0366fc558147961bd8ae7d0dd3b5ae945069afd6a37a5a5c604c9",
+  "headers_sha256": "6f04810aaa98aec7fe1ffbfce2b3c8504d9bbcd465134ab38e0100b9b905be09",
+  "requested_url_count": 1,
+  "proj_network": "OFF"
+}

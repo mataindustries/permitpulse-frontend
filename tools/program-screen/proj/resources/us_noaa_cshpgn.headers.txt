@@ -1,0 +1,14 @@
+HTTP/2 200 
+content-type: image/tiff
+content-length: 6834
+accept-ranges: bytes
+server: AmazonS3
+last-modified: Tue, 28 Jan 2020 14:56:01 GMT
+x-amz-version-id: FIO4hUK_JdKFGvXhxA9aNsUS95aXNxZU
+date: Wed, 30 Sep 2026 03:53:26 GMT
+etag: "2225773c78c3ecfb6eff781a023f53e9"
+x-cache: RefreshHit from cloudfront
+via: 1.1 03a4969baba918b247a558c0839502ca.cloudfront.net (CloudFront)
+x-amz-cf-pop: PHX52-P3
+x-amz-cf-id: k5-OhPS06d3yEAYtjztsqxQi36TKRd4aPoI-M41NmNRbe8oeO4Y0Cg==
+

@@ -1,0 +1,102 @@
+{
+  "schema_version": "program-screen-reviewed-lot-v1",
+  "review_id": "00000000-0000-4000-8000-0000000000f1",
+  "case_id": "00000000-0000-4000-8000-00000000003f",
+  "parcel": {
+    "apn": "0000000001",
+    "pin": "TEST-ONLY-PIN-3F",
+    "pind": "TEST-ONLY-PIND-3F"
+  },
+  "legal_lot_reference": {
+    "subdivision_type": "tract",
+    "tract": "TEST-ONLY-11106-EQUIVALENT",
+    "lot": "TEST-ONLY-85",
+    "map_book": "TEST-ONLY-203",
+    "map_pages": {
+      "first": 19,
+      "last": 22
+    }
+  },
+  "legal_lot_identity": "not_established",
+  "legal_identity_evidence": [],
+  "source_geometry": {
+    "file": {
+      "store": "case_evidence_file",
+      "file_id": "test-only-source",
+      "sha256": "aa33cfc7e2ed7a3a3c7df422018fa7609b33a4953761e81c19ab1c8a1fe410a5",
+      "bytes": 1051
+    },
+    "metadata_file": {
+      "store": "case_evidence_file",
+      "file_id": "test-only-metadata",
+      "sha256": "c5fe73818a84f1da357130a3d54845cdab49e8a46c022cd07c30aa958dc5396b",
+      "bytes": 231
+    },
+    "crs": {
+      "wkid": 102100,
+      "latest_wkid": 3857,
+      "epsg": 3857
+    },
+    "identity_fields": {
+      "apn": "APN",
+      "pin": "PIN"
+    }
+  },
+  "normalized_geometry": {
+    "file": {
+      "store": "case_evidence_file",
+      "file_id": "test-only-normalized-lot",
+      "sha256": "be25919869c1a0fdd1d856ebf18fdb16ca83ac7a758f7551704b5f3dd2ceffeb",
+      "bytes": 307
+    },
+    "crs": "EPSG:3310",
+    "serialization": "pp-lot-json-v1: UTF-8; fixed key order; compact JSON; CPython 3.12.1 shortest round-trip binary64 numbers; LF terminator; preserve ring and vertex order; no rounding or simplification"
+  },
+  "reprojection": {
+    "profile_id": "boe-3857-ca-south-3310-proj-9-9-0-v1",
+    "profile_sha256": "a72210c70aa3e143845385fc0f3b80cbf3a5653d3614ed6c3c724a5823c0c6c4",
+    "proj_version": "9.9.0",
+    "normalizer_version": "1.0.0",
+    "pipeline_sha256": "e78dcde94b61df7bdefc85b9e36b69312af28b17ea348ac2bae32ca49c4f6ab3",
+    "receipt_file": {
+      "store": "case_evidence_file",
+      "file_id": "test-only-normalization-receipt",
+      "sha256": "1cb11a706238355f44f06ed0ccd9452aab4e2b230d293dfc26e05391f7b4259e",
+      "bytes": 3536
+    }
+  },
+  "source_provenance": {
+    "agency": "TEST-ONLY SYNTHETIC BOE-equivalent source; no real parcel capture",
+    "requested_url": "https://records.example.test/phase-3f/synthetic",
+    "final_url": "https://records.example.test/phase-3f/synthetic",
+    "retrieved_at_utc": "2026-09-29T18:00:00Z",
+    "evidence_files": [
+      {
+        "store": "case_evidence_file",
+        "file_id": "test-only-source",
+        "sha256": "aa33cfc7e2ed7a3a3c7df422018fa7609b33a4953761e81c19ab1c8a1fe410a5",
+        "bytes": 1051
+      },
+      {
+        "store": "case_evidence_file",
+        "file_id": "test-only-metadata",
+        "sha256": "c5fe73818a84f1da357130a3d54845cdab49e8a46c022cd07c30aa958dc5396b",
+        "bytes": 231
+      }
+    ]
+  },
+  "review": {
+    "reviewer": {
+      "kind": "human",
+      "name": "TEST-ONLY Reviewer",
+      "role": "Synthetic geometry reviewer"
+    },
+    "reviewer_user_id": "test-only-reviewer-3f",
+    "reviewed_on": "2026-09-30",
+    "next_review_on": "2026-10-30"
+  },
+  "state": {
+    "status": "current",
+    "superseded_by": null
+  }
+}

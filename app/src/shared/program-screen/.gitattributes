@@ -1,0 +1,2 @@
+# The approved profile is hashed as its exact canonical UTF-8/LF bytes.
+normalization-profile.json text eol=lf
