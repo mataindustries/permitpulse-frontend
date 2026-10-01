@@ -730,9 +730,15 @@ describe("5. d: YES and NO through the package, and only with lot coverage and t
   });
 
   it("establishes NO when SRA features cover the lot and none of it is High", () => {
-    for (const lot of ["whole-very-high", "whole-moderate", "very-high-moderate"] as const) {
+    for (const lot of ["whole-very-high", "whole-moderate"] as const) {
       expect(dResult(false, { lot }), lot).toMatchObject({ status: "consistent_with_source", authority: { established: true } });
     }
+  });
+
+  it("cannot establish NO from the mixed-lot fixture's relevant invalid SRA polygon", () => {
+    // Phase 3H: the unchanged source includes invalid record 10977. The old
+    // mixed-lot negative depended on it; that evidence must now stay unknown.
+    expect(dResult(false, { lot: "very-high-moderate" })).toMatchObject({ status: "unknown", authority: { established: false } });
   });
 
   // Updated in Phase 3E: lot coverage is computed from the lot geometry, never read from the block.

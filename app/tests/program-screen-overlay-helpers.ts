@@ -4,7 +4,9 @@ import type { ProgramCaptureRef } from "../src/shared/program-screen/authority-p
 import { loadReviewedLotGeometry, type ReviewedLotGeometry } from "../src/shared/program-screen/lot-overlay";
 import {
   loadOverlayDatasetView,
-  overlayIndexText,
+  shapefileTopologyIndexText,
+  type OverlayIndexInput,
+  type ShapefileTopologyRecord,
   type OverlayDatasetView,
   type OverlayIndexPin,
 } from "../src/shared/program-screen/overlay-dataset";
@@ -122,6 +124,24 @@ const square = (x0: number, y0: number, x1: number, y1: number): Array<[number, 
   [x0, y0],
 ];
 
+/** TEST-ONLY topology records for explicitly synthetic polygons. No native
+ * source feature is verified by this helper, and these pins cannot be used by
+ * the private production store. Real SRA tests use the offline native build. */
+export async function testOnlySraIndexText(input: OverlayIndexInput, states?: readonly ShapefileTopologyRecord["state"][]): Promise<string> {
+  return shapefileTopologyIndexText({ ...input, topology: {
+    archive_sha256: "0".repeat(64), manifest_sha256: "4".repeat(64),
+    records: await Promise.all(input.records.map(async (record, i) => ({
+      record_number: i + 1, geometry_sha256: await sha256HexBytesForTest(record.content), state: states?.[i] ?? "valid",
+      diagnostic: states?.[i] === "invalid" ? "TEST-ONLY self-intersection" : states?.[i] === "unreadable" ? "TEST-ONLY unreadable" : null,
+    }))),
+  } });
+}
+
+async function sha256HexBytesForTest(bytes: Uint8Array): Promise<string> {
+  const digest = await crypto.subtle.digest("SHA-256", bytes as Uint8Array<ArrayBuffer>);
+  return Array.from(new Uint8Array(digest), (n) => n.toString(16).padStart(2, "0")).join("");
+}
+
 function lotFile(ring: Array<[number, number]>, crs = "EPSG:3310"): Uint8Array {
   return new TextEncoder().encode(
     `${JSON.stringify({ schema_version: "program-screen-lot-geometry-v1", crs, type: "Polygon", coordinates: [ring] })}\n`,
@@ -159,7 +179,7 @@ export async function syntheticLotOverlay(dataset: ProgramCaptureRef, classField
     ["2", square(0, 300, 100, 400)],
   ];
   const records = features.map(([label, ring]) => ({ label, content: polygonRecordContent(ring) }));
-  const indexText = await overlayIndexText({
+  const indexText = await testOnlySraIndexText({
     dataset,
     layer: "TEST_ONLY_FHSZ",
     crs_epsg: 3310,

@@ -1,14 +1,16 @@
-import { readdir, readFile } from "node:fs/promises";
+import { execFileSync } from "node:child_process";
+import { mkdir, readdir, readFile, writeFile } from "node:fs/promises";
 import { resolve } from "node:path";
 import type { TestProject } from "vitest/node";
 import { readZipCentralDirectory, readZipMember } from "../src/shared/program-screen/dataset-archive";
 import {
   overlayCandidates,
-  overlayIndexFromShapefile,
   parseOverlayIndex,
   shapefileRecordContents,
   type OverlayExtent,
 } from "../src/shared/program-screen/overlay-dataset";
+import { buildSraOverlay } from "../scripts/lib/build-sra-overlay";
+import { sha256HexBytes } from "../src/shared/program-screen/source-capture";
 
 /**
  * Phase 3E: the overlay index and records, derived in Node from the exact
@@ -21,12 +23,17 @@ import {
  * The tests load both through `loadOverlayDatasetView`, which checks the index
  * against its pin and each record against the index, so nothing provided here
  * is trusted as it is.
+ * Phase 3H also re-derives native validity with pinned offline GDAL/GEOS and
+ * binds it to each unchanged source record; runtime never invokes that tool.
  */
 export interface ProvidedOverlayDataset {
   index_text: string | null;
   error: string | null;
   /** Record content bytes (base64) by record number. */
   records: Record<string, string>;
+  validity_manifest_sha256: string | null;
+  validity_counts: Record<string, number>;
+  invalid_counts: Record<string, number>;
 }
 
 declare module "vitest" {
@@ -49,11 +56,22 @@ function lotBox(text: string): OverlayExtent | null {
 
 export default async function setup(project: TestProject): Promise<void> {
   const repoRoot = resolve(project.config.root, "..");
-  const provided: ProvidedOverlayDataset = { index_text: null, error: null, records: {} };
+  const provided: ProvidedOverlayDataset = { index_text: null, error: null, records: {}, validity_manifest_sha256: null, validity_counts: {}, invalid_counts: {} };
   try {
     const directory = resolve(repoRoot, DATASET_DIR);
     const metadata = JSON.parse(await readFile(resolve(directory, "metadata.json"), "utf8"));
     const context = metadata.dataset_archive;
+    const cache = resolve(project.config.root, "node_modules/.cache/permitpulse/sra");
+    await mkdir(cache, { recursive: true });
+    const validityFile = resolve(cache, "validity.json");
+    execFileSync(process.env.PP_SRA_PYTHON ?? process.env.PP_LRA_PYTHON ?? "/usr/bin/python3",
+      [resolve(repoRoot, "tools/program-screen/export-sra-validity.py"), resolve(directory, "original.zip"), validityFile],
+      { timeout: 60000, stdio: "pipe" });
+    const validityText = await readFile(validityFile, "utf8");
+    const validity = JSON.parse(validityText);
+    provided.validity_manifest_sha256 = await sha256HexBytes(new TextEncoder().encode(validityText));
+    provided.validity_counts = validity.counts.states;
+    provided.invalid_counts = validity.counts.invalid_classes;
     const zip = new Uint8Array(await readFile(resolve(directory, "original.zip")));
     const entries = readZipCentralDirectory(zip);
     const member = async (suffix: string) => {
@@ -62,7 +80,7 @@ export default async function setup(project: TestProject): Promise<void> {
       return readZipMember(zip, entry);
     };
     const [shp, shx, dbf] = [await member("shp"), await member("shx"), await member("dbf")];
-    provided.index_text = await overlayIndexFromShapefile({
+    const derived = await buildSraOverlay({
       dataset: { source_id: metadata.source_id, sha256_extracted: metadata.sha256_extracted },
       layer: context.dataset_name,
       crs_epsg: context.crs.epsg,
@@ -70,7 +88,11 @@ export default async function setup(project: TestProject): Promise<void> {
       shp,
       shx,
       dbf,
+      archive_sha256: await sha256HexBytes(zip),
+      validity_text: validityText,
     });
+    provided.index_text = derived.index_text;
+    await writeFile(resolve(cache, "index.txt"), derived.index_text);
     const { entries: indexEntries } = parseOverlayIndex(provided.index_text);
     const contents = shapefileRecordContents(shp, shx);
     const lotDirectory = resolve(repoRoot, TEST_ONLY_LOT_DIR);
