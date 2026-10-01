@@ -92,7 +92,7 @@ const datasetMetadata = parseOfficialSourceMetadata(datasetMetadataJson);
 const manifestJson = JSON.parse(manifestRaw) as unknown;
 const manifest = authorityPackageManifestSchema.parse(manifestJson);
 const registeredSource = programAuthorityRegistries.sources.find((source) => source.authority_source_id === PACKAGE_ID);
-if (registeredSource?.package === undefined) throw new Error("The Phase 3D package is not registered.");
+if (registeredSource?.package === undefined || registeredSource.package.statutory_basis!=="prc_4202") throw new Error("The Phase 3D package is not registered.");
 const pack = registeredSource.package;
 const officialByteChecks = inject("programScreenOfficialCaptureByteChecks");
 // Phase 3E: every lot result is computed by the gate from a TEST-ONLY lot placed on the real dataset.
@@ -601,7 +601,7 @@ describe("2. The package manifest ties every assertion to an exact member", () =
     const issuer = programAuthorityRegistries.issuers[0];
     const cases: Array<[string, (draft: Draft) => void, string]> = [
       ["another manifest", (draft) => (draft.package.manifest_sha256 = "1".repeat(64)), "The registry does not pin this manifest."],
-      ["another route", (draft) => (draft.package.statutory_basis = "gov_51178"), "The statutory basis differs."],
+      ["another route", (draft) => (draft.package.statutory_basis = "gov_51178"), "An identification package cannot masquerade as an adopted PRC 4202 package."],
       ["another effective date", (draft) => (draft.package.adoption.effective_date = "2024-01-31"), "The adoption record differs."],
       ["another dataset", (draft) => (draft.package.members.overlay_dataset.sha256_extracted = "2".repeat(64)), "The overlay dataset pin differs."],
       ["another edition kind", (draft) => (draft.edition.date_kind = "issued"), "The edition date differs."],
@@ -643,7 +643,7 @@ describe("3. Registration: CAL FIRE / OSFM and the PRC §4202 package, and nothi
       },
     });
     for (const key of [VH, HIGH]) {
-      expect(programAuthorityRegistries.fact_policies[key]?.establishing, key).toEqual([
+      expect(programAuthorityRegistries.fact_policies[key]?.establishing.filter(entry => entry.authority_source_ids.includes(PACKAGE_ID)), key).toEqual([
         {
           record_kind: "agency_hazard_map",
           identity: "registered_authority_source",
@@ -662,12 +662,11 @@ describe("3. Registration: CAL FIRE / OSFM and the PRC §4202 package, and nothi
     expect(await authoritySourceCaptureIssues(registeredSource, { metadata: mapMetadata, extracted: mapExtracted })).toEqual([]);
   });
 
-  it("keeps GOV §51178 unregistered, with no record kind", () => {
-    expect(statutoryRouteRecordKinds.gov_51178).toBeNull();
-    expect(JSON.stringify(programAuthorityRegistries)).not.toContain("gov_51178");
-    // No registry may carry a §51178 package for either hazard fact.
+  it("keeps SRA and the Phase 3G GOV §51178 package distinct", () => {
+    expect(statutoryRouteRecordKinds.gov_51178).toBe("agency_hazard_map");
+    // Changing only SRA's route cannot supply the required LRA package structure.
     const route1 = edited(programAuthorityRegistries, (draft) => (draft.sources[0].package.statutory_basis = "gov_51178"));
-    expect(() => parseProgramAuthorityRegistries(route1)).toThrow(/A package on gov_51178 is not a agency_hazard_map; that route has no record kind/);
+    expect(() => parseProgramAuthorityRegistries(route1)).toThrow();
   });
 
   it("refuses a hazard source without a package, and until_superseded without one", () => {
@@ -698,28 +697,28 @@ describe("4. c: PRC §4202 is Route 2 only; Route 1 stays unavailable, and c nev
     ]);
   });
 
-  it("fails every GOV §51178 record closed: Route 1 has no record kind", () => {
+  it("fails SRA records claiming GOV §51178 closed", () => {
     const result = cResult(false, false);
     expect(result.status).toBe("unknown");
-    expect(failureCodes(result)).toContain("statutory_route_record_kind_undefined");
+    expect(failureCodes(result)).toContain("statutory_route_not_accepted");
     // A §51178 YES never establishes either.
     const route1Yes = cResult(null, true);
     expect(route1Yes.status).toBe("unknown");
-    expect(failureCodes(route1Yes)).toContain("statutory_route_record_kind_undefined");
+    expect(failureCodes(route1Yes)).toContain("statutory_route_not_accepted");
   });
 
   it("keeps a Route 2 YES when Route 1 carries a NO", () => {
     expect(cResult(true, false).status).toBe("disqualifying_per_source");
   });
 
-  it("keeps c pending: statutory_route_recorded stays unmet", () => {
+  it("keeps c pending after Phase 3G meets the source gate", () => {
     const c = programScreenPathwayPacks.flatMap((entry) => entry.criteria).find((criterion) => criterion.id === C) as ProgramCriterion;
     expect(authorityPromotionBlockers(c, programAuthorityRegistries, false)).toEqual([
-      "statutory_route_recorded",
       "reviewer_confirms_encoded_rule",
       "human_verification_record",
     ]);
-    expect(authorityPromotionBlockers(c, programAuthorityRegistries, true)).toContain("statutory_route_recorded");
+    expect(c.verification).toBe("pending_human");
+    expect(c.human_verification).toBeNull();
   });
 });
 

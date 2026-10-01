@@ -347,6 +347,8 @@ export function authorityPackageRegistrationIssues(
   const issues: string[] = [];
   const pack = source.package;
   if (pack === undefined) return ["The registered source carries no authority package."];
+  if (pack.statutory_basis !== "prc_4202")
+    return ["An identification package cannot masquerade as an adopted PRC 4202 package."];
   const member = (role: AuthorityPackageMemberRole) => manifest.members.find((candidate) => candidate.role === role);
   const same = (ref: { source_id: string; sha256_extracted: string }, role: AuthorityPackageMemberRole) =>
     ref.source_id === member(role)?.source_id && ref.sha256_extracted === member(role)?.sha256_extracted;
@@ -380,7 +382,7 @@ export function authorityPackageRegistrationIssues(
   }
   for (const key of source.fact_keys) {
     const cls = packageFactClasses[key];
-    if (cls === undefined || !a.legend_classes.value.includes(cls)) issues.push(`The package defines no class for ${key}.`);
+    if (cls === undefined || !(a.legend_classes.value as readonly string[]).includes(cls)) issues.push(`The package defines no class for ${key}.`);
   }
   if (source.issuer_id !== a.issuer_identity.value.issuer_id) issues.push("The issuer differs.");
   if (issuer === undefined || issuer.issuer_id !== source.issuer_id) {

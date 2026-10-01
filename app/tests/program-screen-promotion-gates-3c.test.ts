@@ -624,16 +624,16 @@ describe("2. c: route authority fails closed and never manufactures conflict", (
     });
   });
 
-  it("fails every GOV §51178 record closed: its record type is not decided", () => {
-    expect(statutoryRouteRecordKinds).toEqual({ gov_51178: null, prc_4202: "agency_hazard_map" });
+  it("refuses these unregistered GOV §51178 test records after Phase 3G defines its kind", () => {
+    expect(statutoryRouteRecordKinds).toEqual({ gov_51178: "agency_hazard_map", prc_4202: "agency_hazard_map" });
     const yesOnRoute1 = routeRecords(true, false);
     const yes = gatedRoutes(yesOnRoute1.records, yesOnRoute1.blocks).criterion;
     expect(yes.status).toBe("unknown");
     expect(yes.authority?.facts.map((fact) => fact.route)).toEqual(["gov_51178"]);
-    expect(failureCodes(yes)).toContain("statutory_route_record_kind_undefined");
+    expect(failureCodes(yes)).toContain("statutory_route_not_accepted");
     expect(yes.statement).toContain("(GOV §51178 route)");
 
-    // NO on both routes needs Route 1 established, which is not possible yet.
+    // These synthetic GOV records lack the newly registered Route 1 package.
     const bothNo = routeRecords(false, false);
     const no = gatedRoutes(bothNo.records, bothNo.blocks).criterion;
     expect(no.status).toBe("unknown");
@@ -1050,7 +1050,7 @@ describe("7. The Phase 3B promotion gates are wired", () => {
     // record-completeness flag passed here (false) is unmet; with its real record, no gate of d is unmet.
     const unmet: Record<string, readonly string[]> = {
       ...decidedGates,
-      [C]: ["statutory_route_recorded", ...reviewer],
+      [C]: reviewer,
       [D]: ["human_verification_record"],
     };
     expect(authorityPromotionBlockers(shippedCriterion(D), programAuthorityRegistries, true)).toEqual([]);
@@ -1109,6 +1109,12 @@ describe("7. The Phase 3B promotion gates are wired", () => {
         expect(authorityPromotionBlockers(promoted, programAuthorityRegistries, true), id).toEqual([]);
         expect(shippedCriterion(id)).toMatchObject({ verification: "human_verified", human_verification: { decision_ref: { phase: "3B", letter: "d" } } });
         expect(criterionAwaitsHumanVerification(shippedCriterion(id)), id).toBe(false);
+        continue;
+      }
+      if (id === C) {
+        expect(authorityPromotionBlockers(promoted, programAuthorityRegistries, true)).toEqual([]);
+        expect(shippedCriterion(C)).toMatchObject({ verification: "pending_human", human_verification: null, predicate: "not_encoded" });
+        expect(criterionAwaitsHumanVerification(shippedCriterion(C))).toBe(true);
         continue;
       }
       expect(criterionAwaitsHumanVerification(promoted), id).toBe(true);
@@ -1215,13 +1221,13 @@ describe("9. Invariants", () => {
   });
 
   // Updated in Phase 3D, which registered the CAL FIRE SRA package and nothing else.
-  it("registers only the Phase 3D issuer, source, establishing entries, and host exceptions", () => {
+  it("registers only the approved SRA/LRA sources and source-specific host exceptions", () => {
     expect(programAuthorityRegistries.issuers.map((issuer) => issuer.issuer_id)).toEqual(["calfire-osfm"]);
-    expect(programAuthorityRegistries.sources.map((source) => source.authority_source_id)).toEqual(["calfire-sra-fhsz-2023-09-29"]);
+    expect(programAuthorityRegistries.sources.map((source) => source.authority_source_id)).toEqual(["calfire-sra-fhsz-2023-09-29", "calfire-lra-fhsz-2025-03-24-v1"]);
     for (const [key, entry] of Object.entries(programAuthorityRegistries.fact_policies)) {
-      expect(entry?.establishing.length, key).toBe(key === VH || key === HIGH ? 1 : 0);
+      expect(entry?.establishing.length, key).toBe(key === VH ? 2 : key === HIGH ? 1 : 0);
     }
-    expect(sourceHostExceptions).toHaveLength(3);
+    expect(sourceHostExceptions).toHaveLength(4);
   });
 
   it("keeps every fixture status and roll-up; output changes only by the reviewed labels and the reviewed promotion of d", async () => {

@@ -164,7 +164,7 @@ export const responsibilityAreasAsStated = ["state", "local", "federal", "not_st
  * The hazard classes a registered overlay dataset's labels may map to
  * (Phase 3D). Moderate is a class the map defines, never Very High or High.
  */
-export const overlayHazardClasses = ["very_high", "high", "moderate"] as const;
+export const overlayHazardClasses = ["very_high", "high", "moderate", "non_wildland"] as const;
 export type OverlayHazardClass = (typeof overlayHazardClasses)[number];
 /** How a lot was compared with a registered overlay dataset (Phase 3D). */
 export const lotOverlayMethods = ["deterministic_spatial_overlay", "not_performed"] as const;
@@ -215,12 +215,12 @@ export const hazardClassStatutoryRoutes: Readonly<Record<HazardClass, readonly F
 };
 
 /**
- * The record kind that can carry each route. GOV §51178 has none: what a
- * §51178 record looks like is not decided until GOV §51178 is captured and
- * reviewed, so a Route 1 record never establishes a fact (Phase 3C).
+ * Both routes use agency_hazard_map after Phase 3G. The kind alone proves
+ * neither route: the gate must also match the registered package's statutory
+ * basis, edition, issuer, capture, and computed overlay.
  */
 export const statutoryRouteRecordKinds: Readonly<Record<FireHazardStatutoryRoute, AuthorityRecordKind | null>> = {
-  gov_51178: null,
+  gov_51178: "agency_hazard_map",
   prc_4202: "agency_hazard_map",
 };
 
@@ -737,12 +737,14 @@ export interface ProgramFactAuthorityResult {
   /** Records that establish the fact's recorded value. */
   establishing_evidence_ids: string[];
   /** Records carrying the same value that cannot establish it, and why. */
-  non_establishing: Array<{ evidence_id: string; failures: AuthorityRecordFailureCode[] }>;
+  non_establishing: Array<{ evidence_id: string; failures: AuthorityRecordFailureCode[];
+  }>;
   failures: AuthorityFactFailureCode[];
 }
 
 export interface ProgramCriterionAuthorityResult {
   established: boolean;
   facts: ProgramFactAuthorityResult[];
-  criterion_failures: Array<{ code: AuthorityCriterionFailureCode; fact_key: ProgramFactKey }>;
+  criterion_failures: Array<{ code: AuthorityCriterionFailureCode; fact_key: ProgramFactKey;
+  }>;
 }

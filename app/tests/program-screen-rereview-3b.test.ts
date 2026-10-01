@@ -364,7 +364,7 @@ describe("3. Gates: recorded in Phase 3B, wired in Phase 3C", () => {
       // statutory_route_recorded for c; both still wait on the human gates.
       const metByPhase3d = entry.letter === "c" || entry.letter === "d";
       for (const gate of entry.gates_not_yet_wired) {
-        if (!metByPhase3d || (gate === "statutory_route_recorded" && entry.letter === "c")) {
+        if (!metByPhase3d) {
           expect(blockers, `${entry.letter}: ${gate}`).toContain(gate);
         }
       }
@@ -442,12 +442,13 @@ describe("5. Invariants: recording only", () => {
   // the Very High and High entries, and one host exception per package member.
   it("registers only the Phase 3D issuer, source, fact-policy entries, and host exceptions", () => {
     expect(programAuthorityRegistries.issuers.map((issuer) => issuer.issuer_id)).toEqual(["calfire-osfm"]);
-    expect(programAuthorityRegistries.sources.map((source) => source.authority_source_id)).toEqual(["calfire-sra-fhsz-2023-09-29"]);
+    expect(programAuthorityRegistries.sources.map((source) => source.authority_source_id)).toEqual(["calfire-sra-fhsz-2023-09-29", "calfire-lra-fhsz-2025-03-24-v1"]);
     for (const [key, policy] of Object.entries(programAuthorityRegistries.fact_policies)) {
       const phase3d = key === "very-high-fire-hazard-severity-zone" || key === "high-fire-hazard-severity-zone";
-      expect(policy?.establishing.length, key).toBe(phase3d ? 1 : 0);
+      expect(policy?.establishing.length, key).toBe(key === "very-high-fire-hazard-severity-zone" ? 2 : phase3d ? 1 : 0);
     }
     expect(sourceHostExceptions.map((exception) => exception.source_id).sort()).toEqual([
+      "calfire-fhszlra-25-1-all-data",
       "calfire-fhszsra-23-3-data",
       "calfire-sra-fhsz-map-2023-09-29",
       "ccr-19-2201-fhsz-sra-final-text",

@@ -1,0 +1,56 @@
+{
+  "schema_version": "program-screen-official-source-v2",
+  "source_id": "gcs-51178",
+  "title": "California Government Code Section 51178",
+  "official_url": "https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=GOV&sectionNum=51178.",
+  "source_type": "statute",
+  "document_date": "2022-01-01",
+  "retrieved_at": "2026-09-30T16:39:05Z",
+  "sha256_original": "d6c0bd92141a950ebf56651a9988679ef6498329daa8fc04144a80611d88b821",
+  "sha256_extracted": "3eac548aa2e63d82a08fd8996207550e7970715cd17984a7e2a7df4e8cc1fd63",
+  "operative_status": "operative",
+  "notes": "Exact owner-supplied 3G-1 served HTML. Original SHA-256 and bytes verified against the supplied manifest; original retrieval timestamp preserved. History note establishes effectiveness. State identification remains separate from local designation. No re-fetch or substituted bytes.",
+  "may_change_source_ids": [],
+  "original": {
+    "file": "original.html",
+    "media_type": "text/html",
+    "bytes": 162914
+  },
+  "extraction": {
+    "file": "extracted.txt",
+    "extractor": "program-screen-html-text",
+    "extractor_version": "1.0.0",
+    "normalization": "program-screen-text-v1",
+    "page_separator": "form_feed",
+    "page_count": 1,
+    "pages_without_text": []
+  },
+  "host_basis": "global_allowlist",
+  "agency_map": null,
+  "statute": {
+    "jurisdiction": "CA",
+    "code": "GOV",
+    "section": "51178",
+    "form": "code_section_page",
+    "section_heading": {
+      "page": 1,
+      "text": "51178."
+    },
+    "pinpoints": [
+      {
+        "pinpoint": "section",
+        "excerpt": {
+          "page": 1,
+          "text": "The State Fire Marshal shall identify areas in the state as moderate, high, and very high fire hazard severity zones based on consistent statewide criteria and based on the severity of fire hazard that is expected to prevail in those areas."
+        }
+      }
+    ],
+    "status_as_published": {
+      "page": 1,
+      "text": "(Amended by Stats. 2021, Ch. 382, Sec. 2.5. (SB 63) Effective January 1, 2022.)"
+    }
+  },
+  "capture_tool": "app/scripts/capture-program-screen-source.ts",
+  "is_ai_generated": false,
+  "test_only": false
+}

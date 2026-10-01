@@ -459,7 +459,7 @@ describe("1. The shipped state after the approved promotion of d", () => {
     expect(shippedCriteria.filter((criterion) => criterion.verification === "human_verified").map((criterion) => criterion.id)).toEqual([D]);
     expect(shippedCriteria.filter((criterion) => criterion.verification === "pending_human")).toHaveLength(45);
     for (const id of [C, E, F, G]) expect(shipped(id), id).toMatchObject({ verification: "pending_human", human_verification: null, predicate: "not_encoded" });
-    expect(criterionPromotionBlockers(shipped(C))).toEqual(["statutory_route_recorded", ...REVIEWER_GATES]);
+    expect(criterionPromotionBlockers(shipped(C))).toEqual(REVIEWER_GATES);
   });
 
   it("pins the evaluator and public-demo output to the approved projections", async () => {
@@ -984,7 +984,7 @@ describe("5. Promotion safety", () => {
     const packs = withPromotedD();
     const c = packs.flatMap((entry) => entry.criteria).find((criterion) => criterion.id === C) as ProgramCriterion;
     expect(c).toMatchObject({ verification: "pending_human", human_verification: null, predicate: "not_encoded" });
-    expect(authorityPromotionBlockers(c, programAuthorityRegistries, false)).toEqual(["statutory_route_recorded", ...REVIEWER_GATES]);
+    expect(authorityPromotionBlockers(c, programAuthorityRegistries, false)).toEqual(REVIEWER_GATES);
     const citation = c.citation;
     const cPromoted: ProgramCriterion = {
       ...c,
@@ -998,8 +998,8 @@ describe("5. Promotion safety", () => {
       },
     };
     expect(hasCompleteHumanVerification(cPromoted)).toBe(true);
-    expect(authorityPromotionBlockers(cPromoted, programAuthorityRegistries, true)).toEqual(["statutory_route_recorded"]);
-    expect(criterionAwaitsHumanVerification(cPromoted)).toBe(true);
+    expect(authorityPromotionBlockers(cPromoted, programAuthorityRegistries, true)).toEqual([]);
+    expect(criterionAwaitsHumanVerification(c)).toBe(true);
 
     // A lot wholly in Very High: c's Route 2 YES waits on c's review; d's NO never clears c.
     const vh = record("vh-true", VH, true);
@@ -1159,7 +1159,7 @@ describe("5. Promotion safety", () => {
 
 describe("6. The Phase 3E record", () => {
   it("documents the F1 fix and every pin it adds, and pins exactly one overlay index", () => {
-    expect(overlayIndexPins).toEqual([{ dataset: pack.members.overlay_dataset, index_sha256: overlay.view.index_sha256 }]);
+    expect(overlayIndexPins.filter(pin => pin.dataset.source_id === pack.members.overlay_dataset.source_id)).toEqual([{ dataset: pack.members.overlay_dataset, index_sha256: overlay.view.index_sha256 }]);
     const { header } = parseOverlayIndex(inject("programScreenOverlayDataset").index_text as string);
     for (const text of [
       overlay.view.index_sha256,

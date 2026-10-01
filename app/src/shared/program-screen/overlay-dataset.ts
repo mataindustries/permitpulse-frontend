@@ -1,4 +1,5 @@
 import type { ProgramCaptureRef } from "./authority-policy";
+import type { FileGdbCapture } from "./filegdb-capture";
 
 /**
  * The overlay dataset (Phase 3E, docs/PROGRAM_SCREEN_PHASE_3E_D_PROMOTION_REVIEW.md).
@@ -61,6 +62,13 @@ export const overlayIndexPins: readonly OverlayIndexPin[] = [
     },
     index_sha256: "caf01fa68e68b3c368538067f504e6f16ccdf7fdeb91f644114d7c86494589ff",
   },
+  {
+    dataset: {
+      source_id: "calfire-fhszlra-25-1-all-data",
+      sha256_extracted: "5724d4a456ddbf7845a116d162d96fc51b4a295c4c05a92d91fb2049cd4f1dad",
+    },
+    index_sha256: "5167cbf7029ea3fc051331d2c2de4d1611feb88783e38a852f678b94b275a716",
+  },
 ];
 
 export function overlayIndexPinFor(
@@ -77,7 +85,8 @@ export interface OverlayIndexHeader {
   layer: string;
   crs_epsg: number;
   class_field: string;
-  members: { shp: string; shx: string; dbf: string };
+  members: Record<string, string>;
+  format?: "filegdb";
   records: number;
 }
 
@@ -91,6 +100,8 @@ export interface OverlayIndexEntry {
   content_bytes: number;
   content_sha256: string;
   label: string;
+  geometry_state?: "valid" | "invalid" | "unreadable";
+  source_validity?: "valid" | "invalid" | "unreadable";
 }
 
 /** One polygon record: its rings as flat [x0, y0, x1, y1, ...] arrays, in dataset coordinates. */
@@ -109,7 +120,7 @@ async function sha256Bytes(bytes: Uint8Array): Promise<string> {
 const HEX64 = /^[0-9a-f]{64}$/;
 const KEBAB_ID = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 const LAYER = /^[A-Za-z0-9_-]{1,64}$/;
-const FIELD = /^[A-Za-z_][A-Za-z0-9_]{0,10}$/;
+const FIELD = /^[A-Za-z_][A-Za-z0-9_]{0,63}$/;
 
 /* --------------------------------------------------------- shapefile records */
 
@@ -322,7 +333,9 @@ function exactNumber(text: string, where: string): number {
 }
 
 /** Parses overlay index text. Anything not exactly in the 1.0.0 form is refused. */
-export function parseOverlayIndex(text: string): { header: OverlayIndexHeader; entries: OverlayIndexEntry[] } {
+export function parseOverlayIndex(text: string): { header: OverlayIndexHeader; entries: OverlayIndexEntry[];
+} {
+  if (text.startsWith(`${OVERLAY_INDEX_FORMAT} 2.0.0\n`)) return parseFileGdbOverlayIndex(text);
   if (!text.endsWith("\n")) fail("index: the text does not end with a newline");
   const lines = text.slice(0, -1).split("\n");
   const take = (index: number, pattern: RegExp): RegExpExecArray => pattern.exec(lines[index] ?? "") ?? fail(`index: line ${index + 1} is malformed`);
@@ -373,11 +386,12 @@ export function parseOverlayIndex(text: string): { header: OverlayIndexHeader; e
 export function overlayCandidates(entries: readonly OverlayIndexEntry[], box: OverlayExtent): OverlayIndexEntry[] {
   return entries.filter(
     (entry) =>
-      entry.extent !== null &&
+      (entry.geometry_state === "unreadable" && entry.extent === null) ||
+      (entry.extent !== null &&
       entry.extent[0] <= box[2] &&
       entry.extent[2] >= box[0] &&
       entry.extent[1] <= box[3] &&
-      entry.extent[3] >= box[1],
+      entry.extent[3] >= box[1]),
   );
 }
 
@@ -470,7 +484,10 @@ export async function loadOverlayDatasetView(
     if (record.content.length !== entry.content_bytes || (await sha256Bytes(record.content)) !== entry.content_sha256) {
       fail(`${where} does not match the index`);
     }
-    const parsed = parsePolygonRecordContent(record.content, where);
+    const parsed =
+      header.format === "filegdb"
+        ? parseFileGdbFeature(record.content, entry)
+        : parsePolygonRecordContent(record.content, where);
     if (parsed.extent === null) continue;
     if (entry.extent === null || parsed.extent.some((value, index) => value !== entry.extent?.[index])) fail(`${where}: the extent differs from the index`);
     features.set(
@@ -481,4 +498,250 @@ export async function loadOverlayDatasetView(
   const view = new OverlayDatasetView(constructionToken, header, indexSha256, entries, features);
   verifiedViews.add(view);
   return view;
+}
+
+/** v2 records retain source polygon/ring grouping, decoded double coordinates,
+ * semantic labels, and source validity. GDAL is offline only. */
+export interface FileGdbFeatureInput {
+  fid: number;
+  label: string;
+  code: number;
+  area: string;
+  state: "valid" | "invalid" | "unreadable";
+  source_validity: "valid" | "invalid" | "unreadable";
+  native_wkb: string | null;
+  extent: OverlayExtent | null;
+  coordinates: number[][][][];
+}
+export async function fileGdbOverlayIndexText(input: {
+  dataset: ProgramCaptureRef;
+  layer: string;
+  crs_epsg: number;
+  class_field: string;
+  members: Record<string, string>;
+  records: readonly FileGdbFeatureInput[];
+}): Promise<{
+  index_text: string;
+  records: Array<{ record_number: number; content: Uint8Array }>;
+}> {
+  validateHeaderFields(input);
+  const lines = [
+    `${OVERLAY_INDEX_FORMAT} 2.0.0`,
+    `dataset ${input.dataset.source_id} ${input.dataset.sha256_extracted}`,
+    `layer ${input.layer}`,
+    `crs EPSG:${input.crs_epsg}`,
+    `class_field ${input.class_field}`,
+    `origin ${JSON.stringify(input.members)}`,
+    "decoder GDAL-3.10.3-GEOS-3.13.1",
+    `records ${input.records.length}`,
+  ];
+  const records = [];
+  for (const [i, f] of input.records.entries()) {
+    if (f.fid !== i + 1) fail("FileGDB active FIDs must be contiguous and ordered");
+    const content = new TextEncoder().encode(
+      JSON.stringify({
+        fid: f.fid,
+        label: f.label,
+        state: f.state,
+        source_validity: f.source_validity,
+        native_wkb: f.native_wkb,
+        coordinates: f.coordinates,
+      }) + "\n",
+    );
+    const entry: OverlayIndexEntry = {
+      record_number: f.fid,
+      shape_type: 5,
+      extent: f.extent,
+      content_bytes: content.length,
+      content_sha256: await sha256Bytes(content),
+      label: f.label,
+      geometry_state: f.state,
+      source_validity: f.source_validity,
+    };
+    parseFileGdbFeature(content, entry);
+    lines.push(
+      `record ${f.fid} ${f.state} ${f.source_validity} ${f.extent === null ? "- - - -" : f.extent.map(String).join(" ")} ${content.length} ${entry.content_sha256} ${JSON.stringify(f.label)}`,
+    );
+    records.push({ record_number: f.fid, content });
+  }
+  return { index_text: lines.join("\n") + "\n", records };
+}
+export async function buildLraOverlay(input: {
+  dataset: ProgramCaptureRef;
+  native: FileGdbCapture;
+  decoded: readonly FileGdbFeatureInput[];
+  archive_sha256: string;
+  feature_table_sha256: string;
+}) {
+  if (input.decoded.length !== input.native.features.length)
+    fail("FileGDB derived feature count differs from native table");
+  const expected: Record<string, number> = {
+    "Very High": 3,
+    High: 2,
+    Moderate: 1,
+    NonWildland: -3,
+  };
+  const invalid: Record<string, number> = {};
+  for (const [i, f] of input.decoded.entries()) {
+    const native = input.native.features[i];
+    if (
+      f.fid !== native.fid ||
+      f.label !== native.label ||
+      f.code !== native.code ||
+      f.area !== native.area ||
+      f.area !== "LRA" ||
+      expected[f.label] !== f.code
+    )
+      fail("FileGDB decoded/native association or semantics differs");
+    if (f.source_validity !== "valid") invalid[f.label] = (invalid[f.label] ?? 0) + 1;
+  }
+  if (
+    JSON.stringify(Object.entries(invalid).sort()) !==
+    JSON.stringify(
+      Object.entries({
+        "Very High": 11,
+        High: 20,
+        Moderate: 70,
+        NonWildland: 18,
+      }).sort(),
+    )
+  )
+    fail("FileGDB validity inventory differs");
+  return fileGdbOverlayIndexText({
+    dataset: input.dataset,
+    layer: input.native.association.name,
+    crs_epsg: 3310,
+    class_field: "FHSZ_Description",
+    members: {
+      archive: input.archive_sha256,
+      metadata: input.native.association.metadata_sha256,
+      association: await sha256Bytes(new TextEncoder().encode(JSON.stringify(input.native.association))),
+      feature_table: input.feature_table_sha256,
+    },
+    records: input.decoded,
+  });
+}
+function parseFileGdbOverlayIndex(text: string): {
+  header: OverlayIndexHeader;
+  entries: OverlayIndexEntry[];
+} {
+  if (!text.endsWith("\n")) fail("FileGDB index must end in newline");
+  const lines = text.slice(0, -1).split("\n");
+  const take = (i: number, r: RegExp) => r.exec(lines[i] ?? "") ?? fail(`FileGDB index line ${i + 1} is malformed`);
+  const dataset = take(1, /^dataset (\S+) (\S+)$/),
+    layer = take(2, /^layer (\S+)$/),
+    crs = take(3, /^crs EPSG:(\d+)$/),
+    field = take(4, /^class_field (\S+)$/);
+  const origin = JSON.parse(take(5, /^origin (.+)$/)[1]) as Record<string, string>;
+  if (
+    Object.keys(origin).sort().join(",") !== "archive,association,feature_table,metadata" ||
+    lines[6] !== "decoder GDAL-3.10.3-GEOS-3.13.1"
+  )
+    fail("FileGDB index origin/decoder differs");
+  const count = Number(take(7, /^records (\d+)$/)[1]);
+  const header: OverlayIndexHeader = {
+    dataset: { source_id: dataset[1], sha256_extracted: dataset[2] },
+    layer: layer[1],
+    crs_epsg: Number(crs[1]),
+    class_field: field[1],
+    members: origin,
+    records: count,
+    format: "filegdb",
+  };
+  validateHeaderFields(header);
+  if (lines.length !== 8 + count) fail("FileGDB index feature count differs");
+  const entries: OverlayIndexEntry[] = [];
+  for (let i = 0; i < count; i++) {
+    const m = take(
+      i + 8,
+      /^record (\d+) (valid|invalid|unreadable) (valid|invalid|unreadable) (\S+) (\S+) (\S+) (\S+) (\d+) ([0-9a-f]{64}) ("(?:[^"\\]|\\.)*")$/,
+    );
+    if (Number(m[1]) !== i + 1) fail("FileGDB index FIDs are out of order");
+    const state = m[2] as FileGdbFeatureInput["state"],
+      validity = m[3] as FileGdbFeatureInput["source_validity"],
+      empty = m.slice(4, 8).every((v) => v === "-");
+    const extent = empty
+      ? null
+      : (m.slice(4, 8).map((v) => exactNumber(v, "FileGDB extent")) as unknown as OverlayExtent);
+    if (
+      (extent === null && state !== "unreadable") ||
+      (extent !== null && (extent[0] > extent[2] || extent[1] > extent[3]))
+    )
+      fail("FileGDB index extent/state differs");
+    if (state === "valid" && validity !== "valid") fail("Invalid source validity cannot become valid geometry");
+    const label = JSON.parse(m[10]);
+    if (typeof label !== "string" || !label || JSON.stringify(label) !== m[10])
+      fail("FileGDB semantic label is malformed");
+    entries.push({
+      record_number: i + 1,
+      shape_type: 5,
+      geometry_state: state,
+      source_validity: validity,
+      extent,
+      content_bytes: Number(m[8]),
+      content_sha256: m[9],
+      label,
+    });
+  }
+  return { header, entries };
+}
+function parseFileGdbFeature(
+  content: Uint8Array,
+  entry: OverlayIndexEntry,
+): { extent: OverlayExtent | null; rings: number[][] } {
+  const text = new TextDecoder("utf-8", { fatal: true }).decode(content);
+  const f = JSON.parse(text) as {
+    fid: number;
+    label: string;
+    state: string;
+    source_validity: string;
+    native_wkb: string | null;
+    coordinates: number[][][][];
+  };
+  if (
+    JSON.stringify(f) + "\n" !== text ||
+    Object.keys(f).join(",") !== "fid,label,state,source_validity,native_wkb,coordinates" ||
+    f.fid !== entry.record_number ||
+    f.label !== entry.label ||
+    f.state !== entry.geometry_state ||
+    f.source_validity !== entry.source_validity ||
+    !Array.isArray(f.coordinates)
+  )
+    fail("FileGDB record differs from indexed identity/state");
+  if (f.native_wkb !== null) {
+    if (f.state === "valid" || !/^(?:[0-9a-f]{2})+$/.test(f.native_wkb) || f.coordinates.length !== 0)
+      fail("Unsupported curved geometry was altered or marked evaluable");
+    return { extent: entry.extent, rings: [] };
+  }
+  const rings: number[][] = [];
+  for (const polygon of f.coordinates) {
+    if (!Array.isArray(polygon) || polygon.length === 0) fail("FileGDB polygon lacks rings");
+    for (const ring of polygon) {
+      if (!Array.isArray(ring) || ring.length < 4) fail("FileGDB ring is malformed");
+      for (const p of ring)
+        if (!Array.isArray(p) || p.length !== 2 || p.some((v) => typeof v !== "number" || !Number.isFinite(v)))
+          fail("FileGDB position is malformed");
+      if (ring[0].some((v, i) => v !== ring.at(-1)![i])) fail("FileGDB ring is not closed");
+      rings.push(ring.flat());
+    }
+  }
+  if (rings.length === 0) {
+    if (f.state !== "unreadable" || entry.extent !== null) fail("FileGDB empty geometry is not marked unreadable");
+    return { extent: null, rings };
+  }
+  let xmin = Infinity,
+    ymin = Infinity,
+    xmax = -Infinity,
+    ymax = -Infinity;
+  for (const ring of rings)
+    for (let i = 0; i < ring.length; i += 2) {
+      xmin = Math.min(xmin, ring[i]);
+      xmax = Math.max(xmax, ring[i]);
+      ymin = Math.min(ymin, ring[i + 1]);
+      ymax = Math.max(ymax, ring[i + 1]);
+    }
+  const extent: [number, number, number, number] = [xmin, ymin, xmax, ymax];
+  if (entry.extent === null || extent.some((v, i) => v !== entry.extent![i]))
+    fail("FileGDB coordinate extent differs from pinned extent");
+  return { extent, rings };
 }

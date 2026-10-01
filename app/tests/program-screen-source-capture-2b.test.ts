@@ -286,7 +286,7 @@ describe("1. v1 metadata is frozen and the four existing captures are unchanged"
     // program-screen-statute-capture-3a.test.ts; Phase 3D adds the three v2 members of the
     // CAL FIRE SRA package. The four v1 captures are unchanged.
     expect(Object.keys(officialMetadata).sort()).toEqual(
-      [...Object.keys(PINS), "gcs-66499-41", "calfire-fhszsra-23-3-data", "calfire-sra-fhsz-map-2023-09-29", "ccr-19-2201-fhsz-sra-final-text"].sort().map((id) => `${OFFICIAL_DIR}${id}`),
+      [...Object.keys(PINS), "gcs-66499-41", "calfire-fhszsra-23-3-data", "calfire-sra-fhsz-map-2023-09-29", "ccr-19-2201-fhsz-sra-final-text", "gcs-51178", "gcs-51179", "calfire-fhszlra-25-1-all-data"].sort().map((id) => `${OFFICIAL_DIR}${id}`),
     );
     const v1Captures = officialCaptures.filter((capture) => capture.metadata.schema_version === OFFICIAL_SOURCE_METADATA_VERSION);
     expect(v1Captures.map((capture) => capture.metadata.source_id)).toEqual(Object.keys(PINS));
@@ -451,7 +451,7 @@ describe("3. The served-HTML extractor is deterministic and literal", () => {
 
 describe("4. Host policy: unsupported hosts fail, and an exception is never global", () => {
   // Updated in Phase 3D: it shipped no exception until decision D1 approved three exact paths.
-  it("keeps the global allowlist exactly as it was and ships only the three Phase 3D exceptions (B2, D1)", () => {
+  it("keeps the global allowlist unchanged with the three SRA and one LRA source-specific exceptions", () => {
     expect(officialSourceHosts).toEqual([
       "cityclerk.lacity.org",
       "clkrep.lacity.org",
@@ -463,6 +463,7 @@ describe("4. Host policy: unsupported hosts fail, and an exception is never glob
       ["calfire-sra-fhsz-map-2023-09-29", "agency_map"],
       ["ccr-19-2201-fhsz-sra-final-text", "regulation"],
       ["calfire-fhszsra-23-3-data", "dataset_archive"],
+      ["calfire-fhszlra-25-1-all-data", "dataset_archive"],
     ]);
     // One exact file path each, never a directory.
     for (const exception of sourceHostExceptions) expect(exception.path_prefix.endsWith("/"), exception.exception_id).toBe(false);
@@ -676,7 +677,7 @@ describe("6. A map capture cannot silently become authoritative", () => {
     // readiness, not registration: nothing is added to any registry.
     expect(await authoritySourceCaptureIssues(mapRegistration(), capture(), EXCEPTIONS)).toEqual([]);
     // Phase 3D: the only registered source is the CAL FIRE package, never this TEST-ONLY map.
-    expect(programAuthorityRegistries.sources.map((source) => source.capture.source_id)).toEqual(["calfire-sra-fhsz-map-2023-09-29"]);
+    expect(programAuthorityRegistries.sources.map((source) => source.capture.source_id)).toEqual(["calfire-sra-fhsz-map-2023-09-29", "calfire-fhszlra-25-1-all-data"]);
   });
 
   it("never lets a TEST-ONLY capture back an authority source", async () => {
@@ -801,7 +802,7 @@ describe("6. A map capture cannot silently become authoritative", () => {
   // Updated in Phase 3D: the one shipped registration, the CAL FIRE SRA package, is ready.
   it("runs on every shipped registration and would flag a hypothetical one (B6)", async () => {
     const allCaptures = [...officialCaptures, ...v2Captures.map(({ metadata, extracted }) => ({ metadata, extracted }))];
-    expect(await registryReadinessIssues(programAuthorityRegistries, allCaptures)).toEqual({ "calfire-sra-fhsz-2023-09-29": [] });
+    expect(await registryReadinessIssues(programAuthorityRegistries, allCaptures)).toEqual({ "calfire-sra-fhsz-2023-09-29": [], "calfire-lra-fhsz-2025-03-24-v1": [] });
 
     // A registry that registered the TEST-ONLY map passes structural registry
     // validation, which cannot read captures; the readiness check refuses it.
@@ -823,10 +824,12 @@ describe("6. A map capture cannot silently become authoritative", () => {
     });
     expect(await registryReadinessIssues(hypothetical, allCaptures)).toEqual({
       "calfire-sra-fhsz-2023-09-29": [],
+      "calfire-lra-fhsz-2025-03-24-v1": [],
       "fictional-fire-map-000001-edition-000001": ["A test-only capture can never back an authority source."],
     });
     expect(await registryReadinessIssues(hypothetical, officialCaptures)).toEqual({
       "calfire-sra-fhsz-2023-09-29": [],
+      "calfire-lra-fhsz-2025-03-24-v1": [],
       "fictional-fire-map-000001-edition-000001": ["test-only-agency-map-000001 is not captured."],
     });
   });
@@ -1086,6 +1089,9 @@ describe("9. A map or statute capture never becomes a rule source, review eviden
       ["calfire-sra-fhsz-map-2023-09-29", "agency_map"],
       ["ccr-19-2201-fhsz-sra-final-text", "regulation"],
       ["calfire-fhszsra-23-3-data", "dataset_archive"],
+      ["gcs-51178", "statute"],
+      ["gcs-51179", "statute"],
+      ["calfire-fhszlra-25-1-all-data", "dataset_archive"],
     ]);
   });
 });
@@ -1095,12 +1101,12 @@ describe("9. A map or statute capture never becomes a rule source, review eviden
 describe("10. No capture populates the authority registries", () => {
   // Updated in Phase 3D: a capture still populates nothing; the one registration is the
   // separately reviewed CAL FIRE package, and every other policy stays deny-by-default.
-  it("registers only the reviewed Phase 3D package, and every other policy stays deny-by-default", () => {
+  it("registers the reviewed SRA and LRA packages with all other fact policies denied by default", () => {
     expect(programAuthorityRegistries.issuers.map((issuer) => issuer.issuer_id)).toEqual(["calfire-osfm"]);
-    expect(programAuthorityRegistries.sources.map((source) => source.authority_source_id)).toEqual(["calfire-sra-fhsz-2023-09-29"]);
+    expect(programAuthorityRegistries.sources.map((source) => source.authority_source_id)).toEqual(["calfire-sra-fhsz-2023-09-29", "calfire-lra-fhsz-2025-03-24-v1"]);
     for (const [key, policy] of Object.entries(programAuthorityRegistries.fact_policies)) {
       const phase3d = key === "very-high-fire-hazard-severity-zone" || key === "high-fire-hazard-severity-zone";
-      expect(policy?.establishing.length, key).toBe(phase3d ? 1 : 0);
+      expect(policy?.establishing.length, key).toBe(key === "very-high-fire-hazard-severity-zone" ? 2 : phase3d ? 1 : 0);
     }
   });
 
@@ -1108,9 +1114,9 @@ describe("10. No capture populates the authority registries", () => {
     // authority-package.ts (Phase 3D) validates manifests in tests, like proposed-verification.ts:
     // nothing in production imports either, and dataset-archive.ts is read only by source-capture.ts.
     for (const [path, text] of Object.entries(productionSources)) {
-      if (!path.endsWith("/source-capture.ts")) expect(text, path).not.toMatch(/from "\.{1,2}\/(?:[^"]*\/)?dataset-archive"/);
-      expect(text, path).not.toMatch(/from "\.{1,2}\/(?:[^"]*\/)?authority-package"/);
-      if (path.endsWith("/source-capture.ts") || path.endsWith("/proposed-verification.ts") || path.endsWith("/authority-package.ts")) continue;
+      if (!path.endsWith("/source-capture.ts") && !path.endsWith("/filegdb-capture.ts")) expect(text, path).not.toMatch(/from "\.{1,2}\/(?:[^"]*\/)?dataset-archive"/);
+      if (!path.endsWith("/lra-authority-package.ts")) expect(text, path).not.toMatch(/from "\.{1,2}\/(?:[^"]*\/)?authority-package"/);
+      if (path.endsWith("/source-capture.ts") || path.endsWith("/proposed-verification.ts") || path.endsWith("/authority-package.ts") || path.endsWith("/lra-authority-package.ts")) continue;
       expect(text, path).not.toMatch(/from "\.{1,2}\/(?:[^"]*\/)?source-capture"/);
       expect(text, path).not.toMatch(/from "\.{1,2}\/(?:[^"]*\/)?proposed-verification"/);
       // Criteria cite capture paths as strings; no module imports a fixture.

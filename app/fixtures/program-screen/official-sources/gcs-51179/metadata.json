@@ -1,0 +1,76 @@
+{
+  "schema_version": "program-screen-official-source-v2",
+  "source_id": "gcs-51179",
+  "title": "California Government Code Section 51179",
+  "official_url": "https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=GOV&sectionNum=51179.",
+  "source_type": "statute",
+  "document_date": "2022-09-27",
+  "retrieved_at": "2026-09-30T16:39:17Z",
+  "sha256_original": "fe26edd20837ae19e072fbabcea128bc6a1cb2f4eefae7397e6b8a1d8660ab77",
+  "sha256_extracted": "821621810e1ad3d87c1b693d85183c45e11c84077ce148c99f8012b56672ada4",
+  "operative_status": "operative",
+  "notes": "Exact owner-supplied 3G-1 served HTML. Original SHA-256 and bytes verified against the supplied manifest; retrieval timestamp preserved from the original sidecar and matches supplied HTTP Date. History note establishes effectiveness. Local designation remains separate from State identification. No re-fetch or substituted bytes. Original attached response headers preserved byte for byte; final URL inferred from the single HTTP 200 response without Location.",
+  "may_change_source_ids": [],
+  "original": {
+    "file": "original.html",
+    "media_type": "text/html",
+    "bytes": 166101
+  },
+  "extraction": {
+    "file": "extracted.txt",
+    "extractor": "program-screen-html-text",
+    "extractor_version": "1.0.0",
+    "normalization": "program-screen-text-v1",
+    "page_separator": "form_feed",
+    "page_count": 1,
+    "pages_without_text": []
+  },
+  "host_basis": "global_allowlist",
+  "agency_map": null,
+  "statute": {
+    "jurisdiction": "CA",
+    "code": "GOV",
+    "section": "51179",
+    "form": "code_section_page",
+    "section_heading": {
+      "page": 1,
+      "text": "51179."
+    },
+    "pinpoints": [
+      {
+        "pinpoint": "(a)",
+        "excerpt": {
+          "page": 1,
+          "text": "(a) A local agency shall designate, by ordinance, moderate, high, and very high fire hazard severity zones in its jurisdiction within 120 days of receiving recommendations from the State Fire Marshal pursuant to Section 51178."
+        }
+      },
+      {
+        "pinpoint": "(g)",
+        "excerpt": {
+          "page": 1,
+          "text": "(g) A local agency shall post a notice at the office of the county recorder, county assessor, and county planning agency identifying the location of the map provided by the State Fire Marshal pursuant to Section 51178."
+        }
+      }
+    ],
+    "status_as_published": {
+      "page": 1,
+      "text": "(Amended by Stats. 2022, Ch. 574, Sec. 10. (AB 211) Effective September 27, 2022.)"
+    }
+  },
+  "http_capture": {
+    "requested_url": "https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=GOV&sectionNum=51179.",
+    "final_url": "https://leginfo.legislature.ca.gov/faces/codes_displaySection.xhtml?lawCode=GOV&sectionNum=51179.",
+    "final_url_basis": "inferred_no_redirect_from_supplied_headers",
+    "response_statuses": [
+      200
+    ],
+    "response_headers": {
+      "raw_utf8": "HTTP/2 200 \r\ncache-control: no-cache\r\ncache-control: must-revalidate\r\ncache-control: max-age=0\r\ndate: Wed, 30 Sep 2026 16:39:17 GMT\r\npragma: no-cache\r\ncontent-type: text/html; charset=UTF-8\r\nexpires: -1\r\nx-content-type-options: nosniff\r\nset-cookie: JSESSIONID=FVzzL0h-BiHnS9gdHWOlnTGBnp7rSkAD_ICQaouJnDZRUA2BCv0s!661895128; path=/; HttpOnly\r\nset-cookie: ROUTEID=.4; path=/\r\nserver: Apache\r\n\r\n",
+      "bytes": 392,
+      "sha256": "e4cfb366807e0de2e426c86000b1027b9cba80681f13e7b6ce2dac8c3a70cb5e"
+    }
+  },
+  "capture_tool": "app/scripts/capture-program-screen-source.ts",
+  "is_ai_generated": false,
+  "test_only": false
+}
