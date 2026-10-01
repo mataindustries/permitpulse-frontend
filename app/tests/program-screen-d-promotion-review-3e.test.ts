@@ -1,5 +1,6 @@
 import { describe, expect, inject, it, vi } from "vitest";
 import phase3eDoc from "../../docs/PROGRAM_SCREEN_PHASE_3E_D_PROMOTION_REVIEW.md?raw";
+import phase3hDoc from "../../docs/PROGRAM_SCREEN_PHASE_3H_SRA_TOPOLOGY_SAFETY_FIX.md?raw";
 import fixtureJson from "../fixtures/program-screen/fictional-la-parcel.json";
 import manifestRaw from "../fixtures/program-screen/authority-packages/calfire-sra-fhsz-2023-09-29.json?raw";
 import datasetExtracted from "../fixtures/program-screen/official-sources/calfire-fhszsra-23-3-data/extracted.txt?raw";
@@ -522,7 +523,8 @@ describe("3. F1: the gate computes whole-lot SRA coverage from the reviewed lot 
     "whole-high-l-shape-with-hole": ["whole_lot", ["High"]],
     "whole-very-high": ["whole_lot", ["Very High"]],
     "whole-moderate": ["whole_lot", ["Moderate"]],
-    "very-high-moderate": ["whole_lot", ["Moderate", "Very High"]],
+    // Phase 3H: relevant invalid source record 10977 makes this fixture unavailable.
+    "very-high-moderate": ["not_established", []],
     "high-moderate": ["whole_lot", ["High", "Moderate"]],
     "high-very-high": ["whole_lot", ["High", "Very High"]],
     "part-moderate-outside-sra": ["part_of_lot", ["Moderate"]],
@@ -569,10 +571,14 @@ describe("3. F1: the gate computes whole-lot SRA coverage from the reviewed lot 
     }
   });
 
-  it("whole SRA Very High, whole SRA Moderate, and whole SRA Very High + Moderate clear d", () => {
-    for (const lot of ["whole-very-high", "whole-moderate", "very-high-moderate"] as const) {
+  it("valid whole SRA Very High and whole SRA Moderate clear d", () => {
+    for (const lot of ["whole-very-high", "whole-moderate"] as const) {
       expect(dLot(false, { lot }), lot).toMatchObject({ status: "consistent_with_source", authority: { established: true } });
     }
+  });
+
+  it("relevant invalid SRA geometry cannot clear d regardless of a negative attestation", () => {
+    expect(dLot(false, { lot: "very-high-moderate" })).toMatchObject({ status: "unknown", authority: { established: false } });
   });
 
   it("whole SRA High + Moderate and whole SRA High + Very High stay unknown, whatever value is recorded", () => {
@@ -867,7 +873,9 @@ describe("4. Authority package: d is established only through calfire-osfm's PRC
     expect([overlay.view.layer, overlay.view.crs_epsg, overlay.view.class_field]).toEqual([pack.overlay.dataset_name, 3310, pack.overlay.class_field]);
     // The index names the .shp, .shx, and .dbf bytes the pinned capture's manifest lists.
     const { header, entries } = parseOverlayIndex(inject("programScreenOverlayDataset").index_text as string);
+    expect(header.members.archive).toBe(datasetMetadata.sha256_original);
     for (const [suffix, sha256] of Object.entries(header.members)) {
+      if (suffix === "archive") continue; // Original ZIP identity, not a ZIP member.
       expect(datasetExtracted, suffix).toMatch(new RegExp(`^member FHSZSRA_23_3\\.${suffix} bytes \\d+ crc32 [0-9a-f]{8} sha256 ${sha256}$`, "m"));
     }
     expect(entries).toHaveLength(18423);
@@ -1158,11 +1166,12 @@ describe("5. Promotion safety", () => {
 /* ======================================================================== */
 
 describe("6. The Phase 3E record", () => {
-  it("documents the F1 fix and every pin it adds, and pins exactly one overlay index", () => {
+  it("preserves the Phase 3E pins and documents the Phase 3H topology replacement", () => {
     expect(overlayIndexPins.filter(pin => pin.dataset.source_id === pack.members.overlay_dataset.source_id)).toEqual([{ dataset: pack.members.overlay_dataset, index_sha256: overlay.view.index_sha256 }]);
     const { header } = parseOverlayIndex(inject("programScreenOverlayDataset").index_text as string);
+    expect(phase3eDoc).toContain("caf01fa68e68b3c368538067f504e6f16ccdf7fdeb91f644114d7c86494589ff");
+    expect(phase3hDoc).toContain(overlay.view.index_sha256);
     for (const text of [
-      overlay.view.index_sha256,
       pack.members.overlay_dataset.sha256_extracted,
       header.members.shp,
       header.members.shx,

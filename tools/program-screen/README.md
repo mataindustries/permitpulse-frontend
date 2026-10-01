@@ -1,5 +1,33 @@
 # Offline reviewed-lot normalization
 
+Phase 3H adds the SRA topology safety derivative. It preserves the original
+FHSZSRA_23_3 source geometry and package, using the same offline GDAL **3.10.3** /
+GEOS **3.13.1** versions as Phase 3G. From the repository root:
+
+```bash
+/usr/bin/python3 tools/program-screen/export-sra-validity.py \
+  app/fixtures/program-screen/official-sources/calfire-fhszsra-23-3-data/original.zip \
+  /tmp/permitpulse-sra-validity.json
+cd app
+npm run program-screen:sra-overlay -- \
+  --validity /tmp/permitpulse-sra-validity.json \
+  --output /tmp/permitpulse-sra-overlay
+```
+
+The exporter checks the exact ZIP, decoder versions, record/FID association and
+fresh validity inventory (233 invalid: 139 Very High, 70 High, 24 Moderate).
+The builder independently matches every verdict to unchanged record hashes,
+verifies the pinned manifest and final index, and writes source record bytes
+only to `/tmp` or ignored `.private/`. Neither tool repairs source geometry or
+automatically repins anything. The new index is 1.1.0; LRA stays 2.0.0.
+
+Use `PP_SRA_PYTHON` (or the existing `PP_LRA_PYTHON`) to select the pinned Python
+bindings during test setup. Runtime requires no native tools. Missing old-case
+derivatives yield unknown until the verified new index is privately ingested.
+For mutation verification, run
+`python tools/program-screen/check-sra-validity-mutations.py --output /tmp/permitpulse-sra-mutations`
+with a new temporary directory. See [the Phase 3H safety record](../../docs/PROGRAM_SCREEN_PHASE_3H_SRA_TOPOLOGY_SAFETY_FIX.md).
+
 Phase 3G's LRA authority polygons have a separate offline decoder. It does not normalize a lot, reproject a source feature, or alter source geometry. With GDAL **3.10.3**, GEOS **3.13.1**, and the Python GDAL bindings installed, run from the repository root:
 
 ```bash

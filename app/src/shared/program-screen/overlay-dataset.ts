@@ -1,5 +1,6 @@
 import type { ProgramCaptureRef } from "./authority-policy";
 import type { FileGdbCapture } from "./filegdb-capture";
+import { sraValidityProfile } from "./sra-validity-profile";
 
 /**
  * The overlay dataset (Phase 3E, docs/PROGRAM_SCREEN_PHASE_3E_D_PROMOTION_REVIEW.md).
@@ -31,10 +32,22 @@ import type { FileGdbCapture } from "./filegdb-capture";
  * The index is pinned by SHA-256 in `overlayIndexPins`, keyed by the dataset
  * capture it is derived from; tests re-derive it from the archive bytes.
  * Changing a rule here means a new version and a new pin.
+ *
+ * Phase 3H shapefile 1.1.0 adds `member archive <sha256>` and
+ * `topology GDAL-3.10.3-GEOS-3.13.1 <manifest sha256>` before `records`.
+ * Each unchanged record line then appends `<valid|invalid|unreadable>
+ * <diagnostic as JSON string or null>`. The existing content digest is the
+ * exact geometry digest verified against the native manifest offline; the
+ * pinned index binds that digest and topology verdict together. Legacy 1.0.0
+ * remains readable, but supplies no established topology and cannot support
+ * an overlay result. LRA's independently pinned 2.0.0 format is unchanged.
  */
 
 export const OVERLAY_INDEX_FORMAT = "program-screen-overlay-index" as const;
 export const OVERLAY_INDEX_VERSION = "1.0.0" as const;
+/** Shapefile v1.1 binds offline topology verdicts to unchanged record hashes. */
+export const SHAPEFILE_TOPOLOGY_INDEX_VERSION = "1.1.0" as const;
+export const TOPOLOGY_TOOL = "GDAL-3.10.3-GEOS-3.13.1" as const;
 
 /** Overlay inputs that cannot be verified. Never recovered from: the caller must supply the pinned bytes. */
 export class OverlayInputError extends Error {}
@@ -60,7 +73,7 @@ export const overlayIndexPins: readonly OverlayIndexPin[] = [
       source_id: "calfire-fhszsra-23-3-data",
       sha256_extracted: "a85ff7eecf0f8ffa80d7dd8dcdc727a9dde42979fb3b7b8d5614b7a47a6b5a8a",
     },
-    index_sha256: "caf01fa68e68b3c368538067f504e6f16ccdf7fdeb91f644114d7c86494589ff",
+    index_sha256: sraValidityProfile.index_sha256,
   },
   {
     dataset: {
@@ -86,7 +99,8 @@ export interface OverlayIndexHeader {
   crs_epsg: number;
   class_field: string;
   members: Record<string, string>;
-  format?: "filegdb";
+  format?: "filegdb" | "shapefile-topology";
+  topology?: { tool: string; manifest_sha256: string };
   records: number;
 }
 
@@ -102,6 +116,7 @@ export interface OverlayIndexEntry {
   label: string;
   geometry_state?: "valid" | "invalid" | "unreadable";
   source_validity?: "valid" | "invalid" | "unreadable";
+  topology_diagnostic?: string | null;
 }
 
 /** One polygon record: its rings as flat [x0, y0, x1, y1, ...] arrays, in dataset coordinates. */
@@ -323,6 +338,75 @@ export async function overlayIndexFromShapefile(input: {
   });
 }
 
+export interface ShapefileTopologyRecord {
+  record_number: number;
+  /** SHA-256 of the original shapefile record content, including all Z/M bytes. */
+  geometry_sha256: string;
+  state: "valid" | "invalid" | "unreadable";
+  diagnostic: string | null;
+}
+
+/** Offline only: associate each topology verdict with the exact source bytes.
+ * The resulting index is reviewed and pinned before runtime may consume it.
+ * No default-valid state, source repair or runtime native dependency exists. */
+export async function shapefileTopologyIndexText(input: OverlayIndexInput & {
+  topology: { archive_sha256: string; manifest_sha256: string; records: readonly ShapefileTopologyRecord[] };
+}): Promise<string> {
+  const { topology } = input;
+  if (!HEX64.test(topology.archive_sha256) || !HEX64.test(topology.manifest_sha256)) fail("Shapefile topology origin is malformed");
+  if (topology.records.length !== input.records.length) fail("Shapefile topology record count differs");
+  const legacy = await overlayIndexText(input);
+  const entries = parseOverlayIndex(legacy).entries;
+  const lines = legacy.slice(0, -1).split("\n");
+  lines[0] = `${OVERLAY_INDEX_FORMAT} ${SHAPEFILE_TOPOLOGY_INDEX_VERSION}`;
+  lines.splice(8, 0, `member archive ${topology.archive_sha256}`, `topology ${TOPOLOGY_TOOL} ${topology.manifest_sha256}`);
+  for (const [i, entry] of entries.entries()) {
+    const proof = topology.records[i];
+    if (proof.record_number !== entry.record_number || proof.geometry_sha256 !== entry.content_sha256)
+      fail(`Shapefile topology record ${i + 1} does not match the geometry hash`);
+    if (!["valid", "invalid", "unreadable"].includes(proof.state) ||
+      (proof.diagnostic !== null && (typeof proof.diagnostic !== "string" || !proof.diagnostic || /[\r\n]/.test(proof.diagnostic))) ||
+      (proof.state === "valid" && (proof.diagnostic !== null || entry.extent === null)))
+      fail(`Shapefile topology record ${i + 1} has an invalid state/diagnostic`);
+    lines[11 + i] += ` ${proof.state} ${JSON.stringify(proof.diagnostic)}`;
+  }
+  const text = lines.join("\n") + "\n";
+  parseShapefileTopologyIndex(text);
+  return text;
+}
+
+function parseShapefileTopologyIndex(text: string): { header: OverlayIndexHeader; entries: OverlayIndexEntry[] } {
+  if (!text.endsWith("\n")) fail("Shapefile topology index must end in newline");
+  const lines = text.slice(0, -1).split("\n");
+  const archive = /^member archive ([0-9a-f]{64})$/.exec(lines[8] ?? "");
+  const topology = /^topology (GDAL-3\.10\.3-GEOS-3\.13\.1) ([0-9a-f]{64})$/.exec(lines[9] ?? "");
+  if (archive === null || topology === null) fail("Shapefile topology origin/tool differs");
+  const records = lines.slice(11).map((line, i) => {
+    const match = /^(record .* "(?:[^"\\]|\\.)*") (valid|invalid|unreadable) (null|"(?:[^"\\]|\\.)*")$/.exec(line);
+    if (match === null) fail(`Shapefile topology record ${i + 1} is missing or malformed`);
+    const diagnostic: unknown = JSON.parse(match[3]);
+    if (JSON.stringify(diagnostic) !== match[3] ||
+      (diagnostic !== null && (typeof diagnostic !== "string" || !diagnostic || /[\r\n]/.test(diagnostic))) ||
+      (match[2] === "valid" && diagnostic !== null)) fail(`Shapefile topology diagnostic ${i + 1} is malformed`);
+    return { base: match[1], state: match[2] as ShapefileTopologyRecord["state"], diagnostic: diagnostic as string | null };
+  });
+  // Reuse the unchanged strict record/extent/hash parser; only topology is new.
+  const parsed = parseOverlayIndex([
+    `${OVERLAY_INDEX_FORMAT} ${OVERLAY_INDEX_VERSION}`, ...lines.slice(1, 8), lines[10], ...records.map((r) => r.base), "",
+  ].join("\n"));
+  for (const [i, entry] of parsed.entries.entries()) {
+    const proof = records[i];
+    if (entry.extent === null && proof.state !== "unreadable") fail("Shapefile null geometry cannot be established valid or invalid");
+    entry.geometry_state = proof.state;
+    entry.source_validity = proof.state;
+    entry.topology_diagnostic = proof.diagnostic;
+  }
+  parsed.header.format = "shapefile-topology";
+  parsed.header.members.archive = archive[1];
+  parsed.header.topology = { tool: topology[1], manifest_sha256: topology[2] };
+  return parsed;
+}
+
 const RECORD_LINE =
   /^record (\d+) (\d+) (?:(\S+) (\S+) (\S+) (\S+)) (\d+) ([0-9a-f]{64}) ("(?:[^"\\]|\\.)*")$/;
 
@@ -332,10 +416,11 @@ function exactNumber(text: string, where: string): number {
   return value;
 }
 
-/** Parses overlay index text. Anything not exactly in the 1.0.0 form is refused. */
+/** Parses only the strict legacy shapefile, topology shapefile or FileGDB form. */
 export function parseOverlayIndex(text: string): { header: OverlayIndexHeader; entries: OverlayIndexEntry[];
 } {
   if (text.startsWith(`${OVERLAY_INDEX_FORMAT} 2.0.0\n`)) return parseFileGdbOverlayIndex(text);
+  if (text.startsWith(`${OVERLAY_INDEX_FORMAT} ${SHAPEFILE_TOPOLOGY_INDEX_VERSION}\n`)) return parseShapefileTopologyIndex(text);
   if (!text.endsWith("\n")) fail("index: the text does not end with a newline");
   const lines = text.slice(0, -1).split("\n");
   const take = (index: number, pattern: RegExp): RegExpExecArray => pattern.exec(lines[index] ?? "") ?? fail(`index: line ${index + 1} is malformed`);
@@ -386,7 +471,7 @@ export function parseOverlayIndex(text: string): { header: OverlayIndexHeader; e
 export function overlayCandidates(entries: readonly OverlayIndexEntry[], box: OverlayExtent): OverlayIndexEntry[] {
   return entries.filter(
     (entry) =>
-      (entry.geometry_state === "unreadable" && entry.extent === null) ||
+      (entry.extent === null && entry.geometry_state !== "valid") ||
       (entry.extent !== null &&
       entry.extent[0] <= box[2] &&
       entry.extent[2] >= box[0] &&
