@@ -148,11 +148,12 @@ describe("Phase 3F production case evidence ingestion and overlay", () => {
     expect(criterion(await screen(established.store)).status).toBe("disqualifying_per_source");
   });
 
-  it("preserves d alone at human_verified 1 / pending_human 45, c pending and G1/G2 open", () => {
+  // Updated in Phase 3H: c is human-verified alongside d; this ingestion path still computes only d's evidence.
+  it("preserves c and d at human_verified 2 / pending_human 44 and G1/G2 open", () => {
     const criteria = programScreenPathwayPacks.flatMap((pack) => pack.criteria);
-    expect(criteria.filter((criterion) => criterion.verification === "human_verified").map((criterion) => criterion.id)).toEqual([D]);
-    expect(criteria.filter((criterion) => criterion.verification === "pending_human")).toHaveLength(45);
-    expect(criteria.find((criterion) => criterion.id === "la_shra.very-high-fire-hazard-severity-zone")?.verification).toBe("pending_human");
+    expect(criteria.filter((criterion) => criterion.verification === "human_verified").map((criterion) => criterion.id)).toEqual(["la_shra.very-high-fire-hazard-severity-zone", D]);
+    expect(criteria.filter((criterion) => criterion.verification === "pending_human")).toHaveLength(44);
+    expect(criteria.find((criterion) => criterion.id === "la_shra.very-high-fire-hazard-severity-zone")?.verification).toBe("human_verified");
     expect(programPathwayCompletenessBlockers.map(({ id, status }) => ({ id, status }))).toEqual([
       { id: "G1", status: "open" }, { id: "G2", status: "open" },
     ]);

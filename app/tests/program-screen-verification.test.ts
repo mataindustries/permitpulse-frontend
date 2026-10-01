@@ -34,6 +34,8 @@ import {
   type ProgramPathwayPack,
 } from "../src/shared/program-screen/types";
 import type { ProgramScreenInput } from "../src/shared/program-screen/evaluate";
+import { programAuthorityRegistries } from "../src/shared/program-screen/authority-policy";
+import { fileGdbOverlayIndexText, loadOverlayDatasetView, overlayIndexPinFor } from "../src/shared/program-screen/overlay-dataset";
 import { realLotOverlay } from "./program-screen-overlay-helpers";
 
 const AS_OF = "2026-09-27";
@@ -279,6 +281,90 @@ function highFireAuthority(records: CanonicalEvidenceRecord[]): Pick<ProgramScre
       };
     });
   return { evidence_authority: blocks, lot_overlay: overlay.inputs };
+}
+
+/* ------------------------------------ c: the Very High fire-hazard lot */
+
+// Phase 3H: c assesses GOV §51178 (Route 1, LRA) and PRC §4202 (Route 2, SRA) separately; a clear
+// result needs a qualifying NO on BOTH routes for the same lot. Route 2 uses the real FHSZSRA_23_3
+// overlay. No real LRA record covering a TEST-ONLY lot reaches the test runtime, so Route 1 uses a
+// TEST-ONLY synthetic FHSALRA25_v1_All feature around the same real lot, pinned only through the
+// TEST-ONLY index-pin interface; the shipped SRA pin is passed with it unchanged.
+const VH = "very-high-fire-hazard-severity-zone" as const;
+const C_LRA = programAuthorityRegistries.sources.find((source) => source.package?.statutory_basis === "gov_51178")!;
+const C_SRA = programAuthorityRegistries.sources.find((source) => source.package?.statutory_basis === "prc_4202")!;
+const cLra = await (async () => {
+  const pack = C_LRA.package!;
+  const ring = [[209700, -495100], [209700, -495000], [209900, -495000], [209900, -495100], [209700, -495100]];
+  const derived = await fileGdbOverlayIndexText({
+    dataset: pack.members.overlay_dataset,
+    layer: pack.overlay.dataset_name,
+    crs_epsg: 3310,
+    class_field: pack.overlay.class_field,
+    members: { archive: "0".repeat(64), metadata: "1".repeat(64), association: "2".repeat(64), feature_table: "3".repeat(64) },
+    records: [{ fid: 1, label: "Moderate", code: 1, area: "LRA", state: "valid", source_validity: "valid", native_wkb: null, extent: [209700, -495100, 209900, -495000], coordinates: [[ring]] }],
+  });
+  const pin = { dataset: pack.members.overlay_dataset, index_sha256: await sha256Hex(derived.index_text) };
+  return { view: await loadOverlayDatasetView({ index_text: derived.index_text, records: derived.records }, [pin]), pin };
+})();
+
+/** A reviewed Very High record on one statutory route (the id names the route). */
+function veryHighRecord(id: "c-route-1" | "c-route-2", value: boolean): CanonicalEvidenceRecord {
+  return { ...evidence(id, VH, value, { agency: "TEST-ONLY lot overlay on a CAL FIRE fire-hazard package" }), evidence_type: "official_map" };
+}
+
+/** Reviewed authority blocks naming each route's registered package and the reviewed lot. */
+function veryHighFireAuthority(records: CanonicalEvidenceRecord[]): Pick<ProgramScreenInput, "evidence_authority" | "lot_overlay"> {
+  const blocks: ProgramEvidenceAuthority[] = records
+    .filter((record) => record.claim.key === VH && record.normalized_value.kind === "boolean")
+    .map((record) => {
+      const value = record.normalized_value.kind === "boolean" && record.normalized_value.value;
+      const route = record.id.startsWith("c-route-1") ? "gov_51178" : "prc_4202";
+      const source = route === "gov_51178" ? C_LRA : C_SRA;
+      return {
+        schema_version: PROGRAM_EVIDENCE_AUTHORITY_VERSION,
+        evidence_id: record.id,
+        fact_key: VH,
+        record_kind: "agency_hazard_map",
+        issuer: { name: "CAL FIRE / Office of the State Fire Marshal", issuer_id: "calfire-osfm" },
+        source_identifier: { scheme: "authority_source_id", value: source.authority_source_id },
+        document_title: source.title,
+        edition: { ...source.edition, currency: "current_on_as_of", currency_checked_on: "2026-09-20" },
+        retrieved_at: record.source.retrieved_at,
+        source_url: record.source.url,
+        capture: { store: "repo_official_source", ...source.capture },
+        parcel_relationship: {
+          matched_by: "spatial_overlay",
+          parcel_identifier: "TEST-ONLY-APN-VERIFY",
+          legal_lot_reference: "TEST-ONLY Tract V, Lot 1",
+          legal_lot_identity: "parcel_is_one_legal_lot",
+        },
+        coverage: value ? "whole_parcel" : "none_of_parcel",
+        qualifiers: {
+          family: "hazard_map",
+          hazard_class: "very_high",
+          statutory_basis: route,
+          adoption_status: route === "prc_4202" ? "adopted" : "not_established",
+          named_agency: "department_of_forestry_and_fire_protection",
+          map_covers_lot: "not_established",
+          legend_defines_class_for_lot: "not_established",
+          responsibility_area_as_stated: "not_stated",
+          lot_overlay: {
+            method: "deterministic_spatial_overlay",
+            dataset: source.package!.members.overlay_dataset,
+            lot_geometry: overlay.lots[value ? "whole-very-high" : "whole-moderate"],
+          },
+        },
+        authority_review: { status: "reviewed", reviewer: { kind: "human", name: "TEST-ONLY Reviewer", role: "Synthetic reviewer" }, reviewed_on: "2026-09-20" },
+        notes: ["TEST-ONLY fictional lot result."],
+        is_ai_generated: false,
+      };
+    });
+  const sraPin = overlayIndexPinFor(C_SRA.package!.members.overlay_dataset)!;
+  return {
+    evidence_authority: blocks,
+    lot_overlay: { ...overlay.inputs, datasets: [...overlay.inputs.datasets, cLra.view], index_pins: [sraPin, cLra.pin] },
+  };
 }
 
 /* --------------------------------------- verified-criterion test runner */
@@ -662,6 +748,12 @@ describe("Shipped human-verified Program Screen criteria", () => {
    * verified criterion without a case here fails the pin below.
    */
   const verifiedCases: Record<string, Omit<VerifiedCriterionCase, "captures">> = {
+    // Phase 3H: c clears only on a qualifying NO under both routes, and blocks on a whole-lot Very High route.
+    "la_shra.very-high-fire-hazard-severity-zone": {
+      positive: () => [veryHighRecord("c-route-1", false), veryHighRecord("c-route-2", false)],
+      blocking: () => [veryHighRecord("c-route-2", true)],
+      authority: veryHighFireAuthority,
+    },
     // Phase 3E: d runs only through the CAL FIRE / OSFM PRC §4202 package, on a lot the gate overlays itself.
     "la_shra.high-fire-hazard-severity-zone": {
       positive: () => [highFireRecord("high-fire-lot", false)],
@@ -673,7 +765,9 @@ describe("Shipped human-verified Program Screen criteria", () => {
   it("pins exactly which shipped criteria have been human-verified", () => {
     // Phase 3E: d, verified by Sergio Mata (Project Owner / Human Reviewer) on 2026-09-29 against the
     // Phase 3B d decision (docs/PROGRAM_SCREEN_PHASE_3E_D_PROMOTION_REVIEW.md).
-    expect(verified.map((criterion) => criterion.id)).toEqual(["la_shra.high-fire-hazard-severity-zone"]);
+    // Phase 3H: c, verified by Sergio Mata on 2026-10-01 against the Phase 3B c decision
+    // (docs/PROGRAM_SCREEN_PHASE_3H_C_PROMOTION_REVIEW.md).
+    expect(verified.map((criterion) => criterion.id)).toEqual(["la_shra.very-high-fire-hazard-severity-zone", "la_shra.high-fire-hazard-severity-zone"]);
     expect(Object.keys(verifiedCases).sort()).toEqual(
       verified.map((criterion) => criterion.id).sort(),
     );
@@ -688,11 +782,12 @@ describe("Shipped human-verified Program Screen criteria", () => {
       .map((criterion) => criterion.id);
 
     // Changing this list means a person verified a new rule; review it as such.
-    // Updated in Phase 3E: d.
+    // Updated in Phase 3E: d. Updated in Phase 3H: c.
     expect(executable).toEqual([
       "la_shra.parcel-match",
       "la_shra.jurisdiction",
       "la_shra.implementation-memo-scope",
+      "la_shra.very-high-fire-hazard-severity-zone",
       "la_shra.high-fire-hazard-severity-zone",
       "la_sb79.parcel-match",
       "la_sb79.jurisdiction",

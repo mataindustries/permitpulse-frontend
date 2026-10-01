@@ -352,13 +352,15 @@ describe("3. Gates: recorded in Phase 3B, wired in Phase 3C", () => {
       const shippedCriterion = criterionFor(entry.criterion_id);
       // Updated in Phase 3E: d alone was promoted, once every decided gate was met and the reviewer
       // approved (docs/PROGRAM_SCREEN_PHASE_3E_D_PROMOTION_REVIEW.md). Its gates are checked here without its record.
-      if (entry.letter === "d") {
-        expect(shippedCriterion.verification).toBe("human_verified");
-        expect(authorityPromotionBlockers(shippedCriterion, programAuthorityRegistries, true)).toEqual([]);
+      // Updated in Phase 3H: c was promoted the same way (docs/PROGRAM_SCREEN_PHASE_3H_C_PROMOTION_REVIEW.md).
+      const promoted = entry.letter === "c" || entry.letter === "d";
+      if (promoted) {
+        expect(shippedCriterion.verification, entry.letter).toBe("human_verified");
+        expect(authorityPromotionBlockers(shippedCriterion, programAuthorityRegistries, true), entry.letter).toEqual([]);
       } else {
         expect(shippedCriterion, entry.letter).toMatchObject({ verification: "pending_human", human_verification: null, predicate: "not_encoded" });
       }
-      const criterion = entry.letter === "d" ? { ...shippedCriterion, human_verification: null } : shippedCriterion;
+      const criterion = promoted ? { ...shippedCriterion, human_verification: null } : shippedCriterion;
       const blockers = authorityPromotionBlockers(criterion, programAuthorityRegistries, false);
       // Phase 3D: the registered CAL FIRE SRA package meets these gates for d, and all but
       // statutory_route_recorded for c; both still wait on the human gates.
@@ -422,18 +424,18 @@ describe("5. Invariants: recording only", () => {
   // (c, d, g; docs/PROGRAM_SCREEN_PHASE_3C_PROMOTION_GATES.md). Every status,
   // roll-up, and release decision is unchanged.
   // Updated in Phase 3E: the reviewed promotion of d moved them.
-  const EVALUATOR_OUTPUT_SHA256 = "156dd1f41964ab5beebcf3882e0a0d653cc5d778939033bf2b752dba1e86afbc";
-  const PUBLIC_DEMO_OUTPUT_SHA256 = "4dd2735bab875ad40b123fec72020e16442737bc6b5052eb55c5fba374b9a8a5";
+  // Updated in Phase 3H: the reviewed promotion of c moved them again.
+  const EVALUATOR_OUTPUT_SHA256 = "1341fea59e307fed23ec1cd32fcdb2467d0fa3519bd07dd134fa9ddfee6deaad";
+  const PUBLIC_DEMO_OUTPUT_SHA256 = "23aaee06e51b42a4c1001d6253504f2f932d591315af468ada21345d888a5070";
+  const PROMOTED = ["la_shra.very-high-fire-hazard-severity-zone", "la_shra.high-fire-hazard-severity-zone"];
 
-  // Updated in Phase 3E: d alone is human-verified.
-  it("keeps human_verified at 1 (d) and pending_human at 45, every other guarded criterion blocked", () => {
-    expect(shippedCriteria.filter((criterion) => criterion.verification === "human_verified").map((criterion) => criterion.id)).toEqual([
-      "la_shra.high-fire-hazard-severity-zone",
-    ]);
-    expect(shippedCriteria.filter((criterion) => criterion.verification === "pending_human")).toHaveLength(45);
+  // Updated in Phase 3E: d alone is human-verified. Updated in Phase 3H: c and d.
+  it("keeps human_verified at 2 (c, d) and pending_human at 44, every other guarded criterion blocked", () => {
+    expect(shippedCriteria.filter((criterion) => criterion.verification === "human_verified").map((criterion) => criterion.id)).toEqual(PROMOTED);
+    expect(shippedCriteria.filter((criterion) => criterion.verification === "pending_human")).toHaveLength(44);
     const guarded = shippedCriteria.filter((criterion) => promotionGuardedCriterionIds.has(criterion.id));
     expect(guarded).toHaveLength(46);
-    for (const criterion of guarded.filter((candidate) => candidate.id !== "la_shra.high-fire-hazard-severity-zone")) {
+    for (const criterion of guarded.filter((candidate) => !PROMOTED.includes(candidate.id))) {
       expect(authorityPromotionBlockers(criterion, programAuthorityRegistries, false).length, criterion.id).toBeGreaterThan(0);
     }
   });

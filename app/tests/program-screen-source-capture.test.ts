@@ -1424,9 +1424,11 @@ describe("Fail-closed behavior after this capture pass", () => {
   const fixture = parseProgramScreenFixture(fixtureJson);
 
   // Updated in Phase 3E: d alone is human-verified; the other 45 are unchanged.
-  it("keeps the other 45 atomic criteria pending_human, without a rule or a record", () => {
+  // Updated in Phase 3H: c is human-verified too; the other 44 are unchanged.
+  const promoted = ["la_shra.very-high-fire-hazard-severity-zone", "la_shra.high-fire-hazard-severity-zone"];
+  it("keeps the other 44 atomic criteria pending_human, without a rule or a record", () => {
     expect(humanVerificationRequiredCriterionIds).toHaveLength(46);
-    for (const id of humanVerificationRequiredCriterionIds.filter((candidate) => candidate !== "la_shra.high-fire-hazard-severity-zone")) {
+    for (const id of humanVerificationRequiredCriterionIds.filter((candidate) => !promoted.includes(candidate))) {
       const criterion = shipped.find((candidate) => candidate.id === id);
       expect(criterion, id).toMatchObject({ verification: "pending_human", human_verification: null });
       expect(typeof criterion?.predicate, id).not.toBe("function");
@@ -1435,7 +1437,7 @@ describe("Fail-closed behavior after this capture pass", () => {
     for (const id of retiredProgramCriterionIds) {
       expect(shipped.find((candidate) => candidate.id === id), id).toBeUndefined();
     }
-    expect(shipped.filter((criterion) => criterion.verification === "human_verified").map((criterion) => criterion.id)).toEqual(["la_shra.high-fire-hazard-severity-zone"]);
+    expect(shipped.filter((criterion) => criterion.verification === "human_verified").map((criterion) => criterion.id)).toEqual(promoted);
   });
 
   it("still blocks a TEST-ONLY verified rule once its citation is due for review", () => {
@@ -1462,10 +1464,10 @@ describe("Fail-closed behavior after this capture pass", () => {
     expect(result.release.client_releasable).toBe(false);
   });
 
-  // Updated in Phase 3E: d is human-verified.
-  it("keeps the public demo non-releasable with 45 pending criteria", () => {
+  // Updated in Phase 3E: d is human-verified. Updated in Phase 3H: c is human-verified.
+  it("keeps the public demo non-releasable with 44 pending criteria", () => {
     const payload = buildProgramScreenPublicDemoPayload(fixtureJson, { as_of: fixture.as_of });
     expect(payload.release.client_releasable).toBe(false);
-    expect(payload.release.blocker_counts.pending_human_criterion).toBe(45);
+    expect(payload.release.blocker_counts.pending_human_criterion).toBe(44);
   });
 });

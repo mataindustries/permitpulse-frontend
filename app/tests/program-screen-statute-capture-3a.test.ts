@@ -252,9 +252,12 @@ describe("3. A capture, not an authority", () => {
   it("is cited by no criterion, verification record, proposal, or Round 1 record", () => {
     expect(JSON.stringify(shippedCriteria)).not.toContain("gcs-66499-41");
     // Updated in Phase 3E: d's human record rests on the SHRA memo capture, never on the statute.
+    // Updated in Phase 3H: so does c's.
     const records = shippedCriteria.filter((criterion) => criterion.human_verification !== null);
-    expect(records.map((criterion) => criterion.id)).toEqual(["la_shra.high-fire-hazard-severity-zone"]);
-    expect(records[0].human_verification?.source_capture.repo_path).toBe("app/fixtures/program-screen/official-sources/shra-2025-10-28/extracted.txt");
+    expect(records.map((criterion) => criterion.id)).toEqual(["la_shra.very-high-fire-hazard-severity-zone", "la_shra.high-fire-hazard-severity-zone"]);
+    for (const record of records) {
+      expect(record.human_verification?.source_capture.repo_path, record.id).toBe("app/fixtures/program-screen/official-sources/shra-2025-10-28/extracted.txt");
+    }
     const proposals = import.meta.glob("../fixtures/program-screen/proposed-verifications/*.json", { import: "default", eager: true });
     expect(JSON.stringify(proposals)).not.toContain("gcs-66499-41");
     expect(JSON.stringify(decisionsJson)).not.toContain("gcs-66499-41");
@@ -302,13 +305,14 @@ describe("5. Invariants: nothing promoted, output unchanged", () => {
   // (c, d, g; docs/PROGRAM_SCREEN_PHASE_3C_PROMOTION_GATES.md). Every status,
   // roll-up, and release decision is unchanged.
   // Updated in Phase 3E: the reviewed promotion of d moved them.
-  const EVALUATOR_OUTPUT_SHA256 = "156dd1f41964ab5beebcf3882e0a0d653cc5d778939033bf2b752dba1e86afbc";
-  const PUBLIC_DEMO_OUTPUT_SHA256 = "4dd2735bab875ad40b123fec72020e16442737bc6b5052eb55c5fba374b9a8a5";
+  // Updated in Phase 3H: the reviewed promotion of c moved them again.
+  const EVALUATOR_OUTPUT_SHA256 = "1341fea59e307fed23ec1cd32fcdb2467d0fa3519bd07dd134fa9ddfee6deaad";
+  const PUBLIC_DEMO_OUTPUT_SHA256 = "23aaee06e51b42a4c1001d6253504f2f932d591315af468ada21345d888a5070";
 
-  // Updated in Phase 3E: d alone is human-verified.
-  it("keeps human_verified at 1 (d) and pending_human at 45", () => {
-    expect(shippedCriteria.filter((criterion) => criterion.verification === "human_verified").map((criterion) => criterion.id)).toEqual(["la_shra.high-fire-hazard-severity-zone"]);
-    expect(shippedCriteria.filter((criterion) => criterion.verification === "pending_human")).toHaveLength(45);
+  // Updated in Phase 3E: d alone is human-verified. Updated in Phase 3H: c and d.
+  it("keeps human_verified at 2 (c, d) and pending_human at 44", () => {
+    expect(shippedCriteria.filter((criterion) => criterion.verification === "human_verified").map((criterion) => criterion.id)).toEqual(["la_shra.very-high-fire-hazard-severity-zone", "la_shra.high-fire-hazard-severity-zone"]);
+    expect(shippedCriteria.filter((criterion) => criterion.verification === "pending_human")).toHaveLength(44);
   });
 
   // Updated in Phase 3E: every guarded criterion but d.

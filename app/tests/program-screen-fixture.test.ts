@@ -316,9 +316,11 @@ describe("Program Screen criteria are sourced in this repository", () => {
       expect(criterion.verification).toBe("pending_human");
     }
     // Updated in Phase 3E: d (la_shra.high-fire-hazard-severity-zone) is human-verified.
+    // Updated in Phase 3H: c (la_shra.very-high-fire-hazard-severity-zone) is human-verified.
+    const promoted = ["la_shra.very-high-fire-hazard-severity-zone", "la_shra.high-fire-hazard-severity-zone"];
     expect(
       criteria.filter((criterion) => criterion.verification === "pending_human").map((criterion) => criterion.id),
-    ).toEqual(humanVerificationRequiredCriterionIds.filter((id) => id !== "la_shra.high-fire-hazard-severity-zone"));
+    ).toEqual(humanVerificationRequiredCriterionIds.filter((id) => !promoted.includes(id)));
   });
 });
 
@@ -343,8 +345,8 @@ describe("Program Screen public demo projection", () => {
       release: { client_releasable: false },
     });
     expect(first.disclosure).toContain("FICTIONAL");
-    // Updated in Phase 3E: d is human-verified.
-    expect(first.release.blocker_counts.pending_human_criterion).toBe(45);
+    // Updated in Phase 3E: d is human-verified. Updated in Phase 3H: c is human-verified.
+    expect(first.release.blocker_counts.pending_human_criterion).toBe(44);
     expect(first.pathways.map((pathway) => pathway.rollup)).toEqual(
       result.pathways.map((pathway) => pathway.rollup),
     );

@@ -27,6 +27,7 @@ import { programPathwayCompletenessBlockers, type CriterionPredicate, type Progr
 import type { ProgramScreenCaseEvidenceStore } from "../src/worker/program-screen/case-evidence";
 import { evaluateStoredCaseProgramScreen, loadCaseLraOverlay, loadCaseOverlay } from "../src/worker/program-screen/evaluate-case";
 import { block, edit, encode, feature, record, ring, source as lraSource, sra as sraSource, C, D, HIGH, VH } from "./program-screen-lra-helpers";
+import { prePromotionC, prePromotionPacks } from "./program-screen-c-pre-promotion";
 import { polygonRecordContent, realLotOverlay, testOnlySraIndexText } from "./program-screen-overlay-helpers";
 
 /**
@@ -44,7 +45,8 @@ const shippedC = criteria.find((criterion) => criterion.id === C)!;
 const shippedD = criteria.find((criterion) => criterion.id === D)!;
 const memoMetadata = parseOfficialSourceMetadata(memoMetadataJson);
 const cDecision = decision.decisions.find((entry) => entry.letter === "c")!;
-const SUMMARY = "Phase 3B decision c. Disqualifying per source when either independently assessed CAL FIRE route (GOV §51178 determination or PRC §4202 adopted map) shows the whole lot proposed to be subdivided in Very High. Consistent with source only when reviewed records under both routes show no part of the lot in Very High. Coverage and classes are computed from reviewed legal-lot geometry and pinned datasets. Partial or mixed Very High coverage, unclear lot identity, or nonqualifying evidence stays unknown. No threshold or responsibility-area shortcut. High is criterion d.";
+// Updated in Phase 3H: the exact approved 598-character summary replaces the earlier 568-character draft.
+const SUMMARY = "Phase 3B decision c. Disqualifying per source when, on either separately assessed route, a reviewed CAL FIRE / OSFM record (GOV §51178 2025 LRA identification or PRC §4202 adopted SRA map), a deterministic overlay of the reviewed legal-lot geometry on that route's registered dataset, shows the whole lot proposed to be subdivided in Very High. Consistent with source only when both routes each show no part of the lot in Very High. Partial or mixed coverage, invalid source geometry, a one-route negative, an unclear legal lot, and any other source stay unknown; no threshold. High is criterion d.";
 const QUESTION = "How does Planning apply the SHRA Very High Fire Hazard Severity Zone site category (memo page 4, prohibited category 3) to the lot proposed to be subdivided?";
 const EXCERPT = "3) High or very high fire hazard severity zones, as referenced in GCS 51178 and Public Resources Code Section 42021.";
 const proposedPredicate: CriterionPredicate = (facts) => booleanFact(facts, VH) ? "disqualifying_per_source" : "consistent_with_source";
@@ -67,6 +69,8 @@ function candidate(overrides: Partial<ProgramCriterion> = {}): ProgramCriterion 
   return { ...shippedC, predicate: proposedPredicate, rule_summary: SUMMARY, question_if_judgment: QUESTION,
     citation, verification: "human_verified", human_verification: proposedRecord, ...overrides };
 }
+// Updated in Phase 3H: c is shipped promoted; the pre-promotion c is rebuilt by the shared TEST-ONLY helper.
+const pendingC = prePromotionC;
 function projectedPacks(): ProgramPathwayPack[] {
   return programScreenPathwayPacks.map((pack) => ({ ...pack, criteria: pack.criteria.map((criterion) => criterion.id === C ? candidate() : criterion) }));
 }
@@ -141,11 +145,13 @@ async function realInvalidSraWitness() {
 }
 
 describe("Phase 3H protected shipped state and conditional proposal", () => {
-  it("leaves only d human_verified and all Phase 3B gates/ceilings intact", () => {
-    expect(criteria.filter((criterion) => criterion.verification === "human_verified").map((criterion) => criterion.id)).toEqual([D]);
-    expect(criteria.filter((criterion) => criterion.verification === "pending_human")).toHaveLength(45);
-    expect(criteria.filter((criterion) => criterion.predicate === "not_encoded")).toHaveLength(35);
-    expect(shippedC).toMatchObject({ verification: "pending_human", predicate: "not_encoded", human_verification: null });
+  // Updated in Phase 3H: c is promoted exactly as audited; d is unchanged.
+  it("ships c and d human_verified with all Phase 3B gates/ceilings intact", () => {
+    expect(criteria.filter((criterion) => criterion.verification === "human_verified").map((criterion) => criterion.id)).toEqual([C, D]);
+    expect(criteria.filter((criterion) => criterion.verification === "pending_human")).toHaveLength(44);
+    expect(criteria.filter((criterion) => criterion.predicate === "not_encoded")).toHaveLength(34);
+    expect(shippedC).toMatchObject({ verification: "human_verified", rule_summary: SUMMARY, question_if_judgment: QUESTION, citation, human_verification: proposedRecord });
+    expect(typeof shippedC.predicate).toBe("function");
     for (const id of ["la_shra.prime-or-statewide-farmland", "la_shra.natural-community-conservation-plan-land", "la_shra.conservation-easement"]) expect(criteria.find((criterion) => criterion.id === id)).toMatchObject({ verification: "pending_human", predicate: "not_encoded", human_verification: null });
     expect(programPathwayCompletenessBlockers.map((b) => [b.id, b.status])).toEqual([["G1", "open"], ["G2", "open"]]);
     expect(programAuthorityRegistries.criterion_requirements[C].promotion_gates).toEqual(cDecision.promotion_gates);
@@ -153,7 +159,8 @@ describe("Phase 3H protected shipped state and conditional proposal", () => {
     expect(shippedC.permitted_outcomes).toEqual(["consistent_with_source", "disqualifying_per_source", "requires_judgment"]);
     expect(candidate().permitted_outcomes).toBe(shippedC.permitted_outcomes);
     expect(candidate().statutory_routes).toBe(shippedC.statutory_routes);
-    expect(criterionPromotionBlockers(shippedC)).toEqual(["reviewer_confirms_encoded_rule", "human_verification_record"]);
+    expect(criterionPromotionBlockers(shippedC)).toEqual([]);
+    expect(criterionPromotionBlockers(pendingC())).toEqual(["reviewer_confirms_encoded_rule", "human_verification_record"]);
   });
   it("pins the actual Phase 3B c decision, including the two-route NO and no geography shortcut", () => {
     expect(cDecision.status_after_review).toBe("pending_human");
@@ -172,7 +179,7 @@ describe("Phase 3H protected shipped state and conditional proposal", () => {
     expect(inject("programScreenOfficialCaptureByteChecks")["app/fixtures/program-screen/official-sources/shra-2025-10-28"]).toMatchObject({ issues: [], sha256_original: memoMetadata.sha256_original });
     expect(NEXT_REVIEW).toBe(addDays(AS_OF, 30));
     expect(citation.verified_at).not.toBe(shippedD.citation.verified_at);
-    expect(SUMMARY.length).toBe(568);
+    expect(SUMMARY.length).toBe(598);
     expect(SUMMARY.length).toBeLessThanOrEqual(600);
     expect(findProhibitedClientLanguage(SUMMARY)).toEqual([]);
     expect(findProhibitedClientLanguage(QUESTION)).toEqual([]);
@@ -440,13 +447,16 @@ describe("Phase 3H private production-input boundary", () => {
     expect(sra.inputs?.datasets[0].dataset).toEqual(sraSource.package!.members.overlay_dataset);
     expect(sra.record?.legal_lot_identity).toBe("parcel_is_one_legal_lot");
   });
-  it("production evaluator generates only d; manual c authority cannot fill the operational gap", async () => {
+  // Updated in Phase 3H: c is promoted, but production still computes only d's evidence, so c stays unknown.
+  it("production evaluator computes only d's evidence; manual c authority cannot fill the operational gap", async () => {
     const { store } = await privateInputs();
     const p = await pair("YES", "YES");
     p.records = p.records.map((r) => ({ ...r, subject: { ...r.subject, case_id: store.case_id } }));
     const result = await evaluateStoredCaseProgramScreen(store, { evidence_records: p.records, evidence_authority: p.blocks, as_of: AS_OF });
     const c = result.screen.pathways[0].criteria.find((criterion) => criterion.criterion_id === C)!;
-    expect(c.verification).toBe("pending_human");
+    expect(c.verification).toBe("human_verified");
+    expect(c.status).toBe("unknown");
+    expect(c.authority?.established).toBe(false);
     expect(result.screen.facts.filter((f) => f.key === VH)[0].evidence.map((e) => e.evidence_id)).toEqual(p.records.map((r) => r.id));
     expect(result.screen.facts.find((f) => f.key === HIGH)?.evidence.some((e) => e.evidence_id.startsWith("computed-calfire-high-"))).toBe(true);
     expect(criterionPromotionBlockers(candidate())).toEqual([]);
@@ -490,17 +500,20 @@ describe("Phase 3H private production-input boundary", () => {
   });
 });
 
-describe("Phase 3H c-only projection, never written to production", () => {
+// Updated in Phase 3H: the approved projection is now the shipped output. "Before" is the rebuilt
+// pre-promotion c; "after" is the shipped packs, which must equal the audited candidate's output.
+describe("Phase 3H c-only promotion: shipped output equals the audited projection", () => {
   it.each([
-    [fixture.as_of, "156dd1f41964ab5beebcf3882e0a0d653cc5d778939033bf2b752dba1e86afbc", "4dd2735bab875ad40b123fec72020e16442737bc6b5052eb55c5fba374b9a8a5", "780c710b8ef536ad56d002406f17287778eee02f32b3dd966b3c2ac07b7244ae", "23aaee06e51b42a4c1001d6253504f2f932d591315af468ada21345d888a5070"],
-    [AS_OF, "1acccc9755166e99d496775936706e80d8bbf083e772d6f3d5c336685c196be7", "06222298ab94abdec298ee3334eb25badb1544de67489c987c377b9c88c95393", "aad81822af87f82ace6ab6ffcdead367214fdaca763a97a4dc599c945991527d", "2a777f2da9b489f8731c933b04d83620230485df58c479a7b2bcb7981f9a369e"],
+    [fixture.as_of, "156dd1f41964ab5beebcf3882e0a0d653cc5d778939033bf2b752dba1e86afbc", "4dd2735bab875ad40b123fec72020e16442737bc6b5052eb55c5fba374b9a8a5", "1341fea59e307fed23ec1cd32fcdb2467d0fa3519bd07dd134fa9ddfee6deaad", "23aaee06e51b42a4c1001d6253504f2f932d591315af468ada21345d888a5070"],
+    [AS_OF, "1acccc9755166e99d496775936706e80d8bbf083e772d6f3d5c336685c196be7", "06222298ab94abdec298ee3334eb25badb1544de67489c987c377b9c88c95393", "be57c1bf0f9c4c615375eb0c02d48fe9dd37fcd2afda4eb67cb20f99c98544cb", "2a777f2da9b489f8731c933b04d83620230485df58c479a7b2bcb7981f9a369e"],
   ])("reproduces hashes/counts as of %s and changes no other criterion/fact/rollup", async (as_of, beforeHash, beforeDemoHash, afterHash, afterDemoHash) => {
-    const before = evaluateProgramScreen({ evidence_records: fixture.evidence_records, as_of });
-    const after = evaluateProgramScreen({ evidence_records: fixture.evidence_records, as_of, packs: projectedPacks() });
-    const beforeDemo = buildProgramScreenPublicDemoPayload(fixture, { as_of }), afterDemo = buildProgramScreenPublicDemoPayload(fixture, { as_of, packs: projectedPacks() });
+    const before = evaluateProgramScreen({ evidence_records: fixture.evidence_records, as_of, packs: prePromotionPacks() });
+    const after = evaluateProgramScreen({ evidence_records: fixture.evidence_records, as_of });
+    const beforeDemo = buildProgramScreenPublicDemoPayload(fixture, { as_of, packs: prePromotionPacks() }), afterDemo = buildProgramScreenPublicDemoPayload(fixture, { as_of });
+    expect(JSON.stringify(evaluateProgramScreen({ evidence_records: fixture.evidence_records, as_of, packs: projectedPacks() }))).toBe(JSON.stringify(after));
     expect(await sha256Hex(JSON.stringify(before))).toBe(beforeHash); expect(await sha256Hex(JSON.stringify(beforeDemo))).toBe(beforeDemoHash);
     expect(await sha256Hex(JSON.stringify(after))).toBe(afterHash); expect(await sha256Hex(JSON.stringify(afterDemo))).toBe(afterDemoHash);
-    const projected = projectedPacks().flatMap((pack) => pack.criteria);
+    const projected = programScreenPathwayPacks.flatMap((pack) => pack.criteria);
     expect(projected.filter((c) => c.verification === "human_verified")).toHaveLength(2); expect(projected.filter((c) => c.verification === "pending_human")).toHaveLength(44); expect(projected.filter((c) => c.predicate === "not_encoded")).toHaveLength(34);
     expect(after.release.blockers).toEqual(before.release.blockers.filter((b) => b.ref !== C)); expect(after.release.blockers).toHaveLength(44);
     expect(after.facts).toEqual(before.facts); expect(after.counts).toEqual(before.counts); expect(after.screen_id).toBe(before.screen_id);
@@ -511,6 +524,6 @@ describe("Phase 3H c-only projection, never written to production", () => {
       expect(pathway.program_flags).toEqual(before.pathways[i].program_flags);
     }
     expect(after.pathways[0].criteria.find((c) => c.criterion_id === C)?.status).toBe("conflict");
-    expect(shippedC.verification).toBe("pending_human"); expect(shippedC.predicate).toBe("not_encoded");
+    expect(shippedC.verification).toBe("human_verified"); expect(typeof shippedC.predicate).toBe("function");
   });
 });

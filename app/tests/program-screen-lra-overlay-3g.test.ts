@@ -28,6 +28,7 @@ import { buildProgramScreenPublicDemoPayload } from "../src/shared/program-scree
 import { programPathwayCompletenessBlockers } from "../src/shared/program-screen/types";
 import { realLotOverlay } from "./program-screen-overlay-helpers";
 import { LRA_PACKAGE_ID } from "../src/shared/program-screen/lra-authority-package";
+import { prePromotionC, prePromotionPacks } from "./program-screen-c-pre-promotion";
 
 describe("Phase 3G Route 1 YES / NO / unknown", () => {
   it("rejects an index hash bypass", async () => {
@@ -204,20 +205,21 @@ describe("Phase 3G Route 1 YES / NO / unknown", () => {
 });
 
 describe("Phase 3G preserved review state and projections", () => {
-  it("keeps d the sole human_verified, c pending, and 1 / 45", () => {
+  // Updated in Phase 3H: Phase 3G left c pending at 1 / 45; the later Phase 3H review promoted c (2 / 44).
+  it("left c pending with only its reviewer gates after Phase 3G; c is now promoted (2 / 44)", () => {
     const criteria = programScreenPathwayPacks.flatMap((p) => p.criteria);
-    expect(criteria.filter((c) => c.verification === "human_verified").map((c) => c.id)).toEqual([D]);
-    expect(criteria.filter((c) => c.verification === "pending_human")).toHaveLength(45);
-    const c = criteria.find((c) => c.id === C)!;
-    expect(c).toMatchObject({
+    expect(criteria.filter((c) => c.verification === "human_verified").map((c) => c.id)).toEqual([C, D]);
+    expect(criteria.filter((c) => c.verification === "pending_human")).toHaveLength(44);
+    expect(prePromotionC()).toMatchObject({
       verification: "pending_human",
       human_verification: null,
       predicate: "not_encoded",
     });
-    expect(authorityPromotionBlockers(c, programAuthorityRegistries, false)).toEqual([
+    expect(authorityPromotionBlockers(prePromotionC(), programAuthorityRegistries, false)).toEqual([
       "reviewer_confirms_encoded_rule",
       "human_verification_record",
     ]);
+    expect(authorityPromotionBlockers(criteria.find((c) => c.id === C)!, programAuthorityRegistries, true)).toEqual([]);
     expect(programPathwayCompletenessBlockers.map((b) => [b.id, b.status])).toEqual([
       ["G1", "open"],
       ["G2", "open"],
@@ -233,6 +235,8 @@ describe("Phase 3G preserved review state and projections", () => {
     });
     expect(authorityPromotionBlockers(c, onlySra, false)).toContain("statutory_route_recorded");
   });
+  // Updated in Phase 3H: the Phase 3G pins hold for c in its pre-promotion form; the shipped output is the
+  // approved Phase 3H projection.
   it("preserves evaluator and demo hashes before and after Phase 3G", async () => {
     expect(
       await sha256Hex(
@@ -240,6 +244,7 @@ describe("Phase 3G preserved review state and projections", () => {
           evaluateProgramScreen({
             evidence_records: fixture.evidence_records,
             as_of: fixture.as_of,
+            packs: prePromotionPacks(),
           }),
         ),
       ),
@@ -249,9 +254,16 @@ describe("Phase 3G preserved review state and projections", () => {
         JSON.stringify(
           buildProgramScreenPublicDemoPayload(fixture, {
             as_of: fixture.as_of,
+            packs: prePromotionPacks(),
           }),
         ),
       ),
     ).toBe("4dd2735bab875ad40b123fec72020e16442737bc6b5052eb55c5fba374b9a8a5");
+    expect(
+      await sha256Hex(JSON.stringify(evaluateProgramScreen({ evidence_records: fixture.evidence_records, as_of: fixture.as_of }))),
+    ).toBe("1341fea59e307fed23ec1cd32fcdb2467d0fa3519bd07dd134fa9ddfee6deaad");
+    expect(
+      await sha256Hex(JSON.stringify(buildProgramScreenPublicDemoPayload(fixture, { as_of: fixture.as_of }))),
+    ).toBe("23aaee06e51b42a4c1001d6253504f2f932d591315af468ada21345d888a5070");
   });
 });

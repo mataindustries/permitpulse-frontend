@@ -84,7 +84,8 @@ const PHASE_3B_GATES: Readonly<Record<string, readonly string[]>> = Object.fromE
 );
 /** Phase 3D: the gates still unmet for c and d once the CAL FIRE SRA package is registered. */
 const PHASE_3D_UNMET: Readonly<Record<string, readonly string[]>> = {
-  "la_shra.very-high-fire-hazard-severity-zone": ["reviewer_confirms_encoded_rule", "human_verification_record"],
+  // Updated in Phase 3H: c is human-verified, so no gate of c is unmet.
+  "la_shra.very-high-fire-hazard-severity-zone": [],
   // Updated in Phase 3E: d is human-verified, so no gate of d is unmet.
   "la_shra.high-fire-hazard-severity-zone": [],
 };
@@ -1449,10 +1450,12 @@ describe("9. The promotion guard protects all 46 atomic criteria", () => {
         continue;
       }
       if (id === "la_shra.very-high-fire-hazard-severity-zone") {
-        // Phase 3G supplies its source gate; the shipped rule and review remain pending.
+        // Phase 3G supplies its source gate. Updated in Phase 3H: the reviewer promoted c; the shipped c
+        // carries its record and runs.
         expect(criterionPromotionBlockers(promoted)).toEqual([]);
-        expect(original).toMatchObject({ verification: "pending_human", human_verification: null, predicate: "not_encoded" });
-        expect(criterionAwaitsHumanVerification(original)).toBe(true);
+        expect(original.verification, id).toBe("human_verified");
+        expect(criterionPromotionBlockers(original), id).toEqual([]);
+        expect(criterionAwaitsHumanVerification(original), id).toBe(false);
         continue;
       }
       expect(criterionAwaitsHumanVerification(promoted), id).toBe(true);
@@ -1476,9 +1479,10 @@ describe("9. The promotion guard protects all 46 atomic criteria", () => {
   it("does not let a reviewer's confirmation alone promote a gated criterion", () => {
     const c = byId.get("la_shra.very-high-fire-hazard-severity-zone") as ProgramCriterion;
     const promoted = promote(c, () => "disqualifying_per_source");
-    // Phase 3G closes c's source gate; the shipped criterion still awaits its rule and human record.
+    // Phase 3G closes c's source gate. Updated in Phase 3H: the shipped c is promoted with its own
+    // Phase 3B c human record, never by a confirmation note.
     expect(criterionPromotionBlockers(promoted)).toEqual([]);
-    expect(c).toMatchObject({ verification: "pending_human", human_verification: null, predicate: "not_encoded" });
+    expect(c).toMatchObject({ verification: "human_verified", human_verification: { decision_ref: { phase: "3B", letter: "c" } } });
     // A human record cannot carry a note at all.
     const noted = { ...promoted, human_verification: { ...promoted.human_verification, note: "Provenance reviewed and approved." } } as ProgramCriterion;
     expect(hasCompleteHumanVerification(noted)).toBe(false);
@@ -1527,8 +1531,9 @@ describe("10. Production output is unchanged while every affected criterion stay
   // roll-up, and release decision is unchanged.
   // Updated in Phase 3E: d is human-verified (its verification, rule kind, rule summary, citation dates,
   // and its own pending_human_criterion blocker and review task). Every status and roll-up is unchanged.
-  const EVALUATOR_OUTPUT_SHA256 = "156dd1f41964ab5beebcf3882e0a0d653cc5d778939033bf2b752dba1e86afbc";
-  const PUBLIC_DEMO_OUTPUT_SHA256 = "4dd2735bab875ad40b123fec72020e16442737bc6b5052eb55c5fba374b9a8a5";
+  // Updated in Phase 3H: c is human-verified, with the same kinds of change for c only.
+  const EVALUATOR_OUTPUT_SHA256 = "1341fea59e307fed23ec1cd32fcdb2467d0fa3519bd07dd134fa9ddfee6deaad";
+  const PUBLIC_DEMO_OUTPUT_SHA256 = "23aaee06e51b42a4c1001d6253504f2f932d591315af468ada21345d888a5070";
   const shipped = programScreenPathwayPacks.flatMap((pack) => pack.criteria);
 
   it("keeps the evaluator and public-demo output byte-identical", async () => {
@@ -1545,11 +1550,13 @@ describe("10. Production output is unchanged while every affected criterion stay
   });
 
   // Updated in Phase 3E: d alone is promoted; the fixture holds no High record, so its gate still never runs.
-  it("promotes only d and never runs the gate on the shipped screen", () => {
+  // Updated in Phase 3H: c is promoted too; the fixture's Very High records conflict, so c's gate never runs.
+  it("promotes only c and d and never runs the gate on the shipped screen", () => {
     expect(shipped.filter((criterion) => criterion.verification === "human_verified").map((criterion) => criterion.id)).toEqual([
+      "la_shra.very-high-fire-hazard-severity-zone",
       "la_shra.high-fire-hazard-severity-zone",
     ]);
-    expect(shipped.filter((criterion) => criterion.verification === "pending_human")).toHaveLength(45);
+    expect(shipped.filter((criterion) => criterion.verification === "pending_human")).toHaveLength(44);
     const result = evaluateProgramScreen({ evidence_records: fixtureJson.evidence_records, as_of: fixtureJson.as_of });
     expect(JSON.stringify(result)).not.toContain('"authority"');
     const statuses = new Map(result.pathways.flatMap((pathway) => pathway.criteria).map((criterion) => [criterion.criterion_id, criterion.status]));
