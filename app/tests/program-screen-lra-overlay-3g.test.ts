@@ -179,7 +179,7 @@ describe("Phase 3G Route 1 YES / NO / unknown", () => {
   it("needs both independent NO routes to clear, and either qualified YES blocks", async () => {
     const real = await realLotOverlay();
     for (const [r1, r2, expected] of [
-      [false, false, "consistent_with_source"],
+      [false, false, "unknown"], // Updated in Phase 3I: these routes name different verified geometries.
       [true, false, "disqualifying_per_source"],
       [false, true, "disqualifying_per_source"],
     ] as const) {
@@ -193,7 +193,12 @@ describe("Phase 3G Route 1 YES / NO / unknown", () => {
       o.inputs.datasets.push(real.view);
       o.inputs.lot_geometries.push(...Object.values(real.geometries));
       o.inputs.index_pins.push(overlayIndexPinFor(sra.package!.members.overlay_dataset)!);
-      expect(screen([e1, e2], [b1, b2], o).status).toBe(expected);
+      const result = screen([e1, e2], [b1, b2], o);
+      expect(result.status).toBe(expected);
+      if (!r1 && !r2) {
+        expect(result.authority?.facts.every((fact) => fact.established)).toBe(true);
+        expect(result.authority?.criterion_failures).toEqual([{ code: "statutory_routes_lot_geometry_not_shared", fact_key: VH }]);
+      }
     }
   });
   it("has no City adoption gate", async () => {

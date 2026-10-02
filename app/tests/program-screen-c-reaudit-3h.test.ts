@@ -1125,7 +1125,7 @@ describe("Re-audit 6: combined two-route truth table (shipped registries, ONE re
     expect(run(both, promotedC(), superseded).status).toBe("unknown");
   });
 
-  it("FINDING (hardening, not reachable in production): the shared evaluator does not require both routes' records to name the same lot geometry", async () => {
+  it("Phase 3I invariant: the shared evaluator requires both routes' negative records to rest on the same verified lot geometry", async () => {
     // Lot A is wholly Very High on Route 2; lot B (elsewhere) is wholly Moderate on Route 2.
     const lotB = await loadReviewedLotGeometry({
       file_id: "test-only-reaudit-other-lot",
@@ -1140,8 +1140,10 @@ describe("Re-audit 6: combined two-route truth table (shipped registries, ONE re
       blocks: [...r1.blocks, authority(r2, "prc_4202", lotB)],
       overlay: { datasets: [...r1.overlay.datasets, view], lot_geometries: [LOT, lotB], index_pins: [...r1.overlay.index_pins!, pin] },
     };
-    // Current behavior: the two route NOs combine although they describe different geometries.
-    expect(run(mismatched).status).toBe("consistent_with_source");
+    // Updated in Phase 3I: two route NOs on different geometries cannot combine.
+    const result = run(mismatched);
+    expect(result.status).toBe("unknown");
+    expect(result.authority?.criterion_failures).toContainEqual({ code: "statutory_routes_lot_geometry_not_shared", fact_key: VH });
     // The production boundary supplies exactly ONE reviewed lot geometry, so a second geometry cannot be named there.
     const { store } = await reauditStore();
     const sra = await loadCaseOverlay(store, AS_OF);
