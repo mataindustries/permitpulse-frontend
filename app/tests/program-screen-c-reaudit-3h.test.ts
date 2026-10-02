@@ -1217,17 +1217,25 @@ describe("Re-audit 7: production-input path", () => {
     if (lra.computed.lot_within_features !== "whole_lot") expect(lra.issues.length).toBeGreaterThan(0);
   });
 
-  it("production evaluation strips caller hazard blocks, computes only d's High record, and supplies no Route 1 inputs: c can only be unknown", async () => {
+  // Updated in Phase 3I: both production routes use the reviewed snapshot; caller observations still conflict.
+  it("production evaluation supplies reviewed-snapshot route evidence and strips caller hazard blocks while retaining conflicts", async () => {
     const { store } = await reauditStore();
     const forged = await pair("YES", "YES");
     const records = forged.records.map((r) => ({ ...r, subject: { ...r.subject, case_id: store.case_id } }));
-    const { screen, overlay } = await evaluateStoredCaseProgramScreen(store, { evidence_records: records, evidence_authority: forged.blocks, as_of: AS_OF });
+    const { screen, overlay, route_overlays } = await evaluateStoredCaseProgramScreen(store, { evidence_records: records, evidence_authority: forged.blocks, as_of: AS_OF });
     expect(overlay.inputs?.datasets.map((v) => v.dataset.source_id)).toEqual(["calfire-fhszsra-23-3-data"]);
     const c = screen.pathways[0].criteria.find((x) => x.criterion_id === C)!;
-    // The shipped c is promoted and runs, but the caller's blocks were stripped: nothing establishes it.
+    // Caller YES observations conflict with the computed non-Very-High SRA observation in Layer 1.
     expect(c.verification).toBe("human_verified");
-    expect(c.status).toBe("unknown");
-    expect(c.authority?.established).toBe(false);
+    expect(c.status).toBe("conflict");
+    expect(c.authority).toBeUndefined();
+    expect(screen.facts.find((f) => f.key === VH)!.evidence.map((e) => e.evidence_id)).toEqual([
+      ...records.map((r) => r.id),
+      `computed-calfire-very-high-gov_51178-${route_overlays.gov_51178.record?.review_id ?? "unavailable"}`,
+      `computed-calfire-very-high-prc_4202-${overlay.record!.review_id}`,
+    ].sort());
+    expect(overlay.inputs!.lot_geometries[0].sha256).toBe(overlay.record!.normalized_geometry.file.sha256);
+    if (route_overlays.gov_51178.inputs !== undefined) expect(route_overlays.gov_51178.inputs.lot_geometries[0]).toBe(overlay.inputs!.lot_geometries[0]);
     expect(screen.facts.find((f) => f.key === HIGH)!.evidence.map((e) => e.evidence_id).some((id) => id.startsWith("computed-calfire-high-"))).toBe(true);
     // The same inputs, evaluated with the PROMOTED c and only the blocks production keeps: unknown.
     const kept = parseProgramEvidenceAuthority([], records);

@@ -447,17 +447,21 @@ describe("Phase 3H private production-input boundary", () => {
     expect(sra.inputs?.datasets[0].dataset).toEqual(sraSource.package!.members.overlay_dataset);
     expect(sra.record?.legal_lot_identity).toBe("parcel_is_one_legal_lot");
   });
-  // Updated in Phase 3H: c is promoted, but production still computes only d's evidence, so c stays unknown.
-  it("production evaluator computes only d's evidence; manual c authority cannot fill the operational gap", async () => {
+  // Updated in Phase 3I: production computes c and d from one reviewed snapshot; manual authority is stripped.
+  it("production evaluator computes both c routes; manual authority cannot establish c and observations retain conflicts", async () => {
     const { store } = await privateInputs();
     const p = await pair("YES", "YES");
     p.records = p.records.map((r) => ({ ...r, subject: { ...r.subject, case_id: store.case_id } }));
     const result = await evaluateStoredCaseProgramScreen(store, { evidence_records: p.records, evidence_authority: p.blocks, as_of: AS_OF });
     const c = result.screen.pathways[0].criteria.find((criterion) => criterion.criterion_id === C)!;
     expect(c.verification).toBe("human_verified");
-    expect(c.status).toBe("unknown");
-    expect(c.authority?.established).toBe(false);
-    expect(result.screen.facts.filter((f) => f.key === VH)[0].evidence.map((e) => e.evidence_id)).toEqual(p.records.map((r) => r.id));
+    expect(c.status).toBe("conflict");
+    expect(c.authority).toBeUndefined();
+    expect(result.screen.facts.filter((f) => f.key === VH)[0].evidence.map((e) => e.evidence_id)).toEqual([
+      ...p.records.map((r) => r.id),
+      `computed-calfire-very-high-gov_51178-${result.route_overlays.gov_51178.record?.review_id ?? "unavailable"}`,
+      `computed-calfire-very-high-prc_4202-${result.overlay.record!.review_id}`,
+    ].sort());
     expect(result.screen.facts.find((f) => f.key === HIGH)?.evidence.some((e) => e.evidence_id.startsWith("computed-calfire-high-"))).toBe(true);
     expect(criterionPromotionBlockers(candidate())).toEqual([]);
     const blocks = parseProgramEvidenceAuthority([], p.records), factIndex = new Map(assessProgramFacts(p.records, [VH]).map((f) => [f.key, f]));
