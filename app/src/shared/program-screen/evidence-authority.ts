@@ -723,7 +723,7 @@ export const authorityRecordFailureCodes = [
 export const authorityFactFailureCodes = ["no_fact_policy", "no_establishing_entries", "no_establishing_record"] as const;
 
 /** Criterion-level reasons the gate fails. Closed list. */
-export const authorityCriterionFailureCodes = ["requirement_fact_not_read", "scope_precondition_not_met"] as const;
+export const authorityCriterionFailureCodes = ["requirement_fact_not_read", "scope_precondition_not_met", "statutory_routes_lot_geometry_not_shared"] as const;
 
 export type AuthorityRecordFailureCode = (typeof authorityRecordFailureCodes)[number];
 export type AuthorityFactFailureCode = (typeof authorityFactFailureCodes)[number];

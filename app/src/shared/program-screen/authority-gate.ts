@@ -184,6 +184,17 @@ function identityFailures(
  * that class. Nothing the block records about coverage or classes is read.
  * Checks against the package run only once the block names a registered source.
  */
+function resolveOverlayLot(
+  block: ProgramEvidenceAuthority | undefined,
+  overlay: ProgramLotOverlayInputs | undefined,
+): ReviewedLotGeometry | undefined {
+  const request = block?.qualifiers?.family === "hazard_map" ? block.qualifiers.lot_overlay?.lot_geometry : undefined;
+  if (request === undefined || request === null) return undefined;
+  return overlay?.lot_geometries.find(
+    (candidate) => isVerifiedLotGeometry(candidate) && candidate.file_id === request.file_id && candidate.sha256 === request.sha256,
+  );
+}
+
 function lotOverlayFailures(
   block: ProgramEvidenceAuthority,
   hazardClass: string,
@@ -221,10 +232,7 @@ function lotOverlayFailures(
       (pack.statutory_basis !== "gov_51178" ||
         (candidate.layer === pack.overlay.dataset_name && candidate.crs_epsg === 3310)),
   );
-  const { file_id: fileId, sha256 } = request.lot_geometry;
-  const lot = overlay?.lot_geometries.find(
-    (candidate) => isVerifiedLotGeometry(candidate) && candidate.file_id === fileId && candidate.sha256 === sha256,
-  );
+  const lot = resolveOverlayLot(block, overlay);
   if (indexPin === undefined || view === undefined || lot === undefined) return ["lot_overlay_not_established"];
   const computed = computeLotOverlay(view, lot);
   if (computed.lot_within_features === "not_established") return ["lot_overlay_not_established"];
@@ -580,6 +588,7 @@ export function evaluateCriterionAuthority(input: {
   const factResults = facts
     .filter((fact) => fact.key !== routes?.fact_key)
     .map((fact) => factAuthority(fact, context, asOf));
+  const criterionFailures: ProgramCriterionAuthorityResult["criterion_failures"] = [];
   let routesEstablished = true;
   if (routes !== undefined) {
     // A YES needs one YES route established by a record on that route; a NO
@@ -596,8 +605,21 @@ export function evaluateCriterionAuthority(input: {
       (yesRoutes.length > 0
         ? routeResults.some((result) => result.established)
         : routeResults.every((result) => result.established));
+    if (yesRoutes.length === 0 && routesEstablished) {
+      // Only verified normalized content identifies a shared lot across routes.
+      // Each route may have multiple establishing records; at least one SHA
+      // must occur on every required route. A YES keeps its independent path.
+      const routeShas = routeResults.map((result) => new Set(result.establishing_evidence_ids.flatMap((id) => {
+        const lot = resolveOverlayLot(context.blocks.get(id), context.overlay);
+        return lot === undefined ? [] : [lot.sha256];
+      })));
+      const sharedShas = [...routeShas[0]].filter((sha) => routeShas.every((set) => set.has(sha)));
+      if (sharedShas.length === 0) {
+        routesEstablished = false;
+        criterionFailures.push({ code: "statutory_routes_lot_geometry_not_shared", fact_key: routes.fact_key });
+      }
+    }
   }
-  const criterionFailures: ProgramCriterionAuthorityResult["criterion_failures"] = [];
 
   for (const precondition of requirement.scope_preconditions) {
     const fact = criterion.fact_keys.includes(precondition.fact_key)

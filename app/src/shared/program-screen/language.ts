@@ -140,6 +140,9 @@ function authorityUnknownStatement(authority: ProgramCriterionAuthorityResult): 
   if (outOfScope.length > 0) {
     parts.push(`The recorded ${joinLabels(outOfScope)} is outside the scope the criterion's authority requirement covers.`);
   }
+  if (authority.criterion_failures.some((failure) => failure.code === "statutory_routes_lot_geometry_not_shared")) {
+    parts.push("The statutory routes' negative records do not rest on one reviewed lot geometry, so they are not combined.");
+  }
   parts.push(
     "This criterion stays unknown. A record that is not a registered, reviewed authority can conflict with other records but cannot establish a fact, and missing authority is not treated as a no.",
   );
