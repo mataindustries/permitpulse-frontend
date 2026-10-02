@@ -148,7 +148,7 @@ describe("Phase 3F production case evidence ingestion and overlay", () => {
     expect(criterion(await screen(established.store)).status).toBe("disqualifying_per_source");
   });
 
-  // Updated in Phase 3H: c is human-verified alongside d; this ingestion path still computes only d's evidence.
+  // Updated in Phase 3I: c and d remain human-verified; ingestion now computes both c routes alongside d.
   it("preserves c and d at human_verified 2 / pending_human 44 and G1/G2 open", () => {
     const criteria = programScreenPathwayPacks.flatMap((pack) => pack.criteria);
     expect(criteria.filter((criterion) => criterion.verification === "human_verified").map((criterion) => criterion.id)).toEqual(["la_shra.very-high-fire-hazard-severity-zone", D]);

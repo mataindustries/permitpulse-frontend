@@ -1,0 +1,967 @@
+{
+  "test_only": true,
+  "baseline_commit": "3c161e39be4881a94c23ad6f499088b3cb4ab3ac",
+  "serialization": "Exact JSON.stringify bytes and their SHA-256; no canonical sorting",
+  "cases": {
+    "Phase 3F existing private R2 evidence boundary > ingests verified files and CAL FIRE records, publishes with CAS, then evaluates through the production adapter": [
+      {
+        "authority": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+        "block": "8ae2f61c35842b52b80e75c055d7094f0a0f64025bf9bcfced03e2481fd3af58",
+        "object": "4680b1b6e6767126b6f02f01a35f23d85e8ce3c51e196df5a8b552ef13b9c755",
+        "record": "9a9aa1f42d389e33f4f11bac06d87cbec20d2b52caec5cab047d88ef9baea970",
+        "result": "2caf88798f7e779976a60a6571094f33032c1ff83c73f279c1e8df093005ee1e",
+        "status": "unknown"
+      },
+      {
+        "authority": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+        "block": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+        "object": "26b0a1f1505d0406fdb903f68becca4dcbeb8390d81241915420ebdc1c5ce88d",
+        "record": "951e865c7aa825a3d5c881a3ae1a9b98d805e960a9a2b30a2362a8733c81d2e9",
+        "result": "087b46933ca4c55c146198e1cdfac465bf853e28300627bb7d69a593870c37bb",
+        "status": "unknown"
+      }
+    ],
+    "Phase 3F production case evidence ingestion and overlay > accepts separately hashed receipts with different valid timestamps and identical normalized geometry": [
+      {
+        "authority": "41a4063e294f97568f5428cb4d8070a290901a0404057cd261f92fc94227b7c1",
+        "block": "a2115c22e9d21bd618a08c61095711eacd22462c334f0c651d4702651da114d9",
+        "object": "258094180f9af79f4609f2de42262e774ba3483334e788bfdd5ae3779bfcfd1e",
+        "record": "aa7dade150ede6b98fb72b777d6aee07e77a37e15f4b5dd00b4dfac56eb701f9",
+        "result": "f074b13ee6c7791820eadb8d14644de927858e44551683b8828fcb2487d00792",
+        "status": "disqualifying_per_source"
+      },
+      {
+        "authority": "41a4063e294f97568f5428cb4d8070a290901a0404057cd261f92fc94227b7c1",
+        "block": "a2115c22e9d21bd618a08c61095711eacd22462c334f0c651d4702651da114d9",
+        "object": "258094180f9af79f4609f2de42262e774ba3483334e788bfdd5ae3779bfcfd1e",
+        "record": "aa7dade150ede6b98fb72b777d6aee07e77a37e15f4b5dd00b4dfac56eb701f9",
+        "result": "f074b13ee6c7791820eadb8d14644de927858e44551683b8828fcb2487d00792",
+        "status": "disqualifying_per_source"
+      }
+    ],
+    "Phase 3F production case evidence ingestion and overlay > fails closed for a superseded package or missing index": [
+      {
+        "authority": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+        "block": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+        "object": "26b0a1f1505d0406fdb903f68becca4dcbeb8390d81241915420ebdc1c5ce88d",
+        "record": "951e865c7aa825a3d5c881a3ae1a9b98d805e960a9a2b30a2362a8733c81d2e9",
+        "result": "087b46933ca4c55c146198e1cdfac465bf853e28300627bb7d69a593870c37bb",
+        "status": "unknown"
+      },
+      {
+        "authority": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+        "block": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+        "object": "26b0a1f1505d0406fdb903f68becca4dcbeb8390d81241915420ebdc1c5ce88d",
+        "record": "951e865c7aa825a3d5c881a3ae1a9b98d805e960a9a2b30a2362a8733c81d2e9",
+        "result": "087b46933ca4c55c146198e1cdfac465bf853e28300627bb7d69a593870c37bb",
+        "status": "unknown"
+      }
+    ],
+    "Phase 3F production case evidence ingestion and overlay > fails closed on a metadata file hash mismatch": [
+      {
+        "authority": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+        "block": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+        "object": "26b0a1f1505d0406fdb903f68becca4dcbeb8390d81241915420ebdc1c5ce88d",
+        "record": "951e865c7aa825a3d5c881a3ae1a9b98d805e960a9a2b30a2362a8733c81d2e9",
+        "result": "087b46933ca4c55c146198e1cdfac465bf853e28300627bb7d69a593870c37bb",
+        "status": "unknown"
+      }
+    ],
+    "Phase 3F production case evidence ingestion and overlay > fails closed on a missing candidate record instead of manufacturing NO": [
+      {
+        "authority": "41a4063e294f97568f5428cb4d8070a290901a0404057cd261f92fc94227b7c1",
+        "block": "a2115c22e9d21bd618a08c61095711eacd22462c334f0c651d4702651da114d9",
+        "object": "8cd13caa36690c60eff3e20807efb0aef67bdb4404a5a79f17ab3cecfd9e3cb0",
+        "record": "c39a2136bbf8b4fd7d8a34abc6e43018b216fb24ea145446c2943633540f5017",
+        "result": "f074b13ee6c7791820eadb8d14644de927858e44551683b8828fcb2487d00792",
+        "status": "disqualifying_per_source"
+      },
+      {
+        "authority": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+        "block": "5bead21e3fc9cf61fdc1e254d147e2171ea6235c5acaead30fbbab20ebbf52e1",
+        "object": "1cbb112627c91427fceb769c74fd9e79ddd8eb5481110bb9c087ff8399628159",
+        "record": "9a9aa1f42d389e33f4f11bac06d87cbec20d2b52caec5cab047d88ef9baea970",
+        "result": "2caf88798f7e779976a60a6571094f33032c1ff83c73f279c1e8df093005ee1e",
+        "status": "unknown"
+      }
+    ],
+    "Phase 3F production case evidence ingestion and overlay > fails closed on a normalized file hash mismatch": [
+      {
+        "authority": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+        "block": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+        "object": "26b0a1f1505d0406fdb903f68becca4dcbeb8390d81241915420ebdc1c5ce88d",
+        "record": "951e865c7aa825a3d5c881a3ae1a9b98d805e960a9a2b30a2362a8733c81d2e9",
+        "result": "087b46933ca4c55c146198e1cdfac465bf853e28300627bb7d69a593870c37bb",
+        "status": "unknown"
+      }
+    ],
+    "Phase 3F production case evidence ingestion and overlay > fails closed on a receipt file hash mismatch": [
+      {
+        "authority": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+        "block": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+        "object": "26b0a1f1505d0406fdb903f68becca4dcbeb8390d81241915420ebdc1c5ce88d",
+        "record": "951e865c7aa825a3d5c881a3ae1a9b98d805e960a9a2b30a2362a8733c81d2e9",
+        "result": "087b46933ca4c55c146198e1cdfac465bf853e28300627bb7d69a593870c37bb",
+        "status": "unknown"
+      }
+    ],
+    "Phase 3F production case evidence ingestion and overlay > fails closed on a source file hash mismatch": [
+      {
+        "authority": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+        "block": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+        "object": "26b0a1f1505d0406fdb903f68becca4dcbeb8390d81241915420ebdc1c5ce88d",
+        "record": "951e865c7aa825a3d5c881a3ae1a9b98d805e960a9a2b30a2362a8733c81d2e9",
+        "result": "087b46933ca4c55c146198e1cdfac465bf853e28300627bb7d69a593870c37bb",
+        "status": "unknown"
+      }
+    ],
+    "Phase 3F production case evidence ingestion and overlay > fails closed on partial SRA coverage": [
+      {
+        "authority": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+        "block": "6ec2d45b34992ecda549cce6c5e6453d1eb1af5fc3d96002ef2cd6fd4bdec0ca",
+        "object": "c536db6d5e471e30667746a77b898569a10aaf4b38943b800fdbb39eda1d6e98",
+        "record": "9a9aa1f42d389e33f4f11bac06d87cbec20d2b52caec5cab047d88ef9baea970",
+        "result": "2caf88798f7e779976a60a6571094f33032c1ff83c73f279c1e8df093005ee1e",
+        "status": "unknown"
+      }
+    ],
+    "Phase 3F production case evidence ingestion and overlay > fails closed outside SRA with the normalized Los Angeles TEST-ONLY polygon": [
+      {
+        "authority": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+        "block": "4c89de07077be348e54b9b270c03b6b05b0c035a05da874f1813c5f60acbe8ba",
+        "object": "900f6539d6fde349b85ffb1d51c5fa0b5acc8556834dfc38002f185ec75666cd",
+        "record": "9a9aa1f42d389e33f4f11bac06d87cbec20d2b52caec5cab047d88ef9baea970",
+        "result": "2caf88798f7e779976a60a6571094f33032c1ff83c73f279c1e8df093005ee1e",
+        "status": "unknown"
+      }
+    ],
+    "Phase 3F production case evidence ingestion and overlay > fails closed when normalized geometry is missing": [
+      {
+        "authority": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+        "block": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+        "object": "26b0a1f1505d0406fdb903f68becca4dcbeb8390d81241915420ebdc1c5ce88d",
+        "record": "951e865c7aa825a3d5c881a3ae1a9b98d805e960a9a2b30a2362a8733c81d2e9",
+        "result": "087b46933ca4c55c146198e1cdfac465bf853e28300627bb7d69a593870c37bb",
+        "status": "unknown"
+      }
+    ],
+    "Phase 3F production case evidence ingestion and overlay > ignores caller hazard authority and map_covers_lot=no when stored legal identity is not established": [
+      {
+        "authority": "cf799cfe15e096e08604972925d9d80876d247462fc3f1eb3af718fba54e8d69",
+        "block": "8ae2f61c35842b52b80e75c055d7094f0a0f64025bf9bcfced03e2481fd3af58",
+        "object": "53a8ea40704886f072b48da608bd4d6e747d3f7d7077d961b39d201d92947757",
+        "record": "9a9aa1f42d389e33f4f11bac06d87cbec20d2b52caec5cab047d88ef9baea970",
+        "result": "22d9f306db47a1ecad6bb615381210d59f264a1748f427635e6d993c7d044d91",
+        "status": "unknown"
+      }
+    ],
+    "Phase 3F production case evidence ingestion and overlay > ignores caller hazard authority and map_covers_lot=yes when stored legal identity is not established": [
+      {
+        "authority": "cf799cfe15e096e08604972925d9d80876d247462fc3f1eb3af718fba54e8d69",
+        "block": "8ae2f61c35842b52b80e75c055d7094f0a0f64025bf9bcfced03e2481fd3af58",
+        "object": "53a8ea40704886f072b48da608bd4d6e747d3f7d7077d961b39d201d92947757",
+        "record": "9a9aa1f42d389e33f4f11bac06d87cbec20d2b52caec5cab047d88ef9baea970",
+        "result": "22d9f306db47a1ecad6bb615381210d59f264a1748f427635e6d993c7d044d91",
+        "status": "unknown"
+      }
+    ],
+    "Phase 3F production case evidence ingestion and overlay > keeps the Vidor-equivalent unknown even with real CAL FIRE whole-High coverage and valid offline-normalized geometry": [
+      {
+        "authority": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+        "block": "8ae2f61c35842b52b80e75c055d7094f0a0f64025bf9bcfced03e2481fd3af58",
+        "object": "4680b1b6e6767126b6f02f01a35f23d85e8ce3c51e196df5a8b552ef13b9c755",
+        "record": "9a9aa1f42d389e33f4f11bac06d87cbec20d2b52caec5cab047d88ef9baea970",
+        "result": "2caf88798f7e779976a60a6571094f33032c1ff83c73f279c1e8df093005ee1e",
+        "status": "unknown"
+      },
+      {
+        "authority": "41a4063e294f97568f5428cb4d8070a290901a0404057cd261f92fc94227b7c1",
+        "block": "a2115c22e9d21bd618a08c61095711eacd22462c334f0c651d4702651da114d9",
+        "object": "258094180f9af79f4609f2de42262e774ba3483334e788bfdd5ae3779bfcfd1e",
+        "record": "aa7dade150ede6b98fb72b777d6aee07e77a37e15f4b5dd00b4dfac56eb701f9",
+        "result": "f074b13ee6c7791820eadb8d14644de927858e44551683b8828fcb2487d00792",
+        "status": "disqualifying_per_source"
+      }
+    ],
+    "Phase 3F production case evidence ingestion and overlay > manual YES/coverage cannot replace unavailable geometry": [
+      {
+        "authority": "3874dc505ee5c50dd1fefe34bc0dcb78b2d5d107868100da11d1f85bde26b05e",
+        "block": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+        "object": "507262733e8e6bd079b8f72761fe6b3b3ceb1b60ce3dcaabcc78fc4814020fb7",
+        "record": "951e865c7aa825a3d5c881a3ae1a9b98d805e960a9a2b30a2362a8733c81d2e9",
+        "result": "9b8a89a8a6c5bcd68bf982b0915578114302f4a732ef7e4a3337a3fbc9d86b45",
+        "status": "unknown"
+      }
+    ],
+    "Phase 3F production case evidence ingestion and overlay > refuses TEST-ONLY evidence in a production build with MODE=production": [
+      {
+        "authority": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+        "block": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+        "object": "26b0a1f1505d0406fdb903f68becca4dcbeb8390d81241915420ebdc1c5ce88d",
+        "record": "951e865c7aa825a3d5c881a3ae1a9b98d805e960a9a2b30a2362a8733c81d2e9",
+        "result": "087b46933ca4c55c146198e1cdfac465bf853e28300627bb7d69a593870c37bb",
+        "status": "unknown"
+      }
+    ],
+    "Phase 3F production case evidence ingestion and overlay > refuses TEST-ONLY evidence in a production build with MODE=test": [
+      {
+        "authority": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+        "block": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+        "object": "26b0a1f1505d0406fdb903f68becca4dcbeb8390d81241915420ebdc1c5ce88d",
+        "record": "951e865c7aa825a3d5c881a3ae1a9b98d805e960a9a2b30a2362a8733c81d2e9",
+        "result": "087b46933ca4c55c146198e1cdfac465bf853e28300627bb7d69a593870c37bb",
+        "status": "unknown"
+      }
+    ],
+    "Phase 3F production case evidence ingestion and overlay > refuses a changed manifest profile hash or a missing review": [
+      {
+        "authority": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+        "block": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+        "object": "26b0a1f1505d0406fdb903f68becca4dcbeb8390d81241915420ebdc1c5ce88d",
+        "record": "951e865c7aa825a3d5c881a3ae1a9b98d805e960a9a2b30a2362a8733c81d2e9",
+        "result": "087b46933ca4c55c146198e1cdfac465bf853e28300627bb7d69a593870c37bb",
+        "status": "unknown"
+      },
+      {
+        "authority": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+        "block": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+        "object": "26b0a1f1505d0406fdb903f68becca4dcbeb8390d81241915420ebdc1c5ce88d",
+        "record": "951e865c7aa825a3d5c881a3ae1a9b98d805e960a9a2b30a2362a8733c81d2e9",
+        "result": "087b46933ca4c55c146198e1cdfac465bf853e28300627bb7d69a593870c37bb",
+        "status": "unknown"
+      }
+    ],
+    "Phase 3F production case evidence ingestion and overlay > refuses a changed raw CAL FIRE index even when a decoder would erase the byte change": [
+      {
+        "authority": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+        "block": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+        "object": "26b0a1f1505d0406fdb903f68becca4dcbeb8390d81241915420ebdc1c5ce88d",
+        "record": "951e865c7aa825a3d5c881a3ae1a9b98d805e960a9a2b30a2362a8733c81d2e9",
+        "result": "087b46933ca4c55c146198e1cdfac465bf853e28300627bb7d69a593870c37bb",
+        "status": "unknown"
+      }
+    ],
+    "Phase 3F production case evidence ingestion and overlay > refuses a normalized file in the wrong CRS without runtime reprojection": [
+      {
+        "authority": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+        "block": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+        "object": "26b0a1f1505d0406fdb903f68becca4dcbeb8390d81241915420ebdc1c5ce88d",
+        "record": "951e865c7aa825a3d5c881a3ae1a9b98d805e960a9a2b30a2362a8733c81d2e9",
+        "result": "087b46933ca4c55c146198e1cdfac465bf853e28300627bb7d69a593870c37bb",
+        "status": "unknown"
+      }
+    ],
+    "Phase 3F production case evidence ingestion and overlay > refuses a repaired receipt hash after changing the required grid link": [
+      {
+        "authority": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+        "block": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+        "object": "26b0a1f1505d0406fdb903f68becca4dcbeb8390d81241915420ebdc1c5ce88d",
+        "record": "951e865c7aa825a3d5c881a3ae1a9b98d805e960a9a2b30a2362a8733c81d2e9",
+        "result": "087b46933ca4c55c146198e1cdfac465bf853e28300627bb7d69a593870c37bb",
+        "status": "unknown"
+      }
+    ],
+    "Phase 3F production case evidence ingestion and overlay > refuses a repaired receipt hash after changing the required implementation link": [
+      {
+        "authority": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+        "block": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+        "object": "26b0a1f1505d0406fdb903f68becca4dcbeb8390d81241915420ebdc1c5ce88d",
+        "record": "951e865c7aa825a3d5c881a3ae1a9b98d805e960a9a2b30a2362a8733c81d2e9",
+        "result": "087b46933ca4c55c146198e1cdfac465bf853e28300627bb7d69a593870c37bb",
+        "status": "unknown"
+      }
+    ],
+    "Phase 3F production case evidence ingestion and overlay > refuses a repaired receipt hash after changing the required metadata link": [
+      {
+        "authority": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+        "block": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+        "object": "26b0a1f1505d0406fdb903f68becca4dcbeb8390d81241915420ebdc1c5ce88d",
+        "record": "951e865c7aa825a3d5c881a3ae1a9b98d805e960a9a2b30a2362a8733c81d2e9",
+        "result": "087b46933ca4c55c146198e1cdfac465bf853e28300627bb7d69a593870c37bb",
+        "status": "unknown"
+      }
+    ],
+    "Phase 3F production case evidence ingestion and overlay > refuses a repaired receipt hash after changing the required network link": [
+      {
+        "authority": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+        "block": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+        "object": "26b0a1f1505d0406fdb903f68becca4dcbeb8390d81241915420ebdc1c5ce88d",
+        "record": "951e865c7aa825a3d5c881a3ae1a9b98d805e960a9a2b30a2362a8733c81d2e9",
+        "result": "087b46933ca4c55c146198e1cdfac465bf853e28300627bb7d69a593870c37bb",
+        "status": "unknown"
+      }
+    ],
+    "Phase 3F production case evidence ingestion and overlay > refuses a repaired receipt hash after changing the required normalized link": [
+      {
+        "authority": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+        "block": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+        "object": "26b0a1f1505d0406fdb903f68becca4dcbeb8390d81241915420ebdc1c5ce88d",
+        "record": "951e865c7aa825a3d5c881a3ae1a9b98d805e960a9a2b30a2362a8733c81d2e9",
+        "result": "087b46933ca4c55c146198e1cdfac465bf853e28300627bb7d69a593870c37bb",
+        "status": "unknown"
+      }
+    ],
+    "Phase 3F production case evidence ingestion and overlay > refuses a repaired receipt hash after changing the required pipeline link": [
+      {
+        "authority": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+        "block": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+        "object": "26b0a1f1505d0406fdb903f68becca4dcbeb8390d81241915420ebdc1c5ce88d",
+        "record": "951e865c7aa825a3d5c881a3ae1a9b98d805e960a9a2b30a2362a8733c81d2e9",
+        "result": "087b46933ca4c55c146198e1cdfac465bf853e28300627bb7d69a593870c37bb",
+        "status": "unknown"
+      }
+    ],
+    "Phase 3F production case evidence ingestion and overlay > refuses a repaired receipt hash after changing the required profile link": [
+      {
+        "authority": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+        "block": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+        "object": "26b0a1f1505d0406fdb903f68becca4dcbeb8390d81241915420ebdc1c5ce88d",
+        "record": "951e865c7aa825a3d5c881a3ae1a9b98d805e960a9a2b30a2362a8733c81d2e9",
+        "result": "087b46933ca4c55c146198e1cdfac465bf853e28300627bb7d69a593870c37bb",
+        "status": "unknown"
+      }
+    ],
+    "Phase 3F production case evidence ingestion and overlay > refuses a repaired receipt hash after changing the required proj_db link": [
+      {
+        "authority": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+        "block": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+        "object": "26b0a1f1505d0406fdb903f68becca4dcbeb8390d81241915420ebdc1c5ce88d",
+        "record": "951e865c7aa825a3d5c881a3ae1a9b98d805e960a9a2b30a2362a8733c81d2e9",
+        "result": "087b46933ca4c55c146198e1cdfac465bf853e28300627bb7d69a593870c37bb",
+        "status": "unknown"
+      }
+    ],
+    "Phase 3F production case evidence ingestion and overlay > refuses a repaired receipt hash after changing the required source link": [
+      {
+        "authority": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+        "block": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+        "object": "26b0a1f1505d0406fdb903f68becca4dcbeb8390d81241915420ebdc1c5ce88d",
+        "record": "951e865c7aa825a3d5c881a3ae1a9b98d805e960a9a2b30a2362a8733c81d2e9",
+        "result": "087b46933ca4c55c146198e1cdfac465bf853e28300627bb7d69a593870c37bb",
+        "status": "unknown"
+      }
+    ],
+    "Phase 3F production case evidence ingestion and overlay > refuses a repaired receipt hash after changing the required test_marker link": [
+      {
+        "authority": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+        "block": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+        "object": "26b0a1f1505d0406fdb903f68becca4dcbeb8390d81241915420ebdc1c5ce88d",
+        "record": "951e865c7aa825a3d5c881a3ae1a9b98d805e960a9a2b30a2362a8733c81d2e9",
+        "result": "087b46933ca4c55c146198e1cdfac465bf853e28300627bb7d69a593870c37bb",
+        "status": "unknown"
+      }
+    ],
+    "Phase 3F production case evidence ingestion and overlay > refuses an expired review and a record with a supersession pointer": [
+      {
+        "authority": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+        "block": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+        "object": "2eae2acabd938b3c03d097dc56589718efc42c9d6ac2b1639bfee2b1dcdd289d",
+        "record": "1acd5a32920232ddcbcf5f3914af18a8a60e49770802f3d358bc41c55e0f8a39",
+        "result": "087b46933ca4c55c146198e1cdfac465bf853e28300627bb7d69a593870c37bb",
+        "status": "unknown"
+      },
+      {
+        "authority": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+        "block": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+        "object": "26b0a1f1505d0406fdb903f68becca4dcbeb8390d81241915420ebdc1c5ce88d",
+        "record": "951e865c7aa825a3d5c881a3ae1a9b98d805e960a9a2b30a2362a8733c81d2e9",
+        "result": "087b46933ca4c55c146198e1cdfac465bf853e28300627bb7d69a593870c37bb",
+        "status": "unknown"
+      }
+    ],
+    "Phase 3F production case evidence ingestion and overlay > refuses an unpinned normalization receipt": [
+      {
+        "authority": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+        "block": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+        "object": "26b0a1f1505d0406fdb903f68becca4dcbeb8390d81241915420ebdc1c5ce88d",
+        "record": "951e865c7aa825a3d5c881a3ae1a9b98d805e960a9a2b30a2362a8733c81d2e9",
+        "result": "087b46933ca4c55c146198e1cdfac465bf853e28300627bb7d69a593870c37bb",
+        "status": "unknown"
+      }
+    ],
+    "Phase 3F production case evidence ingestion and overlay > refuses another case's manifest or a changed revision": [
+      {
+        "authority": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+        "block": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+        "object": "26b0a1f1505d0406fdb903f68becca4dcbeb8390d81241915420ebdc1c5ce88d",
+        "record": "951e865c7aa825a3d5c881a3ae1a9b98d805e960a9a2b30a2362a8733c81d2e9",
+        "result": "087b46933ca4c55c146198e1cdfac465bf853e28300627bb7d69a593870c37bb",
+        "status": "unknown"
+      },
+      {
+        "authority": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+        "block": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+        "object": "26b0a1f1505d0406fdb903f68becca4dcbeb8390d81241915420ebdc1c5ce88d",
+        "record": "951e865c7aa825a3d5c881a3ae1a9b98d805e960a9a2b30a2362a8733c81d2e9",
+        "result": "087b46933ca4c55c146198e1cdfac465bf853e28300627bb7d69a593870c37bb",
+        "status": "unknown"
+      }
+    ],
+    "Phase 3F production case evidence ingestion and overlay > refuses changed CAL FIRE index bytes": [
+      {
+        "authority": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+        "block": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+        "object": "26b0a1f1505d0406fdb903f68becca4dcbeb8390d81241915420ebdc1c5ce88d",
+        "record": "951e865c7aa825a3d5c881a3ae1a9b98d805e960a9a2b30a2362a8733c81d2e9",
+        "result": "087b46933ca4c55c146198e1cdfac465bf853e28300627bb7d69a593870c37bb",
+        "status": "unknown"
+      }
+    ],
+    "Phase 3F production case evidence ingestion and overlay > refuses changed CAL FIRE record bytes": [
+      {
+        "authority": "41a4063e294f97568f5428cb4d8070a290901a0404057cd261f92fc94227b7c1",
+        "block": "a2115c22e9d21bd618a08c61095711eacd22462c334f0c651d4702651da114d9",
+        "object": "8cd13caa36690c60eff3e20807efb0aef67bdb4404a5a79f17ab3cecfd9e3cb0",
+        "record": "c39a2136bbf8b4fd7d8a34abc6e43018b216fb24ea145446c2943633540f5017",
+        "result": "f074b13ee6c7791820eadb8d14644de927858e44551683b8828fcb2487d00792",
+        "status": "disqualifying_per_source"
+      },
+      {
+        "authority": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+        "block": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+        "object": "26b0a1f1505d0406fdb903f68becca4dcbeb8390d81241915420ebdc1c5ce88d",
+        "record": "951e865c7aa825a3d5c881a3ae1a9b98d805e960a9a2b30a2362a8733c81d2e9",
+        "result": "087b46933ca4c55c146198e1cdfac465bf853e28300627bb7d69a593870c37bb",
+        "status": "unknown"
+      }
+    ],
+    "Phase 3F production case evidence ingestion and overlay > refuses changed captured APN even after repairing the source and receipt hashes": [
+      {
+        "authority": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+        "block": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+        "object": "26b0a1f1505d0406fdb903f68becca4dcbeb8390d81241915420ebdc1c5ce88d",
+        "record": "951e865c7aa825a3d5c881a3ae1a9b98d805e960a9a2b30a2362a8733c81d2e9",
+        "result": "087b46933ca4c55c146198e1cdfac465bf853e28300627bb7d69a593870c37bb",
+        "status": "unknown"
+      }
+    ],
+    "Phase 3F production case evidence ingestion and overlay > refuses changed captured CRS even after repairing the metadata and receipt hashes": [
+      {
+        "authority": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+        "block": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+        "object": "26b0a1f1505d0406fdb903f68becca4dcbeb8390d81241915420ebdc1c5ce88d",
+        "record": "951e865c7aa825a3d5c881a3ae1a9b98d805e960a9a2b30a2362a8733c81d2e9",
+        "result": "087b46933ca4c55c146198e1cdfac465bf853e28300627bb7d69a593870c37bb",
+        "status": "unknown"
+      }
+    ],
+    "Phase 3F production case evidence ingestion and overlay > refuses changed captured PIN even after repairing the source and receipt hashes": [
+      {
+        "authority": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+        "block": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+        "object": "26b0a1f1505d0406fdb903f68becca4dcbeb8390d81241915420ebdc1c5ce88d",
+        "record": "951e865c7aa825a3d5c881a3ae1a9b98d805e960a9a2b30a2362a8733c81d2e9",
+        "result": "087b46933ca4c55c146198e1cdfac465bf853e28300627bb7d69a593870c37bb",
+        "status": "unknown"
+      }
+    ],
+    "Phase 3F production case evidence ingestion and overlay > refuses invalid geometry even when file and receipt hashes match": [
+      {
+        "authority": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+        "block": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+        "object": "26b0a1f1505d0406fdb903f68becca4dcbeb8390d81241915420ebdc1c5ce88d",
+        "record": "951e865c7aa825a3d5c881a3ae1a9b98d805e960a9a2b30a2362a8733c81d2e9",
+        "result": "087b46933ca4c55c146198e1cdfac465bf853e28300627bb7d69a593870c37bb",
+        "status": "unknown"
+      }
+    ],
+    "Phase 3F production case evidence ingestion and overlay > refuses stale reviewed geometry": [
+      {
+        "authority": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+        "block": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+        "object": "26b0a1f1505d0406fdb903f68becca4dcbeb8390d81241915420ebdc1c5ce88d",
+        "record": "951e865c7aa825a3d5c881a3ae1a9b98d805e960a9a2b30a2362a8733c81d2e9",
+        "result": "087b46933ca4c55c146198e1cdfac465bf853e28300627bb7d69a593870c37bb",
+        "status": "unknown"
+      }
+    ],
+    "Phase 3F production case evidence ingestion and overlay > refuses superseded reviewed geometry": [
+      {
+        "authority": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+        "block": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+        "object": "26b0a1f1505d0406fdb903f68becca4dcbeb8390d81241915420ebdc1c5ce88d",
+        "record": "951e865c7aa825a3d5c881a3ae1a9b98d805e960a9a2b30a2362a8733c81d2e9",
+        "result": "087b46933ca4c55c146198e1cdfac465bf853e28300627bb7d69a593870c37bb",
+        "status": "unknown"
+      }
+    ],
+    "Phase 3F production case evidence ingestion and overlay > refuses unreviewed reviewed geometry": [
+      {
+        "authority": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+        "block": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+        "object": "26b0a1f1505d0406fdb903f68becca4dcbeb8390d81241915420ebdc1c5ce88d",
+        "record": "951e865c7aa825a3d5c881a3ae1a9b98d805e960a9a2b30a2362a8733c81d2e9",
+        "result": "087b46933ca4c55c146198e1cdfac465bf853e28300627bb7d69a593870c37bb",
+        "status": "unknown"
+      }
+    ],
+    "Phase 3F production case evidence ingestion and overlay > retains manual disagreements as Layer 1 conflicts": [
+      {
+        "authority": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+        "block": "a2115c22e9d21bd618a08c61095711eacd22462c334f0c651d4702651da114d9",
+        "object": "65ec9c854646298fd2341656bfb130bae9a9ba95dbb1e49aa65b2a6c16134f94",
+        "record": "aa7dade150ede6b98fb72b777d6aee07e77a37e15f4b5dd00b4dfac56eb701f9",
+        "result": "04a24f5c477a76fe4292ddea92b7ce75b712210aa26ca2a6d185da4c61e3277a",
+        "status": "conflict"
+      }
+    ],
+    "Phase 3H private production-input boundary > loads each shipped dataset against the identical private reviewed EPSG:3310 lot": [
+      {
+        "authority": "41a4063e294f97568f5428cb4d8070a290901a0404057cd261f92fc94227b7c1",
+        "block": "a188c11c973498e72266c2dd20e06e6a44e2e037150553f0150b985e9ba0fb62",
+        "object": "068ca1380990a8cc1b41d0dbc20f8b4f27384005efda428824abb1d78737c1ec",
+        "record": "c39a2136bbf8b4fd7d8a34abc6e43018b216fb24ea145446c2943633540f5017",
+        "result": "f074b13ee6c7791820eadb8d14644de927858e44551683b8828fcb2487d00792",
+        "status": "disqualifying_per_source"
+      },
+      {
+        "authority": "41a4063e294f97568f5428cb4d8070a290901a0404057cd261f92fc94227b7c1",
+        "block": "a188c11c973498e72266c2dd20e06e6a44e2e037150553f0150b985e9ba0fb62",
+        "object": "068ca1380990a8cc1b41d0dbc20f8b4f27384005efda428824abb1d78737c1ec",
+        "record": "c39a2136bbf8b4fd7d8a34abc6e43018b216fb24ea145446c2943633540f5017",
+        "result": "f074b13ee6c7791820eadb8d14644de927858e44551683b8828fcb2487d00792",
+        "status": "disqualifying_per_source"
+      }
+    ],
+    "Phase 3H private production-input boundary > private SRA inputs yield unknown for geometry-mutation": [
+      {
+        "authority": "41a4063e294f97568f5428cb4d8070a290901a0404057cd261f92fc94227b7c1",
+        "block": "a188c11c973498e72266c2dd20e06e6a44e2e037150553f0150b985e9ba0fb62",
+        "object": "068ca1380990a8cc1b41d0dbc20f8b4f27384005efda428824abb1d78737c1ec",
+        "record": "c39a2136bbf8b4fd7d8a34abc6e43018b216fb24ea145446c2943633540f5017",
+        "result": "f074b13ee6c7791820eadb8d14644de927858e44551683b8828fcb2487d00792",
+        "status": "disqualifying_per_source"
+      },
+      {
+        "authority": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+        "block": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+        "object": "f2adb75dab1a7010392329aff518dac9f66aacb8ef112e8984b727feb9cd9731",
+        "record": "0b800abb474fc21a9f664a95924521bc49d15f0a28f2199fe89530c18bbb51be",
+        "result": "087b46933ca4c55c146198e1cdfac465bf853e28300627bb7d69a593870c37bb",
+        "status": "unknown"
+      },
+      {
+        "authority": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+        "block": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+        "object": "42919e0172689d025ccece8a3945dd42d07e48ef8a5ede0fa56e93a942687fbb",
+        "record": "4bdfd51e1c2f227d1b4d81b1c9e592a86573744f7e260a492f992b33b4d8deb1",
+        "result": "087b46933ca4c55c146198e1cdfac465bf853e28300627bb7d69a593870c37bb",
+        "status": "unknown"
+      }
+    ],
+    "Phase 3H private production-input boundary > private SRA inputs yield unknown for missing-validity": [
+      {
+        "authority": "41a4063e294f97568f5428cb4d8070a290901a0404057cd261f92fc94227b7c1",
+        "block": "a188c11c973498e72266c2dd20e06e6a44e2e037150553f0150b985e9ba0fb62",
+        "object": "068ca1380990a8cc1b41d0dbc20f8b4f27384005efda428824abb1d78737c1ec",
+        "record": "c39a2136bbf8b4fd7d8a34abc6e43018b216fb24ea145446c2943633540f5017",
+        "result": "f074b13ee6c7791820eadb8d14644de927858e44551683b8828fcb2487d00792",
+        "status": "disqualifying_per_source"
+      },
+      {
+        "authority": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+        "block": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+        "object": "f2adb75dab1a7010392329aff518dac9f66aacb8ef112e8984b727feb9cd9731",
+        "record": "0b800abb474fc21a9f664a95924521bc49d15f0a28f2199fe89530c18bbb51be",
+        "result": "087b46933ca4c55c146198e1cdfac465bf853e28300627bb7d69a593870c37bb",
+        "status": "unknown"
+      },
+      {
+        "authority": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+        "block": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+        "object": "42919e0172689d025ccece8a3945dd42d07e48ef8a5ede0fa56e93a942687fbb",
+        "record": "4bdfd51e1c2f227d1b4d81b1c9e592a86573744f7e260a492f992b33b4d8deb1",
+        "result": "087b46933ca4c55c146198e1cdfac465bf853e28300627bb7d69a593870c37bb",
+        "status": "unknown"
+      }
+    ],
+    "Phase 3H private production-input boundary > private SRA inputs yield unknown for validity-hash-mismatch": [
+      {
+        "authority": "41a4063e294f97568f5428cb4d8070a290901a0404057cd261f92fc94227b7c1",
+        "block": "a188c11c973498e72266c2dd20e06e6a44e2e037150553f0150b985e9ba0fb62",
+        "object": "068ca1380990a8cc1b41d0dbc20f8b4f27384005efda428824abb1d78737c1ec",
+        "record": "c39a2136bbf8b4fd7d8a34abc6e43018b216fb24ea145446c2943633540f5017",
+        "result": "f074b13ee6c7791820eadb8d14644de927858e44551683b8828fcb2487d00792",
+        "status": "disqualifying_per_source"
+      },
+      {
+        "authority": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+        "block": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+        "object": "f2adb75dab1a7010392329aff518dac9f66aacb8ef112e8984b727feb9cd9731",
+        "record": "0b800abb474fc21a9f664a95924521bc49d15f0a28f2199fe89530c18bbb51be",
+        "result": "087b46933ca4c55c146198e1cdfac465bf853e28300627bb7d69a593870c37bb",
+        "status": "unknown"
+      },
+      {
+        "authority": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+        "block": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+        "object": "42919e0172689d025ccece8a3945dd42d07e48ef8a5ede0fa56e93a942687fbb",
+        "record": "4bdfd51e1c2f227d1b4d81b1c9e592a86573744f7e260a492f992b33b4d8deb1",
+        "result": "087b46933ca4c55c146198e1cdfac465bf853e28300627bb7d69a593870c37bb",
+        "status": "unknown"
+      }
+    ],
+    "Phase 3H private production-input boundary > private inputs fail closed for changed-review": [
+      {
+        "authority": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+        "block": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+        "object": "f2adb75dab1a7010392329aff518dac9f66aacb8ef112e8984b727feb9cd9731",
+        "record": "0b800abb474fc21a9f664a95924521bc49d15f0a28f2199fe89530c18bbb51be",
+        "result": "087b46933ca4c55c146198e1cdfac465bf853e28300627bb7d69a593870c37bb",
+        "status": "unknown"
+      }
+    ],
+    "Phase 3H private production-input boundary > private inputs fail closed for expired": [
+      {
+        "authority": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+        "block": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+        "object": "f2adb75dab1a7010392329aff518dac9f66aacb8ef112e8984b727feb9cd9731",
+        "record": "0b800abb474fc21a9f664a95924521bc49d15f0a28f2199fe89530c18bbb51be",
+        "result": "087b46933ca4c55c146198e1cdfac465bf853e28300627bb7d69a593870c37bb",
+        "status": "unknown"
+      }
+    ],
+    "Phase 3H private production-input boundary > private inputs fail closed for foreign-case": [
+      {
+        "authority": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+        "block": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+        "object": "f2adb75dab1a7010392329aff518dac9f66aacb8ef112e8984b727feb9cd9731",
+        "record": "0b800abb474fc21a9f664a95924521bc49d15f0a28f2199fe89530c18bbb51be",
+        "result": "087b46933ca4c55c146198e1cdfac465bf853e28300627bb7d69a593870c37bb",
+        "status": "unknown"
+      }
+    ],
+    "Phase 3H private production-input boundary > private inputs fail closed for missing-LRA-index": [
+      {
+        "authority": "41a4063e294f97568f5428cb4d8070a290901a0404057cd261f92fc94227b7c1",
+        "block": "a188c11c973498e72266c2dd20e06e6a44e2e037150553f0150b985e9ba0fb62",
+        "object": "068ca1380990a8cc1b41d0dbc20f8b4f27384005efda428824abb1d78737c1ec",
+        "record": "c39a2136bbf8b4fd7d8a34abc6e43018b216fb24ea145446c2943633540f5017",
+        "result": "f074b13ee6c7791820eadb8d14644de927858e44551683b8828fcb2487d00792",
+        "status": "disqualifying_per_source"
+      }
+    ],
+    "Phase 3H private production-input boundary > private inputs fail closed for normalized-hash": [
+      {
+        "authority": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+        "block": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+        "object": "f2adb75dab1a7010392329aff518dac9f66aacb8ef112e8984b727feb9cd9731",
+        "record": "0b800abb474fc21a9f664a95924521bc49d15f0a28f2199fe89530c18bbb51be",
+        "result": "087b46933ca4c55c146198e1cdfac465bf853e28300627bb7d69a593870c37bb",
+        "status": "unknown"
+      }
+    ],
+    "Phase 3H private production-input boundary > private inputs fail closed for superseded": [
+      {
+        "authority": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+        "block": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+        "object": "f2adb75dab1a7010392329aff518dac9f66aacb8ef112e8984b727feb9cd9731",
+        "record": "0b800abb474fc21a9f664a95924521bc49d15f0a28f2199fe89530c18bbb51be",
+        "result": "087b46933ca4c55c146198e1cdfac465bf853e28300627bb7d69a593870c37bb",
+        "status": "unknown"
+      }
+    ],
+    "Phase 3H private production-input boundary > production evaluator computes only d's evidence; manual c authority cannot fill the operational gap": [
+      {
+        "authority": "41a4063e294f97568f5428cb4d8070a290901a0404057cd261f92fc94227b7c1",
+        "block": "a188c11c973498e72266c2dd20e06e6a44e2e037150553f0150b985e9ba0fb62",
+        "object": "197ec6c92ff41a893b3060ad17608452bfc090011c365dd13768bb9fd466703b",
+        "record": "c1de3ac4583a2cff166b74aadf85e3e9df2808790ba6c9224a634ec3202c8663",
+        "result": "f074b13ee6c7791820eadb8d14644de927858e44551683b8828fcb2487d00792",
+        "status": "disqualifying_per_source"
+      }
+    ],
+    "Re-audit 6: combined two-route truth table (shipped registries, ONE reviewed lot) > FINDING (hardening, not reachable in production): the shared evaluator does not require both routes' records to name the same lot geometry": [
+      {
+        "authority": "41a4063e294f97568f5428cb4d8070a290901a0404057cd261f92fc94227b7c1",
+        "block": "a188c11c973498e72266c2dd20e06e6a44e2e037150553f0150b985e9ba0fb62",
+        "object": "068ca1380990a8cc1b41d0dbc20f8b4f27384005efda428824abb1d78737c1ec",
+        "record": "c39a2136bbf8b4fd7d8a34abc6e43018b216fb24ea145446c2943633540f5017",
+        "result": "f074b13ee6c7791820eadb8d14644de927858e44551683b8828fcb2487d00792",
+        "status": "disqualifying_per_source"
+      },
+      {
+        "authority": "41a4063e294f97568f5428cb4d8070a290901a0404057cd261f92fc94227b7c1",
+        "block": "a188c11c973498e72266c2dd20e06e6a44e2e037150553f0150b985e9ba0fb62",
+        "object": "068ca1380990a8cc1b41d0dbc20f8b4f27384005efda428824abb1d78737c1ec",
+        "record": "c39a2136bbf8b4fd7d8a34abc6e43018b216fb24ea145446c2943633540f5017",
+        "result": "f074b13ee6c7791820eadb8d14644de927858e44551683b8828fcb2487d00792",
+        "status": "disqualifying_per_source"
+      }
+    ],
+    "Re-audit 7: production-input path > a caller-supplied hazard block cannot fill the production gap (the worker strips it; shown on d, the only runnable hazard criterion)": [
+      {
+        "authority": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+        "block": "c4f907bbeb94bd4f3778615a8375ffa342f02feac48624c668c078c28ebdab31",
+        "object": "3b50bdaeb8ad61d453c3dbcac0eecf0a07a9208bbca20d359ab57341d02e899c",
+        "record": "5775eb9a1558a7269d90ff4be454c5c6648022a341004a54431badfa44ed087e",
+        "result": "2caf88798f7e779976a60a6571094f33032c1ff83c73f279c1e8df093005ee1e",
+        "status": "unknown"
+      },
+      {
+        "authority": "84708d88f609cdd9f1cbbf1902f0f8e9483446ab0a4cb6d9746c304ee2b4bb67",
+        "block": "c4f907bbeb94bd4f3778615a8375ffa342f02feac48624c668c078c28ebdab31",
+        "object": "c0e086dbdf94880a3a9fd121b92f42f29d2d328a6f281c69d0216f8e462a1b8c",
+        "record": "9d2d631f888b6d537a8d0e09a7540ea0f267f05642f4415ca6c50e306acc682e",
+        "result": "9a4dd5aebe9b2893479bbad8e34e692592bc3a3b7f1e0ebad4e73dac58bf01fd",
+        "status": "unknown"
+      }
+    ],
+    "Re-audit 7: production-input path > private inputs fail closed: changed-revision": [
+      {
+        "authority": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+        "block": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+        "object": "f2adb75dab1a7010392329aff518dac9f66aacb8ef112e8984b727feb9cd9731",
+        "record": "0b800abb474fc21a9f664a95924521bc49d15f0a28f2199fe89530c18bbb51be",
+        "result": "087b46933ca4c55c146198e1cdfac465bf853e28300627bb7d69a593870c37bb",
+        "status": "unknown"
+      },
+      {
+        "authority": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+        "block": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+        "object": "f2adb75dab1a7010392329aff518dac9f66aacb8ef112e8984b727feb9cd9731",
+        "record": "0b800abb474fc21a9f664a95924521bc49d15f0a28f2199fe89530c18bbb51be",
+        "result": "087b46933ca4c55c146198e1cdfac465bf853e28300627bb7d69a593870c37bb",
+        "status": "unknown"
+      }
+    ],
+    "Re-audit 7: production-input path > private inputs fail closed: expired": [
+      {
+        "authority": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+        "block": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+        "object": "f2adb75dab1a7010392329aff518dac9f66aacb8ef112e8984b727feb9cd9731",
+        "record": "0b800abb474fc21a9f664a95924521bc49d15f0a28f2199fe89530c18bbb51be",
+        "result": "087b46933ca4c55c146198e1cdfac465bf853e28300627bb7d69a593870c37bb",
+        "status": "unknown"
+      },
+      {
+        "authority": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+        "block": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+        "object": "f2adb75dab1a7010392329aff518dac9f66aacb8ef112e8984b727feb9cd9731",
+        "record": "0b800abb474fc21a9f664a95924521bc49d15f0a28f2199fe89530c18bbb51be",
+        "result": "087b46933ca4c55c146198e1cdfac465bf853e28300627bb7d69a593870c37bb",
+        "status": "unknown"
+      }
+    ],
+    "Re-audit 7: production-input path > private inputs fail closed: foreign-case": [
+      {
+        "authority": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+        "block": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+        "object": "f2adb75dab1a7010392329aff518dac9f66aacb8ef112e8984b727feb9cd9731",
+        "record": "0b800abb474fc21a9f664a95924521bc49d15f0a28f2199fe89530c18bbb51be",
+        "result": "087b46933ca4c55c146198e1cdfac465bf853e28300627bb7d69a593870c37bb",
+        "status": "unknown"
+      },
+      {
+        "authority": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+        "block": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+        "object": "f2adb75dab1a7010392329aff518dac9f66aacb8ef112e8984b727feb9cd9731",
+        "record": "0b800abb474fc21a9f664a95924521bc49d15f0a28f2199fe89530c18bbb51be",
+        "result": "087b46933ca4c55c146198e1cdfac465bf853e28300627bb7d69a593870c37bb",
+        "status": "unknown"
+      }
+    ],
+    "Re-audit 7: production-input path > private inputs fail closed: missing-index": [
+      {
+        "authority": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+        "block": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+        "object": "f2adb75dab1a7010392329aff518dac9f66aacb8ef112e8984b727feb9cd9731",
+        "record": "0b800abb474fc21a9f664a95924521bc49d15f0a28f2199fe89530c18bbb51be",
+        "result": "087b46933ca4c55c146198e1cdfac465bf853e28300627bb7d69a593870c37bb",
+        "status": "unknown"
+      },
+      {
+        "authority": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+        "block": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+        "object": "f2adb75dab1a7010392329aff518dac9f66aacb8ef112e8984b727feb9cd9731",
+        "record": "0b800abb474fc21a9f664a95924521bc49d15f0a28f2199fe89530c18bbb51be",
+        "result": "087b46933ca4c55c146198e1cdfac465bf853e28300627bb7d69a593870c37bb",
+        "status": "unknown"
+      }
+    ],
+    "Re-audit 7: production-input path > private inputs fail closed: normalized-hash": [
+      {
+        "authority": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+        "block": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+        "object": "f2adb75dab1a7010392329aff518dac9f66aacb8ef112e8984b727feb9cd9731",
+        "record": "0b800abb474fc21a9f664a95924521bc49d15f0a28f2199fe89530c18bbb51be",
+        "result": "087b46933ca4c55c146198e1cdfac465bf853e28300627bb7d69a593870c37bb",
+        "status": "unknown"
+      },
+      {
+        "authority": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+        "block": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+        "object": "f2adb75dab1a7010392329aff518dac9f66aacb8ef112e8984b727feb9cd9731",
+        "record": "0b800abb474fc21a9f664a95924521bc49d15f0a28f2199fe89530c18bbb51be",
+        "result": "087b46933ca4c55c146198e1cdfac465bf853e28300627bb7d69a593870c37bb",
+        "status": "unknown"
+      }
+    ],
+    "Re-audit 7: production-input path > private inputs fail closed: superseded": [
+      {
+        "authority": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+        "block": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+        "object": "f2adb75dab1a7010392329aff518dac9f66aacb8ef112e8984b727feb9cd9731",
+        "record": "0b800abb474fc21a9f664a95924521bc49d15f0a28f2199fe89530c18bbb51be",
+        "result": "087b46933ca4c55c146198e1cdfac465bf853e28300627bb7d69a593870c37bb",
+        "status": "unknown"
+      },
+      {
+        "authority": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+        "block": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+        "object": "f2adb75dab1a7010392329aff518dac9f66aacb8ef112e8984b727feb9cd9731",
+        "record": "0b800abb474fc21a9f664a95924521bc49d15f0a28f2199fe89530c18bbb51be",
+        "result": "087b46933ca4c55c146198e1cdfac465bf853e28300627bb7d69a593870c37bb",
+        "status": "unknown"
+      }
+    ],
+    "Re-audit 7: production-input path > private inputs fail closed: test-only-in-production": [
+      {
+        "authority": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+        "block": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+        "object": "f2adb75dab1a7010392329aff518dac9f66aacb8ef112e8984b727feb9cd9731",
+        "record": "0b800abb474fc21a9f664a95924521bc49d15f0a28f2199fe89530c18bbb51be",
+        "result": "087b46933ca4c55c146198e1cdfac465bf853e28300627bb7d69a593870c37bb",
+        "status": "unknown"
+      },
+      {
+        "authority": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+        "block": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+        "object": "f2adb75dab1a7010392329aff518dac9f66aacb8ef112e8984b727feb9cd9731",
+        "record": "0b800abb474fc21a9f664a95924521bc49d15f0a28f2199fe89530c18bbb51be",
+        "result": "087b46933ca4c55c146198e1cdfac465bf853e28300627bb7d69a593870c37bb",
+        "status": "unknown"
+      }
+    ],
+    "Re-audit 7: production-input path > production evaluation strips caller hazard blocks, computes only d's High record, and supplies no Route 1 inputs: c can only be unknown": [
+      {
+        "authority": "41a4063e294f97568f5428cb4d8070a290901a0404057cd261f92fc94227b7c1",
+        "block": "a188c11c973498e72266c2dd20e06e6a44e2e037150553f0150b985e9ba0fb62",
+        "object": "b88489a341e80cd2b3efa7f9f37424b3c70ed2f9366afcf74f16dc2864c8e9a1",
+        "record": "fd54df458607a1319208961a072ffdb492303aaf6a120cb512199eaddae9a48e",
+        "result": "f074b13ee6c7791820eadb8d14644de927858e44551683b8828fcb2487d00792",
+        "status": "disqualifying_per_source"
+      }
+    ],
+    "Re-audit 7: production-input path > registry overrides cannot enter production evaluation": [
+      {
+        "authority": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+        "block": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+        "object": "f2adb75dab1a7010392329aff518dac9f66aacb8ef112e8984b727feb9cd9731",
+        "record": "0b800abb474fc21a9f664a95924521bc49d15f0a28f2199fe89530c18bbb51be",
+        "result": "087b46933ca4c55c146198e1cdfac465bf853e28300627bb7d69a593870c37bb",
+        "status": "unknown"
+      }
+    ],
+    "Re-audit 7: production-input path > the same private reviewed EPSG:3310 lot feeds both route loaders; SRA is computed, LRA fails closed when candidates are unavailable": [
+      {
+        "authority": "41a4063e294f97568f5428cb4d8070a290901a0404057cd261f92fc94227b7c1",
+        "block": "a188c11c973498e72266c2dd20e06e6a44e2e037150553f0150b985e9ba0fb62",
+        "object": "068ca1380990a8cc1b41d0dbc20f8b4f27384005efda428824abb1d78737c1ec",
+        "record": "c39a2136bbf8b4fd7d8a34abc6e43018b216fb24ea145446c2943633540f5017",
+        "result": "f074b13ee6c7791820eadb8d14644de927858e44551683b8828fcb2487d00792",
+        "status": "disqualifying_per_source"
+      },
+      {
+        "authority": "41a4063e294f97568f5428cb4d8070a290901a0404057cd261f92fc94227b7c1",
+        "block": "a188c11c973498e72266c2dd20e06e6a44e2e037150553f0150b985e9ba0fb62",
+        "object": "068ca1380990a8cc1b41d0dbc20f8b4f27384005efda428824abb1d78737c1ec",
+        "record": "c39a2136bbf8b4fd7d8a34abc6e43018b216fb24ea145446c2943633540f5017",
+        "result": "f074b13ee6c7791820eadb8d14644de927858e44551683b8828fcb2487d00792",
+        "status": "disqualifying_per_source"
+      }
+    ]
+  },
+  "objects": {
+    "068ca1380990a8cc1b41d0dbc20f8b4f27384005efda428824abb1d78737c1ec": {
+      "record": "{\"id\":\"computed-calfire-high-00000000-0000-4000-8000-0000000000f1\",\"subject\":{\"case_id\":\"00000000-0000-4000-8000-00000000003f\",\"property_id\":\"test-only-3i-baseline\"},\"claim\":{\"key\":\"high-fire-hazard-severity-zone\",\"label\":\"High Fire Hazard Severity Zone\",\"client_label\":\"whether the parcel is mapped in a High Fire Hazard Severity Zone\"},\"source\":{\"agency\":\"CAL FIRE / Office of the State Fire Marshal\",\"title\":\"Computed overlay on the reviewed CAL FIRE SRA package\",\"description\":\"Derived from verified case geometry and pinned candidate records.\",\"url\":\"https://osfm.fire.ca.gov/what-we-do/community-wildfire-preparedness-and-mitigation/fire-hazard-severity-zones\",\"authority\":\"official\",\"retrieved_at\":\"2026-09-29T18:00:00Z\"},\"raw_observed_value\":{\"kind\":\"boolean\",\"value\":true},\"normalized_value\":{\"kind\":\"boolean\",\"value\":true},\"evidence_type\":\"official_map\",\"classification\":\"source_observation\",\"confidence\":100,\"conflicts_with\":[],\"review_status\":\"reviewed\",\"notes\":[],\"limitations\":[],\"provenance\":{\"source_record_id\":\"00000000-0000-4000-8000-0000000000f1\",\"capture_method\":\"system_import\",\"is_ai_generated\":false}}",
+      "block": "{\"schema_version\":\"program-screen-evidence-authority-v1\",\"evidence_id\":\"computed-calfire-high-00000000-0000-4000-8000-0000000000f1\",\"fact_key\":\"high-fire-hazard-severity-zone\",\"record_kind\":\"agency_hazard_map\",\"issuer\":{\"name\":\"Office of the State Fire Marshal\",\"issuer_id\":\"calfire-osfm\"},\"source_identifier\":{\"scheme\":\"authority_source_id\",\"value\":\"calfire-sra-fhsz-2023-09-29\"},\"document_title\":\"State Responsibility Area Fire Hazard Severity Zones (CAL FIRE / OSFM, PRC §4202)\",\"edition\":{\"label\":\"State Responsibility Area Fire Hazard Severity Zones, dated September 29, 2023\",\"date\":\"2023-09-29\",\"date_kind\":\"dated\",\"currency\":\"current_on_as_of\",\"currency_checked_on\":\"2026-10-01\"},\"retrieved_at\":\"2026-09-29T18:00:00Z\",\"source_url\":\"https://osfm.fire.ca.gov/what-we-do/community-wildfire-preparedness-and-mitigation/fire-hazard-severity-zones\",\"capture\":{\"store\":\"repo_official_source\",\"source_id\":\"calfire-sra-fhsz-map-2023-09-29\",\"sha256_extracted\":\"11830e2c8c29f368e4087ae9ff270ee042673dfd7be6e354750c326579e5b1fe\"},\"parcel_relationship\":{\"matched_by\":\"spatial_overlay\",\"parcel_identifier\":\"0000000001\",\"legal_lot_reference\":\"Tract TEST-ONLY-11106-EQUIVALENT, Lot TEST-ONLY-85, MB TEST-ONLY-203 pp 19–22\",\"legal_lot_identity\":\"parcel_is_one_legal_lot\"},\"coverage\":\"whole_parcel\",\"qualifiers\":{\"family\":\"hazard_map\",\"hazard_class\":\"high\",\"statutory_basis\":\"prc_4202\",\"adoption_status\":\"adopted\",\"named_agency\":\"department_of_forestry_and_fire_protection\",\"map_covers_lot\":\"not_established\",\"legend_defines_class_for_lot\":\"yes\",\"responsibility_area_as_stated\":\"state\",\"lot_overlay\":{\"method\":\"deterministic_spatial_overlay\",\"dataset\":{\"source_id\":\"calfire-fhszsra-23-3-data\",\"sha256_extracted\":\"a85ff7eecf0f8ffa80d7dd8dcdc727a9dde42979fb3b7b8d5614b7a47a6b5a8a\"},\"lot_geometry\":{\"store\":\"case_evidence_file\",\"file_id\":\"test-only-normalized-lot\",\"sha256\":\"be25919869c1a0fdd1d856ebf18fdb16ca83ac7a758f7551704b5f3dd2ceffeb\"}}},\"authority_review\":{\"status\":\"reviewed\",\"reviewer\":{\"kind\":\"human\",\"name\":\"TEST-ONLY Reviewer\",\"role\":\"Synthetic geometry reviewer\"},\"reviewed_on\":\"2026-09-30\"},\"notes\":[],\"is_ai_generated\":false}",
+      "d": "{\"criterion_id\":\"la_shra.high-fire-hazard-severity-zone\",\"pathway\":\"la_shra\",\"label\":\"SHRA prohibited site category: High Fire Hazard Severity Zone\",\"gating\":false,\"verification\":\"human_verified\",\"rule_kind\":\"predicate\",\"rule_summary\":\"Phase 3B decision d. Disqualifying per source when a reviewed CAL FIRE / State Fire Marshal record under PRC §4202, a deterministic overlay of the reviewed legal-lot geometry on the registered SRA dataset, shows the whole lot proposed to be subdivided in High. Consistent with source when SRA features cover the whole lot, the legend defines High there, and no part of the lot is High. Partial coverage, land outside the SRA, an unclear legal lot, GOV §51178, and any other source stay unknown. Very High is criterion c.\",\"status\":\"disqualifying_per_source\",\"classification\":\"inference\",\"statement\":\"Reviewed records for High Fire Hazard Severity Zone document a condition that the cited source treats as blocking this pathway.\",\"unreviewed_reasons\":[],\"facts\":[{\"key\":\"high-fire-hazard-severity-zone\",\"classification\":\"source_observation\",\"supplied\":true,\"reviewed\":true,\"evidence_ids\":[\"computed-calfire-high-00000000-0000-4000-8000-0000000000f1\"]}],\"citation\":{\"title\":\"Los Angeles City Planning — SHRA implementation memo (October 28, 2025; SB 684, SB 1123, AB 130)\",\"url\":\"https://planning.lacity.gov/odocument/1b081b86-f735-43e8-bba6-c2d73a192db7/SB_684_1123_Memo_Update_ACP.pdf\",\"verified_at\":\"2026-09-29\",\"volatility\":\"high\",\"next_review_at\":\"2026-10-29\",\"pinpoint\":\"Memo Part I, Environmental Criteria, page 4, prohibited category 3 and footnote 1\"},\"stale\":false,\"confirmer\":\"Los Angeles City Planning\",\"authority\":{\"established\":true,\"facts\":[{\"key\":\"high-fire-hazard-severity-zone\",\"established\":true,\"establishing_evidence_ids\":[\"computed-calfire-high-00000000-0000-4000-8000-0000000000f1\"],\"non_establishing\":[],\"failures\":[]}],\"criterion_failures\":[]}}"
+    },
+    "197ec6c92ff41a893b3060ad17608452bfc090011c365dd13768bb9fd466703b": {
+      "record": "{\"id\":\"computed-calfire-high-00000000-0000-4000-8000-0000000000f1\",\"subject\":{\"case_id\":\"00000000-0000-4000-8000-00000000003f\",\"property_id\":\"test-only-phase-3g\"},\"claim\":{\"key\":\"high-fire-hazard-severity-zone\",\"label\":\"High Fire Hazard Severity Zone\",\"client_label\":\"whether the parcel is mapped in a High Fire Hazard Severity Zone\"},\"source\":{\"agency\":\"CAL FIRE / Office of the State Fire Marshal\",\"title\":\"Computed overlay on the reviewed CAL FIRE SRA package\",\"description\":\"Derived from verified case geometry and pinned candidate records.\",\"url\":\"https://osfm.fire.ca.gov/what-we-do/community-wildfire-preparedness-and-mitigation/fire-hazard-severity-zones\",\"authority\":\"official\",\"retrieved_at\":\"2026-09-29T18:00:00Z\"},\"raw_observed_value\":{\"kind\":\"boolean\",\"value\":true},\"normalized_value\":{\"kind\":\"boolean\",\"value\":true},\"evidence_type\":\"official_map\",\"classification\":\"source_observation\",\"confidence\":100,\"conflicts_with\":[],\"review_status\":\"reviewed\",\"notes\":[],\"limitations\":[],\"provenance\":{\"source_record_id\":\"00000000-0000-4000-8000-0000000000f1\",\"capture_method\":\"system_import\",\"is_ai_generated\":false}}",
+      "block": "{\"schema_version\":\"program-screen-evidence-authority-v1\",\"evidence_id\":\"computed-calfire-high-00000000-0000-4000-8000-0000000000f1\",\"fact_key\":\"high-fire-hazard-severity-zone\",\"record_kind\":\"agency_hazard_map\",\"issuer\":{\"name\":\"Office of the State Fire Marshal\",\"issuer_id\":\"calfire-osfm\"},\"source_identifier\":{\"scheme\":\"authority_source_id\",\"value\":\"calfire-sra-fhsz-2023-09-29\"},\"document_title\":\"State Responsibility Area Fire Hazard Severity Zones (CAL FIRE / OSFM, PRC §4202)\",\"edition\":{\"label\":\"State Responsibility Area Fire Hazard Severity Zones, dated September 29, 2023\",\"date\":\"2023-09-29\",\"date_kind\":\"dated\",\"currency\":\"current_on_as_of\",\"currency_checked_on\":\"2026-10-01\"},\"retrieved_at\":\"2026-09-29T18:00:00Z\",\"source_url\":\"https://osfm.fire.ca.gov/what-we-do/community-wildfire-preparedness-and-mitigation/fire-hazard-severity-zones\",\"capture\":{\"store\":\"repo_official_source\",\"source_id\":\"calfire-sra-fhsz-map-2023-09-29\",\"sha256_extracted\":\"11830e2c8c29f368e4087ae9ff270ee042673dfd7be6e354750c326579e5b1fe\"},\"parcel_relationship\":{\"matched_by\":\"spatial_overlay\",\"parcel_identifier\":\"0000000001\",\"legal_lot_reference\":\"Tract TEST-ONLY-11106-EQUIVALENT, Lot TEST-ONLY-85, MB TEST-ONLY-203 pp 19–22\",\"legal_lot_identity\":\"parcel_is_one_legal_lot\"},\"coverage\":\"whole_parcel\",\"qualifiers\":{\"family\":\"hazard_map\",\"hazard_class\":\"high\",\"statutory_basis\":\"prc_4202\",\"adoption_status\":\"adopted\",\"named_agency\":\"department_of_forestry_and_fire_protection\",\"map_covers_lot\":\"not_established\",\"legend_defines_class_for_lot\":\"yes\",\"responsibility_area_as_stated\":\"state\",\"lot_overlay\":{\"method\":\"deterministic_spatial_overlay\",\"dataset\":{\"source_id\":\"calfire-fhszsra-23-3-data\",\"sha256_extracted\":\"a85ff7eecf0f8ffa80d7dd8dcdc727a9dde42979fb3b7b8d5614b7a47a6b5a8a\"},\"lot_geometry\":{\"store\":\"case_evidence_file\",\"file_id\":\"test-only-normalized-lot\",\"sha256\":\"be25919869c1a0fdd1d856ebf18fdb16ca83ac7a758f7551704b5f3dd2ceffeb\"}}},\"authority_review\":{\"status\":\"reviewed\",\"reviewer\":{\"kind\":\"human\",\"name\":\"TEST-ONLY Reviewer\",\"role\":\"Synthetic geometry reviewer\"},\"reviewed_on\":\"2026-09-30\"},\"notes\":[],\"is_ai_generated\":false}",
+      "d": "{\"criterion_id\":\"la_shra.high-fire-hazard-severity-zone\",\"pathway\":\"la_shra\",\"label\":\"SHRA prohibited site category: High Fire Hazard Severity Zone\",\"gating\":false,\"verification\":\"human_verified\",\"rule_kind\":\"predicate\",\"rule_summary\":\"Phase 3B decision d. Disqualifying per source when a reviewed CAL FIRE / State Fire Marshal record under PRC §4202, a deterministic overlay of the reviewed legal-lot geometry on the registered SRA dataset, shows the whole lot proposed to be subdivided in High. Consistent with source when SRA features cover the whole lot, the legend defines High there, and no part of the lot is High. Partial coverage, land outside the SRA, an unclear legal lot, GOV §51178, and any other source stay unknown. Very High is criterion c.\",\"status\":\"disqualifying_per_source\",\"classification\":\"inference\",\"statement\":\"Reviewed records for High Fire Hazard Severity Zone document a condition that the cited source treats as blocking this pathway.\",\"unreviewed_reasons\":[],\"facts\":[{\"key\":\"high-fire-hazard-severity-zone\",\"classification\":\"source_observation\",\"supplied\":true,\"reviewed\":true,\"evidence_ids\":[\"computed-calfire-high-00000000-0000-4000-8000-0000000000f1\"]}],\"citation\":{\"title\":\"Los Angeles City Planning — SHRA implementation memo (October 28, 2025; SB 684, SB 1123, AB 130)\",\"url\":\"https://planning.lacity.gov/odocument/1b081b86-f735-43e8-bba6-c2d73a192db7/SB_684_1123_Memo_Update_ACP.pdf\",\"verified_at\":\"2026-09-29\",\"volatility\":\"high\",\"next_review_at\":\"2026-10-29\",\"pinpoint\":\"Memo Part I, Environmental Criteria, page 4, prohibited category 3 and footnote 1\"},\"stale\":false,\"confirmer\":\"Los Angeles City Planning\",\"authority\":{\"established\":true,\"facts\":[{\"key\":\"high-fire-hazard-severity-zone\",\"established\":true,\"establishing_evidence_ids\":[\"computed-calfire-high-00000000-0000-4000-8000-0000000000f1\"],\"non_establishing\":[],\"failures\":[]}],\"criterion_failures\":[]}}"
+    },
+    "1cbb112627c91427fceb769c74fd9e79ddd8eb5481110bb9c087ff8399628159": {
+      "record": "{\"id\":\"computed-calfire-high-00000000-0000-4000-8000-0000000000f1\",\"subject\":{\"case_id\":\"00000000-0000-4000-8000-00000000003f\",\"property_id\":\"test-only-property-3f\"},\"claim\":{\"key\":\"high-fire-hazard-severity-zone\",\"label\":\"High Fire Hazard Severity Zone\",\"client_label\":\"whether the parcel is mapped in a High Fire Hazard Severity Zone\"},\"source\":{\"agency\":\"CAL FIRE / Office of the State Fire Marshal\",\"title\":\"Computed overlay on the reviewed CAL FIRE SRA package\",\"description\":\"Derived from verified case geometry and pinned candidate records.\",\"url\":\"https://osfm.fire.ca.gov/what-we-do/community-wildfire-preparedness-and-mitigation/fire-hazard-severity-zones\",\"authority\":\"official\",\"retrieved_at\":\"2026-09-29T18:00:00Z\"},\"raw_observed_value\":{\"kind\":\"not_observed\",\"value\":null},\"normalized_value\":{\"kind\":\"unknown\",\"value\":null,\"reason\":\"insufficient_evidence\"},\"evidence_type\":\"official_map\",\"classification\":\"unknown\",\"confidence\":0,\"conflicts_with\":[],\"review_status\":\"reviewed\",\"notes\":[],\"limitations\":[],\"provenance\":{\"source_record_id\":\"00000000-0000-4000-8000-0000000000f1\",\"capture_method\":\"system_import\",\"is_ai_generated\":false}}",
+      "block": "{\"schema_version\":\"program-screen-evidence-authority-v1\",\"evidence_id\":\"computed-calfire-high-00000000-0000-4000-8000-0000000000f1\",\"fact_key\":\"high-fire-hazard-severity-zone\",\"record_kind\":\"agency_hazard_map\",\"issuer\":{\"name\":\"Office of the State Fire Marshal\",\"issuer_id\":\"calfire-osfm\"},\"source_identifier\":{\"scheme\":\"authority_source_id\",\"value\":\"calfire-sra-fhsz-2023-09-29\"},\"document_title\":\"State Responsibility Area Fire Hazard Severity Zones (CAL FIRE / OSFM, PRC §4202)\",\"edition\":{\"label\":\"State Responsibility Area Fire Hazard Severity Zones, dated September 29, 2023\",\"date\":\"2023-09-29\",\"date_kind\":\"dated\",\"currency\":\"current_on_as_of\",\"currency_checked_on\":\"2026-09-30\"},\"retrieved_at\":\"2026-09-29T18:00:00Z\",\"source_url\":\"https://osfm.fire.ca.gov/what-we-do/community-wildfire-preparedness-and-mitigation/fire-hazard-severity-zones\",\"capture\":{\"store\":\"repo_official_source\",\"source_id\":\"calfire-sra-fhsz-map-2023-09-29\",\"sha256_extracted\":\"11830e2c8c29f368e4087ae9ff270ee042673dfd7be6e354750c326579e5b1fe\"},\"parcel_relationship\":{\"matched_by\":\"spatial_overlay\",\"parcel_identifier\":\"0000000001\",\"legal_lot_reference\":\"Tract TEST-ONLY-11106-EQUIVALENT, Lot TEST-ONLY-85, MB TEST-ONLY-203 pp 19–22\",\"legal_lot_identity\":\"parcel_is_one_legal_lot\"},\"coverage\":\"not_established\",\"qualifiers\":{\"family\":\"hazard_map\",\"hazard_class\":\"high\",\"statutory_basis\":\"prc_4202\",\"adoption_status\":\"adopted\",\"named_agency\":\"department_of_forestry_and_fire_protection\",\"map_covers_lot\":\"not_established\",\"legend_defines_class_for_lot\":\"yes\",\"responsibility_area_as_stated\":\"state\",\"lot_overlay\":{\"method\":\"deterministic_spatial_overlay\",\"dataset\":{\"source_id\":\"calfire-fhszsra-23-3-data\",\"sha256_extracted\":\"a85ff7eecf0f8ffa80d7dd8dcdc727a9dde42979fb3b7b8d5614b7a47a6b5a8a\"},\"lot_geometry\":{\"store\":\"case_evidence_file\",\"file_id\":\"test-only-normalized-lot\",\"sha256\":\"be25919869c1a0fdd1d856ebf18fdb16ca83ac7a758f7551704b5f3dd2ceffeb\"}}},\"authority_review\":{\"status\":\"reviewed\",\"reviewer\":{\"kind\":\"human\",\"name\":\"TEST-ONLY Reviewer\",\"role\":\"Synthetic geometry reviewer\"},\"reviewed_on\":\"2026-09-30\"},\"notes\":[],\"is_ai_generated\":false}",
+      "d": "{\"criterion_id\":\"la_shra.high-fire-hazard-severity-zone\",\"pathway\":\"la_shra\",\"label\":\"SHRA prohibited site category: High Fire Hazard Severity Zone\",\"gating\":false,\"verification\":\"human_verified\",\"rule_kind\":\"predicate\",\"rule_summary\":\"Phase 3B decision d. Disqualifying per source when a reviewed CAL FIRE / State Fire Marshal record under PRC §4202, a deterministic overlay of the reviewed legal-lot geometry on the registered SRA dataset, shows the whole lot proposed to be subdivided in High. Consistent with source when SRA features cover the whole lot, the legend defines High there, and no part of the lot is High. Partial coverage, land outside the SRA, an unclear legal lot, GOV §51178, and any other source stay unknown. Very High is criterion c.\",\"status\":\"unknown\",\"classification\":\"unknown\",\"statement\":\"Available evidence is insufficient to determine whether the parcel is mapped in a High Fire Hazard Severity Zone. This criterion stays unknown; missing evidence is not treated as a no.\",\"unreviewed_reasons\":[],\"facts\":[{\"key\":\"high-fire-hazard-severity-zone\",\"classification\":\"unknown\",\"supplied\":true,\"reviewed\":true,\"evidence_ids\":[\"computed-calfire-high-00000000-0000-4000-8000-0000000000f1\"]}],\"citation\":{\"title\":\"Los Angeles City Planning — SHRA implementation memo (October 28, 2025; SB 684, SB 1123, AB 130)\",\"url\":\"https://planning.lacity.gov/odocument/1b081b86-f735-43e8-bba6-c2d73a192db7/SB_684_1123_Memo_Update_ACP.pdf\",\"verified_at\":\"2026-09-29\",\"volatility\":\"high\",\"next_review_at\":\"2026-10-29\",\"pinpoint\":\"Memo Part I, Environmental Criteria, page 4, prohibited category 3 and footnote 1\"},\"stale\":false,\"confirmer\":\"Los Angeles City Planning\"}"
+    },
+    "258094180f9af79f4609f2de42262e774ba3483334e788bfdd5ae3779bfcfd1e": {
+      "record": "{\"id\":\"computed-calfire-high-00000000-0000-4000-8000-0000000000f1\",\"subject\":{\"case_id\":\"00000000-0000-4000-8000-00000000003f\",\"property_id\":\"test-only-property-3f\"},\"claim\":{\"key\":\"high-fire-hazard-severity-zone\",\"label\":\"High Fire Hazard Severity Zone\",\"client_label\":\"whether the parcel is mapped in a High Fire Hazard Severity Zone\"},\"source\":{\"agency\":\"CAL FIRE / Office of the State Fire Marshal\",\"title\":\"Computed overlay on the reviewed CAL FIRE SRA package\",\"description\":\"Derived from verified case geometry and pinned candidate records.\",\"url\":\"https://osfm.fire.ca.gov/what-we-do/community-wildfire-preparedness-and-mitigation/fire-hazard-severity-zones\",\"authority\":\"official\",\"retrieved_at\":\"2026-09-29T18:00:00Z\"},\"raw_observed_value\":{\"kind\":\"boolean\",\"value\":true},\"normalized_value\":{\"kind\":\"boolean\",\"value\":true},\"evidence_type\":\"official_map\",\"classification\":\"source_observation\",\"confidence\":100,\"conflicts_with\":[],\"review_status\":\"reviewed\",\"notes\":[],\"limitations\":[],\"provenance\":{\"source_record_id\":\"00000000-0000-4000-8000-0000000000f1\",\"capture_method\":\"system_import\",\"is_ai_generated\":false}}",
+      "block": "{\"schema_version\":\"program-screen-evidence-authority-v1\",\"evidence_id\":\"computed-calfire-high-00000000-0000-4000-8000-0000000000f1\",\"fact_key\":\"high-fire-hazard-severity-zone\",\"record_kind\":\"agency_hazard_map\",\"issuer\":{\"name\":\"Office of the State Fire Marshal\",\"issuer_id\":\"calfire-osfm\"},\"source_identifier\":{\"scheme\":\"authority_source_id\",\"value\":\"calfire-sra-fhsz-2023-09-29\"},\"document_title\":\"State Responsibility Area Fire Hazard Severity Zones (CAL FIRE / OSFM, PRC §4202)\",\"edition\":{\"label\":\"State Responsibility Area Fire Hazard Severity Zones, dated September 29, 2023\",\"date\":\"2023-09-29\",\"date_kind\":\"dated\",\"currency\":\"current_on_as_of\",\"currency_checked_on\":\"2026-09-30\"},\"retrieved_at\":\"2026-09-29T18:00:00Z\",\"source_url\":\"https://osfm.fire.ca.gov/what-we-do/community-wildfire-preparedness-and-mitigation/fire-hazard-severity-zones\",\"capture\":{\"store\":\"repo_official_source\",\"source_id\":\"calfire-sra-fhsz-map-2023-09-29\",\"sha256_extracted\":\"11830e2c8c29f368e4087ae9ff270ee042673dfd7be6e354750c326579e5b1fe\"},\"parcel_relationship\":{\"matched_by\":\"spatial_overlay\",\"parcel_identifier\":\"0000000001\",\"legal_lot_reference\":\"Tract TEST-ONLY-11106-EQUIVALENT, Lot TEST-ONLY-85, MB TEST-ONLY-203 pp 19–22\",\"legal_lot_identity\":\"parcel_is_one_legal_lot\"},\"coverage\":\"whole_parcel\",\"qualifiers\":{\"family\":\"hazard_map\",\"hazard_class\":\"high\",\"statutory_basis\":\"prc_4202\",\"adoption_status\":\"adopted\",\"named_agency\":\"department_of_forestry_and_fire_protection\",\"map_covers_lot\":\"not_established\",\"legend_defines_class_for_lot\":\"yes\",\"responsibility_area_as_stated\":\"state\",\"lot_overlay\":{\"method\":\"deterministic_spatial_overlay\",\"dataset\":{\"source_id\":\"calfire-fhszsra-23-3-data\",\"sha256_extracted\":\"a85ff7eecf0f8ffa80d7dd8dcdc727a9dde42979fb3b7b8d5614b7a47a6b5a8a\"},\"lot_geometry\":{\"store\":\"case_evidence_file\",\"file_id\":\"test-only-normalized-lot\",\"sha256\":\"be25919869c1a0fdd1d856ebf18fdb16ca83ac7a758f7551704b5f3dd2ceffeb\"}}},\"authority_review\":{\"status\":\"reviewed\",\"reviewer\":{\"kind\":\"human\",\"name\":\"TEST-ONLY Reviewer\",\"role\":\"Synthetic geometry reviewer\"},\"reviewed_on\":\"2026-09-30\"},\"notes\":[],\"is_ai_generated\":false}",
+      "d": "{\"criterion_id\":\"la_shra.high-fire-hazard-severity-zone\",\"pathway\":\"la_shra\",\"label\":\"SHRA prohibited site category: High Fire Hazard Severity Zone\",\"gating\":false,\"verification\":\"human_verified\",\"rule_kind\":\"predicate\",\"rule_summary\":\"Phase 3B decision d. Disqualifying per source when a reviewed CAL FIRE / State Fire Marshal record under PRC §4202, a deterministic overlay of the reviewed legal-lot geometry on the registered SRA dataset, shows the whole lot proposed to be subdivided in High. Consistent with source when SRA features cover the whole lot, the legend defines High there, and no part of the lot is High. Partial coverage, land outside the SRA, an unclear legal lot, GOV §51178, and any other source stay unknown. Very High is criterion c.\",\"status\":\"disqualifying_per_source\",\"classification\":\"inference\",\"statement\":\"Reviewed records for High Fire Hazard Severity Zone document a condition that the cited source treats as blocking this pathway.\",\"unreviewed_reasons\":[],\"facts\":[{\"key\":\"high-fire-hazard-severity-zone\",\"classification\":\"source_observation\",\"supplied\":true,\"reviewed\":true,\"evidence_ids\":[\"computed-calfire-high-00000000-0000-4000-8000-0000000000f1\"]}],\"citation\":{\"title\":\"Los Angeles City Planning — SHRA implementation memo (October 28, 2025; SB 684, SB 1123, AB 130)\",\"url\":\"https://planning.lacity.gov/odocument/1b081b86-f735-43e8-bba6-c2d73a192db7/SB_684_1123_Memo_Update_ACP.pdf\",\"verified_at\":\"2026-09-29\",\"volatility\":\"high\",\"next_review_at\":\"2026-10-29\",\"pinpoint\":\"Memo Part I, Environmental Criteria, page 4, prohibited category 3 and footnote 1\"},\"stale\":false,\"confirmer\":\"Los Angeles City Planning\",\"authority\":{\"established\":true,\"facts\":[{\"key\":\"high-fire-hazard-severity-zone\",\"established\":true,\"establishing_evidence_ids\":[\"computed-calfire-high-00000000-0000-4000-8000-0000000000f1\"],\"non_establishing\":[],\"failures\":[]}],\"criterion_failures\":[]}}"
+    },
+    "26b0a1f1505d0406fdb903f68becca4dcbeb8390d81241915420ebdc1c5ce88d": {
+      "record": "{\"id\":\"computed-calfire-high-unavailable\",\"subject\":{\"case_id\":\"00000000-0000-4000-8000-00000000003f\",\"property_id\":\"test-only-property-3f\"},\"claim\":{\"key\":\"high-fire-hazard-severity-zone\",\"label\":\"High Fire Hazard Severity Zone\",\"client_label\":\"whether the parcel is mapped in a High Fire Hazard Severity Zone\"},\"source\":{\"agency\":\"CAL FIRE / Office of the State Fire Marshal\",\"title\":\"Computed overlay on the reviewed CAL FIRE SRA package\",\"description\":\"Derived from verified case geometry and pinned candidate records.\",\"url\":\"https://osfm.fire.ca.gov/what-we-do/community-wildfire-preparedness-and-mitigation/fire-hazard-severity-zones\",\"authority\":\"official\",\"retrieved_at\":\"2026-09-30T00:00:00Z\"},\"raw_observed_value\":{\"kind\":\"not_observed\",\"value\":null},\"normalized_value\":{\"kind\":\"unknown\",\"value\":null,\"reason\":\"insufficient_evidence\"},\"evidence_type\":\"official_map\",\"classification\":\"unknown\",\"confidence\":0,\"conflicts_with\":[],\"review_status\":\"reviewed\",\"notes\":[],\"limitations\":[],\"provenance\":{\"source_record_id\":\"computed-overlay-unavailable\",\"capture_method\":\"system_import\",\"is_ai_generated\":false}}",
+      "block": "null",
+      "d": "{\"criterion_id\":\"la_shra.high-fire-hazard-severity-zone\",\"pathway\":\"la_shra\",\"label\":\"SHRA prohibited site category: High Fire Hazard Severity Zone\",\"gating\":false,\"verification\":\"human_verified\",\"rule_kind\":\"predicate\",\"rule_summary\":\"Phase 3B decision d. Disqualifying per source when a reviewed CAL FIRE / State Fire Marshal record under PRC §4202, a deterministic overlay of the reviewed legal-lot geometry on the registered SRA dataset, shows the whole lot proposed to be subdivided in High. Consistent with source when SRA features cover the whole lot, the legend defines High there, and no part of the lot is High. Partial coverage, land outside the SRA, an unclear legal lot, GOV §51178, and any other source stay unknown. Very High is criterion c.\",\"status\":\"unknown\",\"classification\":\"unknown\",\"statement\":\"Available evidence is insufficient to determine whether the parcel is mapped in a High Fire Hazard Severity Zone. This criterion stays unknown; missing evidence is not treated as a no.\",\"unreviewed_reasons\":[],\"facts\":[{\"key\":\"high-fire-hazard-severity-zone\",\"classification\":\"unknown\",\"supplied\":true,\"reviewed\":true,\"evidence_ids\":[\"computed-calfire-high-unavailable\"]}],\"citation\":{\"title\":\"Los Angeles City Planning — SHRA implementation memo (October 28, 2025; SB 684, SB 1123, AB 130)\",\"url\":\"https://planning.lacity.gov/odocument/1b081b86-f735-43e8-bba6-c2d73a192db7/SB_684_1123_Memo_Update_ACP.pdf\",\"verified_at\":\"2026-09-29\",\"volatility\":\"high\",\"next_review_at\":\"2026-10-29\",\"pinpoint\":\"Memo Part I, Environmental Criteria, page 4, prohibited category 3 and footnote 1\"},\"stale\":false,\"confirmer\":\"Los Angeles City Planning\"}"
+    },
+    "2eae2acabd938b3c03d097dc56589718efc42c9d6ac2b1639bfee2b1dcdd289d": {
+      "record": "{\"id\":\"computed-calfire-high-unavailable\",\"subject\":{\"case_id\":\"00000000-0000-4000-8000-00000000003f\",\"property_id\":\"test-only-property-3f\"},\"claim\":{\"key\":\"high-fire-hazard-severity-zone\",\"label\":\"High Fire Hazard Severity Zone\",\"client_label\":\"whether the parcel is mapped in a High Fire Hazard Severity Zone\"},\"source\":{\"agency\":\"CAL FIRE / Office of the State Fire Marshal\",\"title\":\"Computed overlay on the reviewed CAL FIRE SRA package\",\"description\":\"Derived from verified case geometry and pinned candidate records.\",\"url\":\"https://osfm.fire.ca.gov/what-we-do/community-wildfire-preparedness-and-mitigation/fire-hazard-severity-zones\",\"authority\":\"official\",\"retrieved_at\":\"2026-10-01T00:00:00Z\"},\"raw_observed_value\":{\"kind\":\"not_observed\",\"value\":null},\"normalized_value\":{\"kind\":\"unknown\",\"value\":null,\"reason\":\"insufficient_evidence\"},\"evidence_type\":\"official_map\",\"classification\":\"unknown\",\"confidence\":0,\"conflicts_with\":[],\"review_status\":\"reviewed\",\"notes\":[],\"limitations\":[],\"provenance\":{\"source_record_id\":\"computed-overlay-unavailable\",\"capture_method\":\"system_import\",\"is_ai_generated\":false}}",
+      "block": "null",
+      "d": "{\"criterion_id\":\"la_shra.high-fire-hazard-severity-zone\",\"pathway\":\"la_shra\",\"label\":\"SHRA prohibited site category: High Fire Hazard Severity Zone\",\"gating\":false,\"verification\":\"human_verified\",\"rule_kind\":\"predicate\",\"rule_summary\":\"Phase 3B decision d. Disqualifying per source when a reviewed CAL FIRE / State Fire Marshal record under PRC §4202, a deterministic overlay of the reviewed legal-lot geometry on the registered SRA dataset, shows the whole lot proposed to be subdivided in High. Consistent with source when SRA features cover the whole lot, the legend defines High there, and no part of the lot is High. Partial coverage, land outside the SRA, an unclear legal lot, GOV §51178, and any other source stay unknown. Very High is criterion c.\",\"status\":\"unknown\",\"classification\":\"unknown\",\"statement\":\"Available evidence is insufficient to determine whether the parcel is mapped in a High Fire Hazard Severity Zone. This criterion stays unknown; missing evidence is not treated as a no.\",\"unreviewed_reasons\":[],\"facts\":[{\"key\":\"high-fire-hazard-severity-zone\",\"classification\":\"unknown\",\"supplied\":true,\"reviewed\":true,\"evidence_ids\":[\"computed-calfire-high-unavailable\"]}],\"citation\":{\"title\":\"Los Angeles City Planning — SHRA implementation memo (October 28, 2025; SB 684, SB 1123, AB 130)\",\"url\":\"https://planning.lacity.gov/odocument/1b081b86-f735-43e8-bba6-c2d73a192db7/SB_684_1123_Memo_Update_ACP.pdf\",\"verified_at\":\"2026-09-29\",\"volatility\":\"high\",\"next_review_at\":\"2026-10-29\",\"pinpoint\":\"Memo Part I, Environmental Criteria, page 4, prohibited category 3 and footnote 1\"},\"stale\":false,\"confirmer\":\"Los Angeles City Planning\"}"
+    },
+    "3b50bdaeb8ad61d453c3dbcac0eecf0a07a9208bbca20d359ab57341d02e899c": {
+      "record": "{\"id\":\"computed-calfire-high-00000000-0000-4000-8000-0000000000f1\",\"subject\":{\"case_id\":\"00000000-0000-4000-8000-00000000003f\",\"property_id\":\"test-only-3i-baseline\"},\"claim\":{\"key\":\"high-fire-hazard-severity-zone\",\"label\":\"High Fire Hazard Severity Zone\",\"client_label\":\"whether the parcel is mapped in a High Fire Hazard Severity Zone\"},\"source\":{\"agency\":\"CAL FIRE / Office of the State Fire Marshal\",\"title\":\"Computed overlay on the reviewed CAL FIRE SRA package\",\"description\":\"Derived from verified case geometry and pinned candidate records.\",\"url\":\"https://osfm.fire.ca.gov/what-we-do/community-wildfire-preparedness-and-mitigation/fire-hazard-severity-zones\",\"authority\":\"official\",\"retrieved_at\":\"2026-09-29T18:00:00Z\"},\"raw_observed_value\":{\"kind\":\"not_observed\",\"value\":null},\"normalized_value\":{\"kind\":\"unknown\",\"value\":null,\"reason\":\"insufficient_evidence\"},\"evidence_type\":\"official_map\",\"classification\":\"unknown\",\"confidence\":0,\"conflicts_with\":[],\"review_status\":\"reviewed\",\"notes\":[],\"limitations\":[],\"provenance\":{\"source_record_id\":\"00000000-0000-4000-8000-0000000000f1\",\"capture_method\":\"system_import\",\"is_ai_generated\":false}}",
+      "block": "{\"schema_version\":\"program-screen-evidence-authority-v1\",\"evidence_id\":\"computed-calfire-high-00000000-0000-4000-8000-0000000000f1\",\"fact_key\":\"high-fire-hazard-severity-zone\",\"record_kind\":\"agency_hazard_map\",\"issuer\":{\"name\":\"Office of the State Fire Marshal\",\"issuer_id\":\"calfire-osfm\"},\"source_identifier\":{\"scheme\":\"authority_source_id\",\"value\":\"calfire-sra-fhsz-2023-09-29\"},\"document_title\":\"State Responsibility Area Fire Hazard Severity Zones (CAL FIRE / OSFM, PRC §4202)\",\"edition\":{\"label\":\"State Responsibility Area Fire Hazard Severity Zones, dated September 29, 2023\",\"date\":\"2023-09-29\",\"date_kind\":\"dated\",\"currency\":\"current_on_as_of\",\"currency_checked_on\":\"2026-10-01\"},\"retrieved_at\":\"2026-09-29T18:00:00Z\",\"source_url\":\"https://osfm.fire.ca.gov/what-we-do/community-wildfire-preparedness-and-mitigation/fire-hazard-severity-zones\",\"capture\":{\"store\":\"repo_official_source\",\"source_id\":\"calfire-sra-fhsz-map-2023-09-29\",\"sha256_extracted\":\"11830e2c8c29f368e4087ae9ff270ee042673dfd7be6e354750c326579e5b1fe\"},\"parcel_relationship\":{\"matched_by\":\"spatial_overlay\",\"parcel_identifier\":\"0000000001\",\"legal_lot_reference\":\"Tract TEST-ONLY-11106-EQUIVALENT, Lot TEST-ONLY-85, MB TEST-ONLY-203 pp 19–22\",\"legal_lot_identity\":\"not_established\"},\"coverage\":\"not_established\",\"qualifiers\":{\"family\":\"hazard_map\",\"hazard_class\":\"high\",\"statutory_basis\":\"prc_4202\",\"adoption_status\":\"adopted\",\"named_agency\":\"department_of_forestry_and_fire_protection\",\"map_covers_lot\":\"not_established\",\"legend_defines_class_for_lot\":\"yes\",\"responsibility_area_as_stated\":\"state\",\"lot_overlay\":{\"method\":\"deterministic_spatial_overlay\",\"dataset\":{\"source_id\":\"calfire-fhszsra-23-3-data\",\"sha256_extracted\":\"a85ff7eecf0f8ffa80d7dd8dcdc727a9dde42979fb3b7b8d5614b7a47a6b5a8a\"},\"lot_geometry\":{\"store\":\"case_evidence_file\",\"file_id\":\"test-only-normalized-lot\",\"sha256\":\"be25919869c1a0fdd1d856ebf18fdb16ca83ac7a758f7551704b5f3dd2ceffeb\"}}},\"authority_review\":{\"status\":\"reviewed\",\"reviewer\":{\"kind\":\"human\",\"name\":\"TEST-ONLY Reviewer\",\"role\":\"Synthetic geometry reviewer\"},\"reviewed_on\":\"2026-09-30\"},\"notes\":[],\"is_ai_generated\":false}",
+      "d": "{\"criterion_id\":\"la_shra.high-fire-hazard-severity-zone\",\"pathway\":\"la_shra\",\"label\":\"SHRA prohibited site category: High Fire Hazard Severity Zone\",\"gating\":false,\"verification\":\"human_verified\",\"rule_kind\":\"predicate\",\"rule_summary\":\"Phase 3B decision d. Disqualifying per source when a reviewed CAL FIRE / State Fire Marshal record under PRC §4202, a deterministic overlay of the reviewed legal-lot geometry on the registered SRA dataset, shows the whole lot proposed to be subdivided in High. Consistent with source when SRA features cover the whole lot, the legend defines High there, and no part of the lot is High. Partial coverage, land outside the SRA, an unclear legal lot, GOV §51178, and any other source stay unknown. Very High is criterion c.\",\"status\":\"unknown\",\"classification\":\"unknown\",\"statement\":\"Available evidence is insufficient to determine whether the parcel is mapped in a High Fire Hazard Severity Zone. This criterion stays unknown; missing evidence is not treated as a no.\",\"unreviewed_reasons\":[],\"facts\":[{\"key\":\"high-fire-hazard-severity-zone\",\"classification\":\"unknown\",\"supplied\":true,\"reviewed\":true,\"evidence_ids\":[\"computed-calfire-high-00000000-0000-4000-8000-0000000000f1\"]}],\"citation\":{\"title\":\"Los Angeles City Planning — SHRA implementation memo (October 28, 2025; SB 684, SB 1123, AB 130)\",\"url\":\"https://planning.lacity.gov/odocument/1b081b86-f735-43e8-bba6-c2d73a192db7/SB_684_1123_Memo_Update_ACP.pdf\",\"verified_at\":\"2026-09-29\",\"volatility\":\"high\",\"next_review_at\":\"2026-10-29\",\"pinpoint\":\"Memo Part I, Environmental Criteria, page 4, prohibited category 3 and footnote 1\"},\"stale\":false,\"confirmer\":\"Los Angeles City Planning\"}"
+    },
+    "42919e0172689d025ccece8a3945dd42d07e48ef8a5ede0fa56e93a942687fbb": {
+      "record": "{\"id\":\"computed-calfire-high-unavailable\",\"subject\":{\"case_id\":\"00000000-0000-4000-8000-00000000003f\",\"property_id\":\"test-only-phase-3g\"},\"claim\":{\"key\":\"high-fire-hazard-severity-zone\",\"label\":\"High Fire Hazard Severity Zone\",\"client_label\":\"whether the parcel is mapped in a High Fire Hazard Severity Zone\"},\"source\":{\"agency\":\"CAL FIRE / Office of the State Fire Marshal\",\"title\":\"Computed overlay on the reviewed CAL FIRE SRA package\",\"description\":\"Derived from verified case geometry and pinned candidate records.\",\"url\":\"https://osfm.fire.ca.gov/what-we-do/community-wildfire-preparedness-and-mitigation/fire-hazard-severity-zones\",\"authority\":\"official\",\"retrieved_at\":\"2026-10-01T00:00:00Z\"},\"raw_observed_value\":{\"kind\":\"not_observed\",\"value\":null},\"normalized_value\":{\"kind\":\"unknown\",\"value\":null,\"reason\":\"insufficient_evidence\"},\"evidence_type\":\"official_map\",\"classification\":\"unknown\",\"confidence\":0,\"conflicts_with\":[],\"review_status\":\"reviewed\",\"notes\":[],\"limitations\":[],\"provenance\":{\"source_record_id\":\"computed-overlay-unavailable\",\"capture_method\":\"system_import\",\"is_ai_generated\":false}}",
+      "block": "null",
+      "d": "{\"criterion_id\":\"la_shra.high-fire-hazard-severity-zone\",\"pathway\":\"la_shra\",\"label\":\"SHRA prohibited site category: High Fire Hazard Severity Zone\",\"gating\":false,\"verification\":\"human_verified\",\"rule_kind\":\"predicate\",\"rule_summary\":\"Phase 3B decision d. Disqualifying per source when a reviewed CAL FIRE / State Fire Marshal record under PRC §4202, a deterministic overlay of the reviewed legal-lot geometry on the registered SRA dataset, shows the whole lot proposed to be subdivided in High. Consistent with source when SRA features cover the whole lot, the legend defines High there, and no part of the lot is High. Partial coverage, land outside the SRA, an unclear legal lot, GOV §51178, and any other source stay unknown. Very High is criterion c.\",\"status\":\"unknown\",\"classification\":\"unknown\",\"statement\":\"Available evidence is insufficient to determine whether the parcel is mapped in a High Fire Hazard Severity Zone. This criterion stays unknown; missing evidence is not treated as a no.\",\"unreviewed_reasons\":[],\"facts\":[{\"key\":\"high-fire-hazard-severity-zone\",\"classification\":\"unknown\",\"supplied\":true,\"reviewed\":true,\"evidence_ids\":[\"computed-calfire-high-unavailable\"]}],\"citation\":{\"title\":\"Los Angeles City Planning — SHRA implementation memo (October 28, 2025; SB 684, SB 1123, AB 130)\",\"url\":\"https://planning.lacity.gov/odocument/1b081b86-f735-43e8-bba6-c2d73a192db7/SB_684_1123_Memo_Update_ACP.pdf\",\"verified_at\":\"2026-09-29\",\"volatility\":\"high\",\"next_review_at\":\"2026-10-29\",\"pinpoint\":\"Memo Part I, Environmental Criteria, page 4, prohibited category 3 and footnote 1\"},\"stale\":false,\"confirmer\":\"Los Angeles City Planning\"}"
+    },
+    "4680b1b6e6767126b6f02f01a35f23d85e8ce3c51e196df5a8b552ef13b9c755": {
+      "record": "{\"id\":\"computed-calfire-high-00000000-0000-4000-8000-0000000000f1\",\"subject\":{\"case_id\":\"00000000-0000-4000-8000-00000000003f\",\"property_id\":\"test-only-property-3f\"},\"claim\":{\"key\":\"high-fire-hazard-severity-zone\",\"label\":\"High Fire Hazard Severity Zone\",\"client_label\":\"whether the parcel is mapped in a High Fire Hazard Severity Zone\"},\"source\":{\"agency\":\"CAL FIRE / Office of the State Fire Marshal\",\"title\":\"Computed overlay on the reviewed CAL FIRE SRA package\",\"description\":\"Derived from verified case geometry and pinned candidate records.\",\"url\":\"https://osfm.fire.ca.gov/what-we-do/community-wildfire-preparedness-and-mitigation/fire-hazard-severity-zones\",\"authority\":\"official\",\"retrieved_at\":\"2026-09-29T18:00:00Z\"},\"raw_observed_value\":{\"kind\":\"not_observed\",\"value\":null},\"normalized_value\":{\"kind\":\"unknown\",\"value\":null,\"reason\":\"insufficient_evidence\"},\"evidence_type\":\"official_map\",\"classification\":\"unknown\",\"confidence\":0,\"conflicts_with\":[],\"review_status\":\"reviewed\",\"notes\":[],\"limitations\":[],\"provenance\":{\"source_record_id\":\"00000000-0000-4000-8000-0000000000f1\",\"capture_method\":\"system_import\",\"is_ai_generated\":false}}",
+      "block": "{\"schema_version\":\"program-screen-evidence-authority-v1\",\"evidence_id\":\"computed-calfire-high-00000000-0000-4000-8000-0000000000f1\",\"fact_key\":\"high-fire-hazard-severity-zone\",\"record_kind\":\"agency_hazard_map\",\"issuer\":{\"name\":\"Office of the State Fire Marshal\",\"issuer_id\":\"calfire-osfm\"},\"source_identifier\":{\"scheme\":\"authority_source_id\",\"value\":\"calfire-sra-fhsz-2023-09-29\"},\"document_title\":\"State Responsibility Area Fire Hazard Severity Zones (CAL FIRE / OSFM, PRC §4202)\",\"edition\":{\"label\":\"State Responsibility Area Fire Hazard Severity Zones, dated September 29, 2023\",\"date\":\"2023-09-29\",\"date_kind\":\"dated\",\"currency\":\"current_on_as_of\",\"currency_checked_on\":\"2026-09-30\"},\"retrieved_at\":\"2026-09-29T18:00:00Z\",\"source_url\":\"https://osfm.fire.ca.gov/what-we-do/community-wildfire-preparedness-and-mitigation/fire-hazard-severity-zones\",\"capture\":{\"store\":\"repo_official_source\",\"source_id\":\"calfire-sra-fhsz-map-2023-09-29\",\"sha256_extracted\":\"11830e2c8c29f368e4087ae9ff270ee042673dfd7be6e354750c326579e5b1fe\"},\"parcel_relationship\":{\"matched_by\":\"spatial_overlay\",\"parcel_identifier\":\"0000000001\",\"legal_lot_reference\":\"Tract TEST-ONLY-11106-EQUIVALENT, Lot TEST-ONLY-85, MB TEST-ONLY-203 pp 19–22\",\"legal_lot_identity\":\"not_established\"},\"coverage\":\"not_established\",\"qualifiers\":{\"family\":\"hazard_map\",\"hazard_class\":\"high\",\"statutory_basis\":\"prc_4202\",\"adoption_status\":\"adopted\",\"named_agency\":\"department_of_forestry_and_fire_protection\",\"map_covers_lot\":\"not_established\",\"legend_defines_class_for_lot\":\"yes\",\"responsibility_area_as_stated\":\"state\",\"lot_overlay\":{\"method\":\"deterministic_spatial_overlay\",\"dataset\":{\"source_id\":\"calfire-fhszsra-23-3-data\",\"sha256_extracted\":\"a85ff7eecf0f8ffa80d7dd8dcdc727a9dde42979fb3b7b8d5614b7a47a6b5a8a\"},\"lot_geometry\":{\"store\":\"case_evidence_file\",\"file_id\":\"test-only-normalized-lot\",\"sha256\":\"be25919869c1a0fdd1d856ebf18fdb16ca83ac7a758f7551704b5f3dd2ceffeb\"}}},\"authority_review\":{\"status\":\"reviewed\",\"reviewer\":{\"kind\":\"human\",\"name\":\"TEST-ONLY Reviewer\",\"role\":\"Synthetic geometry reviewer\"},\"reviewed_on\":\"2026-09-30\"},\"notes\":[],\"is_ai_generated\":false}",
+      "d": "{\"criterion_id\":\"la_shra.high-fire-hazard-severity-zone\",\"pathway\":\"la_shra\",\"label\":\"SHRA prohibited site category: High Fire Hazard Severity Zone\",\"gating\":false,\"verification\":\"human_verified\",\"rule_kind\":\"predicate\",\"rule_summary\":\"Phase 3B decision d. Disqualifying per source when a reviewed CAL FIRE / State Fire Marshal record under PRC §4202, a deterministic overlay of the reviewed legal-lot geometry on the registered SRA dataset, shows the whole lot proposed to be subdivided in High. Consistent with source when SRA features cover the whole lot, the legend defines High there, and no part of the lot is High. Partial coverage, land outside the SRA, an unclear legal lot, GOV §51178, and any other source stay unknown. Very High is criterion c.\",\"status\":\"unknown\",\"classification\":\"unknown\",\"statement\":\"Available evidence is insufficient to determine whether the parcel is mapped in a High Fire Hazard Severity Zone. This criterion stays unknown; missing evidence is not treated as a no.\",\"unreviewed_reasons\":[],\"facts\":[{\"key\":\"high-fire-hazard-severity-zone\",\"classification\":\"unknown\",\"supplied\":true,\"reviewed\":true,\"evidence_ids\":[\"computed-calfire-high-00000000-0000-4000-8000-0000000000f1\"]}],\"citation\":{\"title\":\"Los Angeles City Planning — SHRA implementation memo (October 28, 2025; SB 684, SB 1123, AB 130)\",\"url\":\"https://planning.lacity.gov/odocument/1b081b86-f735-43e8-bba6-c2d73a192db7/SB_684_1123_Memo_Update_ACP.pdf\",\"verified_at\":\"2026-09-29\",\"volatility\":\"high\",\"next_review_at\":\"2026-10-29\",\"pinpoint\":\"Memo Part I, Environmental Criteria, page 4, prohibited category 3 and footnote 1\"},\"stale\":false,\"confirmer\":\"Los Angeles City Planning\"}"
+    },
+    "507262733e8e6bd079b8f72761fe6b3b3ceb1b60ce3dcaabcc78fc4814020fb7": {
+      "record": "{\"id\":\"computed-calfire-high-unavailable\",\"subject\":{\"case_id\":\"00000000-0000-4000-8000-00000000003f\",\"property_id\":\"test-only-property-3f\"},\"claim\":{\"key\":\"high-fire-hazard-severity-zone\",\"label\":\"High Fire Hazard Severity Zone\",\"client_label\":\"whether the parcel is mapped in a High Fire Hazard Severity Zone\"},\"source\":{\"agency\":\"CAL FIRE / Office of the State Fire Marshal\",\"title\":\"Computed overlay on the reviewed CAL FIRE SRA package\",\"description\":\"Derived from verified case geometry and pinned candidate records.\",\"url\":\"https://osfm.fire.ca.gov/what-we-do/community-wildfire-preparedness-and-mitigation/fire-hazard-severity-zones\",\"authority\":\"official\",\"retrieved_at\":\"2026-09-30T00:00:00Z\"},\"raw_observed_value\":{\"kind\":\"not_observed\",\"value\":null},\"normalized_value\":{\"kind\":\"unknown\",\"value\":null,\"reason\":\"insufficient_evidence\"},\"evidence_type\":\"official_map\",\"classification\":\"unknown\",\"confidence\":0,\"conflicts_with\":[],\"review_status\":\"reviewed\",\"notes\":[],\"limitations\":[],\"provenance\":{\"source_record_id\":\"computed-overlay-unavailable\",\"capture_method\":\"system_import\",\"is_ai_generated\":false}}",
+      "block": "null",
+      "d": "{\"criterion_id\":\"la_shra.high-fire-hazard-severity-zone\",\"pathway\":\"la_shra\",\"label\":\"SHRA prohibited site category: High Fire Hazard Severity Zone\",\"gating\":false,\"verification\":\"human_verified\",\"rule_kind\":\"predicate\",\"rule_summary\":\"Phase 3B decision d. Disqualifying per source when a reviewed CAL FIRE / State Fire Marshal record under PRC §4202, a deterministic overlay of the reviewed legal-lot geometry on the registered SRA dataset, shows the whole lot proposed to be subdivided in High. Consistent with source when SRA features cover the whole lot, the legend defines High there, and no part of the lot is High. Partial coverage, land outside the SRA, an unclear legal lot, GOV §51178, and any other source stay unknown. Very High is criterion c.\",\"status\":\"unknown\",\"classification\":\"unknown\",\"statement\":\"No record that this criterion accepts as authoritative establishes the recorded High Fire Hazard Severity Zone. This criterion stays unknown. A record that is not a registered, reviewed authority can conflict with other records but cannot establish a fact, and missing authority is not treated as a no.\",\"unreviewed_reasons\":[],\"facts\":[{\"key\":\"high-fire-hazard-severity-zone\",\"classification\":\"source_observation\",\"supplied\":true,\"reviewed\":true,\"evidence_ids\":[\"computed-calfire-high-unavailable\",\"test-only-manual-yes\"]}],\"citation\":{\"title\":\"Los Angeles City Planning — SHRA implementation memo (October 28, 2025; SB 684, SB 1123, AB 130)\",\"url\":\"https://planning.lacity.gov/odocument/1b081b86-f735-43e8-bba6-c2d73a192db7/SB_684_1123_Memo_Update_ACP.pdf\",\"verified_at\":\"2026-09-29\",\"volatility\":\"high\",\"next_review_at\":\"2026-10-29\",\"pinpoint\":\"Memo Part I, Environmental Criteria, page 4, prohibited category 3 and footnote 1\"},\"stale\":false,\"confirmer\":\"Los Angeles City Planning\",\"authority\":{\"established\":false,\"facts\":[{\"key\":\"high-fire-hazard-severity-zone\",\"established\":false,\"establishing_evidence_ids\":[],\"non_establishing\":[{\"evidence_id\":\"test-only-manual-yes\",\"failures\":[\"no_authority_block\"]}],\"failures\":[\"no_establishing_record\"]}],\"criterion_failures\":[]}}"
+    },
+    "53a8ea40704886f072b48da608bd4d6e747d3f7d7077d961b39d201d92947757": {
+      "record": "{\"id\":\"computed-calfire-high-00000000-0000-4000-8000-0000000000f1\",\"subject\":{\"case_id\":\"00000000-0000-4000-8000-00000000003f\",\"property_id\":\"test-only-property-3f\"},\"claim\":{\"key\":\"high-fire-hazard-severity-zone\",\"label\":\"High Fire Hazard Severity Zone\",\"client_label\":\"whether the parcel is mapped in a High Fire Hazard Severity Zone\"},\"source\":{\"agency\":\"CAL FIRE / Office of the State Fire Marshal\",\"title\":\"Computed overlay on the reviewed CAL FIRE SRA package\",\"description\":\"Derived from verified case geometry and pinned candidate records.\",\"url\":\"https://osfm.fire.ca.gov/what-we-do/community-wildfire-preparedness-and-mitigation/fire-hazard-severity-zones\",\"authority\":\"official\",\"retrieved_at\":\"2026-09-29T18:00:00Z\"},\"raw_observed_value\":{\"kind\":\"not_observed\",\"value\":null},\"normalized_value\":{\"kind\":\"unknown\",\"value\":null,\"reason\":\"insufficient_evidence\"},\"evidence_type\":\"official_map\",\"classification\":\"unknown\",\"confidence\":0,\"conflicts_with\":[],\"review_status\":\"reviewed\",\"notes\":[],\"limitations\":[],\"provenance\":{\"source_record_id\":\"00000000-0000-4000-8000-0000000000f1\",\"capture_method\":\"system_import\",\"is_ai_generated\":false}}",
+      "block": "{\"schema_version\":\"program-screen-evidence-authority-v1\",\"evidence_id\":\"computed-calfire-high-00000000-0000-4000-8000-0000000000f1\",\"fact_key\":\"high-fire-hazard-severity-zone\",\"record_kind\":\"agency_hazard_map\",\"issuer\":{\"name\":\"Office of the State Fire Marshal\",\"issuer_id\":\"calfire-osfm\"},\"source_identifier\":{\"scheme\":\"authority_source_id\",\"value\":\"calfire-sra-fhsz-2023-09-29\"},\"document_title\":\"State Responsibility Area Fire Hazard Severity Zones (CAL FIRE / OSFM, PRC §4202)\",\"edition\":{\"label\":\"State Responsibility Area Fire Hazard Severity Zones, dated September 29, 2023\",\"date\":\"2023-09-29\",\"date_kind\":\"dated\",\"currency\":\"current_on_as_of\",\"currency_checked_on\":\"2026-09-30\"},\"retrieved_at\":\"2026-09-29T18:00:00Z\",\"source_url\":\"https://osfm.fire.ca.gov/what-we-do/community-wildfire-preparedness-and-mitigation/fire-hazard-severity-zones\",\"capture\":{\"store\":\"repo_official_source\",\"source_id\":\"calfire-sra-fhsz-map-2023-09-29\",\"sha256_extracted\":\"11830e2c8c29f368e4087ae9ff270ee042673dfd7be6e354750c326579e5b1fe\"},\"parcel_relationship\":{\"matched_by\":\"spatial_overlay\",\"parcel_identifier\":\"0000000001\",\"legal_lot_reference\":\"Tract TEST-ONLY-11106-EQUIVALENT, Lot TEST-ONLY-85, MB TEST-ONLY-203 pp 19–22\",\"legal_lot_identity\":\"not_established\"},\"coverage\":\"not_established\",\"qualifiers\":{\"family\":\"hazard_map\",\"hazard_class\":\"high\",\"statutory_basis\":\"prc_4202\",\"adoption_status\":\"adopted\",\"named_agency\":\"department_of_forestry_and_fire_protection\",\"map_covers_lot\":\"not_established\",\"legend_defines_class_for_lot\":\"yes\",\"responsibility_area_as_stated\":\"state\",\"lot_overlay\":{\"method\":\"deterministic_spatial_overlay\",\"dataset\":{\"source_id\":\"calfire-fhszsra-23-3-data\",\"sha256_extracted\":\"a85ff7eecf0f8ffa80d7dd8dcdc727a9dde42979fb3b7b8d5614b7a47a6b5a8a\"},\"lot_geometry\":{\"store\":\"case_evidence_file\",\"file_id\":\"test-only-normalized-lot\",\"sha256\":\"be25919869c1a0fdd1d856ebf18fdb16ca83ac7a758f7551704b5f3dd2ceffeb\"}}},\"authority_review\":{\"status\":\"reviewed\",\"reviewer\":{\"kind\":\"human\",\"name\":\"TEST-ONLY Reviewer\",\"role\":\"Synthetic geometry reviewer\"},\"reviewed_on\":\"2026-09-30\"},\"notes\":[],\"is_ai_generated\":false}",
+      "d": "{\"criterion_id\":\"la_shra.high-fire-hazard-severity-zone\",\"pathway\":\"la_shra\",\"label\":\"SHRA prohibited site category: High Fire Hazard Severity Zone\",\"gating\":false,\"verification\":\"human_verified\",\"rule_kind\":\"predicate\",\"rule_summary\":\"Phase 3B decision d. Disqualifying per source when a reviewed CAL FIRE / State Fire Marshal record under PRC §4202, a deterministic overlay of the reviewed legal-lot geometry on the registered SRA dataset, shows the whole lot proposed to be subdivided in High. Consistent with source when SRA features cover the whole lot, the legend defines High there, and no part of the lot is High. Partial coverage, land outside the SRA, an unclear legal lot, GOV §51178, and any other source stay unknown. Very High is criterion c.\",\"status\":\"unknown\",\"classification\":\"unknown\",\"statement\":\"No record that this criterion accepts as authoritative establishes the recorded High Fire Hazard Severity Zone. This criterion stays unknown. A record that is not a registered, reviewed authority can conflict with other records but cannot establish a fact, and missing authority is not treated as a no.\",\"unreviewed_reasons\":[],\"facts\":[{\"key\":\"high-fire-hazard-severity-zone\",\"classification\":\"source_observation\",\"supplied\":true,\"reviewed\":true,\"evidence_ids\":[\"computed-calfire-high-00000000-0000-4000-8000-0000000000f1\",\"test-only-manual-authority\"]}],\"citation\":{\"title\":\"Los Angeles City Planning — SHRA implementation memo (October 28, 2025; SB 684, SB 1123, AB 130)\",\"url\":\"https://planning.lacity.gov/odocument/1b081b86-f735-43e8-bba6-c2d73a192db7/SB_684_1123_Memo_Update_ACP.pdf\",\"verified_at\":\"2026-09-29\",\"volatility\":\"high\",\"next_review_at\":\"2026-10-29\",\"pinpoint\":\"Memo Part I, Environmental Criteria, page 4, prohibited category 3 and footnote 1\"},\"stale\":false,\"confirmer\":\"Los Angeles City Planning\",\"authority\":{\"established\":false,\"facts\":[{\"key\":\"high-fire-hazard-severity-zone\",\"established\":false,\"establishing_evidence_ids\":[],\"non_establishing\":[{\"evidence_id\":\"test-only-manual-authority\",\"failures\":[\"no_authority_block\"]}],\"failures\":[\"no_establishing_record\"]}],\"criterion_failures\":[]}}"
+    },
+    "65ec9c854646298fd2341656bfb130bae9a9ba95dbb1e49aa65b2a6c16134f94": {
+      "record": "{\"id\":\"computed-calfire-high-00000000-0000-4000-8000-0000000000f1\",\"subject\":{\"case_id\":\"00000000-0000-4000-8000-00000000003f\",\"property_id\":\"test-only-property-3f\"},\"claim\":{\"key\":\"high-fire-hazard-severity-zone\",\"label\":\"High Fire Hazard Severity Zone\",\"client_label\":\"whether the parcel is mapped in a High Fire Hazard Severity Zone\"},\"source\":{\"agency\":\"CAL FIRE / Office of the State Fire Marshal\",\"title\":\"Computed overlay on the reviewed CAL FIRE SRA package\",\"description\":\"Derived from verified case geometry and pinned candidate records.\",\"url\":\"https://osfm.fire.ca.gov/what-we-do/community-wildfire-preparedness-and-mitigation/fire-hazard-severity-zones\",\"authority\":\"official\",\"retrieved_at\":\"2026-09-29T18:00:00Z\"},\"raw_observed_value\":{\"kind\":\"boolean\",\"value\":true},\"normalized_value\":{\"kind\":\"boolean\",\"value\":true},\"evidence_type\":\"official_map\",\"classification\":\"source_observation\",\"confidence\":100,\"conflicts_with\":[],\"review_status\":\"reviewed\",\"notes\":[],\"limitations\":[],\"provenance\":{\"source_record_id\":\"00000000-0000-4000-8000-0000000000f1\",\"capture_method\":\"system_import\",\"is_ai_generated\":false}}",
+      "block": "{\"schema_version\":\"program-screen-evidence-authority-v1\",\"evidence_id\":\"computed-calfire-high-00000000-0000-4000-8000-0000000000f1\",\"fact_key\":\"high-fire-hazard-severity-zone\",\"record_kind\":\"agency_hazard_map\",\"issuer\":{\"name\":\"Office of the State Fire Marshal\",\"issuer_id\":\"calfire-osfm\"},\"source_identifier\":{\"scheme\":\"authority_source_id\",\"value\":\"calfire-sra-fhsz-2023-09-29\"},\"document_title\":\"State Responsibility Area Fire Hazard Severity Zones (CAL FIRE / OSFM, PRC §4202)\",\"edition\":{\"label\":\"State Responsibility Area Fire Hazard Severity Zones, dated September 29, 2023\",\"date\":\"2023-09-29\",\"date_kind\":\"dated\",\"currency\":\"current_on_as_of\",\"currency_checked_on\":\"2026-09-30\"},\"retrieved_at\":\"2026-09-29T18:00:00Z\",\"source_url\":\"https://osfm.fire.ca.gov/what-we-do/community-wildfire-preparedness-and-mitigation/fire-hazard-severity-zones\",\"capture\":{\"store\":\"repo_official_source\",\"source_id\":\"calfire-sra-fhsz-map-2023-09-29\",\"sha256_extracted\":\"11830e2c8c29f368e4087ae9ff270ee042673dfd7be6e354750c326579e5b1fe\"},\"parcel_relationship\":{\"matched_by\":\"spatial_overlay\",\"parcel_identifier\":\"0000000001\",\"legal_lot_reference\":\"Tract TEST-ONLY-11106-EQUIVALENT, Lot TEST-ONLY-85, MB TEST-ONLY-203 pp 19–22\",\"legal_lot_identity\":\"parcel_is_one_legal_lot\"},\"coverage\":\"whole_parcel\",\"qualifiers\":{\"family\":\"hazard_map\",\"hazard_class\":\"high\",\"statutory_basis\":\"prc_4202\",\"adoption_status\":\"adopted\",\"named_agency\":\"department_of_forestry_and_fire_protection\",\"map_covers_lot\":\"not_established\",\"legend_defines_class_for_lot\":\"yes\",\"responsibility_area_as_stated\":\"state\",\"lot_overlay\":{\"method\":\"deterministic_spatial_overlay\",\"dataset\":{\"source_id\":\"calfire-fhszsra-23-3-data\",\"sha256_extracted\":\"a85ff7eecf0f8ffa80d7dd8dcdc727a9dde42979fb3b7b8d5614b7a47a6b5a8a\"},\"lot_geometry\":{\"store\":\"case_evidence_file\",\"file_id\":\"test-only-normalized-lot\",\"sha256\":\"be25919869c1a0fdd1d856ebf18fdb16ca83ac7a758f7551704b5f3dd2ceffeb\"}}},\"authority_review\":{\"status\":\"reviewed\",\"reviewer\":{\"kind\":\"human\",\"name\":\"TEST-ONLY Reviewer\",\"role\":\"Synthetic geometry reviewer\"},\"reviewed_on\":\"2026-09-30\"},\"notes\":[],\"is_ai_generated\":false}",
+      "d": "{\"criterion_id\":\"la_shra.high-fire-hazard-severity-zone\",\"pathway\":\"la_shra\",\"label\":\"SHRA prohibited site category: High Fire Hazard Severity Zone\",\"gating\":false,\"verification\":\"human_verified\",\"rule_kind\":\"predicate\",\"rule_summary\":\"Phase 3B decision d. Disqualifying per source when a reviewed CAL FIRE / State Fire Marshal record under PRC §4202, a deterministic overlay of the reviewed legal-lot geometry on the registered SRA dataset, shows the whole lot proposed to be subdivided in High. Consistent with source when SRA features cover the whole lot, the legend defines High there, and no part of the lot is High. Partial coverage, land outside the SRA, an unclear legal lot, GOV §51178, and any other source stay unknown. Very High is criterion c.\",\"status\":\"conflict\",\"classification\":\"conflict\",\"statement\":\"Official sources conflict regarding whether the parcel is mapped in a High Fire Hazard Severity Zone. This criterion stays unresolved; PermitPulse does not choose between conflicting sources.\",\"unreviewed_reasons\":[],\"facts\":[{\"key\":\"high-fire-hazard-severity-zone\",\"classification\":\"conflict\",\"supplied\":true,\"reviewed\":true,\"evidence_ids\":[\"computed-calfire-high-00000000-0000-4000-8000-0000000000f1\",\"test-only-manual-no\"]}],\"citation\":{\"title\":\"Los Angeles City Planning — SHRA implementation memo (October 28, 2025; SB 684, SB 1123, AB 130)\",\"url\":\"https://planning.lacity.gov/odocument/1b081b86-f735-43e8-bba6-c2d73a192db7/SB_684_1123_Memo_Update_ACP.pdf\",\"verified_at\":\"2026-09-29\",\"volatility\":\"high\",\"next_review_at\":\"2026-10-29\",\"pinpoint\":\"Memo Part I, Environmental Criteria, page 4, prohibited category 3 and footnote 1\"},\"stale\":false,\"confirmer\":\"Los Angeles City Planning\"}"
+    },
+    "8cd13caa36690c60eff3e20807efb0aef67bdb4404a5a79f17ab3cecfd9e3cb0": {
+      "record": "{\"id\":\"computed-calfire-high-00000000-0000-4000-8000-0000000000f1\",\"subject\":{\"case_id\":\"00000000-0000-4000-8000-00000000003f\",\"property_id\":\"test-only-3i-baseline\"},\"claim\":{\"key\":\"high-fire-hazard-severity-zone\",\"label\":\"High Fire Hazard Severity Zone\",\"client_label\":\"whether the parcel is mapped in a High Fire Hazard Severity Zone\"},\"source\":{\"agency\":\"CAL FIRE / Office of the State Fire Marshal\",\"title\":\"Computed overlay on the reviewed CAL FIRE SRA package\",\"description\":\"Derived from verified case geometry and pinned candidate records.\",\"url\":\"https://osfm.fire.ca.gov/what-we-do/community-wildfire-preparedness-and-mitigation/fire-hazard-severity-zones\",\"authority\":\"official\",\"retrieved_at\":\"2026-09-29T18:00:00Z\"},\"raw_observed_value\":{\"kind\":\"boolean\",\"value\":true},\"normalized_value\":{\"kind\":\"boolean\",\"value\":true},\"evidence_type\":\"official_map\",\"classification\":\"source_observation\",\"confidence\":100,\"conflicts_with\":[],\"review_status\":\"reviewed\",\"notes\":[],\"limitations\":[],\"provenance\":{\"source_record_id\":\"00000000-0000-4000-8000-0000000000f1\",\"capture_method\":\"system_import\",\"is_ai_generated\":false}}",
+      "block": "{\"schema_version\":\"program-screen-evidence-authority-v1\",\"evidence_id\":\"computed-calfire-high-00000000-0000-4000-8000-0000000000f1\",\"fact_key\":\"high-fire-hazard-severity-zone\",\"record_kind\":\"agency_hazard_map\",\"issuer\":{\"name\":\"Office of the State Fire Marshal\",\"issuer_id\":\"calfire-osfm\"},\"source_identifier\":{\"scheme\":\"authority_source_id\",\"value\":\"calfire-sra-fhsz-2023-09-29\"},\"document_title\":\"State Responsibility Area Fire Hazard Severity Zones (CAL FIRE / OSFM, PRC §4202)\",\"edition\":{\"label\":\"State Responsibility Area Fire Hazard Severity Zones, dated September 29, 2023\",\"date\":\"2023-09-29\",\"date_kind\":\"dated\",\"currency\":\"current_on_as_of\",\"currency_checked_on\":\"2026-09-30\"},\"retrieved_at\":\"2026-09-29T18:00:00Z\",\"source_url\":\"https://osfm.fire.ca.gov/what-we-do/community-wildfire-preparedness-and-mitigation/fire-hazard-severity-zones\",\"capture\":{\"store\":\"repo_official_source\",\"source_id\":\"calfire-sra-fhsz-map-2023-09-29\",\"sha256_extracted\":\"11830e2c8c29f368e4087ae9ff270ee042673dfd7be6e354750c326579e5b1fe\"},\"parcel_relationship\":{\"matched_by\":\"spatial_overlay\",\"parcel_identifier\":\"0000000001\",\"legal_lot_reference\":\"Tract TEST-ONLY-11106-EQUIVALENT, Lot TEST-ONLY-85, MB TEST-ONLY-203 pp 19–22\",\"legal_lot_identity\":\"parcel_is_one_legal_lot\"},\"coverage\":\"whole_parcel\",\"qualifiers\":{\"family\":\"hazard_map\",\"hazard_class\":\"high\",\"statutory_basis\":\"prc_4202\",\"adoption_status\":\"adopted\",\"named_agency\":\"department_of_forestry_and_fire_protection\",\"map_covers_lot\":\"not_established\",\"legend_defines_class_for_lot\":\"yes\",\"responsibility_area_as_stated\":\"state\",\"lot_overlay\":{\"method\":\"deterministic_spatial_overlay\",\"dataset\":{\"source_id\":\"calfire-fhszsra-23-3-data\",\"sha256_extracted\":\"a85ff7eecf0f8ffa80d7dd8dcdc727a9dde42979fb3b7b8d5614b7a47a6b5a8a\"},\"lot_geometry\":{\"store\":\"case_evidence_file\",\"file_id\":\"test-only-normalized-lot\",\"sha256\":\"be25919869c1a0fdd1d856ebf18fdb16ca83ac7a758f7551704b5f3dd2ceffeb\"}}},\"authority_review\":{\"status\":\"reviewed\",\"reviewer\":{\"kind\":\"human\",\"name\":\"TEST-ONLY Reviewer\",\"role\":\"Synthetic geometry reviewer\"},\"reviewed_on\":\"2026-09-30\"},\"notes\":[],\"is_ai_generated\":false}",
+      "d": "{\"criterion_id\":\"la_shra.high-fire-hazard-severity-zone\",\"pathway\":\"la_shra\",\"label\":\"SHRA prohibited site category: High Fire Hazard Severity Zone\",\"gating\":false,\"verification\":\"human_verified\",\"rule_kind\":\"predicate\",\"rule_summary\":\"Phase 3B decision d. Disqualifying per source when a reviewed CAL FIRE / State Fire Marshal record under PRC §4202, a deterministic overlay of the reviewed legal-lot geometry on the registered SRA dataset, shows the whole lot proposed to be subdivided in High. Consistent with source when SRA features cover the whole lot, the legend defines High there, and no part of the lot is High. Partial coverage, land outside the SRA, an unclear legal lot, GOV §51178, and any other source stay unknown. Very High is criterion c.\",\"status\":\"disqualifying_per_source\",\"classification\":\"inference\",\"statement\":\"Reviewed records for High Fire Hazard Severity Zone document a condition that the cited source treats as blocking this pathway.\",\"unreviewed_reasons\":[],\"facts\":[{\"key\":\"high-fire-hazard-severity-zone\",\"classification\":\"source_observation\",\"supplied\":true,\"reviewed\":true,\"evidence_ids\":[\"computed-calfire-high-00000000-0000-4000-8000-0000000000f1\"]}],\"citation\":{\"title\":\"Los Angeles City Planning — SHRA implementation memo (October 28, 2025; SB 684, SB 1123, AB 130)\",\"url\":\"https://planning.lacity.gov/odocument/1b081b86-f735-43e8-bba6-c2d73a192db7/SB_684_1123_Memo_Update_ACP.pdf\",\"verified_at\":\"2026-09-29\",\"volatility\":\"high\",\"next_review_at\":\"2026-10-29\",\"pinpoint\":\"Memo Part I, Environmental Criteria, page 4, prohibited category 3 and footnote 1\"},\"stale\":false,\"confirmer\":\"Los Angeles City Planning\",\"authority\":{\"established\":true,\"facts\":[{\"key\":\"high-fire-hazard-severity-zone\",\"established\":true,\"establishing_evidence_ids\":[\"computed-calfire-high-00000000-0000-4000-8000-0000000000f1\"],\"non_establishing\":[],\"failures\":[]}],\"criterion_failures\":[]}}"
+    },
+    "900f6539d6fde349b85ffb1d51c5fa0b5acc8556834dfc38002f185ec75666cd": {
+      "record": "{\"id\":\"computed-calfire-high-00000000-0000-4000-8000-0000000000f1\",\"subject\":{\"case_id\":\"00000000-0000-4000-8000-00000000003f\",\"property_id\":\"test-only-property-3f\"},\"claim\":{\"key\":\"high-fire-hazard-severity-zone\",\"label\":\"High Fire Hazard Severity Zone\",\"client_label\":\"whether the parcel is mapped in a High Fire Hazard Severity Zone\"},\"source\":{\"agency\":\"CAL FIRE / Office of the State Fire Marshal\",\"title\":\"Computed overlay on the reviewed CAL FIRE SRA package\",\"description\":\"Derived from verified case geometry and pinned candidate records.\",\"url\":\"https://osfm.fire.ca.gov/what-we-do/community-wildfire-preparedness-and-mitigation/fire-hazard-severity-zones\",\"authority\":\"official\",\"retrieved_at\":\"2026-09-29T18:00:00Z\"},\"raw_observed_value\":{\"kind\":\"not_observed\",\"value\":null},\"normalized_value\":{\"kind\":\"unknown\",\"value\":null,\"reason\":\"insufficient_evidence\"},\"evidence_type\":\"official_map\",\"classification\":\"unknown\",\"confidence\":0,\"conflicts_with\":[],\"review_status\":\"reviewed\",\"notes\":[],\"limitations\":[],\"provenance\":{\"source_record_id\":\"00000000-0000-4000-8000-0000000000f1\",\"capture_method\":\"system_import\",\"is_ai_generated\":false}}",
+      "block": "{\"schema_version\":\"program-screen-evidence-authority-v1\",\"evidence_id\":\"computed-calfire-high-00000000-0000-4000-8000-0000000000f1\",\"fact_key\":\"high-fire-hazard-severity-zone\",\"record_kind\":\"agency_hazard_map\",\"issuer\":{\"name\":\"Office of the State Fire Marshal\",\"issuer_id\":\"calfire-osfm\"},\"source_identifier\":{\"scheme\":\"authority_source_id\",\"value\":\"calfire-sra-fhsz-2023-09-29\"},\"document_title\":\"State Responsibility Area Fire Hazard Severity Zones (CAL FIRE / OSFM, PRC §4202)\",\"edition\":{\"label\":\"State Responsibility Area Fire Hazard Severity Zones, dated September 29, 2023\",\"date\":\"2023-09-29\",\"date_kind\":\"dated\",\"currency\":\"current_on_as_of\",\"currency_checked_on\":\"2026-09-30\"},\"retrieved_at\":\"2026-09-29T18:00:00Z\",\"source_url\":\"https://osfm.fire.ca.gov/what-we-do/community-wildfire-preparedness-and-mitigation/fire-hazard-severity-zones\",\"capture\":{\"store\":\"repo_official_source\",\"source_id\":\"calfire-sra-fhsz-map-2023-09-29\",\"sha256_extracted\":\"11830e2c8c29f368e4087ae9ff270ee042673dfd7be6e354750c326579e5b1fe\"},\"parcel_relationship\":{\"matched_by\":\"spatial_overlay\",\"parcel_identifier\":\"0000000001\",\"legal_lot_reference\":\"Tract TEST-ONLY-11106-EQUIVALENT, Lot TEST-ONLY-85, MB TEST-ONLY-203 pp 19–22\",\"legal_lot_identity\":\"parcel_is_one_legal_lot\"},\"coverage\":\"not_established\",\"qualifiers\":{\"family\":\"hazard_map\",\"hazard_class\":\"high\",\"statutory_basis\":\"prc_4202\",\"adoption_status\":\"adopted\",\"named_agency\":\"department_of_forestry_and_fire_protection\",\"map_covers_lot\":\"not_established\",\"legend_defines_class_for_lot\":\"yes\",\"responsibility_area_as_stated\":\"state\",\"lot_overlay\":{\"method\":\"deterministic_spatial_overlay\",\"dataset\":{\"source_id\":\"calfire-fhszsra-23-3-data\",\"sha256_extracted\":\"a85ff7eecf0f8ffa80d7dd8dcdc727a9dde42979fb3b7b8d5614b7a47a6b5a8a\"},\"lot_geometry\":{\"store\":\"case_evidence_file\",\"file_id\":\"test-only-normalized-lot\",\"sha256\":\"e5edc2c7b145b7eb39fd480922c35a29109adcae697a714ffd18e45dd9fe9c10\"}}},\"authority_review\":{\"status\":\"reviewed\",\"reviewer\":{\"kind\":\"human\",\"name\":\"TEST-ONLY Reviewer\",\"role\":\"Synthetic geometry reviewer\"},\"reviewed_on\":\"2026-09-30\"},\"notes\":[],\"is_ai_generated\":false}",
+      "d": "{\"criterion_id\":\"la_shra.high-fire-hazard-severity-zone\",\"pathway\":\"la_shra\",\"label\":\"SHRA prohibited site category: High Fire Hazard Severity Zone\",\"gating\":false,\"verification\":\"human_verified\",\"rule_kind\":\"predicate\",\"rule_summary\":\"Phase 3B decision d. Disqualifying per source when a reviewed CAL FIRE / State Fire Marshal record under PRC §4202, a deterministic overlay of the reviewed legal-lot geometry on the registered SRA dataset, shows the whole lot proposed to be subdivided in High. Consistent with source when SRA features cover the whole lot, the legend defines High there, and no part of the lot is High. Partial coverage, land outside the SRA, an unclear legal lot, GOV §51178, and any other source stay unknown. Very High is criterion c.\",\"status\":\"unknown\",\"classification\":\"unknown\",\"statement\":\"Available evidence is insufficient to determine whether the parcel is mapped in a High Fire Hazard Severity Zone. This criterion stays unknown; missing evidence is not treated as a no.\",\"unreviewed_reasons\":[],\"facts\":[{\"key\":\"high-fire-hazard-severity-zone\",\"classification\":\"unknown\",\"supplied\":true,\"reviewed\":true,\"evidence_ids\":[\"computed-calfire-high-00000000-0000-4000-8000-0000000000f1\"]}],\"citation\":{\"title\":\"Los Angeles City Planning — SHRA implementation memo (October 28, 2025; SB 684, SB 1123, AB 130)\",\"url\":\"https://planning.lacity.gov/odocument/1b081b86-f735-43e8-bba6-c2d73a192db7/SB_684_1123_Memo_Update_ACP.pdf\",\"verified_at\":\"2026-09-29\",\"volatility\":\"high\",\"next_review_at\":\"2026-10-29\",\"pinpoint\":\"Memo Part I, Environmental Criteria, page 4, prohibited category 3 and footnote 1\"},\"stale\":false,\"confirmer\":\"Los Angeles City Planning\"}"
+    },
+    "b88489a341e80cd2b3efa7f9f37424b3c70ed2f9366afcf74f16dc2864c8e9a1": {
+      "record": "{\"id\":\"computed-calfire-high-00000000-0000-4000-8000-0000000000f1\",\"subject\":{\"case_id\":\"00000000-0000-4000-8000-00000000003f\",\"property_id\":\"test-only-reaudit-3h\"},\"claim\":{\"key\":\"high-fire-hazard-severity-zone\",\"label\":\"High Fire Hazard Severity Zone\",\"client_label\":\"whether the parcel is mapped in a High Fire Hazard Severity Zone\"},\"source\":{\"agency\":\"CAL FIRE / Office of the State Fire Marshal\",\"title\":\"Computed overlay on the reviewed CAL FIRE SRA package\",\"description\":\"Derived from verified case geometry and pinned candidate records.\",\"url\":\"https://osfm.fire.ca.gov/what-we-do/community-wildfire-preparedness-and-mitigation/fire-hazard-severity-zones\",\"authority\":\"official\",\"retrieved_at\":\"2026-09-29T18:00:00Z\"},\"raw_observed_value\":{\"kind\":\"boolean\",\"value\":true},\"normalized_value\":{\"kind\":\"boolean\",\"value\":true},\"evidence_type\":\"official_map\",\"classification\":\"source_observation\",\"confidence\":100,\"conflicts_with\":[],\"review_status\":\"reviewed\",\"notes\":[],\"limitations\":[],\"provenance\":{\"source_record_id\":\"00000000-0000-4000-8000-0000000000f1\",\"capture_method\":\"system_import\",\"is_ai_generated\":false}}",
+      "block": "{\"schema_version\":\"program-screen-evidence-authority-v1\",\"evidence_id\":\"computed-calfire-high-00000000-0000-4000-8000-0000000000f1\",\"fact_key\":\"high-fire-hazard-severity-zone\",\"record_kind\":\"agency_hazard_map\",\"issuer\":{\"name\":\"Office of the State Fire Marshal\",\"issuer_id\":\"calfire-osfm\"},\"source_identifier\":{\"scheme\":\"authority_source_id\",\"value\":\"calfire-sra-fhsz-2023-09-29\"},\"document_title\":\"State Responsibility Area Fire Hazard Severity Zones (CAL FIRE / OSFM, PRC §4202)\",\"edition\":{\"label\":\"State Responsibility Area Fire Hazard Severity Zones, dated September 29, 2023\",\"date\":\"2023-09-29\",\"date_kind\":\"dated\",\"currency\":\"current_on_as_of\",\"currency_checked_on\":\"2026-10-01\"},\"retrieved_at\":\"2026-09-29T18:00:00Z\",\"source_url\":\"https://osfm.fire.ca.gov/what-we-do/community-wildfire-preparedness-and-mitigation/fire-hazard-severity-zones\",\"capture\":{\"store\":\"repo_official_source\",\"source_id\":\"calfire-sra-fhsz-map-2023-09-29\",\"sha256_extracted\":\"11830e2c8c29f368e4087ae9ff270ee042673dfd7be6e354750c326579e5b1fe\"},\"parcel_relationship\":{\"matched_by\":\"spatial_overlay\",\"parcel_identifier\":\"0000000001\",\"legal_lot_reference\":\"Tract TEST-ONLY-11106-EQUIVALENT, Lot TEST-ONLY-85, MB TEST-ONLY-203 pp 19–22\",\"legal_lot_identity\":\"parcel_is_one_legal_lot\"},\"coverage\":\"whole_parcel\",\"qualifiers\":{\"family\":\"hazard_map\",\"hazard_class\":\"high\",\"statutory_basis\":\"prc_4202\",\"adoption_status\":\"adopted\",\"named_agency\":\"department_of_forestry_and_fire_protection\",\"map_covers_lot\":\"not_established\",\"legend_defines_class_for_lot\":\"yes\",\"responsibility_area_as_stated\":\"state\",\"lot_overlay\":{\"method\":\"deterministic_spatial_overlay\",\"dataset\":{\"source_id\":\"calfire-fhszsra-23-3-data\",\"sha256_extracted\":\"a85ff7eecf0f8ffa80d7dd8dcdc727a9dde42979fb3b7b8d5614b7a47a6b5a8a\"},\"lot_geometry\":{\"store\":\"case_evidence_file\",\"file_id\":\"test-only-normalized-lot\",\"sha256\":\"be25919869c1a0fdd1d856ebf18fdb16ca83ac7a758f7551704b5f3dd2ceffeb\"}}},\"authority_review\":{\"status\":\"reviewed\",\"reviewer\":{\"kind\":\"human\",\"name\":\"TEST-ONLY Reviewer\",\"role\":\"Synthetic geometry reviewer\"},\"reviewed_on\":\"2026-09-30\"},\"notes\":[],\"is_ai_generated\":false}",
+      "d": "{\"criterion_id\":\"la_shra.high-fire-hazard-severity-zone\",\"pathway\":\"la_shra\",\"label\":\"SHRA prohibited site category: High Fire Hazard Severity Zone\",\"gating\":false,\"verification\":\"human_verified\",\"rule_kind\":\"predicate\",\"rule_summary\":\"Phase 3B decision d. Disqualifying per source when a reviewed CAL FIRE / State Fire Marshal record under PRC §4202, a deterministic overlay of the reviewed legal-lot geometry on the registered SRA dataset, shows the whole lot proposed to be subdivided in High. Consistent with source when SRA features cover the whole lot, the legend defines High there, and no part of the lot is High. Partial coverage, land outside the SRA, an unclear legal lot, GOV §51178, and any other source stay unknown. Very High is criterion c.\",\"status\":\"disqualifying_per_source\",\"classification\":\"inference\",\"statement\":\"Reviewed records for High Fire Hazard Severity Zone document a condition that the cited source treats as blocking this pathway.\",\"unreviewed_reasons\":[],\"facts\":[{\"key\":\"high-fire-hazard-severity-zone\",\"classification\":\"source_observation\",\"supplied\":true,\"reviewed\":true,\"evidence_ids\":[\"computed-calfire-high-00000000-0000-4000-8000-0000000000f1\"]}],\"citation\":{\"title\":\"Los Angeles City Planning — SHRA implementation memo (October 28, 2025; SB 684, SB 1123, AB 130)\",\"url\":\"https://planning.lacity.gov/odocument/1b081b86-f735-43e8-bba6-c2d73a192db7/SB_684_1123_Memo_Update_ACP.pdf\",\"verified_at\":\"2026-09-29\",\"volatility\":\"high\",\"next_review_at\":\"2026-10-29\",\"pinpoint\":\"Memo Part I, Environmental Criteria, page 4, prohibited category 3 and footnote 1\"},\"stale\":false,\"confirmer\":\"Los Angeles City Planning\",\"authority\":{\"established\":true,\"facts\":[{\"key\":\"high-fire-hazard-severity-zone\",\"established\":true,\"establishing_evidence_ids\":[\"computed-calfire-high-00000000-0000-4000-8000-0000000000f1\"],\"non_establishing\":[],\"failures\":[]}],\"criterion_failures\":[]}}"
+    },
+    "c0e086dbdf94880a3a9fd121b92f42f29d2d328a6f281c69d0216f8e462a1b8c": {
+      "record": "{\"id\":\"computed-calfire-high-00000000-0000-4000-8000-0000000000f1\",\"subject\":{\"case_id\":\"00000000-0000-4000-8000-00000000003f\",\"property_id\":\"test-only-reaudit-3h\"},\"claim\":{\"key\":\"high-fire-hazard-severity-zone\",\"label\":\"High Fire Hazard Severity Zone\",\"client_label\":\"whether the parcel is mapped in a High Fire Hazard Severity Zone\"},\"source\":{\"agency\":\"CAL FIRE / Office of the State Fire Marshal\",\"title\":\"Computed overlay on the reviewed CAL FIRE SRA package\",\"description\":\"Derived from verified case geometry and pinned candidate records.\",\"url\":\"https://osfm.fire.ca.gov/what-we-do/community-wildfire-preparedness-and-mitigation/fire-hazard-severity-zones\",\"authority\":\"official\",\"retrieved_at\":\"2026-09-29T18:00:00Z\"},\"raw_observed_value\":{\"kind\":\"not_observed\",\"value\":null},\"normalized_value\":{\"kind\":\"unknown\",\"value\":null,\"reason\":\"insufficient_evidence\"},\"evidence_type\":\"official_map\",\"classification\":\"unknown\",\"confidence\":0,\"conflicts_with\":[],\"review_status\":\"reviewed\",\"notes\":[],\"limitations\":[],\"provenance\":{\"source_record_id\":\"00000000-0000-4000-8000-0000000000f1\",\"capture_method\":\"system_import\",\"is_ai_generated\":false}}",
+      "block": "{\"schema_version\":\"program-screen-evidence-authority-v1\",\"evidence_id\":\"computed-calfire-high-00000000-0000-4000-8000-0000000000f1\",\"fact_key\":\"high-fire-hazard-severity-zone\",\"record_kind\":\"agency_hazard_map\",\"issuer\":{\"name\":\"Office of the State Fire Marshal\",\"issuer_id\":\"calfire-osfm\"},\"source_identifier\":{\"scheme\":\"authority_source_id\",\"value\":\"calfire-sra-fhsz-2023-09-29\"},\"document_title\":\"State Responsibility Area Fire Hazard Severity Zones (CAL FIRE / OSFM, PRC §4202)\",\"edition\":{\"label\":\"State Responsibility Area Fire Hazard Severity Zones, dated September 29, 2023\",\"date\":\"2023-09-29\",\"date_kind\":\"dated\",\"currency\":\"current_on_as_of\",\"currency_checked_on\":\"2026-10-01\"},\"retrieved_at\":\"2026-09-29T18:00:00Z\",\"source_url\":\"https://osfm.fire.ca.gov/what-we-do/community-wildfire-preparedness-and-mitigation/fire-hazard-severity-zones\",\"capture\":{\"store\":\"repo_official_source\",\"source_id\":\"calfire-sra-fhsz-map-2023-09-29\",\"sha256_extracted\":\"11830e2c8c29f368e4087ae9ff270ee042673dfd7be6e354750c326579e5b1fe\"},\"parcel_relationship\":{\"matched_by\":\"spatial_overlay\",\"parcel_identifier\":\"0000000001\",\"legal_lot_reference\":\"Tract TEST-ONLY-11106-EQUIVALENT, Lot TEST-ONLY-85, MB TEST-ONLY-203 pp 19–22\",\"legal_lot_identity\":\"not_established\"},\"coverage\":\"not_established\",\"qualifiers\":{\"family\":\"hazard_map\",\"hazard_class\":\"high\",\"statutory_basis\":\"prc_4202\",\"adoption_status\":\"adopted\",\"named_agency\":\"department_of_forestry_and_fire_protection\",\"map_covers_lot\":\"not_established\",\"legend_defines_class_for_lot\":\"yes\",\"responsibility_area_as_stated\":\"state\",\"lot_overlay\":{\"method\":\"deterministic_spatial_overlay\",\"dataset\":{\"source_id\":\"calfire-fhszsra-23-3-data\",\"sha256_extracted\":\"a85ff7eecf0f8ffa80d7dd8dcdc727a9dde42979fb3b7b8d5614b7a47a6b5a8a\"},\"lot_geometry\":{\"store\":\"case_evidence_file\",\"file_id\":\"test-only-normalized-lot\",\"sha256\":\"be25919869c1a0fdd1d856ebf18fdb16ca83ac7a758f7551704b5f3dd2ceffeb\"}}},\"authority_review\":{\"status\":\"reviewed\",\"reviewer\":{\"kind\":\"human\",\"name\":\"TEST-ONLY Reviewer\",\"role\":\"Synthetic geometry reviewer\"},\"reviewed_on\":\"2026-09-30\"},\"notes\":[],\"is_ai_generated\":false}",
+      "d": "{\"criterion_id\":\"la_shra.high-fire-hazard-severity-zone\",\"pathway\":\"la_shra\",\"label\":\"SHRA prohibited site category: High Fire Hazard Severity Zone\",\"gating\":false,\"verification\":\"human_verified\",\"rule_kind\":\"predicate\",\"rule_summary\":\"Phase 3B decision d. Disqualifying per source when a reviewed CAL FIRE / State Fire Marshal record under PRC §4202, a deterministic overlay of the reviewed legal-lot geometry on the registered SRA dataset, shows the whole lot proposed to be subdivided in High. Consistent with source when SRA features cover the whole lot, the legend defines High there, and no part of the lot is High. Partial coverage, land outside the SRA, an unclear legal lot, GOV §51178, and any other source stay unknown. Very High is criterion c.\",\"status\":\"unknown\",\"classification\":\"unknown\",\"statement\":\"No record that this criterion accepts as authoritative establishes the recorded High Fire Hazard Severity Zone. This criterion stays unknown. A record that is not a registered, reviewed authority can conflict with other records but cannot establish a fact, and missing authority is not treated as a no.\",\"unreviewed_reasons\":[],\"facts\":[{\"key\":\"high-fire-hazard-severity-zone\",\"classification\":\"source_observation\",\"supplied\":true,\"reviewed\":true,\"evidence_ids\":[\"computed-calfire-high-00000000-0000-4000-8000-0000000000f1\",\"test-only-reaudit-forged-high\"]}],\"citation\":{\"title\":\"Los Angeles City Planning — SHRA implementation memo (October 28, 2025; SB 684, SB 1123, AB 130)\",\"url\":\"https://planning.lacity.gov/odocument/1b081b86-f735-43e8-bba6-c2d73a192db7/SB_684_1123_Memo_Update_ACP.pdf\",\"verified_at\":\"2026-09-29\",\"volatility\":\"high\",\"next_review_at\":\"2026-10-29\",\"pinpoint\":\"Memo Part I, Environmental Criteria, page 4, prohibited category 3 and footnote 1\"},\"stale\":false,\"confirmer\":\"Los Angeles City Planning\",\"authority\":{\"established\":false,\"facts\":[{\"key\":\"high-fire-hazard-severity-zone\",\"established\":false,\"establishing_evidence_ids\":[],\"non_establishing\":[{\"evidence_id\":\"test-only-reaudit-forged-high\",\"failures\":[\"no_authority_block\"]}],\"failures\":[\"no_establishing_record\"]}],\"criterion_failures\":[]}}"
+    },
+    "c536db6d5e471e30667746a77b898569a10aaf4b38943b800fdbb39eda1d6e98": {
+      "record": "{\"id\":\"computed-calfire-high-00000000-0000-4000-8000-0000000000f1\",\"subject\":{\"case_id\":\"00000000-0000-4000-8000-00000000003f\",\"property_id\":\"test-only-property-3f\"},\"claim\":{\"key\":\"high-fire-hazard-severity-zone\",\"label\":\"High Fire Hazard Severity Zone\",\"client_label\":\"whether the parcel is mapped in a High Fire Hazard Severity Zone\"},\"source\":{\"agency\":\"CAL FIRE / Office of the State Fire Marshal\",\"title\":\"Computed overlay on the reviewed CAL FIRE SRA package\",\"description\":\"Derived from verified case geometry and pinned candidate records.\",\"url\":\"https://osfm.fire.ca.gov/what-we-do/community-wildfire-preparedness-and-mitigation/fire-hazard-severity-zones\",\"authority\":\"official\",\"retrieved_at\":\"2026-09-29T18:00:00Z\"},\"raw_observed_value\":{\"kind\":\"not_observed\",\"value\":null},\"normalized_value\":{\"kind\":\"unknown\",\"value\":null,\"reason\":\"insufficient_evidence\"},\"evidence_type\":\"official_map\",\"classification\":\"unknown\",\"confidence\":0,\"conflicts_with\":[],\"review_status\":\"reviewed\",\"notes\":[],\"limitations\":[],\"provenance\":{\"source_record_id\":\"00000000-0000-4000-8000-0000000000f1\",\"capture_method\":\"system_import\",\"is_ai_generated\":false}}",
+      "block": "{\"schema_version\":\"program-screen-evidence-authority-v1\",\"evidence_id\":\"computed-calfire-high-00000000-0000-4000-8000-0000000000f1\",\"fact_key\":\"high-fire-hazard-severity-zone\",\"record_kind\":\"agency_hazard_map\",\"issuer\":{\"name\":\"Office of the State Fire Marshal\",\"issuer_id\":\"calfire-osfm\"},\"source_identifier\":{\"scheme\":\"authority_source_id\",\"value\":\"calfire-sra-fhsz-2023-09-29\"},\"document_title\":\"State Responsibility Area Fire Hazard Severity Zones (CAL FIRE / OSFM, PRC §4202)\",\"edition\":{\"label\":\"State Responsibility Area Fire Hazard Severity Zones, dated September 29, 2023\",\"date\":\"2023-09-29\",\"date_kind\":\"dated\",\"currency\":\"current_on_as_of\",\"currency_checked_on\":\"2026-09-30\"},\"retrieved_at\":\"2026-09-29T18:00:00Z\",\"source_url\":\"https://osfm.fire.ca.gov/what-we-do/community-wildfire-preparedness-and-mitigation/fire-hazard-severity-zones\",\"capture\":{\"store\":\"repo_official_source\",\"source_id\":\"calfire-sra-fhsz-map-2023-09-29\",\"sha256_extracted\":\"11830e2c8c29f368e4087ae9ff270ee042673dfd7be6e354750c326579e5b1fe\"},\"parcel_relationship\":{\"matched_by\":\"spatial_overlay\",\"parcel_identifier\":\"0000000001\",\"legal_lot_reference\":\"Tract TEST-ONLY-11106-EQUIVALENT, Lot TEST-ONLY-85, MB TEST-ONLY-203 pp 19–22\",\"legal_lot_identity\":\"parcel_is_one_legal_lot\"},\"coverage\":\"not_established\",\"qualifiers\":{\"family\":\"hazard_map\",\"hazard_class\":\"high\",\"statutory_basis\":\"prc_4202\",\"adoption_status\":\"adopted\",\"named_agency\":\"department_of_forestry_and_fire_protection\",\"map_covers_lot\":\"not_established\",\"legend_defines_class_for_lot\":\"yes\",\"responsibility_area_as_stated\":\"state\",\"lot_overlay\":{\"method\":\"deterministic_spatial_overlay\",\"dataset\":{\"source_id\":\"calfire-fhszsra-23-3-data\",\"sha256_extracted\":\"a85ff7eecf0f8ffa80d7dd8dcdc727a9dde42979fb3b7b8d5614b7a47a6b5a8a\"},\"lot_geometry\":{\"store\":\"case_evidence_file\",\"file_id\":\"test-only-normalized-lot\",\"sha256\":\"225d03173861146a651d6d3f8e2bf3afc4c0d6c4edc9c0368410d2a620dce9b7\"}}},\"authority_review\":{\"status\":\"reviewed\",\"reviewer\":{\"kind\":\"human\",\"name\":\"TEST-ONLY Reviewer\",\"role\":\"Synthetic geometry reviewer\"},\"reviewed_on\":\"2026-09-30\"},\"notes\":[],\"is_ai_generated\":false}",
+      "d": "{\"criterion_id\":\"la_shra.high-fire-hazard-severity-zone\",\"pathway\":\"la_shra\",\"label\":\"SHRA prohibited site category: High Fire Hazard Severity Zone\",\"gating\":false,\"verification\":\"human_verified\",\"rule_kind\":\"predicate\",\"rule_summary\":\"Phase 3B decision d. Disqualifying per source when a reviewed CAL FIRE / State Fire Marshal record under PRC §4202, a deterministic overlay of the reviewed legal-lot geometry on the registered SRA dataset, shows the whole lot proposed to be subdivided in High. Consistent with source when SRA features cover the whole lot, the legend defines High there, and no part of the lot is High. Partial coverage, land outside the SRA, an unclear legal lot, GOV §51178, and any other source stay unknown. Very High is criterion c.\",\"status\":\"unknown\",\"classification\":\"unknown\",\"statement\":\"Available evidence is insufficient to determine whether the parcel is mapped in a High Fire Hazard Severity Zone. This criterion stays unknown; missing evidence is not treated as a no.\",\"unreviewed_reasons\":[],\"facts\":[{\"key\":\"high-fire-hazard-severity-zone\",\"classification\":\"unknown\",\"supplied\":true,\"reviewed\":true,\"evidence_ids\":[\"computed-calfire-high-00000000-0000-4000-8000-0000000000f1\"]}],\"citation\":{\"title\":\"Los Angeles City Planning — SHRA implementation memo (October 28, 2025; SB 684, SB 1123, AB 130)\",\"url\":\"https://planning.lacity.gov/odocument/1b081b86-f735-43e8-bba6-c2d73a192db7/SB_684_1123_Memo_Update_ACP.pdf\",\"verified_at\":\"2026-09-29\",\"volatility\":\"high\",\"next_review_at\":\"2026-10-29\",\"pinpoint\":\"Memo Part I, Environmental Criteria, page 4, prohibited category 3 and footnote 1\"},\"stale\":false,\"confirmer\":\"Los Angeles City Planning\"}"
+    },
+    "f2adb75dab1a7010392329aff518dac9f66aacb8ef112e8984b727feb9cd9731": {
+      "record": "{\"id\":\"computed-calfire-high-unavailable\",\"subject\":{\"case_id\":\"00000000-0000-4000-8000-00000000003f\",\"property_id\":\"test-only-3i-baseline\"},\"claim\":{\"key\":\"high-fire-hazard-severity-zone\",\"label\":\"High Fire Hazard Severity Zone\",\"client_label\":\"whether the parcel is mapped in a High Fire Hazard Severity Zone\"},\"source\":{\"agency\":\"CAL FIRE / Office of the State Fire Marshal\",\"title\":\"Computed overlay on the reviewed CAL FIRE SRA package\",\"description\":\"Derived from verified case geometry and pinned candidate records.\",\"url\":\"https://osfm.fire.ca.gov/what-we-do/community-wildfire-preparedness-and-mitigation/fire-hazard-severity-zones\",\"authority\":\"official\",\"retrieved_at\":\"2026-10-01T00:00:00Z\"},\"raw_observed_value\":{\"kind\":\"not_observed\",\"value\":null},\"normalized_value\":{\"kind\":\"unknown\",\"value\":null,\"reason\":\"insufficient_evidence\"},\"evidence_type\":\"official_map\",\"classification\":\"unknown\",\"confidence\":0,\"conflicts_with\":[],\"review_status\":\"reviewed\",\"notes\":[],\"limitations\":[],\"provenance\":{\"source_record_id\":\"computed-overlay-unavailable\",\"capture_method\":\"system_import\",\"is_ai_generated\":false}}",
+      "block": "null",
+      "d": "{\"criterion_id\":\"la_shra.high-fire-hazard-severity-zone\",\"pathway\":\"la_shra\",\"label\":\"SHRA prohibited site category: High Fire Hazard Severity Zone\",\"gating\":false,\"verification\":\"human_verified\",\"rule_kind\":\"predicate\",\"rule_summary\":\"Phase 3B decision d. Disqualifying per source when a reviewed CAL FIRE / State Fire Marshal record under PRC §4202, a deterministic overlay of the reviewed legal-lot geometry on the registered SRA dataset, shows the whole lot proposed to be subdivided in High. Consistent with source when SRA features cover the whole lot, the legend defines High there, and no part of the lot is High. Partial coverage, land outside the SRA, an unclear legal lot, GOV §51178, and any other source stay unknown. Very High is criterion c.\",\"status\":\"unknown\",\"classification\":\"unknown\",\"statement\":\"Available evidence is insufficient to determine whether the parcel is mapped in a High Fire Hazard Severity Zone. This criterion stays unknown; missing evidence is not treated as a no.\",\"unreviewed_reasons\":[],\"facts\":[{\"key\":\"high-fire-hazard-severity-zone\",\"classification\":\"unknown\",\"supplied\":true,\"reviewed\":true,\"evidence_ids\":[\"computed-calfire-high-unavailable\"]}],\"citation\":{\"title\":\"Los Angeles City Planning — SHRA implementation memo (October 28, 2025; SB 684, SB 1123, AB 130)\",\"url\":\"https://planning.lacity.gov/odocument/1b081b86-f735-43e8-bba6-c2d73a192db7/SB_684_1123_Memo_Update_ACP.pdf\",\"verified_at\":\"2026-09-29\",\"volatility\":\"high\",\"next_review_at\":\"2026-10-29\",\"pinpoint\":\"Memo Part I, Environmental Criteria, page 4, prohibited category 3 and footnote 1\"},\"stale\":false,\"confirmer\":\"Los Angeles City Planning\"}"
+    }
+  }
+}

@@ -1,5 +1,5 @@
 import type { ProgramAuthorityRegistries } from "./authority-policy";
-import { authorityShortfallLabels, quote } from "./language";
+import { authorityShortfallLabels, quote, statutoryRoutesLotGeometryReviewInstruction } from "./language";
 import { criterionAwaitsHumanVerification } from "./schema";
 import type {
   ProgramCriterion,
@@ -220,13 +220,14 @@ export function buildReviewTasks(input: {
     if (result.authority !== undefined && !result.authority.established) {
       const { unestablished, unread, outOfScope } = authorityShortfallLabels(result.authority);
       const named = [...new Set([...unestablished, ...unread, ...outOfScope])];
+      const unsharedGeometry = result.authority.criterion_failures.some((failure) => failure.code === "statutory_routes_lot_geometry_not_shared");
       tasks.push({
         id: `${pathway}:review_evidence_authority:${criterion.id}`,
         pathway,
         kind: "review_evidence_authority",
         criterion_id: criterion.id,
         fact_key: null,
-        instruction: `Record the issuing agency, record kind, edition and its date, parcel relationship, and coverage for the evidence behind ${named.join(", ")}, have a named person review it, and confirm the record is a registered, reviewed authority for the fact before this criterion can produce a result.`,
+        instruction: unsharedGeometry ? statutoryRoutesLotGeometryReviewInstruction : `Record the issuing agency, record kind, edition and its date, parcel relationship, and coverage for the evidence behind ${named.join(", ")}, have a named person review it, and confirm the record is a registered, reviewed authority for the fact before this criterion can produce a result.`,
       });
     }
   });

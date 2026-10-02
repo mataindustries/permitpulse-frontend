@@ -97,6 +97,9 @@ export const statutoryRouteLabels: Readonly<Record<FireHazardStatutoryRoute, str
   prc_4202: "PRC §4202 route",
 };
 
+export const statutoryRoutesLotGeometryShortfall = "The statutory routes' negative records do not rest on one reviewed lot geometry, so they are not combined.";
+export const statutoryRoutesLotGeometryReviewInstruction = "The statutory-route negative records do not rest on one reviewed lot geometry. Review the lot geometry used by each route before combining them.";
+
 function joinLabels(labels: readonly string[]): string {
   if (labels.length <= 1) return labels[0] ?? "";
   if (labels.length === 2) return `${labels[0]} and ${labels[1]}`;
@@ -139,6 +142,9 @@ function authorityUnknownStatement(authority: ProgramCriterionAuthorityResult): 
   }
   if (outOfScope.length > 0) {
     parts.push(`The recorded ${joinLabels(outOfScope)} is outside the scope the criterion's authority requirement covers.`);
+  }
+  if (authority.criterion_failures.some((failure) => failure.code === "statutory_routes_lot_geometry_not_shared")) {
+    parts.push(statutoryRoutesLotGeometryShortfall);
   }
   parts.push(
     "This criterion stays unknown. A record that is not a registered, reviewed authority can conflict with other records but cannot establish a fact, and missing authority is not treated as a no.",
