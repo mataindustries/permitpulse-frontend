@@ -114,6 +114,37 @@ const highFireVerification: ProgramCriterionHumanVerification = {
   decision_ref: { phase: "3B", letter: "d" },
 };
 
+/**
+ * c, `la_shra.very-high-fire-hazard-severity-zone`, human-verified in Phase 3H:
+ * the encoded Phase 3B c rule. It reads only the Very High fact, which the
+ * evaluator assesses once per statutory route (GOV §51178, PRC §4202) and
+ * combines: YES when any route is YES, NO only when every route is NO. Every
+ * source, route, whole-lot coverage, topology-validity, and legal-lot condition
+ * is enforced before it runs, by the authority gate. No production path supplies
+ * reviewed Very High overlay inputs yet, so a real parcel's c stays unknown.
+ */
+const veryHighFireCitation = { ...cite("shraMemo", highFirePinpoint), verified_at: "2026-10-01", next_review_at: "2026-10-31" };
+const veryHighFireVerification: ProgramCriterionHumanVerification = {
+  reviewer: { kind: "human", name: "Sergio Mata", role: "Project Owner / Human Reviewer" },
+  verified_at: "2026-10-01",
+  next_review_at: "2026-10-31",
+  source_title: "Los Angeles City Planning — SHRA implementation memo (October 28, 2025; SB 684, SB 1123, AB 130)",
+  source_url: "https://planning.lacity.gov/odocument/1b081b86-f735-43e8-bba6-c2d73a192db7/SB_684_1123_Memo_Update_ACP.pdf",
+  instrument: "City of Los Angeles SHRA implementation memo, October 28, 2025",
+  pinpoint: highFirePinpoint,
+  supporting_excerpt: memoFireCategory,
+  source_capture: {
+    repo_path: "app/fixtures/program-screen/official-sources/shra-2025-10-28/extracted.txt",
+    retrieved_at: "2026-09-27T16:19:20Z",
+    capture_method: "pdf_text_extraction",
+    sha256: "f44574084091c51419d0475d4b8501d9a2c3577b3a16830fc6ecb2a88b20f6e2",
+    is_ai_generated: false,
+    source_type: "official_memo",
+    operative_status: "operative",
+  },
+  decision_ref: { phase: "3B", letter: "c" },
+};
+
 export const shraPathway = {
   id: "la_shra",
   label: "SHRA (SB 684 / SB 1123) — City of Los Angeles",
@@ -458,6 +489,16 @@ export const shraCriteria: readonly ProgramCriterion[] = [
     // Phase 3B c: GOV §51178 and PRC §4202 are assessed separately. A YES on
     // either route is enough; a NO needs both (statutory_routes_assessed_separately).
     statutory_routes: { fact_key: "very-high-fire-hazard-severity-zone", routes: ["gov_51178", "prc_4202"] },
+    // Phase 3H: human-verified. Outcome ceiling unchanged.
+    predicate: (facts) =>
+      booleanFact(facts, "very-high-fire-hazard-severity-zone") ? "disqualifying_per_source" : "consistent_with_source",
+    rule_summary:
+      "Phase 3B decision c. Disqualifying per source when, on either separately assessed route, a reviewed CAL FIRE / OSFM record (GOV §51178 2025 LRA identification or PRC §4202 adopted SRA map), a deterministic overlay of the reviewed legal-lot geometry on that route's registered dataset, shows the whole lot proposed to be subdivided in Very High. Consistent with source only when both routes each show no part of the lot in Very High. Partial or mixed coverage, invalid source geometry, a one-route negative, an unclear legal lot, and any other source stay unknown; no threshold. High is criterion d.",
+    question_if_judgment:
+      "How does Planning apply the SHRA Very High Fire Hazard Severity Zone site category (memo page 4, prohibited category 3) to the lot proposed to be subdivided?",
+    citation: veryHighFireCitation,
+    verification: "human_verified",
+    human_verification: veryHighFireVerification,
   },
   {
     ...shraSiteCategory({

@@ -9,18 +9,19 @@ Passes:
 - **2026-09-27, official-source capture (PR #18).** Captured the four official PDFs the repository owner supplied, with the existing capture tool. Filled all nine proposals with candidate pages, pinpoints, excerpts, and proposed splits, and moved them to `awaiting_human_review`. Nothing verified.
 - **2026-09-27, atomic criterion split (this branch).** Retired the nine broad criteria and shipped 46 atomic criteria in their place, each resting on one proposition in a captured operative source. Added a data class to every fact, retired ten fact keys, migrated the fictional fixture explicitly, and rebuilt the nine proposals around the atomic IDs. Nothing verified.
 - **2026-09-29, Phase 3E.** `la_shra.high-fire-hazard-severity-zone` (d) human-verified by Sergio Mata (Project Owner / Human Reviewer) against the Phase 3B d decision, after the F1 lot-overlay fix. The first and only human-verified atomic criterion. See `docs/PROGRAM_SCREEN_PHASE_3E_D_PROMOTION_REVIEW.md`, including the production gap: real parcels still return unknown on d until reviewed overlay inputs are supplied through a production ingestion path.
+- **2026-10-01, Phase 3H.** `la_shra.very-high-fire-hazard-severity-zone` (c) human-verified by Sergio Mata (Project Owner / Human Reviewer) against the Phase 3B c decision, after the Phase 3G GOV §51178 registration and the Phase 3H SRA topology safety fix, on a fresh independent audit. c and d are the only human-verified atomic criteria. See `docs/PROGRAM_SCREEN_PHASE_3H_C_PROMOTION_REVIEW.md`, including the production gap (no production path generates c evidence, so real parcels return unknown on c) and the recorded follow-up to harden cross-route lot identity before that path is wired.
 
 ## Outcome
 
 | Result | Criteria |
 | --- | --- |
-| A. `human_verified` and encoded | **One** (Phase 3E): `la_shra.high-fire-hazard-severity-zone` (d). It runs only through its enforced authority requirement: the CAL FIRE / OSFM PRC §4202 package and a computed lot overlay. |
-| B. `pending_human` | **The other 45 atomic criteria**: 35 with the rule not encoded (status `unreviewed` whenever their facts are established) and 10 professional judgment (status `professional`). Every one carries a `pending_human_criterion` release blocker. |
+| A. `human_verified` and encoded | **Two**: `la_shra.very-high-fire-hazard-severity-zone` (c, Phase 3H) and `la_shra.high-fire-hazard-severity-zone` (d, Phase 3E). Each runs only through its enforced authority requirement and computed lot overlays: c assesses the CAL FIRE GOV §51178 (2025 LRA) and PRC §4202 (SRA) routes separately; d uses the PRC §4202 package only. |
+| B. `pending_human` | **The other 44 atomic criteria**: 34 with the rule not encoded (status `unreviewed` whenever their facts are established) and 10 professional judgment (status `professional`). Every one carries a `pending_human_criterion` release blocker. |
 | C. Removed or narrowed | **The nine broad criteria are retired** (their IDs are rejected by the criterion schema). Ten fact keys are retired. The zoning string, RSO status, and the ZIMAS program fields are source observations, and occupancy history, the structure count, and the generic historic designation are professional input; no rule may read any of them. |
 | Official sources captured | **Four**: `ordinance-188967`, `ordinance-188968`, `shra-2025-10-28` (operative), and `low-rise-draft-2026-09-24` (proposed draft, not operative). Unchanged in this pass. |
 | Proposed verification records | **Nine**, one per retired criterion, all `awaiting_human_review`, with 58 components: 46 shipped atomic criteria, 7 recorded as having no rule in the source, and 5 recorded as outside the screen. No reviewer, no review date. |
 
-Nothing in this ledger is a verification. The captures pin what the City's documents say; the atomic split and the proposals are one preparer's reading for a named human reviewer to accept, change, or reject. The fictional Program Screen fixture and the public demo stay non-releasable, with 46 `pending_human_criterion` blockers until Phase 3E and 45 since.
+Nothing in this ledger is a verification. The captures pin what the City's documents say; the atomic split and the proposals are one preparer's reading for a named human reviewer to accept, change, or reject. The fictional Program Screen fixture and the public demo stay non-releasable, with 46 `pending_human_criterion` blockers until Phase 3E, 45 until Phase 3H, and 44 since.
 
 ## Atomic criterion model
 

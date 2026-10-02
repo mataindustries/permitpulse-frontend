@@ -75,6 +75,7 @@ import {
   type ProgramFactKey,
   type ProgramPathwayPack,
 } from "../src/shared/program-screen/types";
+import { prePromotionC, prePromotionPacks } from "./program-screen-c-pre-promotion";
 import { REAL_LOT_NAMES, realLotOverlay, syntheticLotOverlay, type RealLotName } from "./program-screen-overlay-helpers";
 
 /**
@@ -135,6 +136,10 @@ const PUBLIC_DEMO_OUTPUT_SHA256 = "11081860902438dd881cb743c98de30f4b4c3c425675a
 // After the approved promotion of d: the projections the reviewer approved, reproduced exactly.
 const PROMOTED_EVALUATOR_OUTPUT_SHA256 = "156dd1f41964ab5beebcf3882e0a0d653cc5d778939033bf2b752dba1e86afbc";
 const PROMOTED_PUBLIC_DEMO_OUTPUT_SHA256 = "4dd2735bab875ad40b123fec72020e16442737bc6b5052eb55c5fba374b9a8a5";
+// Updated in Phase 3H: the approved c-only promotion moved the shipped output again. d's approved projection
+// above is still reproduced exactly with c rebuilt in its pre-promotion form.
+const PHASE_3H_EVALUATOR_OUTPUT_SHA256 = "1341fea59e307fed23ec1cd32fcdb2467d0fa3519bd07dd134fa9ddfee6deaad";
+const PHASE_3H_PUBLIC_DEMO_OUTPUT_SHA256 = "23aaee06e51b42a4c1001d6253504f2f932d591315af468ada21345d888a5070";
 
 const mapMetadata = parseOfficialSourceMetadata(mapMetadataJson);
 const regulationMetadata = parseOfficialSourceMetadata(regulationMetadataJson);
@@ -218,8 +223,8 @@ function pendingD(): ProgramCriterion {
   return { ...shipped(D), predicate: "not_encoded", question_if_judgment: null, verification: "pending_human", human_verification: null };
 }
 
-const withPromotedD = (criterion: ProgramCriterion = promotedD()): ProgramPathwayPack[] =>
-  programScreenPathwayPacks.map((entry) => ({
+const withPromotedD = (criterion: ProgramCriterion = promotedD(), packs: readonly ProgramPathwayPack[] = programScreenPathwayPacks): ProgramPathwayPack[] =>
+  packs.map((entry) => ({
     ...entry,
     criteria: entry.criteria.map((candidate) => (candidate.id === D ? criterion : candidate)),
   }));
@@ -456,21 +461,31 @@ describe("1. The shipped state after the approved promotion of d", () => {
     expect(criterionAwaitsHumanVerification(d)).toBe(false);
   });
 
-  it("promotes d alone: human_verified 1 and pending_human 45; c stays blocked by GOV §51178", () => {
-    expect(shippedCriteria.filter((criterion) => criterion.verification === "human_verified").map((criterion) => criterion.id)).toEqual([D]);
-    expect(shippedCriteria.filter((criterion) => criterion.verification === "pending_human")).toHaveLength(45);
-    for (const id of [C, E, F, G]) expect(shipped(id), id).toMatchObject({ verification: "pending_human", human_verification: null, predicate: "not_encoded" });
-    expect(criterionPromotionBlockers(shipped(C))).toEqual(REVIEWER_GATES);
+  // Updated in Phase 3H: c, then blocked by GOV §51178, was later promoted on its own audited record.
+  it("keeps d promoted; c is the only later promotion: human_verified 2 and pending_human 44", () => {
+    expect(shippedCriteria.filter((criterion) => criterion.verification === "human_verified").map((criterion) => criterion.id)).toEqual([C, D]);
+    expect(shippedCriteria.filter((criterion) => criterion.verification === "pending_human")).toHaveLength(44);
+    for (const id of [E, F, G]) expect(shipped(id), id).toMatchObject({ verification: "pending_human", human_verification: null, predicate: "not_encoded" });
+    expect(shipped(C).human_verification?.decision_ref).toEqual({ phase: "3B", letter: "c" });
+    expect(criterionPromotionBlockers(shipped(C))).toEqual([]);
+    expect(criterionPromotionBlockers(prePromotionC())).toEqual(REVIEWER_GATES);
   });
 
   it("pins the evaluator and public-demo output to the approved projections", async () => {
-    const result = evaluateProgramScreen({ evidence_records: fixtureJson.evidence_records, as_of: fixtureJson.as_of });
-    const demo = buildProgramScreenPublicDemoPayload(fixtureJson, { as_of: fixtureJson.as_of });
+    // Updated in Phase 3H: with c rebuilt pre-promotion, d's approved projection is reproduced exactly.
+    const packs = prePromotionPacks();
+    const result = evaluateProgramScreen({ evidence_records: fixtureJson.evidence_records, as_of: fixtureJson.as_of, packs });
+    const demo = buildProgramScreenPublicDemoPayload(fixtureJson, { as_of: fixtureJson.as_of, packs });
     expect(await sha256Hex(JSON.stringify(result))).toBe(PROMOTED_EVALUATOR_OUTPUT_SHA256);
     expect(await sha256Hex(JSON.stringify(demo))).toBe(PROMOTED_PUBLIC_DEMO_OUTPUT_SHA256);
     // Before the promotion, the same fixture gave the Phase 3D output.
-    const before = evaluateProgramScreen({ evidence_records: fixtureJson.evidence_records, as_of: fixtureJson.as_of, packs: withPromotedD(pendingD()) });
+    const before = evaluateProgramScreen({ evidence_records: fixtureJson.evidence_records, as_of: fixtureJson.as_of, packs: withPromotedD(pendingD(), packs) });
     expect(await sha256Hex(JSON.stringify(before))).not.toBe(PROMOTED_EVALUATOR_OUTPUT_SHA256);
+    // The shipped output is the approved Phase 3H projection.
+    const shippedResult = evaluateProgramScreen({ evidence_records: fixtureJson.evidence_records, as_of: fixtureJson.as_of });
+    const shippedDemo = buildProgramScreenPublicDemoPayload(fixtureJson, { as_of: fixtureJson.as_of });
+    expect(await sha256Hex(JSON.stringify(shippedResult))).toBe(PHASE_3H_EVALUATOR_OUTPUT_SHA256);
+    expect(await sha256Hex(JSON.stringify(shippedDemo))).toBe(PHASE_3H_PUBLIC_DEMO_OUTPUT_SHA256);
   });
 });
 
@@ -492,9 +507,11 @@ describe("2. The promoted d is well-formed and meets every gate only through the
     expect(await sha256Hex(memoExtracted)).toBe(record.source_capture.sha256);
     expect(excerptAppearsInCapture(record.supporting_excerpt, memoExtracted)).toBe(true);
     expect(record.decision_ref).toEqual(programAuthorityRegistries.criterion_requirements[D].decision_ref);
-    // The shared memo citation (2026-09-17, still c's) predates the capture (2026-09-27), so a record can
+    // The shared memo citation (2026-09-17) predates the capture (2026-09-27), so a record can
     // match d's citation only because d's citation carries the actual verification date.
-    expect(memoMetadata.retrieved_at.slice(0, 10) > shipped(C).citation.verified_at).toBe(true);
+    // Updated in Phase 3H: c now carries its own verification date, so the shared citation is read from e.
+    expect(shipped(E).citation.verified_at).toBe("2026-09-17");
+    expect(memoMetadata.retrieved_at.slice(0, 10) > shipped(E).citation.verified_at).toBe(true);
     expect(shipped(D).citation.verified_at).toBe(record.verified_at);
     expect(record.verified_at >= memoMetadata.retrieved_at.slice(0, 10)).toBe(true);
   });
@@ -988,11 +1005,13 @@ describe("5. Promotion safety", () => {
     expect(programCriterionSchema.safeParse({ ...candidate, verification: "pending_human" }).success).toBe(false);
   });
 
-  it("keeps c pending regardless of d, even with a complete c record", () => {
+  // Updated in Phase 3H: c is promoted on its own audited Phase 3B c record, never through d. The
+  // behavior below still holds: d's NO never clears c, and c runs only as its own route-separated rule.
+  it("promotes c only on its own record; d's NO never clears c", () => {
     const packs = withPromotedD();
     const c = packs.flatMap((entry) => entry.criteria).find((criterion) => criterion.id === C) as ProgramCriterion;
-    expect(c).toMatchObject({ verification: "pending_human", human_verification: null, predicate: "not_encoded" });
-    expect(authorityPromotionBlockers(c, programAuthorityRegistries, false)).toEqual(REVIEWER_GATES);
+    expect(c).toMatchObject({ verification: "human_verified", human_verification: { decision_ref: { phase: "3B", letter: "c" } } });
+    expect(authorityPromotionBlockers(prePromotionC(), programAuthorityRegistries, false)).toEqual(REVIEWER_GATES);
     const citation = c.citation;
     const cPromoted: ProgramCriterion = {
       ...c,
@@ -1007,9 +1026,9 @@ describe("5. Promotion safety", () => {
     };
     expect(hasCompleteHumanVerification(cPromoted)).toBe(true);
     expect(authorityPromotionBlockers(cPromoted, programAuthorityRegistries, true)).toEqual([]);
-    expect(criterionAwaitsHumanVerification(c)).toBe(true);
+    expect(criterionAwaitsHumanVerification(c)).toBe(false);
 
-    // A lot wholly in Very High: c's Route 2 YES waits on c's review; d's NO never clears c.
+    // A lot wholly in Very High: c's Route 2 YES stands on its own; d's NO never clears c.
     const vh = record("vh-true", VH, true);
     const high = record("high-false", HIGH, false);
     const result = evaluateProgramScreen({
@@ -1021,7 +1040,7 @@ describe("5. Promotion safety", () => {
       lot_overlay: overlay.inputs,
     });
     const [, , cResult, dResult] = result.pathways[0].criteria;
-    expect(cResult).toMatchObject({ criterion_id: C, status: "unreviewed", unreviewed_reasons: ["criterion_pending_human"] });
+    expect(cResult).toMatchObject({ criterion_id: C, status: "disqualifying_per_source", unreviewed_reasons: [] });
     expect(dResult).toMatchObject({ criterion_id: D, status: "consistent_with_source" });
     expect(result.pathways[0].rollup).not.toBe("no_disqualifier_found_in_reviewed_sources");
   });

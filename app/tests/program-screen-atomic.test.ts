@@ -306,12 +306,16 @@ describe("Atomic criteria are source-traceable", () => {
 // Updated in Phase 3E: d (la_shra.high-fire-hazard-severity-zone) is the one human-verified atomic
 // criterion (docs/PROGRAM_SCREEN_PHASE_3E_D_PROMOTION_REVIEW.md). Every other one is unchanged.
 const PHASE_3E_PROMOTED = "la_shra.high-fire-hazard-severity-zone";
+// Updated in Phase 3H: c (la_shra.very-high-fire-hazard-severity-zone) is human-verified as well
+// (docs/PROGRAM_SCREEN_PHASE_3H_C_PROMOTION_REVIEW.md).
+const PHASE_3H_PROMOTED = "la_shra.very-high-fire-hazard-severity-zone";
+const PROMOTED: readonly string[] = [PHASE_3H_PROMOTED, PHASE_3E_PROMOTED];
 
-describe("Only d is human-verified", () => {
-  it("keeps the other 45 pending, with no rule and no record, and blocks release on each", () => {
+describe("Only c and d are human-verified", () => {
+  it("keeps the other 44 pending, with no rule and no record, and blocks release on each", () => {
     expect(atomic).toHaveLength(46);
     const result = evaluateFixture();
-    for (const criterion of atomic.filter((candidate) => candidate.id !== PHASE_3E_PROMOTED)) {
+    for (const criterion of atomic.filter((candidate) => !PROMOTED.includes(candidate.id))) {
       expect(criterion, criterion.id).toMatchObject({ verification: "pending_human", human_verification: null });
       expect(typeof criterion.predicate, criterion.id).not.toBe("function");
       expect(criterionAwaitsHumanVerification(criterion)).toBe(true);
@@ -319,20 +323,23 @@ describe("Only d is human-verified", () => {
         expect.objectContaining({ code: "pending_human_criterion", ref: criterion.id }),
       );
     }
-    const d = byId.get(PHASE_3E_PROMOTED) as ProgramCriterion;
-    expect(d.verification).toBe("human_verified");
-    expect(typeof d.predicate).toBe("function");
-    expect(criterionAwaitsHumanVerification(d)).toBe(false);
-    expect(result.release.blockers).not.toContainEqual(expect.objectContaining({ code: "pending_human_criterion", ref: PHASE_3E_PROMOTED }));
-    expect(criteria.filter((criterion) => criterion.verification === "human_verified").map((criterion) => criterion.id)).toEqual([PHASE_3E_PROMOTED]);
+    for (const id of PROMOTED) {
+      const promoted = byId.get(id) as ProgramCriterion;
+      expect(promoted.verification, id).toBe("human_verified");
+      expect(typeof promoted.predicate, id).toBe("function");
+      expect(criterionAwaitsHumanVerification(promoted), id).toBe(false);
+      expect(result.release.blockers).not.toContainEqual(expect.objectContaining({ code: "pending_human_criterion", ref: id }));
+    }
+    expect(criteria.filter((criterion) => criterion.verification === "human_verified").map((criterion) => criterion.id)).toEqual([...PROMOTED]);
   });
 
   it("pins which atomic criteria are professional judgment and which have no encoded rule", () => {
     const professional = atomic.filter((criterion) => criterion.predicate === "professional_judgment");
     const notEncoded = atomic.filter((criterion) => criterion.predicate === "not_encoded");
-    // Updated in Phase 3E: d's rule is encoded.
-    expect(notEncoded).toHaveLength(35);
+    // Updated in Phase 3E: d's rule is encoded. Updated in Phase 3H: c's rule is encoded.
+    expect(notEncoded).toHaveLength(34);
     expect(notEncoded.map((criterion) => criterion.id)).not.toContain(PHASE_3E_PROMOTED);
+    expect(notEncoded.map((criterion) => criterion.id)).not.toContain(PHASE_3H_PROMOTED);
     expect(professional.map((criterion) => criterion.id)).toEqual([
       "la_shra.protected-housing-tenant-occupancy",
       "la_shra.protected-housing-demolition-or-alteration",
@@ -512,7 +519,8 @@ describe("High and Very High fire hazard stay distinct", () => {
       evidence_records: [...anchors(), evidence("vh", "very-high-fire-hazard-severity-zone", false)],
       as_of: AS_OF,
     });
-    expect(statusOf(result, "la_shra.very-high-fire-hazard-severity-zone")).toBe("unreviewed");
+    // Updated in Phase 3H: c runs, but an unattested record establishes no route, so c stays unknown.
+    expect(statusOf(result, "la_shra.very-high-fire-hazard-severity-zone")).toBe("unknown");
     expect(statusOf(result, "la_shra.high-fire-hazard-severity-zone")).toBe("unknown");
     const high = result.facts.find((fact) => fact.key === "high-fire-hazard-severity-zone");
     expect(high).toMatchObject({ supplied: false, classification: "unknown" });
@@ -807,8 +815,8 @@ describe("Release safety", () => {
     expect(result.counts.criteria.disqualifying_per_source).toBe(0);
     const payload = buildProgramScreenPublicDemoPayload(fixtureJson, { as_of: AS_OF });
     expect(payload.release).toMatchObject({ client_releasable: false });
-    // Updated in Phase 3E: d is human-verified.
-    expect(payload.release.blocker_counts.pending_human_criterion).toBe(45);
+    // Updated in Phase 3E: d is human-verified. Updated in Phase 3H: c is human-verified.
+    expect(payload.release.blocker_counts.pending_human_criterion).toBe(44);
     expect(payload.release.blocker_counts.prohibited_language).toBe(0);
   });
 

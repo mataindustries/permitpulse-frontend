@@ -74,6 +74,9 @@ const ROUND_1_IDS = [
 ];
 /** Updated in Phase 3E: the one Round 1 criterion a later review promoted (docs/PROGRAM_SCREEN_PHASE_3E_D_PROMOTION_REVIEW.md). */
 const PHASE_3E_PROMOTED = "la_shra.high-fire-hazard-severity-zone";
+// Updated in Phase 3H: c was promoted by its own later review (Phase 3H), not by this packet.
+const PHASE_3H_PROMOTED = "la_shra.very-high-fire-hazard-severity-zone";
+const LATER_PROMOTED: readonly string[] = [PHASE_3H_PROMOTED, PHASE_3E_PROMOTED];
 const SB79_PERMANENT = "la_sb79.permanent-exemption-shown";
 
 const round = humanReviewRoundSchema.parse(roundJson);
@@ -399,10 +402,12 @@ describe("Round 1 human review manifest", () => {
 
 describe("1. No Round 1 criterion becomes human_verified because this packet exists", () => {
   // Updated in Phase 3E: d was promoted by its own later review (Phase 3E), not by this packet.
-  it("keeps every Round 1 criterion but d pending_human, without a record, and release-blocking", () => {
+  // Updated in Phase 3H: c likewise, by its own later review.
+  it("keeps every Round 1 criterion but c and d pending_human, without a record, and release-blocking", () => {
     const result = evaluateProgramScreen({ evidence_records: fixtureJson.evidence_records, as_of: AS_OF });
     expect(criterionFor(PHASE_3E_PROMOTED)).toMatchObject({ verification: "human_verified", human_verification: { decision_ref: { phase: "3B", letter: "d" } } });
-    for (const id of ROUND_1_IDS.filter((candidate) => candidate !== PHASE_3E_PROMOTED)) {
+    expect(criterionFor(PHASE_3H_PROMOTED)).toMatchObject({ verification: "human_verified", human_verification: { decision_ref: { phase: "3B", letter: "c" } } });
+    for (const id of ROUND_1_IDS.filter((candidate) => !LATER_PROMOTED.includes(candidate))) {
       const criterion = criterionFor(id);
       expect(criterion, id).toMatchObject({ verification: "pending_human", human_verification: null });
       expect(criterionAwaitsHumanVerification(criterion), id).toBe(true);
@@ -412,10 +417,10 @@ describe("1. No Round 1 criterion becomes human_verified because this packet exi
     }
   });
 
-  // Updated in Phase 3E: d alone is human-verified.
-  it("leaves 1 human-verified (d) and 45 pending_human criteria", () => {
-    expect(shipped.filter((criterion) => criterion.verification === "human_verified").map((criterion) => criterion.id)).toEqual([PHASE_3E_PROMOTED]);
-    expect(shipped.filter((criterion) => criterion.verification === "pending_human")).toHaveLength(45);
+  // Updated in Phase 3E: d alone is human-verified. Updated in Phase 3H: c and d.
+  it("leaves 2 human-verified (c, d) and 44 pending_human criteria", () => {
+    expect(shipped.filter((criterion) => criterion.verification === "human_verified").map((criterion) => criterion.id)).toEqual([...LATER_PROMOTED]);
+    expect(shipped.filter((criterion) => criterion.verification === "pending_human")).toHaveLength(44);
     expect(humanVerificationRequiredCriterionIds).toHaveLength(46);
   });
 
@@ -444,20 +449,22 @@ describe("1. No Round 1 criterion becomes human_verified because this packet exi
 
 describe("2. No Round 1 criterion gains a production rule because this packet exists", () => {
   // Updated in Phase 3E: d's rule (the Phase 3B d rule, not a Round 1 text) is encoded.
-  it("keeps every Round 1 rule but d's not_encoded", () => {
-    for (const id of ROUND_1_IDS.filter((candidate) => candidate !== PHASE_3E_PROMOTED)) expect(criterionFor(id).predicate, id).toBe("not_encoded");
-    expect(typeof criterionFor(PHASE_3E_PROMOTED).predicate).toBe("function");
+  // Updated in Phase 3H: so is c's (the Phase 3B c rule).
+  it("keeps every Round 1 rule but c's and d's not_encoded", () => {
+    for (const id of ROUND_1_IDS.filter((candidate) => !LATER_PROMOTED.includes(candidate))) expect(criterionFor(id).predicate, id).toBe("not_encoded");
+    for (const id of LATER_PROMOTED) expect(typeof criterionFor(id).predicate, id).toBe("function");
   });
 
   it("leaves the executable production predicates exactly as before", () => {
     const executable = shipped
       .filter((criterion) => typeof criterion.predicate === "function" && !criterionAwaitsHumanVerification(criterion))
       .map((criterion) => criterion.id);
-    // Updated in Phase 3E: d.
+    // Updated in Phase 3E: d. Updated in Phase 3H: c.
     expect(executable).toEqual([
       "la_shra.parcel-match",
       "la_shra.jurisdiction",
       "la_shra.implementation-memo-scope",
+      "la_shra.very-high-fire-hazard-severity-zone",
       "la_shra.high-fire-hazard-severity-zone",
       "la_sb79.parcel-match",
       "la_sb79.jurisdiction",
@@ -480,11 +487,12 @@ describe("2. No Round 1 criterion gains a production rule because this packet ex
     };
     const result = evaluateProgramScreen({ evidence_records: [...anchors(), ...valuesRecords(blocking)], as_of: AS_OF });
     const statuses = new Map(result.pathways.flatMap((pathway) => pathway.criteria).map((c) => [c.criterion_id, c]));
-    for (const id of ROUND_1_IDS.filter((candidate) => candidate !== PHASE_3E_PROMOTED)) {
+    for (const id of ROUND_1_IDS.filter((candidate) => !LATER_PROMOTED.includes(candidate))) {
       expect(statuses.get(id), id).toMatchObject({ status: "unreviewed", unreviewed_reasons: ["criterion_pending_human"] });
     }
     // Updated in Phase 3E: d runs, but no record here is an authority, so the gate leaves it unknown.
-    expect(statuses.get(PHASE_3E_PROMOTED)).toMatchObject({ status: "unknown", authority: { established: false } });
+    // Updated in Phase 3H: the same holds for c.
+    for (const id of LATER_PROMOTED) expect(statuses.get(id), id).toMatchObject({ status: "unknown", authority: { established: false } });
     expect(result.counts.criteria.disqualifying_per_source).toBe(0);
     expect(result.pathways.map((pathway) => pathway.rollup)).not.toContain("documented_disqualifier");
   });
@@ -1020,19 +1028,20 @@ describe("Round 1 decisions record", () => {
   });
 
   // Updated in Phase 3E: d is human-verified by its Phase 3E review; this record, which is history, is unchanged.
-  it("promotes nothing: every Round 1 criterion but d stays pending_human, without a rule, and every one at the same ceiling", () => {
+  // Updated in Phase 3H: c likewise, by its Phase 3H review.
+  it("promotes nothing: every Round 1 criterion but c and d stays pending_human, without a rule, and every one at the same ceiling", () => {
     for (const entry of decisions.decisions) {
       const criterion = criterionFor(entry.criterion_id);
       expect(entry, entry.letter).toMatchObject({ status_after_review: "pending_human", outcome_ceiling_changed: false });
-      if (entry.criterion_id === PHASE_3E_PROMOTED) {
+      if (LATER_PROMOTED.includes(entry.criterion_id)) {
         expect(criterion, entry.letter).toMatchObject({ verification: "human_verified" });
       } else {
         expect(criterion, entry.letter).toMatchObject({ verification: "pending_human", human_verification: null, predicate: "not_encoded" });
       }
       expect(criterion.permitted_outcomes, entry.letter).toEqual(candidateFor(entry.criterion_id).current_outcome_ceiling);
     }
-    expect(shipped.filter((criterion) => criterion.verification === "human_verified").map((criterion) => criterion.id)).toEqual([PHASE_3E_PROMOTED]);
-    expect(shipped.filter((criterion) => criterion.verification === "pending_human")).toHaveLength(45);
+    expect(shipped.filter((criterion) => criterion.verification === "human_verified").map((criterion) => criterion.id)).toEqual([...LATER_PROMOTED]);
+    expect(shipped.filter((criterion) => criterion.verification === "pending_human")).toHaveLength(44);
   });
 
   it("keeps the reviewer's texts verbatim in the decisions document", () => {
@@ -1090,8 +1099,9 @@ describe("Round 1 leaves production output byte-identical", () => {
   // roll-up, and release decision is unchanged.
   // Updated in Phase 3E: the deliberate, reviewed promotion of d moved them again. Every status and
   // roll-up is unchanged; d's fields and its own pending blocker and review task changed.
-  const EVALUATOR_OUTPUT_SHA256 = "156dd1f41964ab5beebcf3882e0a0d653cc5d778939033bf2b752dba1e86afbc";
-  const PUBLIC_DEMO_OUTPUT_SHA256 = "4dd2735bab875ad40b123fec72020e16442737bc6b5052eb55c5fba374b9a8a5";
+  // Updated in Phase 3H: the reviewed promotion of c moved them again, the same way, for c only.
+  const EVALUATOR_OUTPUT_SHA256 = "1341fea59e307fed23ec1cd32fcdb2467d0fa3519bd07dd134fa9ddfee6deaad";
+  const PUBLIC_DEMO_OUTPUT_SHA256 = "23aaee06e51b42a4c1001d6253504f2f932d591315af468ada21345d888a5070";
 
   it("produces the same evaluator and public-demo output for the fictional fixture", async () => {
     const result = evaluateProgramScreen({ evidence_records: fixtureJson.evidence_records, as_of: fixtureJson.as_of });

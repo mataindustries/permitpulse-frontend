@@ -711,14 +711,14 @@ describe("4. c: PRC §4202 is Route 2 only; Route 1 stays unavailable, and c nev
     expect(cResult(true, false).status).toBe("disqualifying_per_source");
   });
 
-  it("keeps c pending after Phase 3G meets the source gate", () => {
+  // Updated in Phase 3H: after Phase 3G met the source gate, the reviewer promoted c with its Phase 3B c record.
+  it("promotes c only through its human record once Phase 3G met the source gate", () => {
     const c = programScreenPathwayPacks.flatMap((entry) => entry.criteria).find((criterion) => criterion.id === C) as ProgramCriterion;
-    expect(authorityPromotionBlockers(c, programAuthorityRegistries, false)).toEqual([
-      "reviewer_confirms_encoded_rule",
-      "human_verification_record",
-    ]);
-    expect(c.verification).toBe("pending_human");
-    expect(c.human_verification).toBeNull();
+    expect(authorityPromotionBlockers(c, programAuthorityRegistries, false)).toEqual(["human_verification_record"]);
+    expect(authorityPromotionBlockers(c, programAuthorityRegistries, true)).toEqual([]);
+    expect(c.verification).toBe("human_verified");
+    expect(c.human_verification?.decision_ref).toEqual({ phase: "3B", letter: "c" });
+    expect(criterionAwaitsHumanVerification(c)).toBe(false);
   });
 });
 
@@ -942,22 +942,28 @@ describe("7. Invariants", () => {
   // Updated in Phase 3E: d's promotion moved the output pins (the Phase 3D record keeps the ones above).
   const PHASE_3E_EVALUATOR_OUTPUT_SHA256 = "156dd1f41964ab5beebcf3882e0a0d653cc5d778939033bf2b752dba1e86afbc";
   const PHASE_3E_PUBLIC_DEMO_OUTPUT_SHA256 = "4dd2735bab875ad40b123fec72020e16442737bc6b5052eb55c5fba374b9a8a5";
+  // Updated in Phase 3H: c's promotion moved the output pins again (the Phase 3E pins are kept above).
+  const PHASE_3H_EVALUATOR_OUTPUT_SHA256 = "1341fea59e307fed23ec1cd32fcdb2467d0fa3519bd07dd134fa9ddfee6deaad";
+  const PHASE_3H_PUBLIC_DEMO_OUTPUT_SHA256 = "23aaee06e51b42a4c1001d6253504f2f932d591315af468ada21345d888a5070";
   const criteria = programScreenPathwayPacks.flatMap((entry) => entry.criteria);
 
   // Updated in Phase 3E: d alone is human-verified; every other guarded criterion is still blocked.
-  it("promotes only d: human_verified is 1 and pending_human is 45, every other guarded criterion blocked", () => {
-    expect(criteria.filter((criterion) => criterion.verification === "human_verified").map((criterion) => criterion.id)).toEqual([D]);
-    expect(criteria.filter((criterion) => criterion.verification === "pending_human")).toHaveLength(45);
-    for (const criterion of criteria.filter((candidate) => promotionGuardedCriterionIds.has(candidate.id) && candidate.id !== D)) {
+  // Updated in Phase 3H: c is human-verified as well.
+  it("promotes only c and d: human_verified is 2 and pending_human is 44, every other guarded criterion blocked", () => {
+    expect(criteria.filter((criterion) => criterion.verification === "human_verified").map((criterion) => criterion.id)).toEqual([C, D]);
+    expect(criteria.filter((criterion) => criterion.verification === "pending_human")).toHaveLength(44);
+    for (const criterion of criteria.filter((candidate) => promotionGuardedCriterionIds.has(candidate.id) && candidate.id !== C && candidate.id !== D)) {
       expect(authorityPromotionBlockers(criterion, programAuthorityRegistries, false).length, criterion.id).toBeGreaterThan(0);
     }
   });
 
-  it("keeps the evaluator and public-demo output byte-identical (moved only by the Phase 3E promotion)", async () => {
+  it("keeps the evaluator and public-demo output byte-identical (moved only by the Phase 3E and 3H promotions)", async () => {
     const result = evaluateProgramScreen({ evidence_records: fixtureJson.evidence_records, as_of: fixtureJson.as_of });
     const demo = buildProgramScreenPublicDemoPayload(fixtureJson, { as_of: fixtureJson.as_of });
-    expect(await sha256Hex(JSON.stringify(result))).toBe(PHASE_3E_EVALUATOR_OUTPUT_SHA256);
-    expect(await sha256Hex(JSON.stringify(demo))).toBe(PHASE_3E_PUBLIC_DEMO_OUTPUT_SHA256);
+    expect(PHASE_3E_EVALUATOR_OUTPUT_SHA256).not.toBe(PHASE_3H_EVALUATOR_OUTPUT_SHA256);
+    expect(PHASE_3E_PUBLIC_DEMO_OUTPUT_SHA256).not.toBe(PHASE_3H_PUBLIC_DEMO_OUTPUT_SHA256);
+    expect(await sha256Hex(JSON.stringify(result))).toBe(PHASE_3H_EVALUATOR_OUTPUT_SHA256);
+    expect(await sha256Hex(JSON.stringify(demo))).toBe(PHASE_3H_PUBLIC_DEMO_OUTPUT_SHA256);
   });
 
   it("keeps the SHRA completeness blockers G1 and G2 open", () => {
