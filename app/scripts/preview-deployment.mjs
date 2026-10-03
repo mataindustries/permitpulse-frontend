@@ -16,6 +16,7 @@ const expectedMigrationNames = [
   "0009_decision_brief_action_kit.sql",
   "0010_evidence_intake.sql",
   "0011_build_week_case_integrity.sql",
+  "0012_program_screen_review_events.sql",
 ];
 const previewDatabaseName = "permitpulse-case-workspace-preview";
 const previewBucketName = "permitpulse-evidence-files-preview";
@@ -163,7 +164,7 @@ async function validateConfig(config, { resolved }) {
     .filter((name) => name.endsWith(".sql"))
     .sort();
   if (JSON.stringify(migrationNames) !== JSON.stringify(expectedMigrationNames)) {
-    fail("the migration set must be exactly 0001 through 0011.");
+    fail("the migration set must be exactly 0001 through 0012.");
   }
 }
 

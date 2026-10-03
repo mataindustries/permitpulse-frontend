@@ -73,3 +73,7 @@ export function mayLinkAnyEvidenceToTimeline(actor: CaseActor): boolean {
 export function mayEvaluateProgramScreen(actor: CaseActor): boolean {
   return actor.role === "admin";
 }
+
+export function mayPrepareProgramScreenCase(actor: CaseActor): boolean {
+  return actor.role === "admin";
+}
