@@ -395,7 +395,7 @@ describe("Phase 3K A: provenance (V1-V14)", () => {
     proposal.source_provenance.evidence_files[0].bytes += 1;
     const result = await validate(staged.admin, staged.caseId, body(proposal));
     expect(result.valid).toBe(false);
-    expect(result.diagnostics).toContainEqual({ code: "FILE_HASH_MISMATCH", severity: "error", field: "source_geometry.file", file_id: staged.built.refs.source.file_id, sha256: staged.built.refs.source.sha256 });
+    expect(result.diagnostics).toContainEqual({ code: "FILE_HASH_MISMATCH", severity: "error", field: "source_geometry.file", sha256: staged.built.refs.source.sha256 });
     await expectPreparationError(publish(staged.admin, staged.caseId, body(proposal)), "PREPARATION_INVALID");
     expect(await currentRecord(staged.caseId)).toBeNull();
   });
@@ -406,7 +406,7 @@ describe("Phase 3K A: provenance (V1-V14)", () => {
     await stage(admin, caseId, built, [built.refs.source.sha256]);
     const result = await validate(admin, caseId, body(built));
     expect(result.valid).toBe(false);
-    expect(result.diagnostics).toContainEqual({ code: "FILE_MISSING", severity: "error", field: "source_geometry.file", file_id: built.refs.source.file_id, sha256: built.refs.source.sha256 });
+    expect(result.diagnostics).toContainEqual({ code: "FILE_MISSING", severity: "error", field: "source_geometry.file", sha256: built.refs.source.sha256 });
     const error = await expectPreparationError(publish(admin, caseId, body(built)), "PREPARATION_INVALID");
     expect(codes((error.details as { diagnostics: preparation.CasePreparationDiagnostic[] }).diagnostics)).toContain("FILE_MISSING");
     expect(await currentRecord(caseId)).toBeNull();
@@ -428,7 +428,7 @@ describe("Phase 3K A: provenance (V1-V14)", () => {
     const staged = await stageCase({ lot, sourceText: sraSourceText });
     const result = await validate(staged.admin, staged.caseId, body(staged.built));
     expect(errorCodes(result.diagnostics)).toEqual(["NORMALIZED_STRUCTURE_MISMATCH"]);
-    expect(result.diagnostics).toContainEqual({ code: "NORMALIZED_STRUCTURE_MISMATCH", severity: "error", field: "normalized_geometry.file", file_id: staged.built.refs.normalized.file_id });
+    expect(result.diagnostics).toContainEqual({ code: "NORMALIZED_STRUCTURE_MISMATCH", severity: "error", field: "normalized_geometry.file" });
     await expectPreparationError(publish(staged.admin, staged.caseId, body(staged.built)), "PREPARATION_INVALID");
     expect(await currentRecord(staged.caseId)).toBeNull();
     expect(await auditRows(staged.caseId)).toEqual([]);
@@ -458,14 +458,16 @@ describe("Phase 3K A: provenance (V1-V14)", () => {
     ["proposal.normalized_geometry.serialization", (request) => { request.proposal.normalized_geometry.serialization = "x"; }],
     ...(["case_id", "reviewer", "reviewer_user_id", "as_of", "registries", "authority", "review_id"] as const).map((key): [string, (request: any) => void] => [`body.${key}`, (request) => { request[key] = "test-only"; }]),
   ];
-  it.each(FORBIDDEN)("V8 a request carrying %s is rejected, never ignored, before any R2 access", async (_name, inject) => {
+  it.each(FORBIDDEN)("V8 a request carrying %s is rejected, never ignored, before any R2 access", async (name, inject) => {
     const staged = await stageCase();
     const request: any = body(structuredClone(staged.built.proposal));
     inject(request);
     const { bucket, calls } = proxiedBucket();
     const b = serviceBindings({ EVIDENCE_FILES: bucket });
     const refused = await expectPreparationError(validate(staged.admin, staged.caseId, request, b), "VALIDATION_ERROR");
-    expect(JSON.stringify(refused.details)).toMatch(/Unrecognized key/);
+    // The issue names the schema-owned parent path, never the rejected key itself.
+    const parent = name.startsWith("body.") ? [] : name.split(".").slice(0, -1);
+    expect(refused.details).toEqual({ issues: [parent.length === 0 ? { code: "unrecognized_keys" } : { code: "unrecognized_keys", field: parent.join(".") }] });
     await expectPreparationError(publish(staged.admin, staged.caseId, request, b), "VALIDATION_ERROR");
     expect(calls).toEqual([]);
     expect(await currentRecord(staged.caseId)).toBeNull();
@@ -517,7 +519,7 @@ describe("Phase 3K A: provenance (V1-V14)", () => {
     expect((await validate(retrieved.admin, retrieved.caseId, body(retrieved.built))).diagnostics).toContainEqual({ code: "TIMESTAMP_IN_FUTURE", severity: "error", field: "source_provenance.retrieved_at_utc" });
     const normalized = await stageCase({ receipt: (receipt) => { receipt.normalized_at_utc = "2026-10-01T18:00:01.000001Z"; } });
     const result = await validate(normalized.admin, normalized.caseId, body(normalized.built));
-    expect(result.diagnostics).toContainEqual({ code: "TIMESTAMP_IN_FUTURE", severity: "error", field: "receipt.normalized_at_utc", file_id: normalized.built.refs.receipt.file_id });
+    expect(result.diagnostics).toContainEqual({ code: "TIMESTAMP_IN_FUTURE", severity: "error", field: "receipt.normalized_at_utc" });
     await expectPreparationError(publish(normalized.admin, normalized.caseId, body(normalized.built)), "PREPARATION_INVALID");
     const exact = await stageCase({ receipt: (receipt) => { receipt.normalized_at_utc = "2026-10-01T18:00:00Z"; } });
     expect(codes((await validate(exact.admin, exact.caseId, body(exact.built))).diagnostics)).not.toContain("TIMESTAMP_IN_FUTURE");
@@ -593,14 +595,15 @@ describe("Phase 3K A: every lower-level verifier refusal maps to a pinned code",
     const legal = prepared.built.refs.legal[0];
     const key = `${prepared.caseId}/program-screen/blobs/${legal.sha256}`;
     await env.EVIDENCE_FILES.put(key, utf8("%PDF-1.7\n% TEST-ONLY replaced bytes\n"));
-    expect((await status(prepared.admin, prepared.caseId)).current_review).toMatchObject({ verified: false, diagnostics: [{ code: "FILE_HASH_MISMATCH", severity: "error", file_id: legal.file_id }] });
+    expect((await status(prepared.admin, prepared.caseId)).current_review).toMatchObject({ verified: false });
+    expect((await status(prepared.admin, prepared.caseId)).current_review!.diagnostics).toEqual([{ code: "FILE_HASH_MISMATCH", severity: "error", field: "legal_identity_evidence.0", sha256: legal.sha256 }]);
     await env.EVIDENCE_FILES.put(key, new Uint8Array(8 * 1024 * 1024 + 1));
-    expect((await status(prepared.admin, prepared.caseId)).current_review).toMatchObject({
-      verified: false, diagnostics: [{ code: "REVIEWED_LOT_VERIFICATION_FAILED", severity: "error", detail: "Case evidence file exceeds its bound." }],
-    });
+    // The verifier's own text ("Case evidence file exceeds its bound.") is reduced to the fixed code.
+    expect((await status(prepared.admin, prepared.caseId)).current_review!.diagnostics).toEqual([{ code: "REVIEWED_LOT_VERIFICATION_FAILED", severity: "error" }]);
     await env.EVIDENCE_FILES.delete(key);
     const missing = await status(prepared.admin, prepared.caseId);
-    expect(missing.current_review).toMatchObject({ verified: false, diagnostics: [{ code: "FILE_MISSING", severity: "error", file_id: legal.file_id }] });
+    expect(missing.current_review).toMatchObject({ verified: false });
+    expect(missing.current_review!.diagnostics).toEqual([{ code: "FILE_MISSING", severity: "error", field: "legal_identity_evidence.0", sha256: legal.sha256 }]);
     expect(missing.readiness).toBe("review_unverified");
   });
 });
@@ -967,7 +970,7 @@ describe("Phase 3K A: legal-lot identity is a human decision (L1-L8)", () => {
     const staged = await stageCase();
     staged.built.proposal.legal_identity_evidence = [staged.built.refs[input]];
     const result = await validate(staged.admin, staged.caseId, body(staged.built));
-    expect(result.diagnostics).toContainEqual({ code: "LEGAL_EVIDENCE_OVERLAPS_GEOMETRY_INPUTS", severity: "error", field: "legal_identity_evidence.0", file_id: staged.built.refs[input].file_id, sha256: staged.built.refs[input].sha256 });
+    expect(result.diagnostics).toContainEqual({ code: "LEGAL_EVIDENCE_OVERLAPS_GEOMETRY_INPUTS", severity: "error", field: "legal_identity_evidence.0", sha256: staged.built.refs[input].sha256 });
     await expectPreparationError(publish(staged.admin, staged.caseId, body(staged.built)), "PREPARATION_INVALID");
     expect(await currentRecord(staged.caseId)).toBeNull();
     expect(await auditRows(staged.caseId)).toEqual([]);
@@ -1039,7 +1042,7 @@ describe("Phase 3K A: case isolation and request safety (S1-S9)", () => {
     await stage(a.admin, caseB, a.built, [a.built.refs.legal[0].sha256]);
     await hydrate(a.admin, caseB, (await useWorld()).gov_51178);
     const result = await validate(a.admin, caseB, body(a.built));
-    expect(result.diagnostics).toContainEqual({ code: "FILE_MISSING", severity: "error", field: "legal_identity_evidence.0", file_id: a.built.refs.legal[0].file_id, sha256: a.built.refs.legal[0].sha256 });
+    expect(result.diagnostics).toContainEqual({ code: "FILE_MISSING", severity: "error", field: "legal_identity_evidence.0", sha256: a.built.refs.legal[0].sha256 });
     await expectPreparationError(publish(a.admin, caseB, body(a.built)), "PREPARATION_INVALID");
     expect(await currentRecord(caseB)).toBeNull();
   });
@@ -1048,7 +1051,7 @@ describe("Phase 3K A: case isolation and request safety (S1-S9)", () => {
     const a = await prepareCase();
     const caseB = await insertCase();
     await stage(a.admin, caseB, a.built, [a.built.refs.normalized.sha256]);
-    expect((await validate(a.admin, caseB, body(a.built))).diagnostics).toContainEqual(expect.objectContaining({ code: "FILE_MISSING", file_id: a.built.refs.normalized.file_id }));
+    expect((await validate(a.admin, caseB, body(a.built))).diagnostics).toContainEqual({ code: "FILE_MISSING", severity: "error", field: "normalized_geometry.file", sha256: a.built.refs.normalized.sha256 });
     await svc.storeCasePreparationBlob(serviceBindings(), a.admin, caseB, a.built.refs.normalized.sha256, a.built.files.get(a.built.refs.normalized.sha256)!);
     const publication = await published(a.admin, caseB, body(a.built));
     expect(publication.case_id).toBe(caseB);
@@ -1400,7 +1403,8 @@ describe("Phase 3K B: HTTP preparation endpoints", () => {
     await expectError(await call("PUT", caseId, `/calfire/records/${await bytesSha256(stray)}`, admin.cookie, { body: stray, type: OCTET }), 422, "RECORD_NOT_IN_PINNED_INDEX");
     await expectError(await call("POST", caseId, "/validate", admin.cookie, { body: "{not json", type: JSON_TYPE }), 400, "INVALID_JSON", "The request body is not valid JSON.");
     const invalid = await expectError(await call("POST", caseId, "/publish", admin.cookie, { body: json({ proposal: {}, expected_revision: null, reviewer: "x" }), type: JSON_TYPE }), 422, "VALIDATION_ERROR");
-    expect(invalid.error.details).toMatchObject({ formErrors: [expect.stringContaining("reviewer")] });
+    expect(invalid.error.details).toMatchObject({ issues: expect.arrayContaining([{ code: "unrecognized_keys" }]) });
+    expect(JSON.stringify(invalid.error.details)).not.toContain("reviewer");
   });
 
   it("C-series outcomes keep their status codes over HTTP: 201, replay 200, stale 409, audit 503, invalidation", async () => {
@@ -1673,5 +1677,357 @@ describe("Phase 3K B: HTTP preparation endpoints", () => {
     expect([...appSource.matchAll(/from\s+["']([^"']+)["']/g)].map((match) => match[1]).filter((path) => /program-screen\/|shared\//.test(path))).toEqual([]);
     expect(appSource).toContain('app.route("/api/v1/program-screen", programScreenPreparationRoutes);');
     expect(appSource).not.toMatch(/app\.route\("\/api\/v1\/cases", programScreenPreparationRoutes\)/);
+  });
+});
+
+/* ============================================= Repair: pre-PR review findings (RPR1-RPR14) */
+
+/** A recognizable TEST-ONLY private value that no preparation response may ever contain. */
+const SENTINEL = "TEST-ONLY-PRIVATE-SENTINEL-APN-4431018022";
+const POINTER = (caseId: string) => `${caseId}/program-screen/current-review.json`;
+async function pointerBytes(caseId: string): Promise<Uint8Array> {
+  return new Uint8Array(await (await env.EVIDENCE_FILES.get(POINTER(caseId)))!.arrayBuffer());
+}
+/** Replaces current-review.json with bytes whose integrity digest is correct, as a fault or an out-of-band write could. */
+async function writePointer(caseId: string, bytes: Uint8Array): Promise<string> {
+  await env.EVIDENCE_FILES.put(POINTER(caseId), bytes, { customMetadata: { contentSha256: await bytesSha256(bytes) } });
+  return (await env.EVIDENCE_FILES.head(POINTER(caseId)))!.etag;
+}
+
+describe("Phase 3K repair: dangerous own JSON keys (RPR1-RPR3)", () => {
+  const PROHIBITED = { issues: [{ code: "prohibited_key" }] };
+  /** The request is parsed from JSON text, so every prohibited key is an own property, exactly as over HTTP. */
+  async function expectProhibited(caseId: string, admin: CaseActor, text: string) {
+    const request = JSON.parse(text);
+    const before = JSON.stringify(request);
+    const { bucket, calls } = proxiedBucket();
+    const b = serviceBindings({ EVIDENCE_FILES: bucket });
+    expect((await expectPreparationError(validate(admin, caseId, request, b), "VALIDATION_ERROR")).details).toEqual(PROHIBITED);
+    expect((await expectPreparationError(publish(admin, caseId, request, b), "VALIDATION_ERROR")).details).toEqual(PROHIBITED);
+    expect(calls).toEqual([]);
+    expect(JSON.stringify(request)).toBe(before);
+  }
+
+  it("RPR1 an own __proto__ key at the top level, nested, or in an array element is rejected, never stripped", async () => {
+    const staged = await stageCase();
+    const text = json(body(staged.built));
+    const requests = [
+      `{"__proto__":{"expected_revision":"test-only"},${text.slice(1)}`,
+      text.replace('"proposal":{', '"proposal":{"__proto__":{"case_id":"00000000-0000-4000-8000-000000000302"},'),
+      text.replace('"source_geometry":{', '"source_geometry":{"__proto__":{"crs":null},'),
+      text.replace('"legal_identity_evidence":[{', '"legal_identity_evidence":[{"__proto__":null,'),
+    ];
+    for (const request of requests) {
+      expect(request).not.toBe(text);
+      expect(request).toContain('"__proto__":');
+      await expectProhibited(staged.caseId, staged.admin, request);
+    }
+    const admin = await signUp("admin");
+    for (const request of requests) {
+      const refused = await expectError(await call("POST", staged.caseId, "/publish", admin.cookie, { body: request, type: JSON_TYPE }), 422, "VALIDATION_ERROR");
+      expect(refused.error.details).toEqual(PROHIBITED);
+    }
+    // Without the key the same request is valid; nothing was published or audited.
+    expect((await validate(staged.admin, staged.caseId, JSON.parse(text))).valid).toBe(true);
+    expect(await currentRecord(staged.caseId)).toBeNull();
+    expect(await auditRows(staged.caseId)).toEqual([]);
+  });
+
+  it("RPR2 an own prototype or constructor key, nested or in an array element, is refused by the prohibited-key check before the schema", async () => {
+    const admin = await insertUser("admin");
+    const caseId = await insertCase();
+    const text = json(body(await buildProposal()));
+    const injections = [
+      text.replace('"parcel":{', '"parcel":{"constructor":{"apn":"0000000001"},'),
+      text.replace('"source_provenance":{', '"source_provenance":{"prototype":{},'),
+      text.replace('"evidence_files":[{', '"evidence_files":[{"constructor":"test-only",'),
+      text.replace('"map_pages":{', '"map_pages":{"prototype":1,'),
+      text.replace(/}$/, ',"constructor":null}'),
+    ];
+    for (const request of injections) {
+      expect(request).not.toBe(text);
+      await expectProhibited(caseId, admin, request);
+    }
+    for (const request of ['{"expected_revision":"test-only","reason":"other","prototype":{}}', '{"constructor":{},"expected_revision":"test-only","reason":"other"}']) {
+      const refused = await expectPreparationError(svc.invalidateCurrentReview(serviceBindings(), admin, caseId, JSON.parse(request), now(), REQUEST_ID), "VALIDATION_ERROR");
+      expect(refused.details).toEqual(PROHIBITED);
+    }
+  });
+
+  it("RPR3 __proto__, prototype and constructor as ordinary string values are accepted where the schema permits them", async () => {
+    const staged = await stageCase({ edit: (proposal) => {
+      proposal.legal_lot_reference.tract = "__proto__";
+      proposal.legal_lot_reference.lot = "constructor";
+      proposal.legal_lot_reference.map_book = "prototype";
+      proposal.legal_identity_evidence[0].file_id = "constructor";
+      proposal.normalized_geometry.file.file_id = "prototype";
+    } });
+    const text = json(body(staged.built));
+    const validation = await validate(staged.admin, staged.caseId, JSON.parse(text));
+    expect(errorCodes(validation.diagnostics)).toEqual([]);
+    expect(validation.valid).toBe(true);
+    expect((await validate(staged.admin, staged.caseId, { ...JSON.parse(text), expected_revision: "constructor" })).expected_revision_current).toBe(false);
+    const publication = await published(staged.admin, staged.caseId, JSON.parse(text));
+    expect(publication.replayed).toBe(false);
+    const stored = (await currentRecord(staged.caseId))!;
+    expect([stored.legal_lot_reference.tract, stored.legal_lot_reference.lot, stored.legal_lot_reference.map_book]).toEqual(["__proto__", "constructor", "prototype"]);
+    expect([stored.legal_identity_evidence[0].file_id, stored.normalized_geometry.file.file_id]).toEqual(["constructor", "prototype"]);
+  });
+});
+
+describe("Phase 3K repair: preparation diagnostic privacy (RPR4-RPR7)", () => {
+  it("RPR4 verifier or exception text never reaches a diagnostic: the fallback is the fixed code alone", async () => {
+    const admin = await signUp("admin");
+    const prepared = await httpPrepare(admin);
+    const legalKey = `${prepared.caseId}/program-screen/blobs/${prepared.built.refs.legal[0].sha256}`;
+    const { bucket } = proxiedBucket((method, key) => { if (method === "get" && key === legalKey) throw new Error(`TEST-ONLY verifier failure for ${SENTINEL}`); });
+    const runtime = httpBindings({ EVIDENCE_FILES: bucket });
+    const fallback = { code: "REVIEWED_LOT_VERIFICATION_FAILED", severity: "error" };
+    const statusResponse = await call("GET", prepared.caseId, "", admin.cookie, { env: runtime });
+    const texts = [await statusResponse.clone().text()];
+    expect((await data<preparation.CasePreparationStatus>(statusResponse)).current_review!.diagnostics).toEqual([fallback]);
+    const validateResponse = await call("POST", prepared.caseId, "/validate", admin.cookie, { body: json(body(prepared.built, prepared.publication.revision)), type: JSON_TYPE, env: runtime });
+    texts.push(await validateResponse.clone().text());
+    expect((await data<preparation.CasePreparationValidation>(validateResponse)).diagnostics).toContainEqual(fallback);
+    const publishResponse = await call("POST", prepared.caseId, "/publish", admin.cookie, { body: json(body(await buildProposal({ nextReviewOn: "2026-10-29" }), prepared.publication.revision)), type: JSON_TYPE, env: runtime });
+    texts.push(await publishResponse.clone().text());
+    const refused = await expectError(publishResponse, 422, "PREPARATION_INVALID");
+    expect((refused.error.details as { diagnostics: unknown[] }).diagnostics).toContainEqual(fallback);
+    for (const text of texts) {
+      expect(text).not.toContain(SENTINEL);
+      expect(text).not.toContain("verifier failure");
+      expect(text).not.toContain('"detail"');
+    }
+    expect((await currentRecord(prepared.caseId))!.review_id).toBe(prepared.publication.review_id);
+  });
+
+  it("RPR5 a VALIDATION_ERROR names zod's issue code and the schema path, never a caller-chosen key or value", async () => {
+    const admin = await signUp("admin");
+    const caseId = await insertCase();
+    const built = await buildProposal();
+    const p = built.proposal;
+    const cases: Array<[unknown, preparation.CasePreparationValidationIssue[]]> = [
+      [{ ...body(built), [SENTINEL]: "test-only" }, [{ code: "unrecognized_keys" }]],
+      [body({ ...p, [SENTINEL]: { apn: SENTINEL } }), [{ code: "unrecognized_keys", field: "proposal" }]],
+      [body({ ...p, source_geometry: { ...p.source_geometry, [SENTINEL]: 1 } }), [{ code: "unrecognized_keys", field: "proposal.source_geometry" }]],
+      [body({ ...p, legal_identity_evidence: [{ ...p.legal_identity_evidence[0], [SENTINEL]: true }] }), [{ code: "unrecognized_keys", field: "proposal.legal_identity_evidence.0" }]],
+      [body({ ...p, legal_lot_identity: SENTINEL }), [{ code: "invalid_value", field: "proposal.legal_lot_identity" }]],
+      [body({ ...p, parcel: { ...p.parcel, apn: SENTINEL } }), [{ code: "invalid_format", field: "proposal.parcel.apn" }]],
+      [body({ ...p, next_review_on: SENTINEL }), [{ code: "custom", field: "proposal.next_review_on" }]],
+      [body({ ...p, legal_identity_evidence: [{ ...p.legal_identity_evidence[0], file_id: `${SENTINEL} with spaces` }] }), [{ code: "invalid_format", field: "proposal.legal_identity_evidence.0.file_id" }]],
+    ];
+    for (const [request, issues] of cases) {
+      for (const path of ["/validate", "/publish"]) {
+        const response = await call("POST", caseId, path, admin.cookie, { body: json(request), type: JSON_TYPE });
+        const text = await response.clone().text();
+        expect((await expectError(response, 422, "VALIDATION_ERROR")).error.details).toEqual({ issues });
+        expect(text).not.toContain(SENTINEL);
+      }
+    }
+    for (const [request, issues] of [
+      [{ expected_revision: "test-only", reason: SENTINEL }, [{ code: "invalid_value", field: "reason" }]],
+      [{ expected_revision: "test-only", reason: "other", [SENTINEL]: 1 }, [{ code: "unrecognized_keys" }]],
+    ] as const) {
+      const response = await call("POST", caseId, "/invalidate", admin.cookie, { body: json(request), type: JSON_TYPE });
+      const text = await response.clone().text();
+      expect((await expectError(response, 422, "VALIDATION_ERROR")).error.details).toEqual({ issues });
+      expect(text).not.toContain(SENTINEL);
+    }
+    const refused = await expectPreparationError(validate(admin.actor, caseId, cases[1][0]), "VALIDATION_ERROR");
+    expect(JSON.stringify(refused.details)).not.toContain(SENTINEL);
+  });
+
+  it("RPR6 a caller-chosen file ID is never echoed: file diagnostics name the schema field and the referenced digest", async () => {
+    const admin = await signUp("admin");
+    const staged = await stageCase({ tag: SENTINEL, receipt: (receipt) => { receipt.normalized_at_utc = "2026-10-01T18:00:01Z"; } });
+    const { refs } = staged.built;
+    const note = utf8("TEST-ONLY typed note, not a legal document\n");
+    const typed = await fileRef(`${SENTINEL}-typed-note`, note);
+    await svc.storeCasePreparationBlob(serviceBindings(), staged.admin, staged.caseId, typed.sha256, note);
+    const unstaged = await fileRef(`${SENTINEL}-unstaged-deed`, utf8("%PDF-1.7\n% TEST-ONLY never uploaded\n"));
+    staged.built.proposal.legal_identity_evidence = [unstaged, typed, refs.receipt];
+    staged.built.proposal.source_geometry.file = { ...refs.source, bytes: refs.source.bytes + 1 };
+    const validateResponse = await call("POST", staged.caseId, "/validate", admin.cookie, { body: json(body(staged.built)), type: JSON_TYPE });
+    const texts = [await validateResponse.clone().text()];
+    const diagnostics = (await data<preparation.CasePreparationValidation>(validateResponse)).diagnostics;
+    expect(diagnostics).toEqual(expect.arrayContaining([
+      { code: "FILE_MISSING", severity: "error", field: "legal_identity_evidence.0", sha256: unstaged.sha256 },
+      { code: "LEGAL_EVIDENCE_TYPE_UNSUPPORTED", severity: "error", field: "legal_identity_evidence.1", sha256: typed.sha256 },
+      { code: "LEGAL_EVIDENCE_OVERLAPS_GEOMETRY_INPUTS", severity: "error", field: "legal_identity_evidence.2", sha256: refs.receipt.sha256 },
+      { code: "FILE_HASH_MISMATCH", severity: "error", field: "source_geometry.file", sha256: refs.source.sha256 },
+      { code: "FILE_REF_CONFLICT", severity: "error", field: "source_provenance.evidence_files.0" },
+      { code: "TIMESTAMP_IN_FUTURE", severity: "error", field: "receipt.normalized_at_utc" },
+    ]));
+    for (const entry of diagnostics) expect(Object.keys(entry).filter((key) => !["code", "severity", "field", "sha256", "route", "record_numbers"].includes(key))).toEqual([]);
+    const publishResponse = await call("POST", staged.caseId, "/publish", admin.cookie, { body: json(body(staged.built)), type: JSON_TYPE });
+    texts.push(await publishResponse.clone().text());
+    await expectError(publishResponse, 422, "PREPARATION_INVALID");
+    // A valid publication whose every file ID carries the sentinel, then a verifier refusal reported by status.
+    const prepared = await httpPrepare(admin, { tag: SENTINEL });
+    texts.push(json(prepared.publication));
+    texts.push(await (await call("POST", prepared.caseId, "/publish", admin.cookie, { body: json(body(prepared.built)), type: JSON_TYPE })).text());
+    await env.EVIDENCE_FILES.delete(`${prepared.caseId}/program-screen/blobs/${prepared.built.refs.normalized.sha256}`);
+    const statusResponse = await call("GET", prepared.caseId, "", admin.cookie);
+    texts.push(await statusResponse.clone().text());
+    expect((await data<preparation.CasePreparationStatus>(statusResponse)).current_review!.diagnostics).toEqual([
+      { code: "FILE_MISSING", severity: "error", field: "normalized_geometry.file", sha256: prepared.built.refs.normalized.sha256 },
+    ]);
+    expect(texts[3]).toContain('"replayed":true');
+    for (const text of texts) expect(text).not.toContain(SENTINEL);
+  });
+
+  it("RPR7 an unexpected failure in validate or publish is the generic 500 and echoes no sentinel", async () => {
+    const admin = await signUp("admin");
+    const staged = await stageCase();
+    const errors = vi.spyOn(console, "error").mockImplementation(() => undefined);
+    const generic = async (response: Response) => {
+      const text = await response.clone().text();
+      const parsed = await expectError(response, 500, "PROGRAM_SCREEN_PREPARATION_FAILED", "The Program Screen case preparation could not be completed.");
+      expect(Object.keys(parsed.error)).toEqual(["code", "message"]);
+      for (const leak of [SENTINEL, "TEST-ONLY", staged.caseId, "program-screen/", "stack"]) expect(text).not.toContain(leak);
+    };
+    const { db } = proxiedDb((sql) => (sql.includes('SELECT name FROM "user"') ? failingStatement(`TEST-ONLY reviewer lookup failure ${SENTINEL}`) : undefined));
+    for (const path of ["/validate", "/publish"]) {
+      await generic(await call("POST", staged.caseId, path, admin.cookie, { body: json(body(staged.built)), type: JSON_TYPE, env: httpBindings({ DB: db }) }));
+    }
+    // The publication write itself throws text that is no verifier refusal: the audit row is failed, nothing is current.
+    const { bucket } = proxiedBucket((method, key) => { if (method === "put" && key.endsWith("/current-review.json")) throw new Error(`TEST-ONLY write failure ${staged.caseId} ${SENTINEL}`); });
+    await generic(await call("POST", staged.caseId, "/publish", admin.cookie, { body: json(body(staged.built)), type: JSON_TYPE, env: httpBindings({ EVIDENCE_FILES: bucket }) }));
+    expect(errors).toHaveBeenCalledWith("Program Screen case preparation failed.", expect.any(Error));
+    errors.mockRestore();
+    expect(await currentRecord(staged.caseId)).toBeNull();
+    expect((await auditRows(staged.caseId)).map((row) => [row.action, row.outcome, row.new_revision])).toEqual([["publish", "failed", null]]);
+  });
+});
+
+describe("Phase 3K repair: a malformed or foreign current review is never replaced by ordinary publication (RPR8-RPR13)", () => {
+  /** Two prepared cases; B's pointer then holds A's exact manifest bytes with a correct integrity digest. */
+  async function foreignPointer() {
+    const a = await prepareCase();
+    const b = await prepareCase({ admin: a.admin });
+    const bytes = await pointerBytes(a.caseId);
+    const revision = await writePointer(b.caseId, bytes);
+    return { a, b, bytes, revision };
+  }
+
+  it("RPR8 an intact, checksummed manifest naming another case blocks validate: an integrity error, never replaceable", async () => {
+    const { a, b, revision } = await foreignPointer();
+    expect(await settled(status(b.admin, b.caseId))).toMatchObject({ integrity: "current_review_unreadable", current_review: null, readiness: "review_unverified" });
+    for (const request of [body(b.built, revision), body(await buildProposal({ nextReviewOn: "2026-10-29" }), revision)]) {
+      const validation = await settled(validate(b.admin, b.caseId, request));
+      expect(validation).toMatchObject({ valid: false, expected_revision_current: false });
+      const { diagnostics } = validation as preparation.CasePreparationValidation;
+      expect(diagnostics[0]).toEqual({ code: "CURRENT_REVIEW_UNREADABLE", severity: "error" });
+      expect(errorCodes(diagnostics)).toEqual(["CURRENT_REVIEW_UNREADABLE"]);
+      expect(JSON.stringify(validation)).not.toContain(a.publication.review_id);
+    }
+  });
+
+  it("RPR9 publish refuses a foreign current manifest: no R2 write, and the pointer's bytes and revision are unchanged", async () => {
+    const { a, b, bytes, revision } = await foreignPointer();
+    const { bucket, calls } = proxiedBucket();
+    const b2 = serviceBindings({ EVIDENCE_FILES: bucket });
+    for (const request of [body(await buildProposal({ nextReviewOn: "2026-10-29" }), revision), body(b.built, revision)]) {
+      await expectPreparationError(publish(b.admin, b.caseId, request, b2), "CURRENT_REVIEW_UNREADABLE");
+    }
+    await expectPreparationError(svc.invalidateCurrentReview(b2, b.admin, b.caseId, { expected_revision: revision, reason: "other" }, now(), REQUEST_ID), "CURRENT_REVIEW_UNREADABLE");
+    expect(bucketWrites(calls)).toEqual([]);
+    expect((await env.EVIDENCE_FILES.head(POINTER(b.caseId)))!.etag).toBe(revision);
+    expect(await pointerBytes(b.caseId)).toEqual(bytes);
+    // The foreign object is preserved for later explicit operator repair; case A is untouched.
+    expect((await currentRecord(b.caseId))!.case_id).toBe(a.caseId);
+    expect((await currentRecord(a.caseId))!.review_id).toBe(a.publication.review_id);
+  });
+
+  it.each<[string, (record: any) => unknown]>([
+    ["a record whose legal_lot_identity is not an identity", (record) => ({ ...record, legal_lot_identity: "TEST-ONLY-not-an-identity" })],
+    ["a record without its state", ({ state: _state, ...rest }) => rest],
+    ["JSON that is not a reviewed-lot record", () => ({ TEST_ONLY: true })],
+  ])("RPR10 an intact, checksummed manifest holding %s blocks publish, validate and invalidate; the pointer is unchanged", async (_name, malform) => {
+    const prepared = await prepareCase();
+    const bytes = utf8(`${JSON.stringify(malform((await currentRecord(prepared.caseId))!))}\n`);
+    const revision = await writePointer(prepared.caseId, bytes);
+    const { bucket, calls } = proxiedBucket();
+    const b = serviceBindings({ EVIDENCE_FILES: bucket });
+    await expectPreparationError(publish(prepared.admin, prepared.caseId, body(await buildProposal({ nextReviewOn: "2026-10-29" }), revision), b), "CURRENT_REVIEW_UNREADABLE");
+    await expectPreparationError(svc.invalidateCurrentReview(b, prepared.admin, prepared.caseId, { expected_revision: revision, reason: "other" }, now(), REQUEST_ID), "CURRENT_REVIEW_UNREADABLE");
+    expect(bucketWrites(calls)).toEqual([]);
+    expect((await env.EVIDENCE_FILES.head(POINTER(prepared.caseId)))!.etag).toBe(revision);
+    expect(await pointerBytes(prepared.caseId)).toEqual(bytes);
+    expect(await settled(status(prepared.admin, prepared.caseId))).toMatchObject({ integrity: "current_review_unreadable", current_review: null, readiness: "review_unverified" });
+    const validation = await settled(validate(prepared.admin, prepared.caseId, body(await buildProposal({ nextReviewOn: "2026-10-29" }), revision)));
+    expect(validation).toMatchObject({ valid: false, expected_revision_current: false });
+    expect((validation as preparation.CasePreparationValidation).diagnostics[0]).toEqual({ code: "CURRENT_REVIEW_UNREADABLE", severity: "error" });
+    expect(await auditRows(prepared.caseId)).toHaveLength(1);
+  });
+
+  it("RPR11 a refused integrity-repair publication records no audit intent", async () => {
+    const { b, revision } = await foreignPointer();
+    const malformed = await prepareCase();
+    const malformedRevision = await writePointer(malformed.caseId, utf8('{"TEST_ONLY":true}\n'));
+    const { db, calls } = proxiedDb();
+    for (const [target, expected] of [[b, revision], [malformed, malformedRevision]] as const) {
+      await expectPreparationError(publish(target.admin, target.caseId, body(await buildProposal({ nextReviewOn: "2026-10-29" }), expected), serviceBindings({ DB: db })), "CURRENT_REVIEW_UNREADABLE");
+      expect((await auditRows(target.caseId)).map((row) => [row.action, row.outcome])).toEqual([["publish", "committed"]]);
+    }
+    expect(calls.filter((call) => /program_screen_review_events/.test(call))).toEqual([]);
+  });
+
+  it("RPR12 a valid same-case current review is still replaced with its revision; a stale revision is still REVISION_CHANGED", async () => {
+    const prepared = await prepareCase();
+    const second = await published(prepared.admin, prepared.caseId, body(await buildProposal({ nextReviewOn: "2026-10-29" }), prepared.publication.revision));
+    expect(second).toMatchObject({ replayed: false, prior_revision: prepared.publication.revision });
+    expect((await currentRecord(prepared.caseId))!.review_id).toBe(second.review_id);
+    const before = await pointerBytes(prepared.caseId);
+    await expectPreparationError(publish(prepared.admin, prepared.caseId, body(await buildProposal({ nextReviewOn: "2026-10-28" }), prepared.publication.revision)), "REVISION_CHANGED");
+    expect(await pointerBytes(prepared.caseId)).toEqual(before);
+    expect((await auditRows(prepared.caseId)).map((row) => [row.prior_revision, row.new_revision, row.outcome])).toEqual([
+      [null, prepared.publication.revision, "committed"], [prepared.publication.revision, second.revision, "committed"],
+    ]);
+    expect(await validate(prepared.admin, prepared.caseId, body(await buildProposal({ nextReviewOn: "2026-10-28" }), second.revision))).toMatchObject({ valid: true, expected_revision_current: true });
+  });
+
+  it("RPR13 an identical retry against a valid same-case review still replays, with no write and no new audit row", async () => {
+    const prepared = await prepareCase();
+    const { bucket, calls } = proxiedBucket();
+    const { db, calls: dbCalls } = proxiedDb();
+    const retry = await settled(publish(prepared.admin, prepared.caseId, body(prepared.built), serviceBindings({ DB: db, EVIDENCE_FILES: bucket })));
+    expect(retry).toEqual({ ...prepared.publication, replayed: true, diagnostics: [] });
+    expect(bucketWrites(calls)).toEqual([]);
+    expect(dbCalls.filter((call) => /\b(INSERT|UPDATE|DELETE|REPLACE)\b/i.test(call))).toEqual([]);
+    expect(await auditRows(prepared.caseId)).toHaveLength(1);
+  });
+});
+
+describe("Phase 3K repair: audit completion loss is documented ambiguity (RPR14)", () => {
+  it("RPR14 a lost completion after a committed CAS leaves pending rows that content alone cannot attribute; nothing resolves them", async () => {
+    const staged = await stageCase();
+    const { db } = proxiedDb((sql) => (sql.includes("UPDATE program_screen_review_events") ? failingStatement("TEST-ONLY audit completion failure") : undefined));
+    const errors = vi.spyOn(console, "error").mockImplementation(() => undefined);
+    // Two identical attempts by one administrator; the second commits inside the first's conditional PUT.
+    let committed: preparation.CasePreparationPublication | undefined;
+    const { bucket } = proxiedBucket(async (method, key) => {
+      if (committed === undefined && method === "put" && key.endsWith("/current-review.json")) committed = await published(staged.admin, staged.caseId, body(staged.built), serviceBindings({ DB: db }));
+    });
+    await expectPreparationError(publish(staged.admin, staged.caseId, body(staged.built), serviceBindings({ DB: db, EVIDENCE_FILES: bucket })), "REVISION_CHANGED");
+    // The committing request followed the documented success path, and its review is live.
+    expect(committed).toMatchObject({ replayed: false, prior_revision: null });
+    expect((await env.EVIDENCE_FILES.head(POINTER(staged.caseId)))!.etag).toBe(committed!.revision);
+    expect(await bytesSha256(await pointerBytes(staged.caseId))).toBe(committed!.manifest_sha256);
+    expect(errors).toHaveBeenCalledWith("Program Screen review publication committed; its audit completion was not recorded.", expect.objectContaining({ event_id: expect.any(String) }));
+    errors.mockRestore();
+    // Both intents stay pending with identical content matching the live manifest: only their opaque IDs differ.
+    const rows = await auditRows(staged.caseId);
+    const pending = {
+      action: "publish", actor_user_id: staged.admin.id, review_id: committed!.review_id, prior_revision: null, new_manifest_sha256: committed!.manifest_sha256,
+      new_revision: null, reason: null, outcome: "pending", request_id: REQUEST_ID, completed_at: null,
+    };
+    expect(rows).toEqual([expect.objectContaining(pending), expect.objectContaining(pending)]);
+    expect(rows[0].id).not.toBe(rows[1].id);
+    // A later replay, status read and validation never turn either row into a committed record.
+    expect(await settled(publish(staged.admin, staged.caseId, body(staged.built)))).toMatchObject({ replayed: true, revision: committed!.revision });
+    expect(await settled(status(staged.admin, staged.caseId))).toMatchObject({ integrity: "ok", current_review: { review_id: committed!.review_id } });
+    expect(await settled(validate(staged.admin, staged.caseId, body(staged.built, committed!.revision)))).toMatchObject({ expected_revision_current: true });
+    expect(await auditRows(staged.caseId)).toEqual(rows);
   });
 });

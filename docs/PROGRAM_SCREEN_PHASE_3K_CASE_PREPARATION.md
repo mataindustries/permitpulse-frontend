@@ -9,7 +9,10 @@ The base is `5fec9c4a52bd11556731dc51a14a53e47a73a243`, the PR #33 merge, with P
 | Commit | Subject |
 | --- | --- |
 | A `4fbd971e4af072ee7db28ad0c589df8ac9ba583a` | `feat(program-screen): audited admin case preparation service` |
-| B (this commit) | `feat(program-screen): admin-only case preparation endpoints` |
+| B `8623a5cb529e3e45a394d25cf3ea922c8c734155` | `feat(program-screen): admin-only case preparation endpoints` |
+| Repair (this commit) | `fix(program-screen): close phase 3k pre-pr review findings` |
+
+The repair commit closes the SHOULD FIX BEFORE PR findings of the independent pre-PR review (there was no blocker); see section 22. Commits A and B are not rewritten.
 
 Commit A (migration 0012, the preview migration list, `mayPrepareProgramScreenCase`, the service, the audit module and 119 service-level tests) was independently green before Commit B began: Phase 3K 1 file / 119; Phase 3J 72; Phase 3I 337; Phase 3H 3 files / 215; Program Screen 23 files / 1,781; full app 51 files / 2,205; 16 captures; 61 self-test checks; typecheck, build, OS, root validation (351 / 0); protected hashes and counts unchanged in-suite and in the production-mode probe.
 
@@ -42,7 +45,7 @@ There is no draft table, draft ID or TTL. The R2 object graph under `<case_id>/p
 
 The routes live under `/api/v1/program-screen` because sub-apps mounted at `/api/v1/cases` register a wildcard `bodyLimit` of 16 KiB that, with Hono 4.12.27, caps every request under that prefix (S8 shows a 20 KiB request there is 413). Existing middleware is unchanged.
 
-The on-demand import follows Phase 3J: the Workers test pool instantiates the Worker's static import graph before test-local `vi.mock` observers, so a static path from `app.ts` into Program Screen internals would break the unmodified Phase 3I suite (M27). The production build emits `assets/case-preparation-*.js` (containing only `case-preparation.ts` and `case-preparation-audit.ts`), loaded with `import()` from `index.js`. Compared with the base build, the eagerly loaded module set gains exactly one module, the route file; `case-evaluation-response.ts`, already eager through the Phase 3J route, is now emitted as its own small chunk because the lazy service shares it. No output module comes from fixtures, tests, scripts, tools, Python, GDAL, GEOS or PROJ, and the TEST-ONLY guard is folded away in the chunks.
+The on-demand import follows Phase 3J: the Workers test pool instantiates the Worker's static import graph before test-local `vi.mock` observers, so a static path from `app.ts` into Program Screen internals instantiates `overlay-dataset` before this suite's TEST-ONLY observer can attach. Under that mutation (M27) the unmodified Phase 3I suite stayed 337 / 337, because the static path does not reach `evaluate-case`, which is what Phase 3I observes; M27 was killed by G2 and by the Phase 3K checks, not by Phase 3I. The production build emits `assets/case-preparation-*.js` (containing only `case-preparation.ts` and `case-preparation-audit.ts`), loaded with `import()` from `index.js`. Compared with the base build, the eagerly loaded module set gains exactly one module, the route file; `case-evaluation-response.ts`, already eager through the Phase 3J route, is now emitted as its own small chunk because the lazy service shares it. No output module comes from fixtures, tests, scripts, tools, Python, GDAL, GEOS or PROJ. In the production chunks the TEST-ONLY guard's test-mode exemption (`import.meta.env.MODE === "test" && !import.meta.env.PROD`) is constant-folded to false, so the refusal of marked TEST-ONLY evidence is unconditional there; section 12 states exactly what that guard does and does not establish.
 
 ## 3. Services
 
@@ -83,7 +86,7 @@ Media types are compared exactly after lowercasing and normalizing the `;` separ
 7. `getEditableCaseForActor`: 404 `CASE_NOT_FOUND`.
 8. No `EVIDENCE_FILES`: 503 `EVIDENCE_STORAGE_UNAVAILABLE`.
 9. `const now = new Date()`; the service module is imported on demand; JSON bodies are parsed (400 `INVALID_JSON`); the service runs with the canonical `caseRecord.id`.
-10. A `CasePreparationError` maps to its fixed status, code and public message (with `details` for `VALIDATION_ERROR` and `PREPARATION_INVALID`). Anything else is logged with `logDevelopmentError` and returned as 500 `PROGRAM_SCREEN_PREPARATION_FAILED` with a generic message; internal text is never echoed.
+10. A `CasePreparationError` maps to its fixed status, code and public message (with `details` for `VALIDATION_ERROR` and `PREPARATION_INVALID`, both built only from fixed codes, schema-owned paths and referenced digests; section 7). Anything else is logged with `logDevelopmentError` (local environments only) and returned as 500 `PROGRAM_SCREEN_PREPARATION_FAILED` with a generic message; internal text is never echoed.
 
 Global behaviour supplies `Cache-Control: no-store`, `x-request-id` and the `/api/v1/*` origin check (a foreign `Origin` on a write is 403 `INVALID_ORIGIN`). No CORS header is ever set.
 
@@ -98,7 +101,7 @@ Global behaviour supplies `Cache-Control: no-store`, `x-request-id` and the `/ap
 | `RECORD_NOT_IN_PINNED_INDEX` | 422 | `UNAUTHENTICATED` | 401 |
 | `CALFIRE_RECORD_INVALID` | 422 | `INVALID_QUERY`, `INVALID_CASE_ID`, `INVALID_DIGEST` | 400 |
 | `INVALID_JSON` | 400 | `UNSUPPORTED_CONTENT_ENCODING`, `UNSUPPORTED_MEDIA_TYPE` | 415 |
-| `VALIDATION_ERROR` (zod `flatten()` details) | 422 | `PAYLOAD_TOO_LARGE` | 413 |
+| `VALIDATION_ERROR` (`{ issues: [{ code, field? }] }`) | 422 | `PAYLOAD_TOO_LARGE` | 413 |
 | `PREPARATION_INVALID` (`{ diagnostics }`) | 422 | `CASE_NOT_FOUND` / `EVIDENCE_STORAGE_UNAVAILABLE` | 404 / 503 |
 | `PROGRAM_SCREEN_PREPARATION_FAILED` | 500 | | |
 
@@ -133,6 +136,10 @@ Path-traversal digests that reach the parameter (`..%2Fx`, `%2e%2e%2Fx`, 63 char
 
 Every object is strict: unknown keys are rejected (422 `VALIDATION_ERROR`), never ignored, including `schema_version`, `review_id`, `case_id`, `review`, `reviewer`, `reviewer_user_id`, `reviewed_on`, `state`, `reprojection`, `as_of`, `registries`, `packs`, `pins`, `authority`, `normalized_geometry.crs` and `normalized_geometry.serialization`. Field validators are the shared reviewed-lot schema's own (`caseFileRefSchema`, `legalLotIdentities`, `isIsoCalendarDate`), reused only inside the lazily loaded service.
 
+Before the schema runs, the parsed body (validate, publish and invalidate) is walked iteratively, without being mutated, through every object and array; any own key `__proto__`, `prototype` or `constructor` at any depth is `VALIDATION_ERROR` with details `{ issues: [{ code: "prohibited_key" }] }`. This is needed because `JSON.parse` makes `"__proto__"` an own property and zod 4.4.3 strips an own `__proto__` silently instead of reporting it as an unrecognized key; nothing is ever deleted or sanitized, the request is refused. The same strings as ordinary values (a tract, lot, map book or file ID) remain valid wherever the schema permits them (RPR3).
+
+A schema refusal's details are `{ issues: [{ code, field? }] }`: `code` is zod's own issue code (`unrecognized_keys`, `invalid_type`, `invalid_value`, `invalid_format`, `custom`, ...) and `field` is the dotted issue path, present only when every segment is a key the request schemas define or an array index. No zod message, rejected key name or value is returned, so a caller-chosen key or value can never be reflected (RPR5).
+
 The server fills `schema_version`, `case_id` (the authorized case), `review_id`, the normalized CRS (`EPSG:3310`) and serialization, every `reprojection` value from the shipped normalization pins (profile ID and SHA of the shipped profile bytes, PROJ 9.9.0, normalizer 1.0.1, pipeline SHA, plus the proposal's receipt reference), the reviewer, `reviewed_on` (the server date) and `state: { status: "current", superseded_by: null }`. The reviewer is `{ kind: "human", name: <trimmed D1 user name, 1..300 characters>, role: "Administrator (Program Screen reviewed-lot publication)" }` with `reviewer_user_id` the session user's ID; a missing or blank name is `REVIEWER_NAME_UNAVAILABLE`.
 
 `review_id` is deterministic: the first 16 bytes of SHA-256 over `"program-screen-review-id-v1\0" + case_id + "\0" + actor.id + "\0" + (expected_revision ?? "none") + "\0" + asOf + "\0" + canonicalJson(parsedProposal)` (keys sorted recursively), with `bytes[6] = (bytes[6] & 0x0f) | 0x50` and `bytes[8] = (bytes[8] & 0x3f) | 0x80`, formatted 8-4-4-4-12. The manifest is exactly `utf8(JSON.stringify(parsedRecord) + "\n")`, the bytes the private writer publishes and archives; P3 finds `reviews/<review_id>-<manifest_sha256>.json` and pins the derivation independently.
@@ -143,7 +150,7 @@ Every error-severity diagnostic blocks publication.
 
 | Rule | Check | Code |
 | --- | --- | --- |
-| R1 | Strict schemas | `VALIDATION_ERROR` |
+| R1 | Strict schemas, after the prohibited-key check | `VALIDATION_ERROR` (`unrecognized_keys`, ..., `prohibited_key`) |
 | R2 | `next_review_on` after the server date and at most 30 calendar days later | `REVIEW_TERM_OUT_OF_RANGE` |
 | R3 | Reviewer only from the session and D1 | (no caller field exists) |
 | R4 | One file ID names one (sha256, bytes); one sha256 has one file ID; no repeated digest within the legal-evidence or provenance list | `FILE_REF_CONFLICT`, `DUPLICATE_FILE_REF` |
@@ -154,11 +161,11 @@ Every error-severity diagnostic blocks publication.
 | R9 | The normalized polygon has the source feature's ring count and positions per ring; no coordinate is read or compared | `NORMALIZED_STRUCTURE_MISMATCH` |
 | R10 | The unchanged `verifyReviewedLotEvidence(memoReader, completedRecord, asOf)` | mapped below |
 
-R10's refusals are mapped explicitly by exact message: stale/superseded/future-dated → `REVIEW_NOT_CURRENT_ON_DATE`; TEST-ONLY → `TEST_ONLY_EVIDENCE`; unsupported geometry → `SOURCE_GEOMETRY_UNSUPPORTED`; CRS not EPSG:3857 → `SOURCE_CRS_UNSUPPORTED`; CRS differs from metadata → `SOURCE_CRS_MISMATCH`; identifiers differ → `SOURCE_IDENTIFIERS_MISMATCH`; receipt TEST-ONLY flag → `RECEIPT_TEST_ONLY_MISMATCH`; implementation/operation/resources → `NORMALIZATION_NOT_PINNED`; receipt not linked → `RECEIPT_NOT_LINKED`; chronology → `CHRONOLOGY_INCONSISTENT`; normalized geometry invalid or not EPSG:3310 → `NORMALIZED_GEOMETRY_INVALID`; `Missing case evidence file:` → `FILE_MISSING`; `Case evidence hash/length mismatch:` → `FILE_HASH_MISMATCH`; a `ZodError` → `CAPTURED_FILE_MALFORMED`; a `SyntaxError` or UTF-8 decode `TypeError` (workerd: "Failed to decode input.") → `CAPTURED_FILE_NOT_JSON`; anything else → `REVIEWED_LOT_VERIFICATION_FAILED` with the verifier message as admin-only `detail`. Every mapping is pinned by a test that triggers it with real inputs, so a verifier message change breaks Phase 3K.
+R10's refusals are mapped explicitly by exact message: stale/superseded/future-dated → `REVIEW_NOT_CURRENT_ON_DATE`; TEST-ONLY → `TEST_ONLY_EVIDENCE`; unsupported geometry → `SOURCE_GEOMETRY_UNSUPPORTED`; CRS not EPSG:3857 → `SOURCE_CRS_UNSUPPORTED`; CRS differs from metadata → `SOURCE_CRS_MISMATCH`; identifiers differ → `SOURCE_IDENTIFIERS_MISMATCH`; receipt TEST-ONLY flag → `RECEIPT_TEST_ONLY_MISMATCH`; implementation/operation/resources → `NORMALIZATION_NOT_PINNED`; receipt not linked → `RECEIPT_NOT_LINKED`; chronology → `CHRONOLOGY_INCONSISTENT`; normalized geometry invalid or not EPSG:3310 → `NORMALIZED_GEOMETRY_INVALID`; `Missing case evidence file:` → `FILE_MISSING`; `Case evidence hash/length mismatch:` → `FILE_HASH_MISMATCH`; a `ZodError` → `CAPTURED_FILE_MALFORMED`; a `SyntaxError` or UTF-8 decode `TypeError` (workerd: "Failed to decode input.") → `CAPTURED_FILE_NOT_JSON`; anything else → `REVIEWED_LOT_VERIFICATION_FAILED` with no other content. The two file refusals carry the verifier's caller-chosen file ID in their message; the diagnostic instead names the schema field and digest of the first reference with that ID (`field`, `sha256`), or nothing more when none matches. Verifier and exception text is never returned (RPR4). Every mapping is pinned by a test that triggers it with real inputs, so a verifier message change breaks Phase 3K.
 
 Non-blocking diagnostics: `LEGAL_IDENTITY_NOT_ESTABLISHED` (info) for any identity other than `parcel_is_one_legal_lot` (c and d remain unknown); `LEGAL_REFERENCE_NOT_IN_SOURCE_ATTRIBUTES` (warning) when the claimed tract or lot is not among the selected source feature's attribute values (advisory; the claim is stored unchanged); `CALFIRE_INDEX_MISSING` (warning); `CALFIRE_RECORDS_MISSING` (warning, with route and record numbers); `CALFIRE_CANDIDATE_INVALID` (info) for a required candidate whose `geometry_state` is not valid. CAL FIRE completeness never blocks publication, because missing CAL FIRE data already fails closed to `unknown` in the evaluator.
 
-Diagnostics are `{ code, severity, field?, file_id?, sha256?, route?, record_numbers?, detail? }` and never contain an APN, PIN, PIND, tract, lot, map string, reviewer name, URL, coordinate or file bytes (X3).
+Diagnostics are `{ code, severity, field?, sha256?, route?, record_numbers? }`: a fixed code, a schema field path (or the fixed `receipt.normalized_at_utc`), the referenced digest (64 lowercase hexadecimal characters, schema-constrained), a route and server-derived record numbers. They never contain a caller-chosen file ID or key, verifier or exception text, an APN, PIN, PIND, tract, lot, map string, reviewer name, URL, coordinate or file bytes (X3, RPR4–RPR6). Proposal file IDs are caller-controlled tokens that may themselves embed parcel or other private strings, so they are stored in the record but never echoed by a preparation response, admin-only or not.
 
 ## 8. Required CAL FIRE records
 
@@ -168,15 +175,19 @@ Status, validate and publish compute required candidates exactly as the evaluato
 
 Migration 0012 is exactly the approved `program_screen_review_events` table and its `(case_id, created_at DESC, id DESC)` index. It holds identifiers and digests only: no APN, PIN, tract, lot, reviewer name, URL, coordinate or file content.
 
-The intent row (`outcome = 'pending'`) is inserted before any R2 publication effect; if the insert fails the request is 503 `AUDIT_UNAVAILABLE` and no R2 write occurs (C9). The row then moves once, through `UPDATE ... SET outcome = ?, new_revision = ?, completed_at = ... WHERE id = ? AND outcome = 'pending'`, to `committed` (with the new revision), `conflict` or `failed`. If that completion update fails after a committed R2 publication, the publication is still returned and the failure is logged; the row stays `pending`. **Reconciliation rule:** a `pending` row whose `new_manifest_sha256` equals the current manifest's SHA-256 is a publication whose D1 completion was lost (C9 demonstrates one). Phase 3K does not repair it automatically.
+The intent row (`outcome = 'pending'`) is inserted before this workflow's R2 publication effect; if the insert fails the request is 503 `AUDIT_UNAVAILABLE` and no R2 write occurs (C9). The row then moves once, through `UPDATE ... SET outcome = ?, new_revision = ?, completed_at = ... WHERE id = ? AND outcome = 'pending'`, to `committed` (with the new revision), `conflict` or `failed`. A committed R2 publication can be followed by a lost completion update: the publication is then still returned (201) and the failure is logged, and the row stays `pending`.
+
+**Reconciliation is an operator judgement, not a proof.** A `pending` row whose `new_manifest_sha256` equals the current manifest's SHA-256 is evidence consistent with that content having been published. Content equality alone does not identify which attempt committed it: identical attempts (the same administrator, proposal, expected revision and server date) derive the same review ID and manifest, and if their completions are also lost, every such row is `pending` with identical content. RPR14 shows two identical concurrent attempts whose completions both fail: one committed and the other lost the CAS, both rows are `pending` with the same review ID, prior revision and manifest digest, and only their opaque IDs differ. Conversely, a pending row whose digest does not match the current manifest may still have committed and later been replaced. Phase 3K never resolves a pending row automatically (no replay, status, validation or later publication changes it; RPR14), and any reconciliation must be done cautiously by an operator against the R2 archive and revision history.
 
 ## 10. CAS, replay and invalidation
 
-Publish order: role; server date; strict body; writer store; D1 reviewer name; current review (an unreadable manifest is 409 `CURRENT_REVIEW_UNREADABLE`); deterministic record; revision comparison; R1–R10; diagnostics; `PREPARATION_INVALID` with no audit row and no pointer write if anything blocks; audit intent; `writer.ingestReviewedLot(record, expected_revision, asOf)`; completion. A lost R2 conditional write is `conflict` and 409 `REVISION_CHANGED` (C8: an orphan archive may remain and the winner stays current); another failure is `failed`.
+Publish order: role; server date; prohibited keys and strict body; writer store; D1 reviewer name; current review; deterministic record; revision comparison; R1–R10; diagnostics; `PREPARATION_INVALID` with no audit row and no pointer write if anything blocks; audit intent; `writer.ingestReviewedLot(record, expected_revision, asOf)`; completion. A lost R2 conditional write is `conflict` and 409 `REVISION_CHANGED` (C8: an orphan archive may remain and the winner stays current); another failure is `failed`.
 
-When the current revision differs from `expected_revision` and the current review parses with the same derived `review_id` and manifest SHA, the request is an identical retry: 200 `replayed: true` with the committed revision and no new audit row (C3). Any other mismatch, including a `null` expectation when a review exists and garbage revisions, is 409 `REVISION_CHANGED`.
+**A current review is usable only when it is intact, valid and this case's own.** When a `current-review.json` exists, publish, validate and invalidate first require that its bytes match their integrity digest, that it parses as a reviewed-lot record and that its `case_id` is the authorized case. Otherwise publish and invalidate are 409 `CURRENT_REVIEW_UNREADABLE` before any revision comparison, audit intent or R2 write, and validate reports `CURRENT_REVIEW_UNREADABLE` as an error with `valid: false` and `expected_revision_current: false`. Ordinary publication therefore never replaces a malformed or foreign manifest, even with its matching revision: there is no implicit repair. The object is left byte-for-byte in place as evidence for later, explicit operator repair tooling; Phase 3K adds no repair endpoint (RPR8–RPR11).
 
-Invalidate takes `{ expected_revision, reason }` with reason `evidence_withdrawn`, `geometry_error`, `legal_identity_changed`, `source_superseded` or `other`. No current review is `NO_CURRENT_REVIEW`; a revision mismatch is `REVISION_CHANGED`; a review that is not current is `REVIEW_NOT_CURRENT`. The stale manifest SHA (the same record with only its state changed) is computed first and recorded with the audit intent, then `writer.invalidateReview("stale", expected_revision, null)` runs. The response is `{ schema_version: "program-screen-case-invalidation-v1", case_id, review_id, state: "stale", prior_revision, revision }`; supersession is not exposed.
+When the current revision differs from `expected_revision` and the valid same-case current review has the same derived `review_id` and manifest SHA, the request is an identical retry: 200 `replayed: true` with the committed revision and no new audit row (C3). Any other mismatch, including a `null` expectation when a review exists and garbage revisions, is 409 `REVISION_CHANGED`.
+
+Invalidate takes `{ expected_revision, reason }` with reason `evidence_withdrawn`, `geometry_error`, `legal_identity_changed`, `source_superseded` or `other`. An unusable current review is `CURRENT_REVIEW_UNREADABLE`; no current review is `NO_CURRENT_REVIEW`; a revision mismatch is `REVISION_CHANGED`; a review that is not current is `REVIEW_NOT_CURRENT`. The stale manifest SHA (the same record with only its state changed) is computed first and recorded with the audit intent, then `writer.invalidateReview("stale", expected_revision, null)` runs. The response is `{ schema_version: "program-screen-case-invalidation-v1", case_id, review_id, state: "stale", prior_revision, revision }`; supersession is not exposed.
 
 ## 11. Status
 
@@ -186,15 +197,19 @@ Invalidate takes `{ expected_revision, reason }` with reason `evidence_withdrawn
 
 Normalization stays offline in `tools/program-screen/normalize-reviewed-lot.py` (Python 3.12.1, ctypes, PROJ 9.9.0, LibTIFF 4.7.2, pinned native resources, Linux x86_64). The Worker performs no coordinate transformation; it stores the offline outputs byte for byte and verifies their hashes and the receipt's pins.
 
-**The normalization receipt is an authenticated administrator's attestation, not cryptographic proof.** Phase 3K adds no receipt signing. R9 catches a hand-edited receipt that binds a polygon of a different ring structure, but an unrelated polygon with the same structure cannot be detected without reprojection (the V6 residual test documents this). CAL FIRE bytes are operator-supplied but must match the shipped pins. Provenance URLs must be HTTPS but are not checked against a host allowlist, and nothing is fetched live.
+**Normalization receipt: DEFERRED / DOCUMENTED LIMITATION.** The receipt is an authenticated administrator's attestation, not cryptographic proof; Phase 3K adds no receipt signing and no runtime reprojection. R9's ring and vertex-count matching is a structural check only and does not establish that the transformation was correct. R9 catches a hand-edited receipt that binds a polygon of a different ring structure, but a wrong normalized geometry with the same ring structure cannot be independently detected by Phase 3K (the V6 residual test documents this). Trusted offline signing or independent verification of the transformation remains future work.
+
+CAL FIRE bytes are operator-supplied but are accepted only when they match a shipped index pin or are listed in a stored pinned index (SAFE AS IMPLEMENTED). Provenance URLs must be HTTPS but are not checked against a host allowlist, and nothing is fetched live.
+
+**What the TEST-ONLY guard establishes.** The unchanged verifier refuses a review (`TEST_ONLY_EVIDENCE`) when the captured source or metadata JSON has a top-level `TEST_ONLY` key, when the PIN, tract, lot, agency or source, metadata or normalized file ID contains `test-only` or `test_only` (any case), or when a provenance URL's host ends in `.test`, unless the build is the test runtime; in a production build that exemption is constant-folded away. It is a marker check: it keeps self-labelled synthetic fixtures out of production evaluation (V10 runs it with `MODE=production`, `PROD=true`). It does not establish that unmarked evidence is genuine, official, authentic, complete or correctly normalized; an unmarked fabricated file is not caught by it.
 
 ## 13. Legal-lot identity is a human decision
 
-The identity is whatever the named administrator records; it is never inferred from APN, PIN, GIS attributes, a receipt or geometry, and an omitted identity is a request-shape error rather than a default (L6). `parcel_is_one_legal_lot` requires at least one separate legal-identity document in an accepted medium (L1, L3–L5). Every other identity publishes, and c and d stay `unknown` (L2, L8). A tract or lot that is absent from the source attributes is only a warning; the human's reference is stored unchanged (L7). Vidor Request 3F-3 (vesting-deed review) remains open, so Vidor's identity stays `not_established`.
+The identity is whatever the named administrator records; it is never inferred from APN, PIN, GIS attributes, a receipt or geometry, and an omitted identity is a request-shape error rather than a default (L6). `parcel_is_one_legal_lot` requires at least one separate legal-identity document in an accepted medium (L1, L3–L5). **Legal media signatures: DEFERRED / DOCUMENTED LIMITATION.** The leading-byte signature check (PDF, TIFF, PNG, JPEG) establishes only that the file is in a permitted format. It does not prove the document's legal authenticity, its content or its sufficiency; the named human administrator makes the legal-evidence attestation. Every other identity publishes, and c and d stay `unknown` (L2, L8). A tract or lot that is absent from the source attributes is only a warning; the human's reference is stored unchanged (L7). Vidor Request 3F-3 (vesting-deed review) remains open, so Vidor's identity stays `not_established`.
 
 ## 14. Privacy and access
 
-Only an administrator can reach any endpoint. Production `AUTH_ENABLED` remains `"false"`, so every production caller currently receives 401; **no production auth was enabled**. **No client access and no UI exist.** The Phase 3J route, DTO and service are byte-identical to base, and a 3K-prepared case's 3J response keeps its key sets and contains no APN, PIN, PIND, tract, lot, map book, reviewer name, role or user ID, file ID, file/index/record SHA, revision, manifest SHA, URL or storage path (X1, X2). Phase 3K responses carry review IDs, revisions, digests and file IDs for the operator, never parcel, legal-lot, reviewer-name, URL or coordinate values (X3). An internal failure is a generic 500 (X4). Every response is `no-store` without CORS headers (X5).
+Only an administrator can reach any endpoint. Production `AUTH_ENABLED` remains `"false"`, so every production caller currently receives 401; **no production auth was enabled**. **No client access and no UI exist.** The Phase 3J route, DTO and service are byte-identical to base, and a 3K-prepared case's 3J response keeps its key sets and contains no APN, PIN, PIND, tract, lot, map book, reviewer name, role or user ID, file ID, file/index/record SHA, revision, manifest SHA, URL or storage path (X1, X2). Phase 3K responses carry review IDs, revisions, digests, schema field paths, routes and record numbers for the operator, never a caller-chosen file ID or key, verifier or exception text, or parcel, legal-lot, reviewer-name, URL or coordinate values (X3, RPR4–RPR6). An internal failure is a generic 500 (X4, RPR7). Every response is `no-store` without CORS headers (X5).
 
 Residual: a byte-identical file can be uploaded into a second case and used there; it is then that case's own blob, and the audit row attributes the second case's publication to it (S2). Blobs uploaded but never referenced remain inert; orphan cleanup is future work.
 
@@ -202,7 +217,7 @@ Residual: a byte-identical file can be uploaded into a second case and used ther
 
 The suite `app/tests/program-screen-case-preparation-3k.test.ts` (helpers in `program-screen-case-preparation-3k-helpers.ts`) uses real D1, R2, the Hono app, sign-up cookies and D1 administrator promotion; the clock is `vi.useFakeTimers({ toFake: ["Date"] })` at `2026-10-01T18:00:00Z` unless a test moves it. Synthetic datasets reuse the Phase 3J TEST-ONLY world; their pins are supplied through the test-mode `overlay-dataset` mock and appended to `overlayIndexPins` only for the test, then removed. Native cases use the GDAL 3.10.3 / GEOS 3.13.1-derived shipped indexes. No other suite is imported and no existing test was edited.
 
-The file has 145 tests: 119 service-level tests from Commit A and 26 HTTP tests from Commit B. All pass. Where an ID has both a service and an HTTP test, both are listed.
+The file has 161 tests: 119 service-level tests from Commit A, 26 HTTP tests from Commit B and 16 repair regressions (RPR1–RPR14, with three RPR10 cases). All pass. Where an ID has both a service and an HTTP test, both are listed.
 
 | ID | What is checked | Result |
 | --- | --- | --- |
@@ -220,20 +235,20 @@ The file has 145 tests: 119 service-level tests from Commit A and 26 HTTP tests 
 | Z8 | `?as_of`, `?case_id`, `?route`, `?reviewer`, `?registries`, bare and repeated keys, all 7 | 400 `INVALID_QUERY`; zero R2 calls |
 | V1 | Blob body ≠ path digest; uppercase digest | `DIGEST_MISMATCH` (422 over HTTP), nothing stored; `INVALID_DIGEST`; a matching blob is stored idempotently |
 | V2 | Empty blob; exactly 8 MiB; 8 MiB + 1; every route's limit + 1 over HTTP | `EMPTY_BODY`; accepted; `PAYLOAD_TOO_LARGE`; 413 on all six bodies with zero R2 calls |
-| V3 | Reference byte count ≠ staged blob | `FILE_HASH_MISMATCH` with field, file ID and digest |
+| V3 | Reference byte count ≠ staged blob | `FILE_HASH_MISMATCH` with field and digest (no file ID) |
 | V4 | Source blob missing | `FILE_MISSING`; publish 422; no review; no audit row |
 | V5 | Receipt not linking the normalized SHA | `RECEIPT_NOT_LINKED` only |
 | V6 | Hand-edited receipt binding a polygon with an extra position or an extra ring | `NORMALIZED_STRUCTURE_MISMATCH` as the only error (the verifier alone accepts it); no review, no audit. Residual: a same-structure unrelated polygon validates |
 | V7 | Receipt implementation, operation or resources altered | `NORMALIZATION_NOT_PINNED` |
-| V8 | Each of `proposal.{schema_version, review_id, case_id, review, reviewer, reviewer_user_id, reviewed_on, state, reprojection, as_of, registries, packs, pins, authority, normalized_geometry.crs, normalized_geometry.serialization}` and body-level `case_id`, `reviewer`, `reviewer_user_id`, `as_of`, `registries`, `authority`, `review_id` | 422 `VALIDATION_ERROR` ("Unrecognized key") for validate and publish; zero R2 calls |
+| V8 | Each of `proposal.{schema_version, review_id, case_id, review, reviewer, reviewer_user_id, reviewed_on, state, reprojection, as_of, registries, packs, pins, authority, normalized_geometry.crs, normalized_geometry.serialization}` and body-level `case_id`, `reviewer`, `reviewer_user_id`, `as_of`, `registries`, `authority`, `review_id` | 422 `VALIDATION_ERROR` whose only issue is `unrecognized_keys` at the schema-owned parent path (never the key itself) for validate and publish; zero R2 calls |
 | V9 | Stored reviewer | `{ kind: "human", name: <trimmed D1 name>, role: <fixed role> }`, `reviewer_user_id` = actor; a forged reviewer is refused and the stored reviewer is unchanged; blank or 301-character names and a missing user row are `REVIEWER_NAME_UNAVAILABLE` |
 | V10 | TEST-ONLY evidence with `MODE=production`, `PROD=true` | `TEST_ONLY_EVIDENCE` only; publish 422; no review; no audit row |
 | V11 | `http:` requested or final URL | `PROVENANCE_URL_NOT_HTTPS` |
 | V12 | Retrieval 1 s in the future; receipt normalization in the future; exactly now | `TIMESTAMP_IN_FUTURE` (field-specific); exactly now accepted |
 | V13 | File ID naming two digests; digest under two IDs; repeated legal or provenance reference | `FILE_REF_CONFLICT` (once) / `DUPLICATE_FILE_REF`; publish 422; no audit |
 | V14 | `next_review_on` asOf+31, asOf, asOf−1; asOf+30 | `REVIEW_TERM_OUT_OF_RANGE` (no review summary for a term ending on asOf); +30 publishes |
-| Verifier map | `SOURCE_GEOMETRY_UNSUPPORTED`, `SOURCE_CRS_UNSUPPORTED`, `SOURCE_CRS_MISMATCH`, `SOURCE_IDENTIFIERS_MISMATCH`, `RECEIPT_TEST_ONLY_MISMATCH`, `CHRONOLOGY_INCONSISTENT`, `NORMALIZED_GEOMETRY_INVALID` (bow tie; EPSG:3857), `CAPTURED_FILE_MALFORMED`, `CAPTURED_FILE_NOT_JSON` (not JSON; not UTF-8); and via status after storage changes `FILE_HASH_MISMATCH`, `REVIEWED_LOT_VERIFICATION_FAILED` (detail "Case evidence file exceeds its bound."), `FILE_MISSING` | each triggered with real inputs and mapped exactly (the others are pinned by V5, V7, V10, C7, E7) |
-| Integrity | Manifest with a wrong integrity digest; another case's manifest | status `current_review_unreadable` without the foreign review; validate diagnostic; publish and invalidate 409 `CURRENT_REVIEW_UNREADABLE`; nothing overwritten |
+| Verifier map | `SOURCE_GEOMETRY_UNSUPPORTED`, `SOURCE_CRS_UNSUPPORTED`, `SOURCE_CRS_MISMATCH`, `SOURCE_IDENTIFIERS_MISMATCH`, `RECEIPT_TEST_ONLY_MISMATCH`, `CHRONOLOGY_INCONSISTENT`, `NORMALIZED_GEOMETRY_INVALID` (bow tie; EPSG:3857), `CAPTURED_FILE_MALFORMED`, `CAPTURED_FILE_NOT_JSON` (not JSON; not UTF-8); and via status after storage changes `FILE_HASH_MISMATCH` and `FILE_MISSING` (field `legal_identity_evidence.0` and digest, no file ID), and `REVIEWED_LOT_VERIFICATION_FAILED` for an oversized blob (the code alone; the verifier's text is not returned) | each triggered with real inputs and mapped exactly (the others are pinned by V5, V7, V10, C7, E7) |
+| Integrity | Manifest with a wrong integrity digest; another case's manifest | status `current_review_unreadable` without the foreign review; validate diagnostic; publish and invalidate 409 `CURRENT_REVIEW_UNREADABLE`; nothing overwritten (intact foreign and malformed manifests: RPR8–RPR11) |
 | D1 | Synthetic and shipped (native) LRA/SRA indexes | correct route and source; idempotent; stored bytes equal |
 | D2 | Unpinned index; pinned garbage, non-UTF-8 and wrong-layer indexes | `UNPINNED_INDEX` with zero R2 calls; `CALFIRE_INDEX_INVALID` with nothing stored |
 | D3 | BOM-prefixed pinned index | `DIGEST_MISMATCH` (422 over HTTP), zero R2 calls |
@@ -286,6 +301,20 @@ The file has 145 tests: 119 service-level tests from Commit A and 26 HTTP tests 
 | X5 | 200, 200 replay, 401, 403, 400, 404, 409, 413, 415, 422, 503, OPTIONS from a foreign origin, unsupported method (and the 500 in X4) | `Cache-Control: no-store`; no `Access-Control-Allow-*` |
 | G1 | Protected state | four hashes exact; 2 / 44 / 34 / 44; `client_releasable` false; G1/G2 open |
 | G2 | Route and app sources | no static import from any Program Screen module (only `import type`); `await import("../program-screen/case-preparation")`; mounted at `/api/v1/program-screen` only |
+| RPR1 | Own `__proto__` at the body level, in `proposal`, in `source_geometry` and in a `legal_identity_evidence` element (parsed from JSON text), service and HTTP | `VALIDATION_ERROR` `{ issues: [{ code: "prohibited_key" }] }` for validate and publish; zero R2 calls; the caller's object is unchanged; the same body without the key is valid |
+| RPR2 | Own `constructor` / `prototype` in `parcel`, `source_provenance`, an `evidence_files` element, `map_pages`, the body level and the invalidation body | the same `prohibited_key` refusal (zod alone would report `unrecognized_keys`); zero R2 calls |
+| RPR3 | `__proto__`, `constructor`, `prototype` as tract, lot, map book, file IDs and an expected revision | valid; publishes; stored verbatim |
+| RPR4 | Verifier failure whose text holds a sentinel (blob read throws), over HTTP status, validate and publish | `{ code: "REVIEWED_LOT_VERIFICATION_FAILED", severity: "error" }` only; no sentinel, no `detail` anywhere in the response |
+| RPR5 | Sentinel as an unknown key (body, proposal, nested, array element, invalidation) and as invalid values (identity, APN, date, file ID, reason) | 422 `{ issues: [{ code, field? }] }` with exact zod codes and schema paths; the sentinel appears nowhere in the response |
+| RPR6 | Every file ID carries a sentinel; missing, mismatched, conflicting, unsupported and overlapping files and a future receipt time; publish refusal; a valid publication, its replay and a status verifier `FILE_MISSING` | each diagnostic names its field and digest; no response contains the sentinel |
+| RPR7 | Reviewer lookup throws a sentinel (validate, publish); the pointer write throws a non-verifier message | generic 500 `PROGRAM_SCREEN_PREPARATION_FAILED` with only `code` and `message`; no sentinel; the audit row is `failed` and nothing is current |
+| RPR8 | Case B's pointer holds case A's intact manifest with a correct digest | status `current_review_unreadable`; validate `valid: false`, `expected_revision_current: false`, sole error `CURRENT_REVIEW_UNREADABLE` |
+| RPR9 | Publish (fresh and original proposal) and invalidate with the foreign manifest's revision | 409 `CURRENT_REVIEW_UNREADABLE`; zero R2 writes; pointer bytes and ETag unchanged; the foreign object stays in place; case A untouched |
+| RPR10 | Intact manifests holding a record with a non-identity, a record without `state`, and non-record JSON | publish and invalidate 409 with zero R2 writes; pointer unchanged; status `current_review_unreadable`; validate `valid: false` with `CURRENT_REVIEW_UNREADABLE` |
+| RPR11 | The foreign and malformed refusals through a recording D1 proxy | no `program_screen_review_events` statement at all; only the original committed row |
+| RPR12 | Valid same-case replacement; then a stale revision | replacement 201 with its prior revision; stale 409 with the pointer unchanged; audit `[null → first, first → second]` |
+| RPR13 | Identical retry on a valid same-case review | 200 `replayed: true`; zero R2 writes; zero D1 writes; one audit row |
+| RPR14 | Two identical concurrent attempts, both audit completions failing; the second commits inside the first's conditional PUT | the committing request returns its publication and logs the lost completion; the first is 409; two `pending` rows with identical review ID, prior revision and manifest digest matching the live manifest, differing only in ID; a later replay, status and validation leave both pending |
 
 The service signature test checks the seven exported service functions, their arities and the `@ts-expect-error` refusals.
 
@@ -332,18 +361,34 @@ Every required killer named in the approved battery fails under its mutation, wi
 
 An earlier complete battery ran on a pre-final test file and also killed all 30 mutations. In it, a few required killers failed through a thrown service error rather than an assertion (for example C3 under M21, P4 under M10, D1 and P2 under M16). The setup helpers, D1, C3 and V9 were then changed to assert on outcomes (`settled`, `published`, and a forged-reviewer check in V9), and this table is the full battery re-run on the final tree.
 
+### Repair mutations (RM1–RM7)
+
+The M1–M30 battery above ran on the Commit B tree (145 tests). The repair's targeted battery used the same method on the final repair tree (161 tests): two lanes, each a disposable full copy of the repository with its own `node_modules` and the native GDAL 3.10.3 / GEOS 3.13.1 setups; the working checkout was never mutated. Each lane ran the unmutated copy first (161 / 161 in both). Every replacement had to match exactly once; after each mutation `app/src` and `app/tests` were restored from a pristine snapshot and checked identical with `diff -r`, and each lane re-ran 161 / 161 after its last restore. Only assertion-library failures count; there were **zero** non-assertion failures, so nothing was excluded.
+
+| Mutation | Changed boundary | Assertion failures | Killing tests | Required killer | Not counted | Restored |
+| --- | --- | --- | --- | --- | --- | --- |
+| RM1 | Remove the prohibited-key precheck | 2 | RPR1, RPR2 | RPR1, RPR2 | 0 | 161/161 |
+| RM2 | Restore the raw verifier text as `detail` on `REVIEWED_LOT_VERIFICATION_FAILED` | 2 | RPR4, verifier-map status test | RPR4 | 0 | 161/161 |
+| RM3 | Restore zod `flatten()` (messages naming unknown keys) as `VALIDATION_ERROR` details | 25 | RPR5, V8 (23 cases), D-series over HTTP | RPR5 | 0 | 161/161 |
+| RM4 | Restore the caller `file_id` on every file diagnostic (R4, R5, R6, R8, R9 and the verifier prefix mapping) | 13 | RPR6, V3, V4, V6 (2), V12, verifier-map status test, L3 (4), S1, S2 | RPR6 | 0 | 161/161 |
+| RM5 | Accept a current review that names another case | 4 | RPR8, RPR9, RPR11, integrity test | RPR8, RPR9, RPR11 | 0 | 161/161 |
+| RM6 | Pass a schema-invalid current review through to publication | 4 | RPR10 (3 cases), RPR11 | RPR10 | 0 | 161/161 |
+| RM7 | On replay, mark matching `pending` audit rows `committed` (automatic attribution) | 2 | RPR14, RPR13 | RPR14 | 0 | 161/161 |
+
+An earlier run of the same battery, on a test file whose D-series HTTP assertion read `.issues` directly, killed all seven mutations identically but recorded one non-assertion `TypeError` (that assertion under RM3); the assertion was changed to `toMatchObject` so it fails as an assertion, and the table is the complete battery re-run on the final tree.
+
 ## 17. Final verification
 
-All gates were run on the exact final Commit B tree with the GDAL 3.10.3 / GEOS 3.13.1 native setups. No native test was skipped, disabled, weakened or replaced, and no existing test file was edited.
+All gates were re-run on the exact final repair tree with the GDAL 3.10.3 / GEOS 3.13.1 native setups (Commit B's results were Phase 3K 145, Program Screen 23 files / 1,807 and full app 51 files / 2,231, with every other row as below). No native test was skipped, disabled, weakened or replaced, and no pre-3K test file was edited.
 
 | Check | Result |
 | --- | --- |
-| Focused Phase 3K | 1 file / 145 tests (N = 145: 119 service-level, 26 HTTP) |
+| Focused Phase 3K | 1 file / 161 tests (119 service-level, 26 HTTP, 16 repair regressions) |
 | Focused Phase 3J | 1 file / 72 tests, unchanged |
 | Focused Phase 3I | 1 file / 337 tests, unchanged (d baseline: all 66 scenarios / 92 projections byte-identical, enforced by that suite) |
 | Focused Phase 3H (c promotion audit, c re-audit, SRA validity) | 3 files / 215 tests, unchanged |
-| Complete Program Screen | 23 files / 1,807 tests = 1,662 + 145 |
-| Full app | 51 files / 2,231 tests = 2,086 + 145 |
+| Complete Program Screen | 23 files / 1,823 tests = 1,662 + 161 |
+| Full app | 51 files / 2,247 tests = 2,086 + 161 |
 | Capture verification | 16 captures verified |
 | Capture tool self-test | 61 checks passed |
 | Typecheck | `tsc --noEmit` passed (including the signature `@ts-expect-error` checks) |
@@ -351,8 +396,8 @@ All gates were run on the exact final Commit B tree with the GDAL 3.10.3 / GEOS 
 | OS verification | passed |
 | Repository root verification | syntax checks passed; public-site validation PASS 351 / FAIL 0 |
 | Migration | 0012 applies in the test D1 (every audit test reads and writes the table); `node scripts/preview-deployment.mjs preflight` passes the template preflight, including the exact 0001–0012 migration set. The `--resolved` preflight needs the ignored preview config with real resource IDs and was not run; no remote migration or deployment was performed |
-| Production import graph | eager modules = base + the route file only; the lazy chunk holds only `case-preparation.ts` and `case-preparation-audit.ts`; no module from fixtures, tests, scripts, tools, Python, GDAL, GEOS or PROJ; the TEST-ONLY guard is folded away |
-| Allowed diff | exactly the 11 authorized files; every protected path is byte-identical to `5fec9c4` |
+| Production import graph | the repair changes no import, so the graph is Commit B's: eager modules = base + the route file only; the lazy chunk holds only `case-preparation.ts` and `case-preparation-audit.ts`; no module from fixtures, tests, scripts, tools, Python, GDAL, GEOS or PROJ; the TEST-ONLY guard's test-mode exemption is constant-folded away, so its refusal is unconditional |
+| Allowed diff | exactly the 11 authorized files; the repair commit touches only `case-preparation.ts`, `case-preparation-audit.ts`, the Phase 3K test file and this document; migration 0012, the route and every protected path are unchanged (protected paths byte-identical to `5fec9c4`) |
 
 The build retains the existing large-client-chunk advisory, and the local Worker tools retain their missing-secret warning while the test configuration supplies its test binding.
 
@@ -363,7 +408,7 @@ The build retains the existing large-client-chunk advisory, and the local Worker
 | 2026-09-27 | `1341fea59e307fed23ec1cd32fcdb2467d0fa3519bd07dd134fa9ddfee6deaad` | `23aaee06e51b42a4c1001d6253504f2f932d591315af468ada21345d888a5070` |
 | 2026-10-01 | `be57c1bf0f9c4c615375eb0c02d48fe9dd37fcd2afda4eb67cb20f99c98544cb` | `2a777f2da9b489f8731c933b04d83620230485df58c479a7b2bcb7981f9a369e` |
 
-Recomputed before editing, after Commit A and on the final tree, in-suite (G1, and the unchanged Phase 3J suite) and with an esbuild-bundled Node probe in production mode. human_verified is exactly `la_shra.very-high-fire-hazard-severity-zone` and `la_shra.high-fire-hazard-severity-zone`; pending_human 44; not_encoded 34; 44 `pending_human_criterion` release blockers; G1 and G2 open; `client_releasable` false. No criterion, verification record, registry, fact policy, package, capture, manifest, index pin, validity or normalization profile, reviewed-lot or lot-overlay semantics, evaluator, authority gate or evidence-authority code changed, and `PROGRAM_SCREEN_CRITERION_VERIFICATION.md` is untouched because no verification status changed. c and d re-verification deadlines are unchanged: d before 2026-10-29, c before 2026-10-31.
+Recomputed before editing, after Commit A, on the final Commit B tree and on the repair tree, in-suite (G1, and the unchanged Phase 3J suite) and with an esbuild-bundled Node probe in production mode. human_verified is exactly `la_shra.very-high-fire-hazard-severity-zone` and `la_shra.high-fire-hazard-severity-zone`; pending_human 44; not_encoded 34; 44 `pending_human_criterion` release blockers; G1 and G2 open; `client_releasable` false. No criterion, verification record, registry, fact policy, package, capture, manifest, index pin, validity or normalization profile, reviewed-lot or lot-overlay semantics, evaluator, authority gate or evidence-authority code changed, and `PROGRAM_SCREEN_CRITERION_VERIFICATION.md` is untouched because no verification status changed. c and d re-verification deadlines are unchanged: d before 2026-10-29, c before 2026-10-31.
 
 ## 19. Operator runbook
 
@@ -400,11 +445,14 @@ curl -sS -X POST "$BASE/invalidate" -H "cookie: $COOKIE" -H 'content-type: appli
 
 ## 20. Known limitations
 
-- The receipt is an attestation; a same-structure unrelated polygon is not detectable without reprojection.
+- DEFERRED / DOCUMENTED LIMITATION: the normalization receipt is an unsigned attestation; structural matching does not establish transformation correctness, and a wrong normalized geometry with the same ring structure is not detectable by Phase 3K.
+- DEFERRED / DOCUMENTED LIMITATION: legal-evidence file signatures establish only a permitted format, not legal authenticity or sufficiency; the administrator attests to the legal evidence.
+- A malformed or foreign `current-review.json` blocks publication and invalidation until it is repaired out of band; there is no repair endpoint.
+- A `pending` audit row whose digest matches the current manifest is consistent with, but not proof of, a particular attempt's commit; identical attempts are indistinguishable by content.
 - CAL FIRE indexes and records are uploaded per case (one record per request); there is no shared or automatic pinned-dataset hydration.
 - Unreferenced uploads and orphan archives from lost CAS races are not cleaned up.
 - Provenance URLs are HTTPS-only but not restricted to a host allowlist.
-- There is no audit viewer and no automatic repair of `pending` audit rows.
+- There is no audit viewer and no automatic reconciliation of `pending` audit rows.
 - Historical `as_of` is unsupported; the server UTC date is used.
 
 ## 21. Remaining work
@@ -412,11 +460,28 @@ curl -sS -X POST "$BASE/invalidate" -H "cookie: $COOKIE" -H 'content-type: appli
 - Production authentication enablement, as its own phase.
 - An operator CLI over these endpoints.
 - Automatic pinned-dataset hydration or a global CAL FIRE store.
-- Receipt signing or other stronger provenance; a provenance host allowlist.
+- Trusted offline receipt signing or independent transformation verification; a provenance host allowlist.
+- Explicit, audited operator repair tooling for a malformed or foreign current manifest, and operator tooling for reconciling `pending` audit rows.
 - A preparation UI and an audit viewer.
 - Orphan cleanup for unreferenced blobs and conflict archives.
 - d re-verification before 2026-10-29 and c re-verification before 2026-10-31.
 - Vidor Request 3F-3 (vesting-deed review).
 - G1 and G2.
+
+## 22. Pre-PR review repair
+
+The independent pre-PR review found no blocker. Its SHOULD FIX BEFORE PR findings are closed by the repair commit without redesigning Phase 3K or widening its scope; no repair endpoint, receipt signing, runtime reprojection or document-content authentication was added.
+
+| Finding | Repair | Regressions |
+| --- | --- | --- |
+| A. Strict raw-key rejection | An own `__proto__` key (which zod 4.4.3 strips silently), `prototype` or `constructor` at any depth of a JSON body is refused before the schema by an iterative, read-only walk of every object and array (section 6). Nothing is stripped or sanitized; ordinary strict unknown-key rejection is unchanged. | RPR1–RPR3 |
+| B. Preparation diagnostic privacy | The verifier fallback is `REVIEWED_LOT_VERIFICATION_FAILED` alone. `VALIDATION_ERROR` details are `{ issues: [{ code, field? }] }` with zod's issue code and a schema-owned path only. No diagnostic carries a caller-chosen file ID: file refusals name the schema field and the referenced digest. The `file_id` and `detail` diagnostic properties no longer exist. Every status, validate and publish diagnostic was reviewed; 500 handling stays generic (section 7). | RPR4–RPR7 |
+| C. Wrong-case or malformed current review | One reader serves status, validate, publish and invalidate: a current review is usable only when intact, schema-valid and this case's own, else `CURRENT_REVIEW_UNREADABLE` before any revision comparison, audit intent or write. Ordinary publication can no longer replace (implicitly repair) such a manifest; it is preserved in place (section 10). | RPR8–RPR13 |
+| D. Audit certainty | The audit comment and section 9 now state that a matching `pending` row is consistent with, not proof of, a particular attempt's commit; identical attempts are indistinguishable by content; nothing reconciles automatically. The audit-before-CAS implementation is unchanged. | RPR14 (C9 retained) |
+| Documentation accuracy | Wrong-case behaviour (section 10); M27 (section 2: Phase 3I stayed 337 / 337, killed by G2 and the Phase 3K checks); the TEST-ONLY guard (section 12); the receipt and legal-media classifications (sections 12, 13, 20). | — |
+
+Existing assertions that pinned the removed outputs were updated to the new safe format, checking the same refusals: V3, V4, V6, V12, L3, S1 and S2 (file diagnostics now carry `field` and `sha256`), the verifier-map status test (field and digest; the fallback is the code alone), V8 (an `unrecognized_keys` issue at the schema-owned parent path instead of zod's message text) and the D-series HTTP test (the rejected key is not echoed). Invalidation of an intact but malformed or foreign manifest now refuses with `CURRENT_REVIEW_UNREADABLE` before comparing revisions, where a stale revision used to be reported first; neither path writes.
+
+Independent classifications retained unchanged: authentication and authorization, IDOR and case isolation, blob, CAL FIRE index and record hydration, the legal-lot human decision boundary, CAL FIRE candidate parity, validate purity, audit-before-CAS ordering, replay and concurrency (with the documented limitations), invalidation, migration 0012, the Phase 3J privacy boundary and end-to-end c/d behaviour are SAFE. The extra diagnostic codes `LEGAL_IDENTITY_EVIDENCE_REQUIRED` and `REVIEWED_LOT_RECORD_INVALID`, lazy loading, and operator-supplied CAL FIRE bytes (constrained by the pins and index membership) are SAFE AS IMPLEMENTED. The unsigned normalization receipt (same-structure wrong geometry) and legal-document media signatures remain DEFERRED / DOCUMENTED LIMITATION (sections 12, 13 and 20).
 
 No PR is opened or merged in Phase 3K, and nothing is deployed.

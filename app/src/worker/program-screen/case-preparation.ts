@@ -73,16 +73,24 @@ const HAZARD_ROUTES = [
 ] as const;
 export type PreparationHazardRoute = (typeof HAZARD_ROUTES)[number]["route"];
 
-/** Admin-only diagnostics: codes, field paths, file IDs, digests, routes and record numbers. Never parcel, legal-lot, reviewer, URL, coordinate or file content. */
+/**
+ * Admin-only diagnostics: fixed codes, schema field paths, referenced digests, routes and record
+ * numbers. Never a caller-chosen file ID or key, verifier or exception text, or any parcel,
+ * legal-lot, reviewer, URL, coordinate or file content.
+ */
 export interface CasePreparationDiagnostic {
   code: string;
   severity: "error" | "warning" | "info";
   field?: string;
-  file_id?: string;
   sha256?: string;
   route?: PreparationHazardRoute;
   record_numbers?: number[];
-  detail?: string;
+}
+
+/** A VALIDATION_ERROR issue: zod's issue code or prohibited_key, and only a schema-owned path. */
+export interface CasePreparationValidationIssue {
+  code: string;
+  field?: string;
 }
 
 export interface RequiredCalFireRecord {
@@ -188,9 +196,46 @@ type ReviewedLotProposal = z.infer<typeof proposalSchema>;
 const proposalBodySchema = z.object({ proposal: proposalSchema, expected_revision: revisionSchema.nullable() }).strict();
 const invalidationBodySchema = z.object({ expected_revision: revisionSchema, reason: z.enum(reviewInvalidationReasons) }).strict();
 
+/** Own keys that can address a prototype. zod strips an own JSON `__proto__` silently, so these are refused first. */
+const prohibitedKeys = ["__proto__", "prototype", "constructor"] as const;
+
+/** Reads every object and array in the parsed body, iteratively and without mutating it. */
+function hasProhibitedKey(body: unknown): boolean {
+  const pending: unknown[] = [body];
+  const seen = new Set<object>();
+  while (pending.length > 0) {
+    const value = pending.pop();
+    if (value === null || typeof value !== "object" || seen.has(value)) continue;
+    seen.add(value);
+    if (prohibitedKeys.some((key) => Object.prototype.hasOwnProperty.call(value, key))) return true;
+    for (const child of Object.values(value)) pending.push(child);
+  }
+  return false;
+}
+
+/** Every key the request schemas define: the only names a validation issue path may contain. */
+function schemaKeys(schema: z.ZodType, keys = new Set<string>()): Set<string> {
+  if (schema instanceof z.ZodObject) {
+    for (const [key, child] of Object.entries(schema.shape)) {
+      keys.add(key);
+      schemaKeys(child as z.ZodType, keys);
+    }
+  } else if (schema instanceof z.ZodArray) schemaKeys(schema.element as z.ZodType, keys);
+  else if (schema instanceof z.ZodOptional || schema instanceof z.ZodNullable) schemaKeys(schema.unwrap() as z.ZodType, keys);
+  return keys;
+}
+const requestKeys = new Set([...schemaKeys(proposalBodySchema), ...schemaKeys(invalidationBodySchema)]);
+
+/** zod's issue code and its path when every segment is a schema key or an index. Never a message, key list or value. */
+function validationIssue(issue: { code: string; path: readonly PropertyKey[] }): CasePreparationValidationIssue {
+  const named = issue.path.every((segment) => typeof segment === "number" || (typeof segment === "string" && requestKeys.has(segment)));
+  return named && issue.path.length > 0 ? { code: issue.code, field: issue.path.join(".") } : { code: issue.code };
+}
+
 function parseBody<T>(schema: z.ZodType<T>, body: unknown): T {
+  if (hasProhibitedKey(body)) throw new CasePreparationError("VALIDATION_ERROR", { issues: [{ code: "prohibited_key" }] });
   const parsed = schema.safeParse(body);
-  if (!parsed.success) throw new CasePreparationError("VALIDATION_ERROR", parsed.error.flatten());
+  if (!parsed.success) throw new CasePreparationError("VALIDATION_ERROR", { issues: parsed.error.issues.map(validationIssue) });
   return parsed.data;
 }
 
@@ -253,13 +298,23 @@ async function reviewerName(db: Bindings["DB"], actorId: string): Promise<string
   return name;
 }
 
-type CurrentReview = { record: unknown; revision: string } | null;
+type CurrentReview = { record: ReviewedLotRecord; revision: string } | null;
+/**
+ * The current review only when its bytes pass their integrity check, parse as a reviewed-lot record
+ * and name this case. Anything else is CURRENT_REVIEW_UNREADABLE, so no ordinary publication or
+ * invalidation can replace a malformed or foreign manifest; the object is left untouched.
+ */
 async function readCurrentReview(store: CaseStore): Promise<CurrentReview> {
+  let current: { record: unknown; revision: string } | null;
   try {
-    return await store.readReview();
+    current = await store.readReview();
   } catch {
     throw new CasePreparationError("CURRENT_REVIEW_UNREADABLE");
   }
+  if (current === null) return null;
+  const parsed = reviewedLotRecordSchema.safeParse(current.record);
+  if (!parsed.success || parsed.data.case_id !== store.case_id) throw new CasePreparationError("CURRENT_REVIEW_UNREADABLE");
+  return { record: parsed.data, revision: current.revision };
 }
 
 const publicationConflicts = new Set(["Reviewed manifest changed; reload before publishing.", "Reviewed manifest changed."]);
@@ -287,8 +342,14 @@ const verifierCodes: Readonly<Record<string, string>> = {
 };
 const verifierPrefixes = [["Missing case evidence file: ", "FILE_MISSING"], ["Case evidence hash/length mismatch: ", "FILE_HASH_MISMATCH"]] as const;
 
-/** Explicit, message-pinned mapping of the unchanged lower-level verifier's refusals. */
-function verifierDiagnostic(error: unknown): CasePreparationDiagnostic {
+type FieldRef = { field: string; ref: CaseFileRef };
+
+/**
+ * Explicit, message-pinned mapping of the unchanged lower-level verifier's refusals. A file refusal
+ * names the schema field and digest of the reference, never the caller's file ID from the message;
+ * any other text is reduced to its fixed code.
+ */
+function verifierDiagnostic(error: unknown, refs: readonly FieldRef[]): CasePreparationDiagnostic {
   if (error instanceof z.ZodError) return { code: "CAPTURED_FILE_MALFORMED", severity: "error" };
   // A fatal UTF-8 decode is a TypeError: "Failed to decode input." in workerd, "...not valid for encoding utf-8" in Node.
   if (error instanceof SyntaxError || (error instanceof TypeError && /Failed to decode input|not valid for encoding|utf-?8/i.test(error.message))) return { code: "CAPTURED_FILE_NOT_JSON", severity: "error" };
@@ -296,9 +357,11 @@ function verifierDiagnostic(error: unknown): CasePreparationDiagnostic {
   const code = verifierCodes[message];
   if (code !== undefined) return { code, severity: "error" };
   for (const [prefix, prefixCode] of verifierPrefixes) {
-    if (message.startsWith(prefix)) return { code: prefixCode, severity: "error", file_id: message.slice(prefix.length) };
+    if (!message.startsWith(prefix)) continue;
+    const named = refs.find(({ ref }) => ref.file_id === message.slice(prefix.length));
+    return named === undefined ? { code: prefixCode, severity: "error" } : { code: prefixCode, severity: "error", field: named.field, sha256: named.ref.sha256 };
   }
-  return { code: "REVIEWED_LOT_VERIFICATION_FAILED", severity: "error", detail: message.slice(0, 300) };
+  return { code: "REVIEWED_LOT_VERIFICATION_FAILED", severity: "error" };
 }
 
 /* ------------------------------------------------------------- staged case files */
@@ -340,7 +403,7 @@ class StagedCaseFiles implements ReviewedLotEvidenceReader {
   }
 }
 
-function proposalFileRefs(proposal: ReviewedLotProposal): Array<{ field: string; ref: CaseFileRef }> {
+function proposalFileRefs(proposal: ReviewedLotProposal): FieldRef[] {
   return [
     ...proposal.legal_identity_evidence.map((ref, i) => ({ field: `legal_identity_evidence.${i}`, ref })),
     { field: "source_geometry.file", ref: proposal.source_geometry.file },
@@ -348,6 +411,17 @@ function proposalFileRefs(proposal: ReviewedLotProposal): Array<{ field: string;
     { field: "normalized_geometry.file", ref: proposal.normalized_geometry.file },
     { field: "receipt_file", ref: proposal.receipt_file },
     ...proposal.source_provenance.evidence_files.map((ref, i) => ({ field: `source_provenance.evidence_files.${i}`, ref })),
+  ];
+}
+
+function recordFileRefs(record: ReviewedLotRecord): FieldRef[] {
+  return [
+    ...record.legal_identity_evidence.map((ref, i) => ({ field: `legal_identity_evidence.${i}`, ref })),
+    { field: "source_geometry.file", ref: record.source_geometry.file },
+    { field: "source_geometry.metadata_file", ref: record.source_geometry.metadata_file },
+    { field: "normalized_geometry.file", ref: record.normalized_geometry.file },
+    { field: "reprojection.receipt_file", ref: record.reprojection.receipt_file },
+    ...record.source_provenance.evidence_files.map((ref, i) => ({ field: `source_provenance.evidence_files.${i}`, ref })),
   ];
 }
 
@@ -539,7 +613,7 @@ async function assessProposal(store: CaseStore, proposal: ReviewedLotProposal, c
     const named = byId.get(ref.file_id);
     if (named !== undefined && (named.sha256 !== ref.sha256 || named.bytes !== ref.bytes) && !conflicts.has(`id\0${ref.file_id}`)) {
       conflicts.add(`id\0${ref.file_id}`);
-      error("FILE_REF_CONFLICT", { field, file_id: ref.file_id });
+      error("FILE_REF_CONFLICT", { field });
     }
     const id = bySha.get(ref.sha256);
     if (id !== undefined && id !== ref.file_id && !conflicts.has(`sha\0${ref.sha256}`)) {
@@ -566,7 +640,7 @@ async function assessProposal(store: CaseStore, proposal: ReviewedLotProposal, c
     if ("bytes" in checked) verified.set(`${ref.file_id}\0${ref.sha256}\0${ref.bytes}`, checked.bytes);
     else if (!reported.has(`${checked.code}\0${ref.sha256}`)) {
       reported.add(`${checked.code}\0${ref.sha256}`);
-      error(checked.code, { field, file_id: ref.file_id, sha256: ref.sha256 });
+      error(checked.code, { field, sha256: ref.sha256 });
     }
   }
   const bytesOf = (ref: CaseFileRef) => verified.get(`${ref.file_id}\0${ref.sha256}\0${ref.bytes}`);
@@ -575,9 +649,9 @@ async function assessProposal(store: CaseStore, proposal: ReviewedLotProposal, c
   const geometryInputs = new Set([proposal.source_geometry.file.sha256, proposal.source_geometry.metadata_file.sha256, proposal.normalized_geometry.file.sha256, proposal.receipt_file.sha256]);
   proposal.legal_identity_evidence.forEach((ref, i) => {
     const field = `legal_identity_evidence.${i}`;
-    if (geometryInputs.has(ref.sha256)) error("LEGAL_EVIDENCE_OVERLAPS_GEOMETRY_INPUTS", { field, file_id: ref.file_id, sha256: ref.sha256 });
+    if (geometryInputs.has(ref.sha256)) error("LEGAL_EVIDENCE_OVERLAPS_GEOMETRY_INPUTS", { field, sha256: ref.sha256 });
     const bytes = bytesOf(ref);
-    if (bytes !== undefined && !hasLegalEvidenceSignature(bytes)) error("LEGAL_EVIDENCE_TYPE_UNSUPPORTED", { field, file_id: ref.file_id, sha256: ref.sha256 });
+    if (bytes !== undefined && !hasLegalEvidenceSignature(bytes)) error("LEGAL_EVIDENCE_TYPE_UNSUPPORTED", { field, sha256: ref.sha256 });
   });
 
   // R7: HTTPS provenance only.
@@ -590,7 +664,7 @@ async function assessProposal(store: CaseStore, proposal: ReviewedLotProposal, c
   const receiptBytes = bytesOf(proposal.receipt_file);
   const receipt = receiptBytes === undefined ? undefined : asRecord(parsedJson(receiptBytes));
   if (typeof receipt?.normalized_at_utc === "string" && Date.parse(receipt.normalized_at_utc) > now.getTime()) {
-    error("TIMESTAMP_IN_FUTURE", { field: "receipt.normalized_at_utc", file_id: proposal.receipt_file.file_id });
+    error("TIMESTAMP_IN_FUTURE", { field: "receipt.normalized_at_utc" });
   }
 
   // R9: the normalized polygon has the source feature's ring and position counts. No coordinate arithmetic.
@@ -602,7 +676,7 @@ async function assessProposal(store: CaseStore, proposal: ReviewedLotProposal, c
   const sourceRings = ringStructure(asRecord(sourceFeature?.geometry)?.rings);
   const normalizedRings = normalizedBytes === undefined ? undefined : ringStructure(asRecord(parsedJson(normalizedBytes))?.coordinates);
   if (sourceRings !== undefined && normalizedRings !== undefined && canonicalJson(sourceRings) !== canonicalJson(normalizedRings)) {
-    error("NORMALIZED_STRUCTURE_MISMATCH", { field: "normalized_geometry.file", file_id: proposal.normalized_geometry.file.file_id });
+    error("NORMALIZED_STRUCTURE_MISMATCH", { field: "normalized_geometry.file" });
   }
 
   // R10: the unchanged lower-level verifier, through the same memoized case-only reader.
@@ -610,8 +684,8 @@ async function assessProposal(store: CaseStore, proposal: ReviewedLotProposal, c
     try {
       await verifyReviewedLotEvidence(files, record, asOf);
     } catch (thrown) {
-      const mapped = verifierDiagnostic(thrown);
-      if (!diagnostics.some((entry) => entry.code === mapped.code && entry.file_id === mapped.file_id)) diagnostics.push(mapped);
+      const mapped = verifierDiagnostic(thrown, refs);
+      if (!diagnostics.some((entry) => entry.code === mapped.code && entry.sha256 === mapped.sha256)) diagnostics.push(mapped);
     }
   }
 
@@ -659,29 +733,25 @@ export async function readCasePreparationStatus(
   let geometry: ReviewedLotGeometry | null = null;
   let review: CurrentReview = null;
   try {
-    review = await store.readReview();
+    review = await readCurrentReview(store);
   } catch {
     integrity = "current_review_unreadable";
   }
   if (review !== null) {
-    const parsed = reviewedLotRecordSchema.safeParse(review.record);
-    if (!parsed.success || parsed.data.case_id !== store.case_id) integrity = "current_review_unreadable";
-    else {
-      const record = parsed.data;
-      const diagnostics: CasePreparationDiagnostic[] = [];
-      let verified = false;
-      try {
-        geometry = (await verifyReviewedLotEvidence(store, record, asOf)).geometry;
-        verified = true;
-      } catch (thrown) {
-        diagnostics.push(verifierDiagnostic(thrown));
-      }
-      if (record.legal_lot_identity !== "parcel_is_one_legal_lot") diagnostics.push({ code: "LEGAL_IDENTITY_NOT_ESTABLISHED", severity: "info", field: "legal_lot_identity" });
-      current = {
-        review_id: record.review_id, state: record.state.status, reviewed_on: record.review.reviewed_on, next_review_on: record.review.next_review_on,
-        legal_lot_identity: record.legal_lot_identity, reviewer_user_id: record.review.reviewer_user_id, revision: review.revision, verified, diagnostics,
-      };
+    const record = review.record;
+    const diagnostics: CasePreparationDiagnostic[] = [];
+    let verified = false;
+    try {
+      geometry = (await verifyReviewedLotEvidence(store, record, asOf)).geometry;
+      verified = true;
+    } catch (thrown) {
+      diagnostics.push(verifierDiagnostic(thrown, recordFileRefs(record)));
     }
+    if (record.legal_lot_identity !== "parcel_is_one_legal_lot") diagnostics.push({ code: "LEGAL_IDENTITY_NOT_ESTABLISHED", severity: "info", field: "legal_lot_identity" });
+    current = {
+      review_id: record.review_id, state: record.state.status, reviewed_on: record.review.reviewed_on, next_review_on: record.review.next_review_on,
+      legal_lot_identity: record.legal_lot_identity, reviewer_user_id: record.review.reviewer_user_id, revision: review.revision, verified, diagnostics,
+    };
   }
   const hazard_routes = await hazardRouteStatuses(store, geometry, asOf);
   const complete = hazard_routes.every((route) => route.index === "present" && route.required_records !== null && route.required_records.every((entry) => entry.present));
@@ -830,9 +900,8 @@ export async function publishReviewedLotProposal(
   const priorRevision = current?.revision ?? null;
   if (priorRevision !== expected_revision) {
     // An identical retry of an already-committed publication returns that publication.
-    const published = current === null ? null : reviewedLotRecordSchema.safeParse(current.record);
-    if (current !== null && published?.success && derived.record !== null && derived.manifest !== null &&
-      published.data.review_id === derived.reviewId && (await manifestSha256(published.data)) === derived.manifest) {
+    if (current !== null && derived.record !== null && derived.manifest !== null &&
+      current.record.review_id === derived.reviewId && (await manifestSha256(current.record)) === derived.manifest) {
       return { schema_version: "program-screen-case-publication-v1", case_id: writer.case_id, ...summary(derived.record, derived.manifest), prior_revision: expected_revision, revision: current.revision, replayed: true, diagnostics: [] };
     }
     throw new CasePreparationError("REVISION_CHANGED");
@@ -857,7 +926,7 @@ export async function publishReviewedLotProposal(
     const conflict = isPublicationConflict(thrown);
     await completeReviewEvent(bindings.DB, eventId, conflict ? "conflict" : "failed", null).catch(() => false);
     if (conflict) throw new CasePreparationError("REVISION_CHANGED");
-    const mapped = verifierDiagnostic(thrown);
+    const mapped = verifierDiagnostic(thrown, proposalFileRefs(proposal));
     if (mapped.code === "REVIEWED_LOT_VERIFICATION_FAILED") throw thrown;
     throw new CasePreparationError("PREPARATION_INVALID", { diagnostics: [mapped] });
   }
@@ -881,15 +950,14 @@ export async function invalidateCurrentReview(
   const current = await readCurrentReview(writer);
   if (current === null) throw new CasePreparationError("NO_CURRENT_REVIEW");
   if (current.revision !== expected_revision) throw new CasePreparationError("REVISION_CHANGED");
-  const parsed = reviewedLotRecordSchema.safeParse(current.record);
-  if (!parsed.success || parsed.data.case_id !== writer.case_id) throw new CasePreparationError("CURRENT_REVIEW_UNREADABLE");
-  if (parsed.data.state.status !== "current") throw new CasePreparationError("REVIEW_NOT_CURRENT");
+  const reviewed = current.record;
+  if (reviewed.state.status !== "current") throw new CasePreparationError("REVIEW_NOT_CURRENT");
   // The manifest invalidateReview will publish: the same record with only its state changed.
-  const stale = await manifestSha256(reviewedLotRecordSchema.parse({ ...parsed.data, state: { status: "stale", superseded_by: null } }));
+  const stale = await manifestSha256(reviewedLotRecordSchema.parse({ ...reviewed, state: { status: "stale", superseded_by: null } }));
   const eventId = crypto.randomUUID();
   try {
     await insertReviewEventIntent(bindings.DB, {
-      id: eventId, case_id: writer.case_id, actor_user_id: actor.id, action: "invalidate", review_id: parsed.data.review_id,
+      id: eventId, case_id: writer.case_id, actor_user_id: actor.id, action: "invalidate", review_id: reviewed.review_id,
       prior_revision: expected_revision, new_manifest_sha256: stale, reason, request_id: auditRequestId(requestId),
     });
   } catch {
@@ -906,5 +974,5 @@ export async function invalidateCurrentReview(
   }
   const completed = await completeReviewEvent(bindings.DB, eventId, "committed", revision).catch(() => false);
   if (!completed) console.error("Program Screen review invalidation committed; its audit completion was not recorded.", { event_id: eventId, at: now.toISOString() });
-  return { schema_version: "program-screen-case-invalidation-v1", case_id: writer.case_id, review_id: parsed.data.review_id, state: "stale", prior_revision: expected_revision, revision };
+  return { schema_version: "program-screen-case-invalidation-v1", case_id: writer.case_id, review_id: reviewed.review_id, state: "stale", prior_revision: expected_revision, revision };
 }

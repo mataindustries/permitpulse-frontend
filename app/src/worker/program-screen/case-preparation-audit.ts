@@ -33,8 +33,11 @@ export async function insertReviewEventIntent(db: Bindings["DB"], intent: Review
 }
 
 /**
- * The single permitted transition, pending to one final outcome. A row left pending whose
- * new_manifest_sha256 matches the current manifest is a publication whose completion update was lost.
+ * The single permitted transition, pending to one final outcome. The intent always precedes this
+ * workflow's R2 effect, but a committed effect can be followed by a lost completion update. A row
+ * left pending whose new_manifest_sha256 matches the current manifest is consistent with that
+ * content having been published; it does not identify which of several attempts carrying identical
+ * content committed it. Nothing here resolves a pending row automatically; an operator must.
  */
 export async function completeReviewEvent(db: Bindings["DB"], id: string, outcome: ReviewEventOutcome, newRevision: string | null): Promise<boolean> {
   const result = await db.prepare(
