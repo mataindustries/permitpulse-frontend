@@ -12,6 +12,7 @@ import { missionIntelligenceRoutes } from "./routes/mission-intelligence";
 import { workspaceRoutes } from "./routes/workspace";
 import { deliveryLifecycleRoutes } from "./routes/delivery-lifecycle";
 import { reviewerRoutes } from "./routes/reviewer";
+import { programScreenCaseRoutes } from "./routes/program-screen";
 import { previewDemoSeedRoutes } from "./routes/preview-demo-seed";
 import { evidenceInboxRoutes } from "./routes/evidence-inbox";
 import {
@@ -51,6 +52,7 @@ app.route("/api/v1/cases", caseRoutes);
 app.route("/api/v1/cases", buildWeekIntegrityCaseRoutes);
 app.route("/api/v1/cases", deliveryLifecycleRoutes);
 app.route("/api/v1/cases", reviewerRoutes);
+app.route("/api/v1/cases", programScreenCaseRoutes);
 app.route("/api/v1/mission-control", missionControlRoutes);
 app.route("/api/v1/mission-intelligence", missionIntelligenceRoutes);
 app.route("/api/v1/evidence-inbox", evidenceInboxRoutes);

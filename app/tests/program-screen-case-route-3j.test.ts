@@ -14,12 +14,14 @@ import { buildProgramScreenPublicDemoPayload } from "../src/shared/program-scree
 import { bytesSha256, reviewedLotRecordSchema, type CaseFileRef, type ReviewedLotRecord } from "../src/shared/program-screen/reviewed-lot";
 import { sha256Hex } from "../src/shared/program-screen/source-capture";
 import { programPathwayCompletenessBlockers, type ProgramScreenResult } from "../src/shared/program-screen/types";
+import { app } from "../src/worker/app";
 import { mayEvaluateProgramScreen, type CaseActor } from "../src/worker/cases/authorization";
 import { openProgramScreenCaseStore } from "../src/worker/program-screen/case-evidence";
 import {
   buildProgramScreenCaseEvaluationResponse,
   PROGRAM_SCREEN_CASE_EVALUATION_VERSION,
   programScreenAsOf,
+  type ProgramScreenCaseEvaluationResponse,
 } from "../src/worker/program-screen/case-evaluation-response";
 import { evaluateCaseProgramScreen, evaluateStoredCaseProgramScreen, type CaseOverlayResult } from "../src/worker/program-screen/evaluate-case";
 import type { Bindings } from "../src/worker/types";
@@ -476,5 +478,519 @@ describe("Phase 3J A: protected release state", () => {
     expect(packCriteria.filter((entry) => entry.predicate === "not_encoded")).toHaveLength(34);
     expect(screen.release.blockers.filter((blocker) => blocker.code === "pending_human_criterion")).toHaveLength(44);
     expect(programPathwayCompletenessBlockers.map(({ id, status }) => ({ id, status }))).toEqual([{ id: "G1", status: "open" }, { id: "G2", status: "open" }]);
+  });
+});
+
+/* ------------------------------------------------------------- Phase 3J B: HTTP */
+
+const ORIGIN = "http://localhost";
+const ERROR_403 = ["FORBIDDEN", "Program Screen evaluation requires an administrator."] as const;
+const ERROR_400 = ["INVALID_QUERY", "Program Screen evaluation accepts no query parameters."] as const;
+function bindings(overrides: Partial<Bindings> = {}): Bindings {
+  return {
+    ADMIN_BOOTSTRAP_ENABLED: "false", APP_ENV: "local", ASSETS: env.ASSETS, AUTH_ALLOW_SIGNUP: "true", AUTH_ENABLED: "true",
+    BETTER_AUTH_SECRET: "test-only-program-screen-3j-auth-secret-123456789", BETTER_AUTH_URL: ORIGIN, DB: env.DB,
+    ENABLE_DEV_CASE_API: "false", EVIDENCE_FILES: env.EVIDENCE_FILES, ...overrides,
+  };
+}
+/** Sign up through the real auth route under the current (fake) clock; admins are promoted directly in D1. */
+async function signUp(role: "admin" | "client"): Promise<{ cookie: string; id: string }> {
+  const response = await app.request(`${ORIGIN}/api/auth/sign-up/email`, {
+    method: "POST", headers: { "content-type": "application/json", origin: ORIGIN },
+    body: JSON.stringify({ name: `TEST-ONLY 3J ${role}`, email: `test-only-3j-${role}-${crypto.randomUUID()}@example.test`, password: "Fictional-3j-passphrase-42" }),
+  }, bindings());
+  expect(response.status).toBe(200);
+  const body = await response.json<{ user: { id: string } }>();
+  if (role === "admin") await env.DB.prepare('UPDATE "user" SET role = ? WHERE id = ?').bind("admin", body.user.id).run();
+  return { cookie: response.headers.get("set-cookie")!.split(";", 1)[0], id: body.user.id };
+}
+async function addOwner(caseId: string, userId: string) {
+  await env.DB.prepare("INSERT INTO case_participants (case_id, user_id, participant_role) VALUES (?, ?, 'owner')").bind(caseId, userId).run();
+}
+function get(caseId: string, cookie: string | null, options: { query?: string; env?: Bindings; method?: string; headers?: Record<string, string>; body?: string } = {}) {
+  return app.request(`${ORIGIN}/api/v1/cases/${caseId}/program-screen${options.query ?? ""}`, {
+    method: options.method ?? "GET", headers: { ...(cookie === null ? {} : { cookie }), ...options.headers }, body: options.body,
+  }, options.env ?? bindings());
+}
+function at(instant: string) {
+  vi.setSystemTime(new Date(instant));
+}
+type ErrorBody = { ok: false; error: { code: string; message: string; details?: unknown }; request_id: string };
+function expectPrivateHeaders(response: Response) {
+  expect(response.headers.get("cache-control")).toBe("no-store");
+  expect(response.headers.get("access-control-allow-origin")).toBeNull();
+  expect(response.headers.get("access-control-allow-credentials")).toBeNull();
+  expect(response.headers.get("etag")).toBeNull();
+}
+async function expectError(response: Response, status: number, code: string, message: string): Promise<ErrorBody> {
+  const text = await response.text();
+  expect(response.status, text).toBe(status);
+  expectPrivateHeaders(response);
+  const body = JSON.parse(text) as ErrorBody;
+  expect(body).toEqual({ ok: false, error: { code, message }, request_id: expect.any(String) });
+  return body;
+}
+async function evaluated(response: Response): Promise<ProgramScreenCaseEvaluationResponse> {
+  const text = await response.text();
+  expect(response.status, text).toBe(200);
+  expectPrivateHeaders(response);
+  const body = JSON.parse(text) as { ok: true; data: ProgramScreenCaseEvaluationResponse };
+  expect(Object.keys(body)).toEqual(["ok", "data"]);
+  expect(body.ok).toBe(true);
+  expect(Object.keys(body.data)).toEqual(RESPONSE_KEYS);
+  expect(Object.keys(body.data.screen)).toEqual(SCREEN_KEYS);
+  return body.data;
+}
+const statuses = (data: ProgramScreenCaseEvaluationResponse) => [criterion(data.screen, C).status, criterion(data.screen, D).status];
+const overlays = (data: ProgramScreenCaseEvaluationResponse) => data.hazard_routes.map((route) => route.overlay);
+
+describe("Phase 3J B: admin-only GET /api/v1/cases/:caseId/program-screen", () => {
+  it("A1 an administrator evaluates a prepared case with the server date and a server subject", async () => {
+    const admin = await signUp("admin");
+    const { caseId, lot } = await prepareCase({ lot: lotAt(220) });
+    const data = await evaluated(await get(caseId, admin.cookie));
+    expect(data).toMatchObject({
+      schema_version: "program-screen-case-evaluation-v1", case_id: caseId, as_of: "2026-10-01", as_of_basis: "server_utc_calendar_date",
+      reviewed_lot: { review_id: lot.review_id, reviewed_on: "2026-09-30", next_review_on: "2026-10-30", legal_lot_identity: "parcel_is_one_legal_lot" },
+    });
+    expect(data.screen.subject).toEqual({ case_id: caseId, property_id: null });
+    expect(data.screen.as_of).toBe("2026-10-01");
+    expect(statuses(data)).toEqual(["consistent_with_source", "consistent_with_source"]);
+    expect(observed.inputs).toHaveLength(1);
+    expect(lastInput().evidence_records.every((entry) => entry.subject.case_id === caseId && entry.subject.property_id === null)).toBe(true);
+  });
+
+  it("A2 a client cannot evaluate the case it owns, and no private file is read", async () => {
+    const client = await signUp("client");
+    const { caseId } = await prepareCase();
+    await addOwner(caseId, client.id);
+    expect((await app.request(`${ORIGIN}/api/v1/cases/${caseId}`, { headers: { cookie: client.cookie } }, bindings())).status).toBe(200);
+    const { bucket, calls } = proxiedBucket();
+    const body = await expectError(await get(caseId, client.cookie, { env: bindings({ EVIDENCE_FILES: bucket }) }), 403, ...ERROR_403);
+    expect(JSON.stringify(body)).not.toMatch(/screen|criteria|reviewed_lot/);
+    expect(calls).toEqual([]);
+    expect(observed.inputs).toEqual([]);
+  });
+
+  it("A3 an unrelated client receives the same 403 for a real and a nonexistent case: no existence oracle", async () => {
+    const client = await signUp("client");
+    const { caseId } = await prepareCase();
+    const { bucket, calls } = proxiedBucket();
+    const runtime = bindings({ EVIDENCE_FILES: bucket });
+    const real = await expectError(await get(caseId, client.cookie, { env: runtime }), 403, ...ERROR_403);
+    const missing = await expectError(await get(crypto.randomUUID(), client.cookie, { env: runtime }), 403, ...ERROR_403);
+    expect({ ...real, request_id: null }).toEqual({ ...missing, request_id: null });
+    expect(calls).toEqual([]);
+    expect(observed.inputs).toEqual([]);
+  });
+
+  it("A3 an administrator receives 404 for a case that does not exist, before any private read", async () => {
+    const admin = await signUp("admin");
+    const { bucket, calls } = proxiedBucket();
+    await expectError(await get(crypto.randomUUID(), admin.cookie, { env: bindings({ EVIDENCE_FILES: bucket }) }), 404, "CASE_NOT_FOUND", "The case was not found.");
+    expect(calls).toEqual([]);
+  });
+
+  it("A4 each case returns only its own evaluation; a query cannot name another case", async () => {
+    const admin = await signUp("admin");
+    const a = await prepareCase({ lot: lotAt(20) }), b = await prepareCase({ lot: lotAt(220) });
+    const dataA = await evaluated(await get(a.caseId, admin.cookie));
+    const dataB = await evaluated(await get(b.caseId, admin.cookie));
+    expect([dataA.case_id, dataA.screen.subject.case_id, dataA.reviewed_lot!.review_id]).toEqual([a.caseId, a.caseId, a.lot.review_id]);
+    expect([dataB.case_id, dataB.screen.subject.case_id, dataB.reviewed_lot!.review_id]).toEqual([b.caseId, b.caseId, b.lot.review_id]);
+    expect(criterion(dataA.screen, C).status).toBe("disqualifying_per_source");
+    expect(criterion(dataB.screen, C).status).toBe("consistent_with_source");
+    expect(observed.inputs.map((input) => input.evidence_records.map((entry) => entry.subject.case_id))).toEqual([[a.caseId, a.caseId, a.caseId], [b.caseId, b.caseId, b.caseId]]);
+    const { bucket, calls } = proxiedBucket();
+    await expectError(await get(a.caseId, admin.cookie, { query: `?case_id=${b.caseId}`, env: bindings({ EVIDENCE_FILES: bucket }) }), 400, ...ERROR_400);
+    await expectError(await get(a.caseId, admin.cookie, { query: `?caseId=${b.caseId}`, env: bindings({ EVIDENCE_FILES: bucket }) }), 400, ...ERROR_400);
+    expect(calls).toEqual([]);
+  });
+
+  it("A5 an unauthenticated request receives 401 without reading storage, including when auth is disabled", async () => {
+    const admin = await signUp("admin");
+    const { caseId } = await prepareCase();
+    const { bucket, calls } = proxiedBucket();
+    await expectError(await get(caseId, null, { env: bindings({ EVIDENCE_FILES: bucket }) }), 401, "UNAUTHENTICATED", "Authentication is required.");
+    await expectError(await get(caseId, "better-auth.session_token=test-only-forged", { env: bindings({ EVIDENCE_FILES: bucket }) }), 401, "UNAUTHENTICATED", "Authentication is required.");
+    await expectError(await get(caseId, admin.cookie, { env: bindings({ EVIDENCE_FILES: bucket, AUTH_ENABLED: "false" }) }), 401, "UNAUTHENTICATED", "Authentication is required.");
+    expect(calls).toEqual([]);
+    expect(observed.inputs).toEqual([]);
+  });
+
+  it("A6 native whole-lot Very High on PRC §4202 discloses c while GOV §51178 is unavailable, and d is still computed from SRA", async () => {
+    const admin = await signUp("admin");
+    const { caseId } = await prepareCase({ lot: lotText("whole-very-high"), routes: { gov_51178: "none", prc_4202: "native" } });
+    const data = await evaluated(await get(caseId, admin.cookie));
+    expect(overlays(data)).toEqual(["unavailable", "computed"]);
+    expect(criterion(data.screen, C).status).toBe("disqualifying_per_source");
+    expect([vhValue("gov_51178"), vhValue("prc_4202")]).toEqual([null, true]);
+    expect(computedRecord("computed-calfire-high-").normalized_value).toEqual({ kind: "boolean", value: false });
+    expect(criterion(data.screen, D)).toMatchObject({ status: "consistent_with_source", authority: { established: true } });
+  });
+
+  it("A7 whole-lot Very High on GOV §51178 discloses c while PRC §4202 is unavailable; d stays unknown", async () => {
+    const admin = await signUp("admin");
+    const { caseId } = await prepareCase({ lot: lotAt(20), routes: { prc_4202: "none" } });
+    const data = await evaluated(await get(caseId, admin.cookie));
+    expect(overlays(data)).toEqual(["computed", "unavailable"]);
+    expect([vhValue("gov_51178"), vhValue("prc_4202")]).toEqual([true, null]);
+    expect(statuses(data)).toEqual(["disqualifying_per_source", "unknown"]);
+  });
+
+  it.each([["High", 220], ["Moderate", 420], ["NonWildland", 620]])("A8 LRA %s and SRA Moderate on the same reviewed geometry clear c", async (_label, x) => {
+    const admin = await signUp("admin");
+    const { caseId } = await prepareCase({ lot: lotAt(x) });
+    const data = await evaluated(await get(caseId, admin.cookie));
+    expect([vhValue("gov_51178"), vhValue("prc_4202")]).toEqual([false, false]);
+    expect(criterion(data.screen, C)).toMatchObject({ status: "consistent_with_source", authority: { established: true, criterion_failures: [] } });
+    expect(lastInput().lot_overlay!.lot_geometries).toHaveLength(1);
+  });
+
+  it.each([
+    ["GOV §51178 partial", "gov_51178", { lot: lotAt(820) }],
+    ["GOV §51178 outside", "gov_51178", { lot: lotAt(2620) }],
+    ["GOV §51178 missing index", "gov_51178", { lot: lotAt(220), dropIndex: ["gov_51178"] }],
+    ["GOV §51178 relevant invalid", "gov_51178", { lot: lotAt(1020) }],
+    ["GOV §51178 relevant unreadable", "gov_51178", { lot: lotAt(1220) }],
+    ["GOV §51178 relevant record missing", "gov_51178", { lot: lotAt(1420), omit: ["gov_51178"] }],
+    ["PRC §4202 partial", "prc_4202", { lot: lotAt(1620) }],
+    ["PRC §4202 outside", "prc_4202", { lot: lotAt(2420) }],
+    ["PRC §4202 missing index", "prc_4202", { lot: lotAt(220), dropIndex: ["prc_4202"] }],
+    ["PRC §4202 relevant invalid", "prc_4202", { lot: lotAt(1820) }],
+    ["PRC §4202 relevant unreadable", "prc_4202", { lot: lotAt(2020) }],
+    ["PRC §4202 relevant record missing", "prc_4202", { lot: lotAt(2220), omit: ["prc_4202"] }],
+  ] as Array<[string, Route, CaseSpec]>)("A9 %s with a NO on the other route keeps c unknown", async (_name, unknownRoute, spec) => {
+    const admin = await signUp("admin");
+    const { caseId } = await prepareCase(spec);
+    const data = await evaluated(await get(caseId, admin.cookie));
+    const other = unknownRoute === "gov_51178" ? "prc_4202" : "gov_51178";
+    expect(vhValue(unknownRoute)).toBeNull();
+    expect(vhValue(other)).toBe(false);
+    expect(criterion(data.screen, C).status).toBe("unknown");
+    expect(data.reviewed_lot).not.toBeNull();
+  });
+
+  it("A10 d is identical between HTTP, the direct server-only service and the legacy entry on one prepared store", async () => {
+    const admin = await signUp("admin");
+    const { caseId } = await prepareCase({ lot: lotAt(20) });
+    const data = await evaluated(await get(caseId, admin.cookie));
+    const httpInput = lastInput();
+    const direct = buildProgramScreenCaseEvaluationResponse(await evaluateCaseProgramScreen(serviceBindings(), ADMIN, caseId, programScreenAsOf(new Date())), AS_OF);
+    expect(data).toEqual(JSON.parse(JSON.stringify(direct)));
+    const old = await legacy(caseId);
+    const oldInput = lastInput();
+    expect(JSON.stringify(criterion(data.screen, D))).toBe(JSON.stringify(criterion(old.screen, D)));
+    expect(criterion(data.screen, D)).toMatchObject({ status: "consistent_with_source", authority: { established: true } });
+    const dRecord = (input: ScreenInput) => ({ ...computedRecord("computed-calfire-high-", input), subject: null });
+    const dBlock = (input: ScreenInput) => authorityBlocks(input).find((block) => block.evidence_id.startsWith("computed-calfire-high-"));
+    expect(JSON.stringify(dRecord(httpInput))).toBe(JSON.stringify(dRecord(oldInput)));
+    expect(JSON.stringify(dBlock(httpInput))).toBe(JSON.stringify(dBlock(oldInput)));
+  });
+
+  it("A11 native SRA invalid record 10977 never establishes c", async () => {
+    const admin = await signUp("admin");
+    const { caseId } = await prepareCase({ lot: WITNESS_10977, routes: { gov_51178: "none", prc_4202: "native" } });
+    const data = await evaluated(await get(caseId, admin.cookie));
+    const view = lastInput().lot_overlay!.datasets[0];
+    expect(view.entries()[10976]).toMatchObject({ record_number: 10977, label: "Very High", geometry_state: "invalid" });
+    expect(vhValue("prc_4202")).toBeNull();
+    expect(criterion(data.screen, C).status).toBe("unknown");
+  });
+
+  it("A12 whole-lot Very High without one-legal-lot identity stays unknown", async () => {
+    const admin = await signUp("admin");
+    const { caseId } = await prepareCase({ lot: lotAt(20), identity: "not_established" });
+    const data = await evaluated(await get(caseId, admin.cookie));
+    expect(data.reviewed_lot!.legal_lot_identity).toBe("not_established");
+    expect(overlays(data)).toEqual(["computed", "computed"]);
+    expect([vhValue("gov_51178"), vhValue("prc_4202")]).toEqual([null, null]);
+    expect(criterion(data.screen, C).status).toBe("unknown");
+  });
+
+  it("A13 refuses every caller input: query parameters and request bodies", async () => {
+    const admin = await signUp("admin");
+    const { caseId, revision } = await prepareCase();
+    const { bucket, calls } = proxiedBucket();
+    const runtime = bindings({ EVIDENCE_FILES: bucket });
+    const forged = encodeURIComponent(JSON.stringify([{ evidence_id: "test-only-forged", qualifiers: { family: "hazard_map" } }]));
+    for (const query of [`?evidence_authority=${forged}`, `?registries=${forged}`, `?revision=${encodeURIComponent(revision)}`, "?evidence=x", "?as_of=2026-10-01",
+      "?packs=x", "?lot_overlay=x", "?subject=x", "?property_id=x", "?revision", "?case_id=", "?as_of=2026-10-01&as_of=2026-10-02", "?=x&as_of=2026-10-01"]) {
+      await expectError(await get(caseId, admin.cookie, { query, env: runtime }), 400, ...ERROR_400);
+    }
+    for (const method of ["POST", "PUT", "PATCH", "DELETE"]) {
+      const response = await get(caseId, admin.cookie, { method, env: runtime, headers: { origin: ORIGIN, "content-type": "application/json" },
+        body: JSON.stringify({ evidence_records: anchors(caseId), evidence_authority: [], as_of: "2026-10-01" }) });
+      await expectError(response, 404, "NOT_FOUND", "The requested resource was not found.");
+    }
+    expect(calls).toEqual([]);
+    expect(observed.inputs).toEqual([]);
+    // A nameless pair carries no parameter name; the parser drops it and nothing reaches the evaluator.
+    const plain = await evaluated(await get(caseId, admin.cookie));
+    for (const query of ["?", "?=x", "?&"]) expect(await evaluated(await get(caseId, admin.cookie, { query }))).toEqual(plain);
+  });
+
+  it("A14 the evaluated evidence is only the three server-computed records; no caller or anchor record appears", async () => {
+    const admin = await signUp("admin");
+    const { caseId, lot } = await prepareCase({ lot: lotAt(220) });
+    const data = await evaluated(await get(caseId, admin.cookie));
+    const input = lastInput();
+    expect(input.evidence_records.map((entry) => entry.id)).toEqual(computedIds(lot.review_id));
+    expect(authorityBlocks(input).every((block) => block.evidence_id.startsWith("computed-calfire-"))).toBe(true);
+    expect(data.screen.facts.flatMap((fact) => fact.evidence.map((entry) => entry.evidence_id)).sort()).toEqual(computedIds(lot.review_id).sort());
+    const anchorsInScreen = data.screen.facts.filter((fact) => ["jurisdiction", "parcel-match"].includes(fact.key));
+    expect(anchorsInScreen.length).toBeGreaterThan(0);
+    for (const fact of anchorsInScreen) expect(fact).toMatchObject({ supplied: false, evidence: [] });
+  });
+
+  it("A15 on 2026-10-29 d carries a stale-criterion blocker while c is not yet stale", async () => {
+    at("2026-10-29T18:00:00Z");
+    const admin = await signUp("admin");
+    const { caseId } = await prepareCase({ lot: lotAt(220) });
+    const data = await evaluated(await get(caseId, admin.cookie));
+    expect(data.as_of).toBe("2026-10-29");
+    expect(data.reviewed_lot).not.toBeNull();
+    expect([criterion(data.screen, C).stale, criterion(data.screen, D).stale]).toEqual([false, true]);
+    const stale = data.screen.release.blockers.filter((blocker) => blocker.code === "stale_criterion").map((blocker) => blocker.ref);
+    expect(stale.some((ref) => ref.includes(D))).toBe(true);
+    expect(stale.some((ref) => ref.includes(C))).toBe(false);
+  });
+
+  it("A16 on 2026-10-31 c and d are both stale and the expired review is not used", async () => {
+    at("2026-10-31T18:00:00Z");
+    const admin = await signUp("admin");
+    const { caseId } = await prepareCase({ lot: lotAt(20) });
+    const data = await evaluated(await get(caseId, admin.cookie));
+    expect(data.as_of).toBe("2026-10-31");
+    expect([criterion(data.screen, C).stale, criterion(data.screen, D).stale]).toEqual([true, true]);
+    const stale = data.screen.release.blockers.filter((blocker) => blocker.code === "stale_criterion").map((blocker) => blocker.ref);
+    expect([C, D].every((id) => stale.some((ref) => ref.includes(id)))).toBe(true);
+    expect(data.reviewed_lot).toBeNull();
+    expect(overlays(data)).toEqual(["unavailable", "unavailable"]);
+    expect(statuses(data)).toEqual(["unknown", "unknown"]);
+  });
+
+  it("A17 on 2026-11-15 a historical ?as_of cannot bypass current safety checks", async () => {
+    at("2026-11-15T18:00:00Z");
+    const admin = await signUp("admin");
+    const { caseId } = await prepareCase({ lot: lotAt(20) });
+    await expectError(await get(caseId, admin.cookie, { query: "?as_of=2026-10-01" }), 400, ...ERROR_400);
+    expect(observed.inputs).toEqual([]);
+    const data = await evaluated(await get(caseId, admin.cookie));
+    expect([data.as_of, data.screen.as_of]).toEqual(["2026-11-15", "2026-11-15"]);
+    expect(data.reviewed_lot).toBeNull();
+    expect(statuses(data)).toEqual(["unknown", "unknown"]);
+  });
+
+  it("A18 a review invalidated during evaluation yields no mixed-revision conclusion", async () => {
+    const admin = await signUp("admin");
+    const prepared = await prepareCase({ lot: lotAt(20) });
+    let invalidated = false;
+    const { bucket, calls } = proxiedBucket(async (method, key) => {
+      if (!invalidated && method === "get" && key.includes("/calfire/record-")) {
+        invalidated = true;
+        await prepared.writer.invalidateReview("stale", prepared.revision);
+      }
+    });
+    const data = await evaluated(await get(prepared.caseId, admin.cookie, { env: bindings({ EVIDENCE_FILES: bucket }) }));
+    expect(invalidated).toBe(true);
+    expect(calls.filter((call) => call.startsWith("get:") && call.endsWith("/current-review.json"))).toHaveLength(1);
+    expect(calls.at(-1)).toBe(`head:${prepared.caseId}/program-screen/current-review.json`);
+    expect(data.reviewed_lot).toBeNull();
+    expect(overlays(data)).toEqual(["unavailable", "unavailable"]);
+    expect(statuses(data)).toEqual(["unknown", "unknown"]);
+    expect([vhValue("gov_51178"), vhValue("prc_4202")]).toEqual([null, null]);
+    expect(lastInput().lot_overlay).toBeUndefined();
+    const after = await evaluated(await get(prepared.caseId, admin.cookie));
+    expect(after.reviewed_lot).toBeNull();
+  });
+
+  it("A19 the response carries only the allowlisted schema and none of the prepared case's private values", async () => {
+    const admin = await signUp("admin");
+    const prepared = await prepareCase({ lot: lotAt(20) });
+    const response = await get(prepared.caseId, admin.cookie);
+    const text = await response.clone().text();
+    const data = await evaluated(response);
+    expect(Object.keys(data.reviewed_lot!)).toEqual(SUMMARY_KEYS);
+    for (const route of data.hazard_routes) expect(Object.keys(route)).toEqual(["route", "authority_source_id", "overlay"]);
+    expect(Object.keys(data.screen.subject)).toEqual(["case_id", "property_id"]);
+    const { lot } = prepared;
+    const head = await env.EVIDENCE_FILES.head(`${prepared.caseId}/program-screen/current-review.json`);
+    const refs = [lot.source_geometry.file, lot.source_geometry.metadata_file, lot.normalized_geometry.file, lot.reprojection.receipt_file, ...lot.legal_identity_evidence, ...lot.source_provenance.evidence_files];
+    const secrets = [
+      lot.parcel.apn, lot.parcel.pin, lot.parcel.pind!, lot.legal_lot_reference.tract, lot.legal_lot_reference.lot, lot.legal_lot_reference.map_book,
+      `Tract ${lot.legal_lot_reference.tract}`, lot.review.reviewer.name, lot.review.reviewer.role, lot.review.reviewer_user_id,
+      ...refs.map((ref) => ref.file_id), ...refs.map((ref) => ref.sha256), ...prepared.files.keys(), ...prepared.indexShas, ...prepared.recordShas,
+      lot.source_provenance.requested_url, lot.source_provenance.final_url, lot.source_provenance.agency, lot.reprojection.profile_sha256, lot.reprojection.pipeline_sha256,
+      prepared.revision, head!.etag, head!.httpEtag,
+      "program-screen/", "current-review", "blobs/", "calfire/", "reviews/", "issues", "lot_geometries", "route_overlays", "candidate_records", "coordinates",
+      "Current one-legal-lot identity", "coverage is not established",
+    ];
+    expect(new Set(secrets).size).toBeGreaterThan(25);
+    for (const secret of secrets) expect(text, `response leaks ${secret}`).not.toContain(secret);
+  });
+
+  it("A20 identical inputs on the same server day are deterministic; a new review or day changes screen_id", async () => {
+    const admin = await signUp("admin");
+    const prepared = await prepareCase({ lot: lotAt(220) });
+    const first = await evaluated(await get(prepared.caseId, admin.cookie));
+    const second = await evaluated(await get(prepared.caseId, admin.cookie));
+    expect(second).toEqual(first);
+    const next = structuredClone(prepared.lot);
+    next.review_id = crypto.randomUUID();
+    await prepared.writer.ingestReviewedLot(next, prepared.revision, AS_OF);
+    const reviewed = await evaluated(await get(prepared.caseId, admin.cookie));
+    expect(reviewed.reviewed_lot!.review_id).toBe(next.review_id);
+    expect(reviewed.screen.screen_id).not.toBe(first.screen.screen_id);
+    at("2026-10-02T18:00:00Z");
+    const tomorrow = await evaluated(await get(prepared.caseId, admin.cookie));
+    expect(tomorrow.as_of).toBe("2026-10-02");
+    expect(tomorrow.screen.screen_id).not.toBe(reviewed.screen.screen_id);
+    expect(await evaluated(await get(prepared.caseId, admin.cookie))).toEqual(tomorrow);
+  });
+
+  it("A21 a case without Program Screen preparation is an unknown screen, not an HTTP error", async () => {
+    const admin = await signUp("admin");
+    const caseId = await insertCase();
+    const data = await evaluated(await get(caseId, admin.cookie));
+    expect(data.case_id).toBe(caseId);
+    expect(data.reviewed_lot).toBeNull();
+    expect(overlays(data)).toEqual(["unavailable", "unavailable"]);
+    expect(statuses(data)).toEqual(["unknown", "unknown"]);
+    expect(data.screen.release.client_releasable).toBe(false);
+  });
+
+  it("A22 TEST-ONLY lot evidence is refused in a production build", async () => {
+    const admin = await signUp("admin");
+    const { caseId } = await prepareCase({ lot: lotText("whole-very-high"), routes: { gov_51178: "none", prc_4202: "native" } });
+    const control = await evaluated(await get(caseId, admin.cookie));
+    expect(control.reviewed_lot).not.toBeNull();
+    expect(criterion(control.screen, C).status).toBe("disqualifying_per_source");
+    vi.stubEnv("MODE", "production");
+    vi.stubEnv("PROD", true);
+    const data = await evaluated(await get(caseId, admin.cookie));
+    expect(data.reviewed_lot).toBeNull();
+    expect(overlays(data)).toEqual(["unavailable", "unavailable"]);
+    expect(statuses(data)).toEqual(["unknown", "unknown"]);
+  });
+
+  it("A23 an LRA load failure leaves PRC's c YES and every d byte unchanged", async () => {
+    const admin = await signUp("admin");
+    const reviewId = crypto.randomUUID();
+    const prepared = await prepareCase({ lot: lotAt(20), reviewId });
+    const withoutLra = await prepareCase({ lot: lotAt(20), reviewId, routes: { gov_51178: "none" } });
+    const world = await useWorld();
+    const lraIndex = `${prepared.caseId}/program-screen/calfire/index-${world.gov_51178.pin.index_sha256}.txt`;
+    const normal = await evaluated(await get(prepared.caseId, admin.cookie));
+    const normalInput = lastInput();
+    const { bucket } = proxiedBucket((method, key) => {
+      if (method === "get" && key === lraIndex) throw new Error("TEST-ONLY LRA source failure");
+    });
+    const failed = await evaluated(await get(prepared.caseId, admin.cookie, { env: bindings({ EVIDENCE_FILES: bucket }) }));
+    const failedInput = lastInput();
+    const absent = await evaluated(await get(withoutLra.caseId, admin.cookie));
+    const absentInput = lastInput();
+    expect(overlays(normal)).toEqual(["computed", "computed"]);
+    expect(overlays(failed)).toEqual(["unavailable", "computed"]);
+    expect(vhValue("gov_51178", failedInput)).toBeNull();
+    expect(vhValue("prc_4202", failedInput)).toBe(true);
+    expect(criterion(failed.screen, C).status).toBe("disqualifying_per_source");
+    const dBytes = (data: ProgramScreenCaseEvaluationResponse, input: ScreenInput) => ({
+      criterion: JSON.stringify(criterion(data.screen, D)),
+      record: JSON.stringify({ ...computedRecord("computed-calfire-high-", input), subject: null }),
+      block: JSON.stringify(authorityBlocks(input).find((block) => block.evidence_id.startsWith("computed-calfire-high-"))),
+    });
+    expect(dBytes(failed, failedInput)).toEqual(dBytes(normal, normalInput));
+    expect(dBytes(absent, absentInput)).toEqual(dBytes(normal, normalInput));
+    expect(criterion(failed.screen, D)).toMatchObject({ status: "consistent_with_source", authority: { established: true } });
+  });
+
+  it("A24 missing evidence storage is a 503 after authorization", async () => {
+    const admin = await signUp("admin");
+    const { caseId } = await prepareCase();
+    await expectError(await get(caseId, admin.cookie, { env: bindings({ EVIDENCE_FILES: undefined }) }), 503, "EVIDENCE_STORAGE_UNAVAILABLE", "Evidence file storage is not configured.");
+    expect(observed.inputs).toEqual([]);
+    const client = await signUp("client");
+    await expectError(await get(caseId, client.cookie, { env: bindings({ EVIDENCE_FILES: undefined }) }), 403, ...ERROR_403);
+  });
+
+  it("A25 every response is no-store with no CORS or ETag header", async () => {
+    const admin = await signUp("admin");
+    const client = await signUp("client");
+    const { caseId } = await prepareCase();
+    const foreign = { origin: "https://attacker.example.test" };
+    await evaluated(await get(caseId, admin.cookie, { headers: foreign }));
+    await expectError(await get(caseId, null, { headers: foreign }), 401, "UNAUTHENTICATED", "Authentication is required.");
+    await expectError(await get(caseId, client.cookie, { headers: foreign }), 403, ...ERROR_403);
+    await expectError(await get(caseId, admin.cookie, { query: "?as_of=2026-10-01", headers: foreign }), 400, ...ERROR_400);
+    await expectError(await get("not-a-uuid", admin.cookie, { headers: foreign }), 400, "INVALID_CASE_ID", "The case ID is invalid.");
+    await expectError(await get(crypto.randomUUID(), admin.cookie, { headers: foreign }), 404, "CASE_NOT_FOUND", "The case was not found.");
+    await expectError(await get(caseId, admin.cookie, { headers: foreign, env: bindings({ EVIDENCE_FILES: undefined }) }), 503, "EVIDENCE_STORAGE_UNAVAILABLE", "Evidence file storage is not configured.");
+    observed.failEvaluator = "TEST-ONLY evaluator failure";
+    await expectError(await get(caseId, admin.cookie, { headers: foreign }), 500, "PROGRAM_SCREEN_EVALUATION_FAILED", "The Program Screen evaluation could not be completed.");
+    const preflight = await get(caseId, null, { method: "OPTIONS", headers: { ...foreign, "access-control-request-method": "GET" } });
+    expect(preflight.headers.get("access-control-allow-origin")).toBeNull();
+  });
+
+  it("A26 a malformed case ID is 400 for an administrator but 403 for a client, before any case lookup", async () => {
+    const admin = await signUp("admin");
+    const client = await signUp("client");
+    const { bucket, calls } = proxiedBucket();
+    const runtime = bindings({ EVIDENCE_FILES: bucket });
+    for (const id of ["not-a-uuid", "00000000-0000-4000-8000-00000000000", "%20", "00000000-0000-4000-8000-0000000003a1x", "TEST-ONLY%27%20OR%201%3D1"]) {
+      await expectError(await get(id, admin.cookie, { env: runtime }), 400, "INVALID_CASE_ID", "The case ID is invalid.");
+      await expectError(await get(id, client.cookie, { env: runtime }), 403, ...ERROR_403);
+    }
+    expect(calls).toEqual([]);
+  });
+
+  it("A27 the response still reflects 2 human-verified, 44 pending, 34 unencoded, 44 release blockers and open G1/G2", async () => {
+    const admin = await signUp("admin");
+    const { caseId } = await prepareCase({ lot: lotAt(20) });
+    const data = await evaluated(await get(caseId, admin.cookie));
+    const all = criteria(data.screen);
+    expect(all.filter((entry) => entry.verification === "human_verified").map((entry) => entry.criterion_id)).toEqual([C, D]);
+    expect(all.filter((entry) => entry.verification === "pending_human")).toHaveLength(44);
+    expect(all.filter((entry) => entry.rule_kind === "not_encoded")).toHaveLength(34);
+    expect(data.screen.release.blockers.filter((blocker) => blocker.code === "pending_human_criterion")).toHaveLength(44);
+    expect(data.screen.release.client_releasable).toBe(false);
+    const packCriteria = programScreenPathwayPacks.flatMap((pack) => pack.criteria);
+    expect(packCriteria.filter((entry) => entry.predicate === "not_encoded")).toHaveLength(34);
+    expect(programPathwayCompletenessBlockers.map(({ id, status }) => ({ id, status }))).toEqual([{ id: "G1", status: "open" }, { id: "G2", status: "open" }]);
+  });
+
+  it("A28 an internal failure returns only the generic message", async () => {
+    const admin = await signUp("admin");
+    const prepared = await prepareCase();
+    const secret = `TEST-ONLY internal ${prepared.caseId}/program-screen/blobs/${prepared.lot.normalized_geometry.file.sha256} ${prepared.lot.review.reviewer_user_id}`;
+    observed.failEvaluator = secret;
+    const errors = vi.spyOn(console, "error").mockImplementation(() => undefined);
+    const response = await get(prepared.caseId, admin.cookie);
+    const text = await response.clone().text();
+    await expectError(response, 500, "PROGRAM_SCREEN_EVALUATION_FAILED", "The Program Screen evaluation could not be completed.");
+    for (const value of [secret, "TEST-ONLY internal", prepared.lot.normalized_geometry.file.sha256, prepared.lot.review.reviewer_user_id, "program-screen/", "stack", "Error"]) expect(text).not.toContain(value);
+    expect(observed.inputs).toHaveLength(1);
+    expect(errors).toHaveBeenCalledWith("Program Screen evaluation failed.", expect.any(Error));
+    errors.mockRestore();
+  });
+
+  it("A29 the service itself rejects a client, so the route is not the only admin boundary", async () => {
+    const { caseId } = await prepareCase();
+    const client = await signUp("client");
+    await addOwner(caseId, client.id);
+    const { bucket, calls } = proxiedBucket();
+    await expect(evaluateCaseProgramScreen(serviceBindings(bucket), { id: client.id, role: "client" }, caseId, AS_OF)).rejects.toThrow("Program Screen evaluation permission denied.");
+    expect(calls).toEqual([]);
+    expect(observed.inputs).toEqual([]);
+  });
+
+  it("A30 as_of is the UTC calendar date, even when it is still the previous day in Los Angeles", async () => {
+    at("2026-10-02T03:00:00Z");
+    expect(new Date().toISOString()).toBe("2026-10-02T03:00:00.000Z");
+    const admin = await signUp("admin");
+    const { caseId } = await prepareCase({ lot: lotAt(220) });
+    const data = await evaluated(await get(caseId, admin.cookie));
+    expect([data.as_of, data.screen.as_of, data.as_of_basis]).toEqual(["2026-10-02", "2026-10-02", "server_utc_calendar_date"]);
+    expect(lastInput().as_of).toBe("2026-10-02");
   });
 });
