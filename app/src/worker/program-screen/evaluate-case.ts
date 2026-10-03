@@ -1,6 +1,6 @@
 import type { CanonicalEvidenceRecord } from "../../shared/build-week-integrity/types";
 import { programAuthorityRegistries, type ProgramAuthorityRegistries } from "../../shared/program-screen/authority-policy";
-import { parseProgramEvidenceAuthority, PROGRAM_EVIDENCE_AUTHORITY_VERSION, type ProgramEvidenceAuthority } from "../../shared/program-screen/evidence-authority";
+import { isIsoCalendarDate, parseProgramEvidenceAuthority, PROGRAM_EVIDENCE_AUTHORITY_VERSION, type ProgramEvidenceAuthority } from "../../shared/program-screen/evidence-authority";
 import { evaluateProgramScreen } from "../../shared/program-screen/evaluate";
 import { programFactSpecs } from "../../shared/program-screen/facts";
 import { computeLotOverlay, type LotOverlayComputation } from "../../shared/program-screen/lot-overlay";
@@ -9,7 +9,7 @@ import { loadOverlayDatasetView, overlayCandidates, overlayIndexPinFor } from ".
 import { bytesSha256, verifyReviewedLotEvidence, type ReviewedLotRecord } from "../../shared/program-screen/reviewed-lot";
 import type { ProgramLotOverlayInputs } from "../../shared/program-screen/authority-gate";
 import type { ProgramScreenResult } from "../../shared/program-screen/types";
-import type { CaseActor } from "../cases/authorization";
+import { mayEvaluateProgramScreen, type CaseActor } from "../cases/authorization";
 import type { Bindings } from "../types";
 import { openProgramScreenCaseStore, type ProgramScreenCaseEvidenceStore } from "./case-evidence";
 
@@ -256,18 +256,36 @@ interface StoredCaseProgramScreenResult {
   screen: ProgramScreenResult;
 }
 
-/**
- * Server ingestion/evaluation boundary. Typed hazard values remain observations for conflict
- * detection; only server-computed records receive hazard authority blocks.
- * No typed classes_on_lot, coverage attestation, registry override, or reprojection input is accepted.
- */
-export async function evaluateStoredCaseProgramScreen(store: ProgramScreenCaseEvidenceStore, input: {
-  evidence_records: readonly CanonicalEvidenceRecord[]; evidence_authority?: unknown; as_of: string;
-}, registries: ProgramAuthorityRegistries = programAuthorityRegistries): Promise<StoredCaseProgramScreenResult> {
+/** Sanitized reviewed-lot fields that may leave the worker: no parcel, legal-lot reference, reviewer, file or hash values. */
+export interface ReviewedLotSummary {
+  readonly review_id: string;
+  readonly reviewed_on: string;
+  readonly next_review_on: string;
+  readonly legal_lot_identity: ReviewedLotRecord["legal_lot_identity"];
+}
+
+export interface CaseProgramScreenEvaluation extends StoredCaseProgramScreenResult {
+  /** Present only when the verified reviewed-lot snapshot survived the whole evaluation. */
+  reviewed_lot: ReviewedLotSummary | null;
+}
+
+type StoredCaseInput = { evidence_records: readonly CanonicalEvidenceRecord[]; evidence_authority?: unknown; as_of: string };
+
+function reviewedLotSummary(snapshot: ReviewedLotSnapshot | null): ReviewedLotSummary | null {
+  if (snapshot === null) return null;
+  const { review_id, review, legal_lot_identity } = snapshot.record;
+  return Object.freeze({ review_id, reviewed_on: review.reviewed_on, next_review_on: review.next_review_on, legal_lot_identity });
+}
+
+/** Shared evaluation body. Every caller binds `subject` to the authorized store before reaching it. */
+async function evaluateStoredCaseForSubject(
+  store: ProgramScreenCaseEvidenceStore,
+  subject: CanonicalEvidenceRecord["subject"],
+  input: StoredCaseInput,
+  registries: ProgramAuthorityRegistries,
+): Promise<{ result: StoredCaseProgramScreenResult; reviewed_lot: ReviewedLotSummary | null }> {
   if (registries !== programAuthorityRegistries && !(import.meta.env.MODE === "test" && !import.meta.env.PROD)) throw new Error("Test registry overrides cannot enter production evaluation.");
-  const subject = input.evidence_records[0]?.subject;
-  if (subject === undefined || input.evidence_records.some((record) => record.subject.case_id !== store.case_id)) throw new Error("Program Screen evidence must belong to the authorized case.");
-  if (input.evidence_records.some((record) => record.id.startsWith("computed-calfire-"))) throw new Error("Computed hazard evidence ID is reserved.");
+  if (subject.case_id !== store.case_id) throw new Error("Program Screen evidence must belong to the authorized case.");
   const routes = await loadCaseHazardOverlays(store, input.as_of, registries);
   const overlay = routes.prc_4202;
   const evidence = computedHighEvidence(overlay, subject, input.as_of);
@@ -284,10 +302,34 @@ export async function evaluateStoredCaseProgramScreen(store: ProgramScreenCaseEv
     evidence_records: [...input.evidence_records, evidence, veryHighLra, veryHighSra], evidence_authority: [...existing, ...hazardBlocks],
     as_of: input.as_of, authority_registries: registries, lot_overlay,
   });
-  return { overlay, route_overlays: { gov_51178: routes.gov_51178, prc_4202: overlay }, screen };
+  return { result: { overlay, route_overlays: { gov_51178: routes.gov_51178, prc_4202: overlay }, screen }, reviewed_lot: reviewedLotSummary(routes.snapshot) };
 }
 
-/** Production entry point: authorize against the existing private case boundary before reading files. */
-export async function evaluateCaseProgramScreen(bindings: Pick<Bindings, "DB" | "EVIDENCE_FILES">, actor: CaseActor, caseId: string, input: Parameters<typeof evaluateStoredCaseProgramScreen>[1]): Promise<StoredCaseProgramScreenResult> {
-  return evaluateStoredCaseProgramScreen(await openProgramScreenCaseStore(bindings, actor, caseId), input);
+/**
+ * Server ingestion/evaluation boundary. Typed hazard values remain observations for conflict
+ * detection; only server-computed records receive hazard authority blocks.
+ * No typed classes_on_lot, coverage attestation, registry override, or reprojection input is accepted.
+ */
+export async function evaluateStoredCaseProgramScreen(store: ProgramScreenCaseEvidenceStore, input: {
+  evidence_records: readonly CanonicalEvidenceRecord[]; evidence_authority?: unknown; as_of: string;
+}, registries: ProgramAuthorityRegistries = programAuthorityRegistries): Promise<StoredCaseProgramScreenResult> {
+  if (registries !== programAuthorityRegistries && !(import.meta.env.MODE === "test" && !import.meta.env.PROD)) throw new Error("Test registry overrides cannot enter production evaluation.");
+  const subject = input.evidence_records[0]?.subject;
+  if (subject === undefined || input.evidence_records.some((record) => record.subject.case_id !== store.case_id)) throw new Error("Program Screen evidence must belong to the authorized case.");
+  if (input.evidence_records.some((record) => record.id.startsWith("computed-calfire-"))) throw new Error("Computed hazard evidence ID is reserved.");
+  return (await evaluateStoredCaseForSubject(store, subject, input, registries)).result;
+}
+
+/**
+ * Production entry point (Phase 3J): an administrator evaluates an already-prepared case read-only.
+ * The server supplies the subject and the date. No caller evidence, authority, subject, registry,
+ * pack, lot overlay or review revision can be passed; only server-computed records are evaluated.
+ */
+export async function evaluateCaseProgramScreen(bindings: Pick<Bindings, "DB" | "EVIDENCE_FILES">, actor: CaseActor, caseId: string, asOf: string): Promise<CaseProgramScreenEvaluation> {
+  if (!mayEvaluateProgramScreen(actor)) throw new Error("Program Screen evaluation permission denied.");
+  if (!isIsoCalendarDate(asOf)) throw new Error("Program Screen evaluation requires the server calendar date.");
+  const store = await openProgramScreenCaseStore(bindings, actor, caseId, "read");
+  const subject = Object.freeze({ case_id: store.case_id, property_id: null });
+  const { result, reviewed_lot } = await evaluateStoredCaseForSubject(store, subject, { evidence_records: [], as_of: asOf }, programAuthorityRegistries);
+  return { ...result, reviewed_lot };
 }
