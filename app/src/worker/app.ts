@@ -13,6 +13,7 @@ import { workspaceRoutes } from "./routes/workspace";
 import { deliveryLifecycleRoutes } from "./routes/delivery-lifecycle";
 import { reviewerRoutes } from "./routes/reviewer";
 import { programScreenCaseRoutes } from "./routes/program-screen";
+import { programScreenPreparationRoutes } from "./routes/program-screen-preparation";
 import { previewDemoSeedRoutes } from "./routes/preview-demo-seed";
 import { evidenceInboxRoutes } from "./routes/evidence-inbox";
 import {
@@ -56,6 +57,8 @@ app.route("/api/v1/cases", programScreenCaseRoutes);
 app.route("/api/v1/mission-control", missionControlRoutes);
 app.route("/api/v1/mission-intelligence", missionIntelligenceRoutes);
 app.route("/api/v1/evidence-inbox", evidenceInboxRoutes);
+// Outside /api/v1/cases, whose wildcard 16 KiB body limit would cap evidence and dataset uploads.
+app.route("/api/v1/program-screen", programScreenPreparationRoutes);
 app.route("/api/v1/build-week", buildWeekIntegrityRoutes);
 app.route("/api/workspace", workspaceRoutes);
 
