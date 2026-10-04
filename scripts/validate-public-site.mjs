@@ -114,6 +114,7 @@ const requiredFiles = [
   "assets/platform-home.js",
   "assets/platform-home.css",
   "assets/home-motion.css",
+  "assets/home-motion.js",
   "assets/site-check.js",
   "assets/site-check.css",
   "sitemap-pages.xml",
@@ -152,6 +153,10 @@ try {
   failures.push("Valid public Case Integrity demo data: " + error.message);
 }
 const css = await readFile(path.join(distRoot, "assets/platform-home.css"), "utf8");
+const homeMotionCssFile = path.join(distRoot, "assets/home-motion.css");
+const homeMotionJsFile = path.join(distRoot, "assets/home-motion.js");
+const homeMotionCss = (await exists(homeMotionCssFile)) ? await readFile(homeMotionCssFile, "utf8") : "";
+const homeMotionScript = (await exists(homeMotionJsFile)) ? await readFile(homeMotionJsFile, "utf8") : "";
 const redirectsText = await readFile(path.join(distRoot, "_redirects"), "utf8");
 const sitemap = await readFile(path.join(distRoot, "sitemap-pages.xml"), "utf8");
 const jurisdictionConfig = await readFile(path.join(repoRoot, "workers/pp-api/src/config/jurisdictions.js"), "utf8");
@@ -225,7 +230,7 @@ if (offerSelect) {
   check(/<option value="one"[^>]*>One \(\$149\)<\/option>/.test(offerSelect) && /<option value="three">Three \(\$299\)<\/option>/.test(offerSelect), "Homepage offer select uses only the one/three values");
   check(formScript.includes('offerField.value === "one" || offerField.value === "three"'), "Intake analytics sends only the fixed offer value");
 }
-for (const location of ["homepage_nav_intake", "homepage_hero_intake", "homepage_hero_sample", "homepage_proof_case_integrity", "homepage_proof_sample", "homepage_footer_intake"]) {
+for (const location of ["homepage_nav_intake", "homepage_hero_intake", "homepage_hero_sample", "homepage_proof_case_integrity", "homepage_proof_sample", "homepage_footer_intake", "homepage_motion_intake"]) {
   check((home.match(new RegExp('data-pp-location="' + location + '"', "g")) || []).length === 1, "Homepage keeps CTA location " + location);
 }
 // Pre-V2 links and bookmarks point at /#workflow; it now lands on the proof process ledger.
@@ -244,6 +249,32 @@ const overclaimHits = ["verified", "accurate", "guaranteed", "AI-powered", "inst
 check(overclaimHits.length === 0, "Homepage copy avoids overclaiming words", overclaimHits.join(", "));
 const heroCardStylesheetElsewhere = [...htmlByRel.entries()].filter(([name, html]) => name !== "index.html" && html.includes("home-motion.css")).map(([name]) => name);
 check(heroCardStylesheetElsewhere.length === 0, "Hero card stylesheet stays homepage-only", heroCardStylesheetElsewhere.join(", "));
+
+// Hero card motion: an enhancement over the static final frame, never a dependency.
+const heroCta = (home.match(/<a\b[^>]*data-pp-location="homepage_hero_intake"[^>]*>[\s\S]*?<\/a>/) || [""])[0];
+check(attribute(heroCta, "href") === "#research-intake" && attribute(heroCta, "data-pp-cta") === "true" && heroCta.includes(">Send a property "), "Hero CTA still sends a property to #research-intake");
+check(home.includes('<script defer src="/assets/home-motion.js"></script>'), "Homepage loads the hero card motion script with defer");
+const heroMotionScriptElsewhere = [...htmlByRel.entries()].filter(([name, html]) => name !== "index.html" && html.includes("home-motion.js")).map(([name]) => name);
+check(heroMotionScriptElsewhere.length === 0, "Hero card motion script stays homepage-only", heroMotionScriptElsewhere.join(", "));
+const heroCard = (home.match(/<figure class="pp-motion" data-pp-motion>[\s\S]*?<\/figure>/) || [""])[0];
+check(heroCard.includes('<figcaption class="sr-only">Illustration of a Parcel Research Brief for a fictional Los Angeles parcel. The parcel is shown as mapped by the City. Zoning designation: supported, cited to ZIMAS. Fire hazard zone mapping: conflict; CAL FIRE and ZIMAS disagree, and both are shown. Older permit records: unknown; not found online, which is not proof none exist. Every finding is cited and reviewed by a person. Never guess. Evidence first. Unknown when it isn\'t enough.</figcaption>'), "Hero card has an equivalent text summary for assistive technology");
+check(heroCard.includes('<div class="pp-motion__art" aria-hidden="true">'), "Hero card animated illustration is aria-hidden");
+for (const required of ["Fictional parcel", "PARCEL RESEARCH BRIEF", "SUPPORTED", "CONFLICT", "UNKNOWN", "EVERY FINDING CITED · REVIEWED BY A PERSON", "NEVER GUESS", "Evidence first. Unknown when it isn't enough."]) {
+  check(heroCard.includes(required), "Hero card keeps " + required);
+}
+const motionCta = (heroCard.match(/<a\b[^>]*class="pp-motion__cta"[^>]*>/) || [""])[0];
+check(attribute(motionCta, "href") === "#research-intake" && attribute(motionCta, "data-pp-cta") === "true" && attribute(motionCta, "data-pp-location") === "homepage_motion_intake", "Hero card CTA sends a property to #research-intake");
+check(/<button class="pp-motion__control" type="button" hidden>Pause<\/button>/.test(heroCard), "Hero card motion control starts hidden as a Pause button");
+check(!/<(a|button|input|select|textarea)\b/i.test((heroCard.match(/<div class="pp-motion__art"[\s\S]*?<div class="pp-motion__actions">/) || [""])[0]), "Hero card aria-hidden illustration has no focusable controls");
+check(homeMotionCss.includes("@media (max-width: 560px)") && homeMotionScript.includes('matchMedia("(max-width: 560px)")'), "Hero card motion keys its fast cut to max-width: 560px");
+check(homeMotionCss.includes("@media (prefers-reduced-motion: reduce)") && homeMotionScript.includes('matchMedia("(prefers-reduced-motion: reduce)")'), "Hero card motion respects prefers-reduced-motion");
+check(homeMotionScript.includes("saveData === true") && homeMotionScript.includes('"IntersectionObserver" in window'), "Hero card motion falls back to the static card for Save-Data and missing IntersectionObserver");
+check(homeMotionScript.includes('typeof window.ppTrack === "function"') && homeMotionScript.includes('window.ppTrack("pp_motion_complete", { cut: cut })') && (homeMotionScript.match(/ppTrack\(/g) || []).length === 1, "Hero card motion reports only pp_motion_complete with its cut");
+const motionNetworkHits = ["fetch(", "XMLHttpRequest", "sendBeacon", "import("].filter((token) => homeMotionScript.includes(token));
+check(motionNetworkHits.length === 0, "Hero card motion script makes no network requests", motionNetworkHits.join(", "));
+check(!/infinite/i.test(homeMotionCss + homeMotionScript), "Hero card motion never loops");
+check(!(homeMotionCss + homeMotionScript).includes("\u2014"), "Hero card motion has no em dash");
+check(Buffer.byteLength(homeMotionCss) <= 10240 && Buffer.byteLength(homeMotionScript) <= 5120, "Hero card motion stays within 10KB CSS and 5KB JS", Buffer.byteLength(homeMotionCss) + " / " + Buffer.byteLength(homeMotionScript));
 
 const caseIntegrityDemoRequirements = [
   "See what PermitPulse catches before you build.",
