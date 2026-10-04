@@ -257,6 +257,12 @@
   line-height: 1.4;
 }
 
+/* Final CTA, plus the control (motion only). */
+.pp-motion__actions { display: flex; align-items: center; justify-content: space-between; gap: 12px; min-height: 24px; margin: 8px 0 -6px; }
+.pp-motion__cta { min-height: 24px; display: inline-flex; align-items: center; gap: 6px; color: #83e8b8; font-size: 0.86rem; font-weight: 800; text-decoration-color: rgba(131, 232, 184, 0.5); text-underline-offset: 4px; }
+.pp-motion__control { min-height: 24px; padding: 3px 9px; border: 1px solid var(--pp-motion-hair); border-radius: 5px; color: #cfe0d6; background: none; font: 700 0.66rem/1.3 var(--pp-motion-mono); cursor: pointer; }
+.pp-motion__cta:hover, .pp-motion__control:hover { color: #f4fff9; }
+
 @media (max-width: 560px) {
   .pp-motion {
     padding: 16px 16px 18px;
@@ -281,4 +287,49 @@
   .pp-motion__tagline {
     font-size: 0.8rem;
   }
+}
+
+/* Motion. home-motion.js sets data-pp-cut while armed or playing, and --d /
+   --m from data-pp-t / data-pp-m. Values rest at the final frame, and
+   keyframes give start states only. */
+@keyframes ppm-in { from { opacity: 0 } }
+@keyframes ppm-up { from { opacity: 0; transform: translateY(6px) } }
+@keyframes ppm-draw { from { stroke-dashoffset: 1 } }
+@keyframes ppm-ink { from { transform: scaleX(0) } }
+@keyframes ppm-wipe { from { transform: none } }
+@keyframes ppm-chip { from { opacity: 0; transform: scale(.96) } }
+@keyframes ppm-dot { 23%, 50% { opacity: 1 } }
+@keyframes ppm-rise { from { transform: translateY(105%) } }
+
+[data-pp-cut] { --d: 0s; --m: 0s; --e: cubic-bezier(.22,1,.36,1); --p: cubic-bezier(.2,0,0,1); --ink: var(--pp-motion-jade) }
+[data-pp-cut] [data-pp-t] { animation: ppm-up 420ms var(--e) var(--d) backwards }
+[data-pp-cut] .pp-motion__parcel { animation: ppm-in 420ms var(--e) var(--d) backwards }
+[data-pp-cut] .pp-motion__lot { stroke-dasharray: 1; animation: ppm-draw 650ms var(--p) var(--d) backwards }
+[data-pp-cut] .pp-motion__status { animation: ppm-chip 200ms cubic-bezier(.2,.8,.2,1) var(--d) backwards }
+[data-pp-cut] .pp-motion__neq, [data-pp-cut] .pp-motion__line::after { animation: ppm-in 140ms ease-out var(--m) backwards }
+[data-pp-cut] .pp-motion__never { overflow: hidden }
+[data-pp-cut] .pp-motion__rise { display: block; animation: ppm-rise 420ms var(--e) var(--d) backwards }
+[data-pp-cut] .pp-motion__cta { animation-duration: 300ms }
+
+/* Every line starts dashed: a cover wipes off, then ink draws over the
+   dashes. Coral runs from both sources to the mismatch. */
+[data-pp-cut] [data-pp-status=conflict] { --ink: var(--pp-motion-coral-line) }
+[data-pp-cut] [data-pp-status] .pp-motion__line { border-top-style: dashed; border-top-color: var(--pp-motion-hair) }
+[data-pp-cut] .pp-motion__line::before { content: ""; position: absolute; inset: -4px -1px auto; height: 6px; background: var(--night-soft, #081a13); transform: scaleX(0); transform-origin: right; animation: ppm-wipe 420ms var(--p) var(--d) backwards }
+[data-pp-cut] .pp-motion__ink { position: absolute; inset: -2px 0 auto; height: 2px; background: var(--ink); transform-origin: left; animation: ppm-ink 500ms var(--p) var(--d) backwards }
+[data-pp-cut] .pp-motion__neq ~ .pp-motion__line::before { transform-origin: left }
+[data-pp-cut] .pp-motion__neq ~ * .pp-motion__ink { transform-origin: right }
+/* Jade dot where supported ink lands, then the label. */
+[data-pp-cut] .pp-motion__ink[data-pp-m]::after { content: ""; position: absolute; top: -2px; right: -3px; width: 6px; height: 6px; border-radius: 50%; background: inherit; opacity: 0; animation: ppm-dot 600ms var(--m) backwards }
+
+[data-pp-paused] *,
+[data-pp-paused] ::before,
+[data-pp-paused] ::after { animation-play-state: paused !important }
+.pp-motion__cta:focus-visible { opacity: 1 !important; transform: none !important }
+[data-pp-motion=done] .pp-motion__control { animation: ppm-in 300ms ease-out }
+
+@media (prefers-reduced-motion: reduce) {
+  .pp-motion *,
+  .pp-motion ::before,
+  .pp-motion ::after { animation: none !important }
 }

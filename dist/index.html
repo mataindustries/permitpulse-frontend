@@ -72,6 +72,7 @@
   </script>
   <script defer src="/assets/permitpulse-tracking.js"></script>
   <script defer src="/assets/platform-home.js"></script>
+  <script defer src="/assets/home-motion.js"></script>
   <script defer src="https://static.cloudflareinsights.com/beacon.min.js" data-cf-beacon='{"token":"7046e03c84424a49988d1930fda247b6"}'></script>
 </head>
 
@@ -106,59 +107,67 @@
           <p class="hero-micro"><strong>$149 per property, introductory.</strong> Brief within 48 business hours after scope and payment are confirmed.</p>
         </div>
 
-        <figure class="pp-motion" data-pp-motion aria-label="Illustration of a Parcel Research Brief for a fictional parcel">
-          <div class="pp-motion__head">
-            <div class="pp-motion__meta">
-              <p class="pp-motion__kicker">PARCEL RESEARCH BRIEF</p>
-              <p class="pp-motion__address">Example Ave, Los Angeles</p>
-              <p class="pp-motion__sub">Fictional parcel · illustration</p>
+        <figure class="pp-motion" data-pp-motion>
+          <figcaption class="sr-only">Illustration of a Parcel Research Brief for a fictional Los Angeles parcel. The parcel is shown as mapped by the City. Zoning designation: supported, cited to ZIMAS. Fire hazard zone mapping: conflict; CAL FIRE and ZIMAS disagree, and both are shown. Older permit records: unknown; not found online, which is not proof none exist. Every finding is cited and reviewed by a person. Never guess. Evidence first. Unknown when it isn't enough.</figcaption>
+          <div class="pp-motion__art" aria-hidden="true">
+            <div class="pp-motion__head">
+              <div class="pp-motion__meta">
+                <p class="pp-motion__kicker" data-pp-t="0 0">PARCEL RESEARCH BRIEF</p>
+                <p class="pp-motion__address" data-pp-t="0.1 0.15">Example Ave, Los Angeles</p>
+                <p class="pp-motion__sub" data-pp-t="0.2 0.3">Fictional parcel · illustration</p>
+              </div>
+              <svg class="pp-motion__parcel" data-pp-t="0.5 0.9" viewBox="0 0 120 84" aria-hidden="true" focusable="false">
+                <path class="pp-motion__guide" d="M24 14 L4 15 L2 66 L20 70" />
+                <path class="pp-motion__guide" d="M90 10 L116 12 L118 52 L102 58" />
+                <polygon class="pp-motion__lot" points="24,14 90,10 102,58 62,78 20,70" pathLength="1" />
+              </svg>
+              <p class="pp-motion__parcel-caption" data-pp-t="1.1 1.6">Parcel as mapped · CITY MAP</p>
             </div>
-            <svg class="pp-motion__parcel" viewBox="0 0 120 84" aria-hidden="true" focusable="false">
-              <path class="pp-motion__guide" d="M24 14 L4 15 L2 66 L20 70" />
-              <path class="pp-motion__guide" d="M90 10 L116 12 L118 52 L102 58" />
-              <polygon class="pp-motion__lot" points="24,14 90,10 102,58 62,78 20,70" />
-            </svg>
-            <p class="pp-motion__parcel-caption">Parcel as mapped · CITY MAP</p>
+
+            <ol class="pp-motion__rows">
+              <li class="pp-motion__row" data-pp-status="supported">
+                <p class="pp-motion__finding" data-pp-t="1.4 2.3">Zoning designation</p>
+                <p class="pp-motion__trace" data-pp-t="1.4 2.3">
+                  <span class="pp-motion__source">ZIMAS</span>
+                  <span class="pp-motion__line" aria-hidden="true"><i class="pp-motion__ink" data-pp-t="2.4 4.4" data-pp-m="2.9 4.9"></i></span>
+                  <span class="pp-motion__status" data-pp-t="3 5">SUPPORTED</span>
+                </p>
+              </li>
+              <li class="pp-motion__row" data-pp-status="conflict">
+                <p class="pp-motion__finding" data-pp-t="1.55 2.6">Fire hazard zone mapping</p>
+                <p class="pp-motion__trace" data-pp-t="1.55 2.6">
+                  <span class="pp-motion__source">CAL FIRE</span>
+                  <span class="pp-motion__line" aria-hidden="true"><i class="pp-motion__ink" data-pp-t="3.5 6.6"></i></span>
+                  <span class="pp-motion__neq" data-pp-m="4 7.1">≠</span>
+                  <span class="pp-motion__line" aria-hidden="true"><i class="pp-motion__ink" data-pp-t="3.5 6.6"></i></span>
+                  <span class="pp-motion__source">ZIMAS</span>
+                  <span class="pp-motion__status" data-pp-t="4.1 7.3">CONFLICT</span>
+                </p>
+                <p class="pp-motion__note" data-pp-t="4.3 7.6">Sources disagree. Both shown.</p>
+              </li>
+              <li class="pp-motion__row" data-pp-status="unknown">
+                <p class="pp-motion__finding" data-pp-t="1.7 2.9">Older permit records</p>
+                <p class="pp-motion__trace" data-pp-t="1.7 2.9">
+                  <span class="pp-motion__source">LADBS</span>
+                  <span class="pp-motion__line" aria-hidden="true" data-pp-m="5.2 10.2"></span>
+                  <span class="pp-motion__status" data-pp-t="5.6 10.8">UNKNOWN</span>
+                </p>
+                <p class="pp-motion__note" data-pp-t="5.8 11.1">Not found online. Not proof none exist.</p>
+              </li>
+            </ol>
+
+            <p class="pp-motion__foot" data-pp-t="6.5 13.2">EVERY FINDING CITED · REVIEWED BY A PERSON</p>
+
+            <div class="pp-motion__principle">
+              <span class="pp-motion__never"><span class="pp-motion__rise" data-pp-t="7.2 14">NEVER GUESS<span class="pp-motion__dot">.</span></span></span>
+              <span class="pp-motion__tagline" data-pp-t="7.9 15.2">Evidence first. Unknown when it isn't enough.</span>
+            </div>
           </div>
 
-          <ol class="pp-motion__rows">
-            <li class="pp-motion__row" data-pp-status="supported">
-              <p class="pp-motion__finding">Zoning designation</p>
-              <p class="pp-motion__trace">
-                <span class="pp-motion__source">ZIMAS</span>
-                <span class="pp-motion__line" aria-hidden="true"></span>
-                <span class="pp-motion__status">SUPPORTED</span>
-              </p>
-            </li>
-            <li class="pp-motion__row" data-pp-status="conflict">
-              <p class="pp-motion__finding">Fire hazard zone mapping</p>
-              <p class="pp-motion__trace">
-                <span class="pp-motion__source">CAL FIRE</span>
-                <span class="pp-motion__line" aria-hidden="true"></span>
-                <span class="pp-motion__neq">≠</span>
-                <span class="pp-motion__line" aria-hidden="true"></span>
-                <span class="pp-motion__source">ZIMAS</span>
-                <span class="pp-motion__status">CONFLICT</span>
-              </p>
-              <p class="pp-motion__note">Sources disagree. Both shown.</p>
-            </li>
-            <li class="pp-motion__row" data-pp-status="unknown">
-              <p class="pp-motion__finding">Older permit records</p>
-              <p class="pp-motion__trace">
-                <span class="pp-motion__source">LADBS</span>
-                <span class="pp-motion__line" aria-hidden="true"></span>
-                <span class="pp-motion__status">UNKNOWN</span>
-              </p>
-              <p class="pp-motion__note">Not found online. Not proof none exist.</p>
-            </li>
-          </ol>
-
-          <p class="pp-motion__foot">EVERY FINDING CITED · REVIEWED BY A PERSON</p>
-
-          <figcaption class="pp-motion__principle">
-            <span class="pp-motion__never">NEVER GUESS<span class="pp-motion__dot">.</span></span>
-            <span class="pp-motion__tagline">Evidence first. Unknown when it isn't enough.</span>
-          </figcaption>
+          <div class="pp-motion__actions">
+            <a class="pp-motion__cta" data-pp-t="8.5 16.4" href="#research-intake" data-pp-cta="true" data-pp-location="homepage_motion_intake">Send a property <span aria-hidden="true">→</span></a>
+            <button class="pp-motion__control" type="button" hidden>Pause</button>
+          </div>
         </figure>
       </div>
     </section>
