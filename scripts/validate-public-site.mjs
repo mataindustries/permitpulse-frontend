@@ -72,6 +72,22 @@ function duplicateIds(html) {
   return [...counts.entries()].filter(([, count]) => count > 1).map(([id]) => id);
 }
 
+// Opening tags still open at `index`; enough to check ancestry in hand-written static HTML.
+function openElementsBefore(html, index) {
+  const voidTags = new Set(["area", "base", "br", "col", "embed", "hr", "img", "input", "link", "meta", "source", "track", "wbr"]);
+  const stack = [];
+  for (const [tag, closing, rawName] of html.slice(0, index).matchAll(/<(\/?)([a-z][a-z0-9-]*)\b[^>]*>/gi)) {
+    const name = rawName.toLowerCase();
+    if (closing) {
+      const at = stack.map((entry) => entry.name).lastIndexOf(name);
+      if (at !== -1) stack.length = at;
+    } else if (!voidTags.has(name) && !tag.endsWith("/>")) {
+      stack.push({ name, tag });
+    }
+  }
+  return stack.map((entry) => entry.tag);
+}
+
 function redirectMatchers(source) {
   if (!source.includes("*")) return null;
   const escaped = source.split("*").map((part) => part.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join(".*");
@@ -97,6 +113,7 @@ const requiredFiles = [
   "assets/case-integrity-demo-data.json",
   "assets/platform-home.js",
   "assets/platform-home.css",
+  "assets/home-motion.css",
   "assets/site-check.js",
   "assets/site-check.css",
   "sitemap-pages.xml",
@@ -149,15 +166,17 @@ for (const name of auxSitemapNames) {
 }
 
 const homepageRequirements = [
-  "Permit Deep Research",
-  "Give us the address. We follow the paper trail.",
-  "PermitPulse turns scattered California permit and property records into one source-backed brief",
-  "California residential contractors and small builders",
-  "three addresses for $299 total",
-  "48 business hours per address",
-  "Research an address",
-  "See a redacted example",
-  "Find → Verify → Brief → Reuse → Reverify",
+  "Know what the official record says before you bet on the site.",
+  "Send a property",
+  "Never guess.",
+  "Parcel Research Brief",
+  "$149 per property",
+  "Three properties for $299 total.",
+  "within 48 business hours after scope and payment are confirmed",
+  "One round of follow-up questions within 14 days",
+  "SUPPORTED",
+  "CONFLICT",
+  "UNKNOWN",
   "data-pp-form-type=\"permit_deep_research\"",
   "data-pp-start-event=\"research_intake_start\"",
   "data-pp-submit-event=\"research_intake_success\""
@@ -169,6 +188,62 @@ check(home.includes("This confirms receipt only; it does not confirm acceptance,
 check(home.includes("formspree.io/f/mbdwdklj"), "Homepage retains established Formspree intake");
 check(home.includes("Names, emails, addresses, and request contents are not sent in analytics events."), "Homepage states analytics PII boundary");
 check(home.includes('href="/case-integrity/"'), "Homepage links to the Case Integrity demo");
+check(!home.includes("\u2014"), "Homepage copy has no em dash");
+const neverGuessSection = (home.match(/<section\b[^>]*\bid="never-guess"[^>]*>[\s\S]*?<\/section>/i) || [""])[0];
+const legalLotCard = (neverGuessSection.match(/<article\b[^>]*>([\s\S]*?)<\/article>/i) || ["", ""])[1];
+check(legalLotCard.replace(/\s+/g, " ").trim() === "<h3>A parcel line isn't proof of a legal lot.</h3> <p>City map parcels and assessor numbers don't establish legal-lot status. If that question matters, the brief flags it for review against recorded documents and the appropriate professional or agency.</p>", "Homepage legal-lot card flags professional or agency review without offering a determination");
+
+const homeIntakeSection = (home.match(/<section\b[^>]*\bid="research-intake"[^>]*>[\s\S]*?<\/section>/i) || [""])[0];
+const homeForm = (homeIntakeSection.match(/<form\b[^>]*>/i) || [""])[0];
+check(Boolean(homeIntakeSection), "Homepage keeps the #research-intake section");
+for (const [name, value] of [
+  ["id", "permit-deep-research-form"],
+  ["action", "https://formspree.io/f/mbdwdklj"],
+  ["data-pp-form-type", "permit_deep_research"],
+  ["data-pp-start-event", "research_intake_start"],
+  ["data-pp-submit-event", "research_intake_success"],
+  ["data-pp-success-target", "research-form-success"],
+  ["data-pp-error-target", "research-form-error"]
+]) {
+  check(attribute(homeForm, name) === value, "Homepage intake form keeps " + name + "=\"" + value + "\"");
+}
+check(/\sdata-pp-async-form[\s>]/.test(homeForm), "Homepage intake form stays async");
+for (const id of ["research-form-success", "research-form-error"]) {
+  check(homeIntakeSection.includes('id="' + id + '"'), "Homepage intake keeps #" + id);
+}
+for (const name of ["_subject", "form_name", "lead_type", "lead_source", "page_url"]) {
+  check(new RegExp('<input type="hidden" name="' + name + '"').test(homeIntakeSection), "Homepage intake keeps hidden " + name);
+}
+check(/name="_gotcha"[^>]*tabindex="-1"/.test(homeIntakeSection), "Homepage intake keeps the _gotcha honeypot");
+for (const name of ["property_address", "research_goal", "research_context", "name", "email"]) {
+  check(homeIntakeSection.includes('name="' + name + '"'), "Homepage intake keeps field " + name);
+}
+const researchGoalSelect = (homeIntakeSection.match(/<select name="research_goal"[\s\S]*?<\/select>/) || [""])[0];
+check(/<option>Planning a build or remodel<\/option>/.test(researchGoalSelect), "Homepage research_goal keeps the Site Check handoff option");
+const offerSelect = (homeIntakeSection.match(/<select name="properties_requested"[\s\S]*?<\/select>/) || [""])[0];
+if (offerSelect) {
+  check(/<option value="one"[^>]*>One \(\$149\)<\/option>/.test(offerSelect) && /<option value="three">Three \(\$299\)<\/option>/.test(offerSelect), "Homepage offer select uses only the one/three values");
+  check(formScript.includes('offerField.value === "one" || offerField.value === "three"'), "Intake analytics sends only the fixed offer value");
+}
+for (const location of ["homepage_nav_intake", "homepage_hero_intake", "homepage_hero_sample", "homepage_proof_case_integrity", "homepage_proof_sample", "homepage_footer_intake"]) {
+  check((home.match(new RegExp('data-pp-location="' + location + '"', "g")) || []).length === 1, "Homepage keeps CTA location " + location);
+}
+// Pre-V2 links and bookmarks point at /#workflow; it now lands on the proof process ledger.
+check((home.match(/\bid="workflow"/g) || []).length === 1, "Homepage keeps the legacy #workflow anchor");
+const caseIntegrityProofLink = (home.match(/<a\b[^>]*data-pp-location="homepage_proof_case_integrity"[^>]*>/) || [""])[0];
+check(attribute(caseIntegrityProofLink, "href") === "/case-integrity/" && attribute(caseIntegrityProofLink, "data-pp-event") === "pp_case_integrity_demo_open", "Homepage proof link opens the Case Integrity demo with its event");
+check(home.includes('href="/assets/home-motion.css"'), "Homepage links its hero card stylesheet");
+const heroCardIndex = home.indexOf('<figure class="pp-motion" data-pp-motion');
+check(heroCardIndex !== -1 && openElementsBefore(home, heroCardIndex).every((tag) => !/\sdata-reveal[\s>=]/.test(tag)), "Homepage hero card sits outside data-reveal");
+const homeOgImage = (home.match(/<meta property="og:image" content="https:\/\/getpermitpulse\.com\/([^"]+)"/) || [])[1] || "";
+check(Boolean(homeOgImage) && await exists(path.join(distRoot, homeOgImage)), "Homepage og:image exists in dist", homeOgImage);
+check(home.includes('<meta name="twitter:image" content="https://getpermitpulse.com/' + homeOgImage + '"'), "Homepage twitter:image matches og:image");
+const homeVisibleText = home.replace(/<script\b[\s\S]*?<\/script>/gi, " ").replace(/<[^>]+>/g, " ");
+const overclaimHits = ["verified", "accurate", "guaranteed", "AI-powered", "instant", "eligible", "buildable", "complete", "trusted by"]
+  .filter((word) => new RegExp("\\b" + word + "\\b", "i").test(homeVisibleText));
+check(overclaimHits.length === 0, "Homepage copy avoids overclaiming words", overclaimHits.join(", "));
+const heroCardStylesheetElsewhere = [...htmlByRel.entries()].filter(([name, html]) => name !== "index.html" && html.includes("home-motion.css")).map(([name]) => name);
+check(heroCardStylesheetElsewhere.length === 0, "Hero card stylesheet stays homepage-only", heroCardStylesheetElsewhere.join(", "));
 
 const caseIntegrityDemoRequirements = [
   "See what PermitPulse catches before you build.",
@@ -224,9 +299,11 @@ check(demoUnknown.confidence?.conclusion === null, "Public Case Integrity unknow
 const homeJson = jsonLdBlocks(home, "dist/index.html");
 const service = homeJson.find((item) => item && item["@type"] === "Service");
 check(Boolean(service), "Homepage has Service structured data");
-check(service && service.name === "Permit Deep Research", "Structured service uses the chosen offer");
-check(service && service.offers && String(service.offers.price) === "299", "Structured offer preserves $299 price");
-check(service && service.areaServed && service.areaServed.name === "California", "Structured offer states California coverage");
+const serviceOffers = service && Array.isArray(service.offers) ? service.offers : [];
+check(service && service.name === "Parcel Research Brief", "Structured service uses the chosen offer");
+check(serviceOffers.map((offer) => String(offer.price) + " " + offer.priceCurrency).join("|") === "149 USD|299 USD", "Structured offers are $149 one property and $299 three properties");
+check(serviceOffers.every((offer) => /no online checkout/.test(offer.description || "")), "Structured offers do not imply online checkout");
+check(service && service.areaServed && service.areaServed.name === "City of Los Angeles", "Structured offer states City of Los Angeles coverage");
 
 check(sample.includes("Actual completed research"), "Sample identifies actual completed research");
 check(sample.includes("anonymized reconstruction"), "Sample labels the reconstruction");
@@ -285,19 +362,22 @@ check(formScript.indexOf('if (!response.ok) throw new Error("form_submit_failed"
 check(formScript.includes(".catch(function ()"), "Async intake exposes intentional failure state");
 
 const publicForStaleScan = [...htmlByRel.entries()].filter(([name]) => name !== "sgv-ev-battery-radar.html");
+// $149 is the current homepage Parcel Research Brief price; it stays retired everywhere else.
+const currentOfferPages = new Set(["index.html"]);
 const stalePatterns = [
   ["Stripe checkout link", /buy\.stripe\.com/i],
   ["old Permit Review Plus name", /Permit Review Plus/i],
-  ["old $149 offer", /\$149\b/],
+  ["old $149 offer", /\$149\b/, currentOfferPages],
   ["old $249 offer", /\$249\b/],
   ["old Mission Control position", /Mission Control/i],
   ["old Instant Snapshot position", /Instant Snapshot/i],
   ["invented Red Tape fallback records", /fallback_demo|DEMO-(?:ADU|TI|MF|SOLAR|ADD)/i],
-  ["old subscription price schema", /"price"\s*:\s*"(?:29|99|149|249|300)(?:\.00)?"/i],
+  ["old subscription price schema", /"price"\s*:\s*"(?:29|99|249|300)(?:\.00)?"/i],
+  ["old $149 price schema", /"price"\s*:\s*"149(?:\.00)?"/i, currentOfferPages],
   ["mislabeled city-dataset proxy content", /LADBS (?:CSV|dataset) filtered by (?:keyword|topic)/i]
 ];
-for (const [label, pattern] of stalePatterns) {
-  const hits = publicForStaleScan.filter(([, html]) => pattern.test(html)).map(([name]) => name);
+for (const [label, pattern, allowedPages = new Set()] of stalePatterns) {
+  const hits = publicForStaleScan.filter(([name, html]) => !allowedPages.has(name) && pattern.test(html)).map(([name]) => name);
   check(hits.length === 0, "No " + label, hits.slice(0, 8).join(", "));
 }
 
