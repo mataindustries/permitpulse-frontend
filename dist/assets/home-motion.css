@@ -1,0 +1,284 @@
+/* Homepage hero card: the finished "Never guess" Parcel Research Brief.
+   Static final frame only. Every selector is scoped to .pp-motion.
+   Line semantics: solid jade = supported, split coral = conflict,
+   dashed neutral = unknown / not established. The parcel is never jade. */
+
+.pp-motion {
+  --pp-motion-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+  --pp-motion-jade: var(--jade, #35cf91);
+  --pp-motion-coral-line: var(--coral, #ef6542);
+  --pp-motion-coral-text: #ff8d70;
+  --pp-motion-neutral: #a3b8ad;
+  --pp-motion-hair: rgba(163, 184, 173, 0.5);
+  --pp-motion-rule: var(--line-dark, rgba(119, 235, 184, 0.17));
+  container-type: inline-size;
+  width: 100%;
+  max-width: 440px;
+  margin: 0;
+  padding: 22px 24px 24px;
+  border: 1px solid var(--pp-motion-rule);
+  border-radius: 18px;
+  color: #e8f6ee;
+  background: var(--night-soft, #081a13);
+  text-align: left;
+}
+
+.pp-motion p {
+  margin: 0;
+}
+
+.pp-motion__head {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: start;
+  column-gap: 14px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--pp-motion-rule);
+}
+
+.pp-motion__kicker {
+  color: #83e8b8;
+  font-family: var(--pp-motion-mono);
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  line-height: 1.4;
+}
+
+.pp-motion .pp-motion__address {
+  margin-top: 6px;
+  color: #f4fff9;
+  font-size: 1.05rem;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  line-height: 1.25;
+}
+
+.pp-motion .pp-motion__sub {
+  margin-top: 3px;
+  color: var(--pp-motion-neutral);
+  font-family: var(--pp-motion-mono);
+  font-size: 0.66rem;
+  line-height: 1.4;
+}
+
+.pp-motion__parcel {
+  grid-row: 1;
+  grid-column: 2;
+  width: 96px;
+  height: auto;
+  overflow: visible;
+}
+
+.pp-motion__lot {
+  fill: none;
+  stroke: var(--pp-motion-neutral);
+  stroke-width: 1.25;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+}
+
+.pp-motion__guide {
+  fill: none;
+  stroke: rgba(163, 184, 173, 0.16);
+  stroke-width: 1;
+  stroke-dasharray: 2 3;
+  vector-effect: non-scaling-stroke;
+}
+
+.pp-motion .pp-motion__parcel-caption {
+  grid-column: 1 / -1;
+  justify-self: end;
+  margin-top: 6px;
+  color: var(--pp-motion-neutral);
+  font-family: var(--pp-motion-mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.06em;
+  line-height: 1.4;
+}
+
+.pp-motion__rows {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.pp-motion__row {
+  padding: 11px 0;
+  border-bottom: 1px solid var(--pp-motion-rule);
+}
+
+.pp-motion__finding {
+  color: #eef9f3;
+  font-size: 0.9rem;
+  font-weight: 700;
+  line-height: 1.3;
+}
+
+.pp-motion .pp-motion__trace {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  min-width: 0;
+  margin-top: 7px;
+}
+
+.pp-motion__source {
+  flex: none;
+  padding: 2px 6px;
+  border: 1px solid rgba(163, 184, 173, 0.28);
+  border-radius: 4px;
+  color: #cfe0d6;
+  font-family: var(--pp-motion-mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.06em;
+  line-height: 1.4;
+  white-space: nowrap;
+}
+
+/* Default evidence line: dashed neutral until a label settles it. */
+.pp-motion__line {
+  position: relative;
+  flex: 1 1 auto;
+  min-width: 12px;
+  height: 0;
+  border-top: 1.5px dashed var(--pp-motion-hair);
+}
+
+.pp-motion__neq {
+  flex: none;
+  font-family: var(--pp-motion-mono);
+  font-size: 0.95rem;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.pp-motion__status {
+  flex: none;
+  margin-left: auto;
+  padding: 3px 7px;
+  border: 1px solid var(--pp-motion-hair);
+  border-radius: 5px;
+  font-family: var(--pp-motion-mono);
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  line-height: 1.3;
+  white-space: nowrap;
+}
+
+.pp-motion .pp-motion__note {
+  margin-top: 6px;
+  color: var(--pp-motion-neutral);
+  font-family: var(--pp-motion-mono);
+  font-size: 0.66rem;
+  line-height: 1.4;
+}
+
+.pp-motion__row[data-pp-status="supported"] .pp-motion__line {
+  border-top: 2px solid var(--pp-motion-jade);
+}
+
+.pp-motion__row[data-pp-status="supported"] .pp-motion__status {
+  border-color: rgba(53, 207, 145, 0.7);
+  color: var(--pp-motion-jade);
+}
+
+.pp-motion__row[data-pp-status="conflict"] .pp-motion__line {
+  border-top: 2px solid var(--pp-motion-coral-line);
+}
+
+.pp-motion__row[data-pp-status="conflict"] .pp-motion__neq,
+.pp-motion__row[data-pp-status="conflict"] .pp-motion__status {
+  color: var(--pp-motion-coral-text);
+}
+
+.pp-motion__row[data-pp-status="conflict"] .pp-motion__status {
+  border-color: var(--pp-motion-coral-line);
+}
+
+.pp-motion__row[data-pp-status="unknown"] .pp-motion__line {
+  flex: 0 1 46%;
+}
+
+/* Stop tick: the trace ends before it reaches an answer. */
+.pp-motion__row[data-pp-status="unknown"] .pp-motion__line::after {
+  content: "";
+  position: absolute;
+  top: -5.5px;
+  right: -1px;
+  height: 10px;
+  border-right: 1.5px solid var(--pp-motion-neutral);
+}
+
+.pp-motion__row[data-pp-status="unknown"] .pp-motion__status {
+  border-style: dashed;
+  border-color: var(--pp-motion-neutral);
+  color: var(--pp-motion-neutral);
+}
+
+.pp-motion .pp-motion__foot {
+  padding: 11px 0;
+  border-bottom: 1px solid var(--pp-motion-rule);
+  color: var(--pp-motion-neutral);
+  font-family: var(--pp-motion-mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.1em;
+  line-height: 1.4;
+}
+
+.pp-motion__principle {
+  display: block;
+  padding-top: 14px;
+}
+
+/* Subordinate to the H1: about 0.75 of its size, capped so it stays on one line. */
+.pp-motion__never {
+  display: block;
+  color: #f4fff9;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: calc(var(--pp-h1-size, 3rem) * 0.75);
+  font-size: min(calc(var(--pp-h1-size, 3rem) * 0.75), 12cqi);
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  line-height: 1;
+  white-space: nowrap;
+}
+
+.pp-motion__dot {
+  color: var(--pp-motion-jade);
+}
+
+.pp-motion__tagline {
+  display: block;
+  margin-top: 8px;
+  color: #b6c9be;
+  font-size: 0.86rem;
+  line-height: 1.4;
+}
+
+@media (max-width: 560px) {
+  .pp-motion {
+    padding: 16px 16px 18px;
+  }
+
+  .pp-motion__parcel {
+    width: 84px;
+  }
+
+  .pp-motion__row {
+    padding: 10px 0;
+  }
+
+  .pp-motion__finding {
+    font-size: 0.86rem;
+  }
+
+  .pp-motion .pp-motion__trace {
+    gap: 6px;
+  }
+
+  .pp-motion__tagline {
+    font-size: 0.8rem;
+  }
+}

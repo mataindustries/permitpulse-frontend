@@ -43,10 +43,16 @@
   }
 
   function formEventPayload(form) {
-    return {
+    var payload = {
       form_type: form.getAttribute("data-pp-form-type") || "lead",
       page_path: window.location.pathname || "/"
     };
+    // Offer size only: a fixed option value, never free text or contact details.
+    var offerField = form.elements.namedItem("properties_requested");
+    if (offerField && (offerField.value === "one" || offerField.value === "three")) {
+      payload.offer = offerField.value;
+    }
+    return payload;
   }
 
   function prefillSiteCheckIntake() {
