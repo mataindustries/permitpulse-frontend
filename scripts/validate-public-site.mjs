@@ -6,6 +6,7 @@ const repoRoot = path.resolve(path.dirname(fileURLToPath(import.meta.url)), ".."
 const distRoot = path.join(repoRoot, "dist");
 const failures = [];
 const passes = [];
+const notes = [];
 
 function check(condition, label, detail = "") {
   if (condition) {
@@ -115,6 +116,11 @@ const requiredFiles = [
   "assets/platform-home.css",
   "assets/home-motion.css",
   "assets/home-motion.js",
+  "assets/never-guess.css",
+  "assets/never-guess.js",
+  "assets/fonts/archivo-pp.woff2",
+  "assets/fonts/OFL-Archivo.txt",
+  "favicon.svg",
   "assets/site-check.js",
   "assets/site-check.css",
   "sitemap-pages.xml",
@@ -171,7 +177,6 @@ for (const name of auxSitemapNames) {
 }
 
 const homepageRequirements = [
-  "Know what the official record says before you bet on the site.",
   "Send a property",
   "Never guess.",
   "Parcel Research Brief",
@@ -230,8 +235,16 @@ if (offerSelect) {
   check(/<option value="one"[^>]*>One \(\$149\)<\/option>/.test(offerSelect) && /<option value="three">Three \(\$299\)<\/option>/.test(offerSelect), "Homepage offer select uses only the one/three values");
   check(formScript.includes('offerField.value === "one" || offerField.value === "three"'), "Intake analytics sends only the fixed offer value");
 }
-for (const location of ["homepage_nav_intake", "homepage_hero_intake", "homepage_hero_sample", "homepage_proof_case_integrity", "homepage_proof_sample", "homepage_footer_intake", "homepage_motion_intake"]) {
+const researchCtaLocations = ["homepage_nav_intake", "homepage_hero_intake", "homepage_motion_intake", "homepage_services_parcel", "homepage_dock_intake", "homepage_film_end_intake", "homepage_footer_intake"];
+const workflowCtaLocations = ["homepage_hero_workflow", "homepage_services_triage", "homepage_services_workflow", "homepage_dock_workflow", "homepage_film_end_workflow"];
+for (const location of [...researchCtaLocations, ...workflowCtaLocations, "homepage_proof_case_integrity", "homepage_proof_sample"]) {
   check((home.match(new RegExp('data-pp-location="' + location + '"', "g")) || []).length === 1, "Homepage keeps CTA location " + location);
+}
+for (const [locations, eventName] of [[researchCtaLocations, "pp_research_cta_click"], [workflowCtaLocations, "pp_workflow_cta_click"]]) {
+  for (const location of locations) {
+    const tag = (home.match(new RegExp('<a\\b[^>]*data-pp-location="' + location + '"[^>]*>')) || [""])[0];
+    check(attribute(tag, "data-pp-event") === eventName, "CTA " + location + " reports " + eventName);
+  }
 }
 // Pre-V2 links and bookmarks point at /#workflow; it now lands on the proof process ledger.
 check((home.match(/\bid="workflow"/g) || []).length === 1, "Homepage keeps the legacy #workflow anchor");
@@ -252,7 +265,7 @@ check(heroCardStylesheetElsewhere.length === 0, "Hero card stylesheet stays home
 
 // Hero card motion: an enhancement over the static final frame, never a dependency.
 const heroCta = (home.match(/<a\b[^>]*data-pp-location="homepage_hero_intake"[^>]*>[\s\S]*?<\/a>/) || [""])[0];
-check(attribute(heroCta, "href") === "#research-intake" && attribute(heroCta, "data-pp-cta") === "true" && heroCta.includes(">Send a property "), "Hero CTA still sends a property to #research-intake");
+check(attribute(heroCta, "href") === "#research-intake" && attribute(heroCta, "data-pp-cta") === "true" && heroCta.includes(">Have a property? Send it. "), "Hero CTA asks for a property and opens #research-intake");
 check(home.includes('<script defer src="/assets/home-motion.js"></script>'), "Homepage loads the hero card motion script with defer");
 const heroMotionScriptElsewhere = [...htmlByRel.entries()].filter(([name, html]) => name !== "index.html" && html.includes("home-motion.js")).map(([name]) => name);
 check(heroMotionScriptElsewhere.length === 0, "Hero card motion script stays homepage-only", heroMotionScriptElsewhere.join(", "));
@@ -275,6 +288,104 @@ check(motionNetworkHits.length === 0, "Hero card motion script makes no network 
 check(!/infinite/i.test(homeMotionCss + homeMotionScript), "Hero card motion never loops");
 check(!(homeMotionCss + homeMotionScript).includes("\u2014"), "Hero card motion has no em dash");
 check(Buffer.byteLength(homeMotionCss) <= 10240 && Buffer.byteLength(homeMotionScript) <= 5120, "Hero card motion stays within 10KB CSS and 5KB JS", Buffer.byteLength(homeMotionCss) + " / " + Buffer.byteLength(homeMotionScript));
+
+// Never Guess campaign: film-led hero, workflow inquiries, and launch boundaries.
+const campaignCss = (await exists(path.join(distRoot, "assets/never-guess.css"))) ? await readFile(path.join(distRoot, "assets/never-guess.css"), "utf8") : "";
+const campaignScript = (await exists(path.join(distRoot, "assets/never-guess.js"))) ? await readFile(path.join(distRoot, "assets/never-guess.js"), "utf8") : "";
+const homeText = homeVisibleText.replace(/\s+/g, " ");
+for (const required of ["The maps disagree.", "Every finding labeled. Every label cited.", "Have a property? Send it.", "Where is your project getting stuck?", "Parcel Evidence Research", "Permit &amp; Clearance Triage", "Plan-Set &amp; Workflow Diagnostics"]) {
+  check(home.includes(required), "Campaign homepage includes " + required);
+}
+check(/<h1\b[^>]*>\s*<span class="ng-hero__statement"><span>NEVER<\/span> <span>GUESS<i>\.<\/i><\/span><\/span>\s*<span class="ng-hero__descriptor">Cited parcel research for Los Angeles properties\.<\/span>\s*<\/h1>/.test(home), "H1 is NEVER GUESS. with the descriptive search phrase");
+check((home.match(/<strong>City of Los Angeles first\.<\/strong><br \/>Anywhere else\? Just Ask\./g) || []).length === 2, "Geographic qualifier appears exactly as approved in the hero and intake");
+for (const id of ["home", "film", "never-guess", "how", "brief", "proof", "workflow", "services", "research-intake", "inquire"]) {
+  check((home.match(new RegExp('\\bid="' + id + '"', "g")) || []).length === 1, "Homepage keeps the #" + id + " anchor");
+}
+
+const servicesSection = (home.match(/<section\b[^>]*\bid="services"[^>]*>[\s\S]*?<\/section>/i) || [""])[0];
+const pathCards = servicesSection.split(/<li class="ng-path(?: ng-path--live)?"/).slice(1);
+check(pathCards.length === 3, "Services offer exactly three inquiry paths");
+check(Boolean(pathCards[0]) && pathCards[0].includes(">Available now<") && pathCards[0].includes("Parcel Evidence Research") && pathCards[0].includes('href="#research-intake"'), "Parcel Evidence Research is the one available service");
+check(Boolean(pathCards[1]) && pathCards[1].includes(">Scoped consultation<") && pathCards[1].includes('data-inquiry-path="permit_triage"'), "Permit & Clearance Triage is a scoped consultation");
+check(Boolean(pathCards[2]) && pathCards[2].includes(">Pilot inquiry<") && pathCards[2].includes('data-inquiry-path="workflow_diagnostics"'), "Plan-Set & Workflow Diagnostics is a pilot inquiry");
+check(pathCards.slice(1).every((card) => !card.includes("Available now") && !/\$\d/.test(card)), "Scoped paths are not presented as available, priced products");
+
+check(homeText.includes("not affiliated with or endorsed by any government agency or professional association"), "Homepage states independence from agencies and associations");
+check(homeText.includes("We don't promise approvals or faster agency processing"), "Homepage disclaims approvals and faster processing");
+check(homeText.includes("licensed architectural, engineering, or legal services"), "Homepage disclaims licensed professional services");
+const boundaryHits = [/\bAIA\b/, /roundtable/i, /guarantee/i, /official partner/i, /faster approvals?/i, /\bapproved by\b/i, /\bwe (?:file|submit|expedite)\b/i, /trusted by/i]
+  .filter((pattern) => pattern.test(homeText)).map(String);
+check(boundaryHits.length === 0, "Homepage makes no affiliation, endorsement, approval, or speed claims", boundaryHits.join(", "));
+
+const workflowForm = (home.match(/<form\b[^>]*id="workflow-inquiry-form"[^>]*>[\s\S]*?<\/form>/) || [""])[0];
+const workflowFormTag = (workflowForm.match(/<form\b[^>]*>/) || [""])[0];
+for (const [name, value] of [
+  ["action", "https://formspree.io/f/mbdwdklj"],
+  ["data-pp-form-type", "workflow_inquiry"],
+  ["data-pp-start-event", "workflow_inquiry_start"],
+  ["data-pp-submit-event", "workflow_inquiry_success"],
+  ["data-pp-success-target", "workflow-form-success"],
+  ["data-pp-error-target", "workflow-form-error"]
+]) {
+  check(attribute(workflowFormTag, name) === value, "Workflow inquiry form keeps " + name + "=\"" + value + "\"");
+}
+check(/\sdata-pp-async-form[\s>]/.test(workflowFormTag), "Workflow inquiry form is async");
+check(/name="_gotcha"[^>]*tabindex="-1"/.test(workflowForm), "Workflow inquiry form has the _gotcha honeypot");
+for (const name of ["_subject", "form_name", "lead_type", "lead_source", "page_url"]) {
+  check(new RegExp('<input type="hidden" name="' + name + '"').test(workflowForm), "Workflow inquiry keeps hidden " + name);
+}
+check(!/name="(?:property_address|project_address|address|permit_number)"/.test(workflowForm), "Workflow inquiry needs no property address");
+check(!/stripe|checkout/i.test(workflowForm), "Workflow inquiry takes no payment");
+const workflowRequired = [...workflowForm.matchAll(/<(?:input|select|textarea)\b[^>]*\srequired[\s>][^>]*>|<(?:input|select|textarea)\b[^>]*\srequired\s*\/?>/g)].map((match) => attribute(match[0], "name")).sort();
+check(workflowRequired.join(",") === "email,inquiry_details,inquiry_path,name", "Workflow inquiry requires only path, description, name, and email", workflowRequired.join(","));
+check((home.match(/<input type="checkbox" name="discovery_call" value="requested" \/>/g) || []).length === 2, "Both inquiry forms can request a 15-minute discovery call");
+check(home.includes("This confirms receipt only; it does not confirm a scope, a price, or a call time."), "Workflow inquiry success state is receipt-only");
+check(!/calendly|cal\.com|\/book\/|\/api\/book/i.test(home), "Discovery call is a request, not a booking integration");
+check(formScript.includes('["permit_triage", "workflow_diagnostics", "parcel_question", "other"].indexOf(pathField.value)'), "Workflow analytics sends only fixed inquiry paths");
+check(formScript.includes('payload.call_requested = callField.checked ? "yes" : "no"'), "Call-request analytics sends only yes or no");
+check(!/inquiry_details|inquiry_jurisdiction|call_availability/.test(formScript + tracking + campaignScript), "Analytics scripts never read workflow free-text fields");
+
+const filmFigure = (home.match(/<figure class="ng-film"[^>]*>/) || [""])[0];
+const filmReady = attribute(filmFigure, "data-film-ready");
+const theater = (home.match(/<dialog class="ng-theater"[\s\S]*?<\/dialog>/) || [""])[0];
+check(filmReady === "true" || filmReady === "false", "Film figure declares data-film-ready");
+check(/<video\b[^>]*\spreload="none"/.test(theater) && /<video\b[^>]*\splaysinline/.test(theater) && !/<video\b[^>]*\s(?:autoplay|src=)/.test(home), "Film loads nothing until play: preload none, no autoplay, no static src");
+const filmButtons = home.match(/<button\b[^>]*data-film-open[^>]*>/g) || [];
+check(filmButtons.length === 2 && filmButtons.every((tag) => /\shidden[\s>]/.test(tag)), "Film play buttons start hidden");
+check(campaignScript.includes('film.getAttribute("data-film-ready") !== "true"'), "Film player stays off until the film is placed");
+if (filmReady === "true") {
+  for (const [label, url, limit] of [["film", attribute(filmFigure, "data-film-src"), 25 * 1024 * 1024], ["poster", attribute(filmFigure, "data-film-poster"), 300 * 1024]]) {
+    const file = path.join(distRoot, url.replace(/^\//, ""));
+    const present = await exists(file);
+    check(present, "Homepage film " + label + " exists", url);
+    if (present) check((await stat(file)).size <= limit, "Homepage film " + label + " fits its size limit", String((await stat(file)).size));
+  }
+} else {
+  notes.push("Film not placed yet: the hero shows the drawn title card. Run npm run film:prepare -- <locked master> before launch.");
+}
+const oversized = [];
+for (const file of allFiles) if ((await stat(file)).size > 25 * 1024 * 1024) oversized.push(rel(file));
+check(oversized.length === 0, "No public file exceeds the 25 MiB Cloudflare Pages limit", oversized.join(", "));
+
+const campaignEvents = [...campaignScript.matchAll(/track\("([a-z_]+)"/g)].map((match) => match[1]).sort();
+check(campaignEvents.join(",") === "pp_film_close,pp_film_complete,pp_film_error,pp_film_open,pp_film_play,pp_film_progress,pp_inquiry_tab", "Campaign script reports only film and inquiry-tab events", campaignEvents.join(", "));
+const campaignNetworkHits = ["fetch(", "XMLHttpRequest", "sendBeacon", "import("].filter((token) => campaignScript.includes(token));
+check(campaignNetworkHits.length === 0, "Campaign script makes no network requests of its own", campaignNetworkHits.join(", "));
+check((campaignScript.match(/\.value\b/g) || []).length === 1 && campaignScript.includes("field.value = path"), "Campaign script only writes the preselected inquiry path, never reads form values");
+check(campaignCss.includes("@media (prefers-reduced-motion: reduce)"), "Campaign CSS respects reduced motion");
+check(campaignCss.includes(":focus-visible"), "Campaign CSS has visible keyboard focus");
+check(campaignCss.includes("@media (max-width: 400px)") && campaignCss.includes("@media (max-width: 360px)"), "Campaign CSS covers narrow Android widths");
+check(campaignCss.includes("env(safe-area-inset-bottom)"), "Campaign CSS respects mobile safe areas");
+check(!/infinite/i.test(campaignCss + campaignScript), "Campaign motion never loops");
+check(!(campaignCss + campaignScript).includes("—"), "Campaign assets have no em dash");
+check(Buffer.byteLength(campaignCss) <= 48 * 1024 && Buffer.byteLength(campaignScript) <= 12 * 1024, "Campaign CSS and JS stay within 48 KB and 12 KB", Buffer.byteLength(campaignCss) + " / " + Buffer.byteLength(campaignScript));
+const fontFile = path.join(distRoot, "assets/fonts/archivo-pp.woff2");
+check((await exists(fontFile)) && (await stat(fontFile)).size <= 60 * 1024, "Self-hosted display font subset stays under 60 KB");
+check(!/fonts\.googleapis|fonts\.gstatic/i.test(home), "Homepage fonts are self-hosted");
+check(!home.includes("platform-home.css"), "Homepage loads only its own stylesheets");
+check(home.includes('<script defer src="/assets/never-guess.js"></script>'), "Homepage loads the campaign script with defer");
+const campaignAssetsElsewhere = [...htmlByRel.entries()].filter(([name, html]) => name !== "index.html" && /never-guess\.(?:css|js)/.test(html)).map(([name]) => name);
+check(campaignAssetsElsewhere.length === 0, "Campaign stylesheet and script stay homepage-only", campaignAssetsElsewhere.join(", "));
 
 const caseIntegrityDemoRequirements = [
   "See what PermitPulse catches before you build.",
@@ -644,6 +755,7 @@ check(brokenLinks.size === 0, "Internal links resolve to a file or explicit redi
 console.log("PermitPulse public validation");
 console.log("PASS " + passes.length);
 for (const label of passes) console.log("  ✓ " + label);
+for (const note of notes) console.log("NOTE " + note);
 if (failures.length) {
   console.error("FAIL " + failures.length);
   for (const failure of failures) console.error("  ✗ " + failure);

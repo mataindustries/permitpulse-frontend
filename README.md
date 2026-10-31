@@ -4,20 +4,19 @@ PermitPulse is ENM Ventures’ permit and property-record research brand. The pu
 
 ## Current customer offer
 
-**Permit Deep Research** is a manually reviewed, source-backed brief for California residential contractors and small builders evaluating an address before they bid, buy, or build.
+The homepage runs the **Never Guess** campaign, the continuation of the film *The Maps Disagree*. See **docs/NEVER_GUESS_CAMPAIGN_LAUNCH.md**.
 
-- Promise: **Give us the address. We follow the paper trail.**
-- Founding offer: **three California addresses for $299 total**
-- Delivery target: **within 48 business hours per address**, after scope confirmation and receipt of required information
-- Transaction path: request a scope review; payment is arranged only after a request is accepted
-- Primary CTA: **Research an address**
-- Secondary CTA: **See a redacted example**
+- Promise: **Every finding labeled. Every label cited.** (SUPPORTED / CONFLICT / UNKNOWN)
+- Available now: **Parcel Research Brief**, $149 per property introductory or three for $299, City of Los Angeles first; elsewhere by scope confirmation
+- Delivery target: **within 48 business hours** after scope and payment are confirmed
+- Scoped conversations, no payment or address required: Permit & Clearance Triage, Plan-Set & Workflow Diagnostics
+- Primary CTA: **Have a property? Send it.** Secondary: **Just Ask** (workflow inquiry, optional 15-minute discovery call request)
 
 PermitPulse does not guarantee approval, completeness, code compliance, entitlement, ownership, access, or project feasibility and does not replace an architect, attorney, engineer, contractor, surveyor, title professional, or agency.
 
 ## Core routes
 
-- **/** — Permit Deep Research offer and the only address-research intake
+- **/** — Never Guess campaign homepage: the only address-research intake plus the no-address workflow inquiry
 - **/sample-report/** — anonymized reconstruction of actual completed research
 - **/resources/** — Permit Drops, Paper Trail Playbooks, and Permit Nightmares
 - **/about/** — ENM Ventures / PermitPulse / SGV Turf brand architecture and operator model
@@ -44,6 +43,14 @@ Preview the static site:
 Run public-site validation:
 
     npm run check
+
+Run the homepage browser checks (needs Playwright with Chromium):
+
+    npm run test:homepage
+
+Place the locked film on the homepage (needs ffmpeg):
+
+    npm run film:prepare -- /path/to/locked-master.mp4 --poster-at 14.2
 
 Run the internal case-workspace checks:
 
