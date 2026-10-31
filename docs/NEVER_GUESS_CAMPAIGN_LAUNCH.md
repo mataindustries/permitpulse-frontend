@@ -1,6 +1,6 @@
 # Never Guess campaign launch
 
-Prepared: 2026-10-31. Branch: `feat/never-guess-campaign-launch`.
+Prepared: 2026-10-31. Updated with the released film the same day. Branch: `feat/never-guess-campaign-launch`.
 
 The homepage is now the continuation of the picture-locked 28-second film **THE MAPS DISAGREE**: a film-led hero, the cited-research promise, proof, three inquiry paths, and two working intake forms. This is a conversion and branding pass. The research product, sample report, Case Integrity demo, legal pages, routes, and redirects are unchanged.
 
@@ -9,12 +9,13 @@ The homepage is now the continuation of the picture-locked 28-second film **THE 
 | Area | Change |
 | --- | --- |
 | `dist/index.html` | New film-led homepage: hero, why it matters, how it works, proof, services, intake with two tabs, mobile CTA dock, film theater dialog. |
-| `dist/assets/never-guess.css` | Homepage-only visual system (charcoal/black, bone type, amber evidence accents). Replaces the 64 KB shared stylesheet on the homepage only. |
+| `dist/assets/never-guess.css` | Homepage-only visual system sampled from the film (see *Film match*). Replaces the 64 KB shared stylesheet on the homepage only. |
 | `dist/assets/never-guess.js` | Film theater, inquiry tabs, mobile dock. No network requests of its own. |
-| `dist/assets/home-motion.css` | Existing brief-card animation recolored from jade to the amber system. Timing and fallbacks unchanged. |
+| `dist/assets/home-motion.css` | Existing brief-card animation recolored to the film palette. Timing and fallbacks unchanged. |
 | `dist/assets/platform-home.js` | Success events also carry `inquiry_path` and `call_requested` (fixed values only). |
-| `dist/assets/fonts/` | Self-hosted Archivo variable subset (48 KB, OFL license included). |
-| `dist/favicon.svg`, OG image | Transparent vector mark; new 1200×630 `permitpulse-og-the-maps-disagree.png`. |
+| `dist/assets/fonts/` | Self-hosted Inter variable subset (26 KB, OFL license included). |
+| Logo, favicon, OG image | The film's lockup as one inline SVG symbol (header and footer); matching favicon; 1200×630 `permitpulse-og-the-maps-disagree.png` with the 8.5 s film frame. |
+| `dist/assets/film/` | The released film, remuxed stream-for-stream, and its 8.5 s poster frame. |
 | `dist/thank-you/` | No-JS return page now covers both research requests and workflow inquiries. |
 | `dist/_headers` | Long cache for fonts; one-week cache for film files. |
 | `scripts/prepare-film.mjs` | Places the locked film and poster frame; switches the hero to the film. |
@@ -26,9 +27,26 @@ The homepage is now the continuation of the picture-locked 28-second film **THE 
 - Brand statement: **NEVER GUESS.** (H1, with "Cited parcel research for Los Angeles properties." in the same heading for search).
 - Narrative: **THE MAPS DISAGREE.** (hero kicker, film title card, section 01).
 - Promise: **Every finding labeled. Every label cited.**
-- Evidence labels: **SUPPORTED / CONFLICT / UNKNOWN** with one line style each (solid amber, split vermilion with ≠, dashed ash stopped short).
+- Evidence labels: **SUPPORTED / CONFLICT / UNKNOWN** with one line style each (solid copper, split terracotta with ≠, dashed and stopped short). CONFLICT chips are filled terracotta, as in the film.
 - Primary CTA: **HAVE A PROPERTY? SEND IT.**
 - Geography, verbatim in the hero and the intake: **City of Los Angeles first. / Anywhere else? Just Ask.** The offer card adds that properties outside the City are scope-confirmed by email before anything is agreed or paid.
+
+## Film match
+
+Sampled from the released master (BT.709 frames) and applied as tokens, without changing the layout:
+
+| Element | Film | Site |
+| --- | --- | --- |
+| Logo | Dark hexagon, jade ring and top/bottom chevrons; "Permit" white, "Pulse" jade, Open Sans Bold, slightly tight | Same lockup redrawn as SVG paths from Open Sans Bold at −0.02em (ink width within 1 px of the film at 1080 px); no raster, no background box |
+| Jade | `#35c58c`, identity only | `--brand-accent`, identity only |
+| Grounds | Opening black `#000101`; end card slate `#0f1c22` | Page `#020303`; alternate sections, including the intake, in end-card slate |
+| Headline type | Inter Bold/ExtraBold, normal width, mint-white `#f2fdf7` | Inter (self-hosted), weight 800, −0.035em, `#f2fdf7` |
+| Labels | Monospace uppercase ("ILLUSTRATIVE EXAMPLE · FICTIONAL PARCEL") | Kickers and metadata in the system monospace stack |
+| Amber | Rule under NEVER GUESS and brief border `#b37326`; lit parcel lines `#e09858` | Rules, borders, and evidence lines `#b37326`; amber text and the primary button `#e09858` (the darker tone is under 4.5:1 for small text on slate) |
+| Conflict | Filled chip `#9c4b39` | Filled chips `#9c4b39`; conflict lines `#c0604a` for visibility on dark |
+| End card | NEVER GUESS. with copper rule; HAVE A PROPERTY? SEND IT. | Hero H1 carries the same copper rule; the intake section repeats the end card on slate |
+
+The visually hidden description on the film lists its on-screen text for screen readers.
 
 ## Services and honesty boundaries
 
@@ -70,35 +88,43 @@ No event contains names, emails, addresses, or free text. The browser test fills
 
 In GA4, mark `research_intake_success` and `workflow_inquiry_success` as key events, and register `cta_location`, `inquiry_path`, `call_requested`, `offer`, `film_source`, `percent`, and `percent_watched` as event-scoped custom dimensions.
 
-## Placing the film
+## The film
 
-The film file was not in the repository, so the hero currently shows a drawn title card in the same visual system and no play button. To place the locked master:
+Placed from the GitHub release `never-guess-film-master` (asset `PermitPulse_TheMapsDisagree_28s_1080x1920_60fps.mp4`, SHA-256 `9650f262c7c24677d5bf61d75f9aa13d77ad3e3a6767473c1a8d177ef0fdcfee`, verified on download):
 
 ```bash
-npm run film:prepare -- /path/to/the-maps-disagree-master.mp4 --poster-at 14.2
+npm run film:prepare -- PermitPulse_TheMapsDisagree_28s_1080x1920_60fps.mp4 --poster-at 8.5
 ```
+
+- Master: H.264 High 5.0, 1080×1920, 60 fps, AAC-LC 48 kHz stereo, 28.000 s, 20.1 MiB, index already at the front.
+- Result: remuxed with no re-encode. Video and audio packet MD5s are identical to the master (`4982a47e…` / `2843f469…`). 20.1 MiB, under the 25 MiB Pages limit.
+- Poster: the 8.5 s frame (THE MAPS DISAGREE. over the model), matching the YouTube thumbnail; 720 px WebP, 49 KB.
+
+To replace it later, run the same command with the new master. How the script behaves:
 
 - An H.264/AAC master up to 24 MiB is **remuxed stream-for-stream**: no re-encode, only the index moves to the front for fast start.
 - Anything else is encoded to H.264 High/AAC at the **same 1080×1920 frame size and 60 fps**, stepping quality down only until it fits under Cloudflare Pages' 25 MiB file limit. Nothing is cut, scaled, graded, or remixed.
 - The script verifies frame size, frame rate, duration, and audio against the master, writes a 720 px WebP poster from `--poster-at` (pick the frame that should sell the click), and only then sets `data-film-ready="true"`.
 - `npm run film:prepare -- --disable` returns to the title card without deleting files.
-- If the film carries narration or on-screen text that matters, add a WebVTT captions track before launch.
+- If a future cut adds narration, add a WebVTT captions track.
 
 Playback is poster-first: nothing from the MP4 loads until the visitor presses play. The film then opens in a full-screen theater with sound, and ends on a card offering "Send a property" and "Project stuck? Just Ask". Save-Data visitors skip the poster image.
 
 ## QA results (this branch)
 
-- `npm run check`: 516 checks pass, 0 fail (one expected note: film not yet placed).
-- `npm run test:homepage`: 10/10 pass with the film off; 12/12 pass on a copy with a stand-in clip placed (poster-first loading, playback, progress, end card to intake, Escape and focus return).
+With the released film placed:
+
+- `npm run check`: 523 checks pass, 0 fail.
+- `npm run test:homepage`: 13/13 pass, including poster-first loading (no MP4 bytes before play), playback, progress events, the full 28 s at 1080×1920 with the soundtrack decoding, the end card into the intake, and Escape with focus return.
 - No horizontal scroll at 320, 360, 412, 768, 1024, 1280, and 1920 px.
-- Lighthouse, local static server: mobile Performance 97 (FCP 1.4 s, LCP 2.3 s, TBT 150 ms, CLS 0), desktop 100; Accessibility 100; Best Practices 100; SEO 100. The remaining flags (compression, cache TTLs) come from the local server and are handled by Cloudflare.
-- Homepage first-party weight: about 82 KB compressed, including the 48 KB font. Render-blocking CSS fell from 14.2 KB to 11.2 KB compressed.
+- Lighthouse, local static server: mobile Performance 97 (FCP 1.4 s, LCP 2.3 s, TBT 100 ms, CLS 0.005), desktop 100; Accessibility 100; Best Practices 100; SEO 100. Remaining flags (compression, cache TTLs) come from the local server and are handled by Cloudflare.
+- Homepage weight on load: 213 KiB including the 49 KB poster and 26 KB font; the 20 MiB film loads only on play.
 
 ## Deploy
 
 The site is static; Cloudflare Pages serves `dist/` with no build step (`_headers` and `_redirects` live there).
 
-1. **Place the film** (above), then run `npm run check` and `npm run test:homepage`.
+1. Run `npm run check` and `npm run test:homepage` (the film is already placed on this branch).
 2. **Preview**: push the branch. If the Pages project is connected to GitHub with preview deployments on, Cloudflare publishes a preview at `https://<branch-alias>.<project>.pages.dev`. Without Git integration:
    ```bash
    npx wrangler pages deploy dist --project-name <pages-project> --branch feat-never-guess-campaign-launch
@@ -109,8 +135,8 @@ The site is static; Cloudflare Pages serves `dist/` with no build step (`_header
 
 ## Before production
 
-- [ ] Locked film placed with `npm run film:prepare`, poster frame approved.
-- [ ] Brand accent confirmed against the film. The site uses amber for the "Pulse" wordmark accent; if the film keeps the original jade identity, change `--brand-accent` in `never-guess.css` (one line).
+- [x] Released film placed with `npm run film:prepare` (remux, poster at 8.5 s).
+- [x] Logo, grounds, type, and accents matched to the film; wordmark accent is the film's jade.
 - [ ] Live Formspree test for both forms, received and replied to. This sandbox could not reach Formspree, so delivery is verified with an intercepted endpoint only.
 - [ ] GA4 key events and custom dimensions registered.
 - [ ] Preview reviewed on Android Chrome and iOS Safari.

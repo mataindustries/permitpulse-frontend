@@ -297,6 +297,24 @@ if (filmReady) {
     await context.close();
   });
 
+  await test("Film: full 1080x1920 picture and soundtrack decode and play through to the end card", async () => {
+    const { page, context } = await open({ width: 412, height: 915 });
+    await page.click(".ng-film__play");
+    await page.waitForFunction(() => document.querySelector(".ng-theater__video").currentTime > 0.2, null, { timeout: 8000 });
+    await page.evaluate(() => { document.querySelector(".ng-theater__video").playbackRate = 4; });
+    await page.locator("[data-film-end]").waitFor({ state: "visible", timeout: 20000 });
+    const media = await page.locator(".ng-theater__video").evaluate((video) => ({
+      width: video.videoWidth, height: video.videoHeight, duration: video.duration, muted: video.muted,
+      audioBytes: video.webkitAudioDecodedByteCount, videoBytes: video.webkitVideoDecodedByteCount
+    }));
+    assert(media.width === 1080 && media.height === 1920, "frame size " + media.width + "x" + media.height);
+    assert(Math.abs(media.duration - 28) < 0.1, "duration " + media.duration);
+    assert(!media.muted, "film starts muted");
+    assert(media.audioBytes === undefined || media.audioBytes > 0, "soundtrack did not decode");
+    assert(media.videoBytes === undefined || media.videoBytes > 0, "picture did not decode");
+    await context.close();
+  });
+
   await test("Film: Escape closes the theater and returns focus", async () => {
     const { page, context } = await open({ width: 1280, height: 800, mobile: false });
     await page.click('[data-film-open="hero_button"]');

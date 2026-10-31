@@ -118,8 +118,8 @@ const requiredFiles = [
   "assets/home-motion.js",
   "assets/never-guess.css",
   "assets/never-guess.js",
-  "assets/fonts/archivo-pp.woff2",
-  "assets/fonts/OFL-Archivo.txt",
+  "assets/fonts/inter-pp.woff2",
+  "assets/fonts/OFL-Inter.txt",
   "favicon.svg",
   "assets/site-check.js",
   "assets/site-check.css",
@@ -379,8 +379,12 @@ check(campaignCss.includes("env(safe-area-inset-bottom)"), "Campaign CSS respect
 check(!/infinite/i.test(campaignCss + campaignScript), "Campaign motion never loops");
 check(!(campaignCss + campaignScript).includes("—"), "Campaign assets have no em dash");
 check(Buffer.byteLength(campaignCss) <= 48 * 1024 && Buffer.byteLength(campaignScript) <= 12 * 1024, "Campaign CSS and JS stay within 48 KB and 12 KB", Buffer.byteLength(campaignCss) + " / " + Buffer.byteLength(campaignScript));
-const fontFile = path.join(distRoot, "assets/fonts/archivo-pp.woff2");
-check((await exists(fontFile)) && (await stat(fontFile)).size <= 60 * 1024, "Self-hosted display font subset stays under 60 KB");
+const fontFile = path.join(distRoot, "assets/fonts/inter-pp.woff2");
+check((await exists(fontFile)) && (await stat(fontFile)).size <= 40 * 1024, "Self-hosted Inter subset stays under 40 KB");
+// Identity as it appears in the film: jade wordmark accent, one inline lockup symbol, no raster logo.
+check(campaignCss.includes("--brand-accent: #35c58c;"), "Wordmark accent is the film's jade");
+check((home.match(/<symbol id="pp-lockup"/g) || []).length === 1 && (home.match(/<use href="#pp-lockup" \/>/g) || []).length === 2, "Header and footer use the film lockup symbol");
+check(!/<img\b[^>]*(?:logo|brand)/i.test(home), "No raster logo images on the homepage");
 check(!/fonts\.googleapis|fonts\.gstatic/i.test(home), "Homepage fonts are self-hosted");
 check(!home.includes("platform-home.css"), "Homepage loads only its own stylesheets");
 check(home.includes('<script defer src="/assets/never-guess.js"></script>'), "Homepage loads the campaign script with defer");
