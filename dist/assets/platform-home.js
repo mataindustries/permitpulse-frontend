@@ -52,6 +52,15 @@
     if (offerField && (offerField.value === "one" || offerField.value === "three")) {
       payload.offer = offerField.value;
     }
+    // Workflow inquiry path and call request: fixed values only, never free text.
+    var pathField = form.elements.namedItem("inquiry_path");
+    if (pathField && ["permit_triage", "workflow_diagnostics", "parcel_question", "other"].indexOf(pathField.value) !== -1) {
+      payload.inquiry_path = pathField.value;
+    }
+    var callField = form.elements.namedItem("discovery_call");
+    if (callField && callField.type === "checkbox") {
+      payload.call_requested = callField.checked ? "yes" : "no";
+    }
     return payload;
   }
 
